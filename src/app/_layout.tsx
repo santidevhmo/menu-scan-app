@@ -30,7 +30,10 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (fontError) {
-      console.error("Font loading failed, falling back to system fonts:", fontError);
+      console.error(
+        "Font loading failed, falling back to system fonts:",
+        fontError,
+      );
     }
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();

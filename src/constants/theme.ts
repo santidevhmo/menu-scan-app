@@ -26,13 +26,33 @@ export const fontFamilies = {
 } as const;
 
 export const typography = {
-  display: { fontFamily: fontFamilies.display.bold, fontSize: 32, lineHeight: 38 },
+  display: {
+    fontFamily: fontFamilies.display.bold,
+    fontSize: 32,
+    lineHeight: 38,
+  },
   h1: { fontFamily: fontFamilies.display.bold, fontSize: 26, lineHeight: 32 },
-  h2: { fontFamily: fontFamilies.display.semibold, fontSize: 20, lineHeight: 26 },
+  h2: {
+    fontFamily: fontFamilies.display.semibold,
+    fontSize: 20,
+    lineHeight: 26,
+  },
   body: { fontFamily: fontFamilies.sans.regular, fontSize: 16, lineHeight: 24 },
-  subtle: { fontFamily: fontFamilies.sans.regular, fontSize: 14, lineHeight: 20 },
-  button: { fontFamily: fontFamilies.sans.semibold, fontSize: 16, lineHeight: 20 },
-  caption: { fontFamily: fontFamilies.sans.medium, fontSize: 12, lineHeight: 16 },
+  subtle: {
+    fontFamily: fontFamilies.sans.regular,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  button: {
+    fontFamily: fontFamilies.sans.semibold,
+    fontSize: 16,
+    lineHeight: 20,
+  },
+  caption: {
+    fontFamily: fontFamilies.sans.medium,
+    fontSize: 12,
+    lineHeight: 16,
+  },
 } as const;
 
 export const spacing = {
@@ -46,5 +66,11 @@ export const radii = {
   full: 9999,
 } as const;
 
-export const theme = { colors, fontFamilies, typography, spacing, radii } as const;
+export const theme = {
+  colors,
+  fontFamilies,
+  typography,
+  spacing,
+  radii,
+} as const;
 export type Theme = typeof theme;

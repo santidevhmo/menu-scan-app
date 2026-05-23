@@ -3,3 +3,22 @@
 @import "tailwindcss/utilities.css";
 
 @import "nativewind/theme";
+
+@theme {
+  --color-background: #FFFFFF;
+  --color-foreground: #0A0A0A;
+  --color-card: #F5F5F5;
+  --color-muted: #F5F5F5;
+  --color-muted-foreground: #6B6B6B;
+  --color-border: #E5E5E5;
+  --color-accent-lime: #D9F26B;
+  --color-accent-rose: #F7C5C0;
+  --color-success: #22C55E;
+  --color-danger: #EF4444;
+
+  --font-display: "Montserrat_700Bold";
+  --font-sans: "Inter_400Regular";
+
+  --radius-chip: 12px;
+  --radius-card: 16px;
+}

@@ -119,6 +119,22 @@ assets/
 - **store/** holds Zustand stores. Persist with AsyncStorage when needed.
 **lib/** holds external service helpers (clerk.ts, api.ts, cn.ts). Never expose secret keys here.
 
+
+## Package Installation
+
+This repo has no `expo` npm script, so `npx expo install ...` will fail with "Missing script: expo". Always install Expo SDK packages by invoking the locally installed CLI binary directly:
+
+```bash
+./node_modules/.bin/expo install <pkg> [<pkg> ...]
+```
+
+This ensures SDK-compatible versions are picked (via `expo install`'s version resolution) without depending on a global `expo` install or an `npm run` script that doesn't exist here.
+
+Do NOT:
+- Use `npx expo install` (resolves as a missing npm script in this repo).
+- Use `npx expo@latest install` (rejected by the npm wrapper).
+- Use raw `npm install` for Expo SDK packages — it skips Expo's version-compatibility check and can pull versions that break the SDK.
+
 ---
 
 ## Design System
@@ -127,6 +143,11 @@ The design system to use will be replicated from the following folder:
 /Users/santiagoaguirre/Downloads/DesignSystemToCopy
 
 We will run a task to do this and save its design system tokens and such in our project. When we do, use that as reference to the design system of this app.
+
+## Iconography
+
+We're using Lucide icons via lucide-react-native and react-native-svg
+
 
 ---
 
@@ -243,6 +264,14 @@ Use Clerk. Do not build custom auth.
 
 ## Communication
 Be concise. Explain what changed and how to test it.
+
+---
+
+## Status / Pending Blockers
+
+Track here anything that blocks testing or shipping. Update as items resolve.
+
+- **Apple Developer Program — $99/yr — NOT YET PAID.** Required to test native camera features on physical device.
 
 ---
 

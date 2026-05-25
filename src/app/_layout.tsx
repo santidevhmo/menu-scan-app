@@ -42,5 +42,10 @@ export default function RootLayout() {
 
   if (!fontsLoaded && !fontError) return null;
 
-  return <Stack />;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="review" options={{ animation: "slide_from_right" }} />
+    </Stack>
+  );
 }

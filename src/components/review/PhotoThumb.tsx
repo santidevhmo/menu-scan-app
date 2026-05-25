@@ -4,10 +4,10 @@ import { Trash2 } from "lucide-react-native";
 import type { ScanPhoto } from "@/types/scan";
 import { colors } from "@/constants/theme";
 
-type Props = {
+interface Props {
   photo: ScanPhoto;
   onRemove: (id: string) => void;
-};
+}
 
 export function PhotoThumb({ photo, onRemove }: Props) {
   return (
@@ -21,6 +21,8 @@ export function PhotoThumb({ photo, onRemove }: Props) {
         onPress={() => onRemove(photo.id)}
         hitSlop={10}
         className="absolute top-2 right-2 w-8 h-8 rounded-full bg-background/85 items-center justify-center"
+        accessibilityRole="button"
+        accessibilityLabel="Remove photo"
       >
         <Trash2 size={16} color={colors.danger} strokeWidth={2} />
       </Pressable>

@@ -48,6 +48,8 @@ export function GalleryButton() {
       onPress={handlePress}
       hitSlop={12}
       className="w-12 h-12 rounded-full bg-black/40 items-center justify-center"
+      accessibilityRole="button"
+      accessibilityLabel="Import photos from gallery"
     >
       <Images size={22} color={colors.background} strokeWidth={2} />
     </Pressable>

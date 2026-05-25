@@ -4,10 +4,10 @@ import { ChevronRight } from "lucide-react-native";
 import type { ScanPhoto } from "@/types/scan";
 import { colors } from "@/constants/theme";
 
-type Props = {
+interface Props {
   photos: ScanPhoto[];
   onPress: () => void;
-};
+}
 
 export function ThumbStack({ photos, onPress }: Props) {
   if (photos.length === 0) return <View className="w-12 h-12" />;
@@ -15,7 +15,13 @@ export function ThumbStack({ photos, onPress }: Props) {
   const last = photos[photos.length - 1];
 
   return (
-    <Pressable onPress={onPress} hitSlop={8} className="flex-row items-center">
+    <Pressable
+      onPress={onPress}
+      hitSlop={8}
+      className="flex-row items-center"
+      accessibilityRole="button"
+      accessibilityLabel="Open review photos"
+    >
       <View className="relative">
         <View className="w-12 h-12 rounded-chip overflow-hidden border-2 border-background">
           <Image

@@ -82,7 +82,7 @@ export default function ScanScreen() {
     );
   }
 
-  const goToReview = () => router.push("/review" as never);
+  const goToReview = () => router.push("/review");
   const zoomProp = (zoom - 1) / 4;
 
   return (

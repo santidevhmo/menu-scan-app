@@ -18,6 +18,8 @@ export default function ReviewScreen() {
           onPress={() => router.back()}
           hitSlop={12}
           className="w-10 h-10 items-center justify-center -ml-2"
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
         >
           <ChevronLeft size={26} color={colors.foreground} strokeWidth={2} />
         </Pressable>

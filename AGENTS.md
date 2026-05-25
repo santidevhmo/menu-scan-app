@@ -124,7 +124,7 @@ assets/
 
 This repo has no `expo` npm script, so `npx expo install ...` will fail with "Missing script: expo". Always install Expo SDK packages by invoking the locally installed CLI binary directly:
 
-```
+```bash
 ./node_modules/.bin/expo install <pkg> [<pkg> ...]
 ```
 

@@ -1,10 +1,10 @@
 import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 
-export type CompressedImage = {
+export interface CompressedImage {
   uri: string;
   width: number;
   height: number;
-};
+}
 
 const MAX_DIMENSION = 1024;
 const QUALITY = 0.7;
@@ -25,8 +25,6 @@ export async function compressImage(
         height: Math.round(sourceHeight * scale),
       });
     }
-  } else {
-    context.resize({ width: MAX_DIMENSION });
   }
 
   const rendered = await context.renderAsync();

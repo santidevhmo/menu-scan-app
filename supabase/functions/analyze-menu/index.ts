@@ -5,20 +5,20 @@ const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
 const MISTRAL_API_KEY = Deno.env.get("MISTRAL_API_KEY")!;
 
 const MENU_ITEM_SCHEMA_GEMINI = {
-  type: "ARRAY",
+  type: "array",
   items: {
-    type: "OBJECT",
+    type: "object",
     properties: {
-      name: { type: "STRING" },
-      description: { type: "STRING" },
-      price: { type: "NUMBER", nullable: true },
-      category: { type: "STRING", enum: ["appetizer", "main", "side", "dessert", "drink", "other"] },
-      estimated_calories: { type: "NUMBER" },
-      protein_g: { type: "NUMBER" },
-      carbs_g: { type: "NUMBER" },
-      fat_g: { type: "NUMBER" },
-      dietary_tags: { type: "ARRAY", items: { type: "STRING" } },
-      allergens: { type: "ARRAY", items: { type: "STRING" } },
+      name: { type: "string" },
+      description: { type: "string" },
+      price: { type: "number", nullable: true },
+      category: { type: "string", enum: ["appetizer", "main", "side", "dessert", "drink", "other"] },
+      estimated_calories: { type: "number" },
+      protein_g: { type: "number" },
+      carbs_g: { type: "number" },
+      fat_g: { type: "number" },
+      dietary_tags: { type: "array", items: { type: "string" } },
+      allergens: { type: "array", items: { type: "string" } },
     },
     required: ["name", "description", "price", "category", "estimated_calories", "protein_g", "carbs_g", "fat_g", "dietary_tags", "allergens"],
   },

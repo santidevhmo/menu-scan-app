@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import type { AnalysisResult, ModelProvider } from "@/types/scan";
 
-const ALL_PROVIDERS: ModelProvider[] = ["gemini-1.5", "gemini-2.0", "mistral-ocr", "gpt-4o"];
+// TODO: add "gpt-4o" back once OpenAI billing is set up (payment method + $5 credits at platform.openai.com/settings/billing)
+const ALL_PROVIDERS: ModelProvider[] = ["gemini-1.5", "gemini-2.0", "mistral-ocr"];
 
 function emptyRecord<T>(value: T): Record<ModelProvider, T> {
   return Object.fromEntries(ALL_PROVIDERS.map((p) => [p, value])) as Record<ModelProvider, T>;

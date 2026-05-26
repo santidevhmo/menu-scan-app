@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY")!;
-const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
+// const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!; // TODO: re-enable when OpenAI billing is set up (add payment method + $5 credits at platform.openai.com/settings/billing)
 const MISTRAL_API_KEY = Deno.env.get("MISTRAL_API_KEY")!;
 
 const MENU_ITEM_SCHEMA_GEMINI = {
@@ -24,7 +24,37 @@ const MENU_ITEM_SCHEMA_GEMINI = {
   },
 };
 
-const MENU_ITEM_SCHEMA_OPENAI = {
+// TODO: re-enable MENU_ITEM_SCHEMA_OPENAI when OpenAI billing is set up (add payment method + $5 credits at platform.openai.com/settings/billing)
+// const MENU_ITEM_SCHEMA_OPENAI = {
+//   type: "object",
+//   properties: {
+//     items: {
+//       type: "array",
+//       items: {
+//         type: "object",
+//         properties: {
+//           name: { type: "string" },
+//           description: { type: "string" },
+//           price: { type: ["number", "null"] },
+//           category: { type: "string", enum: ["appetizer", "main", "side", "dessert", "drink", "other"] },
+//           estimated_calories: { type: "number" },
+//           protein_g: { type: "number" },
+//           carbs_g: { type: "number" },
+//           fat_g: { type: "number" },
+//           dietary_tags: { type: "array", items: { type: "string" } },
+//           allergens: { type: "array", items: { type: "string" } },
+//         },
+//         required: ["name", "description", "price", "category", "estimated_calories", "protein_g", "carbs_g", "fat_g", "dietary_tags", "allergens"],
+//         additionalProperties: false,
+//       },
+//     },
+//   },
+//   required: ["items"],
+//   additionalProperties: false,
+// };
+
+// Mistral uses the same JSON schema format as OpenAI — keeping a live copy for callMistralOCR
+const MENU_ITEM_SCHEMA_MISTRAL = {
   type: "object",
   properties: {
     items: {
@@ -92,42 +122,25 @@ async function callGemini(photos: string[], goals: string[], model: string) {
   return JSON.parse(text);
 }
 
-async function callOpenAI(photos: string[], goals: string[]) {
-  const imageContent = photos.map((b64) => ({
-    type: "image_url" as const,
-    image_url: { url: `data:image/jpeg;base64,${b64}` },
-  }));
-
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "user",
-          content: [{ type: "text", text: buildPrompt(goals) }, ...imageContent],
-        },
-      ],
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "menu_items",
-          strict: true,
-          schema: MENU_ITEM_SCHEMA_OPENAI,
-        },
-      },
-    }),
-  });
-
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.error?.message ?? "OpenAI API error");
-  const parsed = JSON.parse(json.choices[0].message.content);
-  return parsed.items;
-}
+// TODO: re-enable callOpenAI when OpenAI billing is set up (add payment method + $5 credits at platform.openai.com/settings/billing)
+// async function callOpenAI(photos: string[], goals: string[]) {
+//   const imageContent = photos.map((b64) => ({
+//     type: "image_url" as const,
+//     image_url: { url: `data:image/jpeg;base64,${b64}` },
+//   }));
+//   const res = await fetch("https://api.openai.com/v1/chat/completions", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json", Authorization: `Bearer ${OPENAI_API_KEY}` },
+//     body: JSON.stringify({
+//       model: "gpt-4o",
+//       messages: [{ role: "user", content: [{ type: "text", text: buildPrompt(goals) }, ...imageContent] }],
+//       response_format: { type: "json_schema", json_schema: { name: "menu_items", strict: true, schema: MENU_ITEM_SCHEMA_OPENAI } },
+//     }),
+//   });
+//   const json = await res.json();
+//   if (!res.ok) throw new Error(json.error?.message ?? "OpenAI API error");
+//   return JSON.parse(json.choices[0].message.content).items;
+// }
 
 async function callMistralOCR(photos: string[], goals: string[]) {
   // Step 1: OCR extraction
@@ -173,7 +186,7 @@ async function callMistralOCR(photos: string[], goals: string[]) {
         json_schema: {
           name: "menu_items",
           strict: true,
-          schema: MENU_ITEM_SCHEMA_OPENAI,
+          schema: MENU_ITEM_SCHEMA_MISTRAL,
         },
       },
     }),
@@ -211,10 +224,11 @@ serve(async (req) => {
         items = await callGemini(photos, goals, "gemini-2.0-flash");
         modelId = "gemini-2.0-flash";
         break;
-      case "gpt-4o":
-        items = await callOpenAI(photos, goals);
-        modelId = "gpt-4o";
-        break;
+      // TODO: re-enable when OpenAI billing is set up (add payment method + $5 credits at platform.openai.com/settings/billing)
+      // case "gpt-4o":
+      //   items = await callOpenAI(photos, goals);
+      //   modelId = "gpt-4o";
+      //   break;
       case "mistral-ocr":
         items = await callMistralOCR(photos, goals);
         modelId = "mistral-ocr-latest + mistral-large-latest";

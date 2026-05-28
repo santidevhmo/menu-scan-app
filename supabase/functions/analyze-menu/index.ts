@@ -119,7 +119,7 @@ async function callGemini(photos: string[], goals: string[], model: string) {
   const json = await res.json();
   if (!res.ok) throw new Error(json.error?.message ?? "Gemini API error");
   const text = json.candidates[0].content.parts[0].text;
-  return JSON.parse(text);
+  return { items: JSON.parse(text), raw_response: text };
 }
 
 // TODO: re-enable callOpenAI when OpenAI billing is set up (add payment method + $5 credits at platform.openai.com/settings/billing)
@@ -192,10 +192,12 @@ async function callMistralOCR(photos: string[], goals: string[]) {
     }),
   });
 
+  const rawOcrText = ocrResults.join("\n---\n");
+
   const structureJson = await structureRes.json();
   if (!structureRes.ok) throw new Error(structureJson.message ?? "Mistral chat error");
   const parsed = JSON.parse(structureJson.choices[0].message.content);
-  return parsed.items;
+  return { items: parsed.items, raw_response: rawOcrText };
 }
 
 const CORS_HEADERS = {
@@ -214,31 +216,41 @@ serve(async (req) => {
 
     let items;
     let modelId: string;
+    let rawResponse: string | undefined;
 
     switch (provider) {
-      case "gemini-1.5":
-        items = await callGemini(photos, goals, "gemini-1.5-flash");
-        modelId = "gemini-1.5-flash";
+      case "gemini-2.5-flash": {
+        const result = await callGemini(photos, goals, "gemini-2.5-flash");
+        items = result.items;
+        rawResponse = result.raw_response;
+        modelId = "gemini-2.5-flash";
         break;
-      case "gemini-2.0":
-        items = await callGemini(photos, goals, "gemini-2.0-flash");
-        modelId = "gemini-2.0-flash";
+      }
+      case "gemini-2.5-pro": {
+        const result = await callGemini(photos, goals, "gemini-2.5-pro");
+        items = result.items;
+        rawResponse = result.raw_response;
+        modelId = "gemini-2.5-pro";
         break;
+      }
       // TODO: re-enable when OpenAI billing is set up (add payment method + $5 credits at platform.openai.com/settings/billing)
       // case "gpt-4o":
       //   items = await callOpenAI(photos, goals);
       //   modelId = "gpt-4o";
       //   break;
-      case "mistral-ocr":
-        items = await callMistralOCR(photos, goals);
+      case "mistral-ocr": {
+        const result = await callMistralOCR(photos, goals);
+        items = result.items;
+        rawResponse = result.raw_response;
         modelId = "mistral-ocr-latest + mistral-large-latest";
         break;
+      }
       default:
         throw new Error(`Unknown provider: ${provider}`);
     }
 
     return new Response(
-      JSON.stringify({ items, latency_ms: Date.now() - start, model_id: modelId }),
+      JSON.stringify({ items, raw_response: rawResponse, latency_ms: Date.now() - start, model_id: modelId }),
       { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
     );
   } catch (err) {
@@ -249,7 +261,7 @@ serve(async (req) => {
         model_id: "error",
         error: err instanceof Error ? err.message : "Unknown error",
       }),
-      { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
     );
   }
 });

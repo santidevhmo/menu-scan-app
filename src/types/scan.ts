@@ -23,7 +23,7 @@ export interface MenuItem {
   allergens: string[];
 }
 
-export type ModelProvider = "gemini-1.5" | "gemini-2.0" | "mistral-ocr" | "gpt-4o";
+export type ModelProvider = "gemini-2.5-flash" | "gemini-2.5-pro" | "mistral-ocr" | "gpt-4o";
 
 export interface AnalysisResult {
   provider: ModelProvider;
@@ -31,4 +31,5 @@ export interface AnalysisResult {
   latency_ms: number;
   model_id: string;
   error: string | null;
+  raw_response?: string;
 }

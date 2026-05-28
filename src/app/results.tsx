@@ -1,18 +1,26 @@
-import { ActivityIndicator, FlatList, Pressable, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, Stack } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 import { useAnalysisStore, ALL_PROVIDERS } from "@/store/analysis.store";
-import { MenuItemRow } from "@/components/results/MenuItemRow";
+// import { MenuItemRow } from "@/components/results/MenuItemRow";
 import type { ModelProvider } from "@/types/scan";
 
 const TAB_LABELS: Record<ModelProvider, string> = {
-  "gemini-1.5": "Gemini 1.5",
-  "gemini-2.0": "Gemini 2.0",
+  "gemini-2.5-flash": "Gemini 2.5 Flash",
+  "gemini-2.5-pro": "Gemini 2.5 Pro",
   "mistral-ocr": "Mistral OCR",
   "gpt-4o": "GPT-4o",
 };
+
+function tryPrettyPrint(text: string): string {
+  try {
+    return JSON.stringify(JSON.parse(text), null, 2);
+  } catch {
+    return text;
+  }
+}
 
 export default function ResultsScreen() {
   const { results, loading, activeTab, setActiveTab } = useAnalysisStore();
@@ -41,6 +49,7 @@ export default function ResultsScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={{ flexShrink: 0 }}
         contentContainerStyle={{ paddingHorizontal: 24, gap: 8, paddingVertical: 12 }}
       >
         {ALL_PROVIDERS.map((provider) => {
@@ -50,7 +59,7 @@ export default function ResultsScreen() {
             <Pressable
               key={provider}
               onPress={() => setActiveTab(provider)}
-              className={`rounded-full px-4 py-2 ${isActive ? "bg-foreground" : "bg-card border border-border"}`}
+              className={`self-start rounded-full px-4 py-2 ${isActive ? "bg-foreground" : "bg-card border border-border"}`}
               accessibilityRole="tab"
               accessibilityState={{ selected: isActive }}
               accessibilityLabel={TAB_LABELS[provider]}
@@ -92,14 +101,17 @@ export default function ResultsScreen() {
             </Text>
           </View>
         ) : activeResult ? (
-          <FlatList
-            data={activeResult.items}
-            keyExtractor={(item, i) => `${item.name}-${i}`}
-            contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
-            renderItem={({ item, index }) => (
-              <MenuItemRow item={item} rank={index + 1} />
-            )}
-          />
+          <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
+            <Text
+              selectable
+              style={{ fontFamily: "monospace" }}
+              className="text-xs text-foreground"
+            >
+              {activeResult.raw_response
+                ? tryPrettyPrint(activeResult.raw_response)
+                : JSON.stringify(activeResult.items, null, 2)}
+            </Text>
+          </ScrollView>
         ) : (
           <View className="flex-1 items-center justify-center">
             <Text className="font-sans text-caption text-muted-foreground">

@@ -1,4 +1,4 @@
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import { supabase } from "./supabase";
 import type { ScanPhoto, ModelProvider, MenuItem, AnalysisResult } from "@/types/scan";
 
@@ -38,7 +38,12 @@ export async function analyzeMenu(
   });
 
   if (error) {
-    return { provider, items: [], latency_ms: 0, model_id: provider, error: error.message };
+    let errMsg = error.message;
+    try {
+      const body = await (error as { context?: { json?: () => Promise<{ error?: string }> } }).context?.json?.();
+      if (body?.error) errMsg = body.error;
+    } catch {}
+    return { provider, items: [], latency_ms: 0, model_id: provider, error: errMsg };
   }
 
   const sortedItems = sortItemsByGoals(data.items, goals);
@@ -49,5 +54,6 @@ export async function analyzeMenu(
     latency_ms: data.latency_ms,
     model_id: data.model_id,
     error: data.error ?? null,
+    raw_response: data.raw_response,
   };
 }

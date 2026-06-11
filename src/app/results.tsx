@@ -1,17 +1,22 @@
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, Stack } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 import { useAnalysisStore, ALL_PROVIDERS } from "@/store/analysis.store";
 // import { MenuItemRow } from "@/components/results/MenuItemRow";
-import type { ModelProvider } from "@/types/scan";
+import type { ExtractionProvider } from "@/types/scan";
 
-const TAB_LABELS: Record<ModelProvider, string> = {
-  "gemini-2.5-flash": "Gemini 2.5 Flash",
-  "gemini-2.5-pro": "Gemini 2.5 Pro",
+const TAB_LABELS: Record<ExtractionProvider, string> = {
+  "google-vision": "Google Vision",
   "mistral-ocr": "Mistral OCR",
-  "gpt-4o": "GPT-4o",
+  "gpt-vision": "GPT-4o Vision",
 };
 
 function tryPrettyPrint(text: string): string {
@@ -42,7 +47,9 @@ export default function ResultsScreen() {
         >
           <ChevronLeft size={26} color={colors.foreground} strokeWidth={2} />
         </Pressable>
-        <Text className="font-display text-h1 text-foreground ml-1">Results</Text>
+        <Text className="font-display text-h1 text-foreground ml-1">
+          Results
+        </Text>
       </View>
 
       {/* Model tabs */}
@@ -50,7 +57,11 @@ export default function ResultsScreen() {
         horizontal
         showsHorizontalScrollIndicator={false}
         style={{ flexShrink: 0 }}
-        contentContainerStyle={{ paddingHorizontal: 24, gap: 8, paddingVertical: 12 }}
+        contentContainerStyle={{
+          paddingHorizontal: 24,
+          gap: 8,
+          paddingVertical: 12,
+        }}
       >
         {ALL_PROVIDERS.map((provider) => {
           const isActive = provider === activeTab;
@@ -79,8 +90,9 @@ export default function ResultsScreen() {
       {activeResult && !activeResult.error && (
         <View className="px-6 pb-2">
           <Text className="font-sans text-caption text-muted-foreground">
-            {activeResult.items.length} items in {(activeResult.latency_ms / 1000).toFixed(1)}s
-            via {activeResult.model_id}
+            {activeResult.items.length} items in{" "}
+            {(activeResult.latency_ms / 1000).toFixed(1)}s via{" "}
+            {activeResult.model_id}
           </Text>
         </View>
       )}
@@ -101,7 +113,9 @@ export default function ResultsScreen() {
             </Text>
           </View>
         ) : activeResult ? (
-          <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
+          <ScrollView
+            contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
+          >
             <Text
               selectable
               style={{ fontFamily: "monospace" }}

@@ -8,7 +8,13 @@ export interface ScanPhoto {
   source: ScanPhotoSource;
 }
 
-export type MenuCategory = "appetizer" | "main" | "side" | "dessert" | "drink" | "other";
+export type MenuCategory =
+  | "appetizer"
+  | "main"
+  | "side"
+  | "dessert"
+  | "drink"
+  | "other";
 
 export interface MenuItem {
   name: string;
@@ -23,7 +29,11 @@ export interface MenuItem {
   allergens: string[];
 }
 
-export type ModelProvider = "gemini-2.5-flash" | "gemini-2.5-pro" | "mistral-ocr" | "gpt-4o";
+export type ModelProvider =
+  | "gemini-2.5-flash"
+  | "gemini-2.5-pro"
+  | "mistral-ocr"
+  | "gpt-4o";
 
 export interface AnalysisResult {
   provider: ModelProvider;
@@ -55,7 +65,11 @@ export interface EnrichedItem extends ExtractedItem {
 }
 
 export type ExtractionProvider = "google-vision" | "mistral-ocr" | "gpt-vision";
-export type EnrichmentProvider = "gemini-2.5-flash" | "gemini-2.5-pro" | "gpt-4o" | "mistral-large";
+export type EnrichmentProvider =
+  | "gemini-2.5-flash"
+  | "gemini-2.5-pro"
+  | "gpt-4o"
+  | "mistral-large";
 export type PipelineStage = "extract" | "enrich";
 
 export interface ExtractionResult {

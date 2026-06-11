@@ -5,7 +5,7 @@ import { router, Stack } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { useScanStore } from "@/store/scan.store";
 import { useAnalysisStore, ALL_PROVIDERS } from "@/store/analysis.store";
-import { analyzeMenu } from "@/lib/analyzeMenu";
+import { extractMenu } from "@/lib/analyzeMenu";
 import { PhotoThumb } from "@/components/review/PhotoThumb";
 import { colors } from "@/constants/theme";
 
@@ -23,7 +23,7 @@ export default function ReviewScreen() {
     ALL_PROVIDERS.forEach(async (provider) => {
       setLoading(provider, true);
       try {
-        const result = await analyzeMenu(photos, ["Highest in protein"], provider);
+        const result = await extractMenu(photos, provider);
         setResult(provider, result);
       } catch (err) {
         setResult(provider, {
@@ -90,7 +90,9 @@ export default function ReviewScreen() {
         >
           <Text
             className={`font-sans text-button ${
-              photos.length === 0 || analyzing ? "text-muted-foreground" : "text-background"
+              photos.length === 0 || analyzing
+                ? "text-muted-foreground"
+                : "text-background"
             }`}
           >
             {analyzing ? "Analyzing..." : "Analyze Menu"}

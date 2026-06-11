@@ -1,27 +1,33 @@
 import { create } from "zustand";
-import type { AnalysisResult, ModelProvider } from "@/types/scan";
+import type { ExtractionResult, ExtractionProvider } from "@/types/scan";
 
-// TODO: add "gpt-4o" back once OpenAI billing is set up (payment method + $5 credits at platform.openai.com/settings/billing)
-const ALL_PROVIDERS: ModelProvider[] = ["gemini-1.5", "gemini-2.0", "mistral-ocr"];
+const ALL_PROVIDERS: ExtractionProvider[] = [
+  "google-vision",
+  "mistral-ocr",
+  "gpt-vision",
+];
 
-function emptyRecord<T>(value: T): Record<ModelProvider, T> {
-  return Object.fromEntries(ALL_PROVIDERS.map((p) => [p, value])) as Record<ModelProvider, T>;
+function emptyRecord<T>(value: T): Record<ExtractionProvider, T> {
+  return Object.fromEntries(ALL_PROVIDERS.map((p) => [p, value])) as Record<
+    ExtractionProvider,
+    T
+  >;
 }
 
 interface AnalysisState {
-  results: Record<ModelProvider, AnalysisResult | null>;
-  loading: Record<ModelProvider, boolean>;
-  activeTab: ModelProvider;
-  setResult: (provider: ModelProvider, result: AnalysisResult) => void;
-  setLoading: (provider: ModelProvider, loading: boolean) => void;
-  setActiveTab: (tab: ModelProvider) => void;
+  results: Record<ExtractionProvider, ExtractionResult | null>;
+  loading: Record<ExtractionProvider, boolean>;
+  activeTab: ExtractionProvider;
+  setResult: (provider: ExtractionProvider, result: ExtractionResult) => void;
+  setLoading: (provider: ExtractionProvider, loading: boolean) => void;
+  setActiveTab: (tab: ExtractionProvider) => void;
   clear: () => void;
 }
 
 export const useAnalysisStore = create<AnalysisState>((set) => ({
   results: emptyRecord(null),
   loading: emptyRecord(false),
-  activeTab: "gemini-2.0",
+  activeTab: "google-vision",
   setResult: (provider, result) =>
     set((s) => ({ results: { ...s.results, [provider]: result } })),
   setLoading: (provider, loading) =>

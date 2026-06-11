@@ -1,8 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY")!;
-// const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!; // TODO: re-enable when OpenAI billing is set up (add payment method + $5 credits at platform.openai.com/settings/billing)
+const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
 const MISTRAL_API_KEY = Deno.env.get("MISTRAL_API_KEY")!;
+const GOOGLE_VISION_API_KEY = Deno.env.get("GOOGLE_VISION_API_KEY")!;
 
 const MENU_ITEM_SCHEMA_GEMINI = {
   type: "array",
@@ -82,6 +83,36 @@ const MENU_ITEM_SCHEMA_MISTRAL = {
   additionalProperties: false,
 };
 
+// ── Stage 1: extraction (zero nutrition) ────────────────────────────────────
+
+const EXTRACT_PROMPT = `Read this restaurant menu. Return every item exactly as printed, in menu order:
+name, description, price, category (appetizer|main|side|dessert|drink|other).
+Do NOT estimate calories or nutrition. Do NOT invent items you cannot read.
+If a description is not printed, use an empty string. If a price is not printed, set it to null.`;
+
+// JSON-schema (OpenAI/Mistral structured-output shape) — extraction only, no nutrition
+const EXTRACT_SCHEMA = {
+  type: "object",
+  properties: {
+    items: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          description: { type: "string" },
+          price: { type: ["number", "null"] },
+          category: { type: "string", enum: ["appetizer", "main", "side", "dessert", "drink", "other"] },
+        },
+        required: ["name", "description", "price", "category"],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["items"],
+  additionalProperties: false,
+};
+
 function buildPrompt(goals: string[]): string {
   return `You are analyzing restaurant menu photos. Extract every menu item visible.
 For each item, estimate its nutritional content based on typical restaurant portions.
@@ -120,6 +151,122 @@ async function callGemini(photos: string[], goals: string[], model: string) {
   if (!res.ok) throw new Error(json.error?.message ?? "Gemini API error");
   const text = json.candidates[0].content.parts[0].text;
   return { items: JSON.parse(text), raw_response: text };
+}
+
+async function callOpenAIChat(model: string, content: unknown, schema: unknown): Promise<string> {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: "user", content }],
+      response_format: {
+        type: "json_schema",
+        json_schema: { name: "menu_items", strict: true, schema },
+      },
+    }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error?.message ?? "OpenAI API error");
+  return json.choices[0].message.content as string;
+}
+
+async function callGptExtract(photos: string[]) {
+  const content = [
+    { type: "text", text: EXTRACT_PROMPT },
+    ...photos.map((b64) => ({
+      type: "image_url",
+      image_url: { url: `data:image/jpeg;base64,${b64}` },
+    })),
+  ];
+  const text = await callOpenAIChat("gpt-4o", content, EXTRACT_SCHEMA);
+  return { items: JSON.parse(text).items, raw_response: text };
+}
+
+async function callGoogleVision(photos: string[]) {
+  const texts: string[] = [];
+  for (const b64 of photos) {
+    const res = await fetch(
+      `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_VISION_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requests: [
+            {
+              image: { content: b64 },
+              features: [{ type: "DOCUMENT_TEXT_DETECTION" }],
+            },
+          ],
+        }),
+      }
+    );
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error?.message ?? "Google Vision error");
+    const perImageError = json.responses?.[0]?.error?.message;
+    if (perImageError) throw new Error(perImageError);
+    texts.push(json.responses?.[0]?.fullTextAnnotation?.text ?? "");
+  }
+
+  const ocrText = texts.join("\n---\n");
+  const parseContent = `${EXTRACT_PROMPT}\n\nHere is the menu text extracted via OCR:\n\n${ocrText}`;
+  const structured = await callOpenAIChat("gpt-4o-mini", parseContent, EXTRACT_SCHEMA);
+  return { items: JSON.parse(structured).items, raw_response: ocrText };
+}
+
+async function callMistralExtract(photos: string[]) {
+  const ocrResults: string[] = [];
+  for (const b64 of photos) {
+    const ocrRes = await fetch("https://api.mistral.ai/v1/ocr", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${MISTRAL_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "mistral-ocr-latest",
+        document: {
+          type: "image_url",
+          image_url: `data:image/jpeg;base64,${b64}`,
+        },
+      }),
+    });
+    const ocrJson = await ocrRes.json();
+    if (!ocrRes.ok) throw new Error(ocrJson.message ?? "Mistral OCR error");
+    const pageTexts = ocrJson.pages.map((p: { markdown: string }) => p.markdown);
+    ocrResults.push(pageTexts.join("\n"));
+  }
+
+  const ocrText = ocrResults.join("\n---\n");
+
+  const structureRes = await fetch("https://api.mistral.ai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${MISTRAL_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "mistral-large-latest",
+      messages: [
+        {
+          role: "user",
+          content: `${EXTRACT_PROMPT}\n\nHere is the menu text extracted via OCR:\n\n${ocrText}`,
+        },
+      ],
+      response_format: {
+        type: "json_schema",
+        json_schema: { name: "menu_items", strict: true, schema: EXTRACT_SCHEMA },
+      },
+    }),
+  });
+
+  const structureJson = await structureRes.json();
+  if (!structureRes.ok) throw new Error(structureJson.message ?? "Mistral chat error");
+  const parsed = JSON.parse(structureJson.choices[0].message.content);
+  return { items: parsed.items, raw_response: ocrText };
 }
 
 // TODO: re-enable callOpenAI when OpenAI billing is set up (add payment method + $5 credits at platform.openai.com/settings/billing)
@@ -211,12 +358,45 @@ serve(async (req) => {
   }
 
   try {
-    const { photos, goals, provider } = await req.json();
+    const { photos, goals, provider, stage } = await req.json();
     const start = Date.now();
 
     let items;
     let modelId: string;
     let rawResponse: string | undefined;
+
+    if (stage === "extract") {
+      switch (provider) {
+        case "google-vision": {
+          const result = await callGoogleVision(photos);
+          items = result.items;
+          rawResponse = result.raw_response;
+          modelId = "google-vision + gpt-4o-mini";
+          break;
+        }
+        case "mistral-ocr": {
+          const result = await callMistralExtract(photos);
+          items = result.items;
+          rawResponse = result.raw_response;
+          modelId = "mistral-ocr-latest + mistral-large-latest";
+          break;
+        }
+        case "gpt-vision": {
+          const result = await callGptExtract(photos);
+          items = result.items;
+          rawResponse = result.raw_response;
+          modelId = "gpt-4o";
+          break;
+        }
+        default:
+          throw new Error(`Unknown extraction provider: ${provider}`);
+      }
+
+      return new Response(
+        JSON.stringify({ items, raw_response: rawResponse, latency_ms: Date.now() - start, model_id: modelId }),
+        { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
+      );
+    }
 
     switch (provider) {
       case "gemini-2.5-flash": {

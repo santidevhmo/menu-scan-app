@@ -1,5 +1,7 @@
 # Stage 1 — Extraction Benchmark Implementation Plan
 
+> **STATUS: COMPLETE (2026-06-13).** GPT-4o Vision selected as the sole OCR/extraction model. Other OCR providers (Google Vision, Mistral OCR) removed from the extraction stage. Product flow rebuilt as a 3-phase stepped experience (Menu OCR → Nutrition → Results). Stage 2 enrichment-model comparison continues in a separate plan.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
 > **On approval, save this file as** `docs/superpowers/plans/2026-06-11-stage1-extraction-benchmark.md`. It is the executable expansion of Tasks 2.1–2.3 in `docs/superpowers/plans/2026-05-25-multi-model-menu-analysis.md` (Phase 2).
@@ -9,6 +11,8 @@
 **Architecture:** The single `analyze-menu` Supabase Edge Function gains a `stage` parameter. When `stage === "extract"`, it dispatches to three extraction handlers and returns `ExtractedItem[]`. The existing Phase 1 monolithic handlers stay in place as the (currently dormant) `"enrich"` path. On the client, the existing analysis store / results screen / review screen are **repurposed** to drive the extraction benchmark: the same tabbed UI now shows the three extraction candidates with their item count + raw OCR text. The Phase 1 `MenuItem`/`ModelProvider`/`analyzeMenu` code is left intact but unreferenced (retired later in Stage 2, Task 2.7).
 
 **Tech Stack:** Expo, React Native, TypeScript, NativeWind, Zustand, Supabase Edge Functions (Deno), Google Cloud Vision REST, OpenAI REST (gpt-4o + gpt-4o-mini), Mistral OCR + chat REST.
+
+**Current Stage 1 decision (2026-06-13):** The OCR/extraction winner is **GPT-4o Vision** (`provider: "gpt-vision"`, `model_id: "gpt-4o"`). Future development should use GPT-4o Vision as the selected menu-reading model unless a new benchmark explicitly replaces it. Current project cost assumption: **$0.03 USD per GPT-4o Vision extraction call**.
 
 ---
 
@@ -76,7 +80,7 @@ export interface ExtractionResult {
   latency_ms: number;
   model_id: string;
   error: string | null;
-  raw_response?: string;      // raw OCR text (or raw JSON for gpt-vision)
+  raw_response?: string;      // structured JSON for gpt-vision; benchmark providers may expose provider-specific debug output
 }
 ```
 
@@ -689,6 +693,12 @@ git commit -m "feat: wire extraction-stage benchmark UI"
 
 ---
 
-## Next step after this plan (NOT part of this plan)
+## Stage 1 outcome
 
-**Task 2.4 — DECISION GATE (human).** Run all three extraction providers on the Mochomos photos, fill the manual scorecard in `docs/superpowers/plans/2026-05-25-multi-model-menu-analysis.md` (Task 2.4) — total items / missed / hallucinated / price errors vs `MISTRAL_OCR.MD` ground truth — and record `Stage-1 winner: ____`. Do not begin Stage 2 (enrichment, Tasks 2.5–2.7) until that winner is frozen.
+**Resolved 2026-06-13:** The local simulator / Edge Function request failure was debugged and the Stage 1 benchmark ran successfully.
+
+**Selected OCR/extraction model:** **GPT-4o Vision** (`provider: "gpt-vision"`, `model_id: "gpt-4o"`).
+
+**Cost assumption:** **$0.03 USD per GPT-4o Vision extraction call**.
+
+Future Stage 2 enrichment work should use GPT-4o Vision as the frozen menu-reading model unless the benchmark is intentionally rerun and this decision is replaced.

@@ -9,12 +9,14 @@ import { extractMenu } from "@/lib/analyzeMenu";
 import { PhotoThumb } from "@/components/review/PhotoThumb";
 import { colors } from "@/constants/theme";
 
+/** Review screen for confirming selected menu photos before extraction. */
 export default function ReviewScreen() {
   const photos = useScanStore((s) => s.photos);
   const removePhoto = useScanStore((s) => s.removePhoto);
   const { setExtraction, setExtractionLoading, clear } = useAnalysisStore();
   const [analyzing, setAnalyzing] = useState(false);
 
+  /** Starts GPT-4o Vision extraction and sends the user to results. */
   const handleAnalyze = async () => {
     setAnalyzing(true);
     clear();

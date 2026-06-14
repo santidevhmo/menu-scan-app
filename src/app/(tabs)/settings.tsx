@@ -1,6 +1,7 @@
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+/** Settings placeholder screen for future profile and feedback controls. */
 export default function SettingsScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }} className="bg-background">

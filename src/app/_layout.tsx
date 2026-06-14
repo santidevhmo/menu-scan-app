@@ -17,6 +17,7 @@ import {
 
 SplashScreen.preventAutoHideAsync();
 
+/** Root Expo Router layout that loads fonts before showing app routes. */
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     Montserrat_400Regular,

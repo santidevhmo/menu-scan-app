@@ -5,13 +5,16 @@ import { compressImage } from "@/lib/compressImage";
 import { useScanStore } from "@/store/scan.store";
 import { colors } from "@/constants/theme";
 
+/** Creates a short local id for imported photos before persistence exists. */
 function randomId() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+/** Opens the photo library, compresses selected images, and adds them to the scan. */
 export function GalleryButton() {
   const addPhoto = useScanStore((s) => s.addPhoto);
 
+  /** Requests gallery access and imports every selected image. */
   const handlePress = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) return;

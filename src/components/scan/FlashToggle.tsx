@@ -7,6 +7,7 @@ interface Props {
   onToggle: () => void;
 }
 
+/** Toggles the camera flash state with accessible switch semantics. */
 export function FlashToggle({ value, onToggle }: Props) {
   const Icon = value === "on" ? Zap : ZapOff;
   return (

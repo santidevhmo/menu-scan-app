@@ -6,6 +6,7 @@ interface MenuItemRowProps {
   rank: number;
 }
 
+/** Displays one ranked menu item with price, description, nutrition, and warnings. */
 export function MenuItemRow({ item, rank }: MenuItemRowProps) {
   return (
     <View className="rounded-card bg-card border border-border p-4 mb-3">
@@ -87,6 +88,7 @@ export function MenuItemRow({ item, rank }: MenuItemRowProps) {
   );
 }
 
+/** Displays one compact nutrition value inside a menu item row. */
 function NutritionStat({
   label,
   value,

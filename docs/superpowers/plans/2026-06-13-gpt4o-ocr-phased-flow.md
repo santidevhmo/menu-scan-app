@@ -113,7 +113,7 @@ Leave `ModelProvider`, `EnrichmentProvider`, `MenuItem`, `EnrichedItem`, `Analys
 
 - [ ] **Step 2: Type-check (will surface fallout in store/screens, fixed in later tasks)**
 
-Run: `npx tsc --noEmit`
+Run: `pnpm exec tsc --noEmit`
 Expected: errors only in `src/store/analysis.store.ts`, `src/app/review.tsx`, `src/app/results.tsx` (the multi-provider users). These are resolved in Tasks 3–6. No commit yet — commit after Task 3 so the store compiles.
 
 ---
@@ -150,7 +150,7 @@ export const useAnalysisStore = create<AnalysisState>((set) => ({
 
 - [ ] **Step 2: Type-check** — store file should now be clean; remaining errors only in `review.tsx` and `results.tsx`.
 
-Run: `npx tsc --noEmit`
+Run: `pnpm exec tsc --noEmit`
 Expected: errors only in `src/app/review.tsx` and `src/app/results.tsx`.
 
 - [ ] **Step 3: Commit** (types + store together so the store compiles against the new type)
@@ -228,7 +228,7 @@ Replace the whole `handleAnalyze` function with:
 
 - [ ] **Step 4: Type-check** — `review.tsx` should now be clean.
 
-Run: `npx tsc --noEmit`
+Run: `pnpm exec tsc --noEmit`
 Expected: errors only in `src/app/results.tsx` (rewritten next).
 
 ---
@@ -317,7 +317,7 @@ export function PhaseIndicator({
 
 - [ ] **Step 2: Type-check** the new file compiles.
 
-Run: `npx tsc --noEmit`
+Run: `pnpm exec tsc --noEmit`
 Expected: errors only in `src/app/results.tsx` (rewritten next).
 
 ---
@@ -492,12 +492,12 @@ export default function ResultsScreen() {
 
 - [ ] **Step 2: Full type-check passes**
 
-Run: `npx tsc --noEmit`
+Run: `pnpm exec tsc --noEmit`
 Expected: clean (exit 0).
 
 - [ ] **Step 3: Lint passes**
 
-Run: `npm run lint`
+Run: `pnpm lint`
 Expected: no errors. (Fix any unused-import warnings the rewrite introduced.)
 
 - [ ] **Step 4: Commit**
@@ -520,7 +520,7 @@ Expected: "Deployed Function analyze-menu". (If it prompts for project linking, 
 
 - [ ] **Step 2: Manual E2E in the app**
 
-Run: `npm start` and open the app.
+Run: `pnpm start` and open the app.
 1. Scan/select a menu photo → Review → tap **Analyze Menu**.
 2. Verify the **Results** screen shows the phase indicator with **Menu OCR** active, a spinner, and "Reading menu with GPT-4o...".
 3. While loading, confirm the **Nutrition** and **Results** steps are dimmed and **not tappable**.
@@ -560,7 +560,7 @@ Expected: `ok: .env not staged`. (`.env` holds secrets and must stay untracked.)
 
 Invoke the **`superpowers:finishing-a-development-branch`** skill (announce: "I'm using the finishing-a-development-branch skill to complete this work.") and follow it:
 
-1. **Verify tests** — this project has no test suite; the gate is `npx tsc --noEmit` (exit 0) and `npm run lint` (no errors), already green from Task 6. State this in place of "tests pass."
+1. **Verify tests** — this project has no test suite; the gate is `pnpm exec tsc --noEmit` (exit 0) and `pnpm lint` (no errors), already green from Task 6. State this in place of "tests pass."
 2. **Detect environment** — normal repo (`GIT_DIR == GIT_COMMON`), no worktree cleanup.
 3. **Base branch** — `main`.
 4. **Present options**, then **choose Option 2 (Push and create a Pull Request)** — the goal is to land the OCR extraction work in `main` so the next phase can proceed. (Do NOT pick merge-locally or discard.)
@@ -585,8 +585,8 @@ gh pr create --base main --head feat/stage1-extraction-benchmark \
 - All provider env vars and the Gemini/Mistral **nutritional enrichment** code remain in place. Phases 2 & 3 are scaffolded placeholders; the enrichment-model comparison continues in a separate plan.
 
 ## Test Plan
-- [x] `npx tsc --noEmit` clean
-- [x] `npm run lint` clean
+- [x] `pnpm exec tsc --noEmit` clean
+- [x] `pnpm lint` clean
 - [x] Edge Function `analyze-menu` redeployed
 - [ ] Manual E2E: scan → OCR loads with spinner, gated steps, full-height JSON, error path
 
@@ -601,8 +601,8 @@ Expected: branch pushed; PR URL printed (base `main`). This lands the OCR extrac
 
 ## Verification (full)
 
-1. `npx tsc --noEmit` → exit 0.
-2. `npm run lint` → no errors.
+1. `pnpm exec tsc --noEmit` → exit 0.
+2. `pnpm lint` → no errors.
 3. `supabase functions deploy analyze-menu` → deployed.
 4. Manual E2E per Task 7, Step 2 (loading state, gated navigation, full-height OCR data, error path).
 5. `git push` + `gh pr create` succeed; PR URL returned; `.env` absent from the diff.

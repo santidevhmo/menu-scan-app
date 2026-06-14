@@ -683,6 +683,10 @@ git commit -m "feat: wire extraction-stage benchmark UI"
 
 ---
 
+### Historical Benchmark Context (Stage 1 - superseded)
+
+> The steps below describe the original 3-provider benchmark (Google Vision, Mistral OCR, GPT-4o Vision). Stage 1 is complete: **GPT-4o Vision** is the sole selected OCR model. Retained for historical context only.
+
 ## Verification (Stage 1)
 
 1. **TypeScript:** `npx tsc --noEmit` → zero errors.

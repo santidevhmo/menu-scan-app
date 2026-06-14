@@ -14,6 +14,7 @@ import { useAnalysisStore } from "@/store/analysis.store";
 import { PhaseIndicator } from "@/components/results/PhaseIndicator";
 import type { ExtractionResult } from "@/types/scan";
 
+/** Pretty-prints JSON strings while leaving non-JSON OCR text unchanged. */
 function tryPrettyPrint(text: string): string {
   try {
     return JSON.stringify(JSON.parse(text), null, 2);
@@ -22,6 +23,7 @@ function tryPrettyPrint(text: string): string {
   }
 }
 
+/** Renders the OCR phase with loading, error, empty, and raw response states. */
 function OcrPhase({
   loading,
   result,
@@ -85,6 +87,7 @@ function OcrPhase({
   );
 }
 
+/** Renders a placeholder for downstream phases that are not built yet. */
 function PlaceholderPhase({
   title,
   subtitle,
@@ -104,6 +107,7 @@ function PlaceholderPhase({
   );
 }
 
+/** Results screen for reviewing OCR output and downstream placeholder phases. */
 export default function ResultsScreen() {
   const { extraction, extractionLoading } = useAnalysisStore();
   const [phase, setPhase] = useState(0);
@@ -112,8 +116,7 @@ export default function ResultsScreen() {
 
   const canNavigate = (target: number) => {
     if (target === 0) return true;
-    if (target === 1) return ocrDone;
-    return false;
+    return ocrDone;
   };
 
   const goTo = (target: number) => {

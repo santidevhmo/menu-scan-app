@@ -7,6 +7,7 @@ interface Props {
 
 const OPTIONS: (1 | 2)[] = [1, 2];
 
+/** Toggles the camera between the available 1x and 2x zoom levels. */
 export function ZoomToggle({ value, onChange }: Props) {
   return (
     <View className="self-center flex-row bg-black/40 rounded-full p-1">

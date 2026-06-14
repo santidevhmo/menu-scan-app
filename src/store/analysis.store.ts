@@ -9,6 +9,7 @@ interface AnalysisState {
   clear: () => void;
 }
 
+/** Stores the current menu extraction result and loading state. */
 export const useAnalysisStore = create<AnalysisState>((set) => ({
   extraction: null,
   extractionLoading: false,

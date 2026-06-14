@@ -3,6 +3,7 @@ import { View } from "react-native";
 
 const CORNER = "w-8 h-8 border-accent-lime";
 
+/** Draws the corner frame overlay used on top of the live camera preview. */
 export function CameraFrame({ children }: { children?: ReactNode }) {
   return (
     <View className="flex-1 relative" pointerEvents="box-none">

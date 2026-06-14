@@ -113,6 +113,23 @@ const EXTRACT_SCHEMA = {
   additionalProperties: false,
 };
 
+/** Wraps fetch with an AbortController timeout for external model calls. */
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  timeoutMs = 30000,
+): Promise<Response> {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+/** Builds the legacy enrichment prompt for non-extract benchmark providers. */
 function buildPrompt(goals: string[]): string {
   return `You are analyzing restaurant menu photos. Extract every menu item visible.
 For each item, estimate its nutritional content based on typical restaurant portions.
@@ -121,6 +138,7 @@ If a price is not visible, set it to null.
 For category, pick the closest match from: appetizer, main, side, dessert, drink, other.`;
 }
 
+/** Calls Gemini with menu photos and returns parsed structured menu items. */
 async function callGemini(photos: string[], goals: string[], model: string) {
   const parts = [
     { text: buildPrompt(goals) },
@@ -153,8 +171,9 @@ async function callGemini(photos: string[], goals: string[], model: string) {
   return { items: JSON.parse(text), raw_response: text };
 }
 
+/** Calls OpenAI chat completions with structured output and returns raw JSON text. */
 async function callOpenAIChat(model: string, content: unknown, schema: unknown): Promise<string> {
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetchWithTimeout("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -174,6 +193,7 @@ async function callOpenAIChat(model: string, content: unknown, schema: unknown):
   return json.choices[0].message.content as string;
 }
 
+/** Calls GPT-4o Vision for Stage 1 menu text extraction only. */
 async function callGptExtract(photos: string[]) {
   const content = [
     { type: "text", text: EXTRACT_PROMPT },
@@ -206,6 +226,7 @@ async function callGptExtract(photos: string[]) {
 //   return JSON.parse(json.choices[0].message.content).items;
 // }
 
+/** Runs Mistral OCR plus chat structuring for the legacy benchmark path. */
 async function callMistralOCR(photos: string[], goals: string[]) {
   // Step 1: OCR extraction
   const ocrResults: string[] = [];
@@ -267,7 +288,18 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+const MAX_PHOTOS = 10;
+const MAX_BASE64_LEN = 10_000_000;
 
+/** Returns the standard edge-function 400 response shape. */
+function badRequest(message: string): Response {
+  return new Response(
+    JSON.stringify({ items: [], latency_ms: 0, model_id: "error", error: message }),
+    { status: 400, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
+  );
+}
+
+/** Deno HTTP handler for validating requests and routing menu analysis stages. */
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: CORS_HEADERS });
@@ -275,6 +307,24 @@ serve(async (req) => {
 
   try {
     const { photos, goals, provider, stage } = await req.json();
+    if (
+      !Array.isArray(photos) ||
+      photos.length === 0 ||
+      photos.length > MAX_PHOTOS ||
+      !photos.every((p) => typeof p === "string" && p.length <= MAX_BASE64_LEN)
+    ) {
+      return badRequest("Invalid 'photos': expected 1-10 base64 image strings within size limit");
+    }
+    if (typeof provider !== "string") {
+      return badRequest("Invalid 'provider'");
+    }
+    if (stage !== undefined && stage !== "extract" && stage !== "enrich") {
+      return badRequest("Invalid 'stage'");
+    }
+    if (goals !== undefined && !Array.isArray(goals)) {
+      return badRequest("Invalid 'goals': expected an array");
+    }
+
     const start = Date.now();
 
     let items;

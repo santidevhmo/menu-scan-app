@@ -161,10 +161,7 @@ Do NOT:
 
 ## Design System
 
-The design system to use will be replicated from the following folder:
-/Users/santiagoaguirre/Downloads/DesignSystemToCopy
-
-We will run a task to do this and save its design system tokens and such in our project. When we do, use that as reference to the design system of this app.
+Use the checked-in `DESIGN.MD` file as the source of truth for this app's design system.
 
 ## Iconography
 

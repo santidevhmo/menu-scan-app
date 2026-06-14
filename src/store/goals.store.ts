@@ -7,6 +7,7 @@ interface GoalsState {
   setGoals: (goals: string[]) => void;
 }
 
+/** Stores the user's selected nutrition goals in AsyncStorage. */
 export const useGoalsStore = create<GoalsState>()(
   persist(
     (set) => ({

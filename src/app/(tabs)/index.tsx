@@ -13,10 +13,12 @@ import { ShutterButton } from "@/components/scan/ShutterButton";
 import { GalleryButton } from "@/components/scan/GalleryButton";
 import { ThumbStack } from "@/components/scan/ThumbStack";
 
+/** Creates a short local id for photos captured before persistence exists. */
 function randomId() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+/** Main camera screen for capturing or importing menu photos. */
 export default function ScanScreen() {
   const { isGranted, isDenied, isLoading } = useCameraPermissions();
   const photos = useScanStore((s) => s.photos);
@@ -27,6 +29,7 @@ export default function ScanScreen() {
   const [zoom, setZoom] = useState<1 | 2>(1);
   const [capturing, setCapturing] = useState(false);
 
+  /** Captures a camera photo, compresses it, and stores it for review. */
   const capture = async () => {
     if (!cameraRef.current || capturing) return;
     setCapturing(true);
@@ -82,6 +85,7 @@ export default function ScanScreen() {
     );
   }
 
+  /** Opens the review screen once at least one photo is available. */
   const goToReview = () => router.push("/review");
   const zoomProp = (zoom - 1) / 4;
 

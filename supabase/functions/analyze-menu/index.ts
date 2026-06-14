@@ -186,89 +186,6 @@ async function callGptExtract(photos: string[]) {
   return { items: JSON.parse(text).items, raw_response: text };
 }
 
-async function callGoogleVision(photos: string[]) {
-  const texts: string[] = [];
-  for (const b64 of photos) {
-    const res = await fetch(
-      `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_VISION_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          requests: [
-            {
-              image: { content: b64 },
-              features: [{ type: "DOCUMENT_TEXT_DETECTION" }],
-            },
-          ],
-        }),
-      }
-    );
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error?.message ?? "Google Vision error");
-    const perImageError = json.responses?.[0]?.error?.message;
-    if (perImageError) throw new Error(perImageError);
-    texts.push(json.responses?.[0]?.fullTextAnnotation?.text ?? "");
-  }
-
-  const ocrText = texts.join("\n---\n");
-  const parseContent = `${EXTRACT_PROMPT}\n\nHere is the menu text extracted via OCR:\n\n${ocrText}`;
-  const structured = await callOpenAIChat("gpt-4o-mini", parseContent, EXTRACT_SCHEMA);
-  return { items: JSON.parse(structured).items, raw_response: ocrText };
-}
-
-async function callMistralExtract(photos: string[]) {
-  const ocrResults: string[] = [];
-  for (const b64 of photos) {
-    const ocrRes = await fetch("https://api.mistral.ai/v1/ocr", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${MISTRAL_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "mistral-ocr-latest",
-        document: {
-          type: "image_url",
-          image_url: `data:image/jpeg;base64,${b64}`,
-        },
-      }),
-    });
-    const ocrJson = await ocrRes.json();
-    if (!ocrRes.ok) throw new Error(ocrJson.message ?? "Mistral OCR error");
-    const pageTexts = ocrJson.pages.map((p: { markdown: string }) => p.markdown);
-    ocrResults.push(pageTexts.join("\n"));
-  }
-
-  const ocrText = ocrResults.join("\n---\n");
-
-  const structureRes = await fetch("https://api.mistral.ai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${MISTRAL_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "mistral-large-latest",
-      messages: [
-        {
-          role: "user",
-          content: `${EXTRACT_PROMPT}\n\nHere is the menu text extracted via OCR:\n\n${ocrText}`,
-        },
-      ],
-      response_format: {
-        type: "json_schema",
-        json_schema: { name: "menu_items", strict: true, schema: EXTRACT_SCHEMA },
-      },
-    }),
-  });
-
-  const structureJson = await structureRes.json();
-  if (!structureRes.ok) throw new Error(structureJson.message ?? "Mistral chat error");
-  const parsed = JSON.parse(structureJson.choices[0].message.content);
-  return { items: parsed.items, raw_response: ocrText };
-}
-
 // TODO: re-enable callOpenAI when OpenAI billing is set up (add payment method + $5 credits at platform.openai.com/settings/billing)
 // async function callOpenAI(photos: string[], goals: string[]) {
 //   const imageContent = photos.map((b64) => ({
@@ -339,12 +256,11 @@ async function callMistralOCR(photos: string[], goals: string[]) {
     }),
   });
 
-  const rawOcrText = ocrResults.join("\n---\n");
-
   const structureJson = await structureRes.json();
   if (!structureRes.ok) throw new Error(structureJson.message ?? "Mistral chat error");
-  const parsed = JSON.parse(structureJson.choices[0].message.content);
-  return { items: parsed.items, raw_response: rawOcrText };
+  const structuredText = structureJson.choices[0].message.content;
+  const parsed = JSON.parse(structuredText);
+  return { items: parsed.items, raw_response: structuredText };
 }
 
 const CORS_HEADERS = {
@@ -366,31 +282,13 @@ serve(async (req) => {
     let rawResponse: string | undefined;
 
     if (stage === "extract") {
-      switch (provider) {
-        case "google-vision": {
-          const result = await callGoogleVision(photos);
-          items = result.items;
-          rawResponse = result.raw_response;
-          modelId = "google-vision + gpt-4o-mini";
-          break;
-        }
-        case "mistral-ocr": {
-          const result = await callMistralExtract(photos);
-          items = result.items;
-          rawResponse = result.raw_response;
-          modelId = "mistral-ocr-latest + mistral-large-latest";
-          break;
-        }
-        case "gpt-vision": {
-          const result = await callGptExtract(photos);
-          items = result.items;
-          rawResponse = result.raw_response;
-          modelId = "gpt-4o";
-          break;
-        }
-        default:
-          throw new Error(`Unknown extraction provider: ${provider}`);
+      if (provider !== "gpt-vision") {
+        throw new Error(`Unknown extraction provider: ${provider}`);
       }
+      const result = await callGptExtract(photos);
+      items = result.items;
+      rawResponse = result.raw_response;
+      modelId = "gpt-4o";
 
       return new Response(
         JSON.stringify({ items, raw_response: rawResponse, latency_ms: Date.now() - start, model_id: modelId }),

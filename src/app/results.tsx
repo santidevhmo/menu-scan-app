@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -9,15 +10,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router, Stack } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { colors } from "@/constants/theme";
-import { useAnalysisStore, ALL_PROVIDERS } from "@/store/analysis.store";
-// import { MenuItemRow } from "@/components/results/MenuItemRow";
-import type { ExtractionProvider } from "@/types/scan";
-
-const TAB_LABELS: Record<ExtractionProvider, string> = {
-  "google-vision": "Google Vision",
-  "mistral-ocr": "Mistral OCR",
-  "gpt-vision": "GPT-4o Vision",
-};
+import { useAnalysisStore } from "@/store/analysis.store";
+import { PhaseIndicator } from "@/components/results/PhaseIndicator";
+import type { ExtractionResult } from "@/types/scan";
 
 function tryPrettyPrint(text: string): string {
   try {
@@ -27,16 +22,108 @@ function tryPrettyPrint(text: string): string {
   }
 }
 
+function OcrPhase({
+  loading,
+  result,
+}: {
+  loading: boolean;
+  result: ExtractionResult | null;
+}) {
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color={colors.foreground} />
+        <Text className="font-sans text-caption text-muted-foreground mt-3">
+          Reading menu with GPT-4o...
+        </Text>
+      </View>
+    );
+  }
+
+  if (result?.error) {
+    return (
+      <View className="flex-1 items-center justify-center px-6">
+        <Text className="font-sans text-body text-danger text-center">
+          {result.error}
+        </Text>
+      </View>
+    );
+  }
+
+  if (!result) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text className="font-sans text-caption text-muted-foreground">
+          No results yet
+        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <View className="flex-1">
+      <View className="px-6 pb-2">
+        <Text className="font-sans text-caption text-muted-foreground">
+          {`${result.items.length} items in ${(result.latency_ms / 1000).toFixed(1)}s via ${result.model_id}`}
+        </Text>
+      </View>
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
+      >
+        <Text
+          selectable
+          style={{ fontFamily: "monospace" }}
+          className="text-xs text-foreground"
+        >
+          {result.raw_response
+            ? tryPrettyPrint(result.raw_response)
+            : JSON.stringify(result.items, null, 2)}
+        </Text>
+      </ScrollView>
+    </View>
+  );
+}
+
+function PlaceholderPhase({
+  title,
+  subtitle,
+}: {
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <View className="flex-1 items-center justify-center px-10">
+      <Text className="font-display text-h2 text-foreground text-center">
+        {title}
+      </Text>
+      <Text className="font-sans text-subtle text-muted-foreground text-center mt-2">
+        {subtitle}
+      </Text>
+    </View>
+  );
+}
+
 export default function ResultsScreen() {
-  const { results, loading, activeTab, setActiveTab } = useAnalysisStore();
-  const activeResult = results[activeTab];
-  const isLoading = loading[activeTab];
+  const { extraction, extractionLoading } = useAnalysisStore();
+  const [phase, setPhase] = useState(0);
+
+  const ocrDone = !!extraction && !extraction.error;
+
+  const canNavigate = (target: number) => {
+    if (target === 0) return true;
+    if (target === 1) return ocrDone;
+    return false;
+  };
+
+  const goTo = (target: number) => {
+    if (canNavigate(target)) setPhase(target);
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }} className="bg-background">
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Header */}
       <View className="flex-row items-center px-6 pt-2">
         <Pressable
           onPress={() => router.back()}
@@ -52,86 +139,27 @@ export default function ResultsScreen() {
         </Text>
       </View>
 
-      {/* Model tabs */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={{ flexShrink: 0 }}
-        contentContainerStyle={{
-          paddingHorizontal: 24,
-          gap: 8,
-          paddingVertical: 12,
-        }}
-      >
-        {ALL_PROVIDERS.map((provider) => {
-          const isActive = provider === activeTab;
-          const providerLoading = loading[provider];
-          return (
-            <Pressable
-              key={provider}
-              onPress={() => setActiveTab(provider)}
-              className={`self-start rounded-full px-4 py-2 ${isActive ? "bg-foreground" : "bg-card border border-border"}`}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: isActive }}
-              accessibilityLabel={TAB_LABELS[provider]}
-            >
-              <Text
-                className={`font-sans text-caption ${isActive ? "text-background" : "text-muted-foreground"}`}
-              >
-                {TAB_LABELS[provider]}
-                {providerLoading ? " ..." : ""}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+      <PhaseIndicator
+        current={phase}
+        canNavigate={canNavigate}
+        onSelect={goTo}
+      />
 
-      {/* Latency badge */}
-      {activeResult && !activeResult.error && (
-        <View className="px-6 pb-2">
-          <Text className="font-sans text-caption text-muted-foreground">
-            {activeResult.items.length} items in{" "}
-            {(activeResult.latency_ms / 1000).toFixed(1)}s via{" "}
-            {activeResult.model_id}
-          </Text>
-        </View>
-      )}
-
-      {/* Content */}
       <View className="flex-1">
-        {isLoading ? (
-          <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color={colors.foreground} />
-            <Text className="font-sans text-caption text-muted-foreground mt-3">
-              Analyzing with {TAB_LABELS[activeTab]}...
-            </Text>
-          </View>
-        ) : activeResult?.error ? (
-          <View className="flex-1 items-center justify-center px-6">
-            <Text className="font-sans text-body text-danger text-center">
-              {activeResult.error}
-            </Text>
-          </View>
-        ) : activeResult ? (
-          <ScrollView
-            contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
-          >
-            <Text
-              selectable
-              style={{ fontFamily: "monospace" }}
-              className="text-xs text-foreground"
-            >
-              {activeResult.raw_response
-                ? tryPrettyPrint(activeResult.raw_response)
-                : JSON.stringify(activeResult.items, null, 2)}
-            </Text>
-          </ScrollView>
-        ) : (
-          <View className="flex-1 items-center justify-center">
-            <Text className="font-sans text-caption text-muted-foreground">
-              No results yet
-            </Text>
-          </View>
+        {phase === 0 && (
+          <OcrPhase loading={extractionLoading} result={extraction} />
+        )}
+        {phase === 1 && (
+          <PlaceholderPhase
+            title="Selecting nutritional info"
+            subtitle="Coming next: GPT-4o estimates calories and macros for each item."
+          />
+        )}
+        {phase === 2 && (
+          <PlaceholderPhase
+            title="Sorted results"
+            subtitle="Coming next: items ranked by your nutritional goals."
+          />
         )}
       </View>
     </SafeAreaView>

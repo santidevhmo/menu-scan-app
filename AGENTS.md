@@ -62,6 +62,16 @@ Keep the implementation simple and readable
 - `expo-file-system` (local-only image sandbox)
 - `posthog-react-native` — analytics, feature flags, session replay
 
+## OCR / Extraction Model Decision
+
+Use **GPT-4o Vision** as the selected OCR/extraction model for menu reading (`provider: "gpt-vision"`, `model_id: "gpt-4o"`). This was selected after the Stage 1 extraction benchmark.
+
+Current project cost assumption: **$0.03 USD per GPT-4o Vision extraction call**.
+
+Keep OCR/model API calls inside the Supabase Edge Function. Do not expose provider API keys in client code.
+
+Broader planning source: `docs/superpowers/plans/2026-05-25-multi-model-menu-analysis.md`. That plan records the two-stage pipeline: Stage 1 OCR/extraction is complete with GPT-4o Vision selected, while Stage 2 nutritional enrichment/model comparison remains in scope.
+
 
 Do not introduce new major libraries unless there is a strong reason.
 Ask before installing anything new.
@@ -121,6 +131,18 @@ assets/
 
 
 ## Package Installation
+
+Use **pnpm** as this project's package manager for scripts and JavaScript dependencies.
+
+Do:
+- Run scripts with `pnpm <script>` or `pnpm run <script>`.
+- Install non-Expo JavaScript packages with `pnpm add <pkg>` / `pnpm add -D <pkg>`.
+- Keep `pnpm-lock.yaml` as the only JS package lockfile.
+
+Do NOT:
+- Use `npm install`, `npm uninstall`, `npm update`, or `npm run`.
+- Commit `package-lock.json` or `yarn.lock`.
+- Mix npm and pnpm installs; this can create a split `node_modules` tree and cause NativeWind / `react-native-css` / `lightningcss` bundling failures.
 
 This repo has no `expo` npm script, so `npx expo install ...` will fail with "Missing script: expo". Always install Expo SDK packages by invoking the locally installed CLI binary directly:
 

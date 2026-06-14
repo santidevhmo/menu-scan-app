@@ -64,7 +64,7 @@ export interface EnrichedItem extends ExtractedItem {
   allergens: string[];
 }
 
-export type ExtractionProvider = "google-vision" | "mistral-ocr" | "gpt-vision";
+export type ExtractionProvider = "gpt-vision";
 export type EnrichmentProvider =
   | "gemini-2.5-flash"
   | "gemini-2.5-pro"

@@ -1,39 +1,18 @@
 import { create } from "zustand";
-import type { ExtractionResult, ExtractionProvider } from "@/types/scan";
-
-const ALL_PROVIDERS: ExtractionProvider[] = [
-  "google-vision",
-  "mistral-ocr",
-  "gpt-vision",
-];
-
-function emptyRecord<T>(value: T): Record<ExtractionProvider, T> {
-  return Object.fromEntries(ALL_PROVIDERS.map((p) => [p, value])) as Record<
-    ExtractionProvider,
-    T
-  >;
-}
+import type { ExtractionResult } from "@/types/scan";
 
 interface AnalysisState {
-  results: Record<ExtractionProvider, ExtractionResult | null>;
-  loading: Record<ExtractionProvider, boolean>;
-  activeTab: ExtractionProvider;
-  setResult: (provider: ExtractionProvider, result: ExtractionResult) => void;
-  setLoading: (provider: ExtractionProvider, loading: boolean) => void;
-  setActiveTab: (tab: ExtractionProvider) => void;
+  extraction: ExtractionResult | null;
+  extractionLoading: boolean;
+  setExtraction: (result: ExtractionResult) => void;
+  setExtractionLoading: (loading: boolean) => void;
   clear: () => void;
 }
 
 export const useAnalysisStore = create<AnalysisState>((set) => ({
-  results: emptyRecord(null),
-  loading: emptyRecord(false),
-  activeTab: "google-vision",
-  setResult: (provider, result) =>
-    set((s) => ({ results: { ...s.results, [provider]: result } })),
-  setLoading: (provider, loading) =>
-    set((s) => ({ loading: { ...s.loading, [provider]: loading } })),
-  setActiveTab: (tab) => set({ activeTab: tab }),
-  clear: () => set({ results: emptyRecord(null), loading: emptyRecord(false) }),
+  extraction: null,
+  extractionLoading: false,
+  setExtraction: (extraction) => set({ extraction }),
+  setExtractionLoading: (extractionLoading) => set({ extractionLoading }),
+  clear: () => set({ extraction: null, extractionLoading: false }),
 }));
-
-export { ALL_PROVIDERS };

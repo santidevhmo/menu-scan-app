@@ -6,7 +6,12 @@ export function useCameraPermissions() {
   const requesting = useRef(false);
 
   useEffect(() => {
-    if (permission && !permission.granted && permission.canAskAgain && !requesting.current) {
+    if (
+      permission &&
+      !permission.granted &&
+      permission.canAskAgain &&
+      !requesting.current
+    ) {
       requesting.current = true;
       requestPermission().finally(() => {
         requesting.current = false;

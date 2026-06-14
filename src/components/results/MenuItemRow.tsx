@@ -15,7 +15,10 @@ export function MenuItemRow({ item, rank }: MenuItemRowProps) {
           <Text className="font-sans text-caption text-muted-foreground mr-2">
             #{rank}
           </Text>
-          <Text className="font-display text-body text-foreground flex-1" numberOfLines={2}>
+          <Text
+            className="font-display text-body text-foreground flex-1"
+            numberOfLines={2}
+          >
             {item.name}
           </Text>
         </View>
@@ -48,7 +51,12 @@ export function MenuItemRow({ item, rank }: MenuItemRowProps) {
       {/* Nutrition grid */}
       <View className="flex-row mt-3 justify-between">
         <NutritionStat label="Cal" value={item.estimated_calories} />
-        <NutritionStat label="Protein" value={item.protein_g} unit="g" highlight />
+        <NutritionStat
+          label="Protein"
+          value={item.protein_g}
+          unit="g"
+          highlight
+        />
         <NutritionStat label="Carbs" value={item.carbs_g} unit="g" />
         <NutritionStat label="Fat" value={item.fat_g} unit="g" />
       </View>
@@ -57,8 +65,13 @@ export function MenuItemRow({ item, rank }: MenuItemRowProps) {
       {item.dietary_tags.length > 0 && (
         <View className="flex-row flex-wrap mt-2 gap-1">
           {item.dietary_tags.map((tag) => (
-            <View key={tag} className="rounded-chip bg-accent-lime/20 px-2 py-0.5">
-              <Text className="font-sans text-caption text-foreground">{tag}</Text>
+            <View
+              key={tag}
+              className="rounded-chip bg-accent-lime/20 px-2 py-0.5"
+            >
+              <Text className="font-sans text-caption text-foreground">
+                {tag}
+              </Text>
             </View>
           ))}
         </View>
@@ -90,9 +103,12 @@ function NutritionStat({
       <Text
         className={`font-sans text-body ${highlight ? "text-foreground font-semibold" : "text-muted-foreground"}`}
       >
-        {value}{unit ?? ""}
+        {value}
+        {unit ?? ""}
       </Text>
-      <Text className="font-sans text-caption text-muted-foreground">{label}</Text>
+      <Text className="font-sans text-caption text-muted-foreground">
+        {label}
+      </Text>
     </View>
   );
 }

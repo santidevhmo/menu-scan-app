@@ -46,7 +46,10 @@ export default function RootLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="review" options={{ animation: "slide_from_right" }} />
-      <Stack.Screen name="results" options={{ animation: "slide_from_right" }} />
+      <Stack.Screen
+        name="results"
+        options={{ animation: "slide_from_right" }}
+      />
     </Stack>
   );
 }

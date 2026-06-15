@@ -9,6 +9,7 @@ export interface CompressedImage {
 const MAX_DIMENSION = 1024;
 const QUALITY = 0.7;
 
+/** Compresses an image to a max 1024px side and JPEG quality 0.7. */
 export async function compressImage(
   uri: string,
   sourceWidth?: number,

@@ -8,6 +8,7 @@ interface ScanState {
   clear: () => void;
 }
 
+/** Stores the current scan photo set before review and extraction. */
 export const useScanStore = create<ScanState>((set) => ({
   photos: [],
   addPhoto: (photo) => set((state) => ({ photos: [...state.photos, photo] })),

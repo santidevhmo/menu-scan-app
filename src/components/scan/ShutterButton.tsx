@@ -5,6 +5,7 @@ interface Props {
   disabled?: boolean;
 }
 
+/** Camera shutter button with a stable circular hit target. */
 export function ShutterButton({ onPress, disabled }: Props) {
   return (
     <Pressable

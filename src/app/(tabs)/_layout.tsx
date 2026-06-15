@@ -2,6 +2,7 @@ import { Tabs } from "expo-router";
 import { Camera, Settings } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 
+/** Tab layout for the scan and settings screens. */
 export default function TabsLayout() {
   return (
     <Tabs

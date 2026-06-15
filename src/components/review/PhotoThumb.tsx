@@ -9,6 +9,7 @@ interface Props {
   onRemove: (id: string) => void;
 }
 
+/** Shows a review thumbnail with a remove action. */
 export function PhotoThumb({ photo, onRemove }: Props) {
   return (
     <View className="w-40 h-56 rounded-card overflow-hidden bg-card mr-3">

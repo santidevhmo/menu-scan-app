@@ -17,6 +17,7 @@ import {
 
 SplashScreen.preventAutoHideAsync();
 
+/** Root Expo Router layout that loads fonts before showing app routes. */
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     Montserrat_400Regular,
@@ -46,6 +47,10 @@ export default function RootLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="review" options={{ animation: "slide_from_right" }} />
+      <Stack.Screen
+        name="results"
+        options={{ animation: "slide_from_right" }}
+      />
     </Stack>
   );
 }

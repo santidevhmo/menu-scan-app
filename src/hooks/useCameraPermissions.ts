@@ -1,12 +1,18 @@
 import { useEffect, useRef } from "react";
 import { useCameraPermissions as useExpoCameraPermissions } from "expo-camera";
 
+/** Requests camera permission once and exposes simple loading/granted/denied flags. */
 export function useCameraPermissions() {
   const [permission, requestPermission] = useExpoCameraPermissions();
   const requesting = useRef(false);
 
   useEffect(() => {
-    if (permission && !permission.granted && permission.canAskAgain && !requesting.current) {
+    if (
+      permission &&
+      !permission.granted &&
+      permission.canAskAgain &&
+      !requesting.current
+    ) {
       requesting.current = true;
       requestPermission().finally(() => {
         requesting.current = false;

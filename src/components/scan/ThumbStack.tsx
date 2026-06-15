@@ -9,6 +9,7 @@ interface Props {
   onPress: () => void;
 }
 
+/** Shows the latest scan photo and count as the entry point to review. */
 export function ThumbStack({ photos, onPress }: Props) {
   if (photos.length === 0) return <View className="w-12 h-12" />;
 

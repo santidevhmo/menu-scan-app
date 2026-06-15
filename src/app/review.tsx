@@ -1,14 +1,44 @@
+import { useState } from "react";
 import { FlatList, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, Stack } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { useScanStore } from "@/store/scan.store";
+import { useAnalysisStore } from "@/store/analysis.store";
+import { extractMenu } from "@/lib/analyzeMenu";
 import { PhotoThumb } from "@/components/review/PhotoThumb";
 import { colors } from "@/constants/theme";
 
+/** Review screen for confirming selected menu photos before extraction. */
 export default function ReviewScreen() {
   const photos = useScanStore((s) => s.photos);
   const removePhoto = useScanStore((s) => s.removePhoto);
+  const { setExtraction, setExtractionLoading, clear } = useAnalysisStore();
+  const [analyzing, setAnalyzing] = useState(false);
+
+  /** Starts GPT-4o Vision extraction and sends the user to results. */
+  const handleAnalyze = async () => {
+    setAnalyzing(true);
+    clear();
+    setExtractionLoading(true);
+    router.push("/results");
+
+    try {
+      const result = await extractMenu(photos, "gpt-vision");
+      setExtraction(result);
+    } catch (err) {
+      setExtraction({
+        provider: "gpt-vision",
+        items: [],
+        latency_ms: 0,
+        model_id: "gpt-vision",
+        error: err instanceof Error ? err.message : "Unknown error",
+      });
+    } finally {
+      setExtractionLoading(false);
+      setAnalyzing(false);
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }} className="bg-background">
@@ -25,12 +55,6 @@ export default function ReviewScreen() {
         </Pressable>
         <Text className="font-display text-h1 text-foreground ml-1">
           Review
-        </Text>
-      </View>
-
-      <View className="flex-1 items-center justify-center px-6">
-        <Text className="font-sans text-caption text-muted-foreground text-center">
-          Nutritional goals — coming next
         </Text>
       </View>
 
@@ -51,6 +75,30 @@ export default function ReviewScreen() {
             )}
           />
         )}
+      </View>
+
+      {/* Bottom button area */}
+      <View className="px-6 pb-4">
+        <Pressable
+          onPress={handleAnalyze}
+          disabled={photos.length === 0 || analyzing}
+          className={`w-full items-center justify-center py-4 rounded-full ${
+            photos.length === 0 || analyzing ? "bg-muted" : "bg-foreground"
+          }`}
+          accessibilityRole="button"
+          accessibilityLabel="Analyze menu photos"
+          accessibilityState={{ disabled: photos.length === 0 || analyzing }}
+        >
+          <Text
+            className={`font-sans text-button ${
+              photos.length === 0 || analyzing
+                ? "text-muted-foreground"
+                : "text-background"
+            }`}
+          >
+            {analyzing ? "Analyzing..." : "Analyze Menu"}
+          </Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );

@@ -124,7 +124,7 @@ function GoalsPhase({
             canContinue ? "bg-foreground" : "bg-muted"
           }`}
           accessibilityRole="button"
-          accessibilityLabel="Continue to nutrition"
+          accessibilityLabel="Continue to results"
           accessibilityState={{ disabled: !canContinue }}
         >
           <Text

@@ -1306,37 +1306,37 @@ This phase turns that wait time into useful input: goal selection becomes phase 
 
 **Files:** Create `src/data/goals.ts`
 
-- [ ] **Step 1** Create `GoalPair` and `GOAL_PAIRS` for Protein, Carbs, Fat, and Calorie high/low pairs.
-- [ ] **Step 2** Type-check: `pnpm tsc --noEmit` → no errors.
-- [ ] **Step 3** Commit: `feat: add preset nutritional goal pairs`
+- [x] **Step 1** Create `GoalPair` and `GOAL_PAIRS` for Protein, Carbs, Fat, and Calorie high/low pairs.
+- [x] **Step 2** Type-check: `pnpm tsc --noEmit` → no errors.
+- [x] **Step 3** Commit: `feat: add preset nutritional goal pairs`
 
 ## Task 3.2: `toggleGoal` store action
 
 **Files:** Modify `src/store/goals.store.ts`
 
-- [ ] **Step 1** Add `toggleGoal(goal)` to the store, using add/remove-by-value semantics.
-- [ ] **Step 2** Type-check: `pnpm tsc --noEmit` → no errors.
-- [ ] **Step 3** Commit: `feat: add toggleGoal action to goals store`
+- [x] **Step 1** Add `toggleGoal(goal)` to the store, using add/remove-by-value semantics.
+- [x] **Step 2** Type-check: `pnpm tsc --noEmit` → no errors.
+- [x] **Step 3** Commit: `feat: add toggleGoal action to goals store`
 
 ## Task 3.3: `GoalSelector` component
 
 **Files:** Create `src/components/results/GoalSelector.tsx`
 
-- [ ] **Step 1** Render `GOAL_PAIRS` as four rows, each with High and Low option cards.
-- [ ] **Step 2** Use the OptionCard styling from `DESIGN.MD`: selected `bg-foreground text-background`; unselected `bg-card border border-border`.
-- [ ] **Step 3** Type-check: `pnpm tsc --noEmit` → no errors.
-- [ ] **Step 4** Commit: `feat: add GoalSelector multi-select grid`
+- [x] **Step 1** Render `GOAL_PAIRS` as four rows, each with High and Low option cards.
+- [x] **Step 2** Use the OptionCard styling from `DESIGN.MD`: selected `bg-foreground text-background`; unselected `bg-card border border-border`.
+- [x] **Step 3** Type-check: `pnpm tsc --noEmit` → no errors.
+- [x] **Step 4** Commit: `feat: add GoalSelector multi-select grid`
 
 ## Task 3.4: Wire goals into results phase flow
 
 **Files:** Modify `src/components/results/PhaseIndicator.tsx`, `src/app/results.tsx`
 
-- [ ] **Step 1** Rename phase 0 from "Menu OCR" to "Goals".
-- [ ] **Step 2** Replace the blocking `OcrPhase` with `GoalsPhase` and compact `OcrStatus`.
-- [ ] **Step 3** Keep raw OCR output behind a "Show raw" / "Hide raw" toggle.
-- [ ] **Step 4** Gate phase navigation and the Continue button on OCR done + at least one selected goal.
-- [ ] **Step 5** Type-check and lint: `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → no errors.
-- [ ] **Step 6** Commit: `feat: wire nutritional goal selection into results phase 0`
+- [x] **Step 1** Rename phase 0 from "Menu OCR" to "Goals".
+- [x] **Step 2** Replace the blocking `OcrPhase` with `GoalsPhase` and compact `OcrStatus`.
+- [x] **Step 3** Keep raw OCR output behind a "Show raw" / "Hide raw" toggle.
+- [x] **Step 4** Gate phase navigation and the Continue button on OCR done + at least one selected goal.
+- [x] **Step 5** Type-check and lint: `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → no errors.
+- [x] **Step 6** Commit: `feat: wire nutritional goal selection into results phase 0`
 
 ## Phase 3 Verification
 

@@ -10,7 +10,7 @@ interface PhaseIndicatorProps {
   onSelect: (target: number) => void;
 }
 
-/** Shows the three scan phases and allows navigation to unlocked phases. */
+/** Shows the two scan phases and allows navigation to unlocked phases. */
 export function PhaseIndicator({
   current,
   canNavigate,

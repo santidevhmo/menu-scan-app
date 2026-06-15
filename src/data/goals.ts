@@ -5,8 +5,8 @@ export interface GoalPair {
 }
 
 export const GOAL_PAIRS: GoalPair[] = [
-  { group: "Protein", high: "High Protein", low: "Low Protein" },
-  { group: "Carbs", high: "High Carbs", low: "Low Carbs" },
-  { group: "Fat", high: "High Fat", low: "Low Fat" },
-  { group: "Calorie", high: "High Calorie", low: "Low Calorie" },
+  { group: "Protein", high: "Highest in protein", low: "Low protein" },
+  { group: "Carbs", high: "High carb", low: "Low carb" },
+  { group: "Fat", high: "High fat", low: "Low fat" },
+  { group: "Calorie", high: "High calorie", low: "Low calorie" },
 ];

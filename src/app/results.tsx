@@ -215,12 +215,6 @@ export default function ResultsScreen() {
         )}
         {phase === 1 && (
           <PlaceholderPhase
-            title="Selecting nutritional info"
-            subtitle="Coming next: GPT-4o estimates calories and macros for each item."
-          />
-        )}
-        {phase === 2 && (
-          <PlaceholderPhase
             title="Sorted results"
             subtitle="Coming next: items ranked by your nutritional goals."
           />

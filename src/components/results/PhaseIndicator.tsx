@@ -2,7 +2,7 @@ import { Pressable, Text, View } from "react-native";
 import { Check } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 
-const PHASES = ["Goals", "Nutrition", "Results"];
+const PHASES = ["Nutritional Goals", "Results"];
 
 interface PhaseIndicatorProps {
   current: number;

@@ -20,8 +20,12 @@ const GOALS_SORT_MAP: Record<
   { field: keyof MenuItem; order: "asc" | "desc" }
 > = {
   "Highest in protein": { field: "protein_g", order: "desc" },
+  "Low protein": { field: "protein_g", order: "asc" },
   "Low calorie": { field: "estimated_calories", order: "asc" },
+  "High calorie": { field: "estimated_calories", order: "desc" },
   "High carb": { field: "carbs_g", order: "desc" },
+  "Low carb": { field: "carbs_g", order: "asc" },
+  "High fat": { field: "fat_g", order: "desc" },
   "Low fat": { field: "fat_g", order: "asc" },
 };
 

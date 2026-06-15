@@ -15,7 +15,7 @@ The app includes:
 - Core Features
     - Menu photo scanning — Take a single photo or multiple photos of a menu (no fixed frame/shape constraints)
     - Photo library import — Select existing menu photos from the device gallery in addition to live camera capture
-    - Nutritional goal selection — Multi-select from preset options (High Protein, Low Calorie, High Carb, Paleo, etc.) plus a free-text custom input for unlisted goals
+    - Nutritional goal selection — Multi-select from preset options (High Protein, Low Calorie, High Carb, Paleo, etc.). Free-text custom input is a fast-follow until feedback/analytics infrastructure is integrated.
     - Sorted results list — Scanned menu items ranked by alignment to selected goals
     - Goal priority ordering — Drag-and-drop reordering of selected goals from most to least important
     - Client-side re-rank — results re-rank without re-scanning using the saved `parsed_items` from the scan
@@ -33,7 +33,7 @@ The app includes:
     - History search — Search past scans by place name or date to retrieve previous results without re-scanning
 - Feedback
     - Always-accessible feedback input — Visible from profile/settings: wrong scan, wrong result, feature requests, and unrecognized filter inputs (stored separately for product analysis)
-    - Custom filter logging — When a user types a goal not in the preset list, that input is stored as feedback data for future feature prioritization
+    - Custom filter logging — Fast-follow: when a user types a goal not in the preset list, store that input as feedback data for future feature prioritization after feedback infrastructure is integrated.
 - Planned post-MVP (do not build until core app is complete and working)
     - Onboarding flow — ~4–6 screens: value prop, permissions, first goal selection, guided first scan
     - Subscription / Paywall — 5 free scans/month; paid plan via in-app purchase; receipt validation via Edge Function

@@ -2,7 +2,7 @@ import { Pressable, Text, View } from "react-native";
 import { Check } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 
-const PHASES = ["Menu OCR", "Nutrition", "Results"];
+const PHASES = ["Nutritional Goals", "Results"];
 
 interface PhaseIndicatorProps {
   current: number;
@@ -10,7 +10,7 @@ interface PhaseIndicatorProps {
   onSelect: (target: number) => void;
 }
 
-/** Shows the three scan phases and allows navigation to unlocked phases. */
+/** Shows the two scan phases and allows navigation to unlocked phases. */
 export function PhaseIndicator({
   current,
   canNavigate,

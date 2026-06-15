@@ -1275,3 +1275,75 @@ export type PipelineStage = "extract" | "enrich";
 3. **Stage 1 E2E**: pick Mochomos photos → 3 extraction tabs populate → scorecard filled → winner recorded.
 4. **Stage 2 E2E**: frozen items → enrichment tabs populate with nutrition + goal sort → winner recorded.
 5. **Error handling**: invalid key per provider → clean per-tab error message.
+
+---
+
+# Phase 3: Nutritional Goal Selection (planned)
+
+> **Status:** Planned 2026-06-14. This phase ships preset multi-select goal selection during OCR. Free-text custom goals, feedback logging, goal priority drag-reorder, Stage 2 enrichment, and final nutrition sorting stay out of scope for this phase.
+
+**AGENTS.md inconsistency to resolve:** AGENTS.md lists free-text custom goal input and custom-filter feedback logging as core MVP. This phase intentionally ships presets only because feedback/analytics infrastructure is not integrated yet. Track free-text as its own fast-follow phase or update AGENTS.md to mark it as fast-follow.
+
+## Phase 3 Context
+
+`AGENTS.md` lists "Nutritional goal selection — multi-select from preset options" as a core MVP feature, but no screen currently sets `selectedGoals`. `src/store/goals.store.ts` is scaffolded (`selectedGoals: string[]`, `setGoals`, AsyncStorage-persisted) yet imported by nothing.
+
+The results screen (`src/app/results.tsx`) already has a 3-phase stepped flow: phase 0 "Menu OCR", phase 1 "Nutrition", and phase 2 "Results". OCR is kicked off in `review.tsx` and runs in the background while the user sits on phase 0's spinner.
+
+This phase turns that wait time into useful input: goal selection becomes phase 0's content while OCR continues in the background. "Continue" is gated on both OCR completion and at least one selected goal.
+
+## Phase 3 File Map
+
+| File | Action | Responsibility |
+| ---- | ------ | -------------- |
+| `src/data/goals.ts` | Create | Typed preset goal pairs |
+| `src/store/goals.store.ts` | Modify | Add `toggleGoal` action |
+| `src/components/results/GoalSelector.tsx` | Create | Two-column High/Low multi-select grid |
+| `src/components/results/PhaseIndicator.tsx` | Modify | Rename phase 0 from "Menu OCR" to "Goals" |
+| `src/app/results.tsx` | Modify | Replace OCR spinner phase with goals phase, OCR status, raw toggle, and gated navigation |
+
+## Task 3.1: Preset goal data
+
+**Files:** Create `src/data/goals.ts`
+
+- [ ] **Step 1** Create `GoalPair` and `GOAL_PAIRS` for Protein, Carbs, Fat, and Calorie high/low pairs.
+- [ ] **Step 2** Type-check: `pnpm tsc --noEmit` → no errors.
+- [ ] **Step 3** Commit: `feat: add preset nutritional goal pairs`
+
+## Task 3.2: `toggleGoal` store action
+
+**Files:** Modify `src/store/goals.store.ts`
+
+- [ ] **Step 1** Add `toggleGoal(goal)` to the store, using add/remove-by-value semantics.
+- [ ] **Step 2** Type-check: `pnpm tsc --noEmit` → no errors.
+- [ ] **Step 3** Commit: `feat: add toggleGoal action to goals store`
+
+## Task 3.3: `GoalSelector` component
+
+**Files:** Create `src/components/results/GoalSelector.tsx`
+
+- [ ] **Step 1** Render `GOAL_PAIRS` as four rows, each with High and Low option cards.
+- [ ] **Step 2** Use the OptionCard styling from `DESIGN.MD`: selected `bg-foreground text-background`; unselected `bg-card border border-border`.
+- [ ] **Step 3** Type-check: `pnpm tsc --noEmit` → no errors.
+- [ ] **Step 4** Commit: `feat: add GoalSelector multi-select grid`
+
+## Task 3.4: Wire goals into results phase flow
+
+**Files:** Modify `src/components/results/PhaseIndicator.tsx`, `src/app/results.tsx`
+
+- [ ] **Step 1** Rename phase 0 from "Menu OCR" to "Goals".
+- [ ] **Step 2** Replace the blocking `OcrPhase` with `GoalsPhase` and compact `OcrStatus`.
+- [ ] **Step 3** Keep raw OCR output behind a "Show raw" / "Hide raw" toggle.
+- [ ] **Step 4** Gate phase navigation and the Continue button on OCR done + at least one selected goal.
+- [ ] **Step 5** Type-check and lint: `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → no errors.
+- [ ] **Step 6** Commit: `feat: wire nutritional goal selection into results phase 0`
+
+## Phase 3 Verification
+
+1. **Type/lint:** `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → zero errors.
+2. **Concurrent flow:** Scan/pick photos → Review → "Analyze Menu"; phase 0 shows the goal grid immediately with a compact "Reading menu with GPT-4o..." status line.
+3. **Gating:** Continue and phase navigation stay disabled until OCR is done and at least one goal is selected.
+4. **Multi-select:** Tapping each goal toggles selected/unselected styling. Selecting both High and Low in one pair is allowed.
+5. **Raw toggle:** With OCR done, "Show raw" expands the monospace OCR dump; "Hide raw" collapses it.
+6. **Persistence:** Selected goals survive reload through the existing AsyncStorage-persisted goals store.
+7. **Continue:** OCR done + at least one goal advances to the Nutrition placeholder phase.

@@ -54,14 +54,30 @@ export interface ExtractedItem {
   category: MenuCategory;
 }
 
-// Stage 2 output — extraction + estimated nutrition (defined now, used in Stage 2)
+// Stage 2 reasoning substrate — ingredient tagged by macro category
+export interface EnrichedIngredient {
+  name: string;
+  category: "protein" | "carb" | "fat" | "veg" | "other";
+}
+
+// Stage 2 output — extraction + gram-based nutrition estimate (CoT, goal-agnostic)
 export interface EnrichedItem extends ExtractedItem {
-  estimated_calories: number;
+  ingredients: EnrichedIngredient[];
   protein_g: number;
-  carbs_g: number;
+  carb_g: number;
   fat_g: number;
-  dietary_tags: string[];
+  estimated_calories: number;
+  confidence: "high" | "medium" | "low";
   allergens: string[];
+}
+
+export interface EnrichmentResult {
+  provider: EnrichmentProvider;
+  items: EnrichedItem[];
+  latency_ms: number;
+  model_id: string;
+  error: string | null;
+  raw_response?: string;
 }
 
 export type ExtractionProvider = "gpt-vision";

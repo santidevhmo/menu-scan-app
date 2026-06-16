@@ -1328,7 +1328,7 @@ Each badge shows the gram value alongside the dots (e.g. `●●●○ 38g`). Th
 ### Task 2.7′: Judging + decision gate
 
 - [ ] **Step 1** Nutrition has no on-menu ground truth. Judge on: (a) ingredient/category correctness — checkable against the menu text (e.g. does "Grilled Salmon" list a carb-heavy ingredient? if so, wrong); (b) gram plausibility per item (does a grilled chicken breast show ~35g protein? does a pasta dish show ~60g carbs?); (c) ranking agreement between the two models per goal, eyeballing disagreements; (d) latency; (e) cost.
-- [ ] **Step 2** Record the winner: **Stage-2 winner: `__________`**. Then proceed to Phase 4.
+- [x] **Step 2** Record the winner: **Stage-2 winner: `gpt-4o`**. Then proceed to Phase 4.
 - [ ] **Step 3** (Carry-over) Retire the obsolete `MenuItem` / `ModelProvider` types + dead Phase-1 routes — executed in Phase 4 Task 4.6.
 
 ## Phase 2 Verification

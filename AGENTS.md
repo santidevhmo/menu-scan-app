@@ -66,11 +66,11 @@ Keep the implementation simple and readable
 
 Use **GPT-4o Vision** as the selected OCR/extraction model for menu reading (`provider: "gpt-vision"`, `model_id: "gpt-4o"`). This was selected after the Stage 1 extraction benchmark.
 
-Current project cost assumption: **$0.03 USD per GPT-4o Vision extraction call**.
+Current project cost assumption: **$0.03 USD per GPT-4o Vision extraction call**. Stage 2 adds a **second** model call (enrichment), so a full scan costs extraction **+** enrichment: ~**$0.06/scan** if enrichment also uses GPT-4o, and lower with Gemini 2.5 Flash. Finalize the per-scan number after the Stage 2 benchmark gate.
 
 Keep OCR/model API calls inside the Supabase Edge Function. Do not expose provider API keys in client code.
 
-Broader planning source: `docs/superpowers/plans/2026-05-25-multi-model-menu-analysis.md`. That plan records the two-stage pipeline: Stage 1 OCR/extraction is complete with GPT-4o Vision selected, while Stage 2 nutritional enrichment/model comparison remains in scope.
+Broader planning source: `docs/superpowers/plans/2026-05-25-multi-model-menu-analysis.md`. That plan records the two-stage pipeline: Stage 1 OCR/extraction is complete with GPT-4o Vision selected, while Stage 2 nutritional enrichment/model comparison remains in scope. Stage 2 enrichment estimates **gram values per macro** (`protein_g`, `carb_g`, `fat_g`, `estimated_calories`) via chain-of-thought reasoning over listed ingredients, ranks items by those values, and displays coarse dot-badges relative to the menu's own max (not an absolute scale). It also **retains per-item `allergens`** so the mandatory allergen disclaimer above keeps working. See the plan's "Stage 2 Design Refinement" and Phase 4.
 
 
 Do not introduce new major libraries unless there is a strong reason.

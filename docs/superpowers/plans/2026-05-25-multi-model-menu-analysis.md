@@ -1251,6 +1251,8 @@ export type PipelineStage = "extract" | "enrich";
 >
 > Net: GPT-4o and Gemini 2.5 Flash are the two reference-backed front-runners for the enrichment stage — make sure both are benchmarked.
 
+> **Superseded (2026-06-14):** Tasks 2.5–2.7 below keep the original "estimate macros then sort" framing. They are superseded by **Stage 2 Design Refinement — Ordinal Macro Scoring** (after Task 2.7) and by **Phase 4**. Preserved for history; build from the refinement.
+
 ### Task 2.5: Edge Function — enrichment stage
 
 - [ ] **Step 1** `stage: "enrich"` accepts `{ items: ExtractedItem[], goals, provider }` and returns `EnrichedItem[]`. Enrichment prompt: *"Given these menu items, estimate nutrition per typical restaurant portion, then sort by: {goals}."*
@@ -1268,6 +1270,67 @@ export type PipelineStage = "extract" | "enrich";
 - [ ] **Step 2** Record the enrichment winner: **Stage-2 winner: `__________`**.
 - [ ] **Step 3** Retire the now-obsolete monolithic `MenuItem` / `ModelProvider` types and dead provider routes from Phase 1.
 
+## Stage 2 Design Refinement — Ordinal Macro Scoring (2026-06-14)
+
+> Supersedes the "estimate macros then sort" framing of Tasks 2.5–2.7. **Rationale:** NutriBench (arXiv 2407.12843, ICLR 2025) shows quantitative macro estimation from meal text peaks at ~67% (GPT-4o + Chain-of-Thought), even beating nutritionists — i.e. it is inherently noisy. The app's product is a **ranking**, not a nutrition label, so we estimate a coarse **ordinal "load" per macro** instead of grams: a more reliable signal, an honest UX, and a benchmark we can actually judge. USDA FDC stays a future upgrade reachable via the `ingredients[]` seam (no rework).
+
+**Enrichment output, per item** — produced in one call over the whole `ExtractedItem[]` so estimates stay mutually consistent; enrichment is **goal-agnostic**:
+
+```ts
+interface EnrichedItem extends ExtractedItem {
+  ingredients: { name: string; category: "protein" | "carb" | "fat" | "veg" | "other" }[];
+  protein_g: number;
+  carb_g: number;
+  fat_g: number;
+  estimated_calories: number;
+  confidence: "high" | "medium" | "low";
+  allergens: string[]; // inferred from ingredients; drives the mandatory allergen disclaimer (AGENTS.md)
+}
+```
+
+- `ingredients` is the Chain-of-Thought reasoning substrate: listing ingredients with their macro category (e.g. `{ name: "salmon fillet", category: "protein" }`) before producing gram estimates makes the reasoning auditable — a wrong gram value is catchable if the listed ingredients don't support it. Also the USDA-FDC-ready seam: later each ingredient can be looked up instead of LLM-estimated.
+- `protein_g / carb_g / fat_g / estimated_calories` are gram/kcal estimates per typical single restaurant serving. Shown to the user as-is — no disclaimer needed because the dot badges are menu-relative (see below), making the comparative nature self-evident.
+- `confidence` is `"low"` when the item name and description are evocative/promotional rather than ingredient-based (e.g. *"Best burger in town!"*) and the model has little to go on.
+
+**Prompt = Chain-of-Thought, no sorting.** The model lists ingredients → estimates grams → returns confidence. It does **not** sort (code does):
+
+```
+You estimate the nutrition profile of restaurant menu items. For each item, work step by step:
+1. List the most likely ingredients. If the description names them, use them; otherwise infer from the name and category.
+   Tag each ingredient: protein | carb | fat | veg | other.
+2. From those ingredients and the likely preparation (e.g. grilled vs fried), estimate per typical single restaurant serving:
+   protein_g, carb_g, fat_g, estimated_calories.
+3. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive,
+   leaving you with little ingredient information to go on.
+Do NOT sort the items. Return one object per item.
+```
+
+**Sort + display split.** `sortItemsByGoals()` orders by the active goal's gram field (desc for "high"/"highest", asc for "low") with a deterministic tiebreak (estimated_calories, then name). The UI shows a **4-level dot badge** per macro — bucketed **relative to this menu's max**, not to restaurant food in general. Compute at render time:
+
+```ts
+const maxProtein = Math.max(...items.map(i => i.protein_g));
+// repeat for carb_g, fat_g, estimated_calories
+// bucket: 0–25% → ●○○○, 25–50% → ●●○○, 50–75% → ●●●○, 75–100% → ●●●●
+```
+
+Each badge shows the gram value alongside the dots (e.g. `●●●○ 38g`). This means at a high-protein restaurant every item competes against the others on this menu, not against some external baseline.
+
+### Task 2.5′: Edge Function — enrichment stage (grams)
+
+- [ ] **Step 1** `stage: "enrich"` accepts `{ items: ExtractedItem[], provider }` (no `goals` — enrichment is goal-agnostic) and returns the `EnrichedItem[]` shape above using the CoT prompt.
+- [ ] **Step 2** Route to **`gpt-4o`** and **`gemini-2.5-flash`** only (drop Pro/Mistral unless reopened). Deploy. Commit: `feat: add gram-based enrichment stage`
+
+### Task 2.6′: Benchmark harness (dev-only route)
+
+- [ ] **Step 1** Add a dev-only route (e.g. `app/enrich-bench.tsx`) that runs both models on one **cached** `ExtractedItem[]` and shows them side by side. Do **not** reintroduce benchmark tabs into the user `results.tsx`.
+- [ ] **Step 2** Per model, show: the ingredient/category list, the four macro badges per item, latency, and cost.
+
+### Task 2.7′: Judging + decision gate
+
+- [ ] **Step 1** Nutrition has no on-menu ground truth. Judge on: (a) ingredient/category correctness — checkable against the menu text (e.g. does "Grilled Salmon" list a carb-heavy ingredient? if so, wrong); (b) gram plausibility per item (does a grilled chicken breast show ~35g protein? does a pasta dish show ~60g carbs?); (c) ranking agreement between the two models per goal, eyeballing disagreements; (d) latency; (e) cost.
+- [ ] **Step 2** Record the winner: **Stage-2 winner: `__________`**. Then proceed to Phase 4.
+- [ ] **Step 3** (Carry-over) Retire the obsolete `MenuItem` / `ModelProvider` types + dead Phase-1 routes — executed in Phase 4 Task 4.6.
+
 ## Phase 2 Verification
 
 1. **TypeScript**: `npx tsc --noEmit` — zero errors.
@@ -1278,9 +1341,9 @@ export type PipelineStage = "extract" | "enrich";
 
 ---
 
-# Phase 3: Nutritional Goal Selection (planned)
+# Phase 3: Nutritional Goal Selection (complete)
 
-> **Status:** Planned 2026-06-14. This phase ships preset multi-select goal selection during OCR. Free-text custom goals, feedback logging, goal priority drag-reorder, Stage 2 enrichment, and final nutrition sorting stay out of scope for this phase.
+> **Status:** Complete 2026-06-14 (shipped in PR #4). This phase ships preset multi-select goal selection during OCR. Free-text custom goals, feedback logging, and goal priority drag-reorder stay out of scope. Stage 2 enrichment and final nutrition sorting are taken up by the **Stage 2 Design Refinement** and **Phase 4** below.
 
 **AGENTS.md inconsistency to resolve:** AGENTS.md lists free-text custom goal input and custom-filter feedback logging as core MVP. This phase intentionally ships presets only because feedback/analytics infrastructure is not integrated yet. Track free-text as its own fast-follow phase or update AGENTS.md to mark it as fast-follow.
 
@@ -1347,3 +1410,84 @@ This phase turns that wait time into useful input: goal selection becomes phase 
 5. **Raw toggle:** With OCR done, "Show raw" expands the monospace OCR dump; "Hide raw" collapses it.
 6. **Persistence:** Selected goals survive reload through the existing AsyncStorage-persisted goals store.
 7. **Continue:** OCR done + at least one goal advances to the Nutrition placeholder phase.
+
+---
+
+# Phase 4: Activate Nutritional Analysis — Ranked Results (planned 2026-06-14)
+
+> Wires the Stage-2 enrichment winner into the live user flow, replacing the `PlaceholderPhase` in `src/app/results.tsx`. This closes the end-to-end loop: scan → goals → ranked results. Enrichment is **goal-agnostic**, so it runs in the background right after extraction completes (before the user finishes picking goals); goals are applied only at sort time.
+
+## Phase 4 File Map
+
+| File | Action | Responsibility |
+| ---- | ------ | -------------- |
+| `src/store/analysis.store.ts` | Modify | Add `enrichment` / `enrichmentLoading` (mirror the extraction pattern) |
+| `src/types/scan.ts` | Modify | Finalize `EnrichedItem` (ordinal shape) + `EnrichmentResult` |
+| `src/lib/analyzeMenu.ts` | Modify | `enrichMenu()`; point `GOALS_SORT_MAP` at `scores.*`; retype `sortItemsByGoals` |
+| `src/app/review.tsx` | Modify | Chain `enrichMenu` after `extractMenu` (background) |
+| `src/components/results/MenuItemRow.tsx` | Modify | Four macro dot-badges, selected-goal highlight |
+| `src/app/results.tsx` | Modify | Replace `PlaceholderPhase` with the ranked list |
+
+## Task 4.1: Enrichment state
+
+- [ ] **Step 1** Add `enrichment: EnrichmentResult | null`, `enrichmentLoading: boolean`, their setters, and clear-on-reset to `analysis.store.ts`, mirroring the extraction pattern.
+
+## Task 4.2: Enrichment client + chaining
+
+- [ ] **Step 1** Add `enrichMenu(items, provider)` to `analyzeMenu.ts` (sends `stage: "enrich"` with the cached `ExtractedItem[]`).
+- [ ] **Step 2** In `review.tsx`, after `extractMenu` resolves, set `enrichmentLoading` and call `enrichMenu` in the background.
+
+## Task 4.3: Finalize types + sorting
+
+- [ ] **Step 1** Set `EnrichedItem` to the gram shape (`ingredients[]`, `protein_g`, `carb_g`, `fat_g`, `estimated_calories`, `confidence`, `allergens`). Add `EnrichmentResult` mirroring `ExtractionResult`.
+- [ ] **Step 2** Point each `GOALS_SORT_MAP` entry at the matching gram field (`protein_g`, `carb_g`, `fat_g`, `estimated_calories`; desc for high/highest, asc for low); add the `estimated_calories`-then-name tiebreak. Retype `sortItemsByGoals` to `EnrichedItem`.
+
+## Task 4.4: Macro badges in `MenuItemRow`
+
+- [ ] **Step 1** Replace the raw grams `NutritionStat` grid with four macro **dot-badges** (protein/carb/fat/calorie). Each badge shows dots + the gram/kcal value (e.g. `●●●○ 38g`). Dots are bucketed **relative to the menu's max** for that macro — pass `maxValues: { protein_g, carb_g, fat_g, estimated_calories }` as a prop (computed once in the parent before rendering the list).
+- [ ] **Step 2** Highlight badges whose `GoalPair.group` is in `selectedGoals` (accent color); mute the rest (grey). Use the `GOAL_PAIRS` group→macro mapping.
+- [ ] **Step 3** Keep the allergen line; render the **mandatory** allergen disclaimer card whenever any item in the result has allergens (per AGENTS.md — non-negotiable).
+
+## Task 4.5: Ranked results phase
+
+- [ ] **Step 1** Replace `PlaceholderPhase` (phase 1) with a `FlatList` of `MenuItemRow`, sorted by `sortItemsByGoals(enrichment.items, selectedGoals)`, numbered #1..#n. Compute `maxValues` from all items before rendering.
+- [ ] **Step 2** Handle loading (enrichment running), empty, and error states.
+- [ ] **Step 3** Loading states must show a spinner + descriptive text at each stage. The sequence is:
+
+  | Stage | Text |
+  |-------|------|
+  | Extraction running (phase 0) | `"Extracting menu data via OCR…"` — already in Phase 3; update copy if needed |
+  | Enrichment running (phase 1) | `"Enriching menu items…"` |
+  | Enrichment done, sorting | Instant (client-side) — no loader needed |
+
+  If item counts are available at the time the enrichment result lands (they will be — `items.length` is known), append them to the enrichment text: `"Enriching 24 menu items…"`. Percentages/progress bars are not feasible since both Edge Function calls return in one shot (no streaming); item count is the best concrete detail available.
+
+## Task 4.5b: Low-confidence menu handling
+
+When a menu uses evocative or promotional language ("Best burger in town!", "A taste of Italy") instead of ingredient-based descriptions, most or all items will have `confidence: "low"`. In this case the ranked list is still shown — don't hide it — but a prominent notice is surfaced.
+
+**Trigger condition:** `>= 75%` of enriched items have `confidence: "low"`.
+
+**Notice UI:** A card shown above the ranked list (not a modal, not blocking navigation):
+
+> **Descriptions on this menu are light on details.**
+> Nutritional estimates are rough — the menu doesn't list ingredients, so we had to guess. For confident choices, your best bet is to ask your waiter.
+
+The notice should be dismissible per session (disappears on tap, doesn't come back until the next scan).
+
+- [ ] **Step 1** Add a `lowConfidenceNotice: boolean` derived value in the results screen: `items.filter(i => i.confidence === "low").length / items.length >= 0.75`.
+- [ ] **Step 2** Render the notice card above the `FlatList` when `lowConfidenceNotice` is true. Dismissible via local `useState` — no store needed.
+- [ ] **Step 3** Type-check + lint. Commit: `feat: add low-confidence menu notice`
+
+## Task 4.6: Cleanup
+
+- [ ] **Step 1** Retire the obsolete `MenuItem` / `ModelProvider` types and dead Phase-1 provider routes (the deferred Task 2.7 Step 3).
+
+## Phase 4 Verification
+
+1. **Type/lint:** `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → zero errors.
+2. **E2E:** scan → pick goals → phase 1 shows a #1..#n ranked list; each row shows four macro dot-badges with gram values and the selected goal(s) accented.
+3. **Menu-relative badges:** the item with the highest protein on the menu always shows ●●●●; the lowest always shows ●○○○ (or close). No item should show 4 dots on all macros unless it genuinely dominates on all four.
+4. **Allergens:** the mandatory allergen disclaimer card appears whenever any enriched item has allergens.
+5. **Low-confidence notice:** on a menu with evocative/promotional descriptions (≥75% low confidence), the notice card appears above the list and dismisses on tap.
+6. **Background timing:** enrichment runs after extraction without blocking goal selection.

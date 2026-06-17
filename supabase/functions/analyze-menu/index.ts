@@ -9,6 +9,9 @@ const MODEL_TIMEOUT_MS = 120000;
 const EXTRACT_PROMPT = `Read this restaurant menu. Return every item exactly as printed, in menu order:
 name, description, price, category (appetizer|main|side|dessert|drink|other).
 Do NOT estimate calories or nutrition. Do NOT invent items you cannot read.
+Extract all visible menu items from every provided photo and every menu section.
+Do not stop after a representative sample, a section summary, or the first page.
+There is no maximum number of items; keep going until every readable item is returned.
 If a description is not printed, use an empty string. If a price is not printed, set it to null.`;
 
 // JSON-schema (OpenAI/Mistral structured-output shape) — extraction only, no nutrition

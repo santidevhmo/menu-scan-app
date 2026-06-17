@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY")!;
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
+const MODEL_TIMEOUT_MS = 120000;
 
 // ── Stage 1: extraction (zero nutrition) ────────────────────────────────────
 
@@ -100,13 +101,18 @@ const ENRICH_SCHEMA_OPENAI = {
 async function fetchWithTimeout(
   url: string,
   init: RequestInit,
-  timeoutMs = 30000,
+  timeoutMs = MODEL_TIMEOUT_MS,
 ): Promise<Response> {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     return await fetch(url, { ...init, signal: controller.signal });
+  } catch (err) {
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error(`Model request timed out after ${timeoutMs / 1000}s`);
+    }
+    throw err;
   } finally {
     clearTimeout(id);
   }

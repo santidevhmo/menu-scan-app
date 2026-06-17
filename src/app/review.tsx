@@ -5,7 +5,7 @@ import { router, Stack } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { useScanStore } from "@/store/scan.store";
 import { useAnalysisStore } from "@/store/analysis.store";
-import { extractMenu } from "@/lib/analyzeMenu";
+import { extractMenu, enrichMenu } from "@/lib/analyzeMenu";
 import { PhotoThumb } from "@/components/review/PhotoThumb";
 import { colors } from "@/constants/theme";
 
@@ -13,7 +13,13 @@ import { colors } from "@/constants/theme";
 export default function ReviewScreen() {
   const photos = useScanStore((s) => s.photos);
   const removePhoto = useScanStore((s) => s.removePhoto);
-  const { setExtraction, setExtractionLoading, clear } = useAnalysisStore();
+  const {
+    setExtraction,
+    setExtractionLoading,
+    setEnrichment,
+    setEnrichmentLoading,
+    clear,
+  } = useAnalysisStore();
   const [analyzing, setAnalyzing] = useState(false);
 
   /** Starts GPT-4o Vision extraction and sends the user to results. */
@@ -26,6 +32,23 @@ export default function ReviewScreen() {
     try {
       const result = await extractMenu(photos, "gpt-vision");
       setExtraction(result);
+
+      // Enrichment is goal-agnostic; run it while the user picks goals.
+      if (!result.error && result.items.length > 0) {
+        setEnrichmentLoading(true);
+        enrichMenu(result.items, "gpt-4o")
+          .then(setEnrichment)
+          .catch((err) =>
+            setEnrichment({
+              provider: "gpt-4o",
+              items: [],
+              latency_ms: 0,
+              model_id: "gpt-4o",
+              error: err instanceof Error ? err.message : "Unknown error",
+            }),
+          )
+          .finally(() => setEnrichmentLoading(false));
+      }
     } catch (err) {
       setExtraction({
         provider: "gpt-vision",

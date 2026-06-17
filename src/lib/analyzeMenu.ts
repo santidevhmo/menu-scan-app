@@ -6,28 +6,30 @@ import {
 } from "@supabase/supabase-js";
 import { compressImage } from "./compressImage";
 import { supabase } from "./supabase";
+import { GOAL_PAIRS, GROUP_TO_MACRO, type MacroField } from "@/data/goals";
 import type {
   ScanPhoto,
-  ModelProvider,
-  MenuItem,
-  AnalysisResult,
   ExtractionProvider,
   ExtractionResult,
   EnrichmentProvider,
   EnrichmentResult,
   ExtractedItem,
+  EnrichedItem,
 } from "@/types/scan";
 
 const GOALS_SORT_MAP: Record<
   string,
-  { field: keyof MenuItem; order: "asc" | "desc" }
+  {
+    field: "protein_g" | "carb_g" | "fat_g" | "estimated_calories";
+    order: "asc" | "desc";
+  }
 > = {
   "Highest in protein": { field: "protein_g", order: "desc" },
   "Low protein": { field: "protein_g", order: "asc" },
   "Low calorie": { field: "estimated_calories", order: "asc" },
   "High calorie": { field: "estimated_calories", order: "desc" },
-  "High carb": { field: "carbs_g", order: "desc" },
-  "Low carb": { field: "carbs_g", order: "asc" },
+  "High carb": { field: "carb_g", order: "desc" },
+  "Low carb": { field: "carb_g", order: "asc" },
   "High fat": { field: "fat_g", order: "desc" },
   "Low fat": { field: "fat_g", order: "asc" },
 };
@@ -115,69 +117,44 @@ function logExtractionResult(result: ExtractionResult) {
 
 /** Sorts menu items by the first selected goal when a local sort is mapped. */
 export function sortItemsByGoals(
-  items: MenuItem[],
+  items: EnrichedItem[],
   goals: string[],
-): MenuItem[] {
+): EnrichedItem[] {
   const goal = goals[0];
-  const sortConfig = goal ? GOALS_SORT_MAP[goal] : undefined;
-  if (!sortConfig) return items;
+  const cfg = goal ? GOALS_SORT_MAP[goal] : undefined;
+  if (!cfg) return items;
   return [...items].sort((a, b) => {
-    const aVal = a[sortConfig.field] as number;
-    const bVal = b[sortConfig.field] as number;
-    return sortConfig.order === "desc" ? bVal - aVal : aVal - bVal;
+    const diff =
+      cfg.order === "desc"
+        ? b[cfg.field] - a[cfg.field]
+        : a[cfg.field] - b[cfg.field];
+    if (diff !== 0) return diff;
+    if (b.estimated_calories !== a.estimated_calories) {
+      return b.estimated_calories - a.estimated_calories;
+    }
+    return a.name.localeCompare(b.name);
   });
 }
 
-/** Runs the legacy one-stage analysis path and sorts items by selected goals. */
-export async function analyzeMenu(
-  photos: ScanPhoto[],
-  goals: string[],
-  provider: ModelProvider,
-): Promise<AnalysisResult> {
-  const base64Photos = await Promise.all(
-    photos.map((p) =>
-      FileSystem.readAsStringAsync(p.uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      }),
-    ),
-  );
+/** Buckets a macro value into 1-4 filled dots, relative to the menu's max. */
+export function bucketDots(value: number, max: number): number {
+  if (max <= 0) return 1;
+  const ratio = value / max;
+  if (ratio <= 0.25) return 1;
+  if (ratio <= 0.5) return 2;
+  if (ratio <= 0.75) return 3;
+  return 4;
+}
 
-  const { data, error } = await supabase.functions.invoke("analyze-menu", {
-    body: { photos: base64Photos, goals, provider },
-  });
-
-  if (error) {
-    let errMsg = error.message;
-    try {
-      const body = await (
-        error as { context?: { json?: () => Promise<{ error?: string }> } }
-      ).context?.json?.();
-      if (body?.error) errMsg = body.error;
-    } catch {}
-    return {
-      provider,
-      items: [],
-      latency_ms: 0,
-      model_id: provider,
-      error: errMsg,
-    };
+/** The macro fields the user is actively ranking by. */
+export function selectedMacros(goals: string[]): Set<MacroField> {
+  const macros = new Set<MacroField>();
+  for (const pair of GOAL_PAIRS) {
+    if (goals.includes(pair.high) || goals.includes(pair.low)) {
+      macros.add(GROUP_TO_MACRO[pair.group]);
+    }
   }
-
-  const sortedItems = sortItemsByGoals(data.items, goals);
-
-  console.log(
-    `[analyzeMenu] ${provider} raw_response:\n`,
-    data.raw_response ?? "(none)",
-  );
-
-  return {
-    provider,
-    items: sortedItems,
-    latency_ms: data.latency_ms,
-    model_id: data.model_id,
-    error: data.error ?? null,
-    raw_response: data.raw_response,
-  };
+  return macros;
 }
 
 /** Runs the live Stage 1 GPT-4o Vision extraction path through Supabase. */

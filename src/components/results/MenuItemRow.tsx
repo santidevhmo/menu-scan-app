@@ -1,16 +1,38 @@
 import { Text, View } from "react-native";
-import type { MenuItem } from "@/types/scan";
+import type { EnrichedItem } from "@/types/scan";
+import { bucketDots } from "@/lib/analyzeMenu";
+import type { MacroField } from "@/data/goals";
 
-interface MenuItemRowProps {
-  item: MenuItem;
-  rank: number;
+export interface MacroMaxes {
+  protein_g: number;
+  carb_g: number;
+  fat_g: number;
+  estimated_calories: number;
 }
 
-/** Displays one ranked menu item with price, description, nutrition, and warnings. */
-export function MenuItemRow({ item, rank }: MenuItemRowProps) {
+interface MenuItemRowProps {
+  item: EnrichedItem;
+  rank: number;
+  maxValues: MacroMaxes;
+  highlight: Set<MacroField>;
+}
+
+const MACROS: { field: MacroField; label: string; unit: string }[] = [
+  { field: "protein_g", label: "Protein", unit: "g" },
+  { field: "carb_g", label: "Carbs", unit: "g" },
+  { field: "fat_g", label: "Fat", unit: "g" },
+  { field: "estimated_calories", label: "Cal", unit: "" },
+];
+
+/** Displays one ranked menu item with price, dot-badges, and allergen warnings. */
+export function MenuItemRow({
+  item,
+  rank,
+  maxValues,
+  highlight,
+}: MenuItemRowProps) {
   return (
     <View className="rounded-card bg-card border border-border p-4 mb-3">
-      {/* Header: rank + name + price */}
       <View className="flex-row items-start justify-between">
         <View className="flex-row items-center flex-1 mr-3">
           <Text className="font-sans text-caption text-muted-foreground mr-2">
@@ -30,7 +52,6 @@ export function MenuItemRow({ item, rank }: MenuItemRowProps) {
         )}
       </View>
 
-      {/* Category badge */}
       <View className="flex-row mt-2">
         <View className="rounded-chip bg-muted px-2 py-0.5">
           <Text className="font-sans text-caption text-muted-foreground capitalize">
@@ -39,7 +60,6 @@ export function MenuItemRow({ item, rank }: MenuItemRowProps) {
         </View>
       </View>
 
-      {/* Description */}
       {item.description !== "" && (
         <Text
           className="font-sans text-subtle text-muted-foreground mt-2"
@@ -49,36 +69,19 @@ export function MenuItemRow({ item, rank }: MenuItemRowProps) {
         </Text>
       )}
 
-      {/* Nutrition grid */}
       <View className="flex-row mt-3 justify-between">
-        <NutritionStat label="Cal" value={item.estimated_calories} />
-        <NutritionStat
-          label="Protein"
-          value={item.protein_g}
-          unit="g"
-          highlight
-        />
-        <NutritionStat label="Carbs" value={item.carbs_g} unit="g" />
-        <NutritionStat label="Fat" value={item.fat_g} unit="g" />
+        {MACROS.map((macro) => (
+          <MacroBadge
+            key={macro.field}
+            label={macro.label}
+            value={item[macro.field]}
+            unit={macro.unit}
+            filled={bucketDots(item[macro.field], maxValues[macro.field])}
+            highlight={highlight.has(macro.field)}
+          />
+        ))}
       </View>
 
-      {/* Dietary tags */}
-      {item.dietary_tags.length > 0 && (
-        <View className="flex-row flex-wrap mt-2 gap-1">
-          {item.dietary_tags.map((tag) => (
-            <View
-              key={tag}
-              className="rounded-chip bg-accent-lime/20 px-2 py-0.5"
-            >
-              <Text className="font-sans text-caption text-foreground">
-                {tag}
-              </Text>
-            </View>
-          ))}
-        </View>
-      )}
-
-      {/* Allergens */}
       {item.allergens.length > 0 && (
         <Text className="font-sans text-caption text-danger mt-2">
           Allergens: {item.allergens.join(", ")}
@@ -88,25 +91,35 @@ export function MenuItemRow({ item, rank }: MenuItemRowProps) {
   );
 }
 
-/** Displays one compact nutrition value inside a menu item row. */
-function NutritionStat({
+/** One macro badge: four dots relative to the menu's max, plus the value. */
+function MacroBadge({
   label,
   value,
   unit,
+  filled,
   highlight,
 }: {
   label: string;
   value: number;
-  unit?: string;
-  highlight?: boolean;
+  unit: string;
+  filled: number;
+  highlight: boolean;
 }) {
+  const dotColor = highlight ? "text-foreground" : "text-muted-foreground";
+
   return (
     <View className="items-center">
+      <Text className={`font-sans text-caption ${dotColor}`}>
+        {"●".repeat(filled)}
+        {"○".repeat(4 - filled)}
+      </Text>
       <Text
-        className={`font-sans text-body ${highlight ? "text-foreground font-semibold" : "text-muted-foreground"}`}
+        className={`font-sans text-subtle mt-1 ${
+          highlight ? "text-foreground font-semibold" : "text-muted-foreground"
+        }`}
       >
-        {value}
-        {unit ?? ""}
+        {Math.round(value)}
+        {unit}
       </Text>
       <Text className="font-sans text-caption text-muted-foreground">
         {label}

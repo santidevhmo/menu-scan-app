@@ -13,6 +13,9 @@ import type {
   AnalysisResult,
   ExtractionProvider,
   ExtractionResult,
+  EnrichmentProvider,
+  EnrichmentResult,
+  ExtractedItem,
 } from "@/types/scan";
 
 const GOALS_SORT_MAP: Record<
@@ -241,4 +244,44 @@ export async function extractMenu(
 
   logExtractionResult(result);
   return result;
+}
+
+/** Runs the Stage 2 gram-based enrichment for one provider over cached items. */
+export async function enrichMenu(
+  items: ExtractedItem[],
+  provider: EnrichmentProvider,
+): Promise<EnrichmentResult> {
+  const { data, error } = await supabase.functions.invoke(FUNCTION_NAME, {
+    body: { items, provider, stage: "enrich" },
+  });
+
+  if (error) {
+    const errMsg = await getFunctionErrorMessage(error);
+    return {
+      provider,
+      items: [],
+      latency_ms: 0,
+      model_id: provider,
+      error: errMsg,
+    };
+  }
+
+  if (!data || !Array.isArray(data.items)) {
+    return {
+      provider,
+      items: [],
+      latency_ms: 0,
+      model_id: provider,
+      error: "Malformed enrichment response (missing items array)",
+    };
+  }
+
+  return {
+    provider,
+    items: data.items,
+    latency_ms: data.latency_ms,
+    model_id: data.model_id,
+    error: data.error ?? null,
+    raw_response: data.raw_response,
+  };
 }

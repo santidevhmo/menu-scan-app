@@ -172,12 +172,22 @@ function ResultsPhase({
 }) {
   const [noticeDismissed, setNoticeDismissed] = useState(false);
 
-  if (loading || !result) {
+  if (loading) {
     return (
       <View className="flex-1 items-center justify-center px-10">
         <ActivityIndicator size="large" color={colors.foreground} />
         <Text className="font-sans text-caption text-muted-foreground mt-3 text-center">
           Enriching menu items...
+        </Text>
+      </View>
+    );
+  }
+
+  if (!result) {
+    return (
+      <View className="flex-1 items-center justify-center px-10">
+        <Text className="font-sans text-subtle text-muted-foreground text-center">
+          No items to rank.
         </Text>
       </View>
     );

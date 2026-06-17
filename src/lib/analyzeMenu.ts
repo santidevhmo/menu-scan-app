@@ -9,8 +9,6 @@ import { supabase } from "./supabase";
 import { GOAL_PAIRS, GROUP_TO_MACRO, type MacroField } from "@/data/goals";
 import type {
   ScanPhoto,
-  ModelProvider,
-  AnalysisResult,
   ExtractionProvider,
   ExtractionResult,
   EnrichmentProvider,
@@ -157,56 +155,6 @@ export function selectedMacros(goals: string[]): Set<MacroField> {
     }
   }
   return macros;
-}
-
-/** Runs the legacy one-stage analysis path and sorts items by selected goals. */
-export async function analyzeMenu(
-  photos: ScanPhoto[],
-  goals: string[],
-  provider: ModelProvider,
-): Promise<AnalysisResult> {
-  const base64Photos = await Promise.all(
-    photos.map((p) =>
-      FileSystem.readAsStringAsync(p.uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      }),
-    ),
-  );
-
-  const { data, error } = await supabase.functions.invoke("analyze-menu", {
-    body: { photos: base64Photos, goals, provider },
-  });
-
-  if (error) {
-    let errMsg = error.message;
-    try {
-      const body = await (
-        error as { context?: { json?: () => Promise<{ error?: string }> } }
-      ).context?.json?.();
-      if (body?.error) errMsg = body.error;
-    } catch {}
-    return {
-      provider,
-      items: [],
-      latency_ms: 0,
-      model_id: provider,
-      error: errMsg,
-    };
-  }
-
-  console.log(
-    `[analyzeMenu] ${provider} raw_response:\n`,
-    data.raw_response ?? "(none)",
-  );
-
-  return {
-    provider,
-    items: data.items,
-    latency_ms: data.latency_ms,
-    model_id: data.model_id,
-    error: data.error ?? null,
-    raw_response: data.raw_response,
-  };
 }
 
 /** Runs the live Stage 1 GPT-4o Vision extraction path through Supabase. */

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   ActivityIndicator,
+  FlatList,
   Pressable,
   ScrollView,
   Text,
@@ -13,8 +14,14 @@ import { colors } from "@/constants/theme";
 import { useAnalysisStore } from "@/store/analysis.store";
 import { useGoalsStore } from "@/store/goals.store";
 import { GoalSelector } from "@/components/results/GoalSelector";
+import { MenuItemRow, type MacroMaxes } from "@/components/results/MenuItemRow";
 import { PhaseIndicator } from "@/components/results/PhaseIndicator";
-import type { ExtractionResult } from "@/types/scan";
+import { selectedMacros, sortItemsByGoals } from "@/lib/analyzeMenu";
+import type {
+  EnrichedItem,
+  EnrichmentResult,
+  ExtractionResult,
+} from "@/types/scan";
 
 /** Pretty-prints JSON strings while leaving non-JSON OCR text unchanged. */
 function tryPrettyPrint(text: string): string {
@@ -140,29 +147,110 @@ function GoalsPhase({
   );
 }
 
-/** Renders a placeholder for downstream phases that are not built yet. */
-function PlaceholderPhase({
-  title,
-  subtitle,
+/** Computes the menu-relative max for each macro across all items. */
+function computeMaxes(items: EnrichedItem[]): MacroMaxes {
+  return {
+    protein_g: Math.max(0, ...items.map((item) => item.protein_g)),
+    carb_g: Math.max(0, ...items.map((item) => item.carb_g)),
+    fat_g: Math.max(0, ...items.map((item) => item.fat_g)),
+    estimated_calories: Math.max(
+      0,
+      ...items.map((item) => item.estimated_calories),
+    ),
+  };
+}
+
+/** Phase 1: the goal-ranked list of enriched menu items. */
+function ResultsPhase({
+  loading,
+  result,
+  selectedGoals,
 }: {
-  title: string;
-  subtitle: string;
+  loading: boolean;
+  result: EnrichmentResult | null;
+  selectedGoals: string[];
 }) {
+  const [noticeDismissed, setNoticeDismissed] = useState(false);
+
+  if (loading || !result) {
+    return (
+      <View className="flex-1 items-center justify-center px-10">
+        <ActivityIndicator size="large" color={colors.foreground} />
+        <Text className="font-sans text-caption text-muted-foreground mt-3 text-center">
+          Enriching menu items...
+        </Text>
+      </View>
+    );
+  }
+
+  if (result.error) {
+    return (
+      <View className="flex-1 items-center justify-center px-10">
+        <Text className="font-sans text-body text-danger text-center">
+          {result.error}
+        </Text>
+      </View>
+    );
+  }
+
+  if (result.items.length === 0) {
+    return (
+      <View className="flex-1 items-center justify-center px-10">
+        <Text className="font-sans text-subtle text-muted-foreground text-center">
+          No items to rank.
+        </Text>
+      </View>
+    );
+  }
+
+  const maxValues = computeMaxes(result.items);
+  const highlight = selectedMacros(selectedGoals);
+  const sorted = sortItemsByGoals(result.items, selectedGoals);
+  const lowConfidence =
+    result.items.filter((item) => item.confidence === "low").length /
+      result.items.length >=
+    0.75;
+
   return (
-    <View className="flex-1 items-center justify-center px-10">
-      <Text className="font-display text-h2 text-foreground text-center">
-        {title}
-      </Text>
-      <Text className="font-sans text-subtle text-muted-foreground text-center mt-2">
-        {subtitle}
-      </Text>
-    </View>
+    <FlatList
+      data={sorted}
+      keyExtractor={(item, index) => `${item.name}-${index}`}
+      contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
+      ListHeaderComponent={
+        lowConfidence && !noticeDismissed ? (
+          <Pressable
+            onPress={() => setNoticeDismissed(true)}
+            className="rounded-card border border-border bg-card p-4 mb-3"
+            accessibilityRole="button"
+            accessibilityLabel="Dismiss low-confidence notice"
+          >
+            <Text className="font-sans text-body text-foreground">
+              Descriptions on this menu are light on details.
+            </Text>
+            <Text className="font-sans text-subtle text-muted-foreground mt-1">
+              Nutritional estimates are rough because the menu does not list
+              ingredients. For confident choices, ask your waiter. Tap to
+              dismiss.
+            </Text>
+          </Pressable>
+        ) : null
+      }
+      renderItem={({ item, index }) => (
+        <MenuItemRow
+          item={item}
+          rank={index + 1}
+          maxValues={maxValues}
+          highlight={highlight}
+        />
+      )}
+    />
   );
 }
 
 /** Results screen for reviewing OCR output and downstream placeholder phases. */
 export default function ResultsScreen() {
-  const { extraction, extractionLoading } = useAnalysisStore();
+  const { extraction, extractionLoading, enrichment, enrichmentLoading } =
+    useAnalysisStore();
   const selectedGoals = useGoalsStore((state) => state.selectedGoals);
   const toggleGoal = useGoalsStore((state) => state.toggleGoal);
   const [phase, setPhase] = useState(0);
@@ -214,9 +302,10 @@ export default function ResultsScreen() {
           />
         )}
         {phase === 1 && (
-          <PlaceholderPhase
-            title="Sorted results"
-            subtitle="Coming next: items ranked by your nutritional goals."
+          <ResultsPhase
+            loading={enrichmentLoading}
+            result={enrichment}
+            selectedGoals={selectedGoals}
           />
         )}
       </View>

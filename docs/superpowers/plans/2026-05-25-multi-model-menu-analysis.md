@@ -8,7 +8,7 @@
 
 **Tech Stack:** Expo, React Native, TypeScript, NativeWind, Zustand, Supabase Edge Functions (Deno), Gemini REST API, OpenAI REST API, Mistral REST API
 
-**Current status (2026-06-13):** The OCR/extraction comparison is complete. **GPT-4o Vision** (`provider: "gpt-vision"`, `model_id: "gpt-4o"`) is the frozen menu-reading model for the next phase. Current project cost assumption: **$0.03 USD per GPT-4o Vision extraction call**. The nutritional enrichment/model comparison is **not complete** and remains in scope.
+**Current status (2026-06-18):** The OCR/extraction comparison is complete and **GPT-4o Vision** (`provider: "gpt-vision"`, `model_id: "gpt-4o"`) is the frozen menu-reading model. Stage 2 enrichment is implemented in the live flow: scan → goal selection → ranked enriched results. Phase 5 per-item portion adjustment was merged in PR #7; follow-up UX polish remains listed at the end of Phase 5.
 
 **Tooling status (2026-06-13):** Package manager cleanup is complete. The project now standardizes on **pnpm** (`packageManager: "pnpm@11.0.8"`), keeps `pnpm-lock.yaml` as the only JS lockfile, uses `pnpm-workspace.yaml` with `nodeLinker: hoisted` for Expo/Metro compatibility, and pins `lightningcss` to `1.30.1` via pnpm overrides to avoid NativeWind / `react-native-css` / `global.css` bundling failures.
 
@@ -1413,9 +1413,11 @@ This phase turns that wait time into useful input: goal selection becomes phase 
 
 ---
 
-# Phase 4: Activate Nutritional Analysis — Ranked Results (planned 2026-06-14)
+# Phase 4: Activate Nutritional Analysis — Ranked Results (implemented 2026-06-14)
 
 > Wires the Stage-2 enrichment winner into the live user flow, replacing the `PlaceholderPhase` in `src/app/results.tsx`. This closes the end-to-end loop: scan → goals → ranked results. Enrichment is **goal-agnostic**, so it runs in the background right after extraction completes (before the user finishes picking goals); goals are applied only at sort time.
+>
+> **Status:** Implemented and merged before Phase 5. The checklist below is preserved as implementation history.
 
 ## Phase 4 File Map
 
@@ -1423,36 +1425,36 @@ This phase turns that wait time into useful input: goal selection becomes phase 
 | ---- | ------ | -------------- |
 | `src/store/analysis.store.ts` | Modify | Add `enrichment` / `enrichmentLoading` (mirror the extraction pattern) |
 | `src/types/scan.ts` | Modify | Finalize `EnrichedItem` (ordinal shape) + `EnrichmentResult` |
-| `src/lib/analyzeMenu.ts` | Modify | `enrichMenu()`; point `GOALS_SORT_MAP` at `scores.*`; retype `sortItemsByGoals` |
+| `src/lib/analyzeMenu.ts` | Modify | `enrichMenu()`; point `GOALS_SORT_MAP` at gram fields; retype `sortItemsByGoals` |
 | `src/app/review.tsx` | Modify | Chain `enrichMenu` after `extractMenu` (background) |
 | `src/components/results/MenuItemRow.tsx` | Modify | Four macro dot-badges, selected-goal highlight |
 | `src/app/results.tsx` | Modify | Replace `PlaceholderPhase` with the ranked list |
 
 ## Task 4.1: Enrichment state
 
-- [ ] **Step 1** Add `enrichment: EnrichmentResult | null`, `enrichmentLoading: boolean`, their setters, and clear-on-reset to `analysis.store.ts`, mirroring the extraction pattern.
+- [x] **Step 1** Add `enrichment: EnrichmentResult | null`, `enrichmentLoading: boolean`, their setters, and clear-on-reset to `analysis.store.ts`, mirroring the extraction pattern.
 
 ## Task 4.2: Enrichment client + chaining
 
-- [ ] **Step 1** Add `enrichMenu(items, provider)` to `analyzeMenu.ts` (sends `stage: "enrich"` with the cached `ExtractedItem[]`).
-- [ ] **Step 2** In `review.tsx`, after `extractMenu` resolves, set `enrichmentLoading` and call `enrichMenu` in the background.
+- [x] **Step 1** Add `enrichMenu(items, provider)` to `analyzeMenu.ts` (sends `stage: "enrich"` with the cached `ExtractedItem[]`).
+- [x] **Step 2** In `review.tsx`, after `extractMenu` resolves, set `enrichmentLoading` and call `enrichMenu` in the background.
 
 ## Task 4.3: Finalize types + sorting
 
-- [ ] **Step 1** Set `EnrichedItem` to the gram shape (`ingredients[]`, `protein_g`, `carb_g`, `fat_g`, `estimated_calories`, `confidence`, `allergens`). Add `EnrichmentResult` mirroring `ExtractionResult`.
-- [ ] **Step 2** Point each `GOALS_SORT_MAP` entry at the matching gram field (`protein_g`, `carb_g`, `fat_g`, `estimated_calories`; desc for high/highest, asc for low); add the `estimated_calories`-then-name tiebreak. Retype `sortItemsByGoals` to `EnrichedItem`.
+- [x] **Step 1** Set `EnrichedItem` to the gram shape (`ingredients[]`, `protein_g`, `carb_g`, `fat_g`, `estimated_calories`, `confidence`, `allergens`). Add `EnrichmentResult` mirroring `ExtractionResult`.
+- [x] **Step 2** Point each `GOALS_SORT_MAP` entry at the matching gram field (`protein_g`, `carb_g`, `fat_g`, `estimated_calories`; desc for high/highest, asc for low); add the `estimated_calories`-then-name tiebreak. Retype `sortItemsByGoals` to `EnrichedItem`.
 
 ## Task 4.4: Macro badges in `MenuItemRow`
 
-- [ ] **Step 1** Replace the raw grams `NutritionStat` grid with four macro **dot-badges** (protein/carb/fat/calorie). Each badge shows dots + the gram/kcal value (e.g. `●●●○ 38g`). Dots are bucketed **relative to the menu's max** for that macro — pass `maxValues: { protein_g, carb_g, fat_g, estimated_calories }` as a prop (computed once in the parent before rendering the list).
-- [ ] **Step 2** Highlight badges whose `GoalPair.group` is in `selectedGoals` (accent color); mute the rest (grey). Use the `GOAL_PAIRS` group→macro mapping.
-- [ ] **Step 3** Keep the allergen line; render the **mandatory** allergen disclaimer card whenever any item in the result has allergens (per AGENTS.md — non-negotiable).
+- [x] **Step 1** Replace the raw grams `NutritionStat` grid with four macro **dot-badges** (protein/carb/fat/calorie). Each badge shows dots + the gram/kcal value (e.g. `●●●○ 38g`). Dots are bucketed **relative to the menu's max** for that macro — pass `maxValues: { protein_g, carb_g, fat_g, estimated_calories }` as a prop (computed once in the parent before rendering the list).
+- [x] **Step 2** Highlight badges whose `GoalPair.group` is in `selectedGoals` (accent color); mute the rest (grey). Use the `GOAL_PAIRS` group→macro mapping.
+- [x] **Step 3** Keep the per-item allergen line. The mandatory allergen disclaimer card belongs to the later allergen-filtering feature and must render when an allergen filter is active.
 
 ## Task 4.5: Ranked results phase
 
-- [ ] **Step 1** Replace `PlaceholderPhase` (phase 1) with a `FlatList` of `MenuItemRow`, sorted by `sortItemsByGoals(enrichment.items, selectedGoals)`, numbered #1..#n. Compute `maxValues` from all items before rendering.
-- [ ] **Step 2** Handle loading (enrichment running), empty, and error states.
-- [ ] **Step 3** Loading states must show a spinner + descriptive text at each stage. The sequence is:
+- [x] **Step 1** Replace `PlaceholderPhase` (phase 1) with a `FlatList` of `MenuItemRow`, sorted by `sortItemsByGoals(enrichment.items, selectedGoals)`, numbered #1..#n. Compute `maxValues` from all items before rendering.
+- [x] **Step 2** Handle loading (enrichment running), empty, and error states.
+- [x] **Step 3** Loading states must show a spinner + descriptive text at each stage. The sequence is:
 
   | Stage | Text |
   |-------|------|
@@ -1475,20 +1477,20 @@ When a menu uses evocative or promotional language ("Best burger in town!", "A t
 
 The notice should be dismissible per session (disappears on tap, doesn't come back until the next scan).
 
-- [ ] **Step 1** Add a `lowConfidenceNotice: boolean` derived value in the results screen: `items.filter(i => i.confidence === "low").length / items.length >= 0.75`.
-- [ ] **Step 2** Render the notice card above the `FlatList` when `lowConfidenceNotice` is true. Dismissible via local `useState` — no store needed.
-- [ ] **Step 3** Type-check + lint. Commit: `feat: add low-confidence menu notice`
+- [x] **Step 1** Add a `lowConfidenceNotice: boolean` derived value in the results screen: `items.filter(i => i.confidence === "low").length / items.length >= 0.75`.
+- [x] **Step 2** Render the notice card above the `FlatList` when `lowConfidenceNotice` is true. Dismissible via local `useState` — no store needed.
+- [x] **Step 3** Type-check + lint. Commit: `feat: add low-confidence menu notice`
 
 ## Task 4.6: Cleanup
 
-- [ ] **Step 1** Retire the obsolete `MenuItem` / `ModelProvider` types and dead Phase-1 provider routes (the deferred Task 2.7 Step 3).
+- [x] **Step 1** Retire the obsolete `MenuItem` / `ModelProvider` types and dead Phase-1 provider routes (the deferred Task 2.7 Step 3).
 
 ## Phase 4 Verification
 
 1. **Type/lint:** `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → zero errors.
 2. **E2E:** scan → pick goals → phase 1 shows a #1..#n ranked list; each row shows four macro dot-badges with gram values and the selected goal(s) accented.
 3. **Menu-relative badges:** the item with the highest protein on the menu always shows ●●●●; the lowest always shows ●○○○ (or close). No item should show 4 dots on all macros unless it genuinely dominates on all four.
-4. **Allergens:** the mandatory allergen disclaimer card appears whenever any enriched item has allergens.
+4. **Allergens:** per-item inferred allergens render inline. The mandatory allergen disclaimer card is reserved for active allergen filters.
 5. **Low-confidence notice:** on a menu with evocative/promotional descriptions (≥75% low confidence), the notice card appears above the list and dismisses on tap.
 6. **Background timing:** enrichment runs after extraction without blocking goal selection.
 

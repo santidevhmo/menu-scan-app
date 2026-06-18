@@ -104,7 +104,7 @@ export function MenuItemRow({
         </Pressable>
 
         <Text className="font-sans text-body text-foreground w-12 text-center">
-          {portion}x
+          {portion}×
         </Text>
 
         <Pressable

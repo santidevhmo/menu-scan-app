@@ -67,10 +67,7 @@ export function MenuItemRow({
       </View>
 
       {item.description !== "" && (
-        <Text
-          className="font-sans text-subtle text-muted-foreground mt-2"
-          numberOfLines={2}
-        >
+        <Text className="font-sans text-subtle text-muted-foreground mt-2">
           {item.description}
         </Text>
       )}
@@ -82,7 +79,10 @@ export function MenuItemRow({
             label={macro.label}
             value={item[macro.field] * portion}
             unit={macro.unit}
-            filled={bucketDots(item[macro.field], maxValues[macro.field])}
+            filled={bucketDots(
+              item[macro.field] * portion,
+              maxValues[macro.field],
+            )}
             highlight={highlight.has(macro.field)}
           />
         ))}

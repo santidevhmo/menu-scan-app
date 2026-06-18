@@ -1,4 +1,6 @@
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
+import { Minus, Plus } from "lucide-react-native";
+import { colors } from "@/constants/theme";
 import type { EnrichedItem } from "@/types/scan";
 import { bucketDots } from "@/lib/analyzeMenu";
 import type { MacroField } from "@/data/goals";
@@ -15,6 +17,8 @@ interface MenuItemRowProps {
   rank: number;
   maxValues: MacroMaxes;
   highlight: Set<MacroField>;
+  portion: number;
+  onPortionChange: (portion: number) => void;
 }
 
 const MACROS: { field: MacroField; label: string; unit: string }[] = [
@@ -30,6 +34,8 @@ export function MenuItemRow({
   rank,
   maxValues,
   highlight,
+  portion,
+  onPortionChange,
 }: MenuItemRowProps) {
   return (
     <View className="rounded-card bg-card border border-border p-4 mb-3">
@@ -74,12 +80,42 @@ export function MenuItemRow({
           <MacroBadge
             key={macro.field}
             label={macro.label}
-            value={item[macro.field]}
+            value={item[macro.field] * portion}
             unit={macro.unit}
             filled={bucketDots(item[macro.field], maxValues[macro.field])}
             highlight={highlight.has(macro.field)}
           />
         ))}
+      </View>
+
+      <View className="flex-row items-center justify-center mt-3 gap-4">
+        <Pressable
+          onPress={() => onPortionChange(Math.max(0.5, portion - 0.5))}
+          disabled={portion <= 0.5}
+          hitSlop={8}
+          className={`w-9 h-9 items-center justify-center rounded-full border ${
+            portion <= 0.5 ? "border-border opacity-40" : "border-border"
+          }`}
+          accessibilityRole="button"
+          accessibilityLabel="Decrease portion"
+          accessibilityState={{ disabled: portion <= 0.5 }}
+        >
+          <Minus size={16} color={colors.foreground} strokeWidth={2} />
+        </Pressable>
+
+        <Text className="font-sans text-body text-foreground w-12 text-center">
+          {portion}×
+        </Text>
+
+        <Pressable
+          onPress={() => onPortionChange(portion + 0.5)}
+          hitSlop={8}
+          className="w-9 h-9 items-center justify-center rounded-full border border-border"
+          accessibilityRole="button"
+          accessibilityLabel="Increase portion"
+        >
+          <Plus size={16} color={colors.foreground} strokeWidth={2} />
+        </Pressable>
       </View>
 
       {item.allergens.length > 0 && (

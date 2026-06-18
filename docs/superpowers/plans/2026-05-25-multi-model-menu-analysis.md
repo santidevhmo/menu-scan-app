@@ -1494,364 +1494,144 @@ The notice should be dismissible per session (disappears on tap, doesn't come ba
 
 ---
 
-# Phase 5: Per-Item Portion Adjustment (Serving-Size Multiplier) (planned 2026-06-15)
+# Phase 5: Per-Item Portion Adjustment (implemented 2026-06-17)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 > **Code style:** Use the `ponytail` skill for code writing — laziest solution that works, fewest files, no speculative abstraction.
 
-**Goal:** Let the user adjust how much of each ranked item they'll actually eat via a per-item multiplier stepper (¼×–3×), rescaling that item's macros/calories and dot-badges live, with list re-ranking deferred behind a "tap to update ranking" bar.
+**Goal:** Each ranked result row gets a −/+ portion stepper; changing it scales only that row's displayed gram/cal numbers. Dots, ranking, and maxes stay frozen at the AI baseline.
 
-**Architecture:** Enrichment already returns 1×-serving macros; Phase 5 adds a model-estimated default serving (`serving_qty` + `serving_unit`) so the 1× baseline is a *realistic one-person portion*. A pure client util scales macros by a discrete multiplier and reformats the serving label — no new API calls. `MenuItemRow` gains the stepper and shows scaled grams/label/dots live against the currently-applied menu maxima. `results.tsx` holds the per-item multiplier map and only re-sorts + recomputes badge maxima when the user taps the deferred re-rank bar, so the row being edited never jumps.
+**Architecture:** Portion multipliers are held in parent state (`ResultsPhase` in `src/app/results.tsx`), keyed by stable item identity, and passed down to each `MenuItemRow` as a controlled `portion` + `onPortionChange` pair. The row multiplies its displayed macro numbers by `portion`. The existing baseline pipeline — `sortItemsByGoals`, `computeMaxes`, `bucketDots`, `selectedMacros` — is unchanged and still runs once on the un-scaled enriched items.
 
-**Tech Stack:** React Native, TypeScript (strict, no `any`), NativeWind, Supabase Edge Function (Deno), Gemini/OpenAI REST.
+**Tech Stack:** Expo, React Native, TypeScript (strict), NativeWind, Zustand, Expo Router, Lucide icons.
 
-**Dependency:** Builds directly on **Phase 4** — requires the gram-shape `EnrichedItem` (`protein_g`, `carb_g`, `fat_g`, `estimated_calories`, `confidence`, `allergens`, `ingredients`), the dot-badge `MenuItemRow`, the ranked `FlatList` in `results.tsx` phase 1, and `GOALS_SORT_MAP` pointing at the gram fields. **Do not start Phase 5 until Phase 4 is merged.**
+**Dependency:** Builds directly on **Phase 4** — requires the gram-shape `EnrichedItem` (`protein_g`, `carb_g`, `fat_g`, `estimated_calories`, `confidence`, `allergens`, `ingredients`), the dot-badge `MenuItemRow`, and the ranked `FlatList` in `results.tsx` phase 1. No backend changes and no new libraries.
 
-## Phase 5 Design (approved 2026-06-15)
+## Phase 5 Design (approved 2026-06-17)
 
-- **Uniform multiplier** (Option A, chosen over food-aware modes): every item uses one stepper. Stops: `¼ · ½ · ¾ · 1× · 1½ · 2× · 3×`, default `1×`, floor `¼`, cap `3×`. `3×` covers "4+ slices" since a 2-slice default × 2 = 4 slices.
-- **No user math:** the displayed serving label rescales with the multiplier (`2 slices` → `4 slices` at 2×; `6 oz fillet` → `3 oz fillet` at ½×). All four macros scale linearly and round to integers.
-- **Live vs deferred:** stepping `+`/`−` updates the edited row's grams + label + that row's dots **instantly** (against the currently-applied maxima) and the row does **not** move. A bottom bar — *"Portions changed — tap to update ranking"* — appears **only when** the pending multipliers would change sort order; tapping it re-sorts and recomputes all menu-relative badge maxima at once.
-- **Ephemeral:** multipliers reset on a new scan (local component state, no persistence, no store).
-- **Low-confidence items** (the `0/0/0/0` ones) have no serving and render **no stepper**.
+1. **Control = −/+ stepper** (not preset pills). Starts at `1×`, step `±0.5×`, floor `0.5×` (cannot reach 0 or below), **no upper limit**.
+2. **Stepper effect = numbers scale; no re-sort.** Only the row's displayed gram/cal numbers change. The list does **not** re-rank.
+3. **Dot-badges frozen at baseline.** Dots are computed once from the AI enrichment (1×) values and never recompute — not even for the stepped row. They remain a per-standard-serving menu reference.
+4. **State lives in the parent.** `FlatList` can unmount off-screen rows, so per-row local state would reset on long menus. `ResultsPhase` owns the multiplier map.
 
 ## Phase 5 File Map
 
 | File | Action | Responsibility |
 | ---- | ------ | -------------- |
-| `src/types/scan.ts` | Modify | Add `serving_qty`, `serving_unit` to `EnrichedItem` |
-| `supabase/functions/analyze-menu/index.ts` | Modify | Enrich prompt: realistic one-person serving + emit `serving_qty`/`serving_unit`; add both to enrich schemas |
-| `src/lib/portion.ts` | Create | Pure scaling util: stops, `stepMultiplier`, `scaleMacros`, `formatQty`, `formatMultiplier`, `scaledSortValue` |
-| `src/lib/portion.test.ts` | Create | One assert-based self-check for the scaling/formatting math |
-| `src/components/results/MenuItemRow.tsx` | Modify | Render stepper + scaled label/macros; dots from scaled values vs `maxValues` prop |
-| `src/app/results.tsx` | Modify | Per-item multiplier state, deferred re-rank bar, apply → re-sort + recompute maxima |
+| `src/components/results/MenuItemRow.tsx` | Modify | Add controlled `portion` + `onPortionChange` props; scale displayed macro numbers by `portion`; render the −/+ stepper. Dots stay baseline. |
+| `src/app/results.tsx` | Modify | Hold per-item portion state in `ResultsPhase`, keyed by stable item identity; pass `portion`/`onPortionChange` into each row. Baseline sort/maxes unchanged. |
 
-## Task 5.1: Add serving fields to `EnrichedItem`
+No changes to `src/lib/analyzeMenu.ts`, `src/types/scan.ts`, `src/data/goals.ts`, or the Supabase Edge Function. The previous Phase 5 note about exporting `GOALS_SORT_MAP` is obsolete because Phase 5 does not re-sort.
 
-**Files:** Modify `src/types/scan.ts`
-
-- [ ] **Step 1: Extend the interface.** Add the two serving fields to the Phase-4 gram-shape `EnrichedItem` (do not change the existing macro/confidence/allergen fields):
-
-```ts
-export interface EnrichedItem extends ExtractedItem {
-  ingredients: EnrichedIngredient[];
-  protein_g: number;
-  carb_g: number;
-  fat_g: number;
-  estimated_calories: number;
-  confidence: "high" | "medium" | "low";
-  allergens: string[];
-  serving_qty: number;       // default units one adult eats in one sitting, e.g. 2, 6, 1
-  serving_unit: string;      // e.g. "slices", "oz fillet", "burger", "bowl"
-}
-```
-
-- [ ] **Step 2: Type-check.** Run: `pnpm tsc --noEmit` → no errors.
-- [ ] **Step 3: Commit.** `git add src/types/scan.ts && git commit -m "feat: add serving_qty/serving_unit to EnrichedItem"`
-
-## Task 5.2: Edge Function — emit realistic serving + serving fields
-
-**Files:** Modify `supabase/functions/analyze-menu/index.ts`
-
-- [ ] **Step 1: Update the enrich prompt.** In `ENRICH_PROMPT` (added in Task 2.5′), change the gram-estimation step to anchor on a realistic one-person portion and require the serving fields. Replace step 2 and add the serving instruction:
-
-```ts
-const ENRICH_PROMPT = `You estimate the nutrition profile of restaurant menu items. For each item, work step by step:
-1. List the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other.
-2. Decide the portion ONE adult typically eats in a single sitting (e.g. 2-3 slices of a shareable pizza, not the whole pie; one fillet; one bowl). Express it as "serving_qty" (a number) and "serving_unit" (a short plural noun like "slices", "oz fillet", "burger", "bowl", "glass"). Then estimate, FOR THAT portion: protein_g, carb_g, fat_g, estimated_calories.
-3. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive, leaving you with little ingredient information to go on. For low-confidence items, set serving_qty to 0 and serving_unit to "".
-List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, shellfish, egg, soy). Preserve each item's name, description, price, and category exactly as given. Do NOT sort the items. Return one object per input item, in the same order.`;
-```
-
-- [ ] **Step 2: Add the serving fields to both enrich schemas.** In `ENRICH_SCHEMA_GEMINI` and `ENRICH_SCHEMA_OPENAI`, add to each item's `properties` and `required` list:
-
-```ts
-      serving_qty: { type: "number" },
-      serving_unit: { type: "string" },
-```
-
-(In `ENRICH_SCHEMA_GEMINI` add to `required`; in `ENRICH_SCHEMA_OPENAI` add to `required` — `additionalProperties:false` already enforced.)
-
-- [ ] **Step 3: Deploy.** Run: `supabase functions deploy analyze-menu` → deploy succeeds.
-- [ ] **Step 4: Smoke-test.** Re-run the Task 2.5′ curl for both providers; verify each item now returns numeric `serving_qty` + string `serving_unit`, and that a promotional item returns `serving_qty: 0`, `serving_unit: ""`.
-- [ ] **Step 5: Commit.** `git add supabase/functions/analyze-menu/index.ts && git commit -m "feat: enrichment emits realistic serving_qty/serving_unit"`
-
-## Task 5.3: Portion scaling util (with self-check)
-
-**Files:** Create `src/lib/portion.ts`, `src/lib/portion.test.ts`
-
-- [ ] **Step 1: Write the util.**
-
-```ts
-import type { EnrichedItem } from "@/types/scan";
-
-export const MULTIPLIER_STOPS = [0.25, 0.5, 0.75, 1, 1.5, 2, 3] as const;
-export type Multiplier = (typeof MULTIPLIER_STOPS)[number];
-
-const FRACTIONS: Record<number, string> = { 0.25: "¼", 0.5: "½", 0.75: "¾" };
-
-/** Moves to the next/previous discrete stop, clamped to the ends. */
-export function stepMultiplier(current: number, dir: 1 | -1): Multiplier {
-  const i = MULTIPLIER_STOPS.indexOf(current as Multiplier);
-  const idx = i === -1 ? MULTIPLIER_STOPS.indexOf(1) : i;
-  const next = Math.min(Math.max(idx + dir, 0), MULTIPLIER_STOPS.length - 1);
-  return MULTIPLIER_STOPS[next];
-}
-
-/** Formats a quantity with ¼/½/¾ fractions, e.g. 1.5 -> "1½", 3 -> "3". */
-export function formatQty(qty: number): string {
-  const whole = Math.floor(qty + 1e-9);
-  const frac = Math.round((qty - whole) * 100) / 100;
-  const fracStr = FRACTIONS[frac];
-  if (fracStr) return whole > 0 ? `${whole}${fracStr}` : fracStr;
-  return `${whole}`;
-}
-
-/** "1×", "½×", "1½×". */
-export function formatMultiplier(m: number): string {
-  return FRACTIONS[m] ? `${FRACTIONS[m]}×` : `${formatQty(m)}×`;
-}
-
-export interface ScaledMacros {
-  protein_g: number;
-  carb_g: number;
-  fat_g: number;
-  estimated_calories: number;
-}
-
-/** Scales the four macro fields by the multiplier, rounded to integers. */
-export function scaleMacros(item: EnrichedItem, m: number): ScaledMacros {
-  return {
-    protein_g: Math.round(item.protein_g * m),
-    carb_g: Math.round(item.carb_g * m),
-    fat_g: Math.round(item.fat_g * m),
-    estimated_calories: Math.round(item.estimated_calories * m),
-  };
-}
-
-/** Scaled value of one macro field — used as the live sort key. */
-export function scaledSortValue(
-  item: EnrichedItem,
-  m: number,
-  field: keyof ScaledMacros,
-): number {
-  return item[field] * m;
-}
-```
-
-> ponytail: stops are multiples of 0.25 so `serving_qty * m` and macro scaling stay on clean quarter steps — the `1e-9` / `round(…*100)/100` guards float noise. No generic rational-number lib needed.
-
-- [ ] **Step 2: Write the self-check.**
-
-```ts
-import { formatQty, formatMultiplier, scaleMacros, stepMultiplier } from "./portion";
-import type { EnrichedItem } from "@/types/scan";
-
-const base = {
-  name: "Pizza", description: "", price: 16, category: "main",
-  ingredients: [], protein_g: 25, carb_g: 110, fat_g: 25, estimated_calories: 950,
-  confidence: "high", allergens: [], serving_qty: 2, serving_unit: "slices",
-} as EnrichedItem;
-
-test("scaleMacros doubles at 2x", () => {
-  expect(scaleMacros(base, 2).estimated_calories).toBe(1900);
-  expect(scaleMacros(base, 0.5).carb_g).toBe(55);
-});
-
-test("formatQty renders fractions", () => {
-  expect(formatQty(base.serving_qty * 2)).toBe("4");   // 4 slices
-  expect(formatQty(6 * 0.5)).toBe("3");                 // 3 oz
-  expect(formatQty(1 * 0.5)).toBe("½");                 // ½ bowl
-  expect(formatQty(2 * 0.75)).toBe("1½");
-});
-
-test("stepMultiplier clamps at the ends", () => {
-  expect(stepMultiplier(0.25, -1)).toBe(0.25);
-  expect(stepMultiplier(3, 1)).toBe(3);
-  expect(stepMultiplier(1, 1)).toBe(1.5);
-  expect(formatMultiplier(0.5)).toBe("½×");
-});
-```
-
-- [ ] **Step 3: Run the check.** Run: `pnpm test src/lib/portion.test.ts` (or `pnpm exec jest src/lib/portion.test.ts` if no `test` script) → PASS. If no test runner is configured, convert the three blocks into a `if (import.meta.main)`-style `console.assert` demo and run with `pnpm exec tsx src/lib/portion.test.ts`.
-- [ ] **Step 4: Type-check.** `pnpm tsc --noEmit` → no errors.
-- [ ] **Step 5: Commit.** `git add src/lib/portion.ts src/lib/portion.test.ts && git commit -m "feat: add portion scaling util"`
-
-## Task 5.4: Portion stepper in `MenuItemRow`
+## Task 5.1: Portion stepper + scaled numbers in `MenuItemRow`
 
 **Files:** Modify `src/components/results/MenuItemRow.tsx`
 
-- [ ] **Step 1: Extend props.** Add the multiplier + handler to `MenuItemRowProps` (alongside the Phase-4 `item`, `rank`, `maxValues`, `selectedGoals` props):
+- [x] **Step 1: Extend props.** Add controlled `portion` and `onPortionChange` props to `MenuItemRowProps`.
 
 ```tsx
 interface MenuItemRowProps {
   item: EnrichedItem;
   rank: number;
-  maxValues: { protein_g: number; carb_g: number; fat_g: number; estimated_calories: number };
-  selectedGoals: string[];
-  multiplier: number;
-  onStep: (dir: 1 | -1) => void;
+  maxValues: MacroMaxes;
+  highlight: Set<MacroField>;
+  portion: number;
+  onPortionChange: (portion: number) => void;
 }
 ```
 
-- [ ] **Step 2: Compute scaled values and feed the badges.** Inside the component, derive scaled macros once and use them for both the numeric display and the dot-bucket math (the Phase-4 badge helper buckets `value / maxValues[field]`):
+- [x] **Step 2: Scale the displayed macro number, keep dots on baseline.** `MacroBadge.value` uses `item[macro.field] * portion`; `bucketDots` still receives the un-scaled `item[macro.field]`.
+- [x] **Step 3: Render the stepper below the badges.** NativeWind classes, Lucide `Minus`/`Plus`, accessibility labels, floor enforced at `0.5×`.
 
 ```tsx
-import { scaleMacros, formatQty, formatMultiplier } from "@/lib/portion";
-// ...
-const scaled = scaleMacros(item, multiplier);
-const hasServing = item.serving_qty > 0;
-```
+<View className="flex-row items-center justify-center mt-3 gap-4">
+  <Pressable
+    onPress={() => onPortionChange(Math.max(0.5, portion - 0.5))}
+    disabled={portion <= 0.5}
+    hitSlop={8}
+    accessibilityRole="button"
+    accessibilityLabel="Decrease portion"
+    accessibilityState={{ disabled: portion <= 0.5 }}
+  >
+    <Minus size={16} color={colors.foreground} strokeWidth={2} />
+  </Pressable>
 
-Replace the four badge values (Phase 4 passed `item.protein_g` etc.) with `scaled.protein_g`, `scaled.carb_g`, `scaled.fat_g`, `scaled.estimated_calories`. Buckets still divide by `maxValues[field]` (applied maxima, passed from the parent).
+  <Text className="font-sans text-body text-foreground w-12 text-center">
+    {portion}×
+  </Text>
 
-- [ ] **Step 3: Render the stepper** (only when `hasServing`), below the badges. NativeWind; `Pressable` pressed state via inline style is allowed per the Style Exception List:
-
-```tsx
-{hasServing && (
-  <View className="flex-row items-center justify-between mt-3">
-    <Text className="font-sans text-caption text-muted-foreground">
-      ≈ {formatQty(item.serving_qty * multiplier)} {item.serving_unit}
-    </Text>
-    <View className="flex-row items-center">
-      <Pressable
-        onPress={() => onStep(-1)}
-        hitSlop={8}
-        className="w-8 h-8 items-center justify-center rounded-full bg-card border border-border"
-        accessibilityRole="button"
-        accessibilityLabel="Decrease portion"
-      >
-        <Text className="font-sans text-body text-foreground">−</Text>
-      </Pressable>
-      <Text className="font-sans text-body text-foreground w-12 text-center">
-        {formatMultiplier(multiplier)}
-      </Text>
-      <Pressable
-        onPress={() => onStep(1)}
-        hitSlop={8}
-        className="w-8 h-8 items-center justify-center rounded-full bg-card border border-border"
-        accessibilityRole="button"
-        accessibilityLabel="Increase portion"
-      >
-        <Text className="font-sans text-body text-foreground">+</Text>
-      </Pressable>
-    </View>
+  <Pressable
+    onPress={() => onPortionChange(portion + 0.5)}
+    hitSlop={8}
+    accessibilityRole="button"
+    accessibilityLabel="Increase portion"
+  >
+    <Plus size={16} color={colors.foreground} strokeWidth={2} />
+  </Pressable>
   </View>
-)}
 ```
 
-- [ ] **Step 4: Type-check + lint.** `pnpm tsc --noEmit && pnpm exec eslint src/components/results/MenuItemRow.tsx --ext .ts,.tsx` → no errors.
-- [ ] **Step 5: Commit.** `git add src/components/results/MenuItemRow.tsx && git commit -m "feat: add portion stepper + scaled macros to MenuItemRow"`
+- [x] **Step 4: Lint.** `pnpm exec eslint src/components/results/MenuItemRow.tsx --ext .ts,.tsx` → no errors. `pnpm tsc --noEmit` had the expected transient missing-prop error until Task 5.2 landed.
+- [x] **Step 5: Commit.** `feat: add per-item portion stepper that scales macro numbers`
 
-## Task 5.5: Multiplier state + deferred re-rank in `results.tsx`
+## Task 5.2: Parent-held portion state in `ResultsPhase`
 
 **Files:** Modify `src/app/results.tsx`
 
-- [ ] **Step 1: Hold per-item multipliers + applied snapshot.** In the ranked-results phase (Phase-4 phase 1), key by item index (items are stable within one enrichment result). `multipliers` is the live edit state; `applied` is the snapshot the current sort + maxima reflect:
+- [x] **Step 1: Add portion state and a stable item-identity map in `ResultsPhase`.**
 
 ```tsx
-import { stepMultiplier, scaleMacros, scaledSortValue } from "@/lib/portion";
-import { GOALS_SORT_MAP } from "@/lib/analyzeMenu";
-// ...
-const [multipliers, setMultipliers] = useState<Record<number, number>>({});
-const [applied, setApplied] = useState<Record<number, number>>({});
-const mult = (i: number) => multipliers[i] ?? 1;
-const appliedMult = (i: number) => applied[i] ?? 1;
+const [portions, setPortions] = useState<Record<number, number>>({});
+
+const maxValues = computeMaxes(result.items);
+const highlight = selectedMacros(selectedGoals);
+const sorted = sortItemsByGoals(result.items, selectedGoals);
+const idOf = new Map(result.items.map((item, index) => [item, index]));
 ```
 
-> `GOALS_SORT_MAP` is module-private in `analyzeMenu.ts` today. Add `export` to its declaration (`export const GOALS_SORT_MAP = …`) so this import resolves — a one-word change, no behavior impact.
-
-- [ ] **Step 2: Sort + maxima from the applied snapshot.** Build the displayed order and badge maxima from `applied` (NOT live `multipliers`), so live edits don't reshuffle:
-
-```tsx
-const goal = selectedGoals[0];
-const sortCfg = goal ? GOALS_SORT_MAP[goal] : undefined;
-
-const ordered = useMemo(() => {
-  const withIdx = enrichment.items.map((item, i) => ({ item, i }));
-  if (!sortCfg) return withIdx;
-  const field = sortCfg.field as "protein_g" | "carb_g" | "fat_g" | "estimated_calories";
-  return [...withIdx].sort((a, b) => {
-    const av = scaledSortValue(a.item, appliedMult(a.i), field);
-    const bv = scaledSortValue(b.item, appliedMult(b.i), field);
-    return sortCfg.order === "desc" ? bv - av : av - bv;
-  });
-}, [enrichment.items, applied, sortCfg]);
-
-const maxValues = useMemo(() => {
-  const scaled = enrichment.items.map((item, i) => scaleMacros(item, appliedMult(i)));
-  return {
-    protein_g: Math.max(1, ...scaled.map((s) => s.protein_g)),
-    carb_g: Math.max(1, ...scaled.map((s) => s.carb_g)),
-    fat_g: Math.max(1, ...scaled.map((s) => s.fat_g)),
-    estimated_calories: Math.max(1, ...scaled.map((s) => s.estimated_calories)),
-  };
-}, [enrichment.items, applied]);
-```
-
-> ponytail: `Math.max(1, …)` avoids divide-by-zero in the Phase-4 badge buckets when every item is low-confidence (all-zero macros).
-
-- [ ] **Step 3: Step handler + "order changed" detection.** Stepping updates live state; compare the would-be order under `multipliers` against the displayed `ordered` to decide whether to show the bar:
-
-```tsx
-const onStep = (i: number) => (dir: 1 | -1) =>
-  setMultipliers((m) => ({ ...m, [i]: stepMultiplier(m[i] ?? 1, dir) }));
-
-const pendingOrder = useMemo(() => {
-  if (!sortCfg) return ordered.map((o) => o.i);
-  const field = sortCfg.field as "protein_g" | "carb_g" | "fat_g" | "estimated_calories";
-  return enrichment.items
-    .map((item, i) => ({ i, v: scaledSortValue(item, mult(i), field) }))
-    .sort((a, b) => (sortCfg.order === "desc" ? b.v - a.v : a.v - b.v))
-    .map((o) => o.i);
-}, [enrichment.items, multipliers, sortCfg]);
-
-const orderChanged =
-  pendingOrder.length === ordered.length &&
-  pendingOrder.some((idx, k) => idx !== ordered[k].i);
-```
-
-- [ ] **Step 4: Render rows from `ordered` + the deferred bar.** Pass live `mult(i)` to each row (so the edited row updates live) but keep `maxValues` from `applied`:
+- [x] **Step 2: Pass portion props into each row and key the list stably.**
 
 ```tsx
 <FlatList
-  data={ordered}
-  keyExtractor={({ i }) => `${i}`}
-  contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 80 }}
-  renderItem={({ item: { item, i }, index }) => (
-    <MenuItemRow
-      item={item}
-      rank={index + 1}
-      maxValues={maxValues}
-      selectedGoals={selectedGoals}
-      multiplier={mult(i)}
-      onStep={onStep(i)}
-    />
-  )}
+  data={sorted}
+  keyExtractor={(item) => String(idOf.get(item))}
+  renderItem={({ item, index }) => {
+    const id = idOf.get(item)!;
+
+    return (
+      <MenuItemRow
+        item={item}
+        rank={index + 1}
+        maxValues={maxValues}
+        highlight={highlight}
+        portion={portions[id] ?? 1}
+        onPortionChange={(portion) =>
+          setPortions((prev) => ({ ...prev, [id]: portion }))
+        }
+      />
+    );
+  }}
 />
-{orderChanged && (
-  <Pressable
-    onPress={() => setApplied({ ...multipliers })}
-    className="absolute bottom-4 left-6 right-6 rounded-full bg-foreground py-4 items-center"
-    accessibilityRole="button"
-    accessibilityLabel="Update ranking with new portions"
-  >
-    <Text className="font-sans text-button text-background">
-      Portions changed — tap to update ranking
-    </Text>
-  </Pressable>
-)}
 ```
 
-- [ ] **Step 5: Reset on new scan.** Where the screen clears prior results (the existing `clear()`/new-scan path), also `setMultipliers({})` and `setApplied({})` so portions don't leak across scans.
-- [ ] **Step 6: Type-check + lint.** `pnpm tsc --noEmit && pnpm exec eslint src/ --ext .ts,.tsx` → no errors.
-- [ ] **Step 7: Commit.** `git add src/app/results.tsx && git commit -m "feat: per-item portion multipliers with deferred re-rank"`
+- [x] **Step 3: Type-check and lint.** `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → no errors.
+- [x] **Step 4: Commit.** `feat: hold per-item portion state in results phase`
 
 ## Phase 5 Verification
 
-1. **Type/lint/unit:** `pnpm tsc --noEmit`, `pnpm exec eslint src/ --ext .ts,.tsx`, and the `portion` self-check all pass.
-2. **Realistic baseline:** enrichment returns `serving_qty`/`serving_unit` per item; a shareable pizza defaults to ~2–3 slices (not a whole pie); promotional/low-confidence items return `serving_qty: 0` and show **no** stepper.
-3. **Live row update:** stepping `+`/`−` on a row updates its grams, kcal, serving label (`2 slices` → `4 slices` at 2×), and that row's dot-badges immediately, and the row does **not** move.
-4. **Deferred re-rank:** the bottom bar appears only when pending portions change the sort order; tapping it re-sorts and recomputes all menu-relative badge maxima in one update; if the order wouldn't change, no bar appears.
-5. **Bounds:** stepper clamps at `¼×` and `3×`; `1×` is the default for untouched items.
-6. **Ephemeral:** starting a new scan resets all multipliers to `1×`.
+1. **Type/lint:** `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → zero errors.
+2. **Manual (simulator):** scan → pick a goal → Continue to the ranked results.
+3. **Stepper:** each row shows a `−  1×  +` stepper under the macro badges.
+4. **Scaling:** tapping `+` on a row scales that row's protein/carb/fat/cal numbers by `1.5×`, `2×`, and so on with no upper bound; dots do not move; rank does not change.
+5. **Bounds:** tapping `−` steps down by `0.5×`; the `−` button is disabled at `0.5×` and the value never reaches `0×`.
+6. **Virtualization:** scrolling a long menu so the adjusted row goes off-screen, then back, retains its multiplier.
+7. **Isolation:** adjusting one row leaves every other row's numbers, dots, and order unchanged.
+
+## Phase 5 Follow-Up After Local Test (2026-06-17)
+
+Local testing showed the first implementation works but the portion control is too prominent for rows that will rarely need it. Follow-up work:
+
+- [ ] **Stepper label formatting:** Show `x1` instead of `1×`; when below one, show `1/2` instead of `0.5`.
+- [ ] **Full descriptions:** Remove the result-row description truncation so the full menu item description is visible.
+- [ ] **Stepper UX brainstorm:** Rework the stepper affordance so portion editing stays available but does not dominate every main-plate row. Current menu testing suggests only about 1 item out of 6 needs portion adjustment; items like tacos or tostadas benefit, while most main plates do not.
+- [ ] **Row-local dot updates:** When a row's portion changes, update that row's dots immediately using the original menu baseline maxes. Do not re-sort the list and do not change other rows' dots or numbers.

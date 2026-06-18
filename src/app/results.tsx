@@ -171,6 +171,7 @@ function ResultsPhase({
   selectedGoals: string[];
 }) {
   const [noticeDismissed, setNoticeDismissed] = useState(false);
+  const [portions, setPortions] = useState<Record<number, number>>({});
 
   if (loading) {
     return (
@@ -216,6 +217,7 @@ function ResultsPhase({
   const maxValues = computeMaxes(result.items);
   const highlight = selectedMacros(selectedGoals);
   const sorted = sortItemsByGoals(result.items, selectedGoals);
+  const idOf = new Map(result.items.map((item, index) => [item, index]));
   const lowConfidence =
     result.items.filter((item) => item.confidence === "low").length /
       result.items.length >=
@@ -224,7 +226,7 @@ function ResultsPhase({
   return (
     <FlatList
       data={sorted}
-      keyExtractor={(item, index) => `${item.name}-${index}`}
+      keyExtractor={(item) => String(idOf.get(item))}
       contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
       ListHeaderComponent={
         lowConfidence && !noticeDismissed ? (
@@ -245,14 +247,22 @@ function ResultsPhase({
           </Pressable>
         ) : null
       }
-      renderItem={({ item, index }) => (
-        <MenuItemRow
-          item={item}
-          rank={index + 1}
-          maxValues={maxValues}
-          highlight={highlight}
-        />
-      )}
+      renderItem={({ item, index }) => {
+        const id = idOf.get(item)!;
+
+        return (
+          <MenuItemRow
+            item={item}
+            rank={index + 1}
+            maxValues={maxValues}
+            highlight={highlight}
+            portion={portions[id] ?? 1}
+            onPortionChange={(portion) =>
+              setPortions((prev) => ({ ...prev, [id]: portion }))
+            }
+          />
+        );
+      }}
     />
   );
 }

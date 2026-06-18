@@ -1633,7 +1633,9 @@ const idOf = new Map(result.items.map((item, index) => [item, index]));
 
 Local testing showed the first implementation works but the portion control is too prominent for rows that will rarely need it. Follow-up work:
 
-- [ ] **Stepper label formatting:** Show `x1` instead of `1×`; when below one, show `1/2` instead of `0.5`.
-- [ ] **Full descriptions:** Remove the result-row description truncation so the full menu item description is visible.
-- [ ] **Stepper UX brainstorm:** Rework the stepper affordance so portion editing stays available but does not dominate every main-plate row. Current menu testing suggests only about 1 item out of 6 needs portion adjustment; items like tacos or tostadas benefit, while most main plates do not.
-- [ ] **Row-local dot updates:** When a row's portion changes, update that row's dots immediately using the original menu baseline maxes. Do not re-sort the list and do not change other rows' dots or numbers.
+- [x] **Stepper label formatting:** Show `x1` instead of `1×`; when below one, show `1/2` instead of `0.5`.
+- [x] **Full descriptions:** Remove the result-row description truncation so the full menu item description is visible.
+- [x] **Stepper UX brainstorm:** Rework the stepper affordance so portion editing stays available but does not dominate every main-plate row. Current menu testing suggests only about 1 item out of 6 needs portion adjustment; items like tacos or tostadas benefit, while most main plates do not.
+- [x] **Row-local dot updates:** When a row's portion changes, update that row's dots immediately using the original menu baseline maxes. Do not re-sort the list and do not change other rows' dots or numbers.
+
+Resolution: keep a compact always-visible stepper; row-local dot updates supersede Phase 5 design decision #3 ("dots frozen at baseline").

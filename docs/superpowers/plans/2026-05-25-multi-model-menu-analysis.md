@@ -1626,3 +1626,12 @@ const idOf = new Map(result.items.map((item, index) => [item, index]));
 5. **Bounds:** tapping `−` steps down by `0.5×`; the `−` button is disabled at `0.5×` and the value never reaches `0×`.
 6. **Virtualization:** scrolling a long menu so the adjusted row goes off-screen, then back, retains its multiplier.
 7. **Isolation:** adjusting one row leaves every other row's numbers, dots, and order unchanged.
+
+## Phase 5 Follow-Up After Local Test (2026-06-17)
+
+Local testing showed the first implementation works but the portion control is too prominent for rows that will rarely need it. Follow-up work:
+
+- [ ] **Stepper label formatting:** Show `x1` instead of `1×`; when below one, show `1/2` instead of `0.5`.
+- [ ] **Full descriptions:** Remove the result-row description truncation so the full menu item description is visible.
+- [ ] **Stepper UX brainstorm:** Rework the stepper affordance so portion editing stays available but does not dominate every main-plate row. Current menu testing suggests only about 1 item out of 6 needs portion adjustment; items like tacos or tostadas benefit, while most main plates do not.
+- [ ] **Row-local dot updates:** When a row's portion changes, update that row's dots immediately using the original menu baseline maxes. Do not re-sort the list and do not change other rows' dots or numbers.

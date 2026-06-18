@@ -1639,3 +1639,7 @@ Local testing showed the first implementation works but the portion control is t
 - [x] **Row-local dot updates:** When a row's portion changes, update that row's dots immediately using the original menu baseline maxes. Do not re-sort the list and do not change other rows' dots or numbers.
 
 Resolution: keep a compact always-visible stepper; row-local dot updates supersede Phase 5 design decision #3 ("dots frozen at baseline").
+
+## Next Follow-Up: Inconsistent Result Counts
+
+- [ ] **Make analysis compare all menu items consistently:** Local testing shows repeated analysis of the same menu can return uneven result counts, such as 11 items on one run and 6 on another. This likely also explains why very different plates can appear and rank across analysis triggers. Investigate whether extraction/enrichment is analyzing only a subset instead of all visible menu items, then tighten the pipeline so ranking compares against the full parsed menu every time.

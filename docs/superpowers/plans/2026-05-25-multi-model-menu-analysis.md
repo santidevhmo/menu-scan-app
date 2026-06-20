@@ -1643,3 +1643,119 @@ Resolution: keep a compact always-visible stepper; row-local dot updates superse
 ## Next Follow-Up: Inconsistent Result Counts
 
 - [ ] **Make analysis compare all menu items consistently:** Local testing shows repeated analysis of the same menu can return uneven result counts, such as 11 items on one run and 6 on another. This likely also explains why very different plates can appear and rank across analysis triggers. Investigate whether extraction/enrichment is analyzing only a subset instead of all visible menu items, then tighten the pipeline so ranking compares against the full parsed menu every time.
+
+## Phase 6: Remove Macro Dot Indicators (2026-06-20)
+
+**Goal:** Drop the relative dot-bucketing UI for macros. Dots bucket each macro relative to the current menu's own max (`bucketDots` in `src/lib/analyzeMenu.ts`), so a 50g-protein item on a menu topped by a 100g item shows only 2/4 dots even though 50g is objectively high. "High/low" is individual to each user's nutritional goals, so a menu-relative visual misleads. Keep the raw number/unit/label and keep `highlight` (bold text when a macro matches the user's selected goal) — that's goal-relative by intent, not the menu-relative comparison being removed. No replacement visual.
+
+### Task 6.1: Remove dots from `MacroBadge`
+
+- [ ] **Step 1:** In `src/components/results/MenuItemRow.tsx`, remove the dot `Text` (`{"●".repeat(filled)}{"○".repeat(4 - filled)}`) from `MacroBadge`, and remove its `filled` prop.
+- [ ] **Step 2:** Remove the `filled={bucketDots(...)}` call site in `MenuItemRow`'s `MACROS.map`.
+- [ ] **Step 3:** Remove `bucketDots` from `src/lib/analyzeMenu.ts` once nothing calls it.
+- [ ] **Step 4:** Remove `MacroMaxes` interface, the `maxValues` prop on `MenuItemRowProps`, and the `computeMaxes` call site + `maxValues` prop passed from `src/app/results.tsx`, once nothing else needs them.
+- [ ] **Step 5:** Type-check and lint. `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → no errors.
+- [ ] **Step 6:** Commit. `feat: remove menu-relative macro dot indicators`
+
+## Phase 6 Verification
+
+1. **Type/lint:** zero errors.
+2. **Manual:** each macro badge shows only the number/unit and label — no `●○` dots.
+3. **Highlight preserved:** the macro matching the user's selected goal still renders bold/dark text.
+4. **Portion stepper unaffected:** adjusting a row's portion still scales its displayed numbers.
+
+## Phase 7: Allergen Selection (2026-06-20)
+
+**Goal:** Let the user multi-select allergens they're allergic to, and use that selection to (a) hide matching menu items by default with a reveal option, (b) show the mandatory disclaimer card, and (c) gate the existing per-item red allergen line on selection. Brainstormed with the user; design decisions below.
+
+**Design decisions (from brainstorming):**
+- Allergen list: a broader curated list (~15 items), not just the FDA "big 9", not derived dynamically from scan data.
+- Picker placement: same screen as nutritional goal selection, before/while scanning — persisted like goals.
+- Filtering behavior: hide matching items by default, with a single global "Show anyway" reveal banner (not a hard filter with no escape, not per-item reveal rows).
+- Picker UI: a wrapping chip grid (all ~15 chips visible, no scrolling list, no category grouping) — matches existing chip styling (`rounded-chip`) and Cal-AI-style minimalism.
+- Per-item red "Allergens: ..." line: gated on selection, not just presence. Hidden entirely when `selectedAllergens.length === 0`; when ≥1 allergen is selected, shows the item's full allergen list (not filtered down to only the selected ones).
+- Disclaimer card: renders whenever `selectedAllergens.length > 0` ("a filter is active"), regardless of whether anything is currently hidden — satisfies AGENTS.md's non-negotiable text: *"AI-estimated. Confirm allergens with restaurant staff before ordering."*
+
+**Out of scope for this phase:** allergen-aware re-ranking/sorting (filtering/hiding only), persisting the "show anyway" reveal across app restarts (view-local state), editing allergens from the results screen (selection only happens pre-scan).
+
+### File Map
+
+- `src/data/allergens.ts` (new) — curated `ALLERGENS: string[]` list.
+- `src/store/allergens.store.ts` (new) — Zustand + AsyncStorage store, same shape as `goals.store.ts`.
+- `src/components/AllergenSelector.tsx` (new) — wrapping chip grid, multi-select.
+- Goal-selection screen — render `AllergenSelector` alongside `GoalSelector`.
+- `src/app/results.tsx` — filter hidden items, render reveal banner and disclaimer card.
+- `src/components/results/MenuItemRow.tsx` — gate the per-item allergen line on `selectedAllergens.length > 0`.
+
+### Task 7.1: Allergen data and store
+
+- [ ] **Step 1:** Create `src/data/allergens.ts` exporting `ALLERGENS: string[]` (~15 items: Peanuts, Tree nuts, Dairy, Eggs, Shellfish, Fish, Soy, Wheat/Gluten, Sesame, Mustard, Celery, Sulfites, Lupin, Mollusks, Corn).
+- [ ] **Step 2:** Create `src/store/allergens.store.ts` mirroring `goals.store.ts`: `selectedAllergens: string[]`, `setAllergens`, `toggleAllergen`, persisted as `"allergens-storage"`.
+
+### Task 7.2: `AllergenSelector` component
+
+- [ ] **Step 1:** Build `AllergenSelector` rendering `ALLERGENS` as a wrapping chip grid (`flex-row flex-wrap`), each chip toggling via `useAllergensStore().toggleAllergen`, selected chips visually filled/highlighted (reuse existing chip/pill class patterns).
+- [ ] **Step 2:** Render `AllergenSelector` on the same screen as `GoalSelector` (goal-selection screen), positioned so it reads as a secondary/optional section relative to goals.
+
+### Task 7.3: Results filtering and disclaimer
+
+- [ ] **Step 1:** In `src/app/results.tsx`, compute `hiddenItems` = items whose `allergens` intersects `selectedAllergens`; compute the rendered list as all items minus hidden, unless a local "show anyway" toggle is on.
+- [ ] **Step 2:** Render a banner above the `FlatList` when `hiddenItems.length > 0` and reveal is off: `"{n} items hidden due to allergens · Show anyway"`. Tapping sets the local reveal toggle true, re-including hidden items (e.g. with a dimmed/flagged style).
+- [ ] **Step 3:** Render the mandatory disclaimer card when `selectedAllergens.length > 0`, with the exact AGENTS.md text. Always visible in that state — not dismissible.
+
+### Task 7.4: Gate per-item allergen line
+
+- [ ] **Step 1:** In `MenuItemRow.tsx`, change the per-item allergen line condition from `item.allergens.length > 0` to `item.allergens.length > 0 && selectedAllergens.length > 0` (pass `selectedAllergens` down as a prop or read from the store).
+
+### Task 7.5: Verify
+
+- [ ] **Step 1:** Type-check and lint. `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → no errors.
+- [ ] **Step 2:** Commit. `feat: add allergen multi-select with results filtering and disclaimer`
+
+## Phase 7 Verification
+
+1. **Type/lint:** zero errors.
+2. **Selection:** goal-selection screen shows a chip grid of ~15 allergens; tapping toggles selection and persists across app restart.
+3. **No selection:** with zero allergens selected, no items are hidden, no disclaimer card, no per-item red allergen line on any item.
+4. **With selection:** selecting an allergen present in some menu items hides those items from the results list; a "Show anyway" banner appears with the correct hidden count; tapping it reveals the hidden items.
+5. **Disclaimer:** with ≥1 allergen selected, the disclaimer card is always visible on the results screen with the exact AGENTS.md text, regardless of whether any items are currently hidden.
+6. **Per-item line:** with ≥1 allergen selected, items with `allergens.length > 0` show their full `Allergens: ...` line (not filtered to only selected allergens).
+
+## Phase 8: Category Filtering (2026-06-20)
+
+**Goal:** Let the user filter results by menu category (`MenuCategory`: `appetizer | main | side | dessert | drink | other`, already on every `EnrichedItem` and already shown as a per-item chip in `MenuItemRow`). Brainstormed with the user; design decisions below.
+
+**Design decisions (from brainstorming):**
+- Selection mode: single-select, not multi-select — one category active at a time (plus an "All" option), like a segmented control. Avoids a second multi-select control alongside the allergen chip grid.
+- Placement: a horizontal scrollable tab bar above the `FlatList` on the results screen (e.g. `All · Appetizer · Main · Side · Dessert`).
+- Behavior: filtering only — selecting a tab narrows the list to that category; existing goal-based ranking order is preserved within the filtered subset. No separate re-sort logic.
+- Tab contents: dynamic, not fixed — only categories actually present in the current scan's `result.items` get a tab (plus "All"). A menu with no desserts shows no "Dessert" tab, avoiding empty-list dead ends.
+- Interaction with allergen filtering (Phase 7): category filtering and allergen hiding compose — category narrows first, then allergen-hidden items within that category are still hidden/revealed per the Phase 7 banner.
+
+### File Map
+
+- `src/app/results.tsx` — derive present categories, hold selected-category local state, filter rendered list, render tab bar.
+- `src/components/results/CategoryTabs.tsx` (new) — horizontal scrollable tab bar.
+
+### Task 8.1: `CategoryTabs` component
+
+- [ ] **Step 1:** Build `CategoryTabs` taking `categories: MenuCategory[]`, `selected: MenuCategory | "all"`, `onSelect`. Renders `"All"` plus one tab per category, in a horizontally scrollable row (`ScrollView horizontal`), selected tab visually distinct (reuse existing chip/pill styling).
+
+### Task 8.2: Wire into results screen
+
+- [ ] **Step 1:** In `src/app/results.tsx`, derive `presentCategories` = unique `category` values from `result.items`, in a stable order matching `MenuCategory`'s declared order.
+- [ ] **Step 2:** Hold `selectedCategory` local state (default `"all"`). Render `CategoryTabs` above the `FlatList` when `presentCategories.length > 1` (no point showing tabs for a single-category menu).
+- [ ] **Step 3:** Filter the list rendered to `FlatList` by `selectedCategory` before applying the existing allergen-hiding logic from Phase 7, preserving existing sort order.
+
+### Task 8.3: Verify
+
+- [ ] **Step 1:** Type-check and lint. `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → no errors.
+- [ ] **Step 2:** Commit. `feat: add category filter tabs to results screen`
+
+## Phase 8 Verification
+
+1. **Type/lint:** zero errors.
+2. **Tab contents:** tab bar shows "All" plus only the categories present in the current scan's results — no tabs for absent categories.
+3. **Single menu category:** if every item shares one category, no tab bar renders at all.
+4. **Filtering:** selecting a category tab shows only items of that category, in unchanged rank order; selecting "All" restores the full list.
+5. **Composes with allergens:** with a category selected and an allergen filter active, hidden-item count and "Show anyway" banner reflect only the currently filtered category's items.

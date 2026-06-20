@@ -14,14 +14,10 @@ import { colors } from "@/constants/theme";
 import { useAnalysisStore } from "@/store/analysis.store";
 import { useGoalsStore } from "@/store/goals.store";
 import { GoalSelector } from "@/components/results/GoalSelector";
-import { MenuItemRow, type MacroMaxes } from "@/components/results/MenuItemRow";
+import { MenuItemRow } from "@/components/results/MenuItemRow";
 import { PhaseIndicator } from "@/components/results/PhaseIndicator";
 import { selectedMacros, sortItemsByGoals } from "@/lib/analyzeMenu";
-import type {
-  EnrichedItem,
-  EnrichmentResult,
-  ExtractionResult,
-} from "@/types/scan";
+import type { EnrichmentResult, ExtractionResult } from "@/types/scan";
 
 /** Pretty-prints JSON strings while leaving non-JSON OCR text unchanged. */
 function tryPrettyPrint(text: string): string {
@@ -147,19 +143,6 @@ function GoalsPhase({
   );
 }
 
-/** Computes the menu-relative max for each macro across all items. */
-function computeMaxes(items: EnrichedItem[]): MacroMaxes {
-  return {
-    protein_g: Math.max(0, ...items.map((item) => item.protein_g)),
-    carb_g: Math.max(0, ...items.map((item) => item.carb_g)),
-    fat_g: Math.max(0, ...items.map((item) => item.fat_g)),
-    estimated_calories: Math.max(
-      0,
-      ...items.map((item) => item.estimated_calories),
-    ),
-  };
-}
-
 /** Phase 1: the goal-ranked list of enriched menu items. */
 function ResultsPhase({
   loading,
@@ -214,7 +197,6 @@ function ResultsPhase({
     );
   }
 
-  const maxValues = computeMaxes(result.items);
   const highlight = selectedMacros(selectedGoals);
   const sorted = sortItemsByGoals(result.items, selectedGoals);
   const idOf = new Map(result.items.map((item, index) => [item, index]));
@@ -254,7 +236,6 @@ function ResultsPhase({
           <MenuItemRow
             item={item}
             rank={index + 1}
-            maxValues={maxValues}
             highlight={highlight}
             portion={portions[id] ?? 1}
             onPortionChange={(portion) =>

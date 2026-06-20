@@ -2,20 +2,11 @@ import { Pressable, Text, View } from "react-native";
 import { Minus, Plus } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 import type { EnrichedItem } from "@/types/scan";
-import { bucketDots } from "@/lib/analyzeMenu";
 import type { MacroField } from "@/data/goals";
-
-export interface MacroMaxes {
-  protein_g: number;
-  carb_g: number;
-  fat_g: number;
-  estimated_calories: number;
-}
 
 interface MenuItemRowProps {
   item: EnrichedItem;
   rank: number;
-  maxValues: MacroMaxes;
   highlight: Set<MacroField>;
   portion: number;
   onPortionChange: (portion: number) => void;
@@ -33,11 +24,10 @@ function formatPortion(portion: number): string {
   return portion < 1 ? "1/2" : `x${portion}`;
 }
 
-/** Displays one ranked menu item with price, dot-badges, and allergen warnings. */
+/** Displays one ranked menu item with price, macros, and allergen warnings. */
 export function MenuItemRow({
   item,
   rank,
-  maxValues,
   highlight,
   portion,
   onPortionChange,
@@ -84,10 +74,6 @@ export function MenuItemRow({
             label={macro.label}
             value={item[macro.field] * portion}
             unit={macro.unit}
-            filled={bucketDots(
-              item[macro.field] * portion,
-              maxValues[macro.field],
-            )}
             highlight={highlight.has(macro.field)}
           />
         ))}
@@ -132,30 +118,22 @@ export function MenuItemRow({
   );
 }
 
-/** One macro badge: four dots relative to the menu's max, plus the value. */
+/** One macro badge: rounded value and unit, plus label. */
 function MacroBadge({
   label,
   value,
   unit,
-  filled,
   highlight,
 }: {
   label: string;
   value: number;
   unit: string;
-  filled: number;
   highlight: boolean;
 }) {
-  const dotColor = highlight ? "text-foreground" : "text-muted-foreground";
-
   return (
     <View className="items-center">
-      <Text className={`font-sans text-caption ${dotColor}`}>
-        {"●".repeat(filled)}
-        {"○".repeat(4 - filled)}
-      </Text>
       <Text
-        className={`font-sans text-subtle mt-1 ${
+        className={`font-sans text-subtle ${
           highlight ? "text-foreground font-semibold" : "text-muted-foreground"
         }`}
       >

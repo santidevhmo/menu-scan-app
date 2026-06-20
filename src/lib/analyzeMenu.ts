@@ -136,16 +136,6 @@ export function sortItemsByGoals(
   });
 }
 
-/** Buckets a macro value into 1-4 filled dots, relative to the menu's max. */
-export function bucketDots(value: number, max: number): number {
-  if (max <= 0) return 1;
-  const ratio = value / max;
-  if (ratio <= 0.25) return 1;
-  if (ratio <= 0.5) return 2;
-  if (ratio <= 0.75) return 3;
-  return 4;
-}
-
 /** The macro fields the user is actively ranking by. */
 export function selectedMacros(goals: string[]): Set<MacroField> {
   const macros = new Set<MacroField>();

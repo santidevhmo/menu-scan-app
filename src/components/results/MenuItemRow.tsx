@@ -28,6 +28,11 @@ const MACROS: { field: MacroField; label: string; unit: string }[] = [
   { field: "estimated_calories", label: "Cal", unit: "" },
 ];
 
+/** Formats a portion multiplier: "1/2" below one, otherwise "x1", "x1.5", "x2". */
+function formatPortion(portion: number): string {
+  return portion < 1 ? "1/2" : `x${portion}`;
+}
+
 /** Displays one ranked menu item with price, dot-badges, and allergen warnings. */
 export function MenuItemRow({
   item,
@@ -67,10 +72,7 @@ export function MenuItemRow({
       </View>
 
       {item.description !== "" && (
-        <Text
-          className="font-sans text-subtle text-muted-foreground mt-2"
-          numberOfLines={2}
-        >
+        <Text className="font-sans text-subtle text-muted-foreground mt-2">
           {item.description}
         </Text>
       )}
@@ -82,39 +84,42 @@ export function MenuItemRow({
             label={macro.label}
             value={item[macro.field] * portion}
             unit={macro.unit}
-            filled={bucketDots(item[macro.field], maxValues[macro.field])}
+            filled={bucketDots(
+              item[macro.field] * portion,
+              maxValues[macro.field],
+            )}
             highlight={highlight.has(macro.field)}
           />
         ))}
       </View>
 
-      <View className="flex-row items-center justify-center mt-3 gap-4">
+      <View className="flex-row items-center justify-end mt-3 gap-2">
         <Pressable
           onPress={() => onPortionChange(Math.max(0.5, portion - 0.5))}
           disabled={portion <= 0.5}
           hitSlop={8}
-          className={`w-9 h-9 items-center justify-center rounded-full border ${
-            portion <= 0.5 ? "border-border opacity-40" : "border-border"
+          className={`w-7 h-7 items-center justify-center rounded-full border border-border ${
+            portion <= 0.5 ? "opacity-40" : ""
           }`}
           accessibilityRole="button"
           accessibilityLabel="Decrease portion"
           accessibilityState={{ disabled: portion <= 0.5 }}
         >
-          <Minus size={16} color={colors.foreground} strokeWidth={2} />
+          <Minus size={14} color={colors.mutedForeground} strokeWidth={2} />
         </Pressable>
 
-        <Text className="font-sans text-body text-foreground w-12 text-center">
-          {portion}×
+        <Text className="font-sans text-caption text-muted-foreground w-9 text-center">
+          {formatPortion(portion)}
         </Text>
 
         <Pressable
           onPress={() => onPortionChange(portion + 0.5)}
           hitSlop={8}
-          className="w-9 h-9 items-center justify-center rounded-full border border-border"
+          className="w-7 h-7 items-center justify-center rounded-full border border-border"
           accessibilityRole="button"
           accessibilityLabel="Increase portion"
         >
-          <Plus size={16} color={colors.foreground} strokeWidth={2} />
+          <Plus size={14} color={colors.mutedForeground} strokeWidth={2} />
         </Pressable>
       </View>
 

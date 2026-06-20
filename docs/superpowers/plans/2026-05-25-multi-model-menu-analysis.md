@@ -1501,9 +1501,9 @@ The notice should be dismissible per session (disappears on tap, doesn't come ba
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 > **Code style:** Use the `ponytail` skill for code writing — laziest solution that works, fewest files, no speculative abstraction.
 
-**Goal:** Each ranked result row gets a −/+ portion stepper; changing it scales only that row's displayed gram/cal numbers. Dots, ranking, and maxes stay frozen at the AI baseline.
+**Goal:** Each ranked result row gets a −/+ portion stepper; changing it scales that row's displayed gram/cal numbers and dot badges against the unchanged menu baseline maxes. Ranking and maxes stay frozen at the AI baseline.
 
-**Architecture:** Portion multipliers are held in parent state (`ResultsPhase` in `src/app/results.tsx`), keyed by stable item identity, and passed down to each `MenuItemRow` as a controlled `portion` + `onPortionChange` pair. The row multiplies its displayed macro numbers by `portion`. The existing baseline pipeline — `sortItemsByGoals`, `computeMaxes`, `bucketDots`, `selectedMacros` — is unchanged and still runs once on the un-scaled enriched items.
+**Architecture:** Portion multipliers are held in parent state (`ResultsPhase` in `src/app/results.tsx`), keyed by stable item identity, and passed down to each `MenuItemRow` as a controlled `portion` + `onPortionChange` pair. The row multiplies its displayed macro numbers by `portion` and recomputes only its own dot badges against the unchanged `maxValues`. The baseline sort/max pipeline still runs once on the un-scaled enriched items.
 
 **Tech Stack:** Expo, React Native, TypeScript (strict), NativeWind, Zustand, Expo Router, Lucide icons.
 
@@ -1512,15 +1512,15 @@ The notice should be dismissible per session (disappears on tap, doesn't come ba
 ## Phase 5 Design (approved 2026-06-17)
 
 1. **Control = −/+ stepper** (not preset pills). Starts at `1×`, step `±0.5×`, floor `0.5×` (cannot reach 0 or below), **no upper limit**.
-2. **Stepper effect = numbers scale; no re-sort.** Only the row's displayed gram/cal numbers change. The list does **not** re-rank.
-3. **Dot-badges frozen at baseline.** Dots are computed once from the AI enrichment (1×) values and never recompute — not even for the stepped row. They remain a per-standard-serving menu reference.
+2. **Stepper effect = row-local display scales; no re-sort.** Only the row's displayed gram/cal numbers and dot badges change. The list does **not** re-rank.
+3. **Dot-badges update row-locally.** When a row's portion changes, that row's dots recompute from the scaled value against the unchanged baseline `maxValues`. Other rows and ranking do not change.
 4. **State lives in the parent.** `FlatList` can unmount off-screen rows, so per-row local state would reset on long menus. `ResultsPhase` owns the multiplier map.
 
 ## Phase 5 File Map
 
 | File | Action | Responsibility |
 | ---- | ------ | -------------- |
-| `src/components/results/MenuItemRow.tsx` | Modify | Add controlled `portion` + `onPortionChange` props; scale displayed macro numbers by `portion`; render the −/+ stepper. Dots stay baseline. |
+| `src/components/results/MenuItemRow.tsx` | Modify | Add controlled `portion` + `onPortionChange` props; scale displayed macro numbers by `portion`; recompute row-local dots against baseline maxes; render the −/+ stepper. |
 | `src/app/results.tsx` | Modify | Hold per-item portion state in `ResultsPhase`, keyed by stable item identity; pass `portion`/`onPortionChange` into each row. Baseline sort/maxes unchanged. |
 
 No changes to `src/lib/analyzeMenu.ts`, `src/types/scan.ts`, `src/data/goals.ts`, or the Supabase Edge Function. The previous Phase 5 note about exporting `GOALS_SORT_MAP` is obsolete because Phase 5 does not re-sort.
@@ -1542,7 +1542,7 @@ interface MenuItemRowProps {
 }
 ```
 
-- [x] **Step 2: Scale the displayed macro number, keep dots on baseline.** `MacroBadge.value` uses `item[macro.field] * portion`; `bucketDots` still receives the un-scaled `item[macro.field]`.
+- [x] **Step 2: Scale the displayed macro number and row-local dots.** `MacroBadge.value` uses `item[macro.field] * portion`; `bucketDots` receives that scaled value with the unchanged baseline max.
 - [x] **Step 3: Render the stepper below the badges.** NativeWind classes, Lucide `Minus`/`Plus`, accessibility labels, floor enforced at `0.5×`.
 
 ```tsx
@@ -1624,7 +1624,7 @@ const idOf = new Map(result.items.map((item, index) => [item, index]));
 1. **Type/lint:** `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → zero errors.
 2. **Manual (simulator):** scan → pick a goal → Continue to the ranked results.
 3. **Stepper:** each row shows a `−  1×  +` stepper under the macro badges.
-4. **Scaling:** tapping `+` on a row scales that row's protein/carb/fat/cal numbers by `1.5×`, `2×`, and so on with no upper bound; dots do not move; rank does not change.
+4. **Scaling:** tapping `+` on a row scales that row's protein/carb/fat/cal numbers and dots by `1.5×`, `2×`, and so on with no upper bound; rank does not change.
 5. **Bounds:** tapping `−` steps down by `0.5×`; the `−` button is disabled at `0.5×` and the value never reaches `0×`.
 6. **Virtualization:** scrolling a long menu so the adjusted row goes off-screen, then back, retains its multiplier.
 7. **Isolation:** adjusting one row leaves every other row's numbers, dots, and order unchanged.
@@ -1633,7 +1633,13 @@ const idOf = new Map(result.items.map((item, index) => [item, index]));
 
 Local testing showed the first implementation works but the portion control is too prominent for rows that will rarely need it. Follow-up work:
 
-- [ ] **Stepper label formatting:** Show `x1` instead of `1×`; when below one, show `1/2` instead of `0.5`.
-- [ ] **Full descriptions:** Remove the result-row description truncation so the full menu item description is visible.
-- [ ] **Stepper UX brainstorm:** Rework the stepper affordance so portion editing stays available but does not dominate every main-plate row. Current menu testing suggests only about 1 item out of 6 needs portion adjustment; items like tacos or tostadas benefit, while most main plates do not.
-- [ ] **Row-local dot updates:** When a row's portion changes, update that row's dots immediately using the original menu baseline maxes. Do not re-sort the list and do not change other rows' dots or numbers.
+- [x] **Stepper label formatting:** Show `x1` instead of `1×`; when below one, show `1/2` instead of `0.5`.
+- [x] **Full descriptions:** Remove the result-row description truncation so the full menu item description is visible.
+- [x] **Stepper UX brainstorm:** Rework the stepper affordance so portion editing stays available but does not dominate every main-plate row. Current menu testing suggests only about 1 item out of 6 needs portion adjustment; items like tacos or tostadas benefit, while most main plates do not.
+- [x] **Row-local dot updates:** When a row's portion changes, update that row's dots immediately using the original menu baseline maxes. Do not re-sort the list and do not change other rows' dots or numbers.
+
+Resolution: keep a compact always-visible stepper; row-local dot updates supersede Phase 5 design decision #3 ("dots frozen at baseline").
+
+## Next Follow-Up: Inconsistent Result Counts
+
+- [ ] **Make analysis compare all menu items consistently:** Local testing shows repeated analysis of the same menu can return uneven result counts, such as 11 items on one run and 6 on another. This likely also explains why very different plates can appear and rank across analysis triggers. Investigate whether extraction/enrichment is analyzing only a subset instead of all visible menu items, then tighten the pipeline so ranking compares against the full parsed menu every time.

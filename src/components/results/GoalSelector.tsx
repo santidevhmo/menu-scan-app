@@ -6,7 +6,7 @@ interface GoalSelectorProps {
   onToggle: (goal: string) => void;
 }
 
-/** Two-column High/Low multi-select grid of preset nutrition goals. */
+/** Two-column High/Low single-select grid of preset nutrition goals. */
 export function GoalSelector({ selected, onToggle }: GoalSelectorProps) {
   return (
     <View>

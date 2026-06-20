@@ -13,12 +13,10 @@ export const useGoalsStore = create<GoalsState>()(
   persist(
     (set) => ({
       selectedGoals: [],
-      setGoals: (goals) => set({ selectedGoals: goals }),
+      setGoals: (goals) => set({ selectedGoals: goals.slice(0, 1) }),
       toggleGoal: (goal) =>
         set((state) => ({
-          selectedGoals: state.selectedGoals.includes(goal)
-            ? state.selectedGoals.filter((g) => g !== goal)
-            : [...state.selectedGoals, goal],
+          selectedGoals: state.selectedGoals.includes(goal) ? [] : [goal],
         })),
     }),
     {

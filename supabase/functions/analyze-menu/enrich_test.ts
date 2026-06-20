@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
+import { assertEquals, assertThrows } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
   chunk,
   fallbackEnriched,
@@ -32,6 +32,11 @@ Deno.test("chunk splits into size-capped batches preserves all elements", () => 
   assertEquals(batches.length, 5);
   assertEquals(batches[4].length, 7);
   assertEquals(batches.flat(), nums);
+});
+
+Deno.test("chunk rejects non-positive size", () => {
+  assertThrows(() => chunk([1], 0), Error, "chunk size must be positive");
+  assertThrows(() => chunk([1], -1), Error, "chunk size must be positive");
 });
 
 Deno.test("reassemble returns one item per input, in input order, backfilling drops", () => {

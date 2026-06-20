@@ -188,9 +188,19 @@ async function enrichBatch(items: ExtractedItem[]): Promise<EnrichedItem[]> {
 
 /** Enriches a batch, retrying once if the model returns fewer items than sent. */
 async function enrichBatchWithRetry(batch: ExtractedItem[]): Promise<EnrichedItem[]> {
-  const first = await enrichBatch(batch);
-  if (first.length >= batch.length) return first;
-  return await enrichBatch(batch);
+  try {
+    const first = await enrichBatch(batch);
+    if (first.length >= batch.length) return first;
+  } catch (err) {
+    console.error("[enrich] batch failed, retrying:", err instanceof Error ? err.message : err);
+  }
+
+  try {
+    return await enrichBatch(batch);
+  } catch (err) {
+    console.error("[enrich] batch failed twice, backfilling:", err instanceof Error ? err.message : err);
+    return [];
+  }
 }
 
 /**

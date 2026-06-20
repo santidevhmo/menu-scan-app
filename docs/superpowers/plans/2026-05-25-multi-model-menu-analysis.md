@@ -1646,6 +1646,8 @@ Resolution: keep a compact always-visible stepper; row-local dot updates superse
 
 ## Phase 6: Remove Macro Dot Indicators (2026-06-20)
 
+**Spec alignment:** `AGENTS.md` no longer requires menu-relative macro dot badges; Phase 6 is the agreed UI direction.
+
 **Goal:** Drop the relative dot-bucketing UI for macros. Dots bucket each macro relative to the current menu's own max (`bucketDots` in `src/lib/analyzeMenu.ts`), so a 50g-protein item on a menu topped by a 100g item shows only 2/4 dots even though 50g is objectively high. "High/low" is individual to each user's nutritional goals, so a menu-relative visual misleads. Keep the raw number/unit/label and keep `highlight` (bold text when a macro matches the user's selected goal) — that's goal-relative by intent, not the menu-relative comparison being removed. No replacement visual.
 
 ### Task 6.1: Remove dots from `MacroBadge`

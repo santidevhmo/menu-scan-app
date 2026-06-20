@@ -7,8 +7,10 @@ export interface ExtractedItem {
   category: string;
 }
 
+export type IngredientCategory = "protein" | "carb" | "fat" | "veg" | "other";
+
 export interface EnrichedItem extends ExtractedItem {
-  ingredients: { name: string; category: string }[];
+  ingredients: { name: string; category: IngredientCategory }[];
   protein_g: number;
   carb_g: number;
   fat_g: number;
@@ -19,6 +21,10 @@ export interface EnrichedItem extends ExtractedItem {
 
 /** Splits array into consecutive batches at most `size`. */
 export function chunk<T>(arr: T[], size: number): T[][] {
+  if (!Number.isFinite(size) || size <= 0) {
+    throw new Error("chunk size must be positive");
+  }
+
   const out: T[][] = [];
   for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
   return out;

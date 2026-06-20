@@ -1642,7 +1642,7 @@ Resolution: keep a compact always-visible stepper; row-local dot updates superse
 
 ## Next Follow-Up: Inconsistent Result Counts
 
-- [ ] **Make analysis compare all menu items consistently:** Local testing shows repeated analysis of the same menu can return uneven result counts, such as 11 items on one run and 6 on another. This likely also explains why very different plates can appear and rank across analysis triggers. Investigate whether extraction/enrichment is analyzing only a subset instead of all visible menu items, then tighten the pipeline so ranking compares against the full parsed menu every time.
+- [x] **Make analysis compare all menu items consistently:** Local testing showed repeated analysis of the same menu could return uneven result counts, such as 11 items on one run and 6 on another. Root cause was Stage 2 GPT-4o enrichment returning a valid-but-incomplete subset under output pressure. Shipped chunked GPT-4o enrichment (`ENRICH_BATCH_SIZE = 10`) with deterministic sampling, one retry, error fallback, and reassembly backfill so `N extracted === N enriched`. Live verification passed with 45 OCR-extracted items and 45 rendered results. Deployed `analyze-menu`; validated with `deno test --no-lock supabase/functions/analyze-menu/enrich_test.ts`, `deno check --no-lock supabase/functions/analyze-menu/index.ts`, and `pnpm exec tsc --noEmit`.
 
 ## Phase 6: Remove Macro Dot Indicators (2026-06-20)
 

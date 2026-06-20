@@ -1,8 +1,16 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import {
+  chunk,
+  reassembleEnriched,
+  type EnrichedItem,
+  type ExtractedItem,
+} from "./enrich.ts";
 
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY")!;
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
 const MODEL_TIMEOUT_MS = 120000;
+const ENRICH_BATCH_SIZE = 10; // ponytail: small batches stop GPT-4o early-stopping; tune if drops persist
+const ENRICH_SEED = 17; // fixed seed + temperature 0 run-to-run stability
 
 // ── Stage 1: extraction (zero nutrition) ────────────────────────────────────
 
@@ -122,7 +130,12 @@ async function fetchWithTimeout(
 }
 
 /** Calls OpenAI chat completions with structured output and returns raw JSON text. */
-async function callOpenAIChat(model: string, content: unknown, schema: unknown): Promise<string> {
+async function callOpenAIChat(
+  model: string,
+  content: unknown,
+  schema: unknown,
+  options?: { temperature?: number; seed?: number },
+): Promise<string> {
   const res = await fetchWithTimeout("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -136,10 +149,13 @@ async function callOpenAIChat(model: string, content: unknown, schema: unknown):
         type: "json_schema",
         json_schema: { name: "menu_items", strict: true, schema },
       },
+      ...(options?.temperature !== undefined ? { temperature: options.temperature } : {}),
+      ...(options?.seed !== undefined ? { seed: options.seed } : {}),
     }),
   });
   const json = await res.json();
   if (!res.ok) throw new Error(json.error?.message ?? "OpenAI API error");
+  console.log("[openai] finish_reason:", json.choices[0].finish_reason);
   return json.choices[0].message.content as string;
 }
 
@@ -161,10 +177,32 @@ function buildEnrichContent(items: unknown): string {
   return `${ENRICH_PROMPT}\n\nMenu items (JSON):\n${JSON.stringify(items)}`;
 }
 
-/** GPT-4o text enrichment over extracted items (reuses callOpenAIChat). */
-async function callGptEnrich(items: unknown) {
-  const text = await callOpenAIChat("gpt-4o", buildEnrichContent(items), ENRICH_SCHEMA_OPENAI);
-  return { items: JSON.parse(text).items, raw_response: text };
+/** Enriches one small batch of items with stabilized sampling. */
+async function enrichBatch(items: ExtractedItem[]): Promise<EnrichedItem[]> {
+  const text = await callOpenAIChat("gpt-4o", buildEnrichContent(items), ENRICH_SCHEMA_OPENAI, {
+    temperature: 0,
+    seed: ENRICH_SEED,
+  });
+  return JSON.parse(text).items as EnrichedItem[];
+}
+
+/** Enriches a batch, retrying once if the model returns fewer items than sent. */
+async function enrichBatchWithRetry(batch: ExtractedItem[]): Promise<EnrichedItem[]> {
+  const first = await enrichBatch(batch);
+  if (first.length >= batch.length) return first;
+  return await enrichBatch(batch);
+}
+
+/**
+ * GPT-4o text enrichment over extracted items. Splits into small parallel batches
+ * to avoid early-stopping/truncation, then reassembles to guarantee one enriched
+ * item per input (dropped items are backfilled in enrich.ts).
+ */
+async function callGptEnrich(items: ExtractedItem[]): Promise<{ items: EnrichedItem[]; raw_response: string }> {
+  const batches = chunk(items, ENRICH_BATCH_SIZE);
+  const settled = await Promise.all(batches.map(enrichBatchWithRetry));
+  const enriched = reassembleEnriched(items, settled.flat());
+  return { items: enriched, raw_response: JSON.stringify({ items: enriched }) };
 }
 
 /** Gemini text enrichment over extracted items (no photos). */
@@ -227,7 +265,7 @@ serve(async (req) => {
       let modelId: string;
 
       if (provider === "gpt-4o") {
-        result = await callGptEnrich(inputItems);
+        result = await callGptEnrich(inputItems as ExtractedItem[]);
         modelId = "gpt-4o";
       } else if (provider === "gemini-2.5-flash") {
         result = await callGeminiEnrich(inputItems, "gemini-2.5-flash");
@@ -264,6 +302,8 @@ serve(async (req) => {
         { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
       );
     }
+
+    return badRequest("Invalid 'stage'");
   } catch (err) {
     return new Response(
       JSON.stringify({

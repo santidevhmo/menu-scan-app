@@ -1646,18 +1646,33 @@ Resolution: keep a compact always-visible stepper; row-local dot updates superse
 
 ## Phase 6: Remove Macro Dot Indicators (2026-06-20)
 
+> **Status:** Implemented 2026-06-20 in PR #11. Macro dots were removed, macro badges now show value/unit labels only, and nutrition goals were corrected to stay multi-select across macro groups while allowing only one option per High/Low pair.
+
 **Spec alignment:** `AGENTS.md` no longer requires menu-relative macro dot badges; Phase 6 is the agreed UI direction.
 
 **Goal:** Drop the relative dot-bucketing UI for macros. Dots bucket each macro relative to the current menu's own max (`bucketDots` in `src/lib/analyzeMenu.ts`), so a 50g-protein item on a menu topped by a 100g item shows only 2/4 dots even though 50g is objectively high. "High/low" is individual to each user's nutritional goals, so a menu-relative visual misleads. Keep the raw number/unit/label and keep `highlight` (bold text when a macro matches the user's selected goal) — that's goal-relative by intent, not the menu-relative comparison being removed. No replacement visual.
 
 ### Task 6.1: Remove dots from `MacroBadge`
 
-- [ ] **Step 1:** In `src/components/results/MenuItemRow.tsx`, remove the dot `Text` (`{"●".repeat(filled)}{"○".repeat(4 - filled)}`) from `MacroBadge`, and remove its `filled` prop.
-- [ ] **Step 2:** Remove the `filled={bucketDots(...)}` call site in `MenuItemRow`'s `MACROS.map`.
-- [ ] **Step 3:** Remove `bucketDots` from `src/lib/analyzeMenu.ts` once nothing calls it.
-- [ ] **Step 4:** Remove `MacroMaxes` interface, the `maxValues` prop on `MenuItemRowProps`, and the `computeMaxes` call site + `maxValues` prop passed from `src/app/results.tsx`, once nothing else needs them.
-- [ ] **Step 5:** Type-check and lint. `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → no errors.
-- [ ] **Step 6:** Commit. `feat: remove menu-relative macro dot indicators`
+- [x] **Step 1:** In `src/components/results/MenuItemRow.tsx`, remove the dot `Text` (`{"●".repeat(filled)}{"○".repeat(4 - filled)}`) from `MacroBadge`, and remove its `filled` prop.
+- [x] **Step 2:** Remove the `filled={bucketDots(...)}` call site in `MenuItemRow`'s `MACROS.map`.
+- [x] **Step 3:** Remove `bucketDots` from `src/lib/analyzeMenu.ts` once nothing calls it.
+- [x] **Step 4:** Remove `MacroMaxes` interface, the `maxValues` prop on `MenuItemRowProps`, and the `computeMaxes` call site + `maxValues` prop passed from `src/app/results.tsx`, once nothing else needs them.
+- [x] **Step 5:** Type-check and lint. `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → no errors.
+- [x] **Step 6:** Commit. `feat: remove menu-relative macro dot indicators`
+
+### Task 6.2: Make nutrition goals exclusive within each High/Low pair
+
+- [x] **Step 1:** Keep multi-select across macro groups, so user may select combinations like High protein + High carb + Low fat.
+- [x] **Step 2:** Prevent contradictory choices within the same macro group, so selecting Low protein removes Highest in protein and vice versa.
+- [x] **Step 3:** Normalize programmatic/persisted goal selections through the same pair-exclusive rule.
+- [x] **Step 4:** Type-check lint. `pnpm tsc --noEmit` `pnpm exec eslint src/ --ext .ts,.tsx` → no errors.
+
+### Task 6.3: Follow-up — verify multi-goal sorting combinations
+
+- [ ] **Step 1:** Double-check `sortItemsByGoals` behavior for combined macro goals such as High protein + High carb + Low fat.
+- [ ] **Step 2:** Confirm ranked results reflect the selected combination rather than only the first selected macro goal.
+- [ ] **Step 3:** Add the smallest regression check available in the repo for combined-goal ranking once the desired scoring rule is confirmed.
 
 ## Phase 6 Verification
 

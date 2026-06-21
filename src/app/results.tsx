@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -17,7 +17,14 @@ import { GoalSelector } from "@/components/results/GoalSelector";
 import { MenuItemRow } from "@/components/results/MenuItemRow";
 import { PhaseIndicator } from "@/components/results/PhaseIndicator";
 import { selectedMacros, sortItemsByGoals } from "@/lib/analyzeMenu";
-import type { EnrichmentResult, ExtractionResult } from "@/types/scan";
+import { squashZScore } from "@/lib/zScoreSort";
+import type {
+  EnrichmentResult,
+  ExtractionResult,
+  ScoredItem,
+} from "@/types/scan";
+
+type ScoredResultItem = ScoredItem & { sourceIndex: number };
 
 /** Pretty-prints JSON strings while leaving non-JSON OCR text unchanged. */
 function tryPrettyPrint(text: string): string {
@@ -155,6 +162,60 @@ function ResultsPhase({
 }) {
   const [noticeDismissed, setNoticeDismissed] = useState(false);
   const [portions, setPortions] = useState<Record<number, number>>({});
+  const sorted: ScoredResultItem[] = useMemo(() => {
+    if (!result || result.error) return [];
+    return sortItemsByGoals(
+      result.items.map((item, sourceIndex) => ({ ...item, sourceIndex })),
+      selectedGoals,
+    );
+  }, [result, selectedGoals]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset stale per-result UI state for a new scan result
+    setPortions({});
+  }, [result]);
+
+  useEffect(() => {
+    if (!__DEV__ || !result || result.error || result.items.length === 0)
+      return;
+
+    console.log(
+      JSON.stringify(
+        {
+          selected_goals: selectedGoals,
+          total_items: sorted.length,
+          items: sorted.map((item, index) => ({
+            rank: index + 1,
+            name: item.name,
+            macros: {
+              protein_g: item.protein_g,
+              carb_g: item.carb_g,
+              fat_g: item.fat_g,
+              estimated_calories: item.estimated_calories,
+            },
+            alignment_score: item.alignment_score,
+            display_score: squashZScore(item.alignment_score),
+            goal_scores: item.goal_scores,
+            allergens: item.allergens,
+          })),
+        },
+        null,
+        2,
+      ),
+    );
+    console.log(
+      "[rank top10]\n" +
+        sorted
+          .slice(0, 10)
+          .map(
+            (item, index) =>
+              `${String(index + 1).padStart(2)}. ${item.name} ` +
+              `P${item.protein_g} C${item.carb_g} F${item.fat_g} ` +
+              `cal${item.estimated_calories} score=${item.alignment_score.toFixed(2)}`,
+          )
+          .join("\n"),
+    );
+  }, [result, selectedGoals, sorted]);
 
   if (loading) {
     return (
@@ -198,8 +259,6 @@ function ResultsPhase({
   }
 
   const highlight = selectedMacros(selectedGoals);
-  const sorted = sortItemsByGoals(result.items, selectedGoals);
-  const idOf = new Map(result.items.map((item, index) => [item, index]));
   const lowConfidence =
     result.items.filter((item) => item.confidence === "low").length /
       result.items.length >=
@@ -208,7 +267,7 @@ function ResultsPhase({
   return (
     <FlatList
       data={sorted}
-      keyExtractor={(item) => String(idOf.get(item))}
+      keyExtractor={(item) => String(item.sourceIndex)}
       contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
       ListHeaderComponent={
         lowConfidence && !noticeDismissed ? (
@@ -230,7 +289,7 @@ function ResultsPhase({
         ) : null
       }
       renderItem={({ item, index }) => {
-        const id = idOf.get(item)!;
+        const id = item.sourceIndex;
 
         return (
           <MenuItemRow

@@ -1,0 +1,87 @@
+export interface GoalVector {
+  name: string;
+  field: string;
+  direction: 1 | -1;
+  weight?: number;
+}
+
+export function computeZScores(values: number[]): number[] {
+  const finiteValues = values.filter(Number.isFinite);
+  const count = finiteValues.length;
+  if (count === 0) return values.map(() => 0);
+
+  const mean = finiteValues.reduce((sum, value) => sum + value, 0) / count;
+  const variance =
+    finiteValues.reduce((sum, value) => sum + (value - mean) ** 2, 0) / count;
+  const stddev = Math.sqrt(variance);
+
+  if (stddev === 0) return values.map(() => 0);
+
+  return values.map((value) =>
+    Number.isFinite(value) ? (value - mean) / stddev : 0,
+  );
+}
+
+// ponytail: cosmetic display squash; raw z-score still drives sorting.
+export function squashZScore(z: number): number {
+  return 1 / (1 + Math.exp(-z));
+}
+
+// ponytail: smoothly saturate each goal's z-score toward ±CLAMP_CAP so one
+// extreme goal can't outweigh being bad on another, while staying monotonic so
+// leaders past the cap keep their order (a hard clamp tied them, breaking
+// single-/few-goal sorting). Tune CLAMP_CAP if simulator rankings feel off.
+export const CLAMP_CAP = 1.5;
+
+function softClampZ(z: number): number {
+  return CLAMP_CAP * Math.tanh(z / CLAMP_CAP);
+}
+
+export function scoreAndSort<T extends object>(
+  items: T[],
+  goals: GoalVector[],
+): (T & { alignment_score: number; goal_scores: Record<string, number> })[] {
+  if (items.length === 0) return [];
+
+  if (goals.length === 0) {
+    return items.map((item) => ({
+      ...item,
+      alignment_score: 0,
+      goal_scores: {},
+    }));
+  }
+
+  const perGoalZ = new Map<string, number[]>();
+
+  for (const goal of goals) {
+    const raw = items.map((item) => {
+      const value = (item as Record<string, unknown>)[goal.field];
+      return typeof value === "number" && Number.isFinite(value) ? value : 0;
+    });
+    perGoalZ.set(
+      goal.name,
+      computeZScores(raw).map((z) => z * goal.direction),
+    );
+  }
+
+  return items
+    .map((item, index) => {
+      const goal_scores: Record<string, number> = {};
+      let total = 0;
+
+      for (const goal of goals) {
+        const z = perGoalZ.get(goal.name)?.[index] ?? 0;
+        const weight = goal.weight ?? 1;
+        goal_scores[goal.name] = z;
+        total += softClampZ(z) * weight;
+      }
+
+      return {
+        ...item,
+        alignment_score:
+          total / goals.reduce((sum, goal) => sum + (goal.weight ?? 1), 0),
+        goal_scores,
+      };
+    })
+    .sort((a, b) => b.alignment_score - a.alignment_score);
+}

@@ -6,6 +6,7 @@ import {
 } from "@supabase/supabase-js";
 import { compressImage } from "./compressImage";
 import { supabase } from "./supabase";
+import { scoreAndSort, type GoalVector } from "./zScoreSort";
 import { GOAL_PAIRS, GROUP_TO_MACRO, type MacroField } from "@/data/goals";
 import type {
   ScanPhoto,
@@ -15,6 +16,7 @@ import type {
   EnrichmentResult,
   ExtractedItem,
   EnrichedItem,
+  ScoredItem,
 } from "@/types/scan";
 
 const GOALS_SORT_MAP: Record<
@@ -115,25 +117,26 @@ function logExtractionResult(result: ExtractionResult) {
   );
 }
 
-/** Sorts menu items by the first selected goal when a local sort is mapped. */
-export function sortItemsByGoals(
-  items: EnrichedItem[],
+/** Sorts menu items by all selected goals using z-score normalization. */
+export function sortItemsByGoals<T extends EnrichedItem>(
+  items: T[],
   goals: string[],
-): EnrichedItem[] {
-  const goal = goals[0];
-  const cfg = goal ? GOALS_SORT_MAP[goal] : undefined;
-  if (!cfg) return items;
-  return [...items].sort((a, b) => {
-    const diff =
-      cfg.order === "desc"
-        ? b[cfg.field] - a[cfg.field]
-        : a[cfg.field] - b[cfg.field];
-    if (diff !== 0) return diff;
-    if (b.estimated_calories !== a.estimated_calories) {
-      return b.estimated_calories - a.estimated_calories;
-    }
-    return a.name.localeCompare(b.name);
+): (T & Pick<ScoredItem, "alignment_score" | "goal_scores">)[] {
+  const vectors: GoalVector[] = goals.flatMap((goal, index) => {
+    const cfg = GOALS_SORT_MAP[goal];
+    if (!cfg) return [];
+
+    return [
+      {
+        name: goal,
+        field: cfg.field,
+        direction: cfg.order === "desc" ? 1 : -1,
+        weight: goals.length - index,
+      },
+    ];
   });
+
+  return scoreAndSort(items, vectors);
 }
 
 /** The macro fields the user is actively ranking by. */

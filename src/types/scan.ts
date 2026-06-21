@@ -43,6 +43,11 @@ export interface EnrichedItem extends ExtractedItem {
   allergens: string[];
 }
 
+export interface ScoredItem extends EnrichedItem {
+  alignment_score: number;
+  goal_scores: Record<string, number>;
+}
+
 export interface EnrichmentResult {
   provider: EnrichmentProvider;
   items: EnrichedItem[];

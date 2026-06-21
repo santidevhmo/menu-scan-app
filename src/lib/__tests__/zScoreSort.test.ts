@@ -134,6 +134,75 @@ console.log("\nscoreAndSort - empty items");
   check("returns empty array", result.length === 0);
 }
 
+console.log("\nscoreAndSort - clamp caps single-goal dominance");
+
+{
+  const clampItems = [
+    {
+      name: "Balanced",
+      protein_g: 30,
+      carb_g: 30,
+      fat_g: 12,
+      estimated_calories: 440,
+    },
+    {
+      name: "Outlier",
+      protein_g: 18,
+      carb_g: 20,
+      fat_g: 3,
+      estimated_calories: 140,
+    },
+    {
+      name: "HeavyA",
+      protein_g: 55,
+      carb_g: 55,
+      fat_g: 34,
+      estimated_calories: 780,
+    },
+    {
+      name: "HeavyB",
+      protein_g: 50,
+      carb_g: 48,
+      fat_g: 31,
+      estimated_calories: 720,
+    },
+    {
+      name: "HeavyC",
+      protein_g: 48,
+      carb_g: 50,
+      fat_g: 30,
+      estimated_calories: 700,
+    },
+    {
+      name: "Mid",
+      protein_g: 22,
+      carb_g: 24,
+      fat_g: 14,
+      estimated_calories: 480,
+    },
+  ];
+  const result = scoreAndSort(clampItems, [
+    { name: "Highest in protein", field: "protein_g", direction: 1 },
+    { name: "High carb", field: "carb_g", direction: 1 },
+    { name: "Low fat", field: "fat_g", direction: -1 },
+    { name: "Low calorie", field: "estimated_calories", direction: -1 },
+  ]);
+
+  check("balanced item ranks first", result[0].name === "Balanced");
+  check(
+    "extreme outlier does not rank first",
+    result.findIndex((item) => item.name === "Outlier") > 0,
+  );
+  check(
+    "goal_scores keep raw (unclamped) z beyond cap",
+    Math.abs(
+      result.find((item) => item.name === "HeavyA")!.goal_scores[
+        "Highest in protein"
+      ],
+    ) > 1,
+  );
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 
 if (failed > 0) {

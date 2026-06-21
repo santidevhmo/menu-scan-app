@@ -23,6 +23,14 @@ export function squashZScore(z: number): number {
   return 1 / (1 + Math.exp(-z));
 }
 
+// ponytail: cap each goal's z-score so one extreme goal can't outweigh being
+// bad on another. Tune if simulator rankings feel off.
+const CLAMP_CAP = 1;
+
+function clampZ(z: number): number {
+  return Math.max(-CLAMP_CAP, Math.min(CLAMP_CAP, z));
+}
+
 export function scoreAndSort<T extends object>(
   items: T[],
   goals: GoalVector[],
@@ -58,7 +66,7 @@ export function scoreAndSort<T extends object>(
       for (const goal of goals) {
         const z = perGoalZ.get(goal.name)?.[index] ?? 0;
         goal_scores[goal.name] = z;
-        total += z;
+        total += clampZ(z);
       }
 
       return {

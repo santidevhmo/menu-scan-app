@@ -235,6 +235,18 @@ function ResultsPhase({
           )
           .join("\n"),
     );
+    console.log(
+      "[allergens top10]\n" +
+        sorted
+          .slice(0, 10)
+          .map(
+            (item, index) =>
+              `${String(index + 1).padStart(2)}. ${item.name}: ${
+                item.allergens.length > 0 ? item.allergens.join(", ") : "none"
+              }`,
+          )
+          .join("\n"),
+    );
   }, [result, selectedGoals, sorted]);
 
   if (loading) {

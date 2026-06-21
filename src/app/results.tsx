@@ -13,6 +13,8 @@ import { ChevronLeft } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 import { useAnalysisStore } from "@/store/analysis.store";
 import { useGoalsStore } from "@/store/goals.store";
+import { useAllergensStore } from "@/store/allergens.store";
+import { AllergenSelector } from "@/components/results/AllergenSelector";
 import { GoalSelector } from "@/components/results/GoalSelector";
 import { MenuItemRow } from "@/components/results/MenuItemRow";
 import { PhaseIndicator } from "@/components/results/PhaseIndicator";
@@ -102,12 +104,16 @@ function GoalsPhase({
   result,
   selectedGoals,
   onToggleGoal,
+  selectedAllergens,
+  onToggleAllergen,
   onContinue,
 }: {
   loading: boolean;
   result: ExtractionResult | null;
   selectedGoals: string[];
   onToggleGoal: (goal: string) => void;
+  selectedAllergens: string[];
+  onToggleAllergen: (allergen: string) => void;
   onContinue: () => void;
 }) {
   const ocrDone = !!result && !result.error;
@@ -124,6 +130,16 @@ function GoalsPhase({
           Your goals
         </Text>
         <GoalSelector selected={selectedGoals} onToggle={onToggleGoal} />
+        <Text className="font-display text-h2 text-foreground mt-6 mb-2">
+          Allergens
+        </Text>
+        <Text className="font-sans text-subtle text-muted-foreground mb-3">
+          Optional. We&apos;ll hide menu items containing anything you select.
+        </Text>
+        <AllergenSelector
+          selected={selectedAllergens}
+          onToggle={onToggleAllergen}
+        />
       </ScrollView>
 
       <View className="px-6 pb-4">
@@ -313,6 +329,10 @@ export default function ResultsScreen() {
     useAnalysisStore();
   const selectedGoals = useGoalsStore((state) => state.selectedGoals);
   const toggleGoal = useGoalsStore((state) => state.toggleGoal);
+  const selectedAllergens = useAllergensStore(
+    (state) => state.selectedAllergens,
+  );
+  const toggleAllergen = useAllergensStore((state) => state.toggleAllergen);
   const [phase, setPhase] = useState(0);
 
   const ocrDone = !!extraction && !extraction.error;
@@ -358,6 +378,8 @@ export default function ResultsScreen() {
             result={extraction}
             selectedGoals={selectedGoals}
             onToggleGoal={toggleGoal}
+            selectedAllergens={selectedAllergens}
+            onToggleAllergen={toggleAllergen}
             onContinue={() => goTo(1)}
           />
         )}

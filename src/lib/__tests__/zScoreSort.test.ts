@@ -211,6 +211,39 @@ console.log("\nscoreAndSort - clamp caps single-goal dominance");
   );
 }
 
+console.log("\nscoreAndSort - leaders past the cap keep their order");
+
+{
+  // Many low-protein items pull the mean down so both top items exceed the old
+  // hard cap (z > 1.5). A hard clamp ties them at the cap and original array
+  // order wins; the soft clamp must keep the higher-protein item ahead.
+  const proteins = [
+    60, 70, 50, 50, 50, 50, 50, 50, 50, 50, 35, 40, 30, 10, 30, 45, 40, 35, 2,
+    25, 20, 15, 18, 12, 8, 22, 28, 15, 10, 5, 33, 38,
+  ];
+  const plateauItems = proteins.map((protein_g, index) => ({
+    name: `item${index}`,
+    protein_g,
+    carb_g: 0,
+    fat_g: 0,
+    estimated_calories: 0,
+  }));
+
+  const result = scoreAndSort(plateauItems, [
+    { name: "Highest in protein", field: "protein_g", direction: 1 },
+  ]);
+
+  const rank70 = result.findIndex((item) => item.protein_g === 70);
+  const rank60 = result.findIndex((item) => item.protein_g === 60);
+
+  check("highest protein (70) ranks first", rank70 === 0);
+  check("60g protein ranks below 70g protein", rank70 < rank60);
+  check(
+    "tied leaders no longer share an identical score",
+    result[0].alignment_score !== result[1].alignment_score,
+  );
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 
 if (failed > 0) {

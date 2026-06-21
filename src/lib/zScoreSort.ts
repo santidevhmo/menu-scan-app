@@ -23,12 +23,14 @@ export function squashZScore(z: number): number {
   return 1 / (1 + Math.exp(-z));
 }
 
-// ponytail: cap each goal's z-score so one extreme goal can't outweigh being
-// bad on another. Tune if simulator rankings feel off.
+// ponytail: smoothly saturate each goal's z-score toward ±CLAMP_CAP so one
+// extreme goal can't outweigh being bad on another, while staying monotonic so
+// leaders past the cap keep their order (a hard clamp tied them, breaking
+// single-/few-goal sorting). Tune CLAMP_CAP if simulator rankings feel off.
 const CLAMP_CAP = 1.5;
 
-function clampZ(z: number): number {
-  return Math.max(-CLAMP_CAP, Math.min(CLAMP_CAP, z));
+function softClampZ(z: number): number {
+  return CLAMP_CAP * Math.tanh(z / CLAMP_CAP);
 }
 
 export function scoreAndSort<T extends object>(
@@ -66,7 +68,7 @@ export function scoreAndSort<T extends object>(
       for (const goal of goals) {
         const z = perGoalZ.get(goal.name)?.[index] ?? 0;
         goal_scores[goal.name] = z;
-        total += clampZ(z);
+        total += softClampZ(z);
       }
 
       return {

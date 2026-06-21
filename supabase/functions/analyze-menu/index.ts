@@ -168,7 +168,11 @@ async function callGptExtract(photos: string[]) {
       image_url: { url: `data:image/jpeg;base64,${b64}` },
     })),
   ];
-  const text = await callOpenAIChat("gpt-4o", content, EXTRACT_SCHEMA);
+  // Stage 1 stability: same photos -> same extraction, matching enrichment.
+  const text = await callOpenAIChat("gpt-4o", content, EXTRACT_SCHEMA, {
+    temperature: 0,
+    seed: ENRICH_SEED,
+  });
   return { items: JSON.parse(text).items, raw_response: text };
 }
 

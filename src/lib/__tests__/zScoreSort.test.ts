@@ -24,7 +24,10 @@ console.log("\ncomputeZScores");
   check("below-mean value is negative", zs[0] < 0);
   check("above-mean value is positive", zs[2] > 0);
   check("empty array returns empty", computeZScores([]).length === 0);
-  check("all-same returns zeros", computeZScores([5, 5, 5]).every((z) => z === 0));
+  check(
+    "all-same returns zeros",
+    computeZScores([5, 5, 5]).every((z) => z === 0),
+  );
 }
 
 console.log("\nsquashZScore");
@@ -38,8 +41,20 @@ console.log("\nsquashZScore");
 
 const items = [
   { name: "Salad", protein_g: 5, carb_g: 10, fat_g: 2, estimated_calories: 80 },
-  { name: "Chicken", protein_g: 45, carb_g: 0, fat_g: 8, estimated_calories: 250 },
-  { name: "Pasta", protein_g: 15, carb_g: 60, fat_g: 6, estimated_calories: 400 },
+  {
+    name: "Chicken",
+    protein_g: 45,
+    carb_g: 0,
+    fat_g: 8,
+    estimated_calories: 250,
+  },
+  {
+    name: "Pasta",
+    protein_g: 15,
+    carb_g: 60,
+    fat_g: 6,
+    estimated_calories: 400,
+  },
 ];
 
 console.log("\nscoreAndSort - single goal (maximize protein)");
@@ -51,8 +66,14 @@ console.log("\nscoreAndSort - single goal (maximize protein)");
   check("returns 3 items", result.length === 3);
   check("Chicken ranks first", result[0].name === "Chicken");
   check("Salad ranks last", result[2].name === "Salad");
-  check("alignment_score is a number", typeof result[0].alignment_score === "number");
-  check("goal_scores keyed by goal name", "Highest in protein" in result[0].goal_scores);
+  check(
+    "alignment_score is a number",
+    typeof result[0].alignment_score === "number",
+  );
+  check(
+    "goal_scores keyed by goal name",
+    "Highest in protein" in result[0].goal_scores,
+  );
 }
 
 console.log("\nscoreAndSort - single goal (minimize calories)");
@@ -73,8 +94,14 @@ console.log("\nscoreAndSort - conflicting goals");
   ]);
 
   check("returns 3 items", result.length === 3);
-  check("each item has both goal scores", Object.keys(result[0].goal_scores).length === 2);
-  check("alignment_score differs between items", result[0].alignment_score !== result[1].alignment_score);
+  check(
+    "each item has both goal scores",
+    Object.keys(result[0].goal_scores).length === 2,
+  );
+  check(
+    "alignment_score differs between items",
+    result[0].alignment_score !== result[1].alignment_score,
+  );
   check(
     "Chicken outranks Pasta",
     result.findIndex((item) => item.name === "Chicken") <
@@ -87,15 +114,22 @@ console.log("\nscoreAndSort - no goals");
   const result = scoreAndSort(items, []);
 
   check("returns all items", result.length === 3);
-  check("alignment_score is 0 for all", result.every((item) => item.alignment_score === 0));
-  check("goal_scores empty for all", result.every((item) => Object.keys(item.goal_scores).length === 0));
+  check(
+    "alignment_score is 0 for all",
+    result.every((item) => item.alignment_score === 0),
+  );
+  check(
+    "goal_scores empty for all",
+    result.every((item) => Object.keys(item.goal_scores).length === 0),
+  );
 }
 
 console.log("\nscoreAndSort - empty items");
 {
-  const result = scoreAndSort([], [
-    { name: "Highest in protein", field: "protein_g", direction: 1 },
-  ]);
+  const result = scoreAndSort(
+    [],
+    [{ name: "Highest in protein", field: "protein_g", direction: 1 }],
+  );
 
   check("returns empty array", result.length === 0);
 }

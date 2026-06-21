@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -17,7 +17,12 @@ import { GoalSelector } from "@/components/results/GoalSelector";
 import { MenuItemRow } from "@/components/results/MenuItemRow";
 import { PhaseIndicator } from "@/components/results/PhaseIndicator";
 import { selectedMacros, sortItemsByGoals } from "@/lib/analyzeMenu";
-import type { EnrichmentResult, ExtractionResult } from "@/types/scan";
+import { squashZScore } from "@/lib/zScoreSort";
+import type {
+  EnrichmentResult,
+  ExtractionResult,
+  ScoredItem,
+} from "@/types/scan";
 
 /** Pretty-prints JSON strings while leaving non-JSON OCR text unchanged. */
 function tryPrettyPrint(text: string): string {
@@ -155,6 +160,39 @@ function ResultsPhase({
 }) {
   const [noticeDismissed, setNoticeDismissed] = useState(false);
   const [portions, setPortions] = useState<Record<number, number>>({});
+  const sorted: ScoredItem[] = useMemo(() => {
+    if (!result || result.error) return [];
+    return sortItemsByGoals(result.items, selectedGoals);
+  }, [result, selectedGoals]);
+
+  useEffect(() => {
+    if (!result || result.error || result.items.length === 0) return;
+
+    console.log(
+      JSON.stringify(
+        {
+          selected_goals: selectedGoals,
+          total_items: sorted.length,
+          items: sorted.map((item, index) => ({
+            rank: index + 1,
+            name: item.name,
+            macros: {
+              protein_g: item.protein_g,
+              carb_g: item.carb_g,
+              fat_g: item.fat_g,
+              estimated_calories: item.estimated_calories,
+            },
+            alignment_score: item.alignment_score,
+            display_score: squashZScore(item.alignment_score),
+            goal_scores: item.goal_scores,
+            allergens: item.allergens,
+          })),
+        },
+        null,
+        2,
+      ),
+    );
+  }, [result, selectedGoals, sorted]);
 
   if (loading) {
     return (
@@ -198,7 +236,6 @@ function ResultsPhase({
   }
 
   const highlight = selectedMacros(selectedGoals);
-  const sorted = sortItemsByGoals(result.items, selectedGoals);
   const idOf = new Map(result.items.map((item, index) => [item, index]));
   const lowConfidence =
     result.items.filter((item) => item.confidence === "low").length /

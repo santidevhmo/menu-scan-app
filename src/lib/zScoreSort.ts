@@ -26,7 +26,7 @@ export function squashZScore(z: number): number {
 export function scoreAndSort<T extends object>(
   items: T[],
   goals: GoalVector[],
-): Array<T & { alignment_score: number; goal_scores: Record<string, number> }> {
+): (T & { alignment_score: number; goal_scores: Record<string, number> })[] {
   if (items.length === 0) return [];
 
   if (goals.length === 0) {

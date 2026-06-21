@@ -382,7 +382,7 @@ function ResultsPhase({
             rank={index + 1}
             highlight={highlight}
             portion={portions[id] ?? 1}
-            showAllergens={hasAllergenFilter}
+            selectedAllergens={selectedAllergens}
             onPortionChange={(portion) =>
               setPortions((prev) => ({ ...prev, [id]: portion }))
             }

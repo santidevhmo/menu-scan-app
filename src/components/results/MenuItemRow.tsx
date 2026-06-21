@@ -11,7 +11,7 @@ interface MenuItemRowProps {
   highlight: Set<MacroField>;
   portion: number;
   onPortionChange: (portion: number) => void;
-  showAllergens: boolean;
+  selectedAllergens: string[];
 }
 
 const MACROS: { field: MacroField; label: string; unit: string }[] = [
@@ -33,8 +33,12 @@ export function MenuItemRow({
   highlight,
   portion,
   onPortionChange,
-  showAllergens,
+  selectedAllergens,
 }: MenuItemRowProps) {
+  const matchingAllergens = item.allergens.filter((allergen) =>
+    selectedAllergens.includes(allergen),
+  );
+
   return (
     <View className="rounded-card bg-card border border-border p-4 mb-3">
       <View className="flex-row items-start justify-between">
@@ -112,9 +116,9 @@ export function MenuItemRow({
         </Pressable>
       </View>
 
-      {showAllergens && item.allergens.length > 0 && (
+      {matchingAllergens.length > 0 && (
         <Text className="font-sans text-caption text-danger mt-2">
-          Allergens: {item.allergens.map(allergenLabel).join(", ")}
+          Allergens: {matchingAllergens.map(allergenLabel).join(", ")}
         </Text>
       )}
     </View>

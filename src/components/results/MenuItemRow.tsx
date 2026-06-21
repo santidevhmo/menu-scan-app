@@ -10,6 +10,7 @@ interface MenuItemRowProps {
   highlight: Set<MacroField>;
   portion: number;
   onPortionChange: (portion: number) => void;
+  showAllergens: boolean;
 }
 
 const MACROS: { field: MacroField; label: string; unit: string }[] = [
@@ -31,6 +32,7 @@ export function MenuItemRow({
   highlight,
   portion,
   onPortionChange,
+  showAllergens,
 }: MenuItemRowProps) {
   return (
     <View className="rounded-card bg-card border border-border p-4 mb-3">
@@ -109,7 +111,7 @@ export function MenuItemRow({
         </Pressable>
       </View>
 
-      {item.allergens.length > 0 && (
+      {showAllergens && item.allergens.length > 0 && (
         <Text className="font-sans text-caption text-danger mt-2">
           Allergens: {item.allergens.join(", ")}
         </Text>

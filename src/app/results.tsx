@@ -171,12 +171,15 @@ function ResultsPhase({
   loading,
   result,
   selectedGoals,
+  selectedAllergens,
 }: {
   loading: boolean;
   result: EnrichmentResult | null;
   selectedGoals: string[];
+  selectedAllergens: string[];
 }) {
   const [noticeDismissed, setNoticeDismissed] = useState(false);
+  const [revealHidden, setRevealHidden] = useState(false);
   const [portions, setPortions] = useState<Record<number, number>>({});
   const sorted: ScoredResultItem[] = useMemo(() => {
     if (!result || result.error) return [];
@@ -189,6 +192,7 @@ function ResultsPhase({
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reset stale per-result UI state for a new scan result
     setPortions({});
+    setRevealHidden(false);
   }, [result]);
 
   useEffect(() => {
@@ -279,30 +283,70 @@ function ResultsPhase({
     result.items.filter((item) => item.confidence === "low").length /
       result.items.length >=
     0.75;
+  const hasAllergenFilter = selectedAllergens.length > 0;
+  const matchesAllergen = (item: ScoredResultItem) =>
+    item.allergens.some((allergen) => selectedAllergens.includes(allergen));
+  const hidden = hasAllergenFilter ? sorted.filter(matchesAllergen) : [];
+  const visible =
+    hasAllergenFilter && !revealHidden
+      ? sorted.filter((item) => !matchesAllergen(item))
+      : sorted;
 
   return (
     <FlatList
-      data={sorted}
+      data={visible}
       keyExtractor={(item) => String(item.sourceIndex)}
       contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
       ListHeaderComponent={
-        lowConfidence && !noticeDismissed ? (
-          <Pressable
-            onPress={() => setNoticeDismissed(true)}
-            className="rounded-card border border-border bg-card p-4 mb-3"
-            accessibilityRole="button"
-            accessibilityLabel="Dismiss low-confidence notice"
-          >
-            <Text className="font-sans text-body text-foreground">
-              Descriptions on this menu are light on details.
-            </Text>
-            <Text className="font-sans text-subtle text-muted-foreground mt-1">
-              Nutritional estimates are rough because the menu does not list
-              ingredients. For confident choices, ask your waiter. Tap to
-              dismiss.
-            </Text>
-          </Pressable>
-        ) : null
+        <>
+          {hasAllergenFilter && (
+            <View className="rounded-card border border-border bg-card p-4 mb-3">
+              <Text className="font-sans text-body text-danger">
+                AI-estimated. Confirm allergens with restaurant staff before
+                ordering.
+              </Text>
+            </View>
+          )}
+          {hidden.length > 0 && (
+            <Pressable
+              onPress={() => setRevealHidden((value) => !value)}
+              className="rounded-card border border-border bg-card p-4 mb-3"
+              accessibilityRole="button"
+              accessibilityLabel={
+                revealHidden
+                  ? "Hide allergen items"
+                  : "Show hidden allergen items"
+              }
+            >
+              <Text className="font-sans text-body text-foreground">
+                {revealHidden
+                  ? `Showing ${hidden.length} hidden ${
+                      hidden.length === 1 ? "item" : "items"
+                    } · Hide`
+                  : `${hidden.length} ${
+                      hidden.length === 1 ? "item" : "items"
+                    } hidden due to allergens · Show anyway`}
+              </Text>
+            </Pressable>
+          )}
+          {lowConfidence && !noticeDismissed ? (
+            <Pressable
+              onPress={() => setNoticeDismissed(true)}
+              className="rounded-card border border-border bg-card p-4 mb-3"
+              accessibilityRole="button"
+              accessibilityLabel="Dismiss low-confidence notice"
+            >
+              <Text className="font-sans text-body text-foreground">
+                Descriptions on this menu are light on details.
+              </Text>
+              <Text className="font-sans text-subtle text-muted-foreground mt-1">
+                Nutritional estimates are rough because the menu does not list
+                ingredients. For confident choices, ask your waiter. Tap to
+                dismiss.
+              </Text>
+            </Pressable>
+          ) : null}
+        </>
       }
       renderItem={({ item, index }) => {
         const id = item.sourceIndex;
@@ -388,6 +432,7 @@ export default function ResultsScreen() {
             loading={enrichmentLoading}
             result={enrichment}
             selectedGoals={selectedGoals}
+            selectedAllergens={selectedAllergens}
           />
         )}
       </View>

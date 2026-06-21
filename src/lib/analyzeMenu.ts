@@ -118,11 +118,11 @@ function logExtractionResult(result: ExtractionResult) {
 }
 
 /** Sorts menu items by all selected goals using z-score normalization. */
-export function sortItemsByGoals(
-  items: EnrichedItem[],
+export function sortItemsByGoals<T extends EnrichedItem>(
+  items: T[],
   goals: string[],
-): ScoredItem[] {
-  const vectors: GoalVector[] = goals.flatMap((goal) => {
+): (T & Pick<ScoredItem, "alignment_score" | "goal_scores">)[] {
+  const vectors: GoalVector[] = goals.flatMap((goal, index) => {
     const cfg = GOALS_SORT_MAP[goal];
     if (!cfg) return [];
 
@@ -131,10 +131,12 @@ export function sortItemsByGoals(
         name: goal,
         field: cfg.field,
         direction: cfg.order === "desc" ? 1 : -1,
+        weight: goals.length - index,
       },
     ];
   });
-  return scoreAndSort(items, vectors) as ScoredItem[];
+
+  return scoreAndSort(items, vectors);
 }
 
 /** The macro fields the user is actively ranking by. */

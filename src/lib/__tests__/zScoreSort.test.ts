@@ -1,5 +1,9 @@
-// @ts-expect-error Node 25 runs the .ts file directly; app tsc does not enable TS extension imports.
-import { computeZScores, scoreAndSort, squashZScore } from "../zScoreSort.ts";
+import {
+  CLAMP_CAP,
+  computeZScores,
+  scoreAndSort,
+  squashZScore,
+} from "../zScoreSort";
 
 let passed = 0;
 let failed = 0;
@@ -29,6 +33,10 @@ console.log("\ncomputeZScores");
     computeZScores([5, 5, 5]).every((z) => z === 0),
   );
 }
+check(
+  "non-finite values score as neutral",
+  computeZScores([10, Number.NaN, 20, Number.POSITIVE_INFINITY])[1] === 0,
+);
 
 console.log("\nsquashZScore");
 {
@@ -199,7 +207,7 @@ console.log("\nscoreAndSort - clamp caps single-goal dominance");
       result.find((item) => item.name === "Outlier")!.goal_scores[
         "Low calorie"
       ],
-    ) > 1.5,
+    ) > CLAMP_CAP,
   );
   const outlier = result.find((item) => item.name === "Outlier")!;
   const rawAverage =
@@ -211,11 +219,49 @@ console.log("\nscoreAndSort - clamp caps single-goal dominance");
   );
 }
 
+console.log("\nscoreAndSort - goal weights affect ordering");
+
+{
+  const weightedItems = [
+    {
+      name: "Protein",
+      protein_g: 50,
+      carb_g: 0,
+      fat_g: 0,
+      estimated_calories: 0,
+    },
+    {
+      name: "Carb",
+      protein_g: 0,
+      carb_g: 50,
+      fat_g: 0,
+      estimated_calories: 0,
+    },
+  ];
+  const proteinFirst = scoreAndSort(weightedItems, [
+    { name: "Highest in protein", field: "protein_g", direction: 1, weight: 2 },
+    { name: "High carb", field: "carb_g", direction: 1, weight: 1 },
+  ]);
+  const carbFirst = scoreAndSort(weightedItems, [
+    { name: "Highest in protein", field: "protein_g", direction: 1, weight: 1 },
+    { name: "High carb", field: "carb_g", direction: 1, weight: 2 },
+  ]);
+
+  check(
+    "protein-first weighting ranks protein item first",
+    proteinFirst[0].name === "Protein",
+  );
+  check(
+    "carb-first weighting ranks carb item first",
+    carbFirst[0].name === "Carb",
+  );
+}
+
 console.log("\nscoreAndSort - leaders past the cap keep their order");
 
 {
   // Many low-protein items pull the mean down so both top items exceed the old
-  // hard cap (z > 1.5). A hard clamp ties them at the cap and original array
+  // hard cap (z > CLAMP_CAP). A hard clamp ties them at the cap and original array
   // order wins; the soft clamp must keep the higher-protein item ahead.
   const proteins = [
     60, 70, 50, 50, 50, 50, 50, 50, 50, 50, 35, 40, 30, 10, 30, 45, 40, 35, 2,

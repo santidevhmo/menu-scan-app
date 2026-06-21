@@ -167,11 +167,17 @@ function ResultsPhase({
     return sortItemsByGoals(
       result.items.map((item, sourceIndex) => ({ ...item, sourceIndex })),
       selectedGoals,
-    ) as ScoredResultItem[];
+    );
   }, [result, selectedGoals]);
 
   useEffect(() => {
-    if (!result || result.error || result.items.length === 0) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset stale per-result UI state for a new scan result
+    setPortions({});
+  }, [result]);
+
+  useEffect(() => {
+    if (!__DEV__ || !result || result.error || result.items.length === 0)
+      return;
 
     console.log(
       JSON.stringify(

@@ -197,6 +197,18 @@ function ResultsPhase({
         2,
       ),
     );
+    console.log(
+      "[rank top10]\n" +
+        sorted
+          .slice(0, 10)
+          .map(
+            (item, index) =>
+              `${String(index + 1).padStart(2)}. ${item.name} ` +
+              `P${item.protein_g} C${item.carb_g} F${item.fat_g} ` +
+              `cal${item.estimated_calories} score=${item.alignment_score.toFixed(2)}`,
+          )
+          .join("\n"),
+    );
   }, [result, selectedGoals, sorted]);
 
   if (loading) {

@@ -2,6 +2,10 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import { ALLERGENS } from "@/data/allergens";
+
+const VALID_ALLERGENS = new Set(ALLERGENS.map((allergen) => allergen.value));
+
 interface AllergensState {
   selectedAllergens: string[];
   setAllergens: (allergens: string[]) => void;
@@ -13,7 +17,14 @@ export const useAllergensStore = create<AllergensState>()(
   persist(
     (set) => ({
       selectedAllergens: [],
-      setAllergens: (allergens) => set({ selectedAllergens: allergens }),
+      setAllergens: (allergens) =>
+        set({
+          selectedAllergens: Array.from(
+            new Set(
+              allergens.filter((allergen) => VALID_ALLERGENS.has(allergen)),
+            ),
+          ),
+        }),
       toggleAllergen: (allergen) =>
         set((state) => ({
           selectedAllergens: state.selectedAllergens.includes(allergen)

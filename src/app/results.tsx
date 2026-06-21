@@ -321,7 +321,7 @@ function ResultsPhase({
     <FlatList
       data={sorted}
       keyExtractor={(item) => String(item.sourceIndex)}
-      contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
+      contentContainerClassName="px-6 pb-10"
       ListHeaderComponent={
         <>
           {hasAllergenFilter && (

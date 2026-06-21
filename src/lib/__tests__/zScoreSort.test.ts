@@ -140,15 +140,15 @@ console.log("\nscoreAndSort - clamp caps single-goal dominance");
   const clampItems = [
     {
       name: "Balanced",
-      protein_g: 30,
-      carb_g: 30,
+      protein_g: 35,
+      carb_g: 35,
       fat_g: 12,
       estimated_calories: 440,
     },
     {
       name: "Outlier",
-      protein_g: 18,
-      carb_g: 20,
+      protein_g: 0,
+      carb_g: 0,
       fat_g: 3,
       estimated_calories: 140,
     },
@@ -196,10 +196,18 @@ console.log("\nscoreAndSort - clamp caps single-goal dominance");
   check(
     "goal_scores keep raw (unclamped) z beyond cap",
     Math.abs(
-      result.find((item) => item.name === "HeavyA")!.goal_scores[
-        "Highest in protein"
+      result.find((item) => item.name === "Outlier")!.goal_scores[
+        "Low calorie"
       ],
-    ) > 1,
+    ) > 1.5,
+  );
+  const outlier = result.find((item) => item.name === "Outlier")!;
+  const rawAverage =
+    Object.values(outlier.goal_scores).reduce((sum, score) => sum + score, 0) /
+    Object.keys(outlier.goal_scores).length;
+  check(
+    "alignment_score uses clamped goal scores",
+    Math.abs(outlier.alignment_score - rawAverage) > 0.05,
   );
 }
 

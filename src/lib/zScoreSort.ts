@@ -25,7 +25,7 @@ export function squashZScore(z: number): number {
 
 // ponytail: cap each goal's z-score so one extreme goal can't outweigh being
 // bad on another. Tune if simulator rankings feel off.
-const CLAMP_CAP = 1;
+const CLAMP_CAP = 1.5;
 
 function clampZ(z: number): number {
   return Math.max(-CLAMP_CAP, Math.min(CLAMP_CAP, z));

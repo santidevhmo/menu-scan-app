@@ -23,7 +23,7 @@ export function squashZScore(z: number): number {
   return 1 / (1 + Math.exp(-z));
 }
 
-export function scoreAndSort<T extends Record<string, unknown>>(
+export function scoreAndSort<T extends object>(
   items: T[],
   goals: GoalVector[],
 ): Array<T & { alignment_score: number; goal_scores: Record<string, number> }> {
@@ -41,7 +41,7 @@ export function scoreAndSort<T extends Record<string, unknown>>(
 
   for (const goal of goals) {
     const raw = items.map((item) => {
-      const value = item[goal.field];
+      const value = (item as Record<string, unknown>)[goal.field];
       return typeof value === "number" ? value : 0;
     });
     perGoalZ.set(

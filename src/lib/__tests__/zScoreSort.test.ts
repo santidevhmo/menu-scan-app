@@ -1,3 +1,4 @@
+// @ts-expect-error Node 25 runs the .ts file directly; app tsc does not enable TS extension imports.
 import { computeZScores, scoreAndSort, squashZScore } from "../zScoreSort.ts";
 
 let passed = 0;

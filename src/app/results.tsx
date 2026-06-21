@@ -24,6 +24,8 @@ import type {
   ScoredItem,
 } from "@/types/scan";
 
+type ScoredResultItem = ScoredItem & { sourceIndex: number };
+
 /** Pretty-prints JSON strings while leaving non-JSON OCR text unchanged. */
 function tryPrettyPrint(text: string): string {
   try {
@@ -160,9 +162,12 @@ function ResultsPhase({
 }) {
   const [noticeDismissed, setNoticeDismissed] = useState(false);
   const [portions, setPortions] = useState<Record<number, number>>({});
-  const sorted: ScoredItem[] = useMemo(() => {
+  const sorted: ScoredResultItem[] = useMemo(() => {
     if (!result || result.error) return [];
-    return sortItemsByGoals(result.items, selectedGoals);
+    return sortItemsByGoals(
+      result.items.map((item, sourceIndex) => ({ ...item, sourceIndex })),
+      selectedGoals,
+    ) as ScoredResultItem[];
   }, [result, selectedGoals]);
 
   useEffect(() => {
@@ -236,7 +241,6 @@ function ResultsPhase({
   }
 
   const highlight = selectedMacros(selectedGoals);
-  const idOf = new Map(result.items.map((item, index) => [item, index]));
   const lowConfidence =
     result.items.filter((item) => item.confidence === "low").length /
       result.items.length >=
@@ -245,7 +249,7 @@ function ResultsPhase({
   return (
     <FlatList
       data={sorted}
-      keyExtractor={(item) => String(idOf.get(item))}
+      keyExtractor={(item) => String(item.sourceIndex)}
       contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
       ListHeaderComponent={
         lowConfidence && !noticeDismissed ? (
@@ -267,7 +271,7 @@ function ResultsPhase({
         ) : null
       }
       renderItem={({ item, index }) => {
-        const id = idOf.get(item)!;
+        const id = item.sourceIndex;
 
         return (
           <MenuItemRow

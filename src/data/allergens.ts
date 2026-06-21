@@ -1,18 +1,16 @@
-/** Curated allergen list pre-scan picker. Broader FDA "big 9". */
-export const ALLERGENS: string[] = [
-  "Peanuts",
-  "Tree nuts",
-  "Dairy",
-  "Eggs",
-  "Shellfish",
-  "Fish",
-  "Soy",
-  "Wheat/Gluten",
-  "Sesame",
-  "Mustard",
-  "Celery",
-  "Sulfites",
-  "Lupin",
-  "Mollusks",
-  "Corn",
+/** Allergens the analyzer currently returns. Store values, display labels. */
+export const ALLERGENS: { value: string; label: string }[] = [
+  { value: "dairy", label: "Dairy" },
+  { value: "egg", label: "Egg" },
+  { value: "fish", label: "Fish" },
+  { value: "shellfish", label: "Shellfish" },
+  { value: "nuts", label: "Tree nuts" },
+  { value: "peanuts", label: "Peanuts" },
+  { value: "gluten", label: "Wheat/Gluten" },
+  { value: "soy", label: "Soy" },
+  { value: "sesame", label: "Sesame" },
 ];
+
+export function allergenLabel(value: string): string {
+  return ALLERGENS.find((allergen) => allergen.value === value)?.label ?? value;
+}

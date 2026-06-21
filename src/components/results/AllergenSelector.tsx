@@ -15,25 +15,25 @@ export function AllergenSelector({
   return (
     <View className="flex-row flex-wrap gap-2">
       {ALLERGENS.map((allergen) => {
-        const isSelected = selected.includes(allergen);
+        const isSelected = selected.includes(allergen.value);
 
         return (
           <Pressable
-            key={allergen}
-            onPress={() => onToggle(allergen)}
+            key={allergen.value}
+            onPress={() => onToggle(allergen.value)}
             className={`rounded-chip px-3 py-2 ${
               isSelected ? "bg-foreground" : "bg-card border border-border"
             }`}
             accessibilityRole="button"
             accessibilityState={{ selected: isSelected }}
-            accessibilityLabel={allergen}
+            accessibilityLabel={allergen.label}
           >
             <Text
               className={`font-sans text-caption ${
                 isSelected ? "text-background" : "text-foreground"
               }`}
             >
-              {allergen}
+              {allergen.label}
             </Text>
           </Pressable>
         );

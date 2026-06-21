@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from "react-native";
 import { Minus, Plus } from "lucide-react-native";
 import { colors } from "@/constants/theme";
+import { allergenLabel } from "@/data/allergens";
 import type { EnrichedItem } from "@/types/scan";
 import type { MacroField } from "@/data/goals";
 
@@ -113,7 +114,7 @@ export function MenuItemRow({
 
       {showAllergens && item.allergens.length > 0 && (
         <Text className="font-sans text-caption text-danger mt-2">
-          Allergens: {item.allergens.join(", ")}
+          Allergens: {item.allergens.map(allergenLabel).join(", ")}
         </Text>
       )}
     </View>

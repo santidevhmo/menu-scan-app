@@ -181,13 +181,29 @@ function ResultsPhase({
   const [noticeDismissed, setNoticeDismissed] = useState(false);
   const [revealHidden, setRevealHidden] = useState(false);
   const [portions, setPortions] = useState<Record<number, number>>({});
+  const hasAllergenFilter = selectedAllergens.length > 0;
   const sorted: ScoredResultItem[] = useMemo(() => {
     if (!result || result.error) return [];
-    return sortItemsByGoals(
-      result.items.map((item, sourceIndex) => ({ ...item, sourceIndex })),
-      selectedGoals,
-    );
-  }, [result, selectedGoals]);
+    const withIndex = result.items.map((item, sourceIndex) => ({
+      ...item,
+      sourceIndex,
+    }));
+    const itemMatchesAllergen = (item: { allergens: string[] }) =>
+      hasAllergenFilter &&
+      item.allergens.some((allergen) => selectedAllergens.includes(allergen));
+    const active =
+      hasAllergenFilter && !revealHidden
+        ? withIndex.filter((item) => !itemMatchesAllergen(item))
+        : withIndex;
+
+    return sortItemsByGoals(active, selectedGoals);
+  }, [
+    result,
+    selectedGoals,
+    selectedAllergens,
+    hasAllergenFilter,
+    revealHidden,
+  ]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reset stale per-result UI state for a new scan result
@@ -295,18 +311,15 @@ function ResultsPhase({
     result.items.filter((item) => item.confidence === "low").length /
       result.items.length >=
     0.75;
-  const hasAllergenFilter = selectedAllergens.length > 0;
-  const matchesAllergen = (item: ScoredResultItem) =>
+  const matchesAllergen = (item: { allergens: string[] }) =>
     item.allergens.some((allergen) => selectedAllergens.includes(allergen));
-  const hidden = hasAllergenFilter ? sorted.filter(matchesAllergen) : [];
-  const visible =
-    hasAllergenFilter && !revealHidden
-      ? sorted.filter((item) => !matchesAllergen(item))
-      : sorted;
+  const hiddenCount = hasAllergenFilter
+    ? result.items.filter(matchesAllergen).length
+    : 0;
 
   return (
     <FlatList
-      data={visible}
+      data={sorted}
       keyExtractor={(item) => String(item.sourceIndex)}
       contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
       ListHeaderComponent={
@@ -319,7 +332,7 @@ function ResultsPhase({
               </Text>
             </View>
           )}
-          {hidden.length > 0 && (
+          {hiddenCount > 0 && (
             <Pressable
               onPress={() => setRevealHidden((value) => !value)}
               className="rounded-card border border-border bg-card p-4 mb-3"
@@ -332,11 +345,11 @@ function ResultsPhase({
             >
               <Text className="font-sans text-body text-foreground">
                 {revealHidden
-                  ? `Showing ${hidden.length} hidden ${
-                      hidden.length === 1 ? "item" : "items"
+                  ? `Showing ${hiddenCount} hidden ${
+                      hiddenCount === 1 ? "item" : "items"
                     } · Hide`
-                  : `${hidden.length} ${
-                      hidden.length === 1 ? "item" : "items"
+                  : `${hiddenCount} ${
+                      hiddenCount === 1 ? "item" : "items"
                     } hidden due to allergens · Show anyway`}
               </Text>
             </Pressable>

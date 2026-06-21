@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from "react-native";
 import { Minus, Plus } from "lucide-react-native";
 import { colors } from "@/constants/theme";
+import { allergenLabel } from "@/data/allergens";
 import type { EnrichedItem } from "@/types/scan";
 import type { MacroField } from "@/data/goals";
 
@@ -10,6 +11,7 @@ interface MenuItemRowProps {
   highlight: Set<MacroField>;
   portion: number;
   onPortionChange: (portion: number) => void;
+  selectedAllergens: string[];
 }
 
 const MACROS: { field: MacroField; label: string; unit: string }[] = [
@@ -31,7 +33,12 @@ export function MenuItemRow({
   highlight,
   portion,
   onPortionChange,
+  selectedAllergens,
 }: MenuItemRowProps) {
+  const matchingAllergens = item.allergens.filter((allergen) =>
+    selectedAllergens.includes(allergen),
+  );
+
   return (
     <View className="rounded-card bg-card border border-border p-4 mb-3">
       <View className="flex-row items-start justify-between">
@@ -109,9 +116,9 @@ export function MenuItemRow({
         </Pressable>
       </View>
 
-      {item.allergens.length > 0 && (
+      {matchingAllergens.length > 0 && (
         <Text className="font-sans text-caption text-danger mt-2">
-          Allergens: {item.allergens.join(", ")}
+          Allergens: {matchingAllergens.map(allergenLabel).join(", ")}
         </Text>
       )}
     </View>

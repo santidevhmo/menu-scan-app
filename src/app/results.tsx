@@ -13,6 +13,8 @@ import { ChevronLeft } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 import { useAnalysisStore } from "@/store/analysis.store";
 import { useGoalsStore } from "@/store/goals.store";
+import { useAllergensStore } from "@/store/allergens.store";
+import { AllergenSelector } from "@/components/results/AllergenSelector";
 import { GoalSelector } from "@/components/results/GoalSelector";
 import { MenuItemRow } from "@/components/results/MenuItemRow";
 import { PhaseIndicator } from "@/components/results/PhaseIndicator";
@@ -102,12 +104,16 @@ function GoalsPhase({
   result,
   selectedGoals,
   onToggleGoal,
+  selectedAllergens,
+  onToggleAllergen,
   onContinue,
 }: {
   loading: boolean;
   result: ExtractionResult | null;
   selectedGoals: string[];
   onToggleGoal: (goal: string) => void;
+  selectedAllergens: string[];
+  onToggleAllergen: (allergen: string) => void;
   onContinue: () => void;
 }) {
   const ocrDone = !!result && !result.error;
@@ -124,6 +130,16 @@ function GoalsPhase({
           Your goals
         </Text>
         <GoalSelector selected={selectedGoals} onToggle={onToggleGoal} />
+        <Text className="font-display text-h2 text-foreground mt-6 mb-2">
+          Allergens
+        </Text>
+        <Text className="font-sans text-subtle text-muted-foreground mb-3">
+          Optional. We&apos;ll hide menu items containing anything you select.
+        </Text>
+        <AllergenSelector
+          selected={selectedAllergens}
+          onToggle={onToggleAllergen}
+        />
       </ScrollView>
 
       <View className="px-6 pb-4">
@@ -155,24 +171,44 @@ function ResultsPhase({
   loading,
   result,
   selectedGoals,
+  selectedAllergens,
 }: {
   loading: boolean;
   result: EnrichmentResult | null;
   selectedGoals: string[];
+  selectedAllergens: string[];
 }) {
   const [noticeDismissed, setNoticeDismissed] = useState(false);
+  const [revealHidden, setRevealHidden] = useState(false);
   const [portions, setPortions] = useState<Record<number, number>>({});
+  const hasAllergenFilter = selectedAllergens.length > 0;
   const sorted: ScoredResultItem[] = useMemo(() => {
     if (!result || result.error) return [];
-    return sortItemsByGoals(
-      result.items.map((item, sourceIndex) => ({ ...item, sourceIndex })),
-      selectedGoals,
-    );
-  }, [result, selectedGoals]);
+    const withIndex = result.items.map((item, sourceIndex) => ({
+      ...item,
+      sourceIndex,
+    }));
+    const itemMatchesAllergen = (item: { allergens: string[] }) =>
+      hasAllergenFilter &&
+      item.allergens.some((allergen) => selectedAllergens.includes(allergen));
+    const active =
+      hasAllergenFilter && !revealHidden
+        ? withIndex.filter((item) => !itemMatchesAllergen(item))
+        : withIndex;
+
+    return sortItemsByGoals(active, selectedGoals);
+  }, [
+    result,
+    selectedGoals,
+    selectedAllergens,
+    hasAllergenFilter,
+    revealHidden,
+  ]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reset stale per-result UI state for a new scan result
     setPortions({});
+    setRevealHidden(false);
   }, [result]);
 
   useEffect(() => {
@@ -212,6 +248,18 @@ function ResultsPhase({
               `${String(index + 1).padStart(2)}. ${item.name} ` +
               `P${item.protein_g} C${item.carb_g} F${item.fat_g} ` +
               `cal${item.estimated_calories} score=${item.alignment_score.toFixed(2)}`,
+          )
+          .join("\n"),
+    );
+    console.log(
+      "[allergens top10]\n" +
+        sorted
+          .slice(0, 10)
+          .map(
+            (item, index) =>
+              `${String(index + 1).padStart(2)}. ${item.name}: ${
+                item.allergens.length > 0 ? item.allergens.join(", ") : "none"
+              }`,
           )
           .join("\n"),
     );
@@ -263,30 +311,67 @@ function ResultsPhase({
     result.items.filter((item) => item.confidence === "low").length /
       result.items.length >=
     0.75;
+  const matchesAllergen = (item: { allergens: string[] }) =>
+    item.allergens.some((allergen) => selectedAllergens.includes(allergen));
+  const hiddenCount = hasAllergenFilter
+    ? result.items.filter(matchesAllergen).length
+    : 0;
 
   return (
     <FlatList
       data={sorted}
       keyExtractor={(item) => String(item.sourceIndex)}
-      contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40 }}
+      contentContainerClassName="px-6 pb-10"
       ListHeaderComponent={
-        lowConfidence && !noticeDismissed ? (
-          <Pressable
-            onPress={() => setNoticeDismissed(true)}
-            className="rounded-card border border-border bg-card p-4 mb-3"
-            accessibilityRole="button"
-            accessibilityLabel="Dismiss low-confidence notice"
-          >
-            <Text className="font-sans text-body text-foreground">
-              Descriptions on this menu are light on details.
-            </Text>
-            <Text className="font-sans text-subtle text-muted-foreground mt-1">
-              Nutritional estimates are rough because the menu does not list
-              ingredients. For confident choices, ask your waiter. Tap to
-              dismiss.
-            </Text>
-          </Pressable>
-        ) : null
+        <>
+          {hasAllergenFilter && (
+            <View className="rounded-card border border-border bg-card p-4 mb-3">
+              <Text className="font-sans text-body text-danger">
+                AI-estimated. Confirm allergens with restaurant staff before
+                ordering.
+              </Text>
+            </View>
+          )}
+          {hiddenCount > 0 && (
+            <Pressable
+              onPress={() => setRevealHidden((value) => !value)}
+              className="rounded-card border border-border bg-card p-4 mb-3"
+              accessibilityRole="button"
+              accessibilityLabel={
+                revealHidden
+                  ? "Hide allergen items"
+                  : "Show hidden allergen items"
+              }
+            >
+              <Text className="font-sans text-body text-foreground">
+                {revealHidden
+                  ? `Showing ${hiddenCount} hidden ${
+                      hiddenCount === 1 ? "item" : "items"
+                    } · Hide`
+                  : `${hiddenCount} ${
+                      hiddenCount === 1 ? "item" : "items"
+                    } hidden due to allergens · Show anyway`}
+              </Text>
+            </Pressable>
+          )}
+          {lowConfidence && !noticeDismissed ? (
+            <Pressable
+              onPress={() => setNoticeDismissed(true)}
+              className="rounded-card border border-border bg-card p-4 mb-3"
+              accessibilityRole="button"
+              accessibilityLabel="Dismiss low-confidence notice"
+            >
+              <Text className="font-sans text-body text-foreground">
+                Descriptions on this menu are light on details.
+              </Text>
+              <Text className="font-sans text-subtle text-muted-foreground mt-1">
+                Nutritional estimates are rough because the menu does not list
+                ingredients. For confident choices, ask your waiter. Tap to
+                dismiss.
+              </Text>
+            </Pressable>
+          ) : null}
+        </>
       }
       renderItem={({ item, index }) => {
         const id = item.sourceIndex;
@@ -297,6 +382,7 @@ function ResultsPhase({
             rank={index + 1}
             highlight={highlight}
             portion={portions[id] ?? 1}
+            selectedAllergens={selectedAllergens}
             onPortionChange={(portion) =>
               setPortions((prev) => ({ ...prev, [id]: portion }))
             }
@@ -313,6 +399,10 @@ export default function ResultsScreen() {
     useAnalysisStore();
   const selectedGoals = useGoalsStore((state) => state.selectedGoals);
   const toggleGoal = useGoalsStore((state) => state.toggleGoal);
+  const selectedAllergens = useAllergensStore(
+    (state) => state.selectedAllergens,
+  );
+  const toggleAllergen = useAllergensStore((state) => state.toggleAllergen);
   const [phase, setPhase] = useState(0);
 
   const ocrDone = !!extraction && !extraction.error;
@@ -358,6 +448,8 @@ export default function ResultsScreen() {
             result={extraction}
             selectedGoals={selectedGoals}
             onToggleGoal={toggleGoal}
+            selectedAllergens={selectedAllergens}
+            onToggleAllergen={toggleAllergen}
             onContinue={() => goTo(1)}
           />
         )}
@@ -366,6 +458,7 @@ export default function ResultsScreen() {
             loading={enrichmentLoading}
             result={enrichment}
             selectedGoals={selectedGoals}
+            selectedAllergens={selectedAllergens}
           />
         )}
       </View>

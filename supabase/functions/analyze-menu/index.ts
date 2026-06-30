@@ -53,6 +53,10 @@ const ENRICH_PROMPT = `You estimate the nutrition profile of restaurant menu ite
 3. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive, leaving you with little ingredient information to go on.
 List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, shellfish, egg, soy). Use an empty allergens array when none are inferred; do not include "none". Preserve each item's name, description, price, and category exactly as given. Do NOT sort the items. Return one object per input item, in the same order.`;
 
+// Future allergen normalization:
+// const ALLERGEN_VALUES = ["dairy", "egg", "fish", "shellfish", "nuts", "peanuts", "gluten", "soy", "sesame"];
+// Tighten the prompt and schemas to these values when the allergen feature ships.
+
 const ENRICH_INGREDIENT_PROPS = {
   name: { type: "string" },
   category: { type: "string", enum: ["protein", "carb", "fat", "veg", "other"] },

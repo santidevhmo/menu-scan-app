@@ -8,7 +8,7 @@
 
 **Tech Stack:** Expo, React Native, TypeScript, NativeWind, Zustand, Supabase Edge Functions (Deno), Gemini REST API, OpenAI REST API, Mistral REST API
 
-**Current status (2026-06-18):** The OCR/extraction comparison is complete and **GPT-4o Vision** (`provider: "gpt-vision"`, `model_id: "gpt-4o"`) is the frozen menu-reading model. Stage 2 enrichment is implemented in the live flow: scan → goal selection → ranked enriched results. Phase 5 per-item portion adjustment was merged in PR #7; follow-up UX polish remains listed at the end of Phase 5.
+**Current status (2026-06-29):** **MVP PIVOT → Launch Focus.** Phases 1–6 ✓ **SHIPPED TO PRODUCTION** (core OCR + macro sorting). Phase 7 (allergen selection) **DEFERRED POST-LAUNCH** — feature complete but commented out to focus on MVP. **New Development Roadmap:** Phase 10 (menu item options/variants) → Phase 11 (OCR gram misread recovery) → Phase 8 (category filtering) → Phase 9 (performance). Phase 7.5 (Mistral OCR evaluation) deferred. **Branch Strategy:** New branch reverts to commit before allergen work, builds phases 10/11/8/9 from stable base. **Final Validation:** Test with last 3 menus from Test Menu Backlog before release.
 
 **Tooling status (2026-06-13):** Package manager cleanup is complete. The project now standardizes on **pnpm** (`packageManager: "pnpm@11.0.8"`), keeps `pnpm-lock.yaml` as the only JS lockfile, uses `pnpm-workspace.yaml` with `nodeLinker: hoisted` for Expo/Metro compatibility, and pins `lightningcss` to `1.30.1` via pnpm overrides to avoid NativeWind / `react-native-css` / `global.css` bundling failures.
 
@@ -36,6 +36,34 @@ Store Supabase connection in client `.env`:
 EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
+
+---
+
+## MVP Release Strategy (2026-06-29 Pivot)
+
+**Objective:** Launch MVP with core features (OCR menu reading + nutritional macro sorting) before expanding to secondary features.
+
+**Branch Strategy:** 
+- Create new feature branch from commit `adcfbd7` (last commit before allergen work)
+- This provides a stable, allergen-free base for phases 10/11/8/9
+- Allergen feature (PR #13) remains on `feat/allergen-selection` for post-launch re-integration
+
+**MVP Scope (Launch):**
+- ✓ Phase 1–6: Menu OCR extraction + Stage 2 enrichment (GPT-4o)
+- ✓ Z-score based multi-goal sorting (soft-clamped tanh)
+- ✓ Nutritional macro display (protein/carbs/fat)
+- ✗ Phase 7 (allergen selection) — commented out, deferred
+
+**Post-Launch Scope (Roadmap):**
+- Phase 7 (allergen selection) — re-enable, expand testing
+- Phase 7.5 (Mistral OCR) — model comparison
+- Phases 8, 9 — category filtering, performance
+
+**Testing Plan Before Release:**
+- Validate all 3 phases work end-to-end
+- Test with **last 3 menus from Test Menu Backlog**
+- Verify sorting logic under edge cases
+- Confirm no regressions from phases 1–6
 
 ---
 
@@ -1417,7 +1445,7 @@ This phase turns that wait time into useful input: goal selection becomes phase 
 
 > Wires the Stage-2 enrichment winner into the live user flow, replacing the `PlaceholderPhase` in `src/app/results.tsx`. This closes the end-to-end loop: scan → goals → ranked results. Enrichment is **goal-agnostic**, so it runs in the background right after extraction completes (before the user finishes picking goals); goals are applied only at sort time.
 >
-> **Status:** Implemented and merged before Phase 5. The checklist below is preserved as implementation history.
+> **Status:** ✓ **MERGED** (PR #6, 2026-06-16). All tasks completed. The checklist below is preserved as implementation history.
 
 ## Phase 4 File Map
 
@@ -1510,6 +1538,8 @@ The notice should be dismissible per session (disappears on tap, doesn't come ba
 **Dependency:** Builds directly on **Phase 4** — requires the gram-shape `EnrichedItem` (`protein_g`, `carb_g`, `fat_g`, `estimated_calories`, `confidence`, `allergens`, `ingredients`), the dot-badge `MenuItemRow`, and the ranked `FlatList` in `results.tsx` phase 1. No backend changes and no new libraries.
 
 ## Phase 5 Design (approved 2026-06-17)
+
+> **Status:** ✓ **MERGED** (shipped with Phase 4 PR #6, 2026-06-16). All tasks completed.
 
 1. **Control = −/+ stepper** (not preset pills). Starts at `1×`, step `±0.5×`, floor `0.5×` (cannot reach 0 or below), **no upper limit**.
 2. **Stepper effect = row-local display scales; no re-sort.** Only the row's displayed gram/cal numbers and dot badges change. The list does **not** re-rank.
@@ -1646,18 +1676,20 @@ Resolution: keep a compact always-visible stepper; row-local dot updates superse
 
 ## Phase 6: Remove Macro Dot Indicators (2026-06-20)
 
+**Status:** ✓ **MERGED** (Commit: `d145040 feat: remove menu-relative macro dot indicators`)
+
 **Spec alignment:** `AGENTS.md` no longer requires menu-relative macro dot badges; Phase 6 is the agreed UI direction.
 
 **Goal:** Drop the relative dot-bucketing UI for macros. Dots bucket each macro relative to the current menu's own max (`bucketDots` in `src/lib/analyzeMenu.ts`), so a 50g-protein item on a menu topped by a 100g item shows only 2/4 dots even though 50g is objectively high. "High/low" is individual to each user's nutritional goals, so a menu-relative visual misleads. Keep the raw number/unit/label and keep `highlight` (bold text when a macro matches the user's selected goal) — that's goal-relative by intent, not the menu-relative comparison being removed. No replacement visual.
 
 ### Task 6.1: Remove dots from `MacroBadge`
 
-- [ ] **Step 1:** In `src/components/results/MenuItemRow.tsx`, remove the dot `Text` (`{"●".repeat(filled)}{"○".repeat(4 - filled)}`) from `MacroBadge`, and remove its `filled` prop.
-- [ ] **Step 2:** Remove the `filled={bucketDots(...)}` call site in `MenuItemRow`'s `MACROS.map`.
-- [ ] **Step 3:** Remove `bucketDots` from `src/lib/analyzeMenu.ts` once nothing calls it.
-- [ ] **Step 4:** Remove `MacroMaxes` interface, the `maxValues` prop on `MenuItemRowProps`, and the `computeMaxes` call site + `maxValues` prop passed from `src/app/results.tsx`, once nothing else needs them.
-- [ ] **Step 5:** Type-check and lint. `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → no errors.
-- [ ] **Step 6:** Commit. `feat: remove menu-relative macro dot indicators`
+- [x] **Step 1:** In `src/components/results/MenuItemRow.tsx`, remove the dot `Text` (`{"●".repeat(filled)}{"○".repeat(4 - filled)}`) from `MacroBadge`, and remove its `filled` prop.
+- [x] **Step 2:** Remove the `filled={bucketDots(...)}` call site in `MenuItemRow`'s `MACROS.map`.
+- [x] **Step 3:** Remove `bucketDots` from `src/lib/analyzeMenu.ts` once nothing calls it.
+- [x] **Step 4:** Remove `MacroMaxes` interface, the `maxValues` prop on `MenuItemRowProps`, and the `computeMaxes` call site + `maxValues` prop passed from `src/app/results.tsx`, once nothing else needs them.
+- [x] **Step 5:** Type-check and lint. `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → no errors.
+- [x] **Step 6:** Commit. `feat: remove menu-relative macro dot indicators`
 
 ## Phase 6 Verification
 
@@ -1666,7 +1698,40 @@ Resolution: keep a compact always-visible stepper; row-local dot updates superse
 3. **Highlight preserved:** the macro matching the user's selected goal still renders bold/dark text.
 4. **Portion stepper unaffected:** adjusting a row's portion still scales its displayed numbers.
 
+---
+
+## Phase 6 Follow-Up: Nutritional Sorting Validation (2026-06-20)
+
+**Status:** ✓ **MERGED** on `feat/multi-goal-zscore-sorting` through `885b3ea Fix goal ranking pre-merge checks`.
+
+**Outcome:** Sorting validation revealed the single-goal sort was insufficient for multiple selected goals. The merged implementation now uses z-score normalization across selected macro goals, soft-clamps each per-goal z-score with `CLAMP_CAP = 1.5`, preserves raw per-goal `goal_scores` for debugging/display, and derives goal weights from the selected goal order.
+
+**Merged commits:**
+
+- `e052b81 feat: add z-score math helper node test`
+- `d61fef4 feat: replace sortItemsByGoals z-score multi-goal scoring`
+- `0a46236 feat: add sorting validation log (task 6.F1)`
+- `00a9534 fix: pass temperature 0 seed Stage 1 extraction`
+- `97b373c chore: log top-10 ranked items clamp-cap calibration`
+- `937c332 feat: set clamp cap 1.5 simulator A/B`
+- `eda9ad2 fix: soft-clamp z-scores so few-goal sorting keeps leader order`
+- `885b3ea Fix goal ranking pre-merge checks`
+
+**Pre-merge fixes included:**
+
+- Reset per-result portion overrides when a new enrichment result arrives.
+- Gate detailed ranking logs behind `__DEV__` so production builds do not log user goals, macros, allergens, or scores.
+- Export and reuse `CLAMP_CAP` in tests instead of hard-coding the cap.
+- Remove `.ts` extension from the z-score test import and drop the `@ts-expect-error`.
+- Filter non-finite numeric values before z-score calculations and treat non-finite item fields as neutral.
+- Make `sortItemsByGoals` generic so preserved fields such as `sourceIndex` remain typed.
+- Add regression coverage for finite z-score handling, goal weights, and goal-order ranking changes.
+
+**Validation:** `pnpm tsc --noEmit` and `pnpm lint` passed before merge. The repo still has no configured standalone test runner; raw Node cannot execute the extensionless TypeScript test imports, so the assert-style test files are type-checked and ready for a proper test runner.
+
 ## Phase 7: Allergen Selection (2026-06-20)
+
+> **Status:** ✓ **FEATURE COMPLETE** (PR #13, 2026-06-21) but **DEFERRED POST-LAUNCH** as of 2026-06-29. Allergen selection feature is fully implemented but will be commented out in MVP release to focus on core OCR + macro sorting. Will be re-enabled and thoroughly tested in post-launch phase.
 
 **Goal:** Let the user multi-select allergens they're allergic to, and use that selection to (a) hide matching menu items by default with a reveal option, (b) show the mandatory disclaimer card, and (c) gate the existing per-item red allergen line on selection. Brainstormed with the user; design decisions below.
 
@@ -1723,7 +1788,61 @@ Resolution: keep a compact always-visible stepper; row-local dot updates superse
 5. **Disclaimer:** with ≥1 allergen selected, the disclaimer card is always visible on the results screen with the exact AGENTS.md text, regardless of whether any items are currently hidden.
 6. **Per-item line:** with ≥1 allergen selected, items with `allergens.length > 0` show their full `Allergens: ...` line (not filtered to only selected allergens).
 
+## Phase 7.5: Mistral OCR 4 Extraction Evaluation (2026-06-23)
+
+> **Status:** NOT STARTED (designed 2026-06-23, awaiting development).
+
+**Goal:** Benchmark `mistral-ocr-latest` (Mistral OCR 4) as a drop-in replacement for GPT-4o Vision in Stage 1 extraction. Evaluate quality and speed against the same test fixtures with no UI changes — decision gates a future model swap.
+
+**Design decisions:**
+- Evaluation only — no prod swap yet. Wire Mistral OCR 4 behind `provider: "mistral-ocr"` in the Edge Function (already stubbed as `ModelProvider`), run it in parallel with GPT-4o on the same fixtures, compare outputs.
+- Use the identical `EXTRACT_SCHEMA` and prompt as GPT-4o — controlled comparison, not a tuned Mistral prompt.
+- Metrics per fixture: (a) item count vs. ground truth, (b) option/choice arrays populated correctly, (c) gram value accuracy (key regression check for Phase 11), (d) p50 latency vs. GPT-4o.
+- Mistral OCR API uses `mistral-ocr-latest` via the chat completions endpoint with base64 image input — same call shape as the existing Mistral stub.
+
+### File Map
+
+- `supabase/functions/analyze-menu/index.ts` — add `"mistral-ocr"` case to `callProvider`; set model to `"mistral-ocr-latest"`.
+- No client changes — invoke directly via curl/script or the existing provider tab.
+
+### Task 7.5.1: Wire Mistral OCR 4 provider
+
+- [ ] **Step 1:** In `callProvider`, add case `"mistral-ocr"` using `MISTRAL_API_KEY`, model `"mistral-ocr-latest"`, same schema and prompt as `"gpt-vision"`.
+- [ ] **Step 2:** Confirm Mistral OCR API accepts base64 image input; adapt if it requires a URL.
+
+### Task 7.5.2: Run against fixture menus
+
+- [ ] **Step 1:** Run extraction on the **Brasero (churrasquería)** fixture — confirm option/choice detection.
+- [ ] **Step 2:** Run on **Palominos** — varied option structures.
+- [ ] **Step 3:** Run on **Keburros Percherones** — general extraction quality.
+- [ ] **Step 4:** Fill comparison table; note item count, options populated, gram misreads, latency.
+
+### Task 7.5.3: Decision
+
+- [ ] **Step 1:** If Mistral OCR 4 matches or beats GPT-4o on item count + option detection with ≤ 1.5× latency → open a Phase 12 to swap the production extraction model. Otherwise, keep GPT-4o and note findings.
+
+### Comparison Table (fill during Task 7.5.2)
+
+| Fixture | Model | Items | Options correct | Gram misreads | Latency |
+|---------|-------|-------|----------------|---------------|---------|
+| Brasero | gpt-4o | — | — | — | — |
+| Brasero | mistral-ocr-latest | — | — | — | — |
+| Palominos | gpt-4o | — | — | — | — |
+| Palominos | mistral-ocr-latest | — | — | — | — |
+| Keburros | gpt-4o | — | — | — | — |
+| Keburros | mistral-ocr-latest | — | — | — | — |
+
+### Phase 7.5 Verification
+
+1. `callProvider("mistral-ocr", ...)` returns a valid `AnalysisResponse` with items.
+2. Comparison table filled for all 3 fixtures.
+3. Decision recorded in Task 7.5.3 with rationale.
+
+---
+
 ## Phase 8: Category Filtering (2026-06-20)
+
+> **Status:** NOT STARTED (designed 2026-06-20, awaiting development).
 
 **Goal:** Let the user filter results by menu category (`MenuCategory`: `appetizer | main | side | dessert | drink | other`, already on every `EnrichedItem` and already shown as a per-item chip in `MenuItemRow`). Brainstormed with the user; design decisions below.
 
@@ -1761,3 +1880,156 @@ Resolution: keep a compact always-visible stepper; row-local dot updates superse
 3. **Single menu category:** if every item shares one category, no tab bar renders at all.
 4. **Filtering:** selecting a category tab shows only items of that category, in unchanged rank order; selecting "All" restores the full list.
 5. **Composes with allergens:** with a category selected and an allergen filter active, hidden-item count and "Show anyway" banner reflect only the currently filtered category's items.
+
+## Phase 9: Results List Rendering Performance (Deferred)
+
+**Trigger:** During simulator testing of the ranked results list, Metro logged:
+
+```text
+VirtualizedList: You have a large list that is slow to update - make sure your renderItem function renders components that follow React performance best practices like PureComponent, shouldComponentUpdate, etc. {dt: 5874, prevDt: 718, contentLength: 9161}
+```
+
+**Goal:** Optimize large result-list updates without changing ranking behavior, allergen filtering, category filtering, or portion controls.
+
+**Scope:** Deferred until ranking/clamp-cap work is complete. Do not mix this with sorting algorithm changes.
+
+### File Map
+
+- `src/app/results.tsx` — `FlatList`, `renderItem`, derived filtered/sorted data, portion state callbacks.
+- `src/components/results/MenuItemRow.tsx` — row render cost, memoization boundary, portion controls.
+
+### Task 9.1: Reproduce and measure
+
+- [ ] **Step 1:** Reproduce warning with realistic scan result count in iOS simulator.
+- [ ] **Step 2:** Note list size, selected goals, active filters, and whether the warning appears on first render, goal toggle, portion change, or category/allergen filter change.
+- [ ] **Step 3:** Confirm whether `[rank top10]` calibration logging is still present; remove calibration logs before measuring production list render cost.
+
+### Task 9.2: Smallest rendering fix
+
+- [ ] **Step 1:** Inspect `ResultsPhase` for unstable props passed to every row (`renderItem`, `onPortionChange`, `highlight`, filtered data arrays).
+- [ ] **Step 2:** Inspect `MenuItemRow` render cost and decide the smallest useful fix:
+  - `React.memo(MenuItemRow)` if props can stay stable enough.
+  - `useCallback` for row portion handler only if it reduces row churn.
+  - `useMemo` for sorted/filtered visible data only where dependencies are clear.
+- [ ] **Step 3:** Avoid new dependencies and avoid speculative list virtualization tuning until row churn is confirmed.
+
+### Task 9.3: Verify
+
+- [ ] **Step 1:** Run `pnpm tsc --noEmit`.
+- [ ] **Step 2:** Run `pnpm exec eslint src/ --ext .ts,.tsx`.
+- [ ] **Step 3:** Re-test simulator with the same large menu; confirm the warning is gone or materially improved.
+- [ ] **Step 4:** Verify portion changes still update only the intended row and ranking/filtering behavior is unchanged.
+
+## Phase 10: Selectable Item Options (variants & add-ons) (2026-06-22)
+
+**Trigger:** Local test of a churrasquería menu. Sections printed as a header followed by indented choices, each with its own weight and price:
+
+```text
+RES
+SIRLOIN (60gr) $135   PICAÑA (60gr) $140   CHICHARRÓN (80gr) $90
+CERDO
+BANDIOLA ADOBADA (60gr) $110   CHISTORRA (50gr) $100
+```
+
+**Root cause (confirmed in `supabase/functions/analyze-menu/index.ts`):** `EXTRACT_SCHEMA` (item = flat `{name, description, price, category}`) has no slot for selectable options. Stage 1 collapsed each block into one item — e.g. `name:"Res", price:null, description:"Sirloin (650gr) $135, Picaña (650gr) $140, Chicharrón (600gr) $90"`. Stage 2's "prefer printed weights" rule (`ENRICH_PROMPT` step 2) then read the three weights in that description and estimated a single ~650g plate → **P130 / F90 / 1600 cal**, which ranked #2 for "Highest protein". "Cerdo", "Pollo", "Atún" hit the same path (all `price:null`). These are dishes you choose *between*, not a composed plate.
+
+**Goal:** Model selectable options as structured data, enrich each option's nutrition, and render them as selectable pills under the item that update the row's macros live.
+
+> **Status:** NOT STARTED (designed 2026-06-22, awaiting development).
+
+**Design decisions (default — confirm before building):**
+- **Two option kinds, modeled separately.** `kind: "choice"` = mutually exclusive (pick one cut/size/protein); its macros *replace* the item's base macros. `kind: "addon"` = additive extra (guacamole, +cheese); its macros *sum* onto the base. Treating both as additive/multi-select would reproduce the 1600-cal bug.
+- **Choice items have no standalone macros.** An item that is purely a list of choices (base `price:null`) ranks and displays by its **default option** (first listed). Selecting another choice pill swaps the row's macros; it does **not** re-sort the list — consistent with Phase 5 portion behavior (rows update, ranking is fixed post-enrichment).
+- **Add-on items keep their own base macros**; selected add-ons add on top, multi-select.
+- **Fix at the source, not by parsing descriptions.** Add an `options` field to the extraction schema so GPT-4o has somewhere to put the choices, rather than regex-splitting the flattened description after the fact.
+- **Detection heuristic for options:** The safest signal that a description line contains selectable sub-items is a **price embedded in the description string** — if a sub-item carries its own `$XX` price tag inside the description, it is almost certainly a selectable choice or add-on. Weight alone (`60gr`) is a weaker signal because single-item descriptions routinely include serving weights without implying a choice. Guard: do not confuse the item's own top-level `price` field with a sub-option price — an option price only counts when it appears *inside the description string*. Rule of thumb: description contains `$XX` → emit as options. Description has weight but no embedded price → single item, just annotated weight.
+- **Out of scope:** the secondary OCR weight misreads (`60gr`→`650gr`). Tracked in Phase 11.
+
+### File Map
+
+- `supabase/functions/analyze-menu/index.ts` — `EXTRACT_PROMPT` + `EXTRACT_SCHEMA` (add `options`); `ENRICH_PROMPT` + enrichment schemas + `enrichBatch` flow (enrich each option).
+- `supabase/functions/analyze-menu/enrich.ts` — `ExtractedItem` / `EnrichedItem` types; `chunk` / `reassembleEnriched` (carry options through).
+- `src/app/results.tsx` — pass selected-option state into rows; default-option macros feed ranking input.
+- `src/components/results/MenuItemRow.tsx` — render option pills (single-select for `choice`, multi-select for `addon`), live macro recompute.
+- `src/store/` — per-item selected-option state (local component state is likely enough; only add a store if it must persist).
+
+### Task 10.1: Extraction — capture options
+
+- [ ] **Step 1:** Add `options` to `EXTRACT_SCHEMA`: array of `{ name: string, price: number|null, kind: "choice"|"addon" }`, defaulting to `[]`.
+- [ ] **Step 2:** Update `EXTRACT_PROMPT`: when a heading is followed by sub-choices that each carry their own price/weight (cuts, sizes, proteins to pick), emit ONE item with `kind:"choice"` options — not multiple items, not a flattened description. When the text lists extras/add-ons ("agrega …", "+$X"), emit `kind:"addon"` options. Keep printed weights inside each option's `name` so Stage 2 can read them.
+- [ ] **Step 3:** Verify on the churrasquería fixture: "Res" returns one item with three `choice` options, not a comma-joined description.
+
+### Task 10.2: Enrichment — per-option macros
+
+- [ ] **Step 1:** Decide the lazy path: flatten options into the enrichment input as pseudo-items (`name: "Res — Sirloin (60gr)"`) to reuse the existing batch machinery, then map macros back onto each option. (Alternative: add `options[].{protein_g,...}` to the enrich schema — heavier, only if flattening loses context.)
+- [ ] **Step 2:** Ensure `reassembleEnriched` keeps options attached and one enriched record per option; choice items derive base macros from the default option.
+- [ ] **Step 3:** Verify "Res" no longer produces a 1600-cal blob; each cut has plausible single-serving macros.
+
+### Task 10.3: Client — selectable pills with live macros
+
+- [ ] **Step 1:** Extend client `EnrichedItem` type with `options`.
+- [ ] **Step 2:** In `MenuItemRow`, render options as pills below the row: `choice` = single-select (default = first), `addon` = multi-select. Show each option's macro contribution.
+- [ ] **Step 3:** Recompute the row's displayed macros from current selection (choice replaces base; add-ons sum) without re-sorting the list.
+- [ ] **Step 4:** Feed default-option macros into the ranking input so choice items rank sensibly (not as a null/blob item).
+
+### Task 10.4: Verify
+
+- [ ] **Step 1:** `pnpm tsc --noEmit` and `pnpm exec eslint src/ --ext .ts,.tsx` → no errors.
+- [ ] **Step 2:** Re-scan the churrasquería menu: "Res"/"Cerdo"/"Pollo"/"Atún" each render as one item with selectable cut pills; no phantom combined plate in the ranking.
+- [ ] **Step 3:** Selecting a different cut updates that row's macros live; the list order does not jump.
+- [ ] **Step 4:** An add-on item (if present) shows multi-select extras that add to the base macros.
+- [ ] **Step 5:** A normal single-option item (no options) renders exactly as before — no empty pill row.
+- [ ] **Step 6:** Test with the **Brasero menu** (same venue as the churrasquería fixture) and the **Palominos menu** (https://grupopalominos.com/menu-rio-sonora-hermosillo/) — two menus with varied option structures to confirm no false-positive option detection on plain items.
+
+---
+
+## Phase 11: OCR Gram Misread Recovery (2026-06-22)
+
+> **Status:** NOT STARTED (designed 2026-06-22, awaiting development).
+
+**Trigger:** During Phase 10 investigation, Stage 1 extracted `60gr` weights from the physical menu but descriptions arrived as `650gr` — e.g. `"Sirloin (650gr) $135"` when the menu printed `"Sirloin (60gr) $135"`. Stage 2's CoT rule "prefer printed weights" anchored on the wrong value, producing a phantom ~1600-cal plate ranked #2.
+
+**Root cause:** OCR/vision model transcription error. Two-digit weights (`60gr`, `80gr`) are misread as three-digit values (`650gr`, `600gr`) when the menu image is small, low-contrast, or the font is condensed.
+
+**Goal:** Detect implausible gram values and give the user a correction path before the enriched macros are locked in.
+
+**Design decisions (confirm before building):**
+- **Threshold for "abnormal":** a per-item gram total that exceeds a loose single-serving ceiling (e.g. > 400–500g). Tune with real menus; the goal is to catch `650gr` misreads without flagging a `300g` baby-back rib.
+- **User prompt, not silent correction.** When an item's enriched weight looks implausible, show a small inline badge ("This item shows 650g — does that look right?") with a tap-to-edit input. Do not auto-correct; the right value may itself be non-obvious.
+- **Correction scope: weight field only.** Re-run Stage 2 CoT for that one item with the corrected weight substituted — do not re-extract the whole menu. Keeps latency low.
+- **Out of scope:** non-gram OCR misreads (prices, names); model-level OCR accuracy improvements.
+
+### File Map
+
+- `supabase/functions/analyze-menu/index.ts` — `ENRICH_SCHEMA_*`: add a `serving_g` numeric field so Stage 2 surfaces the raw gram value it used; the client needs it for the plausibility check.
+- `src/components/results/MenuItemRow.tsx` — render the "does this weight look right?" inline prompt when `serving_g` exceeds the threshold.
+- `src/app/results.tsx` — handle correction event, re-trigger single-item enrichment with corrected weight.
+
+### Task 11.1: Surface gram value from enrichment
+
+- [ ] **Step 1:** Add `serving_g: number | null` to `ENRICH_SCHEMA_OPENAI` and `ENRICH_SCHEMA_GEMINI`; instruct Stage 2 to populate it with the gram value it used for macro estimation.
+- [ ] **Step 2:** Propagate `serving_g` through `EnrichedItem` type in `enrich.ts`.
+
+### Task 11.2: Flag and prompt on client
+
+- [ ] **Step 1:** Define `IMPLAUSIBLE_SERVING_G = 500` (constant, easy to tune).
+- [ ] **Step 2:** In `MenuItemRow`, when `item.serving_g > IMPLAUSIBLE_SERVING_G`, render a small inline badge with the flagged value and a tap-to-correct input.
+- [ ] **Step 3:** On correction submit, re-call the enrichment edge function for that single item with the corrected gram value injected; update the row macros in place without re-sorting.
+
+### Task 11.3: Verify
+
+- [ ] **Step 1:** Re-scan the churrasquería menu (Phase 10 fixture); confirm `650g` items are flagged.
+- [ ] **Step 2:** Confirm normal items (`300g` ribs, `180g` salad) are **not** flagged — no false positives.
+- [ ] **Step 3:** Correct a flagged item; verify macros update and ranking order is not disturbed.
+
+---
+
+## Test Menu Backlog
+
+Menus to scan during development for regression/feature testing. Add here whenever a new venue is noted.
+
+| Menu | Notes |
+|------|-------|
+| Churrasquería (Brasero) | Phase 10 fixture — options/choices bug |
+| Palominos (https://grupopalominos.com/menu-rio-sonora-hermosillo/) | Phase 10 — varied option structures |
+| **Keburros Percherones** | Flagged for testing; no specific phase yet — scan when convenient |

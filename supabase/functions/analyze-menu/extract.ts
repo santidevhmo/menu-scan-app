@@ -3,12 +3,19 @@ const EXTRACT_SEED = 17;
 
 export const EXTRACT_PROMPT =
   `Read this restaurant menu. Return every item exactly as printed, in menu order:
-name, description, price, category, and options.
+name, description, price, category, section_title, and options.
 Do NOT estimate calories or nutrition. Do NOT invent items you cannot read.
 Extract all visible menu items from every provided photo and every menu section.
 Do not stop after a representative sample, a section summary, or the first page.
 There is no maximum number of items; keep going until every readable item is returned.
 Never return a section header as an item.
+Copy the nearest printed heading that visually groups an item into section_title.
+Use only the closest heading when headings are nested. Set section_title to null
+only when no heading groups the item. Preserve the item name exactly; never prepend
+or synthesize the heading into the name.
+A heading is often larger text without its own price, weight, or description, but
+it must also group menu items beneath it. Do not treat restaurant names, slogans,
+or promotional text as section headings.
 Use category "food" for appetizers, entrees, main dishes, and other prepared food.
 Use "side", "dessert", or "drink" only when that role is clear; otherwise use "other".
 Capture each printed choice or paid add-on in options. Include its printed price and
@@ -42,6 +49,7 @@ export const EXTRACT_SCHEMA = {
             type: "string",
             enum: ["food", "side", "dessert", "drink", "other"],
           },
+          section_title: { type: ["string", "null"] },
           options: {
             type: "array",
             items: {
@@ -56,7 +64,14 @@ export const EXTRACT_SCHEMA = {
             },
           },
         },
-        required: ["name", "description", "price", "category", "options"],
+        required: [
+          "name",
+          "description",
+          "price",
+          "category",
+          "section_title",
+          "options",
+        ],
         additionalProperties: false,
       },
     },
@@ -75,6 +90,7 @@ export interface ExtractedMenuItem {
   description: string;
   price: number | null;
   category: "food" | "side" | "dessert" | "drink" | "other";
+  section_title: string | null;
   options: { name: string; price: number | null; grams: number | null }[];
 }
 

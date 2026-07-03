@@ -15,7 +15,8 @@ Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async
         choices: [{
           finish_reason: "stop",
           message: {
-            content: '{"image_quality":{"usable":true,"issues":[]},"items":[]}',
+            content:
+              '{"image_quality":{"usable":true,"issues":[]},"items":[{"name":"Revueltos","description":"","price":78,"category":"food","section_title":"Huevos","options":[]}]}',
           },
         }],
       }),
@@ -29,8 +30,16 @@ Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async
     assertEquals(requestBody.model, "gpt-4o");
     assertEquals(result as unknown, {
       image_quality: { usable: true, issues: [] },
-      items: [],
-      raw_response: '{"image_quality":{"usable":true,"issues":[]},"items":[]}',
+      items: [{
+        name: "Revueltos",
+        description: "",
+        price: 78,
+        category: "food",
+        section_title: "Huevos",
+        options: [],
+      }],
+      raw_response:
+        '{"image_quality":{"usable":true,"issues":[]},"items":[{"name":"Revueltos","description":"","price":78,"category":"food","section_title":"Huevos","options":[]}]}',
     });
   } finally {
     globalThis.fetch = originalFetch;
@@ -47,6 +56,7 @@ Deno.test("extraction schema defines the v2 image, category, and options contrac
           required: string[];
           properties: {
             category: { enum?: string[] };
+            section_title?: { type: string[] };
             options?: { items: { required: string[] } };
           };
         };
@@ -69,8 +79,10 @@ Deno.test("extraction schema defines the v2 image, category, and options contrac
     "description",
     "price",
     "category",
+    "section_title",
     "options",
   ]);
+  assertEquals(item.properties.section_title?.type, ["string", "null"]);
   assertEquals(item.properties.options?.items.required, [
     "name",
     "price",

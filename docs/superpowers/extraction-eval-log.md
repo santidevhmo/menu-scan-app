@@ -663,3 +663,44 @@ Decision:
 - Reverted `968982b` in `4d0f3b7`.
 - Stop for user input. Before another options experiment, adjudicate the
   printed-choice ground truth exposed by Pass 2, especially El Marcos.
+
+### Post-Iteration 009 option ground-truth adjudication
+
+- Date: 2026-07-03
+- Model call: none.
+- User decision: the El Marcos fixture is wrong to declare zero valid options.
+
+Approved rules:
+
+- Separate rows/prices are separate menu-item cards.
+- Choices inside one priced row are structured options.
+- Ingredients joined by `y` remain description text.
+- Nested conditional combos remain description-only until the data model
+  supports option groups.
+
+Confirmed El Marcos cases:
+
+| Printed group | Cards | Structured options |
+|---|---:|---|
+| Revueltos | 3 | $90 card: Jamón, Chorizo, Tocino |
+| Fritos | 2 | $90 card: Jamón, Chorizo, Tocino |
+| De la Panadería Hot Cakes | 2 | $78 card: Jamón, Tocino, Huevo |
+| Waffles | 2 | none |
+| Plato Surtido | 2 | $82 card: Queso cottage, Yogurt |
+| Pa' los Bukis | 1 combo | none for now; grouped/conditional choices deferred |
+
+Nutritional-enrichment decision:
+
+- Keep the printed description and structured options together. Description
+  alone risks treating alternatives as ingredients consumed together.
+- Stage 2 must enrich the base card separately from each option.
+
+Fixture blocker:
+
+- `scoreMenu` currently finds the first item matching `name_contains`, so it
+  cannot target only the $90 third Revueltos card or other duplicate-name
+  rows.
+- Leave `scripts/fixtures/el-marcos.expected.json` unchanged temporarily.
+- Next implementation must add optional description/price qualifiers and
+  one-to-one target matching, then update the fixture and offline re-score
+  Iteration 009 before another paid model run.

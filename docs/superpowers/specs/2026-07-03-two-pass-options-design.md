@@ -5,6 +5,39 @@ Branch: `feat/extraction-eval-harness`
 Worktree: `/private/tmp/menu-scan-app-extraction-eval-harness`
 Status: approved by user in brainstorming session
 
+## Post-run correction — option ground truth
+
+Iteration 009 ran, regressed section context, and was reverted. Its Pass 2
+output also proved that the El Marcos fixture's `items_with_options: []` is
+incorrect. The user approved this item/option contract after the run:
+
+- Separate printed rows with separate prices are separate cards, even when
+  they repeat the same printed name.
+- A choice inside one priced row is structured `options[]`.
+- Ingredients combined with `y` are description text, not choices.
+- Conditional/nested combos remain description-only until grouped options are
+  designed.
+
+Confirmed examples:
+
+- Revueltos produces three cards: Naturales $78; A la mexicana $84; and the
+  $90 row. Only the $90 row has Jamón/Chorizo/Tocino options.
+- Fritos produces two cards. Only the $90 row has
+  Jamón/Chorizo/Tocino options.
+- De la Panadería Hot Cakes produces two cards. Only the $78 row has
+  Jamón/Tocino/Huevo options.
+- Waffles produces two cards with no structured options.
+- Plato Surtido produces two cards. The $82 row has Queso cottage/Yogurt
+  options.
+- Pa' los Bukis remains one $94 combo with its full description and no flat
+  options because its main, conditional filling, and drink choices require
+  grouped options.
+
+The current fixture cannot encode this safely because option targets match
+only `name_contains` and use the first duplicate-name item. The fixture must
+not be changed until scoring supports description/price-qualified,
+one-to-one target matching.
+
 ## Goal
 
 Turn options aggregate-green without adding more option instructions to the

@@ -8,6 +8,14 @@
 
 **Tech Stack:** Deno, TypeScript, OpenAI GPT-4o Vision, existing Supabase Edge Function and extraction harness.
 
+**Execution status (2026-07-03):** Tasks 1–4 executed. Implementation commit
+`968982b` kept items/categories/image quality green but options stayed red and
+section context regressed; it was reverted by `4d0f3b7`. The run exposed
+incorrect El Marcos option ground truth. Do not repeat this plan unchanged.
+Next: extend fixture matching for duplicate-name cards, encode the approved
+ground truth, offline re-score archived Iteration 009, then design any new
+model experiment from the corrected score.
+
 ---
 
 ### Task 1: Define failing two-pass behavior tests

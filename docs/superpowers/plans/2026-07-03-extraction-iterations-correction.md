@@ -10,6 +10,17 @@
 
 **Supersedes:** Tasks 6, 8, and 9 of `docs/superpowers/plans/2026-07-02-extraction-iterations-005-009.md`. Tasks 1–5 are complete. Original Tasks 7, 10, and 11 remain applicable except where this plan is more specific.
 
+**Execution status (2026-07-03):**
+
+- Casa Nostra corrected to 23 and Iterations 001–004 re-scored offline.
+- Iteration 006 regressed items/sections and was reverted.
+- Iteration 007 found no section-local gaps, regressed items, and was reverted.
+- Iteration 008 did not trigger.
+- Iteration 009 was separately designed and executed; it regressed section
+  context, options stayed red, and it was reverted.
+- Current blocker: option fixtures cannot distinguish duplicate-name cards and
+  El Marcos incorrectly declares zero valid options.
+
 ---
 
 ### Task 1: Correct Casa Nostra and re-score all archives

@@ -133,3 +133,31 @@ Decision:
 - If options remain red after the planned prompt iterations, the next action is
   a separately designed deterministic/two-pass options approach; do not add
   another unplanned prompt patch.
+
+## Iteration 003 — Numbered-item and column completeness
+
+- Date: 2026-07-02
+- Commit: `f90991f`
+- Model: `gpt-4o`
+- Temperature: `0`
+- Seed: `17`
+- Hypothesis: Casa Nostra's 10 missing items are skipped numbered rows
+  (extracted numbers gap at 39, 42–49, 58–59) and Nikkori misses 2 of 120;
+  an explicit printed-number completeness rule plus column-scan instruction
+  recovers them without inflating counts elsewhere.
+- Change from previous iteration: EXTRACT_PROMPT only — added the two
+  completeness sentences after the no-maximum rule. No scoring changes.
+- Fixtures: Brasero, Casa Nostra, El Marcos, Mochomos, Nikkori.
+- Raw outputs: `/Users/santiagoaguirre/Downloads/MenusTesting/iter-003/*.actual.json`.
+
+Run attempt 1:
+
+- Brasero, Casa Nostra, El Marcos, and Mochomos completed. Their raw outputs
+  are archived in
+  `/Users/santiagoaguirre/Downloads/MenusTesting/iter-003-attempt-1/`.
+- Nikkori timed out after 120 seconds. The harness stopped before scoring or
+  printing any per-menu or aggregate results, so this attempt has no benchmark
+  verdict.
+- Decision: do not treat the mixed top-level outputs as Iteration 003 results.
+  A consistency repeat of the unchanged Iteration 003 prompt is required to
+  obtain one complete five-menu report; record it as run attempt 2.

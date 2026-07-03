@@ -24,10 +24,24 @@ Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async
   }) as typeof fetch;
 
   try {
-    const result = await runExtraction(["photo-base64"], "test-key");
+    const result = await runExtraction([
+      "photo-base64",
+      "data:image/png;base64,png-base64",
+    ], "test-key");
+    const messages = requestBody.messages as {
+      content: { image_url?: { url: string } }[];
+    }[];
 
     assertEquals(authorization, "Bearer test-key");
     assertEquals(requestBody.model, "gpt-4o");
+    assertEquals(
+      messages[0].content[1].image_url?.url,
+      "data:image/jpeg;base64,photo-base64",
+    );
+    assertEquals(
+      messages[0].content[2].image_url?.url,
+      "data:image/png;base64,png-base64",
+    );
     assertEquals(result as unknown, {
       image_quality: { usable: true, issues: [] },
       items: [{

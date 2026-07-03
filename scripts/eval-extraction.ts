@@ -234,6 +234,10 @@ function printReport(reports: MenuReport[], aggregate: AggregateReport): void {
 const FIXTURE_DIR = new URL("./fixtures/", import.meta.url);
 const MENU_DIR = "/Users/santiagoaguirre/Downloads/MenusTesting";
 
+function imageMimeType(filename: string): "image/png" | "image/jpeg" {
+  return filename.toLowerCase().endsWith(".png") ? "image/png" : "image/jpeg";
+}
+
 async function loadFixtures(): Promise<ExpectedFixture[]> {
   const names: string[] = [];
   for await (const entry of Deno.readDir(FIXTURE_DIR)) {
@@ -263,9 +267,10 @@ async function main(): Promise<void> {
   const reports: MenuReport[] = [];
   for (const fixture of fixtures) {
     const photos = await Promise.all(
-      fixture.photos.map(async (photo) =>
-        (await Deno.readFile(`${MENU_DIR}/${photo}`)).toBase64()
-      ),
+      fixture.photos.map(async (photo) => {
+        const base64 = (await Deno.readFile(`${MENU_DIR}/${photo}`)).toBase64();
+        return `data:${imageMimeType(photo)};base64,${base64}`;
+      }),
     );
     const result = await runExtraction(photos, apiKey);
     const actual = {
@@ -294,6 +299,9 @@ async function main(): Promise<void> {
 }
 
 function runSelfCheck(): void {
+  assert(imageMimeType("menu.png") === "image/png", "PNG MIME type");
+  assert(imageMimeType("menu.jpg") === "image/jpeg", "JPEG MIME type");
+
   const fixture: ExpectedFixture = {
     menu: "stub",
     photos: ["stub.jpg"],

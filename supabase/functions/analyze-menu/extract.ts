@@ -122,7 +122,11 @@ export async function runExtraction(
             { type: "text", text: EXTRACT_PROMPT },
             ...photos.map((photo) => ({
               type: "image_url",
-              image_url: { url: `data:image/jpeg;base64,${photo}` },
+              image_url: {
+                url: photo.startsWith("data:")
+                  ? photo
+                  : `data:image/jpeg;base64,${photo}`,
+              },
             })),
           ],
         }],

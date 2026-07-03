@@ -521,3 +521,73 @@ Decision:
 - Reverted prompt commit `647c4c7` in `95416c1`.
 - Stop before Iteration 007 for user input. The active prompt is restored to
   the corrected Iteration 005 baseline.
+
+## Iteration 007 — Section-aware item-number diagnostics
+
+- Date: 2026-07-03
+- Schema/diagnostic commit: `a5cedb1`
+- Revert commit: `3cd53ac`
+- Model: `gpt-4o`
+- Temperature: `0`
+- Seed: `17`
+- Authorization: the user explicitly approved continuing after Iteration
+  006's regression and revert.
+- Hypothesis: a nullable `item_number` field provides reliable section-local
+  gap diagnostics without assuming numbering is contiguous across sections
+  and without making a follow-up model call.
+- Change from active baseline:
+  - added required nullable `item_number` to extraction schema and prompt;
+  - added deterministic gap detection within each `section_title` only;
+  - printed diagnostics in live and offline harness modes;
+  - made no gap-fill call.
+- Fixtures: Brasero, Casa Nostra, El Marcos, Mochomos, Nikkori.
+- Raw outputs:
+  `/Users/santiagoaguirre/Downloads/MenusTesting/iter-007/*.actual.json`.
+
+| Menu | Items | Categories | Section context | Options | Image quality |
+|---|---|---|---|---|---|
+| Brasero | PASS — 28/28 | PASS | PASS | PASS | PASS |
+| Casa Nostra | PASS — 23/23 | PASS | PASS | PASS | PASS |
+| El Marcos | FAIL — 40/45, 1 section-header item | FAIL — spurious `other` | PASS | FAIL — 6 false-positive items | PASS |
+| Mochomos | PASS — 22/22 | PASS | PASS | PASS | PASS |
+| Nikkori | FAIL — 108/120 | PASS | FAIL — 1 spurious section, 7 wrong mappings | FAIL — 7 false-positive items | PASS |
+| Aggregate | FAIL | PASS | PASS | FAIL | PASS |
+
+Item-number coverage:
+
+- Brasero: 0/28
+- Casa Nostra: 23/23
+- El Marcos: 0/40
+- Mochomos: 0/22
+- Nikkori: 6/108
+
+Diagnostics:
+
+- No section-local number gaps were reported.
+- Casa Nostra correctly produced complete local ranges inside each section,
+  without flagging the intentional jumps between sections.
+- Nikkori number coverage was too sparse for diagnostics.
+
+What worked:
+
+- The redesigned detector avoided every known Casa Nostra false gap.
+- Categories, section context, and image quality remained aggregate-green.
+- No extra model call was made.
+
+What regressed or failed:
+
+- Items regressed from aggregate-PASS to aggregate-FAIL.
+- El Marcos dropped from 46 items in the active Iteration 004 archive to 40
+  and emitted a section header as an item.
+- Nikkori remained incomplete at 108/120.
+- Options remained aggregate-red.
+- Number coverage was absent on three menus and sparse on Nikkori, limiting
+  the diagnostic's general value.
+
+Decision:
+
+- The regression gate fired for items.
+- Reverted `a5cedb1` in `3cd53ac`.
+- Iteration 008 is not triggered: no real gap was detected, and the diagnostic
+  schema itself failed the regression gate.
+- Stop for user input before the options/two-pass gate.

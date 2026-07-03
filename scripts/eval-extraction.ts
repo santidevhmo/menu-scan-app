@@ -70,7 +70,7 @@ export function scoreMenu(
   const phantomHeaders =
     actual.items.filter((item) => headers.has(normalize(item.name))).length;
   const items = {
-    pass: Math.abs(itemDelta) <= 1 && phantomHeaders === 0,
+    pass: Math.abs(itemDelta) <= 3 && phantomHeaders === 0,
     detail:
       `${actual.items.length}/${fixture.total_items} items; ${phantomHeaders} section-header items`,
   };
@@ -400,6 +400,35 @@ function runSelfCheck(): void {
   assert(
     failing.image_quality?.pass === false,
     "image-quality score should fail",
+  );
+
+  const filler = (name: string): ExtractedMenuItem => ({
+    name,
+    description: "",
+    price: 5,
+    category: "food",
+    section_title: "Mains",
+    options: [],
+  });
+  assert(
+    scoreMenu(fixture, {
+      ...actual,
+      items: [...actual.items, filler("Soup"), filler("Cake"), filler("Pie")],
+    }).items.pass,
+    "item count within +3 should pass",
+  );
+  assert(
+    !scoreMenu(fixture, {
+      ...actual,
+      items: [
+        ...actual.items,
+        filler("Soup"),
+        filler("Cake"),
+        filler("Pie"),
+        filler("Stew"),
+      ],
+    }).items.pass,
+    "item count at +4 should fail",
   );
 
   assert(

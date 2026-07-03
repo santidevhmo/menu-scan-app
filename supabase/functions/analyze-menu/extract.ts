@@ -5,7 +5,7 @@ const EXTRACT_SEED = 17;
 
 export const EXTRACT_PROMPT =
   `Read this restaurant menu. Return every item exactly as printed, in menu order:
-name, description, price, category, and section_title.
+name, description, price, category, section_title, and options.
 Do NOT estimate calories or nutrition. Do NOT invent items you cannot read.
 Extract all visible menu items from every provided photo and every menu section.
 Do not stop after a representative sample, a section summary, or the first page.
@@ -23,8 +23,17 @@ it must also group menu items beneath it. Do not treat restaurant names, slogans
 or promotional text as section headings.
 Use category "food" for appetizers, entrees, main dishes, and other prepared food.
 Use "side", "dessert", or "drink" only when that role is clear; otherwise use "other".
-Return separately printed preparations or variants as separate items; do not merge
-separate menu rows.
+An option is a printed choice about one item's composition: a protein or filling
+choice, a paid add-on, a dietary swap, or a flavor choice. Capture each option with
+its printed price and weight in grams when present; otherwise use null.
+Serving formats and sizes (glass vs bottle, copa vs botella, small vs large) are
+NOT options. Distinct products listed under a shared heading are separate items,
+not options.
+When the same base dish is printed several times with different fillings, proteins,
+or preparations, return ONE item named after the base dish and put each printed
+variant in options. Never return duplicate item names for variants of one dish.
+A choice printed inside a description ("con X o Y", "choice of X or Y") is an
+options list; capture each choice in options. Do not move options into the description.
 If a description is not printed, use an empty string. If a price is not printed, set it to null.
 Assess image quality across all photos. Report blur, low_light, glare, or another concise issue.
 Set usable to false only when the menu cannot be read reliably.`;
@@ -55,31 +64,6 @@ export const EXTRACT_SCHEMA = {
             enum: ["food", "side", "dessert", "drink", "other"],
           },
           section_title: { type: ["string", "null"] },
-        },
-        required: [
-          "name",
-          "description",
-          "price",
-          "category",
-          "section_title",
-        ],
-        additionalProperties: false,
-      },
-    },
-  },
-  required: ["image_quality", "items"],
-  additionalProperties: false,
-};
-
-export const OPTIONS_SCHEMA = {
-  type: "object",
-  properties: {
-    option_sets: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          item_index: { type: "integer" },
           options: {
             type: "array",
             items: {
@@ -94,12 +78,19 @@ export const OPTIONS_SCHEMA = {
             },
           },
         },
-        required: ["item_index", "options"],
+        required: [
+          "name",
+          "description",
+          "price",
+          "category",
+          "section_title",
+          "options",
+        ],
         additionalProperties: false,
       },
     },
   },
-  required: ["option_sets"],
+  required: ["image_quality", "items"],
   additionalProperties: false,
 };
 
@@ -108,30 +99,13 @@ export interface ImageQuality {
   issues: string[];
 }
 
-type Category = "food" | "side" | "dessert" | "drink" | "other";
-
-interface ExtractedBaseItem {
+export interface ExtractedMenuItem {
   name: string;
   description: string;
   price: number | null;
-  category: Category;
+  category: "food" | "side" | "dessert" | "drink" | "other";
   section_title: string | null;
-}
-
-export interface ExtractedMenuItem extends ExtractedBaseItem {
   options: { name: string; price: number | null; grams: number | null }[];
-}
-
-interface ItemsResult {
-  image_quality: ImageQuality;
-  items: ExtractedBaseItem[];
-}
-
-interface OptionsResult {
-  option_sets: {
-    item_index: number;
-    options: ExtractedMenuItem["options"];
-  }[];
 }
 
 export interface ExtractionResult {
@@ -140,40 +114,10 @@ export interface ExtractionResult {
   raw_response: string;
 }
 
-function optionsPrompt(items: ExtractedMenuItem[]): string {
-  const indexedItems = items.map((item, item_index) => ({
-    item_index,
-    name: item.name,
-    description: item.description,
-    price: item.price,
-    section_title: item.section_title,
-  }));
-
-  return `Read the restaurant menu photos again and identify selectable options
-for the indexed items below. An option is a printed choice within one item's
-composition: a protein or filling choice, paid add-on, dietary swap, or flavor
-choice. A choice printed inside a description ("con X o Y", "choice of X or Y")
-is an options list.
-
-Separately printed preparations or variants are separate items, not options.
-Serving formats and sizes (glass vs bottle, copa vs botella, small vs large)
-are not options. Distinct products listed under a shared heading are not options.
-
-Return only items that have genuine options. Preserve each supplied item_index
-exactly. Include an option's printed price and grams when present; otherwise use
-null. Do not invent choices that are not printed.
-
-Indexed items:
-${JSON.stringify(indexedItems)}`;
-}
-
-async function callModel<T>(
-  prompt: string,
-  schemaName: string,
-  schema: unknown,
+export async function runExtraction(
   photos: string[],
   apiKey: string,
-): Promise<{ parsed: T; raw: string }> {
+): Promise<ExtractionResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), MODEL_TIMEOUT_MS);
 
@@ -189,7 +133,7 @@ async function callModel<T>(
         messages: [{
           role: "user",
           content: [
-            { type: "text", text: prompt },
+            { type: "text", text: EXTRACT_PROMPT },
             ...photos.map((photo) => ({
               type: "image_url",
               image_url: {
@@ -203,9 +147,9 @@ async function callModel<T>(
         response_format: {
           type: "json_schema",
           json_schema: {
-            name: schemaName,
+            name: "menu_items",
             strict: true,
-            schema,
+            schema: EXTRACT_SCHEMA,
           },
         },
         temperature: 0,
@@ -220,13 +164,15 @@ async function callModel<T>(
     if (!res.ok) throw new Error(json.error?.message ?? "OpenAI API error");
 
     const text = json.choices?.[0]?.message.content;
-    if (!text) throw new Error(`OpenAI returned no ${schemaName} content`);
+    if (!text) throw new Error("OpenAI returned no extraction content");
 
-    console.log(
-      `[openai:${schemaName}] finish_reason:`,
-      json.choices?.[0]?.finish_reason,
-    );
-    return { parsed: JSON.parse(text) as T, raw: text };
+    console.log("[openai] finish_reason:", json.choices?.[0]?.finish_reason);
+    const parsed = JSON.parse(text) as Omit<ExtractionResult, "raw_response">;
+    return {
+      ...parsed,
+      items: postprocessItems(parsed.items),
+      raw_response: text,
+    };
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
       throw new Error(
@@ -237,63 +183,4 @@ async function callModel<T>(
   } finally {
     clearTimeout(timeout);
   }
-}
-
-function mergeOptions(
-  items: ExtractedMenuItem[],
-  optionSets: OptionsResult["option_sets"],
-): ExtractedMenuItem[] {
-  const merged: ExtractedMenuItem[] = items.map((item) => ({
-    ...item,
-    options: [],
-  }));
-  const seen = new Set<number>();
-
-  for (const optionSet of optionSets) {
-    const index = optionSet.item_index;
-    if (
-      !Number.isInteger(index) ||
-      index < 0 ||
-      index >= merged.length ||
-      seen.has(index)
-    ) {
-      throw new Error(`Invalid or duplicate item_index: ${index}`);
-    }
-    seen.add(index);
-    merged[index] = { ...merged[index], options: optionSet.options };
-  }
-
-  return postprocessItems(merged);
-}
-
-export async function runExtraction(
-  photos: string[],
-  apiKey: string,
-): Promise<ExtractionResult> {
-  const first = await callModel<ItemsResult>(
-    EXTRACT_PROMPT,
-    "menu_items",
-    EXTRACT_SCHEMA,
-    photos,
-    apiKey,
-  );
-  const items = postprocessItems(
-    first.parsed.items.map((item) => ({ ...item, options: [] })),
-  );
-  const second = await callModel<OptionsResult>(
-    optionsPrompt(items),
-    "menu_options",
-    OPTIONS_SCHEMA,
-    photos,
-    apiKey,
-  );
-
-  return {
-    image_quality: first.parsed.image_quality,
-    items: mergeOptions(items, second.parsed.option_sets),
-    raw_response: JSON.stringify({
-      items: first.raw,
-      options: second.raw,
-    }),
-  };
 }

@@ -386,3 +386,88 @@ Decision:
 - Use this Iteration 004 re-score as the comparison baseline for paid
   Iterations 006 and 007.
 - Proceed to Casa Nostra image forensics, then Iteration 006 prompt diet.
+
+### Iteration 005 correction — Casa Nostra forensics
+
+- Date: 2026-07-03
+- Model call: none; Iterations 001–004 were re-scored offline.
+- Source image: `1408×1870`.
+- Client approximation inspected: longest edge `1024px`, JPEG quality `70`.
+- Corrected Casa Nostra ground truth: 23 visible items.
+
+The source and compressed images both visibly contain these item ranges:
+
+- Pasta: 30–38
+- Insalate: 40–41
+- Pizze: 50–57
+- Frutti di mare: 60–63
+
+Numbers 39, 42–49, and 58–59 are not printed in the supplied image. The
+visible rows remain legible at the client approximation, but the alleged
+missing rows do not exist. The earlier 33-item fixture incorrectly treated
+intentional numbering discontinuities between printed sections as OCR misses.
+The user confirmed the 23-item count.
+
+Corrected re-score of Iteration 001:
+
+| Menu | Items | Categories | Section context | Options | Image quality |
+|---|---|---|---|---|---|
+| Brasero | PASS — 28/28 | PASS | PASS | FAIL — 1 missed target | PASS |
+| Casa Nostra | PASS — 23/23 | PASS | PASS | PASS | PASS |
+| El Marcos | PASS — 45/45 | PASS | PASS | PASS | PASS |
+| Mochomos | PASS — 22/22 | PASS | PASS | PASS | PASS |
+| Nikkori | PASS — 118/120 | PASS | FAIL — 5 missing, 3 spurious, 9 wrong mappings | FAIL — 2 false-positive items | PASS |
+| Aggregate | PASS | PASS | PASS | FAIL | PASS |
+
+Corrected re-score of Iteration 002:
+
+| Menu | Items | Categories | Section context | Options | Image quality |
+|---|---|---|---|---|---|
+| Brasero | PASS — 28/28 | PASS | PASS | PASS | PASS |
+| Casa Nostra | PASS — 23/23 | PASS | PASS | PASS | PASS |
+| El Marcos | PASS — 46/45 | FAIL — spurious `other` | PASS | FAIL — 7 false-positive items | PASS |
+| Mochomos | PASS — 22/22 | PASS | PASS | PASS | PASS |
+| Nikkori | FAIL — 125/120 | PASS | FAIL — 9 missing, 4 spurious, 13 wrong mappings | FAIL — 9 false-positive items | PASS |
+| Aggregate | PASS | PASS | PASS | FAIL | PASS |
+
+Corrected re-score of Iteration 003:
+
+| Menu | Items | Categories | Section context | Options | Image quality |
+|---|---|---|---|---|---|
+| Brasero | PASS — 28/28 | PASS | PASS | PASS | PASS |
+| Casa Nostra | PASS — 23/23 | PASS | PASS | PASS | PASS |
+| El Marcos | FAIL — 46/45, 3 section-header items | FAIL — spurious `other` | FAIL — 1 missing | PASS | PASS |
+| Mochomos | PASS — 22/22 | PASS | PASS | PASS | PASS |
+| Nikkori | FAIL — 116/120 | PASS | FAIL — 1 missing, 2 spurious, 5 wrong mappings | FAIL — 1 missed, 4 false-positive items | PASS |
+| Aggregate | FAIL | PASS | FAIL | PASS | PASS |
+
+Corrected re-score of Iteration 004:
+
+| Menu | Items | Categories | Section context | Options | Image quality |
+|---|---|---|---|---|---|
+| Brasero | PASS — 28/28 | PASS | PASS | PASS | PASS |
+| Casa Nostra | PASS — 23/23 | PASS | PASS | PASS | PASS |
+| El Marcos | PASS — 46/45 | FAIL — spurious `other` | PASS | FAIL — 7 false-positive items | PASS |
+| Mochomos | PASS — 22/22 | PASS | PASS | FAIL — 1 false-positive item | PASS |
+| Nikkori | FAIL — 107/120 | PASS | FAIL — 2 missing, 2 spurious, 8 wrong mappings | FAIL — 7 false-positive items | PASS |
+| Aggregate | PASS | PASS | PASS | FAIL | PASS |
+
+Corrected findings:
+
+- Items were already aggregate-green in Iterations 001, 002, and 004.
+- Iteration 003 remains invalid: it regressed items and section context to
+  aggregate-red and was correctly reverted.
+- Options remain the only aggregate-red dimension in the active Iteration 004
+  baseline.
+- Repeating paid Iterations 001–004 would not correct a fixture-only scoring
+  error. Their archived outputs are sufficient.
+
+Decision:
+
+- Keep Casa Nostra at 23 expected visible items.
+- Continue with Iteration 006 because removing the rejected variant-folding
+  instruction is independent of the fixture correction.
+- Retain Iteration 007 only as section-aware, diagnostic-only item-number
+  reporting. Do not infer gaps across section boundaries.
+- Do not trigger Iteration 008 from diagnostics alone; require manual
+  confirmation of a real printed omission and a separate design first.

@@ -23,6 +23,31 @@
       "section_title": "Jugos y Frutas"
     }
   ],
-  "items_with_options": [],
+  "items_with_options": [
+    {
+      "name_contains": "Revueltos",
+      "description_contains": "jamón",
+      "price": 90,
+      "options": ["Jamón", "Chorizo", "Tocino"]
+    },
+    {
+      "name_contains": "Fritos",
+      "description_contains": "jamón",
+      "price": 90,
+      "options": ["Jamón", "Chorizo", "Tocino"]
+    },
+    {
+      "name_contains": "Hot Cakes",
+      "description_contains": "jamón, tocino",
+      "price": 78,
+      "options": ["Jamón", "Tocino", "Huevo"]
+    },
+    {
+      "name_contains": "Plato Surtido",
+      "description_contains": "queso cottage",
+      "price": 82,
+      "options": ["Queso cottage", "Yogurt"]
+    }
+  ],
   "image_quality": { "usable": true, "issues": [] }
 }

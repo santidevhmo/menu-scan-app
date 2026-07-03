@@ -1,3 +1,5 @@
+import { postprocessItems } from "./postprocess.ts";
+
 const MODEL_TIMEOUT_MS = 120000;
 const EXTRACT_SEED = 17;
 
@@ -166,7 +168,11 @@ export async function runExtraction(
 
     console.log("[openai] finish_reason:", json.choices?.[0]?.finish_reason);
     const parsed = JSON.parse(text) as Omit<ExtractionResult, "raw_response">;
-    return { ...parsed, raw_response: text };
+    return {
+      ...parsed,
+      items: postprocessItems(parsed.items),
+      raw_response: text,
+    };
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
       throw new Error(

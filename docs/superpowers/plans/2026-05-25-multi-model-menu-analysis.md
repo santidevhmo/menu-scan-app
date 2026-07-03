@@ -10,6 +10,14 @@
 
 **Current status (2026-06-18):** The OCR/extraction comparison is complete and **GPT-4o Vision** (`provider: "gpt-vision"`, `model_id: "gpt-4o"`) is the frozen menu-reading model. Stage 2 enrichment is implemented in the live flow: scan → goal selection → ranked enriched results. Phase 5 per-item portion adjustment was merged in PR #7; follow-up UX polish remains listed at the end of Phase 5.
 
+**Extraction-iteration logging (2026-07-02):** Any prompt, schema,
+preprocessing, model, scoring, or fixture iteration for menu extraction must be
+recorded in the append-only
+`docs/superpowers/extraction-eval-log.md`. Every entry records the hypothesis,
+exact change, model settings, full good and bad results, raw-output paths,
+decision, and next action. Read the log before rerunning so failed or redundant
+iterations are not repeated.
+
 **Tooling status (2026-06-13):** Package manager cleanup is complete. The project now standardizes on **pnpm** (`packageManager: "pnpm@11.0.8"`), keeps `pnpm-lock.yaml` as the only JS lockfile, uses `pnpm-workspace.yaml` with `nodeLinker: hoisted` for Expo/Metro compatibility, and pins `lightningcss` to `1.30.1` via pnpm overrides to avoid NativeWind / `react-native-css` / `global.css` bundling failures.
 
 ---

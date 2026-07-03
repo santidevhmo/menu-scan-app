@@ -5,6 +5,36 @@ Branch: `feat/extraction-eval-harness`
 Worktree: `/private/tmp/menu-scan-app-extraction-eval-harness`
 Status: approved by user in brainstorming session (2026-07-02)
 
+## Execution correction — 2026-07-03
+
+Casa Nostra photo forensics disproved the original completeness premise. The
+photo contains 23 visible items: Pasta 30–38, Insalate 40–41, Pizze 50–57,
+and Frutti di mare 60–63. Numbers 39, 42–49, and 58–59 are not printed in
+the supplied image; they are not missed or illegible dishes. The user
+confirmed this count.
+
+Approved corrections:
+
+1. Change Casa Nostra ground truth from 33 to 23 visible items.
+2. Re-score archived Iterations 001–004 offline with the corrected Casa
+   Nostra and El Marcos fixtures. Do not repeat their paid model calls because
+   the fixture errors affected scoring, not the archived OCR output.
+3. Keep Iteration 006 unchanged: removing the rejected variant-folding prompt
+   remains an independent, measured options/completeness hypothesis.
+4. Redesign Iteration 007 as diagnostic-only:
+   - retain nullable `item_number` extraction;
+   - detect gaps only within one `section_title`, never across section
+     boundaries;
+   - report gaps in the harness but make no follow-up model call.
+5. Iteration 008 does not trigger from detector output alone. A human must
+   first verify that every reported number corresponds to a real printed item.
+   Any gap-fill call then requires a separate follow-up design before
+   implementation.
+
+This correction supersedes later sections wherever they describe Casa Nostra
+as missing ten dishes, globally contiguous number detection, or automatic
+gap-fill after any detected gap.
+
 ## Context and required reading
 
 This design continues the iteration protocol established for extraction

@@ -1,7 +1,7 @@
 {
   "menu": "el-marcos",
   "photos": ["ElMarcosMenu.png"],
-  "total_items": 36,
+  "total_items": 45,
   "categories": ["food", "drink"],
   "sections": [
     "Huevos",
@@ -23,12 +23,6 @@
       "section_title": "Jugos y Frutas"
     }
   ],
-  "items_with_options": [
-    { "name_contains": "Fritos", "options": [] },
-    { "name_contains": "De la Sierra", "options": [] },
-    { "name_contains": "Waffles", "options": [] },
-    { "name_contains": "Plato Surtido", "options": [] },
-    { "name_contains": "Revueltos", "options": [] }
-  ],
+  "items_with_options": [],
   "image_quality": { "usable": true, "issues": [] }
 }

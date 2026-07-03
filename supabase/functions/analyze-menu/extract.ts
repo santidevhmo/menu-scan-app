@@ -29,6 +29,9 @@ its printed price and weight in grams when present; otherwise use null.
 Serving formats and sizes (glass vs bottle, copa vs botella, small vs large) are
 NOT options. Distinct products listed under a shared heading are separate items,
 not options.
+When the same base dish is printed several times with different fillings, proteins,
+or preparations, return ONE item named after the base dish and put each printed
+variant in options. Never return duplicate item names for variants of one dish.
 A choice printed inside a description ("con X o Y", "choice of X or Y") is an
 options list; capture each choice in options. Do not move options into the description.
 If a description is not printed, use an empty string. If a price is not printed, set it to null.

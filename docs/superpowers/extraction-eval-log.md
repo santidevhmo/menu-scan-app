@@ -704,3 +704,79 @@ Fixture blocker:
 - Next implementation must add optional description/price qualifiers and
   one-to-one target matching, then update the fixture and offline re-score
   Iteration 009 before another paid model run.
+
+## Offline re-score: qualified matcher + corrected El Marcos fixture
+
+- Date: 2026-07-03
+- Model call: none. Offline re-score only, against already-archived
+  `*.actual.json` output, per `scripts/eval-extraction.ts --offline`.
+- Change under test: `scoreMenu`'s option matcher now takes optional
+  `description_contains`/`price` qualifiers per target and consumes the
+  matched item index one-to-one, so a claimed duplicate-name card can't be
+  reused by a later target. El Marcos fixture's `items_with_options` now
+  encodes the four confirmed targets (Revueltos $90, Fritos $90, Hot Cakes
+  $78, Plato Surtido $82).
+
+**Iteration 004 baseline archive:**
+
+```
+brasero      PASS items / PASS categories / PASS section_context / PASS options / PASS image_quality
+casa-nostra  PASS items / PASS categories / PASS section_context / PASS options / PASS image_quality
+el-marcos    PASS items (46/45) / FAIL categories (spurious: other) / PASS section_context / FAIL options (missed: 4; false-positive: 7) / PASS image_quality
+mochomos     PASS items / PASS categories / PASS section_context / FAIL options (missed: 0; false-positive: 1) / PASS image_quality
+nikkori      FAIL items (107/120) / PASS categories / FAIL section_context / FAIL options (missed: 0; false-positive: 7) / PASS image_quality
+
+Aggregate: PASS items / PASS categories / PASS section_context / FAIL options / PASS image_quality
+```
+
+Iteration 004's El Marcos archive predates any options extraction, so all
+four targets are missed (no card has any options) and every card's
+options field is empty — the 7 false-positive count there comes from
+other items in that archive, not new regressions from this change.
+
+**Iteration 009 archive:**
+
+```
+brasero      PASS items / PASS categories / PASS section_context / PASS options / PASS image_quality
+casa-nostra  PASS items (26/23) / PASS categories / PASS section_context / FAIL options (missed: 0; false-positive: 2) / PASS image_quality
+el-marcos    PASS items (43/45) / PASS categories / FAIL section_context (missing: Pa' los Bukis) / FAIL options (missed: 1; false-positive: 11) / PASS image_quality
+mochomos     PASS items / PASS categories / PASS section_context / FAIL options (missed: 0; false-positive: 2) / PASS image_quality
+nikkori      FAIL items (101/120) / PASS categories / FAIL section_context / FAIL options (missed: 1; false-positive: 3) / PASS image_quality
+
+Aggregate: PASS items / PASS categories / FAIL section_context / FAIL options / PASS image_quality
+```
+
+**El Marcos options: FAIL under the corrected fixture/matcher.**
+
+- 3 of 4 targets matched correctly: Revueltos ($90, Jamón/Chorizo/Tocino),
+  Fritos ($90, Jamón/Chorizo/Tocino), and Hot Cakes ($78,
+  Jamón/Tocino/Huevo) all resolve to the right card by name + description +
+  price and score their expected options present.
+- 1 target missed: Plato Surtido. The fixture's confirmed ground truth
+  price is $82, but Iteration 009's archived extraction has the Plato
+  Surtido card with options at $72 — a real price discrepancy in the
+  extraction (or the source photo), not a matcher bug. The qualified
+  matcher correctly refuses to match a $82 target against a $72 card, so
+  the target counts as missed and that card's options (Queso
+  cottage/Yogurt) count as an 11th false positive.
+- The remaining 10 false positives are cards with printed alternative
+  choices that the fixture does not yet encode as targets (Chilaquiles ×2,
+  Machaca, Machaca de Marlin, Enchiladas, Té, Chocolate, Pan Tostado, Jugo,
+  Avena) — these are the "other inline-alternative candidates" flagged for
+  separate review, out of scope for this plan.
+
+**Aggregate score changes under the corrected matcher: none.** Both
+iter-004 and iter-009 options were already FAIL at aggregate level before
+this change (duplicate-name mismatches and unencoded inline alternatives
+were already causing false positives/missed targets under the old
+`.find()`-based matcher); they remain FAIL after. No other dimension
+(items, categories, section_context, image_quality) changed for either
+archive — the matcher change only touches option-target resolution.
+
+**Decision:** this offline re-score does not by itself justify re-landing
+the Iteration 009 two-pass architecture. That decision needs a fresh paid
+run under the regression gate defined in
+`docs/superpowers/specs/2026-07-03-two-pass-options-design.md`, which is
+out of scope for this plan. Separately, the Plato Surtido price
+discrepancy ($72 extracted vs $82 confirmed ground truth) needs user
+verification before further fixture changes there.

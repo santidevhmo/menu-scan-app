@@ -161,3 +161,43 @@ Run attempt 1:
 - Decision: do not treat the mixed top-level outputs as Iteration 003 results.
   A consistency repeat of the unchanged Iteration 003 prompt is required to
   obtain one complete five-menu report; record it as run attempt 2.
+
+Run attempt 2:
+
+| Menu | Items | Categories | Section context | Options | Image quality |
+|---|---|---|---|---|---|
+| Brasero | PASS — 28/28 | PASS | PASS | PASS | PASS |
+| Casa Nostra | FAIL — 23/33 | PASS | PASS | PASS | PASS |
+| El Marcos | FAIL — 46/36, 3 section-header items | FAIL — spurious `other` | FAIL — 1 missing | FAIL — 5 missed targets | PASS |
+| Mochomos | PASS — 22/22 | PASS | PASS | PASS | PASS |
+| Nikkori | FAIL — 116/120 | PASS | FAIL — 1 missing, 2 spurious, 5 wrong mappings | FAIL — 1 missed, 10 false-positive | PASS |
+| Aggregate | FAIL | PASS | FAIL | FAIL | PASS |
+
+What improved:
+
+- Brasero, Casa Nostra, and Mochomos held their Iteration 002 results.
+- Nikkori section errors decreased from 9 missing, 4 spurious, and 13 wrong
+  mappings to 1 missing, 2 spurious, and 5 wrong mappings.
+- El Marcos option false positives decreased from seven to zero, and Nikkori
+  option false positives decreased from 19 to 10.
+
+What regressed or failed:
+
+- The completeness hypothesis failed: Casa Nostra remained 23/33, Nikkori
+  dropped from 125 to 116, and El Marcos remained 46/36.
+- El Marcos emitted three section headers as items and lost the `Pa' los Bukis`
+  section, causing section context to regress from aggregate-PASS to
+  aggregate-FAIL.
+- Options remained aggregate-red: El Marcos still missed all five targets;
+  Nikkori missed Coladas and retained ten false-positive option items.
+- Categories and image quality remained aggregate-green.
+
+Decision:
+
+- Regression gate fired because a previously green dimension, section context,
+  became aggregate-red.
+- Reverted the Iteration 003 prompt commit `f90991f` in revert commit
+  `da547c0`.
+- Stop before Iteration 004 and request user input. The completeness escalation
+  remains the approved next technical action: a separately logged schema
+  iteration adding `item_number: string | null`.

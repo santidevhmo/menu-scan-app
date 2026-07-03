@@ -68,3 +68,68 @@ Decision:
 - Inspect all five raw outputs before proposing Iteration 002.
 - Separate item-count, section-context, and option failures into focused
   hypotheses; do not bundle speculative prompt changes into one rerun.
+
+## Iteration 002 — Option definition and variant folding
+
+- Date: 2026-07-02
+- Commit: `40f7f09`
+- Model: `gpt-4o`
+- Temperature: `0`
+- Seed: `17`
+- Hypothesis: the baseline's option failures share three prompt gaps — no
+  composition-based option definition (Nikkori false positives), no variant
+  folding (El Marcos duplicate items with empty options), and no prose-choice
+  rule (Brasero's "Camarón o Pollo"). Encoding those three rules turns options
+  green and removes El Marcos's variant-driven over-count without regressing
+  green dimensions.
+- Change from previous iteration: EXTRACT_PROMPT only — replaced the two
+  option sentences with an option definition (composition choices; serving
+  formats and product lists excluded), a variant-folding rule, and a
+  prose-choice rule. Scoring change shipped alongside (recorded here, distinct
+  from the prompt hypothesis): nikkori fixture gains the Coladas options
+  target per the confirmed option definition; casa-nostra options target
+  substring shortened to "frutti di mare" to survive a 1-char OCR wobble.
+- Fixtures: Brasero, Casa Nostra, El Marcos, Mochomos, Nikkori.
+- Raw outputs: `/Users/santiagoaguirre/Downloads/MenusTesting/iter-002/*.actual.json`
+  (Iteration 001 outputs archived in `.../iter-001/`).
+
+| Menu | Items | Categories | Section context | Options | Image quality |
+|---|---|---|---|---|---|
+| Brasero | PASS — 28/28 | PASS | PASS | PASS | PASS |
+| Casa Nostra | FAIL — 23/33 | PASS | PASS | PASS | PASS |
+| El Marcos | FAIL — 46/36 | FAIL — spurious `other` | PASS | FAIL — 5 missed, 7 false-positive | PASS |
+| Mochomos | PASS — 22/22 | PASS | PASS | PASS | PASS |
+| Nikkori | FAIL — 125/120 | PASS | FAIL — 9 missing, 4 spurious, 13 wrong mappings | FAIL — 19 false-positive items | PASS |
+| Aggregate | FAIL | PASS | PASS | FAIL | PASS |
+
+What improved:
+
+- Brasero captured both Pasta Alfredo and Pasta Parmesano options.
+- Casa Nostra's three option targets matched after the fixture correction.
+- Nikkori captured the new Coladas target.
+- Categories, section context, and image quality remained aggregate-green, so
+  the regression gate did not fire.
+
+What regressed or failed:
+
+- Options remained aggregate-red. El Marcos still missed all five targets and
+  put description ingredients or preparations into options on seven unrelated
+  items; it did not fold the repeated target variants.
+- Nikkori still treated serving sizes, wine products, and copa/botella formats
+  as options on 19 non-target items.
+- El Marcos increased from 45 to 46 items and gained a spurious `other`
+  category. Nikkori increased from 118 to 125 items.
+- Nikkori section extraction worsened from 5 missing, 3 spurious, and 9 wrong
+  mappings to 9 missing, 4 spurious, and 13 wrong mappings, but section context
+  remained aggregate-green.
+- The CHILAQUILES/HOT CAKES adjudication gate did not apply: the model did not
+  fold them into single option-bearing items.
+
+Decision:
+
+- Keep the prompt commit because no previously aggregate-green dimension
+  regressed to aggregate-red.
+- Proceed to Iteration 003's independent numbered-menu completeness hypothesis.
+- If options remain red after the planned prompt iterations, the next action is
+  a separately designed deterministic/two-pass options approach; do not add
+  another unplanned prompt patch.

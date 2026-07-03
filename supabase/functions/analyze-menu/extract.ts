@@ -8,6 +8,9 @@ Do NOT estimate calories or nutrition. Do NOT invent items you cannot read.
 Extract all visible menu items from every provided photo and every menu section.
 Do not stop after a representative sample, a section summary, or the first page.
 There is no maximum number of items; keep going until every readable item is returned.
+If the menu numbers its items, every printed number must appear exactly once; a gap
+in the number sequence means a missed item — go back and extract it.
+Read every column of every photo top to bottom; finish each column before moving on.
 Never return a section header as an item.
 Copy the nearest printed heading that visually groups an item into section_title.
 Use only the closest heading when headings are nested. Set section_title to null

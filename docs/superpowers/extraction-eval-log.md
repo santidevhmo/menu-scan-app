@@ -296,3 +296,93 @@ Decision:
   outputs and will be overwritten by the next harness run.
 - Read this file in full before another paid run. Do not expose or commit
   `.env.local`.
+
+## Iteration 005 — Offline re-baseline (no paid run)
+
+- Date: 2026-07-03
+- Commits:
+  - `45a5ce1` — item-count tolerance ±3
+  - `c9c60b6` — confirmed El Marcos unfolded fixture
+  - `928fdc0` — deterministic leading-number stripper
+  - `7eac7ad` — deterministic serving-format option filter
+  - Task 5 offline scorer and this log entry: this commit
+- Model call: none; archived outputs re-scored offline.
+- Model represented by archives: `gpt-4o`
+- Temperature: `0`
+- Seed: `17`
+- Hypothesis: corrected separate-variant ground truth, ±3 count tolerance,
+  and deterministic post-processing turn El Marcos item scoring green and
+  remove serving-format option false positives without removing true option
+  targets.
+- Exact changes:
+  - Item counts pass at ±3 when no section header is emitted as an item.
+  - El Marcos expected count changed from 36 to the user-confirmed 45 and its
+    five folding-based option targets were removed.
+  - Menu-wide leading list numbers are stripped from displayed names.
+  - Observed serving formats and sizes, including quantity-bearing
+    `Botella 750 ml`, `Botella 300 ml`, and `Copa 85 mxn`, are removed from
+    options.
+  - Added `--offline <dir>` to score archived extraction JSON through the
+    production post-processing path without a network call.
+- Fixtures: Brasero, Casa Nostra, El Marcos, Mochomos, Nikkori.
+- Archives scored:
+  - `/Users/santiagoaguirre/Downloads/MenusTesting/iter-004/*.actual.json`
+  - `/Users/santiagoaguirre/Downloads/MenusTesting/iter-001/*.actual.json`
+
+El Marcos recount:
+
+- Confirmed total: 45.
+- Separately priced preparations under Revueltos, Fritos, Hot Cakes, and
+  Waffles remain separate items.
+- Plato Surtido has two separately priced items; both archived runs merged
+  them and missed the $82 item.
+- Pa' los Bukis is one $94 combo, not two menu items.
+- Iteration 001's count of 45 balances the missed second Plato Surtido against
+  splitting the kids combo into two items. Iteration 004 additionally emitted
+  `$94 POR NIÑO` as an item.
+
+Re-scored Iteration 004 archive:
+
+| Menu | Items | Categories | Section context | Options | Image quality |
+|---|---|---|---|---|---|
+| Brasero | PASS — 28/28 | PASS | PASS | PASS | PASS |
+| Casa Nostra | FAIL — 23/33 | PASS | PASS | PASS | PASS |
+| El Marcos | PASS — 46/45 | FAIL — spurious `other` | PASS | FAIL — 7 false-positive items | PASS |
+| Mochomos | PASS — 22/22 | PASS | PASS | FAIL — 1 false-positive item | PASS |
+| Nikkori | FAIL — 107/120 | PASS | FAIL — 2 missing, 2 spurious, 8 wrong mappings | FAIL — 7 false-positive items | PASS |
+| Aggregate | FAIL | PASS | PASS | FAIL | PASS |
+
+Re-scored Iteration 001 archive:
+
+| Menu | Items | Categories | Section context | Options | Image quality |
+|---|---|---|---|---|---|
+| Brasero | PASS — 28/28 | PASS | PASS | FAIL — 1 missed target | PASS |
+| Casa Nostra | FAIL — 23/33 | PASS | PASS | PASS | PASS |
+| El Marcos | PASS — 45/45 | PASS | PASS | PASS | PASS |
+| Mochomos | PASS — 22/22 | PASS | PASS | PASS | PASS |
+| Nikkori | PASS — 118/120 | PASS | FAIL — 5 missing, 3 spurious, 9 wrong mappings | FAIL — 2 false-positive items | PASS |
+| Aggregate | PASS | PASS | PASS | FAIL | PASS |
+
+What improved:
+
+- El Marcos items became green in both archives under the corrected fixture.
+- The serving-format filter reduced Iteration 004 Nikkori false positives from
+  12 to 7 and Iteration 001 Nikkori false positives from 10 to 2.
+- Brasero, Casa Nostra, and Nikkori true option targets remained matched.
+- Categories, aggregate section context, and image quality remained green.
+
+What remains red:
+
+- Iteration 004 items remain aggregate-red because Casa Nostra is 23/33 and
+  Nikkori is 107/120.
+- Options remain aggregate-red. The remaining false positives are not serving
+  formats, so expanding the serving-format denylist would encode unrelated
+  food semantics.
+- Casa Nostra remains exactly 10 items short in both archives.
+
+Decision:
+
+- Keep all deterministic changes.
+- Use this Iteration 004 re-score as the comparison baseline for paid
+  Iterations 006 and 007.
+- Proceed to Casa Nostra image forensics, then Iteration 006 prompt diet.

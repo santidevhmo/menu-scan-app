@@ -3,6 +3,7 @@ import type {
   ImageQuality,
 } from "../supabase/functions/analyze-menu/extract.ts";
 import { runExtraction } from "../supabase/functions/analyze-menu/extract.ts";
+import { postprocessItems } from "../supabase/functions/analyze-menu/postprocess.ts";
 
 type Category = ExtractedMenuItem["category"];
 
@@ -298,6 +299,21 @@ async function main(): Promise<void> {
   }
 }
 
+async function offline(dir: string): Promise<void> {
+  const fixtures = await loadFixtures();
+  const reports: MenuReport[] = [];
+  for (const fixture of fixtures) {
+    const raw = JSON.parse(
+      await Deno.readTextFile(`${dir}/${fixture.menu}.actual.json`),
+    ) as ActualExtraction;
+    reports.push(scoreMenu(fixture, {
+      image_quality: raw.image_quality,
+      items: postprocessItems(raw.items),
+    }));
+  }
+  printReport(reports, aggregateReports(reports));
+}
+
 function runSelfCheck(): void {
   assert(imageMimeType("menu.png") === "image/png", "PNG MIME type");
   assert(imageMimeType("menu.jpg") === "image/jpeg", "JPEG MIME type");
@@ -454,6 +470,8 @@ function runSelfCheck(): void {
 }
 
 if (import.meta.main) {
+  const offlineIndex = Deno.args.indexOf("--offline");
   if (Deno.args.includes("--self-check")) runSelfCheck();
+  else if (offlineIndex !== -1) await offline(Deno.args[offlineIndex + 1]);
   else await main();
 }

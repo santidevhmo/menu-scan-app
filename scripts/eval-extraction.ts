@@ -11,7 +11,12 @@ interface ExpectedFixture {
   photos: string[];
   total_items: number;
   categories: Category[];
+  sections: string[];
   section_headers?: string[];
+  section_expectations: {
+    name_contains: string;
+    section_title: string;
+  }[];
   items_with_options: {
     name_contains: string;
     options: string[];
@@ -33,6 +38,7 @@ interface MenuReport {
   menu: string;
   items: DimensionScore;
   categories: DimensionScore;
+  section_context: DimensionScore;
   options: DimensionScore;
   image_quality: DimensionScore | null;
 }
@@ -40,6 +46,7 @@ interface MenuReport {
 interface AggregateReport {
   items: boolean;
   categories: boolean;
+  section_context: boolean;
   options: boolean;
   image_quality: boolean | null;
 }
@@ -57,7 +64,9 @@ export function scoreMenu(
   actual: ActualExtraction,
 ): MenuReport {
   const itemDelta = actual.items.length - fixture.total_items;
-  const headers = new Set((fixture.section_headers ?? []).map(normalize));
+  const headers = new Set(
+    [...fixture.sections, ...(fixture.section_headers ?? [])].map(normalize),
+  );
   const phantomHeaders =
     actual.items.filter((item) => headers.has(normalize(item.name))).length;
   const items = {
@@ -75,10 +84,42 @@ export function scoreMenu(
     !expectedCategories.has(category)
   );
   const categories = {
-    pass: missingCategories.length === 0 && spuriousCategories.length <= 1,
+    pass: missingCategories.length === 0 && spuriousCategories.length === 0,
     detail: `missing: ${missingCategories.join(", ") || "none"}; spurious: ${
       spuriousCategories.join(", ") || "none"
     }`,
+  };
+
+  const expectedSections = new Map(
+    fixture.sections.map((section) => [normalize(section), section]),
+  );
+  const actualSections = new Map(
+    actual.items.flatMap((item) =>
+      item.section_title
+        ? [[normalize(item.section_title), item.section_title] as const]
+        : []
+    ),
+  );
+  const missingSections = [...expectedSections].filter(([key]) =>
+    !actualSections.has(key)
+  ).map(([, section]) => section);
+  const spuriousSections = [...actualSections].filter(([key]) =>
+    !expectedSections.has(key)
+  ).map(([, section]) => section);
+  const incorrectMappings = fixture.section_expectations.filter((expected) => {
+    const item = actual.items.find((candidate) =>
+      normalize(candidate.name).includes(normalize(expected.name_contains))
+    );
+    return !item ||
+      normalize(item.section_title ?? "") !== normalize(expected.section_title);
+  });
+  const sectionContext = {
+    pass: missingSections.length === 0 &&
+      spuriousSections.length === 0 &&
+      incorrectMappings.length === 0,
+    detail: `missing: ${missingSections.join(", ") || "none"}; spurious: ${
+      spuriousSections.join(", ") || "none"
+    }; wrong item mappings: ${incorrectMappings.length}`,
   };
 
   const expectedOptionItems = fixture.items_with_options;
@@ -86,7 +127,7 @@ export function scoreMenu(
     const item = actual.items.find((candidate) =>
       normalize(candidate.name).includes(normalize(expected.name_contains))
     );
-    return !item ||
+    return !item || item.options.length === 0 ||
       expected.options.some((expectedOption) =>
         !item.options.some((actualOption) =>
           normalize(actualOption.name).includes(normalize(expectedOption))
@@ -126,6 +167,7 @@ export function scoreMenu(
     menu: fixture.menu,
     items,
     categories,
+    section_context: sectionContext,
     options,
     image_quality: imageQuality,
   };
@@ -133,7 +175,7 @@ export function scoreMenu(
 
 export function aggregateReports(reports: MenuReport[]): AggregateReport {
   const green = (
-    dimension: "items" | "categories" | "options",
+    dimension: "items" | "categories" | "section_context" | "options",
   ): boolean =>
     reports.filter((report) => report[dimension].pass).length >=
       Math.ceil(reports.length * 0.8);
@@ -144,6 +186,7 @@ export function aggregateReports(reports: MenuReport[]): AggregateReport {
   return {
     items: green("items"),
     categories: green("categories"),
+    section_context: green("section_context"),
     options: green("options"),
     image_quality: qualityReports.length === 0
       ? null
@@ -166,6 +209,11 @@ function printReport(reports: MenuReport[], aggregate: AggregateReport): void {
       } categories: ${report.categories.detail}`,
     );
     console.log(
+      `  ${
+        status(report.section_context.pass)
+      } section_context: ${report.section_context.detail}`,
+    );
+    console.log(
       `  ${status(report.options.pass)} options: ${report.options.detail}`,
     );
     console.log(
@@ -178,6 +226,7 @@ function printReport(reports: MenuReport[], aggregate: AggregateReport): void {
   console.log("\nAggregate");
   console.log(`  ${status(aggregate.items)} items`);
   console.log(`  ${status(aggregate.categories)} categories`);
+  console.log(`  ${status(aggregate.section_context)} section_context`);
   console.log(`  ${status(aggregate.options)} options`);
   console.log(`  ${status(aggregate.image_quality)} image_quality`);
 }
@@ -236,6 +285,7 @@ async function main(): Promise<void> {
   if (
     !aggregate.items ||
     !aggregate.categories ||
+    !aggregate.section_context ||
     !aggregate.options ||
     aggregate.image_quality === false
   ) {
@@ -249,10 +299,18 @@ function runSelfCheck(): void {
     photos: ["stub.jpg"],
     total_items: 2,
     categories: ["food", "side"],
+    sections: ["Mains", "Sides"],
     section_headers: ["Mains"],
+    section_expectations: [
+      { name_contains: "Burger", section_title: "Mains" },
+      { name_contains: "Fries", section_title: "Sides" },
+    ],
     items_with_options: [{
       name_contains: "Burger",
       options: ["Cheese"],
+    }, {
+      name_contains: "Fries",
+      options: [],
     }],
     image_quality: { usable: true, issues: [] },
   };
@@ -264,6 +322,7 @@ function runSelfCheck(): void {
         description: "",
         price: 12,
         category: "food",
+        section_title: "Mains",
         options: [{ name: "Add Cheese", price: 2, grams: null }],
       },
       {
@@ -271,7 +330,8 @@ function runSelfCheck(): void {
         description: "",
         price: 4,
         category: "side",
-        options: [],
+        section_title: "Sides",
+        options: [{ name: "Large", price: 2, grams: null }],
       },
     ],
   };
@@ -279,6 +339,7 @@ function runSelfCheck(): void {
   const passing = scoreMenu(fixture, actual);
   assert(passing.items.pass, "item score should pass");
   assert(passing.categories.pass, "category score should pass");
+  assert(passing.section_context.pass, "section-context score should pass");
   assert(passing.options.pass, "options score should pass");
   assert(
     passing.image_quality?.pass === true,
@@ -294,6 +355,7 @@ function runSelfCheck(): void {
         description: "",
         price: null,
         category: "other",
+        section_title: null,
         options: [{ name: "Not an option", price: null, grams: null }],
       },
       {
@@ -301,6 +363,7 @@ function runSelfCheck(): void {
         description: "",
         price: 5,
         category: "other",
+        section_title: "Soups",
         options: [],
       },
       {
@@ -308,6 +371,7 @@ function runSelfCheck(): void {
         description: "",
         price: 6,
         category: "dessert",
+        section_title: "Desserts",
         options: [],
       },
     ],
@@ -319,6 +383,10 @@ function runSelfCheck(): void {
   assert(
     !failing.categories.pass,
     "category score should catch spurious labels",
+  );
+  assert(
+    !failing.section_context.pass,
+    "section-context score should catch missing and spurious sections",
   );
   assert(!failing.options.pass, "options score should catch false positives");
   assert(
@@ -333,6 +401,15 @@ function runSelfCheck(): void {
   assert(
     !aggregateReports([passing, passing, passing, failing, failing]).items,
     "three of five should be red",
+  );
+  assert(
+    !scoreMenu(fixture, {
+      ...actual,
+      items: actual.items.map((item) =>
+        item.name === "Fries" ? { ...item, options: [] } : item
+      ),
+    }).options.pass,
+    "an unnamed options target should still require an extracted option",
   );
 
   printReport([passing], aggregateReports([passing]));

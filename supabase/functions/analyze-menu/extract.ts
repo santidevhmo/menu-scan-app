@@ -18,8 +18,17 @@ it must also group menu items beneath it. Do not treat restaurant names, slogans
 or promotional text as section headings.
 Use category "food" for appetizers, entrees, main dishes, and other prepared food.
 Use "side", "dessert", or "drink" only when that role is clear; otherwise use "other".
-Capture each printed choice or paid add-on in options. Include its printed price and
-weight in grams when present; otherwise use null. Do not move options into the description.
+An option is a printed choice about one item's composition: a protein or filling
+choice, a paid add-on, a dietary swap, or a flavor choice. Capture each option with
+its printed price and weight in grams when present; otherwise use null.
+Serving formats and sizes (glass vs bottle, copa vs botella, small vs large) are
+NOT options. Distinct products listed under a shared heading are separate items,
+not options.
+When the same base dish is printed several times with different fillings, proteins,
+or preparations, return ONE item named after the base dish and put each printed
+variant in options. Never return duplicate item names for variants of one dish.
+A choice printed inside a description ("con X o Y", "choice of X or Y") is an
+options list; capture each choice in options. Do not move options into the description.
 If a description is not printed, use an empty string. If a price is not printed, set it to null.
 Assess image quality across all photos. Report blur, low_light, glare, or another concise issue.
 Set usable to false only when the menu cannot be read reliably.`;

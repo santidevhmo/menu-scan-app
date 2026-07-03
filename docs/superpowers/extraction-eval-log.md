@@ -471,3 +471,53 @@ Decision:
   reporting. Do not infer gaps across section boundaries.
 - Do not trigger Iteration 008 from diagnostics alone; require manual
   confirmation of a real printed omission and a separate design first.
+
+## Iteration 006 — Prompt diet
+
+- Date: 2026-07-03
+- Prompt commit: `647c4c7`
+- Revert commit: `95416c1`
+- Model: `gpt-4o`
+- Temperature: `0`
+- Seed: `17`
+- Hypothesis: removing the rejected variant-folding sentences recovers
+  Nikkori completeness toward its 118-item baseline and reduces El Marcos
+  option false positives without regressing an aggregate-green dimension.
+- Change from corrected Iteration 005 baseline: removed only the three-line
+  same-base-dish variant-folding instruction. Deterministic post-processing,
+  schema, model settings, and fixtures were unchanged.
+- Fixtures: Brasero, Casa Nostra, El Marcos, Mochomos, Nikkori.
+- Raw outputs:
+  `/Users/santiagoaguirre/Downloads/MenusTesting/iter-006/*.actual.json`.
+
+| Menu | Items | Categories | Section context | Options | Image quality |
+|---|---|---|---|---|---|
+| Brasero | PASS — 28/28 | PASS | PASS | PASS | PASS |
+| Casa Nostra | PASS — 23/23 | PASS | PASS | PASS | PASS |
+| El Marcos | FAIL — 44/45, 1 section-header item | PASS | FAIL — 1 missing section | FAIL — 3 false-positive items | PASS |
+| Mochomos | PASS — 22/22 | PASS | PASS | PASS | PASS |
+| Nikkori | FAIL — 106/120 | PASS | FAIL — 5 missing, 3 spurious, 11 wrong mappings | FAIL — 1 missed target, 4 false-positive items | PASS |
+| Aggregate | FAIL | PASS | FAIL | FAIL | PASS |
+
+What improved:
+
+- El Marcos option false positives decreased from 7 to 3.
+- Mochomos option false positives decreased from 1 to 0.
+- Nikkori option false positives decreased from 7 to 4.
+- Categories and image quality remained aggregate-green.
+
+What regressed or failed:
+
+- Nikkori completeness decreased from 107 to 106 rather than recovering.
+- El Marcos emitted one section header as an item and lost the Pa' los Bukis
+  section.
+- Items regressed from aggregate-PASS to aggregate-FAIL.
+- Section context regressed from aggregate-PASS to aggregate-FAIL.
+- Nikkori lost the Coladas options target, so options remained aggregate-red.
+
+Decision:
+
+- The regression gate fired for items and section context.
+- Reverted prompt commit `647c4c7` in `95416c1`.
+- Stop before Iteration 007 for user input. The active prompt is restored to
+  the corrected Iteration 005 baseline.

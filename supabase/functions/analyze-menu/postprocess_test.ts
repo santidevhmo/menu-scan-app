@@ -1,6 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
-  detectNumberGaps,
   filterServingFormatOptions,
   stripMenuNumbers,
 } from "./postprocess.ts";
@@ -12,7 +11,6 @@ const item = (name: string): ExtractedMenuItem => ({
   price: 10,
   category: "food",
   section_title: null,
-  item_number: null,
   options: [],
 });
 
@@ -22,16 +20,6 @@ const withOptions = (
 ): ExtractedMenuItem => ({
   ...item(name),
   options: options.map((o) => ({ name: o, price: null, grams: null })),
-});
-
-const numbered = (
-  name: string,
-  section_title: string | null,
-  item_number: string | null,
-): ExtractedMenuItem => ({
-  ...item(name),
-  section_title,
-  item_number,
 });
 
 Deno.test("strips leading numbers when a menu-wide pattern exists", () => {
@@ -94,31 +82,4 @@ Deno.test("removes observed serving formats with quantities", () => {
   ];
   assertEquals(filterServingFormatOptions(items)[0].options, []);
   assertEquals(filterServingFormatOptions(items)[1].options, []);
-});
-
-Deno.test("detects number gaps only within the same section", () => {
-  const items = [
-    numbered("A", "Pasta", "38"),
-    numbered("B", "Pasta", "40"),
-    numbered("C", "Pasta", "41"),
-    numbered("D", "Pizze", "50"),
-    numbered("E", "Pizze", "51"),
-    numbered("F", "Pizze", "52"),
-  ];
-  assertEquals(detectNumberGaps(items), [{
-    section_title: "Pasta",
-    gaps: [39],
-  }]);
-});
-
-Deno.test("does not report gaps across section boundaries", () => {
-  const items = [
-    numbered("A", "Pasta", "38"),
-    numbered("B", "Pasta", "39"),
-    numbered("C", "Pasta", "40"),
-    numbered("D", "Pizze", "50"),
-    numbered("E", "Pizze", "51"),
-    numbered("F", "Pizze", "52"),
-  ];
-  assertEquals(detectNumberGaps(items), []);
 });

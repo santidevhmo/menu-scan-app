@@ -34,7 +34,7 @@ const ENRICH_SCHEMA_GEMINI = {
       name: { type: "string" },
       description: { type: "string" },
       price: { type: "number", nullable: true },
-      category: { type: "string", enum: ["appetizer", "main", "side", "dessert", "drink", "other"] },
+      category: { type: "string", enum: ["food", "side", "dessert", "drink", "other"] },
       ingredients: { type: "array", items: { type: "object", properties: ENRICH_INGREDIENT_PROPS, required: ["name", "category"] } },
       protein_g: { type: "number" },
       carb_g: { type: "number" },
@@ -58,7 +58,7 @@ const ENRICH_SCHEMA_OPENAI = {
           name: { type: "string" },
           description: { type: "string" },
           price: { type: ["number", "null"] },
-          category: { type: "string", enum: ["appetizer", "main", "side", "dessert", "drink", "other"] },
+          category: { type: "string", enum: ["food", "side", "dessert", "drink", "other"] },
           ingredients: { type: "array", items: { type: "object", properties: ENRICH_INGREDIENT_PROPS, required: ["name", "category"], additionalProperties: false } },
           protein_g: { type: "number" },
           carb_g: { type: "number" },
@@ -263,7 +263,7 @@ serve(async (req) => {
       const result = await runExtraction(photos, OPENAI_API_KEY);
 
       return new Response(
-        JSON.stringify({ items: result.items, raw_response: result.raw_response, latency_ms: Date.now() - start, model_id: "gpt-4o" }),
+        JSON.stringify({ image_quality: result.image_quality, items: result.items, raw_response: result.raw_response, latency_ms: Date.now() - start, model_id: "gpt-4o" }),
         { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
       );
     }

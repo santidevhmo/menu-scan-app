@@ -1,17 +1,35 @@
 const MODEL_TIMEOUT_MS = 120000;
 const EXTRACT_SEED = 17;
 
-export const EXTRACT_PROMPT = `Read this restaurant menu. Return every item exactly as printed, in menu order:
-name, description, price, category (appetizer|main|side|dessert|drink|other).
+export const EXTRACT_PROMPT =
+  `Read this restaurant menu. Return every item exactly as printed, in menu order:
+name, description, price, category, and options.
 Do NOT estimate calories or nutrition. Do NOT invent items you cannot read.
 Extract all visible menu items from every provided photo and every menu section.
 Do not stop after a representative sample, a section summary, or the first page.
 There is no maximum number of items; keep going until every readable item is returned.
-If a description is not printed, use an empty string. If a price is not printed, set it to null.`;
+Never return a section header as an item.
+Use category "food" for appetizers, entrees, main dishes, and other prepared food.
+Use "side", "dessert", or "drink" only when that role is clear; otherwise use "other".
+Capture each printed choice or paid add-on in options. Include its printed price and
+weight in grams when present; otherwise use null. Do not move options into the description.
+If a description is not printed, use an empty string. If a price is not printed, set it to null.
+Assess image quality across all photos. Report blur, low_light, glare, or another concise issue.
+Set usable to false only when the menu cannot be read reliably.`;
 
+// ponytail: v2 prompt/schema are an unproven hypothesis until the real-menu harness passes.
 export const EXTRACT_SCHEMA = {
   type: "object",
   properties: {
+    image_quality: {
+      type: "object",
+      properties: {
+        usable: { type: "boolean" },
+        issues: { type: "array", items: { type: "string" } },
+      },
+      required: ["usable", "issues"],
+      additionalProperties: false,
+    },
     items: {
       type: "array",
       items: {
@@ -22,22 +40,54 @@ export const EXTRACT_SCHEMA = {
           price: { type: ["number", "null"] },
           category: {
             type: "string",
-            enum: ["appetizer", "main", "side", "dessert", "drink", "other"],
+            enum: ["food", "side", "dessert", "drink", "other"],
+          },
+          options: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                price: { type: ["number", "null"] },
+                grams: { type: ["number", "null"] },
+              },
+              required: ["name", "price", "grams"],
+              additionalProperties: false,
+            },
           },
         },
-        required: ["name", "description", "price", "category"],
+        required: ["name", "description", "price", "category", "options"],
         additionalProperties: false,
       },
     },
   },
-  required: ["items"],
+  required: ["image_quality", "items"],
   additionalProperties: false,
 };
+
+export interface ImageQuality {
+  usable: boolean;
+  issues: string[];
+}
+
+export interface ExtractedMenuItem {
+  name: string;
+  description: string;
+  price: number | null;
+  category: "food" | "side" | "dessert" | "drink" | "other";
+  options: { name: string; price: number | null; grams: number | null }[];
+}
+
+export interface ExtractionResult {
+  image_quality: ImageQuality;
+  items: ExtractedMenuItem[];
+  raw_response: string;
+}
 
 export async function runExtraction(
   photos: string[],
   apiKey: string,
-): Promise<{ items: unknown[]; raw_response: string }> {
+): Promise<ExtractionResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), MODEL_TIMEOUT_MS);
 
@@ -83,13 +133,13 @@ export async function runExtraction(
     if (!text) throw new Error("OpenAI returned no extraction content");
 
     console.log("[openai] finish_reason:", json.choices?.[0]?.finish_reason);
-    return {
-      items: (JSON.parse(text) as { items: unknown[] }).items,
-      raw_response: text,
-    };
+    const parsed = JSON.parse(text) as Omit<ExtractionResult, "raw_response">;
+    return { ...parsed, raw_response: text };
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      throw new Error(`Model request timed out after ${MODEL_TIMEOUT_MS / 1000}s`);
+      throw new Error(
+        `Model request timed out after ${MODEL_TIMEOUT_MS / 1000}s`,
+      );
     }
     throw error;
   } finally {

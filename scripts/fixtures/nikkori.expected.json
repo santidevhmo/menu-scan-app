@@ -63,6 +63,11 @@
     { "name_contains": "Nikkori November", "section_title": "Cocteles" },
     { "name_contains": "Pastel de zanahoria", "section_title": "Postres" }
   ],
-  "items_with_options": [],
+  "items_with_options": [
+    {
+      "name_contains": "Coladas",
+      "options": ["Piña", "Fresa", "Limón", "Mango"]
+    }
+  ],
   "image_quality": { "usable": true, "issues": [] }
 }

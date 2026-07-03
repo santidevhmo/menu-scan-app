@@ -13,10 +13,7 @@
   "items_with_options": [
     { "name_contains": "Fettuccine CasaNostra", "options": [] },
     { "name_contains": "Pasta alla romana", "options": [] },
-    {
-      "name_contains": "Spaghetti ai frutti di mare ubriaca",
-      "options": []
-    }
+    { "name_contains": "frutti di mare", "options": [] }
   ],
   "image_quality": { "usable": true, "issues": [] }
 }

@@ -20,6 +20,8 @@ interface ExpectedFixture {
   }[];
   items_with_options: {
     name_contains: string;
+    description_contains?: string;
+    price?: number;
     options: string[];
   }[];
   image_quality?: ImageQuality;
@@ -58,6 +60,31 @@ function assert(condition: boolean, message: string): void {
 
 function normalize(value: string): string {
   return value.toLocaleLowerCase().trim().replaceAll(/\s+/g, " ");
+}
+
+function findOptionTargetIndex(
+  target: ExpectedFixture["items_with_options"][number],
+  items: ExtractedMenuItem[],
+  consumed: Set<number>,
+): number | undefined {
+  for (let index = 0; index < items.length; index++) {
+    if (consumed.has(index)) continue;
+    const item = items[index];
+    if (!normalize(item.name).includes(normalize(target.name_contains))) {
+      continue;
+    }
+    if (
+      target.description_contains &&
+      !normalize(item.description).includes(
+        normalize(target.description_contains),
+      )
+    ) {
+      continue;
+    }
+    if (target.price !== undefined && item.price !== target.price) continue;
+    return index;
+  }
+  return undefined;
 }
 
 export function scoreMenu(
@@ -124,22 +151,25 @@ export function scoreMenu(
   };
 
   const expectedOptionItems = fixture.items_with_options;
+  const consumedOptionIndices = new Set<number>();
   const missingOptionItems = expectedOptionItems.filter((expected) => {
-    const item = actual.items.find((candidate) =>
-      normalize(candidate.name).includes(normalize(expected.name_contains))
+    const index = findOptionTargetIndex(
+      expected,
+      actual.items,
+      consumedOptionIndices,
     );
-    return !item || item.options.length === 0 ||
+    if (index === undefined) return true;
+    consumedOptionIndices.add(index);
+    const item = actual.items[index];
+    return item.options.length === 0 ||
       expected.options.some((expectedOption) =>
         !item.options.some((actualOption) =>
           normalize(actualOption.name).includes(normalize(expectedOption))
         )
       );
   });
-  const falsePositiveOptions = actual.items.filter((item) =>
-    item.options.length > 0 &&
-    !expectedOptionItems.some((expected) =>
-      normalize(item.name).includes(normalize(expected.name_contains))
-    )
+  const falsePositiveOptions = actual.items.filter((item, index) =>
+    item.options.length > 0 && !consumedOptionIndices.has(index)
   );
   const options = {
     pass: missingOptionItems.length === 0 && falsePositiveOptions.length === 0,
@@ -463,6 +493,85 @@ function runSelfCheck(): void {
       ),
     }).options.pass,
     "an unnamed options target should still require an extracted option",
+  );
+
+  const duplicateFixture: ExpectedFixture = {
+    menu: "stub-duplicates",
+    photos: ["stub.jpg"],
+    total_items: 3,
+    categories: ["food"],
+    sections: ["Huevos"],
+    section_expectations: [],
+    items_with_options: [
+      {
+        name_contains: "Revueltos",
+        description_contains: "jamón",
+        price: 90,
+        options: ["Jamón", "Chorizo", "Tocino"],
+      },
+    ],
+  };
+  const revueltosCard = (
+    description: string,
+    price: number,
+    options: { name: string; price: number | null; grams: number | null }[],
+  ): ExtractedMenuItem => ({
+    name: "Revueltos",
+    description,
+    price,
+    category: "food",
+    section_title: "Huevos",
+    options,
+  });
+  const duplicateActual: ActualExtraction = {
+    image_quality: { usable: true, issues: [] },
+    items: [
+      revueltosCard("Dos huevos naturales", 78, []),
+      revueltosCard("Dos huevos la mexicana", 84, []),
+      revueltosCard("Con jamón, chorizo o tocino", 90, [
+        { name: "jamón", price: null, grams: null },
+        { name: "chorizo", price: null, grams: null },
+        { name: "tocino", price: null, grams: null },
+      ]),
+    ],
+  };
+  assert(
+    scoreMenu(duplicateFixture, duplicateActual).options.pass,
+    "qualified target should match the correct card among duplicate names",
+  );
+
+  const duplicateWithFalsePositive: ActualExtraction = {
+    image_quality: { usable: true, issues: [] },
+    items: [
+      revueltosCard("Dos huevos naturales", 78, [
+        { name: "salsa", price: null, grams: null },
+      ]),
+      revueltosCard("Dos huevos la mexicana", 84, []),
+      revueltosCard("Con jamón, chorizo o tocino", 90, [
+        { name: "jamón", price: null, grams: null },
+        { name: "chorizo", price: null, grams: null },
+        { name: "tocino", price: null, grams: null },
+      ]),
+    ],
+  };
+  assert(
+    !scoreMenu(duplicateFixture, duplicateWithFalsePositive).options.pass,
+    "options on unclaimed duplicate-name card count as false positive",
+  );
+
+  const duplicateWrongCardMatched: ActualExtraction = {
+    image_quality: { usable: true, issues: [] },
+    items: [
+      revueltosCard("Dos huevos naturales", 78, [
+        { name: "jamón", price: null, grams: null },
+      ]),
+      revueltosCard("Dos huevos la mexicana", 84, []),
+      revueltosCard("Con jamón, chorizo o tocino", 90, []),
+    ],
+  };
+  assert(
+    !scoreMenu(duplicateFixture, duplicateWrongCardMatched).options.pass,
+    "a target's price qualifier should reject a same-name card at the wrong price",
   );
 
   printReport([passing], aggregateReports([passing]));

@@ -201,3 +201,74 @@ Decision:
 - Stop before Iteration 004 and request user input. The completeness escalation
   remains the approved next technical action: a separately logged schema
   iteration adding `item_number: string | null`.
+
+## Iteration 004 — Nearest subheading over parent heading
+
+- Date: 2026-07-02
+- Commit: `cf741a0`
+- Model: `gpt-4o`
+- Temperature: `0`
+- Seed: `17`
+- Authorization: the user explicitly directed execution to continue after the
+  Iteration 003 regression stop so all planned iterations could be compared.
+- Hypothesis: Nikkori's section failure is parent-heading capture (`LICORES`
+  instead of Vodka/Ron/Tequila/Whisky/Digestivo) plus invented groupings
+  (`ROLLOS`, `SANGRÍA`); an explicit nearest-subheading rule with a spirits
+  example fixes the 5 missing, 3 spurious, and 9 wrong mappings measured in
+  Iteration 001.
+- Change from active prompt: EXTRACT_PROMPT only — from the post-revert
+  Iteration 002 prompt state, replaced the one-line nested-heading sentence
+  with the subheading rule. Iteration 003's completeness rule remains reverted.
+  No scoring changes.
+- Fixtures: Brasero, Casa Nostra, El Marcos, Mochomos, Nikkori.
+- Raw outputs: `/Users/santiagoaguirre/Downloads/MenusTesting/iter-004/*.actual.json`.
+
+| Menu | Items | Categories | Section context | Options | Image quality |
+|---|---|---|---|---|---|
+| Brasero | PASS — 28/28 | PASS | PASS | PASS | PASS |
+| Casa Nostra | FAIL — 23/33 | PASS | PASS | PASS | PASS |
+| El Marcos | FAIL — 46/36 | FAIL — spurious `other` | PASS | FAIL — 5 missed, 7 false-positive | PASS |
+| Mochomos | PASS — 22/22 | PASS | PASS | FAIL — 1 false-positive | PASS |
+| Nikkori | FAIL — 107/120 | PASS | FAIL — 2 missing, 2 spurious, 8 wrong mappings | FAIL — 12 false-positive items | PASS |
+| Aggregate | FAIL | PASS | PASS | FAIL | PASS |
+
+What improved:
+
+- Nikkori now used the printed Vodka, Ron, Tequila, Whisky, and Digestivo
+  subheadings instead of the `LICORES` parent.
+- Nikkori section errors improved from Iteration 002's 9 missing, 4 spurious,
+  and 13 wrong mappings to 2 missing, 2 spurious, and 8 wrong mappings.
+- Nikkori option false positives decreased from 19 in Iteration 002 to 12 while
+  retaining the Coladas target.
+- Categories, section context, and image quality remained aggregate-green, so
+  the regression gate did not fire.
+
+What regressed or failed:
+
+- Nikkori still failed section context: `Bebidas` and `Limonadas de Sabores`
+  were missing; `ROLLOS` and `BEBIDAS SIN ALCOHOL` were spurious; eight item
+  mappings were wrong.
+- Nikkori completeness dropped from 125 items in Iteration 002 to 107.
+- Options remained aggregate-red. El Marcos still missed all five targets and
+  retained seven false-positive items. Mochomos gained one false-positive:
+  `TOSTADAS PUESTAS DE ATÚN` treated atún/salmón description text as options.
+- Casa Nostra remained 23/33 and El Marcos remained 46/36.
+
+Decision:
+
+- Keep the Iteration 004 prompt commit because no previously aggregate-green
+  dimension regressed to aggregate-red.
+- The planned prompt iterations are complete. Items and options remain red;
+  prompt-only changes did not prove extraction contract v2.
+- The next action is the approved completeness escalation: design a separately
+  logged schema iteration adding `item_number: string | null`. Options then
+  require a separately designed deterministic/two-pass approach.
+
+### Status after Iteration 004
+
+- Aggregate-green: categories, section context, image quality.
+- Aggregate-red: items, options.
+- Current prompt: Iteration 002 option rules plus Iteration 004 nearest-
+  subheading rules; Iteration 003 completeness rules remain reverted.
+- Next action: plan the `item_number: string | null` schema iteration before
+  any further paid run.

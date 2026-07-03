@@ -10,6 +10,15 @@
 
 **Approved spec:** `docs/superpowers/specs/2026-07-02-extraction-prompt-iterations-design.md`
 
+**Current status (2026-07-02):** Tasks 1–4 were executed. Iteration 003 attempt
+1 timed out on Nikkori; the approved consistency repeat completed but regressed
+section context to aggregate-FAIL. Commit `f90991f` was reverted by `da547c0`,
+and the regression gate stopped execution before Iteration 004. Tasks 5–6 are
+not started. The approved next technical action is a separately logged schema
+iteration adding `item_number: string | null`; options also remain red and need
+a separately designed deterministic/two-pass approach after the stop is
+adjudicated.
+
 ## Global Constraints
 
 - Work in worktree `/private/tmp/menu-scan-app-extraction-eval-harness`, branch `feat/extraction-eval-harness`. All relative paths below are from the worktree root.
@@ -32,7 +41,7 @@
 **Interfaces:**
 - Produces: corrected fixtures consumed by `scripts/eval-extraction.ts` (scoring semantics: an options target is matched by normalized `name_contains` substring; each listed option name must appear as a substring of some extracted option; any options-bearing item not matching a target is a false positive).
 
-- [ ] **Step 1: Add Coladas as a Nikkori options target**
+- [x] **Step 1: Add Coladas as a Nikkori options target**
 
 In `scripts/fixtures/nikkori.expected.json`, replace:
 
@@ -53,7 +62,7 @@ with:
 
 Rationale (confirmed option definition): colada flavors are a composition choice, so `Coladas` is a legitimate options item. Wine copa/botella formats and bottle-only listings remain non-options and will count as false positives.
 
-- [ ] **Step 2: Make the Casa Nostra options target robust to 1-char OCR wobble**
+- [x] **Step 2: Make the Casa Nostra options target robust to 1-char OCR wobble**
 
 In `scripts/fixtures/casa-nostra.expected.json`, replace:
 
@@ -72,7 +81,7 @@ with:
 
 `"frutti di mare"` matches only the Spaghetti item among extracted names (the section name is not an item), and survives the observed `ubricca`/`ubriaca` transcription wobble.
 
-- [ ] **Step 3: Verify fixtures parse and harness self-check passes**
+- [x] **Step 3: Verify fixtures parse and harness self-check passes**
 
 Run from the worktree root:
 
@@ -88,7 +97,7 @@ jq . scripts/fixtures/nikkori.expected.json scripts/fixtures/casa-nostra.expecte
 
 Expected: `OK`
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add scripts/fixtures/nikkori.expected.json scripts/fixtures/casa-nostra.expected.json
@@ -105,7 +114,7 @@ git commit -m "test: correct nikkori and casa-nostra options ground truth"
 **Interfaces:**
 - Produces: updated `EXTRACT_PROMPT` consumed by both the Edge Function and `scripts/eval-extraction.ts` via `runExtraction`. Schema, types, and function signatures are unchanged.
 
-- [ ] **Step 1: Replace the option sentences in `EXTRACT_PROMPT`**
+- [x] **Step 1: Replace the option sentences in `EXTRACT_PROMPT`**
 
 In `supabase/functions/analyze-menu/extract.ts`, replace this text inside the template literal:
 
@@ -132,7 +141,7 @@ options list; capture each choice in options. Do not move options into the descr
 
 All other prompt lines stay byte-identical.
 
-- [ ] **Step 2: Static checks**
+- [x] **Step 2: Static checks**
 
 ```bash
 deno check supabase/functions/analyze-menu/extract.ts supabase/functions/analyze-menu/index.ts
@@ -141,7 +150,7 @@ deno test supabase/functions/analyze-menu/
 
 Expected: check passes; both existing tests pass (they pin the schema and transport, not the prompt text).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add supabase/functions/analyze-menu/extract.ts
@@ -159,14 +168,14 @@ git commit -m "feat: iteration 002 prompt - option definition and variant foldin
 - Consumes: Task 1 fixtures, Task 2 prompt, `runExtraction` via `scripts/eval-extraction.ts`.
 - Produces: Iteration 002 log entry with per-menu scores and a decision that gates Task 4.
 
-- [ ] **Step 1: Archive the Iteration 001 raw outputs (they are otherwise overwritten)**
+- [x] **Step 1: Archive the Iteration 001 raw outputs (they are otherwise overwritten)**
 
 ```bash
 mkdir -p /Users/santiagoaguirre/Downloads/MenusTesting/iter-001
 cp /Users/santiagoaguirre/Downloads/MenusTesting/*.actual.json /Users/santiagoaguirre/Downloads/MenusTesting/iter-001/
 ```
 
-- [ ] **Step 2: Append the pre-run Iteration 002 entry to the log**
+- [x] **Step 2: Append the pre-run Iteration 002 entry to the log**
 
 Append to `docs/superpowers/extraction-eval-log.md` (fill the commit hash from `git rev-parse --short HEAD`):
 
@@ -196,7 +205,7 @@ Append to `docs/superpowers/extraction-eval-log.md` (fill the commit hash from `
   (Iteration 001 outputs archived in `.../iter-001/`).
 ```
 
-- [ ] **Step 3: Run the harness (paid run)**
+- [x] **Step 3: Run the harness (paid run)**
 
 ```bash
 OPENAI_API_KEY=$(sed -n 's/^OPENAI_API_KEY=//p' .env.local) \
@@ -212,7 +221,7 @@ mkdir -p /Users/santiagoaguirre/Downloads/MenusTesting/iter-002
 cp /Users/santiagoaguirre/Downloads/MenusTesting/*.actual.json /Users/santiagoaguirre/Downloads/MenusTesting/iter-002/
 ```
 
-- [ ] **Step 4: Append results, analysis, and decision to the log entry**
+- [x] **Step 4: Append results, analysis, and decision to the log entry**
 
 Record the full per-menu and aggregate table (same format as Iteration 001), what improved, what regressed, and the decision. Analysis notes specific to this iteration:
 
@@ -231,7 +240,7 @@ Record the full per-menu and aggregate table (same format as Iteration 001), wha
 - Regression gate (Global Constraints) applies: items/categories/sections/
   image-quality dimensions that were green in 001 must not go aggregate-red.
 
-- [ ] **Step 5: Commit the log entry**
+- [x] **Step 5: Commit the log entry**
 
 ```bash
 git add docs/superpowers/extraction-eval-log.md
@@ -254,7 +263,7 @@ Gated on: Task 3 decision says proceed.
 - Consumes: Iteration 002 prompt as committed.
 - Produces: Iteration 003 log entry and decision gating Task 5.
 
-- [ ] **Step 1: Add completeness rules to `EXTRACT_PROMPT`**
+- [x] **Step 1: Add completeness rules to `EXTRACT_PROMPT`**
 
 In `supabase/functions/analyze-menu/extract.ts`, replace:
 
@@ -271,7 +280,7 @@ in the number sequence means a missed item — go back and extract it.
 Read every column of every photo top to bottom; finish each column before moving on.
 ```
 
-- [ ] **Step 2: Static checks**
+- [x] **Step 2: Static checks**
 
 ```bash
 deno check supabase/functions/analyze-menu/extract.ts supabase/functions/analyze-menu/index.ts
@@ -280,14 +289,14 @@ deno test supabase/functions/analyze-menu/
 
 Expected: pass.
 
-- [ ] **Step 3: Commit the prompt edit**
+- [x] **Step 3: Commit the prompt edit**
 
 ```bash
 git add supabase/functions/analyze-menu/extract.ts
 git commit -m "feat: iteration 003 prompt - numbered-item and column completeness"
 ```
 
-- [ ] **Step 4: Append the pre-run Iteration 003 log entry**
+- [x] **Step 4: Append the pre-run Iteration 003 log entry**
 
 Same template as Task 3 Step 2, with:
 
@@ -299,7 +308,7 @@ Same template as Task 3 Step 2, with:
   completeness sentences after the no-maximum rule. No scoring changes.
 - Raw outputs: `.../iter-003/*.actual.json`.
 
-- [ ] **Step 5: Run the harness and archive**
+- [x] **Step 5: Run the harness and archive**
 
 Same run command as Task 3 Step 3, then:
 
@@ -308,7 +317,7 @@ mkdir -p /Users/santiagoaguirre/Downloads/MenusTesting/iter-003
 cp /Users/santiagoaguirre/Downloads/MenusTesting/*.actual.json /Users/santiagoaguirre/Downloads/MenusTesting/iter-003/
 ```
 
-- [ ] **Step 6: Append results and decision; commit**
+- [x] **Step 6: Append results and decision; commit**
 
 Targets: Casa Nostra 33/33, Nikkori 120/120, El Marcos stays at its
 post-folding count, options stays green. Regression gate applies. If Casa
@@ -327,6 +336,8 @@ git commit -m "docs: record extraction iteration 003 results"
 ### Task 5: Iteration 004 — nearest subheading, never the parent
 
 Gated on: Task 4 decision says proceed.
+
+**Status:** Blocked by the Iteration 003 regression gate; not started.
 
 **Files:**
 - Modify: `supabase/functions/analyze-menu/extract.ts` (`EXTRACT_PROMPT` only)
@@ -408,6 +419,8 @@ git commit -m "docs: record extraction iteration 004 results"
 ---
 
 ### Task 6: Wrap-up — aggregate verdict and handoff state
+
+**Status:** Blocked with Task 5; not started.
 
 **Files:**
 - Modify: `docs/superpowers/extraction-eval-log.md` (append only, short status note)

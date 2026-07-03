@@ -591,3 +591,75 @@ Decision:
 - Iteration 008 is not triggered: no real gap was detected, and the diagnostic
   schema itself failed the regression gate.
 - Stop for user input before the options/two-pass gate.
+
+## Iteration 009 — Two-pass indexed options extraction
+
+- Date: 2026-07-03
+- Implementation commit: `968982b`
+- Revert commit: `4d0f3b7`
+- Model: `gpt-4o` for both passes
+- Temperature: `0`
+- Seed: `17`
+- Timeouts: independent 120-second limit per pass
+- Hypothesis: removing option reasoning from Pass 1 and running a dedicated
+  photo-aware Pass 2 keyed by Pass 1 item index turns options aggregate-green
+  without regressing item, category, section-context, or image-quality scores.
+- Change from active baseline:
+  - Pass 1 extracted option-free items and image quality.
+  - Pass 2 received the original photos plus indexed Pass 1 items and returned
+    only option-bearing indices.
+  - Strict index validation merged options without fuzzy name matching.
+  - Existing deterministic post-processing ran after the merge.
+  - Pass 2 failures failed the full extraction.
+- Fixtures: Brasero, Casa Nostra, El Marcos, Mochomos, Nikkori.
+- Raw merged outputs:
+  `/Users/santiagoaguirre/Downloads/MenusTesting/iter-009/*.actual.json`.
+
+| Menu | Items | Categories | Section context | Options | Image quality |
+|---|---|---|---|---|---|
+| Brasero | PASS — 28/28 | PASS | PASS | PASS | PASS |
+| Casa Nostra | PASS — 26/23 | PASS | PASS | FAIL — 2 false-positive items | PASS |
+| El Marcos | PASS — 43/45 | PASS | FAIL — 1 missing section | FAIL — 14 false-positive items | PASS |
+| Mochomos | PASS — 22/22 | PASS | PASS | FAIL — 2 false-positive items | PASS |
+| Nikkori | FAIL — 101/120, 1 section-header item | PASS | FAIL — 8 missing, 8 spurious, 11 wrong mappings | FAIL — 1 missed target, 3 false-positive items | PASS |
+| Aggregate | PASS | PASS | FAIL | FAIL | PASS |
+
+What worked:
+
+- Brasero captured both true pasta option targets exactly.
+- Casa Nostra captured all three configured option targets.
+- Index merging correctly handled duplicate item names.
+- Items, categories, and image quality remained aggregate-green.
+- All ten model calls completed without timeout.
+
+What failed:
+
+- Options remained aggregate-red.
+- Section context regressed from aggregate-PASS to aggregate-FAIL, driven by
+  El Marcos and Nikkori Pass 1 extraction.
+- Nikkori completeness fell from 107 in the active Iteration 004 archive to
+  101 and emitted one section header as an item.
+- Nikkori's Pass 1 converted the printed Coladas flavors into an item name
+  (`Piña / Fresa / Limón / Mango`), so Pass 2 could not match the configured
+  `Coladas` target.
+
+Observed option-bearing outputs that require ground-truth adjudication:
+
+- El Marcos Pass 2 identified printed choices including jamón/chorizo/tocino
+  for Revueltos and Fritos, salsa and cheese choices for Chilaquiles,
+  Verdes/Rojas/Suizas for Enchiladas, Blanco/Integral for Pan Tostado,
+  cottage/yogurt for Plato Surtido, and other inline `o` choices. The current
+  El Marcos fixture declares no valid options, so all 14 scored as false
+  positives.
+- Casa Nostra additionally identified Lechuga entera/en trozos for Cesar; the
+  fixture does not currently list that target.
+- Mochomos identified two choices that may instead be description
+  hallucinations and remain false positives under current ground truth.
+
+Decision:
+
+- The regression gate fired because section context became aggregate-red.
+- Options also failed the iteration's success criterion.
+- Reverted `968982b` in `4d0f3b7`.
+- Stop for user input. Before another options experiment, adjudicate the
+  printed-choice ground truth exposed by Pass 2, especially El Marcos.

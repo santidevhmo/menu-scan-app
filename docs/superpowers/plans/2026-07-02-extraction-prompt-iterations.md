@@ -10,14 +10,15 @@
 
 **Approved spec:** `docs/superpowers/specs/2026-07-02-extraction-prompt-iterations-design.md`
 
-**Current status (2026-07-02):** Tasks 1–4 were executed. Iteration 003 attempt
-1 timed out on Nikkori; the approved consistency repeat completed but regressed
-section context to aggregate-FAIL. Commit `f90991f` was reverted by `da547c0`,
-and the regression gate stopped execution before Iteration 004. Tasks 5–6 are
-not started. The approved next technical action is a separately logged schema
-iteration adding `item_number: string | null`; options also remain red and need
-a separately designed deterministic/two-pass approach after the stop is
-adjudicated.
+**Current status (2026-07-02):** Tasks 1–6 are complete. After Iteration 003
+regressed section context and was reverted, the user explicitly authorized
+Iteration 004 so all planned iterations could be compared. Iteration 004 kept
+categories, section context, and image quality aggregate-green, but items and
+options remain aggregate-red. The active prompt contains Iteration 002 option
+rules plus Iteration 004 nearest-subheading rules; Iteration 003 completeness
+rules remain reverted. The next action is a separately logged schema iteration
+adding `item_number: string | null`, followed by a separately designed
+deterministic/two-pass options approach.
 
 ## Global Constraints
 
@@ -337,7 +338,8 @@ git commit -m "docs: record extraction iteration 003 results"
 
 Gated on: Task 4 decision says proceed.
 
-**Status:** Blocked by the Iteration 003 regression gate; not started.
+**Status:** Completed after the user explicitly authorized continuing past the
+Iteration 003 stop gate.
 
 **Files:**
 - Modify: `supabase/functions/analyze-menu/extract.ts` (`EXTRACT_PROMPT` only)
@@ -347,7 +349,7 @@ Gated on: Task 4 decision says proceed.
 - Consumes: Iteration 003 prompt as committed.
 - Produces: Iteration 004 log entry and final aggregate verdict for Task 6.
 
-- [ ] **Step 1: Sharpen the nested-heading rule in `EXTRACT_PROMPT`**
+- [x] **Step 1: Sharpen the nested-heading rule in `EXTRACT_PROMPT`**
 
 In `supabase/functions/analyze-menu/extract.ts`, replace:
 
@@ -364,7 +366,7 @@ subheadings uses the spirit subheading). Use only printed headings; never invent
 a grouping that is not printed on the menu. Set section_title to null
 ```
 
-- [ ] **Step 2: Static checks**
+- [x] **Step 2: Static checks**
 
 ```bash
 deno check supabase/functions/analyze-menu/extract.ts supabase/functions/analyze-menu/index.ts
@@ -373,14 +375,14 @@ deno test supabase/functions/analyze-menu/
 
 Expected: pass.
 
-- [ ] **Step 3: Commit the prompt edit**
+- [x] **Step 3: Commit the prompt edit**
 
 ```bash
 git add supabase/functions/analyze-menu/extract.ts
 git commit -m "feat: iteration 004 prompt - nearest subheading over parent heading"
 ```
 
-- [ ] **Step 4: Append the pre-run Iteration 004 log entry**
+- [x] **Step 4: Append the pre-run Iteration 004 log entry**
 
 Same template, with:
 
@@ -393,7 +395,7 @@ Same template, with:
   changes.
 - Raw outputs: `.../iter-004/*.actual.json`.
 
-- [ ] **Step 5: Run the harness and archive**
+- [x] **Step 5: Run the harness and archive**
 
 Same run command, then:
 
@@ -406,7 +408,7 @@ Note: Brasero is the other nested-heading menu (`A las brasas` parent over
 Carne/Mariscos/Pollo y Puerco) and passed in 001 — watch it for regression
 from this rule specifically.
 
-- [ ] **Step 6: Append results and decision; commit**
+- [x] **Step 6: Append results and decision; commit**
 
 Target: Nikkori section dimension PASS; all other dimensions hold. Regression
 gate applies (Brasero sections especially). Commit:
@@ -420,12 +422,12 @@ git commit -m "docs: record extraction iteration 004 results"
 
 ### Task 6: Wrap-up — aggregate verdict and handoff state
 
-**Status:** Blocked with Task 5; not started.
+**Status:** Completed.
 
 **Files:**
 - Modify: `docs/superpowers/extraction-eval-log.md` (append only, short status note)
 
-- [ ] **Step 1: Append a status note to the log**
+- [x] **Step 1: Append a status note to the log**
 
 After Iteration 004's entry, append a short `### Status after Iteration 004`
 note: which of the five dimensions are aggregate-green, which (if any)
@@ -433,14 +435,14 @@ remain red, and the single next action (either "extraction contract v2
 proven on the benchmark; ready to plan Edge Function/Stage 2 integration"
 or the specific escalation named in the failing iteration's decision).
 
-- [ ] **Step 2: Verify branch is clean and all work is committed**
+- [x] **Step 2: Verify branch is clean and all work is committed**
 
 ```bash
 git status --short   # expect: empty
 git log --oneline -12
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add docs/superpowers/extraction-eval-log.md

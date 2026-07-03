@@ -272,3 +272,27 @@ Decision:
   subheading rules; Iteration 003 completeness rules remain reverted.
 - Next action: plan the `item_number: string | null` schema iteration before
   any further paid run.
+
+### Handoff
+
+- Branch: `feat/extraction-eval-harness`.
+- Worktree: `/private/tmp/menu-scan-app-extraction-eval-harness`.
+- Active prompt commit: `cf741a0` (Iteration 002 option rules plus Iteration
+  004 nearest-subheading rules).
+- Reverted prompt commit: `f90991f` (Iteration 003 completeness rules), reverted
+  by `da547c0`.
+- Frozen settings: `gpt-4o`, temperature `0`, seed `17`.
+- Harness: `scripts/eval-extraction.ts`; fixtures:
+  `scripts/fixtures/*.expected.json`.
+- Archived raw outputs:
+  - Iteration 001: `/Users/santiagoaguirre/Downloads/MenusTesting/iter-001/`
+  - Iteration 002: `/Users/santiagoaguirre/Downloads/MenusTesting/iter-002/`
+  - Iteration 003 timeout partials:
+    `/Users/santiagoaguirre/Downloads/MenusTesting/iter-003-attempt-1/`
+  - Iteration 003 complete attempt:
+    `/Users/santiagoaguirre/Downloads/MenusTesting/iter-003/`
+  - Iteration 004: `/Users/santiagoaguirre/Downloads/MenusTesting/iter-004/`
+- The top-level `*.actual.json` files in `MenusTesting/` are the Iteration 004
+  outputs and will be overwritten by the next harness run.
+- Read this file in full before another paid run. Do not expose or commit
+  `.env.local`.

@@ -3,7 +3,10 @@ import type {
   ImageQuality,
 } from "../supabase/functions/analyze-menu/extract.ts";
 import { runExtraction } from "../supabase/functions/analyze-menu/extract.ts";
-import { postprocessItems } from "../supabase/functions/analyze-menu/postprocess.ts";
+import {
+  detectNumberGaps,
+  postprocessItems,
+} from "../supabase/functions/analyze-menu/postprocess.ts";
 
 type Category = ExtractedMenuItem["category"];
 
@@ -232,6 +235,16 @@ function printReport(reports: MenuReport[], aggregate: AggregateReport): void {
   console.log(`  ${status(aggregate.image_quality)} image_quality`);
 }
 
+function printNumberGaps(items: ExtractedMenuItem[]): void {
+  for (const report of detectNumberGaps(items)) {
+    console.log(
+      `  number gaps detected in ${report.section_title}: ${
+        report.gaps.join(", ")
+      }`,
+    );
+  }
+}
+
 const FIXTURE_DIR = new URL("./fixtures/", import.meta.url);
 const MENU_DIR = "/Users/santiagoaguirre/Downloads/MenusTesting";
 
@@ -278,6 +291,7 @@ async function main(): Promise<void> {
       image_quality: result.image_quality,
       items: result.items,
     };
+    printNumberGaps(actual.items);
 
     await Deno.writeTextFile(
       `${MENU_DIR}/${fixture.menu}.actual.json`,
@@ -306,10 +320,12 @@ async function offline(dir: string): Promise<void> {
     const raw = JSON.parse(
       await Deno.readTextFile(`${dir}/${fixture.menu}.actual.json`),
     ) as ActualExtraction;
-    reports.push(scoreMenu(fixture, {
+    const actual = {
       image_quality: raw.image_quality,
       items: postprocessItems(raw.items),
-    }));
+    };
+    printNumberGaps(actual.items);
+    reports.push(scoreMenu(fixture, actual));
   }
   printReport(reports, aggregateReports(reports));
 }
@@ -347,6 +363,7 @@ function runSelfCheck(): void {
         price: 12,
         category: "food",
         section_title: "Mains",
+        item_number: null,
         options: [{ name: "Add Cheese", price: 2, grams: null }],
       },
       {
@@ -355,6 +372,7 @@ function runSelfCheck(): void {
         price: 4,
         category: "side",
         section_title: "Sides",
+        item_number: null,
         options: [{ name: "Large", price: 2, grams: null }],
       },
     ],
@@ -380,6 +398,7 @@ function runSelfCheck(): void {
         price: null,
         category: "other",
         section_title: null,
+        item_number: null,
         options: [{ name: "Not an option", price: null, grams: null }],
       },
       {
@@ -388,6 +407,7 @@ function runSelfCheck(): void {
         price: 5,
         category: "other",
         section_title: "Soups",
+        item_number: null,
         options: [],
       },
       {
@@ -396,6 +416,7 @@ function runSelfCheck(): void {
         price: 6,
         category: "dessert",
         section_title: "Desserts",
+        item_number: null,
         options: [],
       },
     ],
@@ -424,6 +445,7 @@ function runSelfCheck(): void {
     price: 5,
     category: "food",
     section_title: "Mains",
+    item_number: null,
     options: [],
   });
   assert(

@@ -57,6 +57,47 @@ export function filterServingFormatOptions(
   }));
 }
 
+export interface NumberGapReport {
+  section_title: string;
+  gaps: number[];
+}
+
+export function detectNumberGaps(
+  items: ExtractedMenuItem[],
+): NumberGapReport[] {
+  const sections = new Map<string, ExtractedMenuItem[]>();
+  for (const item of items) {
+    if (!item.section_title) continue;
+    const section = sections.get(item.section_title) ?? [];
+    section.push(item);
+    sections.set(item.section_title, section);
+  }
+
+  const reports: NumberGapReport[] = [];
+  for (const [section_title, sectionItems] of sections) {
+    const numbers = sectionItems
+      .flatMap((item) =>
+        item.item_number !== null ? [Number(item.item_number)] : []
+      )
+      .filter((number) => Number.isInteger(number) && number > 0);
+    if (numbers.length < 3 || numbers.length < sectionItems.length / 2) {
+      continue;
+    }
+
+    const present = new Set(numbers);
+    const gaps: number[] = [];
+    for (
+      let number = Math.min(...numbers);
+      number <= Math.max(...numbers);
+      number++
+    ) {
+      if (!present.has(number)) gaps.push(number);
+    }
+    if (gaps.length > 0) reports.push({ section_title, gaps });
+  }
+  return reports;
+}
+
 export function postprocessItems(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {

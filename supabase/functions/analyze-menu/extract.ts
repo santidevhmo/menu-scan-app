@@ -18,6 +18,8 @@ subheadings uses the spirit subheading). Use only printed headings; never invent
 a grouping that is not printed on the menu. Set section_title to null
 only when no heading groups the item. Preserve the item name exactly; never prepend
 or synthesize the heading into the name.
+If a printed list number appears beside an item (like "39. Spaghetti"), copy that
+number into item_number and leave it out of name; otherwise set item_number to null.
 A heading is often larger text without its own price, weight, or description, but
 it must also group menu items beneath it. Do not treat restaurant names, slogans,
 or promotional text as section headings.
@@ -64,6 +66,7 @@ export const EXTRACT_SCHEMA = {
             enum: ["food", "side", "dessert", "drink", "other"],
           },
           section_title: { type: ["string", "null"] },
+          item_number: { type: ["string", "null"] },
           options: {
             type: "array",
             items: {
@@ -84,6 +87,7 @@ export const EXTRACT_SCHEMA = {
           "price",
           "category",
           "section_title",
+          "item_number",
           "options",
         ],
         additionalProperties: false,
@@ -105,6 +109,7 @@ export interface ExtractedMenuItem {
   price: number | null;
   category: "food" | "side" | "dessert" | "drink" | "other";
   section_title: string | null;
+  item_number: string | null;
   options: { name: string; price: number | null; grams: number | null }[];
 }
 

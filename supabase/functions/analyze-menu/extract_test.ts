@@ -16,7 +16,7 @@ Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async
           finish_reason: "stop",
           message: {
             content:
-              '{"image_quality":{"usable":true,"issues":[]},"items":[{"name":"Revueltos","description":"","price":78,"category":"food","section_title":"Huevos","options":[]}]}',
+              '{"image_quality":{"usable":true,"issues":[]},"items":[{"name":"Revueltos","description":"","price":78,"category":"food","section_title":"Huevos","item_number":null,"options":[]}]}',
           },
         }],
       }),
@@ -50,10 +50,11 @@ Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async
         price: 78,
         category: "food",
         section_title: "Huevos",
+        item_number: null,
         options: [],
       }],
       raw_response:
-        '{"image_quality":{"usable":true,"issues":[]},"items":[{"name":"Revueltos","description":"","price":78,"category":"food","section_title":"Huevos","options":[]}]}',
+        '{"image_quality":{"usable":true,"issues":[]},"items":[{"name":"Revueltos","description":"","price":78,"category":"food","section_title":"Huevos","item_number":null,"options":[]}]}',
     });
   } finally {
     globalThis.fetch = originalFetch;
@@ -71,6 +72,7 @@ Deno.test("extraction schema defines the v2 image, category, and options contrac
           properties: {
             category: { enum?: string[] };
             section_title?: { type: string[] };
+            item_number?: { type: string[] };
             options?: { items: { required: string[] } };
           };
         };
@@ -94,9 +96,11 @@ Deno.test("extraction schema defines the v2 image, category, and options contrac
     "price",
     "category",
     "section_title",
+    "item_number",
     "options",
   ]);
   assertEquals(item.properties.section_title?.type, ["string", "null"]);
+  assertEquals(item.properties.item_number?.type, ["string", "null"]);
   assertEquals(item.properties.options?.items.required, [
     "name",
     "price",

@@ -10,7 +10,10 @@ Do not stop after a representative sample, a section summary, or the first page.
 There is no maximum number of items; keep going until every readable item is returned.
 Never return a section header as an item.
 Copy the nearest printed heading that visually groups an item into section_title.
-Use only the closest heading when headings are nested. Set section_title to null
+When a heading contains smaller subheadings, each item belongs to its nearest
+subheading, never the parent (a spirits list under a parent heading with per-spirit
+subheadings uses the spirit subheading). Use only printed headings; never invent
+a grouping that is not printed on the menu. Set section_title to null
 only when no heading groups the item. Preserve the item name exactly; never prepend
 or synthesize the heading into the name.
 A heading is often larger text without its own price, weight, or description, but

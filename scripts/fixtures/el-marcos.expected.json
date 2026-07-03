@@ -1,0 +1,34 @@
+{
+  "menu": "el-marcos",
+  "photos": ["ElMarcosMenu.png"],
+  "total_items": 36,
+  "categories": ["food", "drink"],
+  "sections": [
+    "Huevos",
+    "Mexicanos",
+    "De la Playa",
+    "De la Panadería",
+    "Cereales",
+    "De la Cafetería",
+    "Jugos y Frutas",
+    "Pa' los Bukis"
+  ],
+  "section_expectations": [
+    { "name_contains": "Fritos", "section_title": "Huevos" },
+    { "name_contains": "De la Sierra", "section_title": "Huevos" },
+    { "name_contains": "Revueltos", "section_title": "Huevos" },
+    { "name_contains": "Waffles", "section_title": "De la Panadería" },
+    {
+      "name_contains": "Plato Surtido",
+      "section_title": "Jugos y Frutas"
+    }
+  ],
+  "items_with_options": [
+    { "name_contains": "Fritos", "options": [] },
+    { "name_contains": "De la Sierra", "options": [] },
+    { "name_contains": "Waffles", "options": [] },
+    { "name_contains": "Plato Surtido", "options": [] },
+    { "name_contains": "Revueltos", "options": [] }
+  ],
+  "image_quality": { "usable": true, "issues": [] }
+}

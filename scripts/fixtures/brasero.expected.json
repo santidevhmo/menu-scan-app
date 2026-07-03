@@ -1,0 +1,31 @@
+{
+  "menu": "brasero",
+  "photos": ["BraseroMenu.png"],
+  "total_items": 28,
+  "categories": ["food", "side"],
+  "sections": [
+    "Carne",
+    "Mariscos",
+    "Pollo y Puerco",
+    "Acompañamientos",
+    "Especialidades",
+    "Pastas"
+  ],
+  "section_headers": ["A las brasas"],
+  "section_expectations": [
+    { "name_contains": "Rib Eye", "section_title": "Carne" },
+    { "name_contains": "Pasta Alfredo", "section_title": "Pastas" },
+    { "name_contains": "Pasta Parmesano", "section_title": "Pastas" }
+  ],
+  "items_with_options": [
+    {
+      "name_contains": "Pasta Alfredo",
+      "options": ["Camarón", "Pollo"]
+    },
+    {
+      "name_contains": "Pasta Parmesano",
+      "options": ["Chorizo", "Pollo", "Camarón"]
+    }
+  ],
+  "image_quality": { "usable": true, "issues": [] }
+}

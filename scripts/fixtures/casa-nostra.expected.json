@@ -1,0 +1,22 @@
+{
+  "menu": "casa-nostra",
+  "photos": ["CasaNostraMenu.png"],
+  "total_items": 33,
+  "categories": ["food"],
+  "sections": ["Pasta", "Pizze", "Frutti di mare", "Insalate"],
+  "section_expectations": [
+    { "name_contains": "Fettuccine CasaNostra", "section_title": "Pasta" },
+    { "name_contains": "Margherita", "section_title": "Pizze" },
+    { "name_contains": "Salmone padella", "section_title": "Frutti di mare" },
+    { "name_contains": "Insalata CasaNostra", "section_title": "Insalate" }
+  ],
+  "items_with_options": [
+    { "name_contains": "Fettuccine CasaNostra", "options": [] },
+    { "name_contains": "Pasta alla romana", "options": [] },
+    {
+      "name_contains": "Spaghetti ai frutti di mare ubriaca",
+      "options": []
+    }
+  ],
+  "image_quality": { "usable": true, "issues": [] }
+}

@@ -1,0 +1,23 @@
+{
+  "menu": "mochomos",
+  "photos": ["MochomosMenu.png"],
+  "total_items": 22,
+  "categories": ["food"],
+  "sections": ["Tacos y Tostadas", "Ensaladas", "Vegetariano"],
+  "section_expectations": [
+    {
+      "name_contains": "Tacos de Camarón al Chipotle",
+      "section_title": "Tacos y Tostadas"
+    },
+    {
+      "name_contains": "Ensalada Mochomos",
+      "section_title": "Ensaladas"
+    },
+    {
+      "name_contains": "Torre de Betabel",
+      "section_title": "Vegetariano"
+    }
+  ],
+  "items_with_options": [],
+  "image_quality": { "usable": true, "issues": [] }
+}

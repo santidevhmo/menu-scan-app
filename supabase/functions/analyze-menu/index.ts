@@ -5,45 +5,13 @@ import {
   type EnrichedItem,
   type ExtractedItem,
 } from "./enrich.ts";
+import { runExtraction } from "./extract.ts";
 
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY")!;
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
 const MODEL_TIMEOUT_MS = 120000;
 const ENRICH_BATCH_SIZE = 10; // ponytail: small batches stop GPT-4o early-stopping; tune if drops persist
 const ENRICH_SEED = 17; // fixed seed + temperature 0 run-to-run stability
-
-// ── Stage 1: extraction (zero nutrition) ────────────────────────────────────
-
-const EXTRACT_PROMPT = `Read this restaurant menu. Return every item exactly as printed, in menu order:
-name, description, price, category (appetizer|main|side|dessert|drink|other).
-Do NOT estimate calories or nutrition. Do NOT invent items you cannot read.
-Extract all visible menu items from every provided photo and every menu section.
-Do not stop after a representative sample, a section summary, or the first page.
-There is no maximum number of items; keep going until every readable item is returned.
-If a description is not printed, use an empty string. If a price is not printed, set it to null.`;
-
-// JSON-schema (OpenAI/Mistral structured-output shape) — extraction only, no nutrition
-const EXTRACT_SCHEMA = {
-  type: "object",
-  properties: {
-    items: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          name: { type: "string" },
-          description: { type: "string" },
-          price: { type: ["number", "null"] },
-          category: { type: "string", enum: ["appetizer", "main", "side", "dessert", "drink", "other"] },
-        },
-        required: ["name", "description", "price", "category"],
-        additionalProperties: false,
-      },
-    },
-  },
-  required: ["items"],
-  additionalProperties: false,
-};
 
 // ── Stage 2: enrichment (gram-based CoT, goal-agnostic) ─────────────────────
 
@@ -157,23 +125,6 @@ async function callOpenAIChat(
   if (!res.ok) throw new Error(json.error?.message ?? "OpenAI API error");
   console.log("[openai] finish_reason:", json.choices[0].finish_reason);
   return json.choices[0].message.content as string;
-}
-
-/** Calls GPT-4o Vision for Stage 1 menu text extraction only. */
-async function callGptExtract(photos: string[]) {
-  const content = [
-    { type: "text", text: EXTRACT_PROMPT },
-    ...photos.map((b64) => ({
-      type: "image_url",
-      image_url: { url: `data:image/jpeg;base64,${b64}` },
-    })),
-  ];
-  // Stage 1 stability: same photos -> same extraction, matching enrichment.
-  const text = await callOpenAIChat("gpt-4o", content, EXTRACT_SCHEMA, {
-    temperature: 0,
-    seed: ENRICH_SEED,
-  });
-  return { items: JSON.parse(text).items, raw_response: text };
 }
 
 /** Builds the enrichment user message: prompt + the extracted items as JSON. */
@@ -309,7 +260,7 @@ serve(async (req) => {
       if (provider !== "gpt-vision") {
         throw new Error(`Unknown extraction provider: ${provider}`);
       }
-      const result = await callGptExtract(photos);
+      const result = await runExtraction(photos, OPENAI_API_KEY);
 
       return new Response(
         JSON.stringify({ items: result.items, raw_response: result.raw_response, latency_ms: Date.now() - start, model_id: "gpt-4o" }),

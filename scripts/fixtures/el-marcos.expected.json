@@ -45,7 +45,7 @@
     {
       "name_contains": "Plato Surtido",
       "description_contains": "queso cottage",
-      "price": 82,
+      "price": 72,
       "options": ["Queso cottage", "Yogurt"]
     }
   ],

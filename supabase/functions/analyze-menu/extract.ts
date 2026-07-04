@@ -155,12 +155,21 @@ function optionsPrompt(items: ExtractedMenuItem[]): string {
   return `Read the restaurant menu photos again and identify selectable options
 for the indexed items below. An option is a printed choice within one item's
 composition: a protein or filling choice, paid add-on, dietary swap, or flavor
-choice. A choice printed inside a description ("con X o Y", "choice of X or Y")
-is an options list.
+choice. Any wording in the menu's own language that invites choosing one of
+several mutually exclusive alternatives is an options list, whatever its
+formatting: an inline sentence, a bolded lead-in line, a parenthetical, or a
+dash- or slash-separated list. An alternative that carries its own printed
+price or weight is one option; record that printed price and grams.
 
-Separately printed preparations or variants are separate items, not options.
-Serving formats and sizes (glass vs bottle, copa vs botella, small vs large)
-are not options. Distinct products listed under a shared heading are not options.
+The choice text must be printed inside that item's own block, under its name or
+within its description area. A label printed above multiple entries that each
+have their own price is a section heading, not an item with options; never
+attach those entries as options of the label. Separately printed preparations
+or variants are separate items, not options. Ingredients printed as served
+together (joined by the menu language's "and") are description, not options.
+Conditional or grouped combo choices stay description text. Serving formats and
+sizes (glass vs bottle, copa vs botella, small vs large) are not options.
+Distinct products listed under a shared heading are not options.
 
 Return only items that have genuine options. Preserve each supplied item_index
 exactly. Include an option's printed price and grams when present; otherwise use

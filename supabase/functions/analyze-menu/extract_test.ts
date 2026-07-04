@@ -4,7 +4,6 @@ import {
   assertStringIncludes,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
-  EXTRACT_PROMPT,
   EXTRACT_SCHEMA,
   OPTIONS_SCHEMA,
   runExtraction,
@@ -213,16 +212,5 @@ Deno.test("extraction schemas split item and option contracts", () => {
     optionsSchema.properties.option_sets.items.properties.options.items
       .required,
     ["name", "price", "grams"],
-  );
-});
-
-Deno.test("EXTRACT_PROMPT states the priced-children section rule", () => {
-  assertStringIncludes(
-    EXTRACT_PROMPT,
-    "entries printed under it each have their own price",
-  );
-  assertStringIncludes(
-    EXTRACT_PROMPT,
-    "never turn its priced entries into options",
   );
 });

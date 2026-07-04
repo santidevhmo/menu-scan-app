@@ -19,11 +19,8 @@ a grouping that is not printed on the menu. Set section_title to null
 only when no heading groups the item. Preserve the item name exactly; never prepend
 or synthesize the heading into the name.
 A heading is often larger text without its own price, weight, or description, but
-it must also group menu items beneath it. If a label has no price of its own and
-the entries printed under it each have their own price, that label is a section
-title: record it as those entries' section_title, never output the label itself
-as an item, and never turn its priced entries into options. Do not treat
-restaurant names, slogans, or promotional text as section headings.
+it must also group menu items beneath it. Do not treat restaurant names, slogans,
+or promotional text as section headings.
 Use category "food" for appetizers, entrees, main dishes, and other prepared food.
 Use "side", "dessert", or "drink" only when that role is clear; otherwise use "other".
 Return separately printed preparations or variants as separate items; do not merge

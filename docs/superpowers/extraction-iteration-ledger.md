@@ -32,6 +32,14 @@ Rules:
 - Verdict: ORACLE-CHANGE (this ranking supersedes all rankings in extraction-eval-log.md)
 - Lesson: iter-001's remaining failures under frozen oracle: el-marcos section_context, nikkori section_context, options everywhere except mochomos.
 
+## Noise floor — 3 unchanged live runs of best-known prompt (iter-001)
+- Date: 2026-07-04 | Prompt change: none (3 identical runs, temperature 0)
+- Results: noise-1 = 20/30, noise-2 = 22/30, noise-3 = 21/30 per-menu passes
+- **Noise floor = 2** (max spread between runs). A future iteration must improve total per-menu passes by MORE than 2 to be ACCEPTED.
+- Stable failures (all 3 runs): brasero-two items+section_context+options; el-marcos section_context+options; nikkori section_context+options; casa-nostra options. Wobbly: el-marcos items, nikkori items (pass in some runs).
+- Verdict: NOISE (baseline measurement, prompt kept)
+- Archive: /Users/santiagoaguirre/Downloads/MenusTesting/noise-{1,2,3}/
+
 ## Entry template
 
 ## Iteration NNN — <one-line hypothesis>

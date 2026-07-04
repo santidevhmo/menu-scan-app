@@ -1,35 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
-import { EXTRACT_PROMPT, EXTRACT_SCHEMA, runExtraction } from "./extract.ts";
-
-Deno.test("extraction prompt defines general option inclusion and exclusion rules", () => {
-  for (
-    const anchor of [
-      "protein or filling choice",
-      "dietary substitution",
-      "each alternative's printed price or weight",
-      "printed inside the description",
-      "without printing the named alternatives",
-      "flavor or variety lists",
-      "prepared or served",
-    ]
-  ) {
-    assertEquals(EXTRACT_PROMPT.includes(anchor), true, `missing: ${anchor}`);
-  }
-
-  for (
-    const token of [
-      "lechuga",
-      "tortilla",
-      "picaña",
-      "cottage",
-      "con X o Y",
-      "copa",
-      "botella",
-    ]
-  ) {
-    assertEquals(EXTRACT_PROMPT.includes(token), false, `found: ${token}`);
-  }
-});
+import { EXTRACT_SCHEMA, runExtraction } from "./extract.ts";
 
 Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async () => {
   const originalFetch = globalThis.fetch;

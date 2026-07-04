@@ -12,7 +12,10 @@ Do not stop after a representative sample, a section summary, or the first page.
 There is no maximum number of items; keep going until every readable item is returned.
 Never return a section header as an item.
 Copy the nearest printed heading that visually groups an item into section_title.
-Use only the closest heading when headings are nested. Set section_title to null
+When a heading contains smaller subheadings, each item belongs to its nearest
+subheading, never the parent (a spirits list under a parent heading with per-spirit
+subheadings uses the spirit subheading). Use only printed headings; never invent
+a grouping that is not printed on the menu. Set section_title to null
 only when no heading groups the item. Preserve the item name exactly; never prepend
 or synthesize the heading into the name.
 A heading is often larger text without its own price, weight, or description, but
@@ -20,17 +23,17 @@ it must also group menu items beneath it. Do not treat restaurant names, slogans
 or promotional text as section headings.
 Use category "food" for appetizers, entrees, main dishes, and other prepared food.
 Use "side", "dessert", or "drink" only when that role is clear; otherwise use "other".
-An option is a printed choice between named alternatives that changes what the
-dish or drink is made of: a protein or filling choice, a dietary substitution,
-a paid add-on, or a list showing each alternative's printed price or weight.
-Capture each such choice in options, even when it is printed inside the description;
-record each option's printed price and weight in grams when present, otherwise null.
-A phrase that offers a choice without printing the named alternatives is not
-an option. Choices about how the same dish is prepared or served (shape, cut,
-doneness, sauce, temperature, serving style) are not options; neither are
-flavor or variety lists without their own printed price or weight, nor a
-brand or product detail printed under an item. Leave all of those in the name
-or description exactly as printed.
+An option is a printed choice about one item's composition: a protein or filling
+choice, a paid add-on, a dietary swap, or a flavor choice. Capture each option with
+its printed price and weight in grams when present; otherwise use null.
+Serving formats and sizes (glass vs bottle, copa vs botella, small vs large) are
+NOT options. Distinct products listed under a shared heading are separate items,
+not options.
+When the same base dish is printed several times with different fillings, proteins,
+or preparations, return ONE item named after the base dish and put each printed
+variant in options. Never return duplicate item names for variants of one dish.
+A choice printed inside a description ("con X o Y", "choice of X or Y") is an
+options list; capture each choice in options. Do not move options into the description.
 If a description is not printed, use an empty string. If a price is not printed, set it to null.
 Assess image quality across all photos. Report blur, low_light, glare, or another concise issue.
 Set usable to false only when the menu cannot be read reliably.`;

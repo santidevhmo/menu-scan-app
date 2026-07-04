@@ -57,3 +57,11 @@ Rules:
 - Verdict: REVERTED (20/30 sits at the bottom of the iter-001 noise band 20–22; did NOT clear the +2 floor — needed ≥23)
 - Lesson: abstract orientation/anti-fold/subheading prose is net-neutral — it cannot flip icon-grid parsing (grid went from folded-into-4 to dropped-to-0) or subheading-named items (Revueltos/Fritos still named by subheading, 0 options). Bundling 3 hypotheses masked which helped (Churrasquería split) vs hurt (grid dropped). Next: ONE hypothesis — a few-shot worked grid example, not more prose.
 - Archive: live run in scratchpad/iter012-eval.log; ~/Downloads/MenusTesting/{el-marcos,brasero-two}.current-prompt.actual.json
+
+## Iteration 013 — few-shot: swap abstract fold rule for a worked grid example
+- Date: 2026-07-04 | Prompt change: replaced the "same base dish printed several times → ONE item + options" fold rule (baseline lines 32-34) with a concrete example — under a "STEAKS" subheading, "Ribeye 25"/"Sirloin 20" → two items named by line text, section_title=subheading, not folded.
+- Result: items 3/6, categories 5/6, section_context 3/6, options 2/6, image_quality 6/6 | **19/30 per-menu passes** | option recall 7/21
+- Failures: brasero-two items 44/25 (over-split — but section_context now has Cerdo/Res/Pollo/Atún, "missing: none"); nikkori items 108/120 + section_context far worse (13 wrong maps) + **14 option false-positives** (spirit lists Vodka/Ron/Tequila shredded); el-marcos categories now FAIL (spurious "other").
+- Verdict: REVERTED (19/30 < baseline noise band 20–22; worse than iter-012's 20)
+- Lesson: **the few-shot achieved its target (brasero-two grid sections appeared) but generalized to ALL subheading+priced-line layouts, detonating Nikkori's spirit/beverage lists.** The meat-cut grid and Nikkori spirit lists are VISUALLY IDENTICAL but need OPPOSITE treatment (split vs fold); the disambiguating signal is not in the image. **The meat grid is NOT prompt-solvable without breaking Nikkori — it is an oracle-level conflict.** Stop trying to fix the grid via prompt; the lever now is fixture/oracle decisions + the pending options rebuilds.
+- Archive: live run in scratchpad/iter013-eval.log

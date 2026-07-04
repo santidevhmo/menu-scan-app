@@ -87,6 +87,28 @@ function findOptionTargetIndex(
   return undefined;
 }
 
+export function optionRecall(
+  fixture: ExpectedFixture,
+  items: ExtractedMenuItem[],
+): { found: number; expected: number } {
+  let found = 0;
+  let expected = 0;
+  const consumed = new Set<number>();
+  for (const target of fixture.items_with_options) {
+    expected += target.options.length;
+    const index = findOptionTargetIndex(target, items, consumed);
+    if (index === undefined) continue;
+    consumed.add(index);
+    const names = items[index].options.map((option) => normalize(option.name));
+    for (const expectedOption of target.options) {
+      if (names.some((name) => name.includes(normalize(expectedOption)))) {
+        found++;
+      }
+    }
+  }
+  return { found, expected };
+}
+
 export function scoreMenu(
   fixture: ExpectedFixture,
   actual: ActualExtraction,
@@ -314,6 +336,10 @@ async function main(): Promise<void> {
       `${JSON.stringify(actual, null, 2)}\n`,
     );
     reports.push(scoreMenu(fixture, actual));
+    const recall = optionRecall(fixture, actual.items);
+    console.log(
+      `option recall ${fixture.menu}: ${recall.found}/${recall.expected}`,
+    );
   }
 
   const aggregate = aggregateReports(reports);
@@ -346,10 +372,15 @@ async function offline(dir: string): Promise<void> {
       }
       throw error;
     }
+    const processed = postprocessItems(raw.items);
     reports.push(scoreMenu(fixture, {
       image_quality: raw.image_quality,
-      items: postprocessItems(raw.items),
+      items: processed,
     }));
+    const recall = optionRecall(fixture, processed);
+    console.log(
+      `option recall ${fixture.menu}: ${recall.found}/${recall.expected}`,
+    );
   }
   printReport(reports, aggregateReports(reports));
 }
@@ -582,6 +613,12 @@ function runSelfCheck(): void {
   assert(
     !scoreMenu(duplicateFixture, duplicateWrongCardMatched).options.pass,
     "a target's price qualifier should reject a same-name card at the wrong price",
+  );
+
+  const recall = optionRecall(fixture, actual.items);
+  assert(
+    recall.found === 1 && recall.expected === 1,
+    "option recall should count 1/1 on passing stub",
   );
 
   printReport([passing], aggregateReports([passing]));

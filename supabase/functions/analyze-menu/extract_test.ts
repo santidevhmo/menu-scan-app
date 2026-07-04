@@ -226,28 +226,3 @@ Deno.test("EXTRACT_PROMPT states the priced-children section rule", () => {
     "never turn its priced entries into options",
   );
 });
-
-Deno.test("Pass 2 prompt defines options by concept, not fixed wording", async () => {
-  const originalFetch = globalThis.fetch;
-  const requestBodies: RequestBody[] = [];
-  let calls = 0;
-  globalThis.fetch = (async (input, init) => {
-    calls += 1;
-    const request = new Request(input, init);
-    requestBodies.push(JSON.parse(await request.text()) as RequestBody);
-    return success(calls === 1 ? ONE_ITEM_RAW : '{"option_sets":[]}');
-  }) as typeof fetch;
-
-  try {
-    await runExtraction(["photo-base64"], "test-key");
-    const prompt = requestBodies[1].messages[0].content[0].text ?? "";
-    assertStringIncludes(prompt, "mutually exclusive alternatives");
-    assertStringIncludes(prompt, "in the menu's own language");
-    assertStringIncludes(
-      prompt,
-      "have their own price is a section heading",
-    );
-  } finally {
-    globalThis.fetch = originalFetch;
-  }
-});

@@ -780,3 +780,77 @@ run under the regression gate defined in
 out of scope for this plan. Separately, the Plato Surtido price
 discrepancy ($72 extracted vs $82 confirmed ground truth) needs user
 verification before further fixture changes there.
+
+## Iteration 010 — Sections + concept-based two-pass options
+
+- Date: 2026-07-03
+- Two-pass restore commit: `564182e`
+- Pass 1 prompt commit: `f01baa5`
+- Pass 2 prompt commit: `9911f22`
+- Regression-gate revert commits: `e53af71`, `eff153a`, `c7cac53`
+- Model: `gpt-4o` for both passes
+- Temperature: `0`
+- Seed: `17`
+- Timeouts: independent 120-second limit per pass
+- Hypothesis: a priced-children section rule in Pass 1 and a
+  language-agnostic option definition in Pass 2 turn options
+  aggregate-green without regressing items, categories, section context, or
+  image quality.
+- Change from active baseline:
+  - Restored the Iteration 009 two-pass indexed extraction.
+  - Added the priced-children section rule to Pass 1.
+  - Replaced fixed option examples with a concept-based definition in Pass 2.
+  - Added the `brasero-two` fixture and offline missing-output skip guard.
+  - Confirmed the El Marcos choice-bearing Plato Surtido line prints $82, so
+    its fixture stayed unchanged.
+  - Confirmed Casa Nostra's Cesar row prints `lechuga entera o en trozos`, but
+    kept it out of structured options because that presentation choice does
+    not affect nutritional data.
+- Fixtures: Brasero, Brasero Two, Casa Nostra, El Marcos, Mochomos, Nikkori.
+- Raw merged outputs:
+  `/Users/santiagoaguirre/Downloads/MenusTesting/iter-010/*.actual.json`.
+
+| Menu | Items | Categories | Section context | Options | Image quality |
+|---|---|---|---|---|---|
+| Brasero Two | PASS — 25/25 | PASS | PASS | FAIL — 1 missed target, 4 false-positive items | PASS |
+| Brasero | PASS — 28/28 | PASS | PASS | PASS | PASS |
+| Casa Nostra | PASS — 26/23 | PASS | PASS | FAIL — 1 false-positive item | PASS |
+| El Marcos | PASS — 43/45 | PASS | FAIL — 1 missing section | FAIL — 1 missed target, 11 false-positive items | PASS |
+| Mochomos | PASS — 22/22 | PASS | PASS | FAIL — 2 false-positive items | PASS |
+| Nikkori | FAIL — 99/120, 1 section-header item | PASS | FAIL — 10 missing, 3 spurious, 13 wrong mappings | FAIL — 1 missed target, 3 false-positive items | PASS |
+| Aggregate | PASS | PASS | FAIL | FAIL | PASS |
+
+What worked:
+
+- Brasero Two produced exactly 25 items, no section-header pseudo-items, and
+  all expected section mappings.
+- Brasero remained green in every dimension.
+- Items, categories, and image quality remained aggregate-green.
+- All twelve model calls completed without timeout.
+
+What regressed or failed:
+
+- Section context was aggregate-red, driven by El Marcos and Nikkori. This
+  repeats the Pass 1 regression observed in Iteration 009.
+- Options remained aggregate-red; only Brasero passed.
+- Casa Nostra's sole false positive was Cesar with `Lechuga entera` and
+  `Lechuga en trozos`, confirming that the concept-based prompt was too broad
+  for nutrition-relevant structured options.
+- Brasero Two's Taco Loiro returned `arrachera` and `pollo`, missing the
+  expected `picaña` target, while four `tortilla de su elección` cards became
+  false positives.
+- El Marcos again extracted many presentation or flavor alternatives as
+  options. Plato Surtido was read at $72 with no options, so the qualified $82
+  target remained missed.
+- Nikkori completeness and section mapping regressed, and its Coladas option
+  target remained missed.
+
+Decision:
+
+- The regression gate fired because section context became aggregate-red.
+- Options also failed the iteration's success criterion.
+- Reverted the Pass 2 prompt in `e53af71`, the Pass 1 prompt in `eff153a`, and
+  the implicated two-pass restore in `c7cac53`.
+- Stop for user input before another extraction iteration. Any next Pass 2
+  definition should restrict structured options to nutrition-relevant choices,
+  such as proteins or alternatives with their own printed price or weight.

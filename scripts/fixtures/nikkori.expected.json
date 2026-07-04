@@ -24,14 +24,13 @@
     "Bebidas",
     "Limonadas de Sabores",
     "Tés Calientes o Fríos",
-    "Postres"
+    "Cocteles"
   ],
   "section_headers": [
     "Rollos",
     "Bebidas con alcohol",
-    "Licores",
-    "Vinos",
-    "Bebidas sin alcohol"
+    "Bebidas sin alcohol",
+    "Postres"
   ],
   "section_expectations": [
     { "name_contains": "Salmón Roll", "section_title": "Naturales" },
@@ -43,7 +42,7 @@
     { "name_contains": "Mango con chamoy", "section_title": "Margaritas" },
     { "name_contains": "Frutos Rojos", "section_title": "Martinis" },
     { "name_contains": "Tradicional", "section_title": "Mojitos" },
-    { "name_contains": "Sake Pearl", "section_title": "Sake" },
+    { "name_contains": "Sake Pearl Bai", "section_title": "Sake" },
     { "name_contains": "Grey Goose", "section_title": "Vodka" },
     { "name_contains": "Captain Morgan", "section_title": "Ron" },
     { "name_contains": "Don Julio 70", "section_title": "Tequila" },

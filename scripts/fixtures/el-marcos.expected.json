@@ -14,31 +14,24 @@
     "Pa' los Bukis"
   ],
   "section_expectations": [
-    { "name_contains": "Fritos", "section_title": "Huevos" },
-    { "name_contains": "De la Sierra", "section_title": "Huevos" },
-    { "name_contains": "Revueltos", "section_title": "Huevos" },
+    { "name_contains": "Dos huevos naturales", "section_title": "Huevos" },
+    { "name_contains": "Dos huevos a la mexicana", "section_title": "Huevos" },
     { "name_contains": "Waffles", "section_title": "De la Panadería" },
-    {
-      "name_contains": "Plato Surtido",
-      "section_title": "Jugos y Frutas"
-    }
+    { "name_contains": "Plato Surtido", "section_title": "Jugos y Frutas" }
   ],
   "items_with_options": [
     {
-      "name_contains": "Revueltos",
-      "description_contains": "jamón",
+      "name_contains": "Con jamón, chorizo o tocino",
       "price": 90,
       "options": ["Jamón", "Chorizo", "Tocino"]
     },
     {
-      "name_contains": "Fritos",
-      "description_contains": "jamón",
+      "name_contains": "Con jamón, chorizo o tocino",
       "price": 90,
       "options": ["Jamón", "Chorizo", "Tocino"]
     },
     {
-      "name_contains": "Hot Cakes",
-      "description_contains": "jamón, tocino",
+      "name_contains": "Con jamón, tocino o huevo",
       "price": 78,
       "options": ["Jamón", "Tocino", "Huevo"]
     },

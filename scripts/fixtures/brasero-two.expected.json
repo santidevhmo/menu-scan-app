@@ -16,11 +16,11 @@
   "section_expectations": [
     { "name_contains": "Taco de Leite", "section_title": "Especialidades Brasero" },
     { "name_contains": "Taco Loiro", "section_title": "Especialidades Brasero" },
-    { "name_contains": "Bandiola", "section_title": "Cerdo" },
+    { "name_contains": "Bandiola Adobada", "section_title": "Cerdo" },
     { "name_contains": "Chistorra", "section_title": "Cerdo" },
     { "name_contains": "Chicharrón", "section_title": "Res" },
-    { "name_contains": "Pechuga al Limón", "section_title": "Pollo" },
-    { "name_contains": "Filete de Atún", "section_title": "Atún" },
+    { "name_contains": "Pechuga al Limón rellena de queso envuelta en tocino", "section_title": "Pollo" },
+    { "name_contains": "Filete de Atún sellado con rub rojo a la parrilla", "section_title": "Atún" },
     { "name_contains": "Papas Cambray", "section_title": "Guarniciones" },
     { "name_contains": "Brownie", "section_title": "Postres" }
   ],

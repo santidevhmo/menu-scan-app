@@ -854,3 +854,75 @@ Decision:
 - Stop for user input before another extraction iteration. Any next Pass 2
   definition should restrict structured options to nutrition-relevant choices,
   such as proteins or alternatives with their own printed price or weight.
+
+## Iteration 011 — Single-pass Iteration 001 baseline + nutrition-material option rule
+
+- Date: 2026-07-03
+- Fixture correction commit: `0dd73f6`
+- Prompt contract test commit: `ea42879`
+- Prompt commit: `96282ac`
+- Regression-gate revert commits: `25e4d0c`, `14e3481`
+- Model: `gpt-4o`
+- Temperature: `0`
+- Seed: `17`
+- Timeout: single 120-second limit
+- Hypothesis: the strongest single-pass baseline plus a narrow,
+  language-agnostic nutrition-material option rule turns options
+  aggregate-green without regressing items, categories, section context, or
+  image quality.
+- Change from active baseline:
+  - Restored the Iteration 001 prompt verbatim except for its options paragraph.
+  - Defined options as named protein or filling choices, dietary substitutions,
+    paid add-ons, or lists showing each alternative's printed price or weight.
+  - Excluded unnamed choices, preparation or serving choices, unpriced flavor
+    or variety lists, and brand or product details.
+  - Corrected El Marcos Plato Surtido from $82 to the photo-adjudicated $72;
+    its queso cottage / yogurth choice remains an option target.
+  - Dropped Nikkori Coladas as an option target because its unpriced flavor list
+    stays unstructured.
+  - Confirmed Brasero Two Taco Loiro prints picaña or pollo, not arrachera.
+  - Kept the adjudicated El Marcos preparation/flavor exclusions and Brasero
+    Two's four unnamed `tortilla de su elección` cards out of option targets.
+- Fixtures: Brasero, Brasero Two, Casa Nostra, El Marcos, Mochomos, Nikkori.
+- Raw outputs:
+  `/Users/santiagoaguirre/Downloads/MenusTesting/iter-011/*.actual.json`.
+
+| Menu | Items | Categories | Section context | Options | Image quality |
+|---|---|---|---|---|---|
+| Brasero Two | FAIL — 18/25 | PASS | FAIL — 4 missing, 5 wrong mappings | FAIL — 1 missed target, 0 false-positive items | PASS |
+| Brasero | PASS — 28/28 | PASS | PASS | PASS | PASS |
+| Casa Nostra | PASS — 23/23 | PASS | PASS | PASS | PASS |
+| El Marcos | FAIL — 44/45, 1 section-header item | PASS | FAIL — 1 missing section | FAIL — 4 missed targets, 0 false-positive items | PASS |
+| Mochomos | PASS — 22/22 | PASS | PASS | PASS | PASS |
+| Nikkori | FAIL — 120/120, 1 section-header item | PASS | FAIL — 3 missing, 3 spurious, 9 wrong mappings | FAIL — 0 missed targets, 6 false-positive items | PASS |
+| Aggregate | FAIL | PASS | FAIL | FAIL | PASS |
+
+What worked:
+
+- Brasero, Casa Nostra, and Mochomos passed every dimension.
+- Categories and image quality remained aggregate-green.
+- Brasero's Pasta Parmesano add-ons and Casa Nostra's required gluten-free
+  substitutions remained correctly structured.
+- All six model calls completed within the single 120-second timeout.
+
+What regressed or failed:
+
+- Items became aggregate-red. Brasero Two returned only 18/25 expected items;
+  El Marcos and Nikkori each emitted one section-header pseudo-item.
+- Section context became aggregate-red. Brasero Two missed Cerdo, Res, Pollo,
+  and Atún mappings; El Marcos missed Pa' los Bukis; Nikkori again had broad
+  beverage-section mapping errors.
+- Options remained aggregate-red. Brasero Two misread Taco Loiro's picaña as
+  arrachera, El Marcos missed Revueltos, Fritos, Hot Cakes, and Plato Surtido,
+  and Pasta Alfredo was not structured.
+- Nikkori produced six false-positive option items: Sangría, Clericot, Coladas,
+  Vino Blanco, Vino Rosado, and Vino Semi Espumoso.
+
+Decision:
+
+- Regression gate (b) fired because previously-green items and section context
+  became aggregate-red.
+- Options also failed the iteration's success criterion.
+- Reverted the prompt in `25e4d0c` and its now-inapplicable contract test in
+  `14e3481`; retained the adjudicated fixture correction commit `0dd73f6`.
+- No deploy. Stop for user input before another extraction iteration.

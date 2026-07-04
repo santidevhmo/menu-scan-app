@@ -1,6 +1,6 @@
 {
   "menu": "brasero-two",
-  "photos": ["BraseroMenuTwo_TWo.png"],
+  "photos": ["BraseroMenuTwo.png", "BraseroMenuTwo_TWo.png"],
   "total_items": 25,
   "categories": ["food", "side", "dessert"],
   "sections": [

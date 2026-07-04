@@ -333,9 +333,19 @@ async function offline(dir: string): Promise<void> {
   const fixtures = await loadFixtures();
   const reports: MenuReport[] = [];
   for (const fixture of fixtures) {
-    const raw = JSON.parse(
-      await Deno.readTextFile(`${dir}/${fixture.menu}.actual.json`),
-    ) as ActualExtraction;
+    let raw: ActualExtraction;
+    try {
+      raw = JSON.parse(
+        await Deno.readTextFile(`${dir}/${fixture.menu}.actual.json`),
+      ) as ActualExtraction;
+    } catch (error) {
+      if (error instanceof Deno.errors.NotFound) {
+        console.log(`\n${fixture.menu}`);
+        console.log(`  SKIP no ${fixture.menu}.actual.json in ${dir}`);
+        continue;
+      }
+      throw error;
+    }
     reports.push(scoreMenu(fixture, {
       image_quality: raw.image_quality,
       items: postprocessItems(raw.items),

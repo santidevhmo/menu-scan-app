@@ -1,0 +1,34 @@
+{
+  "menu": "brasero-two",
+  "photos": ["BraseroMenuTwo_TWo.png"],
+  "total_items": 25,
+  "categories": ["food", "side", "dessert"],
+  "sections": [
+    "Especialidades Brasero",
+    "Cerdo",
+    "Res",
+    "Pollo",
+    "Atún",
+    "Guarniciones",
+    "Postres"
+  ],
+  "section_headers": ["Los Lagos"],
+  "section_expectations": [
+    { "name_contains": "Taco de Leite", "section_title": "Especialidades Brasero" },
+    { "name_contains": "Taco Loiro", "section_title": "Especialidades Brasero" },
+    { "name_contains": "Bandiola", "section_title": "Cerdo" },
+    { "name_contains": "Chistorra", "section_title": "Cerdo" },
+    { "name_contains": "Chicharrón", "section_title": "Res" },
+    { "name_contains": "Pechuga al Limón", "section_title": "Pollo" },
+    { "name_contains": "Filete de Atún", "section_title": "Atún" },
+    { "name_contains": "Papas Cambray", "section_title": "Guarniciones" },
+    { "name_contains": "Brownie", "section_title": "Postres" }
+  ],
+  "items_with_options": [
+    {
+      "name_contains": "Taco Loiro",
+      "options": ["picaña", "pollo"]
+    }
+  ],
+  "image_quality": { "usable": true, "issues": [] }
+}

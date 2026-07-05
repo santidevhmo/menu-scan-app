@@ -951,6 +951,115 @@ rtk git commit -m "test(extract): benchmark compressed dense-menu crops"
 
 ---
 
+### Task 6B: Benchmark four overlapping 2×2 compressed crops
+
+**Status:** Required replacement gate after Task 6 rejected both full-height
+two- and three-crop candidates.
+
+**Files:**
+- Modify: `docs/superpowers/extraction-iteration-ledger.md`
+
+- [ ] **Step 1: Generate four crops from original pixels**
+
+For the 1196×1896 Nikkori source, create 718×1138 crops at X origins `0/478`
+and Y origins `0/758`, then compress each crop to a maximum 1024px edge and
+JPEG quality 70:
+
+```bash
+MENU="$HOME/Downloads/MenusTesting"
+
+rtk proxy ffmpeg -loglevel error -y -i "$MENU/NikkoriMenu.png" -vf "crop=718:1138:0:0" "$MENU/NikkoriMenu.grid-raw-1.png"
+rtk proxy ffmpeg -loglevel error -y -i "$MENU/NikkoriMenu.png" -vf "crop=718:1138:478:0" "$MENU/NikkoriMenu.grid-raw-2.png"
+rtk proxy ffmpeg -loglevel error -y -i "$MENU/NikkoriMenu.png" -vf "crop=718:1138:0:758" "$MENU/NikkoriMenu.grid-raw-3.png"
+rtk proxy ffmpeg -loglevel error -y -i "$MENU/NikkoriMenu.png" -vf "crop=718:1138:478:758" "$MENU/NikkoriMenu.grid-raw-4.png"
+
+for crop in 1 2 3 4; do
+  rtk proxy sips -Z 1024 -s format jpeg -s formatOptions 70 \
+    "$MENU/NikkoriMenu.grid-raw-${crop}.png" \
+    --out "$MENU/NikkoriMenu.grid-compressed-${crop}.jpg"
+done
+```
+
+Expected: four 718×1138 raw crops and four production-compressed JPEG crops.
+
+- [ ] **Step 2: Run three repeated compressed-grid extractions**
+
+Load the existing API key without printing it, then run each crop through one
+separate GPT-4o extraction call:
+
+```bash
+set -a
+source .env.local
+set +a
+
+for run in 1 2 3; do
+  for crop in 1 2 3 4; do
+    label="grid-compressed-r${run}-${crop}"
+    rtk proxy deno run --allow-read --allow-write --allow-env --allow-net \
+      scripts/run-elmarcos.ts nikkori \
+      "NikkoriMenu.grid-compressed-${crop}.jpg" "$label"
+  done
+done
+```
+
+Expected: 12 successful calls and 12
+`nikkori.grid-compressed-r<run>-<crop>.actual.json` files. Any timeout or
+non-`stop` finish reason fails that run.
+
+- [ ] **Step 3: Score all three runs**
+
+```bash
+MENU="$HOME/Downloads/MenusTesting"
+
+for run in 1 2 3; do
+  rtk proxy deno run --allow-read scripts/eval-adaptive-crops.ts \
+    "grid-compressed-r${run}" \
+    "$MENU/nikkori.grid-compressed-r${run}-1.actual.json" \
+    "$MENU/nikkori.grid-compressed-r${run}-2.actual.json" \
+    "$MENU/nikkori.grid-compressed-r${run}-3.actual.json" \
+    "$MENU/nikkori.grid-compressed-r${run}-4.actual.json"
+done
+```
+
+Expected for a passing run:
+
+```json
+{
+  "expected": 42,
+  "missing": [],
+  "duplicates": []
+}
+```
+
+Extras remain diagnostic and do not fail this roll-only benchmark.
+
+- [ ] **Step 4: Apply the acceptance gate**
+
+Accept the 2×2 candidate only when at least two of three runs:
+
+1. recover all 42 exact expected roll names;
+2. contain zero unresolved normalized duplicates;
+3. complete all four calls without timeout or truncation.
+
+If fewer than two runs pass, stop this plan and do not implement Task 7.
+If the candidate passes, record recall, misses, extras, duplicates, summed
+latency, call count, and `$0.36` benchmark cost in the iteration ledger.
+
+- [ ] **Step 5: Commit the evidence**
+
+```bash
+rtk git add docs/superpowers/extraction-iteration-ledger.md
+rtk git commit -m "test(extract): benchmark compressed 2x2 crops"
+```
+
+---
+
+> **Execution hold:** Tasks 7–9 below describe the rejected full-image
+> detector plus two/three full-height crops. Do not execute them unchanged.
+> Even if Task 6B passes, first revise the production orchestration design and
+> these tasks because Nikkori's full compressed extraction timed out before
+> returning `image_layout`.
+
 ### Task 7: Wire automatic per-photo dense retries
 
 **Files:**

@@ -73,3 +73,56 @@ Rules:
 - Verdict: BLOCKED-ON-ORACLE (code kept, not reverted). The rule provably WORKED and was harmless: brasero-two grid folded by model this run → promote created Cerdo/Res/Pollo/Atún as sections (verified in actual.json, null-price+options remaining=[]); Nikkori wines NOT promoted (guard held, items stayed in noise band, 0 leaked section-header items vs iter-013's 1); brasero+mochomos still 5/5; el-marcos untouched by promote. Score can't rise because brasero-two's section_context is scored against a page-2-only oracle — a fixture defect, not a rule defect.
 - Lesson: the folded-section fix belongs in postprocess, not the prompt — it fixes the grid with ZERO Nikkori collateral (unlike prompt iters 012/013). But it is UNSCORABLE until the brasero-two oracle is expanded to cover page 1 (user already approved this direction). Also: promote only fires when the MODEL folds the grid into null-price+options; run-to-run the model sometimes over-splits instead — a postprocess rule can't recover a grid the model didn't fold. NEXT: brasero-two oracle expansion (ORACLE-CHANGE), then re-score with promote in place.
 - Archive: live run in scratchpad/iter014-eval.log
+
+## Iteration 015 — Feature 1 food/drink oracle correction
+- Date: 2026-07-04 | Prompt change: NONE.
+- Oracle: user/photo adjudication set food/drink totals to brasero 28/0, brasero-two 44/0, casa-nostra 23/0, el-marcos 34/8, mochomos 22/0, nikkori 48/66.
+- Scorer: `items` now counts food only (`category !== "drink"`); drink section-header pseudo-items no longer fail the food gate.
+- Baseline: brasero 28/28 PASS; brasero-two 43/44 PASS; casa-nostra 23/23 PASS; el-marcos fresh run 36/34 PASS; mochomos 22/22 PASS; nikkori fresh run 44/48 FAIL.
+- Failure: Nikkori dense roll grid omitted/misread enough dishes to undercount food by 4; all other menus pass.
+- Verdict: ORACLE-CHANGE.
+- Lesson: Feature 1 has one real failure—Nikkori food completeness. Drink extraction errors are deferred to Feature 5.
+
+## Iteration 016 — force high-detail vision for dense menu text
+- Date: 2026-07-04 | Prompt change: NONE. Request change: set every `image_url.detail` to `"high"`.
+- Hypothesis: explicit high-resolution image processing recovers Nikkori's dense roll rows without changing extraction semantics or regressing the five passing menus.
+- Pre-run gate: items 5/6; only Nikkori fails at 44/48.
+- Result: Nikkori emitted 181 total entries: 45 food and 136 drinks. The food count landed within tolerance but duplicated all six desserts and still omitted/misread rolls.
+- Verdict: REVERTED. Explicit high detail caused severe over-extraction and a false-positive count gate.
+- Lesson: do not retry `detail: "high"`; count tolerance alone cannot prove every food item appears exactly once.
+
+## Iteration 017 — food-only extraction pass
+- Date: 2026-07-04 | Prompt change: extract food, sides, and desserts only; explicitly skip beverages.
+- Hypothesis: removing Nikkori's 66 expected drinks from the response lets GPT-4o complete the dense 48-item food grid without changing image processing.
+- Pre-run gate: items 5/6; only Nikkori fails at 44/48.
+- Result: Nikkori fell to 37/48 food items. Desserts were complete, but the roll grid dropped 11 items and still duplicated `Nico`.
+- Verdict: REVERTED.
+- Lesson: do not retry a food-only instruction on the full dense image; reducing requested scope did not improve visual enumeration.
+
+## Iteration 018 — two overlapping vertical crops in one call
+- Date: 2026-07-04 | Prompt change: provided photos may overlap; extract duplicate printed items only once.
+- Input change: replace Nikkori's 1196×1896 full-page image with two 1196×1050 crops overlapping by 204 px.
+- Hypothesis: larger effective text recovers the dense food grid while overlap protects items crossing the split; both crops remain one model call.
+- Pre-run gate: items 5/6; only Nikkori fails at 44/48.
+- Result: `finish_reason: length`; the response truncated at 65,192 JSON characters and could not be parsed.
+- Verdict: REVERTED.
+- Lesson: overlapping crops cannot share one full-menu GPT-4o response; duplicated visual coverage exhausts the output budget. Any crop strategy needs separate calls and deterministic merging.
+
+## Iteration 019 — top food crop only
+- Date: 2026-07-04 | Prompt change: NONE. Input: Nikkori's 1196×1050 top crop only.
+- Hypothesis: if larger effective text is the missing lever, the isolated crop should recover all 42 printed rolls in one normal-size response.
+- Acceptance for this diagnostic: 42 food rolls, no duplicates; desserts are outside this crop and intentionally ignored.
+- Result: 37/42 rolls. It improved several names (`Ipanema Roll`, `Nikkori Maki`, `Van Halen`, `Roiz`, `Amazonas Top`, `Maíz Roll`, `Tricolor`) but omitted Roca Roll, Nevada, California, Orange Roll, Kurimi Roll, and Cosmo de Pollo, while duplicating Dinamita.
+- Verdict: REVERTED.
+- Lesson: top/bottom cropping improves text recognition but does not solve five-column enumeration. The next credible approach is separate calls for overlapping vertical column crops, which changes cost and merge architecture.
+
+## Iteration 020 — separate left/right food-column calls
+- Date: 2026-07-04 | Prompt change: NONE. Input: two 698×1050 crops with 200 px horizontal overlap, sent in separate calls.
+- Hypothesis: each call sees at most three menu columns, recovering all 42 rolls; the overlap permits deterministic deduplication of the center column.
+- Acceptance for this diagnostic: merged outputs contain all 42 printed rolls exactly once after deduplication.
+- Cost: two GPT-4o calls for this Nikkori-only experiment.
+- Result: left call returned 27 rolls plus 3 cropped section headers; right returned 17 rolls. After excluding headers and merging overlap duplicates (`Lomo Salteado`, `Mangudo` as `Mangud`/`Manguo`), the union contains all 42/42 printed rolls.
+- OCR names improved materially: Ipanema Roll, Nikkori Maki, Ko Ebi Roll, Van Hallen, Orange Roll, Cosmo de Pollo, Maíz Roll, Tricolor, and Marco Roll were recovered.
+- Remaining name errors: Nevada→`Nevadal`, Roiz→`Poli`, Mangudo→`Mangud`/`Manguo`, Unagui Masago→`Unagi Masago`.
+- Verdict: ACCEPTED as a diagnostic only; no production architecture or cost change approved yet.
+- Lesson: dense five-column menus require separate region calls. One full-page call, high detail, food-only prompting, and multi-crop single calls all failed.

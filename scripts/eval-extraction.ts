@@ -121,7 +121,7 @@ export function scoreMenu(
     [...fixture.sections, ...(fixture.section_headers ?? [])].map(normalize),
   );
   const phantomHeaders =
-    actual.items.filter((item) => headers.has(normalize(item.name))).length;
+    foodItems.filter((item) => headers.has(normalize(item.name))).length;
   const items = {
     pass: Math.abs(itemDelta) <= 3 && phantomHeaders === 0,
     detail:
@@ -586,7 +586,7 @@ function runSelfCheck(): void {
     items: [
       ...actual.items,
       ...Array.from({ length: 5 }, (_, i) => ({
-        name: `Drink ${i}`,
+        name: i === 0 ? "Mains" : `Drink ${i}`,
         description: "",
         price: 3,
         category: "drink" as const,

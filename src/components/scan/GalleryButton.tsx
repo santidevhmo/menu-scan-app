@@ -1,7 +1,7 @@
 import { Pressable } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Images } from "lucide-react-native";
-import { compressImage } from "@/lib/compressImage";
+import { MAX_SCAN_PHOTOS } from "@/lib/adaptiveExtraction";
 import { useScanStore } from "@/store/scan.store";
 import { colors } from "@/constants/theme";
 
@@ -10,8 +10,9 @@ function randomId() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-/** Opens the photo library, compresses selected images, and adds them to the scan. */
+/** Opens the photo library and adds original images to the scan. */
 export function GalleryButton() {
+  const photos = useScanStore((s) => s.photos);
   const addPhoto = useScanStore((s) => s.addPhoto);
 
   /** Requests gallery access and imports every selected image. */
@@ -26,23 +27,17 @@ export function GalleryButton() {
     });
     if (result.canceled) return;
 
-    for (const asset of result.assets) {
-      try {
-        const compressed = await compressImage(
-          asset.uri,
-          asset.width,
-          asset.height,
-        );
-        addPhoto({
-          id: randomId(),
-          uri: compressed.uri,
-          width: compressed.width,
-          height: compressed.height,
-          source: "gallery",
-        });
-      } catch (err) {
-        console.warn("Failed to import asset", err);
-      }
+    const remaining = MAX_SCAN_PHOTOS - photos.length;
+    if (remaining <= 0) return;
+
+    for (const asset of result.assets.slice(0, remaining)) {
+      addPhoto({
+        id: randomId(),
+        uri: asset.uri,
+        width: asset.width,
+        height: asset.height,
+        source: "gallery",
+      });
     }
   };
 

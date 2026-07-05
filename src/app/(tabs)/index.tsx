@@ -5,7 +5,7 @@ import { CameraView, type CameraView as CameraViewType } from "expo-camera";
 import { router } from "expo-router";
 import { useCameraPermissions } from "@/hooks/useCameraPermissions";
 import { useScanStore } from "@/store/scan.store";
-import { compressImage } from "@/lib/compressImage";
+import { MAX_SCAN_PHOTOS } from "@/lib/adaptiveExtraction";
 import { CameraFrame } from "@/components/scan/CameraFrame";
 import { FlashToggle } from "@/components/scan/FlashToggle";
 import { ZoomToggle } from "@/components/scan/ZoomToggle";
@@ -29,9 +29,11 @@ export default function ScanScreen() {
   const [zoom, setZoom] = useState<1 | 2>(1);
   const [capturing, setCapturing] = useState(false);
 
-  /** Captures a camera photo, compresses it, and stores it for review. */
+  /** Captures a camera photo and stores the original for review. */
   const capture = async () => {
-    if (!cameraRef.current || capturing) return;
+    if (!cameraRef.current || capturing || photos.length >= MAX_SCAN_PHOTOS) {
+      return;
+    }
     setCapturing(true);
     try {
       const photo = await cameraRef.current.takePictureAsync({
@@ -39,16 +41,11 @@ export default function ScanScreen() {
         skipProcessing: false,
       });
       if (!photo) return;
-      const compressed = await compressImage(
-        photo.uri,
-        photo.width,
-        photo.height,
-      );
       addPhoto({
         id: randomId(),
-        uri: compressed.uri,
-        width: compressed.width,
-        height: compressed.height,
+        uri: photo.uri,
+        width: photo.width,
+        height: photo.height,
         source: "camera",
       });
     } catch (err) {
@@ -123,7 +120,10 @@ export default function ScanScreen() {
           <View className="px-6 pb-6">
             <View className="flex-row items-center justify-between">
               <GalleryButton />
-              <ShutterButton onPress={capture} disabled={capturing} />
+              <ShutterButton
+                onPress={capture}
+                disabled={capturing || photos.length >= MAX_SCAN_PHOTOS}
+              />
               <ThumbStack photos={photos} onPress={goToReview} />
             </View>
           </View>

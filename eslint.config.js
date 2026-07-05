@@ -7,6 +7,11 @@ module.exports = defineConfig([
   expoConfig,
   eslintPluginPrettierRecommended,
   {
-    ignores: ["dist/*"],
+    ignores: [
+      "dist/*",
+      "supabase/functions/**/*.ts",
+      "scripts/**/*.ts",
+      "src/**/*_test.ts",
+    ],
   },
 ]);

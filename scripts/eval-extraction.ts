@@ -115,7 +115,8 @@ export function scoreMenu(
   fixture: ExpectedFixture,
   actual: ActualExtraction,
 ): MenuReport {
-  const itemDelta = actual.items.length - fixture.total_items;
+  const foodItems = actual.items.filter((item) => item.category !== "drink");
+  const itemDelta = foodItems.length - fixture.food_items;
   const headers = new Set(
     [...fixture.sections, ...(fixture.section_headers ?? [])].map(normalize),
   );
@@ -124,7 +125,7 @@ export function scoreMenu(
   const items = {
     pass: Math.abs(itemDelta) <= 3 && phantomHeaders === 0,
     detail:
-      `${actual.items.length}/${fixture.total_items} items; ${phantomHeaders} section-header items`,
+      `${foodItems.length}/${fixture.food_items} food items; ${phantomHeaders} section-header items`,
   };
 
   const expectedCategories = new Set(fixture.categories);
@@ -515,6 +516,25 @@ function runSelfCheck(): void {
   assert(
     failing.image_quality?.pass === false,
     "image-quality score should fail",
+  );
+
+  const foodPlusDrinks: ActualExtraction = {
+    image_quality: { usable: true, issues: [] },
+    items: [
+      ...actual.items,
+      ...Array.from({ length: 5 }, (_, i) => ({
+        name: `Drink ${i}`,
+        description: "",
+        price: 3,
+        category: "drink" as const,
+        section_title: null,
+        options: [],
+      })),
+    ],
+  };
+  assert(
+    scoreMenu(fixture, foodPlusDrinks).items.pass,
+    "5 extra drink items must not break the food-only item count",
   );
 
   const filler = (name: string): ExtractedMenuItem => ({

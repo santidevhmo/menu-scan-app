@@ -251,6 +251,67 @@ export function aggregateReports(reports: MenuReport[]): AggregateReport {
   };
 }
 
+type GateDimension =
+  | "items"
+  | "categories"
+  | "section_context"
+  | "options"
+  | "image_quality";
+
+const GATE_DIMENSIONS: GateDimension[] = [
+  "items",
+  "categories",
+  "section_context",
+  "options",
+  "image_quality",
+];
+
+export function gateFailures(
+  reports: MenuReport[],
+  dims: GateDimension[],
+): string[] {
+  const failures: string[] = [];
+  for (const dim of dims) {
+    const failing = reports
+      .filter((report) => {
+        const score = report[dim];
+        return score !== null && !score.pass;
+      })
+      .map((report) => report.menu);
+    if (failing.length > 0) failures.push(`${dim}: ${failing.join(", ")}`);
+  }
+  return failures;
+}
+
+function enforceGate(reports: MenuReport[]): boolean {
+  const gateIndex = Deno.args.indexOf("--gate");
+  if (gateIndex === -1) return false;
+
+  const value = Deno.args[gateIndex + 1];
+  if (!value) throw new Error("--gate requires at least one dimension");
+
+  const requested = value.split(",").map((dim) => dim.trim());
+  const invalid = requested.filter((dim) =>
+    !GATE_DIMENSIONS.includes(dim as GateDimension)
+  );
+  if (invalid.length > 0) {
+    throw new Error(`Unsupported gate dimension: ${invalid.join(", ")}`);
+  }
+
+  const dims = requested as GateDimension[];
+  const failures = gateFailures(reports, dims);
+  if (failures.length > 0) {
+    console.log(`\nGATE FAIL (${dims.join(", ")}):`);
+    for (const failure of failures) console.log(`  ${failure}`);
+    Deno.exitCode = 1;
+  } else {
+    console.log(
+      `\nGATE PASS: ${dims.join(", ")} on all ${reports.length} menus`,
+    );
+  }
+  return true;
+}
+
 function status(value: boolean | null): string {
   return value === null ? "SKIP" : value ? "PASS" : "FAIL";
 }
@@ -355,6 +416,7 @@ async function main(): Promise<void> {
 
   const aggregate = aggregateReports(reports);
   printReport(reports, aggregate);
+  if (enforceGate(reports)) return;
   if (
     !aggregate.items ||
     !aggregate.categories ||
@@ -394,6 +456,7 @@ async function offline(dir: string): Promise<void> {
     );
   }
   printReport(reports, aggregateReports(reports));
+  enforceGate(reports);
 }
 
 function runSelfCheck(): void {
@@ -573,6 +636,16 @@ function runSelfCheck(): void {
   assert(
     !aggregateReports([passing, passing, passing, failing, failing]).items,
     "three of five should be red",
+  );
+  assert(
+    gateFailures([passing, passing], ["items"]).length === 0,
+    "gate passes when every menu passes the dimension",
+  );
+  const gateFail = gateFailures([passing, failing], ["items"]);
+  assert(gateFail.length === 1, "gate fails when any menu fails the dimension");
+  assert(
+    gateFail[0].startsWith("items:"),
+    "gate failure names the failing dimension",
   );
   assert(
     !scoreMenu(fixture, {

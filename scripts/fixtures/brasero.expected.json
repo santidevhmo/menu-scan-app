@@ -2,6 +2,8 @@
   "menu": "brasero",
   "photos": ["BraseroMenu.png"],
   "total_items": 28,
+  "food_items": 28,
+  "drink_items": 0,
   "categories": ["food", "side"],
   "sections": [
     "Carne",

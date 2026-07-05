@@ -2,6 +2,8 @@
   "menu": "casa-nostra",
   "photos": ["CasaNostraMenu.png"],
   "total_items": 23,
+  "food_items": 23,
+  "drink_items": 0,
   "categories": ["food"],
   "sections": ["Pasta", "Pizze", "Frutti di mare", "Insalate"],
   "section_expectations": [

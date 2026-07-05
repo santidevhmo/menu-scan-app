@@ -1,7 +1,9 @@
 {
   "menu": "brasero-two",
   "photos": ["BraseroMenuTwo.png", "BraseroMenuTwo_TWo.png"],
-  "total_items": 25,
+  "total_items": 44,
+  "food_items": 44,
+  "drink_items": 0,
   "categories": ["food", "side", "dessert"],
   "sections": [
     "Especialidades Brasero",

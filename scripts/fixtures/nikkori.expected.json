@@ -1,7 +1,9 @@
 {
   "menu": "nikkori",
   "photos": ["NikkoriMenu.png"],
-  "total_items": 120,
+  "total_items": 114,
+  "food_items": 48,
+  "drink_items": 66,
   "categories": ["food", "drink", "dessert"],
   "sections": [
     "Naturales",

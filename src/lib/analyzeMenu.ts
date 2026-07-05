@@ -181,6 +181,7 @@ export async function extractMenu(
     const result: ExtractionResult = {
       provider,
       items: [],
+      image_layout: null,
       latency_ms: 0,
       model_id: provider,
       error: errMsg,
@@ -194,6 +195,7 @@ export async function extractMenu(
     const result: ExtractionResult = {
       provider,
       items: [],
+      image_layout: null,
       latency_ms: 0,
       model_id: provider,
       error: "Malformed response from analyze-menu (missing items array)",
@@ -206,6 +208,7 @@ export async function extractMenu(
   const result: ExtractionResult = {
     provider,
     items: data.items,
+    image_layout: data.image_layout ?? null,
     latency_ms: data.latency_ms,
     model_id: data.model_id,
     error: data.error ?? null,

@@ -35,6 +35,11 @@ variant in options. Never return duplicate item names for variants of one dish.
 A choice printed inside a description ("con X o Y", "choice of X or Y") is an
 options list; capture each choice in options. Do not move options into the description.
 If a description is not printed, use an empty string. If a price is not printed, set it to null.
+Assess the visible menu layout. Set image_layout.dense=true only when small text,
+many tightly packed items, or a crowded multi-group layout risks incomplete
+extraction from the full image. For side-by-side content use crop_direction
+"left_right"; for vertically stacked content use "top_bottom". For a normal
+menu set dense=false and crop_direction="none".
 Assess image quality across all photos. Report blur, low_light, glare, or another concise issue.
 Set usable to false only when the menu cannot be read reliably.`;
 
@@ -49,6 +54,18 @@ export const EXTRACT_SCHEMA = {
         issues: { type: "array", items: { type: "string" } },
       },
       required: ["usable", "issues"],
+      additionalProperties: false,
+    },
+    image_layout: {
+      type: "object",
+      properties: {
+        dense: { type: "boolean" },
+        crop_direction: {
+          type: "string",
+          enum: ["none", "left_right", "top_bottom"],
+        },
+      },
+      required: ["dense", "crop_direction"],
       additionalProperties: false,
     },
     items: {
@@ -90,9 +107,16 @@ export const EXTRACT_SCHEMA = {
       },
     },
   },
-  required: ["image_quality", "items"],
+  required: ["image_quality", "image_layout", "items"],
   additionalProperties: false,
 };
+
+export type CropDirection = "none" | "left_right" | "top_bottom";
+
+export interface ImageLayout {
+  dense: boolean;
+  crop_direction: CropDirection;
+}
 
 export interface ImageQuality {
   usable: boolean;
@@ -110,6 +134,7 @@ export interface ExtractedMenuItem {
 
 export interface ExtractionResult {
   image_quality: ImageQuality;
+  image_layout: ImageLayout;
   items: ExtractedMenuItem[];
   raw_response: string;
 }
@@ -163,10 +188,17 @@ export async function runExtraction(
     };
     if (!res.ok) throw new Error(json.error?.message ?? "OpenAI API error");
 
-    const text = json.choices?.[0]?.message.content;
+    const choice = json.choices?.[0];
+    if (!choice) throw new Error("OpenAI returned no extraction choice");
+    if (choice.finish_reason !== "stop") {
+      throw new Error(
+        `OpenAI extraction stopped with finish_reason=${choice.finish_reason}`,
+      );
+    }
+    const text = choice.message.content;
     if (!text) throw new Error("OpenAI returned no extraction content");
 
-    console.log("[openai] finish_reason:", json.choices?.[0]?.finish_reason);
+    console.log("[openai] finish_reason:", choice.finish_reason);
     const parsed = JSON.parse(text) as Omit<ExtractionResult, "raw_response">;
     return {
       ...parsed,

@@ -1,4 +1,7 @@
-import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
+import {
+  assertEquals,
+  assertRejects,
+} from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import { EXTRACT_SCHEMA, runExtraction } from "./extract.ts";
 
 Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async () => {
@@ -16,7 +19,7 @@ Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async
           finish_reason: "stop",
           message: {
             content:
-              '{"image_quality":{"usable":true,"issues":[]},"items":[{"name":"Revueltos","description":"","price":78,"category":"food","section_title":"Huevos","options":[]}]}',
+              '{"image_quality":{"usable":true,"issues":[]},"image_layout":{"dense":false,"crop_direction":"none"},"items":[{"name":"Revueltos","description":"","price":78,"category":"food","section_title":"Huevos","options":[]}]}',
           },
         }],
       }),
@@ -44,6 +47,7 @@ Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async
     );
     assertEquals(result as unknown, {
       image_quality: { usable: true, issues: [] },
+      image_layout: { dense: false, crop_direction: "none" },
       items: [{
         name: "Revueltos",
         description: "",
@@ -53,7 +57,7 @@ Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async
         options: [],
       }],
       raw_response:
-        '{"image_quality":{"usable":true,"issues":[]},"items":[{"name":"Revueltos","description":"","price":78,"category":"food","section_title":"Huevos","options":[]}]}',
+        '{"image_quality":{"usable":true,"issues":[]},"image_layout":{"dense":false,"crop_direction":"none"},"items":[{"name":"Revueltos","description":"","price":78,"category":"food","section_title":"Huevos","options":[]}]}',
     });
   } finally {
     globalThis.fetch = originalFetch;
@@ -61,7 +65,7 @@ Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async
 });
 
 Deno.test("extraction schema defines the v2 image, category, and options contract", () => {
-  const schema = EXTRACT_SCHEMA as {
+  const schema = EXTRACT_SCHEMA as unknown as {
     required: string[];
     properties: {
       image_quality?: { required: string[] };
@@ -79,7 +83,7 @@ Deno.test("extraction schema defines the v2 image, category, and options contrac
   };
   const item = schema.properties.items.items;
 
-  assertEquals(schema.required, ["image_quality", "items"]);
+  assertEquals(schema.required, ["image_quality", "image_layout", "items"]);
   assertEquals(schema.properties.image_quality?.required, ["usable", "issues"]);
   assertEquals(item.properties.category.enum, [
     "food",
@@ -102,4 +106,51 @@ Deno.test("extraction schema defines the v2 image, category, and options contrac
     "price",
     "grams",
   ]);
+});
+
+Deno.test("extraction schema requires image_layout", () => {
+  const schema = EXTRACT_SCHEMA as unknown as {
+    required: string[];
+    properties: {
+      image_layout: {
+        required: string[];
+        properties: {
+          dense: { type: string };
+          crop_direction: { enum: string[] };
+        };
+      };
+    };
+  };
+
+  assertEquals(schema.required, ["image_quality", "image_layout", "items"]);
+  assertEquals(schema.properties.image_layout.required, [
+    "dense",
+    "crop_direction",
+  ]);
+  assertEquals(schema.properties.image_layout.properties.dense.type, "boolean");
+  assertEquals(
+    schema.properties.image_layout.properties.crop_direction.enum,
+    ["none", "left_right", "top_bottom"],
+  );
+});
+
+Deno.test("runExtraction rejects truncated model output before JSON parsing", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (() =>
+    Promise.resolve(new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "length",
+        message: { content: '{"image_quality":' },
+      }],
+    })))) as typeof fetch;
+
+  try {
+    await assertRejects(
+      () => runExtraction(["photo"], "test-key"),
+      Error,
+      "OpenAI extraction stopped with finish_reason=length",
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });

@@ -11,6 +11,8 @@ interface ExpectedFixture {
   menu: string;
   photos: string[];
   total_items: number;
+  food_items: number;
+  drink_items: number;
   categories: Category[];
   sections: string[];
   section_headers?: string[];
@@ -299,13 +301,21 @@ async function loadFixtures(): Promise<ExpectedFixture[]> {
     }
   }
 
-  return await Promise.all(
+  const fixtures = await Promise.all(
     names.sort().map(async (name) =>
       JSON.parse(
         await Deno.readTextFile(new URL(name, FIXTURE_DIR)),
       ) as ExpectedFixture
     ),
   );
+  for (const fixture of fixtures) {
+    if (fixture.food_items + fixture.drink_items !== fixture.total_items) {
+      throw new Error(
+        `${fixture.menu}: food_items(${fixture.food_items}) + drink_items(${fixture.drink_items}) !== total_items(${fixture.total_items})`,
+      );
+    }
+  }
+  return fixtures;
 }
 
 async function main(): Promise<void> {
@@ -389,10 +399,28 @@ function runSelfCheck(): void {
   assert(imageMimeType("menu.png") === "image/png", "PNG MIME type");
   assert(imageMimeType("menu.jpg") === "image/jpeg", "JPEG MIME type");
 
+  const balanced: ExpectedFixture = {
+    menu: "balance",
+    photos: ["stub.jpg"],
+    total_items: 5,
+    food_items: 3,
+    drink_items: 2,
+    categories: ["food", "drink"],
+    sections: [],
+    section_expectations: [],
+    items_with_options: [],
+  };
+  assert(
+    balanced.food_items + balanced.drink_items === balanced.total_items,
+    "fixture food + drink counts must sum to total",
+  );
+
   const fixture: ExpectedFixture = {
     menu: "stub",
     photos: ["stub.jpg"],
     total_items: 2,
+    food_items: 2,
+    drink_items: 0,
     categories: ["food", "side"],
     sections: ["Mains", "Sides"],
     section_headers: ["Mains"],
@@ -540,6 +568,8 @@ function runSelfCheck(): void {
     menu: "stub-duplicates",
     photos: ["stub.jpg"],
     total_items: 3,
+    food_items: 3,
+    drink_items: 0,
     categories: ["food"],
     sections: ["Huevos"],
     section_expectations: [],

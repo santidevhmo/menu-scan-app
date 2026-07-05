@@ -126,3 +126,25 @@ Rules:
 - Remaining name errors: Nevada→`Nevadal`, Roiz→`Poli`, Mangudo→`Mangud`/`Manguo`, Unagui Masago→`Unagi Masago`.
 - Verdict: ACCEPTED as a diagnostic only; no production architecture or cost change approved yet.
 - Lesson: dense five-column menus require separate region calls. One full-page call, high detail, food-only prompting, and multi-crop single calls all failed.
+
+## Iteration 021 — production compression and crop-count benchmark
+- Date: 2026-07-05 | Prompt change: NONE. Input change: production-like 1024px/JPEG 70 full image and full-height left/right crops.
+- Matrix:
+
+  | Variant | Exact roll recall | Misses | Extras | Duplicates | Latency | Calls |
+  | --- | ---: | ---: | ---: | --- | ---: | ---: |
+  | Full compressed | incomplete | — | — | — | timed out after 120s | 1 |
+  | Two raw | 38/42 | 4 | 10 | California | 45,256ms | 2 |
+  | Three raw | incomplete | — | — | — | middle crop truncated | 3 |
+  | Two compressed run 1 | 11/42 | 31 | 24 | none | 38,020ms | 2 |
+  | Two compressed run 2 | 11/42 | 31 | 25 | none | 35,280ms | 2 |
+  | Two compressed run 3 | 10/42 | 32 | 31 | Camarón, Pollo | 46,886ms | 2 |
+  | Three compressed run 1 | incomplete | — | — | — | middle crop timed out after 120s | 3 |
+  | Three compressed run 2 | incomplete | — | — | — | middle crop truncated | 3 |
+  | Three compressed run 3 | incomplete | — | — | — | middle crop timed out after 120s | 3 |
+
+- Crop-count decision: keep `DENSE_CROP_COUNT = 2`. Three crops fail the mandatory no-truncation condition in all three compressed runs and therefore cannot justify the extra `$0.03` call.
+- Cost: 21 GPT-4o calls, approximately `$0.63` at the current `$0.03` assumption.
+- Verdict: BLOCKED. Neither production-compressed strategy is viable; the selected two-crop default recovers only 10–11/42 exact roll names.
+- Lesson: full-height left/right crops preserve the original 1896px height, so resizing the longest edge to 1024px does not enlarge the food text like Iteration 020's 1050px-high diagnostic crop. Revise crop geometry/compression before wiring automatic retries.
+- Archive: `/Users/santiagoaguirre/Downloads/MenusTesting/nikkori.{two-raw-*,two-compressed-*,three-raw-*,three-*compressed-*}.actual.json`

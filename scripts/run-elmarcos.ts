@@ -25,19 +25,28 @@ const photos = await Promise.all(
     }`
   ),
 );
+const startedAt = Date.now();
 const result = await runExtraction(photos, apiKey);
+const latencyMs = Date.now() - startedAt;
 
 const out = `${MENU_DIR}/${menu}.${label}.actual.json`;
 await Deno.writeTextFile(
   out,
   `${
     JSON.stringify(
-      { image_quality: result.image_quality, items: result.items },
+      {
+        image_quality: result.image_quality,
+        image_layout: result.image_layout,
+        items: result.items,
+        latency_ms: latencyMs,
+      },
       null,
       2,
     )
   }\n`,
 );
 console.log(
-  `wrote ${out} — ${result.items.length} items from ${photoNames.join(", ")}`,
+  `wrote ${out} — ${result.items.length} items in ${latencyMs}ms from ${
+    photoNames.join(", ")
+  }`,
 );

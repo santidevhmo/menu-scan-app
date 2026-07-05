@@ -1,7 +1,7 @@
 # Adaptive Dense-Menu Extraction Design
 
 **Date:** 2026-07-04  
-**Status:** Approved for implementation planning
+**Status:** 2×2 benchmark approved; production orchestration blocked on evidence
 
 ## Goal
 
@@ -23,6 +23,11 @@ The Nikkori fixture established the current failure mode:
 - A top crop returned 37 of 42 rolls.
 - Separate overlapping left/right crop calls recovered all 42 rolls after
   merging two overlap duplicates.
+- Full-height production-compressed crops did not preserve that result. Two
+  crops recovered only 10–11 of 42 exact roll names across three runs.
+- Three full-height crops truncated or timed out on the middle crop in every
+  run.
+- The production-compressed full image timed out after 120 seconds.
 
 The existing app already compresses every selected image to a maximum 1024px
 side at JPEG quality 0.7. The evaluation harness has used original,
@@ -37,9 +42,9 @@ columns, so left/right crops were the successful split.
 ## Decisions
 
 - Dense-menu retry is automatic and invisible to the user.
-- Normal photos use one GPT-4o extraction call.
-- Dense photos use one full-image call plus either two or three crop calls. The
-  compression/crop benchmark below selects the final count before rollout.
+- Normal-photo call count remains unchanged while crop geometry is evaluated.
+- Two- and three-crop full-height retries are rejected. Production orchestration
+  must not be wired until the approved four-region 2×2 benchmark passes.
 - The app, not the Edge Function, crops images with the already-installed
   `expo-image-manipulator`.
 - Camera and gallery selection preserve the original local URI and dimensions
@@ -100,9 +105,9 @@ Original photos remain local-only and are never uploaded uncompressed. The
 review screen continues to display the local original. Generated compressed
 files and crops use Expo's cache directory.
 
-`extract-crops` requires exactly the selected two or three images. The server
-processes them separately so one dense crop cannot exhaust another crop's
-output budget.
+The server processes crop images separately so one dense crop cannot exhaust
+another crop's output budget. The current route accepts two or three crops; it
+must accept four only if the 2×2 benchmark passes.
 
 ## Crop Geometry
 
@@ -128,14 +133,27 @@ origins at 0%, 27.5%, and 55%. Adjacent regions overlap by 17.5%. The same
 geometry applies horizontally for `left_right` and vertically for
 `top_bottom`.
 
+The approved 2×2 benchmark candidate applies the tested 60%/40% geometry on
+both axes:
+
+- Crop 1: `originX = 0`, `originY = 0`.
+- Crop 2: `originX = 40%`, `originY = 0`.
+- Crop 3: `originX = 0`, `originY = 40%`.
+- Crop 4: `originX = 40%`, `originY = 40%`.
+- Every crop uses 60% of the source width and 60% of the source height.
+
+For Nikkori's 1196×1896 source, each crop is 718×1138 with origins at X
+`0/478` and Y `0/758`. Each crop is independently resized to a maximum 1024px
+edge and encoded as JPEG quality 0.7 after cropping.
+
 Expo Image Manipulator's contextual API supports crop rectangles containing
 `originX`, `originY`, `width`, and `height`. Crops are rendered and saved to the
 local cache before base64 encoding. See the
 [official Expo Image Manipulator API](https://docs.expo.dev/versions/latest/sdk/imagemanipulator/).
 
-## Compression and Crop-Count Benchmark
+## Initial Compression and Crop-Count Benchmark
 
-Before choosing two or three production crops, run this Nikkori matrix:
+The completed two-versus-three Nikkori matrix was:
 
 | Input | Compression | Purpose |
 |---|---|---|
@@ -150,8 +168,39 @@ The benchmark scores item completeness, duplicates, printed-name accuracy,
 truncation, latency, and actual API usage. Cropping always happens before
 compression.
 
-Choose two crops unless three produces a repeatable accuracy improvement. Do
-not pay the extra-call cost for an equal or noisier result.
+The original decision rule preferred two crops unless three produced a
+repeatable improvement. Neither candidate passed production compression, so
+that rule did not select a viable production strategy.
+
+### 2026-07-05 benchmark refinement
+
+The initial production-like matrix rejected both candidates:
+
+- Two raw full-height crops: 38/42 exact roll names with one unresolved
+  duplicate.
+- Two compressed full-height crops: 11/42, 11/42, and 10/42 exact names.
+- Three raw/compressed crops: the middle crop truncated or timed out in every
+  run.
+- Full compressed image: timed out after 120 seconds.
+
+The failure is geometric: a full-height left/right crop retains the 1896px
+height, so longest-edge resizing does not enlarge the food text like the
+successful 1050px-high diagnostic crop.
+
+Benchmark four compressed 2×2 crops three times. Accept the candidate only if
+at least two of three runs:
+
+1. recover all 42 exact printed roll names;
+2. contain no unresolved normalized duplicates;
+3. complete all four calls without timeout or truncation.
+
+This benchmark costs 12 GPT-4o calls, approximately `$0.36` at the current
+assumption. Do not modify production crop routing before this gate passes.
+
+Even if the 2×2 candidate passes, production orchestration needs a separate
+design decision before implementation because the full-image extraction timed
+out before returning layout metadata. The current “full extraction, then crop”
+flow is therefore not an accepted detector for Nikkori.
 
 ## Client-Side Placement
 
@@ -218,9 +267,9 @@ The extraction caller must reject model responses whose `finish_reason` is not
 
 A dense retry fails when:
 
-- either crop request times out;
-- either response truncates or returns malformed JSON;
-- either response reports an unusable image;
+- any crop request times out;
+- any response truncates or returns malformed JSON;
+- any response reports an unusable image;
 - layout metadata is internally inconsistent.
 
 The client returns one clear extraction error. It does not fall back to the
@@ -230,17 +279,16 @@ known-incomplete full-image result.
 
 Using the project's current `$0.03` extraction-call assumption:
 
-| Photos | All normal | All dense, 2 crops | All dense, 3 crops |
-|---:|---:|---:|---:|
-| 1 | $0.03 | $0.09 | $0.12 |
-| 10 | $0.30 | $0.90 | $1.20 |
+| Photos | All normal | All dense, 2 crops | All dense, 3 crops | All dense, 4 crops |
+|---:|---:|---:|---:|---:|
+| 1 | $0.03 | $0.09 | $0.12 | $0.15 |
+| 10 | $0.30 | $0.90 | $1.20 | $1.50 |
 
 These figures exclude enrichment. Actual billing varies with image and output
 tokens and must be measured from live usage before pricing decisions.
 
-The Nikkori two-versus-three-crop comparison under both compressed and
-uncompressed inputs is estimated at approximately `$0.33`, reusing the
-existing uncompressed full-image baseline.
+The completed two-versus-three-crop comparison used 21 calls, approximately
+`$0.63`. The approved 2×2 follow-up adds 12 calls, approximately `$0.36`.
 
 ## Testing
 
@@ -248,6 +296,7 @@ existing uncompressed full-image baseline.
 
 - Crop rectangles for left/right and top/bottom layouts.
 - Two-region and three-region crop geometry.
+- Four-region 2×2 crop geometry.
 - Rounding and bounds for odd image dimensions.
 - No crop plan for normal images.
 - Reject invalid layout combinations.
@@ -267,9 +316,12 @@ existing uncompressed full-image baseline.
 - Run the complete compression/crop-count matrix above on Nikkori.
 - Record actual item recall, duplicate count, name errors, latency, and usage
   for every matrix entry.
-- Freeze two or three crops based on repeatable accuracy, not one lucky run.
+- Reject the completed two/three full-height crop candidates.
+- Freeze four 2×2 crops only if at least two of three compressed runs satisfy
+  the exact-name, duplicate, and completion gate.
 - Normal fixtures remain one-call extractions.
-- Dense Nikkori automatically selects `left_right`.
+- Do not wire automatic dense retries until the full-image timeout path has an
+  approved detector/fallback design.
 - Nikkori crop results recover the 42-roll inventory without duplicates.
 - Test Brasero, Brasero Two, Casa Nostra, El Marcos, Mochomos, and Nikkori.
 - All six food-item fixtures pass the frozen `items` gate in three consecutive
@@ -280,15 +332,16 @@ existing uncompressed full-image baseline.
 
 ## Known Limitation
 
-Cropping solved item completeness but did not eliminate every OCR spelling
-error. Name-quality diagnostics remain required; count alone is not evidence
-that every printed item was extracted correctly.
+Uncompressed diagnostic cropping solved item completeness, but production
+compression invalidated the full-height crop strategy. Name-quality
+diagnostics remain required; count alone is not evidence that every printed
+item was extracted correctly.
 
 ## Out of Scope
 
 - Asking users to identify orientation or density.
 - New image-processing libraries.
-- More than three crop regions per dense photo.
+- More than four crop regions per dense photo.
 - More than 10 photos per scan.
 - Server-side cropping in the current Edge Function runtime.
 - UI redesign beyond showing the existing loading and error states.

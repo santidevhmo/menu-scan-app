@@ -5,7 +5,7 @@ import {
   type EnrichedItem,
   type ExtractedItem,
 } from "./enrich.ts";
-import { runExtraction } from "./extract.ts";
+import { runCropExtractions, runExtraction } from "./extract.ts";
 
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY")!;
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
@@ -215,7 +215,11 @@ serve(async (req) => {
     if (typeof provider !== "string") {
       return badRequest("Invalid 'provider'");
     }
-    if (stage !== "extract" && stage !== "enrich") {
+    if (
+      stage !== "extract" &&
+      stage !== "extract-crops" &&
+      stage !== "enrich"
+    ) {
       return badRequest("Invalid 'stage'");
     }
 
@@ -256,6 +260,28 @@ serve(async (req) => {
 
     const start = Date.now();
 
+    if (stage === "extract-crops") {
+      if (
+        provider !== "gpt-vision" ||
+        !Array.isArray(photos) ||
+        (photos.length !== 2 && photos.length !== 3)
+      ) {
+        return badRequest("Invalid crop extraction request");
+      }
+      const regions = await runCropExtractions(photos, OPENAI_API_KEY);
+      return new Response(
+        JSON.stringify({
+          regions: regions.map((region) => ({
+            image_quality: region.image_quality,
+            items: region.items,
+          })),
+          latency_ms: Date.now() - start,
+          model_id: "gpt-4o",
+        }),
+        { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
+      );
+    }
+
     if (stage === "extract") {
       if (provider !== "gpt-vision") {
         throw new Error(`Unknown extraction provider: ${provider}`);
@@ -263,7 +289,7 @@ serve(async (req) => {
       const result = await runExtraction(photos, OPENAI_API_KEY);
 
       return new Response(
-        JSON.stringify({ image_quality: result.image_quality, items: result.items, raw_response: result.raw_response, latency_ms: Date.now() - start, model_id: "gpt-4o" }),
+        JSON.stringify({ image_quality: result.image_quality, image_layout: result.image_layout, items: result.items, raw_response: result.raw_response, latency_ms: Date.now() - start, model_id: "gpt-4o" }),
         { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
       );
     }

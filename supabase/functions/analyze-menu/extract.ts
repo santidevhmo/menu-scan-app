@@ -216,3 +216,16 @@ export async function runExtraction(
     clearTimeout(timeout);
   }
 }
+
+export async function runCropExtractions(
+  photos: string[],
+  apiKey: string,
+  extract = runExtraction,
+): Promise<ExtractionResult[]> {
+  if (photos.length !== 2 && photos.length !== 3) {
+    throw new Error("extract-crops requires 2 or 3 photos");
+  }
+  return await Promise.all(
+    photos.map((photo) => extract([photo], apiKey)),
+  );
+}

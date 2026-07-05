@@ -2,7 +2,11 @@ import {
   assertEquals,
   assertRejects,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
-import { EXTRACT_SCHEMA, runExtraction } from "./extract.ts";
+import {
+  EXTRACT_SCHEMA,
+  runCropExtractions,
+  runExtraction,
+} from "./extract.ts";
 
 Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async () => {
   const originalFetch = globalThis.fetch;
@@ -153,4 +157,23 @@ Deno.test("runExtraction rejects truncated model output before JSON parsing", as
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+Deno.test("crop extraction invokes one model call per crop", async () => {
+  const calls: string[][] = [];
+  const regions = await runCropExtractions(
+    ["left", "right"],
+    "key",
+    async (photos) => {
+      calls.push(photos);
+      return {
+        image_quality: { usable: true, issues: [] },
+        image_layout: { dense: false, crop_direction: "none" },
+        items: [],
+        raw_response: "{}",
+      };
+    },
+  );
+  assertEquals(calls, [["left"], ["right"]]);
+  assertEquals(regions.length, 2);
 });

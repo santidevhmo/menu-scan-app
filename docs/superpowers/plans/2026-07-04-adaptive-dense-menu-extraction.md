@@ -953,8 +953,8 @@ rtk git commit -m "test(extract): benchmark compressed dense-menu crops"
 
 ### Task 6B: Benchmark four overlapping 2×2 compressed crops
 
-**Status:** Required replacement gate after Task 6 rejected both full-height
-two- and three-crop candidates.
+**Status:** Completed 2026-07-05 — rejected 0/3 runs. Exact roll recall was
+32/42, 33/42, and 32/42; Tasks 7–9 remain on hold.
 
 **Files:**
 - Modify: `docs/superpowers/extraction-iteration-ledger.md`

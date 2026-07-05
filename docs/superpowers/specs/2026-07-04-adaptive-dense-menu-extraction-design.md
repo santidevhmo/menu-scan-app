@@ -1,7 +1,7 @@
 # Adaptive Dense-Menu Extraction Design
 
 **Date:** 2026-07-04  
-**Status:** 2×2 benchmark approved; production orchestration blocked on evidence
+**Status:** 2×2 benchmark rejected; production redesign required
 
 ## Goal
 
@@ -28,6 +28,8 @@ The Nikkori fixture established the current failure mode:
 - Three full-height crops truncated or timed out on the middle crop in every
   run.
 - The production-compressed full image timed out after 120 seconds.
+- Four production-compressed 2×2 crops completed reliably but recovered only
+  32/42, 33/42, and 32/42 exact roll names across three runs.
 
 The existing app already compresses every selected image to a maximum 1024px
 side at JPEG quality 0.7. The evaluation harness has used original,
@@ -196,6 +198,10 @@ at least two of three runs:
 
 This benchmark costs 12 GPT-4o calls, approximately `$0.36` at the current
 assumption. Do not modify production crop routing before this gate passes.
+
+The benchmark completed on 2026-07-05 and failed 0/3 runs. All 12 calls
+completed, but exact-name recall was 32/42, 33/42, and 32/42; the third run
+also retained one normalized duplicate. The 2×2 candidate is rejected.
 
 Even if the 2×2 candidate passes, production orchestration needs a separate
 design decision before implementation because the full-image extraction timed

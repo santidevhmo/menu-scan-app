@@ -148,3 +148,21 @@ Rules:
 - Verdict: BLOCKED. Neither production-compressed strategy is viable; the selected two-crop default recovers only 10–11/42 exact roll names.
 - Lesson: full-height left/right crops preserve the original 1896px height, so resizing the longest edge to 1024px does not enlarge the food text like Iteration 020's 1050px-high diagnostic crop. Revise crop geometry/compression before wiring automatic retries.
 - Archive: `/Users/santiagoaguirre/Downloads/MenusTesting/nikkori.{two-raw-*,two-compressed-*,three-raw-*,three-*compressed-*}.actual.json`
+
+## Iteration 022 — four overlapping 2×2 compressed crops
+- Date: 2026-07-05 | Prompt change: NONE. Input change: four 718×1138 crops at X `0/478` and Y `0/758`, each compressed to a maximum 1024px edge and JPEG quality 70 before a separate call.
+- Acceptance: at least two of three runs recover all 42 exact printed roll names, contain zero unresolved normalized duplicates, and complete all four calls without timeout or truncation.
+- Results:
+
+  | Run | Exact roll recall | Misses | Extras | Duplicates | Summed latency | Calls |
+  | --- | ---: | ---: | ---: | --- | ---: | ---: |
+  | 1 | 32/42 | 10 | 15 | none | 47,677ms | 4 |
+  | 2 | 33/42 | 9 | 14 | none | 45,436ms | 4 |
+  | 3 | 32/42 | 10 | 15 | Nikkori Roll | 45,325ms | 4 |
+
+- Stable OCR substitutions included Filadelfia→`Fildelfia`/`Fidelifila`, Van Hallen→`Van Halen`, Nevada→`Nevadal`, California→`California I`, Kurimi Roll→`Kurimu Roll`, and Cosmo de Pollo→`Pollo de Pollo`.
+- Completion: all 12 calls returned `finish_reason: stop`; no timeout or truncation occurred.
+- Cost: 12 GPT-4o calls, approximately `$0.36`.
+- Verdict: REJECTED, 0/3 passing runs.
+- Lesson: reducing both crop dimensions fixes the truncation/timeout failure but does not meet exact printed-name accuracy under production compression. Do not wire Tasks 7–9 without a new extraction/name-verification design.
+- Archive: `/Users/santiagoaguirre/Downloads/MenusTesting/nikkori.grid-compressed-r{1,2,3}-{1,2,3,4}.actual.json`

@@ -2,6 +2,8 @@
 
 > **What this is:** the roadmap you return to *between* conversations. It is NOT an individual feature plan. Each of the 5 features below gets its own `superpowers:writing-plans` plan, written and executed in its own conversation, using the kickoff template at the bottom.
 
+> **📊 Live pipeline diagram:** `docs/superpowers/diagrams/menu-extraction-pipeline.md` — Mermaid flowchart of the current extraction/enrichment flow (client → edge stages → GPT-4o Vision / Gemini APIs → postprocess → merge → scoring), with both full prompts (P1 `EXTRACT_PROMPT`, P2 `ENRICH_PROMPT`) verbatim and a 🟢/🟡/🔴 status legend. **Keep it updated as each feature closes.**
+
 ## Context
 
 For several sessions the extraction eval loop chased all scoring dimensions at once (item totals, sections, options, categories) across 6 menus, and no iteration passed everything on more than one menu. Offline re-scoring showed iterations **trading dimensions against each other** (iter-010/011 gained options but broke item extraction on nikkori/brasero-two). Iteration 001 was re-certified as the best-known baseline with a ±2-pass noise floor.

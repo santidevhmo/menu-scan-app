@@ -32,7 +32,8 @@ The fix is process, not prompt: split the core OCR feature into 5 sequenced sub-
 
 Food first because the app's value is macro-sorted **food**; drinks come last.
 
-### Feature 1 — Extract all Food menu items
+### Feature 1 — Extract all Food menu items ✅ CLOSED 2026-07-06
+- **Plan file:** `docs/superpowers/plans/2026-07-04-feature-1-extract-food-items.md` (see its Execution Log for the final results, distinct-dish convention, el-marcos re-adjudication, and Feature 2–5 gotchas).
 - **Goal:** every food item on the menu appears exactly once in the JSON; count matches the fixture's food total.
 - **Scoped dimension:** `items` count, food category only.
 - **Harness work:** split each fixture's `total_items` into food/drink counts (currently combined — e.g. el-marcos 45 = food + drink). Add a category/dimension filter flag to `eval-extraction.ts` so a run scores only the active feature's dimension plus already-frozen gates.

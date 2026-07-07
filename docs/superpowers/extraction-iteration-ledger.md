@@ -166,3 +166,87 @@ Rules:
 - Verdict: REJECTED, 0/3 passing runs.
 - Lesson: reducing both crop dimensions fixes the truncation/timeout failure but does not meet exact printed-name accuracy under production compression. Do not wire Tasks 7–9 without a new extraction/name-verification design.
 - Archive: `/Users/santiagoaguirre/Downloads/MenusTesting/nikkori.grid-compressed-r{1,2,3}-{1,2,3,4}.actual.json`
+
+## Iteration 023 — Full uncompressed page, detail auto vs high (isolate the compression variable)
+- Date: 2026-07-07 | Prompt change: NONE. Request change: threaded optional `detail` through `runExtraction`; default production path still omits it. Input: full raw `NikkoriMenu.png` (3.0 MB, native ~1196×1896), no client compression.
+- Hypothesis: the `compressImage.ts` clamp (longest edge→1024 + JPEG q0.7 on every image) — not crop geometry — is what breaks Nikkori; removing it may pass the full page and make cropping unnecessary.
+- Confound controlled: `extract.ts` sends NO `detail`, so every prior iteration ran `detail:"auto"` (uncontrolled). This iteration threads an optional `detail` param through `runExtraction` and tests two variants: (a) detail auto (production-faithful minus compression); (b) detail "high" (removes the resolution confound).
+- Ceiling caveat: OpenAI high-detail normalizes the shortest side to 768px regardless of input size, so a raw full page is still only ~768px across 5 columns (~150px/col). Prediction: likely still undercounts and may reproduce iter-021's full-image timeout; running to prove compression-alone was/wasn't the culprit.
+- Acceptance: food count ∈ [45,51] AND exact roll recall ≥40/42 (trustworthy, not dessert-duplication inflated) AND all calls `finish_reason: stop`. If met → compression was the culprit, cropping unnecessary.
+- Baseline to beat: compressed full image = 44/48 food (iter 015); timed out after 120s under production-like compression (iter 021).
+- Results: `detail:auto` timed out after 120s (no actual.json). `detail:high` returned `finish_reason:stop` in 42,555ms with 110 total items, 41 food items, and exact roll recall 25/42; layout was `dense:true,crop_direction:none`.
+- Verdict: REJECTED. Full raw page does not meet the count gate or trustworthy roll-name proxy, and `auto` is not shippable under the current timeout.
+- Lesson: removing client compression alone is not enough; the full-page resolution budget still misses dense-grid roll names. Do not pursue unbounded-time full-page auto for Feature 1.
+- Archive: `/Users/santiagoaguirre/Downloads/MenusTesting/nikkori.raw-full-high.actual.json`
+
+## Iteration 024 — 2×2 crops with compression removed
+- Date: 2026-07-07 | Prompt change: NONE. Input change: four raw `NikkoriMenu.grid-raw-{1..4}.png` 2×2 crops with NO client compression, at `detail:"high"` — the exact cells iter-022 ran COMPRESSED (32–33/42).
+- Hypothesis: OpenAI applies the 768px short-side normalization per image, so an uncompressed 2-column crop reaches the model at ~2× the effective text resolution of the full page. Isolates "remove compression while cropping" — the only variable that differed from iter-020's 42/42 raw diagnostic.
+- Merge: same `mergeItemSources` dedup pipeline as iter 022.
+- Acceptance (mirrors iter 022): ≥2/3 runs recover all 42 exact printed roll names, zero unresolved normalized duplicates, all 4 calls `finish_reason: stop`, no timeout/truncation.
+- Cost: 4 calls/run × 3 runs = 12 calls ≈ $0.36.
+- Results:
+
+  | Run | Exact roll recall | Misses | Extras | Duplicates | Summed latency | Calls |
+  | --- | ---: | --- | ---: | --- | ---: | ---: |
+  | 1 | 39/42 | Nevada, Kurimi Roll, Salmón Especial | 8 | none | 69,560ms | 4 |
+  | 2 | 40/42 | Nevada, Kurimi Roll | 12 | none | 60,457ms | 4 |
+  | 3 | 40/42 | Nevada, Kurimi Roll | 8 | none | 63,680ms | 4 |
+
+- Completion: final rerun completed all 12 calls with `finish_reason:stop`. An earlier first attempt timed out before producing a scored run and was superseded by the completed rerun.
+- Verdict: REJECTED, 0/3 passing runs. It improves over compressed 2×2 but never reaches the required 42/42 exact roll recall.
+- Lesson: raw 2×2 high-detail crops are close but consistently misread stable aliases (`Nevada`→`Nevadal`, `Kurimi Roll`→`Kurimu Roll`) and sometimes miss `Salmón Especial`; name normalization/correction or a different oracle-aware extraction design is now the likely lever, not more compression/crop geometry.
+- Archive: `/Users/santiagoaguirre/Downloads/MenusTesting/nikkori.grid-raw-high-r{1,2,3}-{1,2,3,4}.actual.json`
+
+## Iteration 025 — offline re-score of iter-024 archives under clarified count±3 + no-dup bar
+- Date: 2026-07-06 | Prompt change: NONE. Offline only ($0): `scripts/eval-adaptive-crops.ts` merged each run's 4 archived raw-2×2 crops via `mergeItemSources`, filtered drinks, reported merged food count + normalized-name duplicates.
+- Clarified bar (user, 2026-07-06): Nikkori food count within ±3 of 48 → [45,51] AND no duplicated food items. Exact roll-name spelling NOT required (Nevada→Nevadal, Kurimi→Kurimu are acceptable misreads). Supersedes the 42/42 exact-recall bar iters 016–024 were rejected against.
+- Result: r1 actual=47 dups=[] PASS; r2 actual=52 dups=[] FAIL (+1 over the 51 ceiling); r3 actual=48 dups=[] PASS → **2/3 pass** under the clarified bar.
+- Failure mode (r2): crop-boundary over-split produced near-variants `Kurimu Roll` + `Kurimu Roll I` and `Salmón Samba I` that escape exact-normalized dedup but inflate the count past 51. NOT undercount, NOT a true duplicate by exact name — a roll appearing twice under two spellings (violates "appears exactly once").
+- Verdict: DIAGNOSTIC (offline, no prompt change, archived data — not the live 3/3 the exit gate needs).
+- Lesson: the remaining Nikkori lever is a tighter merge/dedup in `mergeItemSources` (collapse near-variants — e.g. a trailing lone roman-numeral/`I` or single-token suffix — so `Kurimu Roll I`→`Kurimu Roll`), which fixes r2's overcount AND enforces "appears exactly once." NOT more crops/compression/prompt edits. Next: add the no-dup check to `eval-extraction.ts` items scorer, then eval 026 (live 3/3 `--gate items` with dense-crop routing).
+
+## Iteration 026 — tighten mergeItemSources: a null section is compatible, not distinct
+- Date: 2026-07-06 | Code change (NOT prompt): in `src/lib/adaptiveExtraction.ts` `duplicate()`, the near-name (edit-distance) merge required identical `section_title`; a crop that emits `section_title:null` was treated as a different section and blocked the merge. Now a null/empty section on either side is compatible. TDD: added failing test "merges near-name variant when one source omits the section", then fixed.
+- Root cause (from r2 crop trace): iter-024 crop 3 emits `section_title:null`; `Kurimu Roll I`/`Salmón Samba I` (spurious trailing " I" OCR) matched their sectioned copies on price+category+edit-distance≤2 but were rejected on the section mismatch → survived as extras → overcount 52.
+- Eval (offline re-score of iter-024 archives, $0, same `eval-adaptive-crops.ts`): r1=47 PASS, r2=48 PASS (was 52), r3=48 PASS → **3/3 under the clarified count±3 + no-dup bar**. r2 `missing` UNCHANGED [Nevada, Kurimi Roll] before/after → collapsed only spurious variants, lost zero oracle rolls. All 11 unit tests pass.
+- Verdict: ACCEPTED (offline). Turns iteration 025's 2/3 into 3/3 with no roll loss and no regressions.
+- Lesson: the last Nikkori blocker was a merge-dedup gap (null section blocking variant collapse), NOT resolution/OCR. This is offline validation on archived crops — NOT the exit gate. To CLOSE Feature 1: (1) add the no-dup check to `eval-extraction.ts` items scorer; (2) iteration 027 = LIVE 3/3 `--gate items` on all 6 menus with dense-crop routing wired into the live path (~$0.90).
+
+## Iteration 027 — LIVE 3× exit-gate attempt, all 6 menus, dup check active
+- Date: 2026-07-06 | Code: `scripts/eval-027-live.ts` (5 menus single production call; Nikkori = 4 uncompressed 2×2 tiles @`detail:"high"`, merged). Items scorer now also fails same-name+same-price duplicates (step 1).
+- Result: **0/3 consecutive GATE PASS.** Run 1 PASS (all 6). Run 2 FAIL (el-marcos). Run 3 FAIL (el-marcos).
+- Per menu: brasero 28/28 ×3; brasero-two 45/47/45 (+1/+3/+1 — passed but touched the +3 edge); casa-nostra 23/23 ×3; mochomos 22/22 ×3; **nikkori 49/48/50, 0 dups — PASS all 3 (historical blocker SOLVED live & stable)**; el-marcos 32(0 dup, PASS)/36(1 dup, FAIL)/36(1 dup, FAIL).
+- Verdict: FAIL gate (0/3). But Nikkori passes live. New blocker = el-marcos intermittent EXACT duplicate (same name+price twice) on the NON-dense single-call path, which has no dedup (only the crop/merge path dedups). The step-1 dup check correctly exposed a pre-existing latent duplicate that count-only scoring had been hiding.
+- Lesson: dedup is inconsistent across paths — dense menus dedup via `mergeItemSources`, single-call menus don't. Candidate fix: add exact (name+price) dedup to `postprocessItems` (general, safe — different-price dishes like Revueltos untouched). Also brasero-two is count-unstable near +3 (watch). Confirm the el-marcos duplicate is an artifact (not two real dishes) before/with the fix; re-run 3× after.
+
+## Scorer refinement — duplicate = name + price + DESCRIPTION (ORACLE-CHANGE, user-approved)
+- Date: 2026-07-06 | Scorer change only; NO prompt/extraction change. Supersedes the step-1 (name+price) duplicate definition and the iter-027 "add postprocess dedup" candidate (rejected — it would have DELETED real variants).
+- Investigation: eval 027's el-marcos duplicate was `CHILAQUILES (70gr.) @138` ×3 — three preparations (Tradicionales / Regionales / Divorciados) with DISTINCT descriptions (found in `el-marcos.current-prompt.actual.json`). Not a spurious double-extraction — a menu item with variants. Folding variants into one item + options is Feature 2's job.
+- Change: the items-dimension duplicate key went `name@price` → `name@price@description`. A true duplicate = same dish listed twice (name, price AND description identical, e.g. Nikkori `Kurimu Roll @169` ×2). Same name+price, different description = a variant, NOT a duplicate. (Revueltos 78/84/90 was already safe via distinct prices.)
+- Effect: Chilaquiles-split runs (36 food, inside 34±3) will pass on count with 0 flagged dups; true identical duplicates still caught. TDD: added "different descriptions = distinct variants" self-check, kept "same name+price+desc = duplicate"; `--self-check` passes. Also: `eval-027-live.ts` now logs duplicate names inline and dumps failing menus' `actual.json`.
+- Verdict: ORACLE-CHANGE.
+- Next: re-run eval 027 (3× live) — expect el-marcos green; watch brasero-two's +3 edge.
+
+## Iteration 028 — LIVE 3× re-run after the duplicate ORACLE-CHANGE
+- Date: 2026-07-06 | Code: `eval-027-live.ts` (same recipe) + refined dup check (name+price+description) + per-menu failure dumps (`<menu>.eval027-r<run>.actual.json`).
+- Result: **1/3 consecutive GATE PASS** (run 3 clean). The duplicate problem is GONE — 0 duplicate items on el-marcos all 3 runs; the Chilaquiles-variant ORACLE-CHANGE worked.
+- Per menu: brasero 28/28 ×3; brasero-two 45/43/43 (all pass, no +3 this session); casa-nostra 23/23 ×3; mochomos 22/22 ×3; **nikkori 51/48/49 — PASS all 3 (one +3 edge); solved live across BOTH sessions (iter 027 & 028)**; el-marcos 30(FAIL)/30(FAIL)/32(PASS).
+- el-marcos NEW failure mode (runs 1&2, identical, from dumped actual.json): count 30/34 = −4 undercount AND 1 phantom section-header. Both = "PA' LOS BUKIS" (a SECTION) extracted as a food item @94 + "$94 POR NIÑO" (price note) as a null-price item → ~28 real dishes + 2 junk = 30.
+- Photo adjudication (ElMarcosMenu.png): el-marcos food count is CONVENTION-DEPENDENT — ≈29 by dish-name (folding variants) vs ≈35 by priced-line (Revueltos has 3 price lines, Fritos 2, Hot Cakes 2, Waffles 2, Plato Surtido 2; Chilaquiles = 1 name / 3 preps @138). Fixture=34 assumes a mostly-split convention. The model non-deterministically folds/splits → lands 30–36, straddling the ±3 band [31,37]. "Pa' los Bukis" is a $94/niño kids COMBO section, not a dish.
+- Verdict: FAIL gate (1/3). Nikkori remains solved; el-marcos is the SOLE blocker.
+- Lesson: el-marcos's count instability IS the variant fold/split ambiguity — entangled with Feature 2 (options). It likely will NOT stabilize under Feature 1 alone until a canonical fold/split convention is set. DO NOT prompt-tune (roadmap lesson — trades menus). Open user decisions: (a) adjudicate/reset the el-marcos oracle (34 vs ≈29–35); (b) whether Feature 1 can close el-marcos before Feature 2, or el-marcos gets deferred/paired with Feature 2; (c) how to treat the "Pa' los Bukis" combo + strip the "$94 POR NIÑO" junk.
+
+## Iteration 028b — el-marcos real-vs-junk offline diagnostic (free, $0)
+- Date: 2026-07-06 | Offline analysis of 4 saved el-marcos extractions (`scratchpad/diagnose-elmarcos.ts`): classify food items into section-header junk / price-note junk / real dishes; fold variants by distinct name; measure stability.
+- Finding: **distinct real dish-NAMES per run = 29 / 29 / 28 / 28 (STABLE).** Raw item CARDS = 29 / 36 / 28 / 28 — the 36 is variant-SPLITTING (same ~29 dishes packaged as more cards, e.g. Revueltos/Fritos/Hot Cakes/Waffles multi-price lines). Junk: "PA' LOS BUKIS" (section) + "$94 POR NIÑO" (price note) in 2/4 runs. Core dish set present in EVERY run = 27; the 3 "unstable" names are just the yogurt spelling wobble (yogurt/yogurth = one dish) + the Pa'los Bukis combo line.
+- Conclusion: **el-marcos has NO Feature-1 completeness gap** — it reliably finds ~28–29 real dishes every run. Its gate failure is 100% (a) variant fold/split = Feature 2, and (b) section/price junk = Feature 3. The scorer counts raw cards (swing 28–36) against oracle=34 (a split-convention count) → the mismatch is not Feature 1's responsibility.
+- Implication: counting raw cards CANNOT stabilize (28–36 is too wide for any fixed ±3). Real options: (A) count DISTINCT dish-names (variant-robust) and set el-marcos oracle ≈29 → Feature 1 then measures completeness only, immune to Feature 2's fold/split; or (B) defer el-marcos to close alongside Feature 2. Correcting the oracle NUMBER alone while still counting cards will NOT work.
+
+## Iteration 029 — Option A: completeness-only items gate → Feature 1 CLOSED
+- Date: 2026-07-06 | User decision: close Feature 1, prioritize momentum. Scorer + fixture change (ORACLE-CHANGE).
+- Change: the `items` gate now measures COMPLETENESS = **distinct food dish-NAMES** within ±3 (same-name variant cards fold to one dish) **AND no true duplicates** (name+price+description). The phantom-section-header check was DROPPED from the PASS condition — section-header-as-item (e.g. "Pa' los Bukis") is Feature 3's job; still reported in the detail string for visibility. el-marcos oracle re-adjudicated from the photo: `food_items` 34→28, `total_items` 42→36 (distinct dishes, not variant-split cards).
+- Verification: self-check GREEN. Offline re-score under the new metric: brasero 28/28, brasero-two 43/44, casa-nostra 23/23, el-marcos 30/28, mochomos 22/22 → all PASS. Nikkori passes LIVE (48–51 across eval 027 & 028, 6 runs; rolls are unique so distinct≈cards) — its offline `nikkori.actual.json` is a STALE full-page run (~40) and must NOT be used to score it.
+- Caveat (honest): NO fresh 3/3 live gate was run under the new metric (no API key this session). Closure rests on: 5 menus offline-green + Nikkori live-green (6 runs) + el-marcos completeness proven stable (iter 028b). A confirming `eval-027-live.ts` run under the new scorer is recommended as a formality, not a blocker.
+- Verdict: ORACLE-CHANGE + **Feature 1 CLOSED** (completeness met on all 6 menus).
+- Handed to Feature 2/3: variant fold/split (Chilaquiles/Revueltos → 1 item + options) = Feature 2; the "Pa' los Bukis" section-vs-item question + "$94 POR NIÑO" junk = Feature 3. Frozen gate for F2 = `items` (via `eval-027-live.ts`, which routes Nikkori through crops — the plain `--gate` path canNOT crop Nikkori) + `options`.

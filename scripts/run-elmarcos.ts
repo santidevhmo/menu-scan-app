@@ -9,6 +9,7 @@ if (!apiKey) throw new Error("OPENAI_API_KEY is required");
 const menu = Deno.args[0] ?? "el-marcos";
 const photoOverride = Deno.args[1];
 const label = Deno.args[2] ?? "current-prompt";
+const detail = Deno.args[3] as "auto" | "high" | "low" | undefined;
 const fixture = JSON.parse(
   await Deno.readTextFile(
     new URL(`./fixtures/${menu}.expected.json`, import.meta.url),
@@ -26,7 +27,7 @@ const photos = await Promise.all(
   ),
 );
 const startedAt = Date.now();
-const result = await runExtraction(photos, apiKey);
+const result = await runExtraction(photos, apiKey, detail);
 const latencyMs = Date.now() - startedAt;
 
 const out = `${MENU_DIR}/${menu}.${label}.actual.json`;

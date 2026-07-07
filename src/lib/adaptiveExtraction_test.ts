@@ -74,6 +74,15 @@ Deno.test("merges conservative OCR aliases", () => {
   );
 });
 
+Deno.test("merges near-name variant when one source omits the section", () => {
+  const withSection = item("Kurimu Roll", 169);
+  const nullSection = { ...item("Kurimu Roll I", 169), section_title: null };
+  assertEquals(
+    mergeItemSources([[withSection], [nullSection]]).length,
+    1,
+  );
+});
+
 Deno.test("keeps distinct same-price dishes", () => {
   assertEquals(
     mergeItemSources([[

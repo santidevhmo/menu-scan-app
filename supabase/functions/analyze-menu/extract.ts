@@ -142,6 +142,7 @@ export interface ExtractionResult {
 export async function runExtraction(
   photos: string[],
   apiKey: string,
+  detail?: "auto" | "high" | "low",
 ): Promise<ExtractionResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), MODEL_TIMEOUT_MS);
@@ -165,6 +166,7 @@ export async function runExtraction(
                 url: photo.startsWith("data:")
                   ? photo
                   : `data:image/jpeg;base64,${photo}`,
+                ...(detail ? { detail } : {}),
               },
             })),
           ],

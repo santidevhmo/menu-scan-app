@@ -1,0 +1,59 @@
+{
+  "version": "5",
+  "remote": {
+    "https://deno.land/std@0.168.0/fmt/colors.ts": "03ad95e543d2808bc43c17a3dd29d25b43d0f16287fe562a0be89bf632454a12",
+    "https://deno.land/std@0.168.0/testing/_diff.ts": "a23e7fc2b4d8daa3e158fa06856bedf5334ce2a2831e8bf9e509717f455adb2c",
+    "https://deno.land/std@0.168.0/testing/_format.ts": "cd11136e1797791045e639e9f0f4640d5b4166148796cad37e6ef75f7d7f3832",
+    "https://deno.land/std@0.168.0/testing/asserts.ts": "51353e79437361d4b02d8e32f3fc83b22231bc8f8d4c841d86fd32b0b0afe940"
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:@expo-google-fonts/inter@~0.4.2",
+        "npm:@expo-google-fonts/montserrat@~0.4.2",
+        "npm:@expo/ui@~56.0.17",
+        "npm:@react-native-async-storage/async-storage@2.2.0",
+        "npm:@supabase/supabase-js@^2.106.2",
+        "npm:@tailwindcss/postcss@^4.3.0",
+        "npm:@types/react@~19.2.2",
+        "npm:eslint-config-expo@~56.0.4",
+        "npm:eslint-config-prettier@^10.1.8",
+        "npm:eslint-plugin-prettier@^5.5.5",
+        "npm:eslint@9",
+        "npm:expo-camera@~56.0.8",
+        "npm:expo-constants@~56.0.14",
+        "npm:expo-device@~56.0.4",
+        "npm:expo-file-system@~56.0.7",
+        "npm:expo-font@~56.0.5",
+        "npm:expo-glass-effect@~56.0.4",
+        "npm:expo-image-manipulator@~56.0.18",
+        "npm:expo-image-picker@~56.0.17",
+        "npm:expo-image@~56.0.11",
+        "npm:expo-linking@~56.0.14",
+        "npm:expo-router@~56.2.10",
+        "npm:expo-splash-screen@~56.0.10",
+        "npm:expo-status-bar@~56.0.4",
+        "npm:expo-symbols@~56.0.6",
+        "npm:expo-system-ui@~56.0.5",
+        "npm:expo-web-browser@~56.0.5",
+        "npm:expo@~56.0.11",
+        "npm:lucide-react-native@^1.16.0",
+        "npm:nativewind@5.0.0-preview.4",
+        "npm:prettier@^3.8.3",
+        "npm:react-dom@19.2.3",
+        "npm:react-native-gesture-handler@~2.31.1",
+        "npm:react-native-reanimated@4.3.1",
+        "npm:react-native-safe-area-context@5.7",
+        "npm:react-native-screens@4.25.2",
+        "npm:react-native-svg@15.15.4",
+        "npm:react-native-web@0.21",
+        "npm:react-native-worklets@0.8.3",
+        "npm:react-native@0.85.3",
+        "npm:react@19.2.3",
+        "npm:tailwindcss@^4.3.0",
+        "npm:typescript@~6.0.3",
+        "npm:zustand@^5.0.13"
+      ]
+    }
+  }
+}

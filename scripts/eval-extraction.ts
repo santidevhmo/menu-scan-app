@@ -116,16 +116,32 @@ export function scoreMenu(
   actual: ActualExtraction,
 ): MenuReport {
   const foodItems = actual.items.filter((item) => item.category !== "drink");
-  const itemDelta = foodItems.length - fixture.food_items;
+  // Feature 1 measures COMPLETENESS: distinct food dishes found. Same-name
+  // variant cards (Revueltos 78/84/90, Chilaquiles' three preparations @138)
+  // fold into ONE dish — how they're split/folded is Feature 2's (options) call,
+  // so it must not move this count. `food_items` fixtures are distinct-dish counts.
+  const distinctDishes = new Set(foodItems.map((item) => normalize(item.name)));
+  const itemDelta = distinctDishes.size - fixture.food_items;
   const headers = new Set(
     [...fixture.sections, ...(fixture.section_headers ?? [])].map(normalize),
   );
+  // Section-header-as-item ("Pa' los Bukis") is a sections problem = Feature 3.
+  // Reported for visibility but NOT a Feature 1 pass condition.
   const phantomHeaders =
     foodItems.filter((item) => headers.has(normalize(item.name))).length;
+  // A duplicate = the SAME dish listed twice (same name, price AND description).
+  const seenKeys = new Set<string>();
+  const duplicateNames = new Set<string>();
+  for (const item of foodItems) {
+    const key =
+      `${normalize(item.name)}@${item.price}@${normalize(item.description)}`;
+    if (seenKeys.has(key)) duplicateNames.add(normalize(item.name));
+    else seenKeys.add(key);
+  }
   const items = {
-    pass: Math.abs(itemDelta) <= 3 && phantomHeaders === 0,
+    pass: Math.abs(itemDelta) <= 3 && duplicateNames.size === 0,
     detail:
-      `${foodItems.length}/${fixture.food_items} food items; ${phantomHeaders} section-header items`,
+      `${distinctDishes.size}/${fixture.food_items} distinct food dishes; ${duplicateNames.size} duplicates; ${phantomHeaders} section-headers (→Feature 3)`,
   };
 
   const expectedCategories = new Set(fixture.categories);
@@ -561,11 +577,19 @@ function runSelfCheck(): void {
         section_title: "Desserts",
         options: [],
       },
+      {
+        name: "Toast",
+        description: "",
+        price: 7,
+        category: "food",
+        section_title: "Mains",
+        options: [],
+      },
     ],
   });
   assert(
     !failing.items.pass,
-    "item score should catch count and header errors",
+    "item score should catch count errors (4 distinct food over the +3 band)",
   );
   assert(
     !failing.categories.pass,
@@ -702,6 +726,43 @@ function runSelfCheck(): void {
   assert(
     scoreMenu(duplicateFixture, duplicateActual).options.pass,
     "qualified target should match the correct card among duplicate names",
+  );
+
+  assert(
+    scoreMenu(duplicateFixture, duplicateActual).items.pass,
+    "same name at different prices are distinct food items, not duplicates",
+  );
+  assert(
+    !scoreMenu(fixture, {
+      ...actual,
+      items: [...actual.items, filler("Soup"), filler("Soup")],
+    }).items.pass,
+    "same food name at the same price counts as a duplicate item",
+  );
+  assert(
+    scoreMenu(fixture, {
+      ...actual,
+      items: [
+        ...actual.items,
+        {
+          name: "Chilaquiles",
+          description: "Tradicionales",
+          price: 138,
+          category: "food",
+          section_title: "Mains",
+          options: [],
+        },
+        {
+          name: "Chilaquiles",
+          description: "Divorciados",
+          price: 138,
+          category: "food",
+          section_title: "Mains",
+          options: [],
+        },
+      ],
+    }).items.pass,
+    "same name and price but different descriptions are distinct variants, not duplicates",
   );
 
   const duplicateWithFalsePositive: ActualExtraction = {

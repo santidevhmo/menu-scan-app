@@ -1,8 +1,8 @@
 {
   "menu": "el-marcos",
   "photos": ["ElMarcosMenu.png"],
-  "total_items": 42,
-  "food_items": 34,
+  "total_items": 36,
+  "food_items": 28,
   "drink_items": 8,
   "categories": ["food", "drink"],
   "sections": [

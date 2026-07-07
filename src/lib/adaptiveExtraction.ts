@@ -82,12 +82,18 @@ function duplicate(a: ExtractedItem, b: ExtractedItem): boolean {
   const compatiblePrice =
     a.price === b.price || a.price === null || b.price === null;
   if (left === right) return compatiblePrice;
+  // A null/empty section means "unknown", not "a different section": a crop
+  // that omits section_title must still merge with a sectioned near-name copy.
+  const aSection = normalize(a.section_title ?? "");
+  const bSection = normalize(b.section_title ?? "");
+  const compatibleSection =
+    aSection === bSection || aSection === "" || bSection === "";
   if (
     a.price === null ||
     b.price === null ||
     a.price !== b.price ||
     a.category !== b.category ||
-    normalize(a.section_title ?? "") !== normalize(b.section_title ?? "")
+    !compatibleSection
   )
     return false;
   return (

@@ -7,80 +7,52 @@
 > **Legend:** 🟢 done · 🟡 built but not gated/benched · 🔴 not built yet.
 
 ```mermaid
-flowchart TD
-    %% ── CLIENT ──────────────────────────────────────────────
-    subgraph CLIENT["📱 Client — Expo / React Native"]
-        direction TB
-        CAM["expo-camera / expo-image-picker<br/>capture or pick menu photos"]
-        COMP["expo-image-manipulator<br/>compress ≤1024px, JPEG q0.7"]
-        CUT["dense-menu auto-cutter<br/>🔴 NOT BUILT — eval feeds pre-cut tiles"]
-        RANK["client re-rank by goals<br/>soft-clamped z-scores 🟢"]
-        CAM --> COMP
-        COMP -.->|"dense menus (future)"| CUT
+sequenceDiagram
+    autonumber
+    actor U as 👤 User
+    participant C as 📱 Client (Expo/RN)
+    participant EF as ☁️ Edge Fn analyze-menu (Deno)
+    participant V as 🌐 GPT-4o Vision
+    participant EN as 🌐 GPT-4o / Gemini 2.5 Flash
+
+    U->>C: capture / pick menu photos
+    Note over C: expo-camera / expo-image-picker<br/>then expo-image-manipulator<br/>compress ≤1024px, JPEG q0.7
+
+    rect rgb(20,60,30)
+    Note over C,V: STAGE 1 — extraction (keys stay server-side)
+    alt Normal menu — single call
+        C->>EF: POST stage=extract {photos}
+        EF->>V: chat/completions · P1 EXTRACT_PROMPT<br/>strict json_schema · temp 0 · seed 17 · ~$0.03
+        V-->>EF: items[] + image_layout + image_quality
+    else 🔴 Dense menu — auto-cutter NOT BUILT (eval feeds pre-cut tiles)
+        C->>EF: POST stage=extract-crops {2–3 tiles}
+        loop each crop tile
+            EF->>V: runExtraction(tile) · P1
+            V-->>EF: region items[]
+        end
+        EF->>EF: mergeItemSources() — dedup, null-section compatible, alias collapse
+    end
+    EF->>EF: postprocessItems()<br/>stripMenuNumbers → promoteSections → filterServingFormatOptions
+    EF-->>C: items[] (+ image_layout, image_quality)
+    end
+    Note over EF,C: 🟢 Feature 1 CLOSED — scoreMenu items dimension:<br/>distinct food dish-names ±3, no true dups<br/>(section-headers → Feature 3)
+
+    rect rgb(70,50,20)
+    Note over C,EN: STAGE 2 — enrichment 🟡 (model benchmark not finalized)
+    C->>EF: POST stage=enrich {items[]}
+    alt provider = gpt-4o
+        EF->>EN: callGptEnrich · P2 ENRICH_PROMPT
+    else provider = gemini-2.5-flash
+        EF->>EN: callGeminiEnrich · P2 ENRICH_PROMPT
+    end
+    EN-->>EF: items[] + protein_g/carb_g/fat_g/kcal + allergens
+    EF-->>C: enriched items[]
     end
 
-    %% ── EDGE FUNCTION ───────────────────────────────────────
-    subgraph EDGE["☁️ Supabase Edge Function: analyze-menu (Deno) — keys server-side only"]
-        direction TB
-        DISP{"dispatch by 'stage'"}
-        EXT["stage=extract<br/>runExtraction()"]
-        EXTC["stage=extract-crops<br/>runCropExtractions() · 2–3 crops<br/>🔴 GAP: no detail:high / uncompressed yet"]
-        ENR["stage=enrich<br/>callGptEnrich / callGeminiEnrich"]
-        POST["postprocessItems()<br/>stripMenuNumbers → promoteSections → filterServingFormatOptions"]
-        MERGE["mergeItemSources()<br/>crop dedup · null-section compatible · alias collapse"]
-        DISP -->|"1 · extract"| EXT
-        DISP -->|"1b · dense (future)"| EXTC
-        DISP -->|"3 · enrich"| ENR
-        EXT --> POST
-        EXTC --> POST
-        POST -.->|"crop path only"| MERGE
-    end
+    C->>C: re-rank by goals — soft-clamped z-scores 🟢
+    C-->>U: sorted menu items (most goal-aligned first)
 
-    %% ── EXTERNAL APIS ───────────────────────────────────────
-    subgraph APIS["🌐 External Model APIs"]
-        direction TB
-        OAIV["OpenAI GPT-4o Vision<br/>chat/completions · json_schema strict<br/>temp 0 · seed 17 · ~$0.03/call"]
-        OAIE["OpenAI GPT-4o<br/>enrichment 🟡"]
-        GEM["Google Gemini 2.5 Flash<br/>enrichment alt 🟡"]
-    end
-
-    %% ── FLOW WIRING ─────────────────────────────────────────
-    COMP -->|"POST base64 photos"| DISP
-    CUT -.->|"POST tiles (future)"| DISP
-    EXT -->|"P1"| OAIV
-    EXTC -->|"P1 ×N"| OAIV
-    ENR -->|"P2"| OAIE
-    ENR -->|"P2"| GEM
-    MERGE -->|"items[]"| RANK
-    POST -->|"2 · items[] + image_layout + image_quality"| RANK
-    RANK -->|"4 · items[] for macros"| DISP
-
-    %% ── EVAL HARNESS (Feature 1 status) ─────────────────────
-    subgraph EVAL["🧪 Eval harness — feat/extraction-eval-harness"]
-        direction TB
-        E27["eval-027-live.ts<br/>6-menu live gate · Nikkori via 2×2 tile merge"]
-        SCORE["scoreMenu() items dimension 🟢<br/>distinct food dish-names ±3 · no true dups<br/>(section-headers → Feature 3)"]
-        E27 --> SCORE
-    end
-    E27 -.->|"calls runExtraction directly"| EXT
-
-    %% ── PROMPTS (own box; full text below the diagram) ──────
-    subgraph PROMPTS["📝 Prompts — FULL VERBATIM TEXT BELOW THIS DIAGRAM"]
-        direction TB
-        P1["P1 · EXTRACT_PROMPT (extract.ts)<br/>read menu → items JSON:<br/>name, description, price, category,<br/>section_title, options<br/>+ image_layout.dense + image_quality"]
-        P2["P2 · ENRICH_PROMPT (index.ts)<br/>step-by-step CoT: ingredients → macros<br/>protein_g / carb_g / fat_g / kcal + allergens"]
-    end
-    EXT -. uses .-> P1
-    EXTC -. uses .-> P1
-    ENR -. uses .-> P2
-
-    %% ── STATUS STYLING ──────────────────────────────────────
-    classDef done fill:#1b5e20,stroke:#66bb6a,color:#fff;
-    classDef partial fill:#5d4037,stroke:#ffb74d,color:#fff;
-    classDef missing fill:#7f1d1d,stroke:#ef5350,color:#fff;
-    class SCORE,RANK done;
-    class ENR,OAIE,GEM partial;
-    class CUT,EXTC missing;
+    Note over U,EN: Prompts P1 (EXTRACT_PROMPT) & P2 (ENRICH_PROMPT)<br/>full verbatim text below this diagram
 ```
 
 ## Call order (happy path)
@@ -167,4 +139,4 @@ Enrichment runs via GPT-4o (`callGptEnrich`) or Gemini 2.5 Flash (`callGeminiEnr
 
 ## How to keep this file current
 
-As each feature closes, update the mermaid `class` status colors + the Status table, and note any prompt/schema change here (P1/P2 are the source of truth other LLMs read). This file is linked from `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`.
+As each feature closes, update the sequence-diagram notes/`rect` status colors + the Status table, and note any prompt/schema change here (P1/P2 are the source of truth other LLMs read). This file is linked from `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`.

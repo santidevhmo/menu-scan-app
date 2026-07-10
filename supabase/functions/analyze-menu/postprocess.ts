@@ -200,13 +200,18 @@ export function stripMenuNumbers(
 // parser's guard. ponytail: es/en phrases; extend per language from data.
 const UNENUMERATED_CHOICE = /^\s*(?:\p{L}+\s+)?(?:a elegir|de su elecci[oó]n|su elecci[oó]n|of your choice|to choose)\s*$/iu;
 
+// Per-unit price notation ("$98 C/U" = cada uno / each) — a price note, not a choice.
+const PER_UNIT_NOTE = /^\s*c\/u\.?\s*$/i;
+
 export function filterServingFormatOptions(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
   return items.map((item) => ({
     ...item,
     options: item.options.filter((option) =>
-      !isServingFormat(option.name) && !UNENUMERATED_CHOICE.test(option.name)
+      !isServingFormat(option.name) &&
+      !UNENUMERATED_CHOICE.test(option.name) &&
+      !PER_UNIT_NOTE.test(option.name)
     ),
   }));
 }
@@ -371,6 +376,19 @@ if (import.meta.main) {
     throw new Error(
       `unenumerated filter: got ${unenumeratedOpt[0].options.map((o) => o.name).join("|")}`,
     );
+  }
+  // Per-unit price notation ("C/U" = cada uno) is not a choice.
+  const perUnit = filterServingFormatOptions([item({
+    name: "Omelette",
+    price: 98,
+    options: [
+      { name: "C/U", price: null, grams: null },
+      { name: "c/u.", price: null, grams: null },
+      { name: "verdura", price: null, grams: null },
+    ],
+  })]);
+  if (perUnit[0].options.map((o) => o.name).join("|") !== "verdura") {
+    throw new Error(`per-unit filter: got ${perUnit[0].options.map((o) => o.name).join("|")}`);
   }
   // Different names / different categories never fold.
   const distinct = foldVariantCards([

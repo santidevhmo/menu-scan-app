@@ -104,10 +104,21 @@ async function extractMenu(fixture: Fixture): Promise<Actual> {
     }
     return { image_quality: quality!, items: mergeItemSources(sources) };
   }
+  // iter-036: multi-photo menus get one call PER page, merged — the proven
+  // dense-tile recipe at page granularity (full budget per page). Single-photo
+  // menus stay production-faithful (one call, default detail).
+  if (fixture.photos.length > 1) {
+    const sources: ExtractedItem[][] = [];
+    let quality: Actual["image_quality"] | undefined;
+    for (const photo of fixture.photos) {
+      const result = await extractWithRetry([await photoData(photo)], "high");
+      quality ??= result.image_quality;
+      sources.push(result.items);
+    }
+    return { image_quality: quality!, items: mergeItemSources(sources) };
+  }
   const photos = await Promise.all(fixture.photos.map(photoData));
-  // iter-035: non-dense menus also read at detail:"high" — recovers dropped
-  // small print (variant price lines, "A elegir" notes). General, not per-menu.
-  const result = await extractWithRetry(photos, "high");
+  const result = await extractWithRetry(photos);
   return { image_quality: result.image_quality, items: result.items };
 }
 

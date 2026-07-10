@@ -23,17 +23,22 @@ const SERVING_FORMAT = new Set([
   "1/2",
   "litro",
   "liter",
-  "750",
-  "300",
-  "85",
   "ml",
   "mxn",
 ]);
 
+// Pure numbers in an option name are prices/volumes (Copa 85, 750), never a
+// dish choice — general rule replacing the old hardcoded 85/300/750 entries.
+const NUMERIC_TOKEN = /^\d+(?:[.,]\d+)?$/;
+
+function isFormatToken(token: string): boolean {
+  return SERVING_FORMAT.has(token) || NUMERIC_TOKEN.test(token);
+}
+
 function isServingFormat(name: string): boolean {
   const normalized = name.toLocaleLowerCase().trim();
-  return SERVING_FORMAT.has(normalized) ||
-    normalized.split(/\s+/).every((word) => SERVING_FORMAT.has(word));
+  return isFormatToken(normalized) ||
+    normalized.split(/\s+/).every((word) => isFormatToken(word));
 }
 
 // Broader than isServingFormat: fires if ANY token is a serving-format word.
@@ -42,8 +47,8 @@ function isServingFormat(name: string): boolean {
 // ponytail: token scan; a dish literally named "Orden Grande" would be a false
 // block — acceptable ceiling, upgrade to price-pattern parsing if a menu hits it.
 function hasServingFormatToken(name: string): boolean {
-  return name.toLocaleLowerCase().split(/[^a-z0-9/]+/).filter(Boolean)
-    .some((token) => SERVING_FORMAT.has(token));
+  return name.toLocaleLowerCase().split(/[^a-z0-9/.,]+/).filter(Boolean)
+    .some((token) => isFormatToken(token));
 }
 
 // A price===null item whose options are dishes (no serving-format tokens) is a
@@ -132,5 +137,18 @@ if (import.meta.main) {
     options: [{ name: "jamón", price: null, grams: null }],
   })]);
   if (priced.length !== 1 || priced[0].price !== 90) throw new Error("priced promoted");
+  // Numeric tokens are serving-format generally, not via a hardcoded list.
+  const numeric = filterServingFormatOptions([item({
+    name: "Cabernet",
+    options: [
+      { name: "Copa 85", price: null, grams: null },
+      { name: "450", price: null, grams: null },
+      { name: "2 Chicken Breasts", price: null, grams: null },
+    ],
+  })]);
+  if (numeric[0].options.length !== 1) {
+    throw new Error(`numeric: expected 1 surviving option, got ${numeric[0].options.length}`);
+  }
+  if (numeric[0].options[0].name !== "2 Chicken Breasts") throw new Error("numeric: wrong survivor");
   console.log("postprocess self-check passed");
 }

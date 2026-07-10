@@ -308,3 +308,16 @@ Rules:
 - RESULT (offline, $0): ACCEPTED. All 6 current archives: parser FPs 0; el-marcos recall 6/20→19/20 (all inline targets ✓ — Machaca×2, Enchiladas, Pan Tostado, Plato Surtido, Avena; only miss = Revueltos "mexicana", absent from the stale iter-032 dump but folded correctly in the eval-030 baseline). brasero/casa-nostra/mochomos/nikkori unchanged. 6 new TDD self-checks (incl. Pa' los Bukis prose-abort, y-list guard, dedup, unenumerated-choice guard).
 - Caveat found in old noise archives: model itself sometimes misreads "," as "o" (OMELETTE CUBANA "jamón o tocino") — an OCR-level ambiguity ANY path inherits; not parser-caused (desc empty / list-with-y cases produce nothing).
 - Next: live full-gate single run (~$0.30) to confirm 031+033 together; expected leftover = brasero-two Taco Loiro + Churrasquería (vision-level, needs user decision).
+
+## Eval 031+033 live validation (1 run, ~$0.30) — parser works live; 3 new findings
+- Date: 2026-07-09 | No code change. Full-gate single run.
+- items 5/5 scored menus PASS (brasero-two 47/44 at the +3 edge again). options: brasero 5/5, casa-nostra 3/3, mochomos clean; el-marcos 19/20 (all parser targets ✓ LIVE).
+- Findings: (1) el-marcos Revueltos "Dos huevos a la mexicana @84" line DROPPED by the model this run (same vision-level dropped-line class as Taco Loiro; also jamón option priced 84≠90 — oracle doesn't check option prices); (2) brasero-two Feijoada FP = MODEL-emitted unenumerated option "Tortillas a elegir"; (3) one nikkori tile hit the 120s timeout and crashed the run before its verdict (transient — tiles passed 4/4 in eval 030).
+- Verdict: DIAGNOSTIC. 031+033 confirmed live; remaining failures are all vision-level dropped/shredded print + one harness fragility.
+
+## Iteration 034 — filter unenumerated-choice options + timeout retry (deterministic, $0)
+- Date: 2026-07-09 | (a) postprocess: drop options whose name is a choice MENTION with no enumerated alternative ("Tortillas a elegir", "de su elección") — mirrors P1's rule and the parser's guard; TDD. (b) eval-027-live: retry a timed-out extraction call once before failing the run.
+
+## Iteration 035 — detail:"high" for non-dense menus (hypothesis, live)
+- Date: 2026-07-09 | Request change (NOT prompt): non-dense single-call path sends detail:"high" (Nikkori tiles already do). Hypothesis: dropped small print (Taco Loiro "A elegir: picaña/pollo", Churrasquería block, Revueltos @84 line) is a resolution/attention artifact; high detail recovers it. iter-016's high-detail failure was FULL-PAGE DENSE (Nikkori) — different case, tiles unaffected.
+- Risk watched: brasero-two items 47/44 → 48 would FAIL (+3 edge); over-extraction junk on others. Decision rule (user, 2026-07-09): if Loiro/Churrasquería still fail after this, STOP iterating — close Feature 2 for momentum with the gap documented (oracle relaxed + deferral note), per the Feature-1 Option-A precedent.

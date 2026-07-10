@@ -195,12 +195,19 @@ export function stripMenuNumbers(
   }));
 }
 
+// A choice MENTION with no printed alternatives ("Tortillas a elegir",
+// "de su elección") is not an option — mirrors the P1 rule and the inline
+// parser's guard. ponytail: es/en phrases; extend per language from data.
+const UNENUMERATED_CHOICE = /^\s*(?:\p{L}+\s+)?(?:a elegir|de su elecci[oó]n|su elecci[oó]n|of your choice|to choose)\s*$/iu;
+
 export function filterServingFormatOptions(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
   return items.map((item) => ({
     ...item,
-    options: item.options.filter((option) => !isServingFormat(option.name)),
+    options: item.options.filter((option) =>
+      !isServingFormat(option.name) && !UNENUMERATED_CHOICE.test(option.name)
+    ),
   }));
 }
 
@@ -350,6 +357,21 @@ if (import.meta.main) {
     description: "Clásico caldo brasileño. (Tortillas a elegir)",
   })]);
   if (unenumerated[0].options.length !== 0) throw new Error("unenumerated must not create options");
+  // A model-emitted choice MENTION without alternatives is not an option.
+  const unenumeratedOpt = filterServingFormatOptions([item({
+    name: "Feijoada",
+    price: 130,
+    options: [
+      { name: "Tortillas a elegir", price: null, grams: null },
+      { name: "de su elección", price: null, grams: null },
+      { name: "picaña", price: 165, grams: null },
+    ],
+  })]);
+  if (unenumeratedOpt[0].options.map((o) => o.name).join("|") !== "picaña") {
+    throw new Error(
+      `unenumerated filter: got ${unenumeratedOpt[0].options.map((o) => o.name).join("|")}`,
+    );
+  }
   // Different names / different categories never fold.
   const distinct = foldVariantCards([
     item({ name: "Té", price: 32, category: "drink" }),

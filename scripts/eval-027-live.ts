@@ -77,20 +77,37 @@ async function loadFixtures(): Promise<Fixture[]> {
   return fixtures.filter((fixture) => wanted.has(fixture.menu));
 }
 
+// One retry on the 120s model timeout: transient (nikkori tile, eval 031+033
+// validation) and must not kill a 3-run gate attempt.
+async function extractWithRetry(
+  photos: string[],
+  detail?: "high",
+): ReturnType<typeof runExtraction> {
+  try {
+    return await runExtraction(photos, apiKey, detail);
+  } catch (error) {
+    if (!String(error).includes("timed out")) throw error;
+    console.log("  [retry] model timeout — retrying call once");
+    return await runExtraction(photos, apiKey, detail);
+  }
+}
+
 async function extractMenu(fixture: Fixture): Promise<Actual> {
   const tiles = DENSE_TILES[fixture.menu];
   if (tiles) {
     const sources: ExtractedItem[][] = [];
     let quality: Actual["image_quality"] | undefined;
     for (const tile of tiles) {
-      const result = await runExtraction([await photoData(tile)], apiKey, "high");
+      const result = await extractWithRetry([await photoData(tile)], "high");
       quality ??= result.image_quality;
       sources.push(result.items.filter((item) => item.category !== "drink"));
     }
     return { image_quality: quality!, items: mergeItemSources(sources) };
   }
   const photos = await Promise.all(fixture.photos.map(photoData));
-  const result = await runExtraction(photos, apiKey);
+  // iter-035: non-dense menus also read at detail:"high" — recovers dropped
+  // small print (variant price lines, "A elegir" notes). General, not per-menu.
+  const result = await extractWithRetry(photos, "high");
   return { image_quality: result.image_quality, items: result.items };
 }
 

@@ -28,6 +28,12 @@ interface ExpectedFixture {
     name_contains: string;
     section_title: string;
   }[];
+  // F4: per-item coarse-category pins (flat category only — the section half
+  // is Feature 3's frozen check). Any-match semantics, like section_expectations.
+  category_expectations?: {
+    name_contains: string;
+    category: Category;
+  }[];
   items_with_options: {
     name_contains: string;
     description_contains?: string;
@@ -236,19 +242,41 @@ export function scoreMenu(
       `${distinctDishes.size}/${fixture.food_items} distinct food dishes; ${duplicateNames.size} duplicates; ${phantomHeaders} section-headers (→Feature 3)`,
   };
 
-  const expectedCategories = new Set(fixture.categories);
-  const actualCategories = new Set(actual.items.map((item) => item.category));
-  const missingCategories = fixture.categories.filter((category) =>
+  // Feature 4 is food-scoped like Feature 3: the nikkori crop path drops
+  // drinks before merge, so the drink category can never appear there —
+  // drinks are Feature 5's dimension.
+  const expectedCategories = new Set<Category>(
+    fixture.categories.filter((category) => category !== "drink"),
+  );
+  const actualCategories = new Set(foodItems.map((item) => item.category));
+  const missingCategories = [...expectedCategories].filter((category) =>
     !actualCategories.has(category)
   );
   const spuriousCategories = [...actualCategories].filter((category) =>
     !expectedCategories.has(category)
   );
+  // ANY name-matching food item with the expected category satisfies the pin —
+  // impostor/duplicate same-name cards must not steal the check (F3 lesson).
+  const wrongCategories = (fixture.category_expectations ?? []).flatMap(
+    (expected) => {
+      const matches = foodItems.filter((candidate) =>
+        normalize(candidate.name).includes(normalize(expected.name_contains))
+      );
+      if (matches.length === 0) {
+        return [`${expected.name_contains}→(item not found)`];
+      }
+      if (matches.some((item) => item.category === expected.category)) return [];
+      return [
+        `${matches[0].name}→${matches[0].category} (expected ${expected.category})`,
+      ];
+    },
+  );
   const categories = {
-    pass: missingCategories.length === 0 && spuriousCategories.length === 0,
+    pass: missingCategories.length === 0 && spuriousCategories.length === 0 &&
+      wrongCategories.length === 0,
     detail: `missing: ${missingCategories.join(", ") || "none"}; spurious: ${
       spuriousCategories.join(", ") || "none"
-    }`,
+    }; wrong: ${wrongCategories.join("; ") || "none"}`,
   };
 
   const expectedSections = new Map(
@@ -1053,6 +1081,56 @@ function runSelfCheck(): void {
   assert(
     recall.found === 1 && recall.expected === 1,
     "option recall should count 1/1 on passing stub",
+  );
+
+  // F4: categories is food-scoped — drink in fixture.categories is ignored
+  // (nikkori crop path drops drinks pre-merge), and per-item pins use the
+  // same any-match semantics as section_expectations.
+  const catFixture: ExpectedFixture = {
+    ...fixture,
+    categories: ["food", "dessert", "drink"],
+    category_expectations: [
+      { name_contains: "Flan", category: "dessert" },
+    ],
+  };
+  const catItems = (
+    overrides: Partial<ExtractedMenuItem>[],
+  ): ActualExtraction => ({
+    image_quality: { usable: true, issues: [] },
+    items: overrides.map((o) => ({
+      name: "",
+      description: "",
+      price: null,
+      category: "food" as const,
+      section_title: null,
+      options: [],
+      ...o,
+    })),
+  });
+  assert(
+    scoreMenu(catFixture, catItems([
+      { name: "Rib Eye", category: "food" },
+      { name: "Flan", category: "dessert" },
+    ])).categories.pass,
+    "food-scoped categories: missing drink category must not fail",
+  );
+  const flanWrong = scoreMenu(catFixture, catItems([
+    { name: "Rib Eye", category: "food" },
+    { name: "Flan", category: "food" },
+    { name: "Brownie", category: "dessert" },
+  ]));
+  assert(
+    !flanWrong.categories.pass &&
+      flanWrong.categories.detail.includes("Flan→food (expected dessert)"),
+    "category pin: Flan mislabeled food must fail even when the set matches",
+  );
+  assert(
+    scoreMenu(catFixture, catItems([
+      { name: "Rib Eye", category: "food" },
+      { name: "Flan", category: "other" },
+      { name: "Flan", category: "dessert" },
+    ])).categories.pass === false,
+    "spurious category (other) must fail even when the pin is satisfied by any-match",
   );
 
   printReport([passing], aggregateReports([passing]));

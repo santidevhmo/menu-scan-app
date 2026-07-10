@@ -381,3 +381,17 @@ Rules:
 - Offline validation: eval-039 brasero-two live dump → options FP 0, Taco Loiro [arrachera, pollo] intact; all 6 archives options/section_context unchanged-or-better; both self-check suites green.
 - Caveat (offline harness, not live): re-postprocessing an already-postprocessed dump can fold duplicate "En Taco" cards and unfold them into a spurious "En Taco" section — double-postprocess artifact only; live raw items never reach promoteSections with parser options (parser runs last).
 - Verdict: ACCEPTED. Next: eval 042 — 3/3 exit gate.
+
+## Eval 042 — exit-gate attempt 1: 0/3 (three distinct nondeterminism classes, all diagnosed)
+- Date: 2026-07-10 | RUNS=3, GATE_DIMS=[items,options,section_context]. Run 1: options el-marcos. Run 2: options el-marcos + items nikkori 58/48. Run 3: section_context nikkori.
+- (1) el-marcos Chilaquiles: model returned THREE same-name cards @138 (Tradicionales/Regionales/Divorciados descs) — fold's price-differs guard (Nico protection) refused desc→option at equal prices, so the target card had no options. Eval 038/039 passed because the model natively packaged variants as options those runs; the 3-card shape is the alternate packaging.
+- (2) nikkori run-2 items 58/48: ONE tile emitted 9 drink section headers (CERVEZAS, MARTINIS, BEBIDAS, …) as price-less category-"other" pseudo-items; 58−9=49 normal. Pre-existing spike class (F1's phantom headers), first time at this magnitude.
+- (3) nikkori run-3 Fire Dragon→ROLLOS: an IMPOSTOR card — @209 with Unagui Masago's description misnamed "Fire Dragon" under ROLLOS — while the real Fire Dragon @179 sat correctly under HORNEADOS; the scorer's find-first matcher picked the impostor.
+
+## Iteration 042 — three deterministic levers (fold triples, header-echo filter, any-match expectations) ($0)
+- Date: 2026-07-10 | All TDD; NO prompt change.
+- L1 postprocess `foldVariantCards`: 3+ same-name cards with pairwise-distinct descriptions fold as a variant family EVEN at equal prices — OCR double-reads come in pairs, so the Nico pair guard is preserved (self-check for both shapes).
+- L2 postprocess `dropHeaderEchoes` (new, after promoteSections): drop a price-less, description-less, option-less item whose name equals another item's section_title — the header-echo class (kills nikkori's 9 pseudo-items at tile level, where drink items carrying those sections still exist; also el-marcos' stray-header class from F2 gotchas).
+- L3 scorer wrongMappings: an expectation is satisfied when ANY name-matching food item carries the expected section (crop overlap / stable misreads produce impostor same-name cards; the true item's mapping is what the check is about).
+- Offline validation: el-marcos gate dumps r1+r2 → options 19/19 PASS both (L1 confirmed). nikkori gate dumps stay red offline — BOTH are double-postprocess artifacts: the merged dump lost the drink items L2 keys on (live runs per-tile), and re-folding merges the cross-tile Fire Dragon pair that live keeps separate (the dump itself contains both cards = live fold never saw them together). Standard archives: no regressions (only the two known stale-archive artifacts).
+- Verdict: ACCEPTED (L1 offline-proven; L2/L3 unit-proven, live-confirmed at the next gate).

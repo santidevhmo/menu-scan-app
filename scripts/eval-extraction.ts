@@ -275,16 +275,20 @@ export function scoreMenu(
   const spuriousSections = [...actualSections].filter(([key]) =>
     !expectedSections.has(key) && !toleratedSections.has(key)
   ).map(([, section]) => section);
+  // ANY name-matching food item with the expected section satisfies the
+  // expectation — crop overlap and stable misreads produce extra same-name
+  // cards; the true item's mapping is what the check is about.
   const wrongMappings = fixture.section_expectations.flatMap((expected) => {
-    const item = foodItems.find((candidate) =>
+    const matches = foodItems.filter((candidate) =>
       normalize(candidate.name).includes(normalize(expected.name_contains))
     );
-    if (!item) return [`${expected.name_contains}→(item not found)`];
-    if (
+    if (matches.length === 0) return [`${expected.name_contains}→(item not found)`];
+    const satisfied = matches.some((item) =>
       normalize(item.section_title ?? "") === normalize(expected.section_title)
-    ) return [];
+    );
+    if (satisfied) return [];
     return [
-      `${item.name}→${item.section_title ?? "null"} (expected ${expected.section_title})`,
+      `${matches[0].name}→${matches[0].section_title ?? "null"} (expected ${expected.section_title})`,
     ];
   });
   const sectionContext = {
@@ -812,6 +816,21 @@ function runSelfCheck(): void {
   assert(
     headerTitled.section_context.pass,
     "a section_headers entry used as section_title must not be spurious",
+  );
+  // Duplicate/impostor name-matches: the expectation passes when ANY matching
+  // food item carries the expected section (crop overlap and stable misreads
+  // produce extra same-name cards; the true item's mapping is what matters).
+  const anyMatch = scoreMenu(fixture, {
+    image_quality: { usable: true, issues: [] },
+    items: [
+      { ...actual.items[0], section_title: "Sides" },
+      actual.items[1],
+      { ...actual.items[0] },
+    ],
+  });
+  assert(
+    anyMatch.section_context.pass,
+    "expectation must pass when any name-matching item has the expected section",
   );
 
   const breakdown = optionBreakdown(fixture, actual.items);

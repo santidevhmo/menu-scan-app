@@ -68,6 +68,11 @@ function normalizeName(value: string): string {
 export function foldVariantCards(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
+  const cardCounts = new Map<string, number>();
+  for (const card of items) {
+    const key = `${normalizeName(card.name)}#${card.category}`;
+    cardCounts.set(key, (cardCounts.get(key) ?? 0) + 1);
+  }
   const baseByKey = new Map<string, ExtractedMenuItem>();
   const result: ExtractedMenuItem[] = [];
   for (const card of items) {
@@ -85,7 +90,16 @@ export function foldVariantCards(
     const isPricedVariantLabel = card.description.trim() !== "" &&
       normalizeName(card.description) !== normalizeName(base.description) &&
       card.price !== base.price;
-    if (!identical && !isPricedVariantLabel && card.options.length === 0) {
+    // 3+ same-name cards with distinct descriptions are a printed variant
+    // family even at the same price (Chilaquiles' three preparations @138) —
+    // OCR double-reads come in pairs, so pairs (Nico) stay unfolded.
+    const isVariantFamily = (cardCounts.get(key) ?? 0) >= 3 &&
+      card.description.trim() !== "" &&
+      normalizeName(card.description) !== normalizeName(base.description);
+    if (
+      !identical && !isPricedVariantLabel && !isVariantFamily &&
+      card.options.length === 0
+    ) {
       result.push(card); // ambiguous double or label-less variant — leave as-is
       continue;
     }
@@ -96,7 +110,10 @@ export function foldVariantCards(
         known.add(normalizeName(option.name));
       }
     }
-    if (isPricedVariantLabel && !known.has(normalizeName(card.description))) {
+    if (
+      (isPricedVariantLabel || isVariantFamily) &&
+      !known.has(normalizeName(card.description))
+    ) {
       base.options.push({
         name: card.description,
         price: card.price,
@@ -128,6 +145,24 @@ export function promoteSections(
       options: [],
     }));
   });
+}
+
+// A price-less, description-less, option-less item whose name is another
+// item's section_title is a section-header echo (a heading transcribed as an
+// item, e.g. a tile emitting "CERVEZAS" as a card), not a dish — drop it.
+export function dropHeaderEchoes(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  const sectionTitles = new Set(
+    items.flatMap((item) =>
+      item.section_title ? [normalizeName(item.section_title)] : []
+    ),
+  );
+  return items.filter((item) =>
+    !(item.price === null && item.description.trim() === "" &&
+      item.options.length === 0 &&
+      sectionTitles.has(normalizeName(item.name)))
+  );
 }
 
 const INLINE_DISJUNCTION = /\s(?:o|u|or)\s/i;
@@ -230,7 +265,9 @@ export function postprocessItems(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
   return filterServingFormatOptions(
-    extractInlineChoices(promoteSections(foldVariantCards(stripMenuNumbers(items)))),
+    extractInlineChoices(
+      dropHeaderEchoes(promoteSections(foldVariantCards(stripMenuNumbers(items)))),
+    ),
   );
 }
 
@@ -325,6 +362,29 @@ if (import.meta.main) {
   ]);
   if (ocrDouble.length !== 2 || ocrDouble.some((i) => i.options.length > 0)) {
     throw new Error("fold: OCR double must not become an option");
+  }
+  // 3+ same-name cards with distinct descriptions are a printed variant
+  // family even at the same price (Chilaquiles' three preparations @138) —
+  // OCR double-reads come in pairs, so the pair case (Nico) stays unfolded.
+  const triple = foldVariantCards([
+    item({ name: "CHILAQUILES (70gr.)", price: 138, description: "Tradicionales. Con pollo." }),
+    item({ name: "CHILAQUILES (70gr.)", price: 138, description: "Regionales. Con pollo, crema." }),
+    item({ name: "CHILAQUILES (70gr.)", price: 138, description: "Divorciados Mitad rojos." }),
+  ]);
+  if (triple.length !== 1) throw new Error(`fold triple: expected 1 card, got ${triple.length}`);
+  const tripleNames = triple[0].options.map((o) => o.name).join("|");
+  if (tripleNames !== "Regionales. Con pollo, crema.|Divorciados Mitad rojos.") {
+    throw new Error(`fold triple: options wrong: ${tripleNames}`);
+  }
+  // A section-header echo (price-less, desc-less, option-less item whose name
+  // is another item's section_title) is dropped; real dishes stay.
+  const echoes = dropHeaderEchoes([
+    item({ name: "CERVEZAS", price: null, category: "other", section_title: "BEBIDAS CON ALCOHOL" }),
+    item({ name: "Tecate Roja", price: 45, category: "drink", section_title: "CERVEZAS" }),
+    item({ name: "En Taco", price: null, section_title: "Churrasquería" }),
+  ]);
+  if (echoes.map((i) => i.name).join("|") !== "Tecate Roja|En Taco") {
+    throw new Error(`header echo: got ${echoes.map((i) => i.name).join("|")}`);
   }
   // Inline printed choices in descriptions become options.
   const inlineCases: [string, string[]][] = [

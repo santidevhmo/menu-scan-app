@@ -1,21 +1,66 @@
 {
   "menu": "casa-nostra",
-  "photos": ["CasaNostraMenu.png"],
+  "photos": [
+    "CasaNostraMenu.png"
+  ],
   "total_items": 23,
   "food_items": 23,
   "drink_items": 0,
-  "categories": ["food"],
-  "sections": ["Pasta", "Pizze", "Frutti di mare", "Insalate"],
+  "categories": [
+    "food"
+  ],
+  "sections": [
+    "Pasta",
+    "Pizze",
+    "Frutti di mare",
+    "Insalate"
+  ],
   "section_expectations": [
-    { "name_contains": "Fettuccine CasaNostra", "section_title": "Pasta" },
-    { "name_contains": "Margherita", "section_title": "Pizze" },
-    { "name_contains": "Salmone padella", "section_title": "Frutti di mare" },
-    { "name_contains": "Insalata CasaNostra", "section_title": "Insalate" }
+    {
+      "name_contains": "Fettuccine CasaNostra",
+      "section_title": "Pasta"
+    },
+    {
+      "name_contains": "Margherita",
+      "section_title": "Pizze"
+    },
+    {
+      "name_contains": "Salmone padella",
+      "section_title": "Frutti di mare"
+    },
+    {
+      "name_contains": "Insalata CasaNostra",
+      "section_title": "Insalate"
+    }
   ],
   "items_with_options": [
-    { "name_contains": "Fettuccine CasaNostra", "options": ["Gluten free"] },
-    { "name_contains": "Pasta alla romana", "options": ["Gluten free"] },
-    { "name_contains": "frutti di mare", "options": ["Gluten free"] }
+    {
+      "name_contains": "Fettuccine CasaNostra",
+      "options": [
+        {
+          "name": "Gluten free"
+        }
+      ]
+    },
+    {
+      "name_contains": "Pasta alla romana",
+      "options": [
+        {
+          "name": "Gluten free"
+        }
+      ]
+    },
+    {
+      "name_contains": "frutti di mare",
+      "options": [
+        {
+          "name": "Gluten free"
+        }
+      ]
+    }
   ],
-  "image_quality": { "usable": true, "issues": [] }
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  }
 }

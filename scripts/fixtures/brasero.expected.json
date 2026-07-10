@@ -1,10 +1,15 @@
 {
   "menu": "brasero",
-  "photos": ["BraseroMenu.png"],
+  "photos": [
+    "BraseroMenu.png"
+  ],
   "total_items": 28,
   "food_items": 28,
   "drink_items": 0,
-  "categories": ["food", "side"],
+  "categories": [
+    "food",
+    "side"
+  ],
   "sections": [
     "Carne",
     "Mariscos",
@@ -13,21 +18,52 @@
     "Especialidades",
     "Pastas"
   ],
-  "section_headers": ["A las brasas"],
+  "section_headers": [
+    "A las brasas"
+  ],
   "section_expectations": [
-    { "name_contains": "Rib Eye", "section_title": "Carne" },
-    { "name_contains": "Pasta Alfredo", "section_title": "Pastas" },
-    { "name_contains": "Pasta Parmesan", "section_title": "Pastas" }
+    {
+      "name_contains": "Rib Eye",
+      "section_title": "Carne"
+    },
+    {
+      "name_contains": "Pasta Alfredo",
+      "section_title": "Pastas"
+    },
+    {
+      "name_contains": "Pasta Parmesan",
+      "section_title": "Pastas"
+    }
   ],
   "items_with_options": [
     {
       "name_contains": "Pasta Alfredo",
-      "options": ["Camarón", "Pollo"]
+      "options": [
+        {
+          "name": "Camarón"
+        },
+        {
+          "name": "Pollo"
+        }
+      ]
     },
     {
       "name_contains": "Pasta Parmesan",
-      "options": ["Chorizo", "Pollo", "Camarón"]
+      "options": [
+        {
+          "name": "Chorizo"
+        },
+        {
+          "name": "Pollo"
+        },
+        {
+          "name": "Camarón"
+        }
+      ]
     }
   ],
-  "image_quality": { "usable": true, "issues": [] }
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  }
 }

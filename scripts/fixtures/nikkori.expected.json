@@ -1,10 +1,16 @@
 {
   "menu": "nikkori",
-  "photos": ["NikkoriMenu.png"],
+  "photos": [
+    "NikkoriMenu.png"
+  ],
   "total_items": 114,
   "food_items": 48,
   "drink_items": 66,
-  "categories": ["food", "drink", "dessert"],
+  "categories": [
+    "food",
+    "drink",
+    "dessert"
+  ],
   "sections": [
     "Naturales",
     "Empanizados",
@@ -36,31 +42,100 @@
     "Tés Calientes o Fríos"
   ],
   "section_expectations": [
-    { "name_contains": "Salmón Roll", "section_title": "Naturales" },
-    { "name_contains": "Cosmo Roll", "section_title": "Empanizados" },
-    { "name_contains": "Fire Dragon", "section_title": "Horneados" },
-    { "name_contains": "Chipo", "section_title": "Capeados" },
-    { "name_contains": "Pastel de zanahoria", "section_title": "Postres" }
+    {
+      "name_contains": "Salmón Roll",
+      "section_title": "Naturales"
+    },
+    {
+      "name_contains": "Cosmo Roll",
+      "section_title": "Empanizados"
+    },
+    {
+      "name_contains": "Fire Dragon",
+      "section_title": "Horneados"
+    },
+    {
+      "name_contains": "Chipo",
+      "section_title": "Capeados"
+    },
+    {
+      "name_contains": "Pastel de zanahoria",
+      "section_title": "Postres"
+    }
   ],
   "drink_section_expectations": [
-    { "name_contains": "Tecate Roja", "section_title": "Cervezas" },
-    { "name_contains": "Nikkori Relax", "section_title": "Cocteles" },
-    { "name_contains": "Mango con chamoy", "section_title": "Margaritas" },
-    { "name_contains": "Frutos Rojos", "section_title": "Martinis" },
-    { "name_contains": "Tradicional", "section_title": "Mojitos" },
-    { "name_contains": "Sake Pearl Bai", "section_title": "Sake" },
-    { "name_contains": "Grey Goose", "section_title": "Vodka" },
-    { "name_contains": "Captain Morgan", "section_title": "Ron" },
-    { "name_contains": "Don Julio 70", "section_title": "Tequila" },
-    { "name_contains": "Black Label", "section_title": "Whisky" },
-    { "name_contains": "Carajillo", "section_title": "Digestivo" },
-    { "name_contains": "Vino Blanco", "section_title": "Blancos y Rosados" },
-    { "name_contains": "Cabernet Sauvignon", "section_title": "Tintos" },
-    { "name_contains": "Refresco 600 ml", "section_title": "Bebidas" },
-    { "name_contains": "Pepino 12 oz", "section_title": "Limonadas de Sabores" },
-    { "name_contains": "Té Lipton", "section_title": "Tés Calientes o Fríos" },
-    { "name_contains": "Nikkori November", "section_title": "Cocteles" }
+    {
+      "name_contains": "Tecate Roja",
+      "section_title": "Cervezas"
+    },
+    {
+      "name_contains": "Nikkori Relax",
+      "section_title": "Cocteles"
+    },
+    {
+      "name_contains": "Mango con chamoy",
+      "section_title": "Margaritas"
+    },
+    {
+      "name_contains": "Frutos Rojos",
+      "section_title": "Martinis"
+    },
+    {
+      "name_contains": "Tradicional",
+      "section_title": "Mojitos"
+    },
+    {
+      "name_contains": "Sake Pearl Bai",
+      "section_title": "Sake"
+    },
+    {
+      "name_contains": "Grey Goose",
+      "section_title": "Vodka"
+    },
+    {
+      "name_contains": "Captain Morgan",
+      "section_title": "Ron"
+    },
+    {
+      "name_contains": "Don Julio 70",
+      "section_title": "Tequila"
+    },
+    {
+      "name_contains": "Black Label",
+      "section_title": "Whisky"
+    },
+    {
+      "name_contains": "Carajillo",
+      "section_title": "Digestivo"
+    },
+    {
+      "name_contains": "Vino Blanco",
+      "section_title": "Blancos y Rosados"
+    },
+    {
+      "name_contains": "Cabernet Sauvignon",
+      "section_title": "Tintos"
+    },
+    {
+      "name_contains": "Refresco 600 ml",
+      "section_title": "Bebidas"
+    },
+    {
+      "name_contains": "Pepino 12 oz",
+      "section_title": "Limonadas de Sabores"
+    },
+    {
+      "name_contains": "Té Lipton",
+      "section_title": "Tés Calientes o Fríos"
+    },
+    {
+      "name_contains": "Nikkori November",
+      "section_title": "Cocteles"
+    }
   ],
   "items_with_options": [],
-  "image_quality": { "usable": true, "issues": [] }
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  }
 }

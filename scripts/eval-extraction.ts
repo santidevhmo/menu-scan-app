@@ -38,7 +38,13 @@ interface ExpectedFixture {
     name_contains: string;
     description_contains?: string;
     price?: number;
-    options: string[];
+    // F4: price/grams present ⇒ matched option's value must equal it (null =
+    // "no per-option price printed"). Absent ⇒ unchecked (F2 name-only).
+    options: {
+      name: string;
+      price?: number | null;
+      grams?: number | null;
+    }[];
   }[];
   image_quality?: ImageQuality;
 }
@@ -120,7 +126,7 @@ export function optionRecall(
     consumed.add(index);
     const names = items[index].options.map((option) => normalize(option.name));
     for (const expectedOption of target.options) {
-      if (names.some((name) => name.includes(normalize(expectedOption)))) {
+      if (names.some((name) => name.includes(normalize(expectedOption.name)))) {
         found++;
       }
     }
@@ -133,7 +139,10 @@ export interface OptionBreakdown {
     target: ExpectedFixture["items_with_options"][number];
     matchedItem: string | null;
     matchedOptions: string[];
-    missingOptions: string[];
+    missingOptions: ExpectedFixture["items_with_options"][number]["options"];
+    // F4: "name: price 84 (expected 90)" — price/grams value mismatches on
+    // name-matched options.
+    valueMismatches: string[];
   }[];
   falsePositives: { name: string; options: string[] }[];
 }
@@ -151,19 +160,39 @@ export function optionBreakdown(
         matchedItem: null,
         matchedOptions: [],
         missingOptions: target.options,
+        valueMismatches: [],
       };
     }
     consumed.add(index);
     const item = items[index];
     const names = item.options.map((option) => option.name);
     const missingOptions = target.options.filter((expected) =>
-      !names.some((name) => normalize(name).includes(normalize(expected)))
+      !names.some((name) => normalize(name).includes(normalize(expected.name)))
     );
+    const valueMismatches = target.options.flatMap((expected) => {
+      const matched = item.options.find((option) =>
+        normalize(option.name).includes(normalize(expected.name))
+      );
+      if (!matched) return [];
+      const mismatches: string[] = [];
+      if ("price" in expected && matched.price !== expected.price) {
+        mismatches.push(
+          `${expected.name}: price ${matched.price ?? "null"} (expected ${expected.price ?? "null"})`,
+        );
+      }
+      if ("grams" in expected && matched.grams !== expected.grams) {
+        mismatches.push(
+          `${expected.name}: grams ${matched.grams ?? "null"} (expected ${expected.grams ?? "null"})`,
+        );
+      }
+      return mismatches;
+    });
     return {
       target,
       matchedItem: item.name,
       matchedOptions: names,
       missingOptions,
+      valueMismatches,
     };
   });
   const falsePositives = items
@@ -179,7 +208,7 @@ export function formatOptionBreakdown(breakdown: OptionBreakdown): string[] {
   const lines: string[] = [];
   for (const entry of breakdown.targets) {
     const want = `"${entry.target.name_contains}" wants [${
-      entry.target.options.join(", ")
+      entry.target.options.map((option) => option.name).join(", ")
     }]`;
     if (entry.matchedItem === null) {
       lines.push(`    ✗ ${want} → no matching item extracted`);
@@ -191,7 +220,9 @@ export function formatOptionBreakdown(breakdown: OptionBreakdown): string[] {
       lines.push(
         `    ~ ${want} → "${entry.matchedItem}" has [${
           entry.matchedOptions.join(", ")
-        }]; missing [${entry.missingOptions.join(", ")}]`,
+        }]; missing [${
+          entry.missingOptions.map((option) => option.name).join(", ")
+        }]`,
       );
     } else {
       lines.push(
@@ -199,6 +230,9 @@ export function formatOptionBreakdown(breakdown: OptionBreakdown): string[] {
           entry.matchedOptions.join(", ")
         }]`,
       );
+    }
+    for (const mismatch of entry.valueMismatches) {
+      lines.push(`    $ VALUE MISMATCH ${mismatch}`);
     }
   }
   for (const fp of breakdown.falsePositives) {
@@ -334,13 +368,19 @@ export function scoreMenu(
   const missingOptionItems = optionsBreakdown.targets.filter((entry) =>
     entry.matchedItem === null ||
     entry.matchedOptions.length === 0 ||
-    entry.missingOptions.length > 0
+    entry.missingOptions.length > 0 ||
+    entry.valueMismatches.length > 0
+  );
+  const optionValueMismatches = optionsBreakdown.targets.flatMap((entry) =>
+    entry.valueMismatches
   );
   const options = {
     pass: missingOptionItems.length === 0 &&
       optionsBreakdown.falsePositives.length === 0,
     detail:
-      `missed targets: ${missingOptionItems.length}; false-positive items: ${optionsBreakdown.falsePositives.length}`,
+      `missed targets: ${missingOptionItems.length}; false-positive items: ${optionsBreakdown.falsePositives.length}; value mismatches: ${
+        optionValueMismatches.join("; ") || "none"
+      }`,
   };
 
   const expectedQuality = fixture.image_quality;
@@ -643,7 +683,7 @@ function runSelfCheck(): void {
     ],
     items_with_options: [{
       name_contains: "Burger",
-      options: ["Cheese"],
+      options: [{ name: "Cheese" }],
     }, {
       name_contains: "Fries",
       options: [],
@@ -880,13 +920,17 @@ function runSelfCheck(): void {
   assert(
     missedBreakdown.targets[0].matchedItem === "House Burger" &&
       missedBreakdown.targets[0].matchedOptions.length === 0 &&
-      missedBreakdown.targets[0].missingOptions.join(",") === "Cheese",
+      missedBreakdown.targets[0].missingOptions.map((option) => option.name)
+          .join(",") === "Cheese",
     "breakdown reports a matched item extracted with no options",
   );
 
   const accentFixture: ExpectedFixture = {
     ...fixture,
-    items_with_options: [{ name_contains: "Marlín", options: ["Camarón"] }],
+    items_with_options: [{
+      name_contains: "Marlín",
+      options: [{ name: "Camarón" }],
+    }],
   };
   const accentTarget = optionBreakdown(accentFixture, [{
     name: "Machaca de Marlin",
@@ -973,7 +1017,7 @@ function runSelfCheck(): void {
         name_contains: "Revueltos",
         description_contains: "jamón",
         price: 90,
-        options: ["Jamón", "Chorizo", "Tocino"],
+        options: [{ name: "Jamón" }, { name: "Chorizo" }, { name: "Tocino" }],
       },
     ],
   };
@@ -1131,6 +1175,47 @@ function runSelfCheck(): void {
       { name: "Flan", category: "dessert" },
     ])).categories.pass === false,
     "spurious category (other) must fail even when the pin is satisfied by any-match",
+  );
+
+  // F4: a present price/grams key on an expected option is verified against
+  // the matched option; absent keys keep F2's name-only semantics.
+  const priceFixture: ExpectedFixture = {
+    ...fixture,
+    items_with_options: [{
+      name_contains: "Revueltos",
+      options: [{ name: "jamón", price: 90 }],
+    }],
+  };
+  const revueltosAt = (price: number | null): ActualExtraction => ({
+    image_quality: { usable: true, issues: [] },
+    items: [{
+      name: "Revueltos",
+      description: "Dos huevos naturales",
+      price: 78,
+      category: "food",
+      section_title: "Huevos",
+      options: [{ name: "Con jamón, chorizo o tocino", price, grams: null }],
+    }],
+  });
+  assert(
+    scoreMenu(priceFixture, revueltosAt(90)).options.pass,
+    "option price check: matching printed price must pass",
+  );
+  const priceWrong = scoreMenu(priceFixture, revueltosAt(84));
+  assert(
+    !priceWrong.options.pass,
+    "option price check: 84 vs printed 90 must fail options",
+  );
+  const noPriceKeyFixture: ExpectedFixture = {
+    ...fixture,
+    items_with_options: [{
+      name_contains: "Revueltos",
+      options: [{ name: "jamón" }],
+    }],
+  };
+  assert(
+    scoreMenu(noPriceKeyFixture, revueltosAt(84)).options.pass,
+    "absent price key: name-only semantics (F2 frozen) must still pass",
   );
 
   printReport([passing], aggregateReports([passing]));

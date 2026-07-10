@@ -1,10 +1,15 @@
 {
   "menu": "el-marcos",
-  "photos": ["ElMarcosMenu.png"],
+  "photos": [
+    "ElMarcosMenu.png"
+  ],
   "total_items": 36,
   "food_items": 28,
   "drink_items": 8,
-  "categories": ["food", "drink"],
+  "categories": [
+    "food",
+    "drink"
+  ],
   "sections": [
     "Huevos",
     "Mexicanos",
@@ -13,29 +18,158 @@
     "Cereales",
     "Jugos y Frutas"
   ],
-  "section_headers": ["Pa' los Bukis"],
-  "drink_sections": ["De la Cafetería"],
+  "section_headers": [
+    "Pa' los Bukis"
+  ],
+  "drink_sections": [
+    "De la Cafetería"
+  ],
   "section_expectations": [
-    { "name_contains": "Revueltos", "section_title": "Huevos" },
-    { "name_contains": "Fritos", "section_title": "Huevos" },
-    { "name_contains": "Chilaquiles", "section_title": "Mexicanos" },
-    { "name_contains": "Cazuela de Marlín", "section_title": "De la Playa" },
-    { "name_contains": "Waffles", "section_title": "De la Panadería" },
-    { "name_contains": "Avena", "section_title": "Cereales" },
-    { "name_contains": "Plato Surtido", "section_title": "Jugos y Frutas" }
+    {
+      "name_contains": "Revueltos",
+      "section_title": "Huevos"
+    },
+    {
+      "name_contains": "Fritos",
+      "section_title": "Huevos"
+    },
+    {
+      "name_contains": "Chilaquiles",
+      "section_title": "Mexicanos"
+    },
+    {
+      "name_contains": "Cazuela de Marlín",
+      "section_title": "De la Playa"
+    },
+    {
+      "name_contains": "Waffles",
+      "section_title": "De la Panadería"
+    },
+    {
+      "name_contains": "Avena",
+      "section_title": "Cereales"
+    },
+    {
+      "name_contains": "Plato Surtido",
+      "section_title": "Jugos y Frutas"
+    }
   ],
   "items_with_options": [
-    { "name_contains": "Machaca de Marlín", "options": ["huevo", "verdura"] },
-    { "name_contains": "Machaca", "options": ["huevo", "verdura"] },
-    { "name_contains": "Revueltos", "options": ["jamón"] },
-    { "name_contains": "Fritos", "options": ["jamón"] },
-    { "name_contains": "Chilaquiles", "options": ["Regionales", "Divorciados"] },
-    { "name_contains": "Enchiladas", "options": ["Verdes", "Rojas", "Suizas"] },
-    { "name_contains": "Pan Tostado", "options": ["Blanco", "Integral"] },
-    { "name_contains": "Hot Cakes", "options": ["jamón"] },
-    { "name_contains": "Waffles", "options": ["frutos rojos"] },
-    { "name_contains": "Plato Surtido", "options": ["queso cottage", "yogur"] },
-    { "name_contains": "Avena", "options": ["Manzana", "Plátano"] }
+    {
+      "name_contains": "Machaca de Marlín",
+      "options": [
+        {
+          "name": "huevo"
+        },
+        {
+          "name": "verdura"
+        }
+      ]
+    },
+    {
+      "name_contains": "Machaca",
+      "options": [
+        {
+          "name": "huevo"
+        },
+        {
+          "name": "verdura"
+        }
+      ]
+    },
+    {
+      "name_contains": "Revueltos",
+      "options": [
+        {
+          "name": "jamón"
+        }
+      ]
+    },
+    {
+      "name_contains": "Fritos",
+      "options": [
+        {
+          "name": "jamón"
+        }
+      ]
+    },
+    {
+      "name_contains": "Chilaquiles",
+      "options": [
+        {
+          "name": "Regionales"
+        },
+        {
+          "name": "Divorciados"
+        }
+      ]
+    },
+    {
+      "name_contains": "Enchiladas",
+      "options": [
+        {
+          "name": "Verdes"
+        },
+        {
+          "name": "Rojas"
+        },
+        {
+          "name": "Suizas"
+        }
+      ]
+    },
+    {
+      "name_contains": "Pan Tostado",
+      "options": [
+        {
+          "name": "Blanco"
+        },
+        {
+          "name": "Integral"
+        }
+      ]
+    },
+    {
+      "name_contains": "Hot Cakes",
+      "options": [
+        {
+          "name": "jamón"
+        }
+      ]
+    },
+    {
+      "name_contains": "Waffles",
+      "options": [
+        {
+          "name": "frutos rojos"
+        }
+      ]
+    },
+    {
+      "name_contains": "Plato Surtido",
+      "options": [
+        {
+          "name": "queso cottage"
+        },
+        {
+          "name": "yogur"
+        }
+      ]
+    },
+    {
+      "name_contains": "Avena",
+      "options": [
+        {
+          "name": "Manzana"
+        },
+        {
+          "name": "Plátano"
+        }
+      ]
+    }
   ],
-  "image_quality": { "usable": true, "issues": [] }
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  }
 }

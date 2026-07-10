@@ -347,3 +347,7 @@ Rules:
 - Result: GATE PASS ×3. Per menu, all runs: brasero 28/28 + 5/5 recall; brasero-two 47/44 + 1/1; casa-nostra 23/23 + 3/3; el-marcos 28–30/28 + 19/19; mochomos 22/22; nikkori 49–50/48 (crop-merge path). 0 duplicates, 0 option false positives, 0 missed targets in every run.
 - Verdict: **Feature 2 exit gate MET** — items (frozen F1) + options green 3/3. Close-out pending one user discussion (DoorDash pipeline alignment) before the formal close.
 - What ships (worktree commits this session): foldVariantCards + extractInlineChoices + unenumerated/C-U/weight option filters (postprocess.ts, all TDD'd), accent-insensitive scorer + optionBreakdown diagnostics, per-page multi-photo recipe (eval runner; production wiring = close-out note), fold-convention oracles.
+
+## Feature 2 CLOSED 2026-07-09
+- Exit gate met (eval 038, 3/3 live). Close-out done in the MAIN repo: F2 plan Execution Log filled, both Progress Checklists ticked, pipeline diagram updated (options 🟢, new postprocess chain, per-page-recipe production-wiring note) + re-copied to ~/Downloads, DoorDash prior-art section added to the roadmap (PDF paths + adoption decisions).
+- Frozen gates for Feature 3: `items` + `options` via eval-027-live.ts; widen GATE_DIMS to ["items","options","section_context"] when F3 starts.

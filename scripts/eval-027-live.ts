@@ -118,10 +118,17 @@ for (let run = 1; run <= RUNS; run++) {
       );
     }
   }
-  const failures = gateFailures(reports, ["items"]);
+  // ⚠️ CUMULATIVE GATE — this list MUST include every CLOSED feature's dimension,
+  // not just the active one, or a run silently passes without re-checking frozen
+  // gates (roadmap "Cumulative regression gates"). scoreMenu already computes all
+  // dimensions from the same response, so widening this array costs ZERO API calls.
+  // Feature 1 = ["items"]; Feature 2 → ["items","options"]; Feature 3 →
+  // ["items","options","section_context"]; etc. Widen it when you start a feature.
+  const GATE_DIMS = ["items"] as const;
+  const failures = gateFailures(reports, [...GATE_DIMS]);
   if (failures.length === 0) {
     consecutivePasses++;
-    console.log(`  GATE PASS: items on all ${reports.length} menus`);
+    console.log(`  GATE PASS: ${GATE_DIMS.join(", ")} on all ${reports.length} menus`);
   } else {
     consecutivePasses = 0;
     console.log(`  GATE FAIL: ${failures.join("; ")}`);

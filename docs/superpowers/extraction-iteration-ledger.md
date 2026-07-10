@@ -6,6 +6,7 @@ Rules:
 - Never re-try a hypothesis whose Verdict is REVERTED — the Lesson line says why.
 - Full historical detail (iterations 001–011) lives in extraction-eval-log.md; do not append there.
 - Fixtures frozen at commit 99b396b (be2611f + JSON comma syntax fix). Scorer/fixture changes require user approval and get their own entry with Verdict ORACLE-CHANGE.
+- On feature CLOSE or any P1/P2 prompt/schema/flow change: also update the pipeline sequence diagram `docs/superpowers/diagrams/menu-extraction-pipeline.md` (in the MAIN repo) + its `~/Downloads` copy. It is the fresh-context source of truth for the flow — "Diagram discipline" in the roadmap.
 
 ## Do-not-repeat summary (iterations 001–011)
 

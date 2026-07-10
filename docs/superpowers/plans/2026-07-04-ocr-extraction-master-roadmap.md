@@ -2,7 +2,7 @@
 
 > **What this is:** the roadmap you return to *between* conversations. It is NOT an individual feature plan. Each of the 5 features below gets its own `superpowers:writing-plans` plan, written and executed in its own conversation, using the kickoff template at the bottom.
 
-> **📊 Live pipeline diagram:** `docs/superpowers/diagrams/menu-extraction-pipeline.md` — Mermaid flowchart of the current extraction/enrichment flow (client → edge stages → GPT-4o Vision / Gemini APIs → postprocess → merge → scoring), with both full prompts (P1 `EXTRACT_PROMPT`, P2 `ENRICH_PROMPT`) verbatim and a 🟢/🟡/🔴 status legend. **Keep it updated as each feature closes.**
+> **📊 Live pipeline diagram (SOURCE OF TRUTH for the flow + prompts):** `docs/superpowers/diagrams/menu-extraction-pipeline.md` — a Mermaid **sequence diagram** of the current extraction/enrichment flow (Client → Edge Fn stages → GPT-4o Vision / Gemini APIs → postprocess → merge → scoring), with both full prompts (P1 `EXTRACT_PROMPT`, P2 `ENRICH_PROMPT`) verbatim and a 🟢/🟡/🔴 status legend. A snapshot copy is at `~/Downloads/menu-extraction-pipeline.md`. **MANDATORY: whenever you close a feature OR change P1/P2 or the flow, update this diagram (status colors, notes, prompt text) and re-copy it to Downloads — see "Diagram discipline" below.**
 
 ## Context
 
@@ -27,6 +27,8 @@ The fix is process, not prompt: split the core OCR feature into 5 sequenced sub-
   Feature N is **not done** if it broke features 1..N-1. A prompt/schema change that wins the active dimension but regresses a frozen one is **rejected outright** — this is exactly the dimension-trading failure (iter-010/011) the roadmap prevents. Because all dimensions are scored from the **same** API responses, re-checking frozen gates costs **zero** extra API calls.
 
 - **Ledger discipline:** every iteration inside a feature logs to `extraction-iteration-ledger.md` and `extraction-eval-log.md` in the worktree, as today.
+
+- **Diagram discipline (do NOT skip on close):** the moment a feature closes — or any change lands to the prompts (P1 `EXTRACT_PROMPT` / P2 `ENRICH_PROMPT`), the schema, or the call flow — update `docs/superpowers/diagrams/menu-extraction-pipeline.md`: flip that stage's status flag (🔴/🟡→🟢), update the sequence-diagram notes and the Status table, edit the verbatim prompt appendix if the prompt changed, then re-copy the file to `~/Downloads/menu-extraction-pipeline.md`. The diagram is the fresh-context source of truth for "what does the pipeline look like right now"; a stale diagram misleads the next LLM.
 
 ---
 
@@ -143,6 +145,8 @@ Exit gate: the feature's scoped dimension passes on all 6 menus in 3/3 consecuti
 live runs, AND every previously completed feature (<list closed features>) still
 passes in those same runs. The feature is NOT done if any earlier feature regressed.
 Copy the roadmap's Reference Block (branches, files, curl) verbatim into the plan.
+On close: update the pipeline sequence diagram (docs/superpowers/diagrams/menu-extraction-pipeline.md)
+— status flags, notes, and prompt appendix if P1/P2 changed — and re-copy it to ~/Downloads (Diagram discipline).
 Last step: revoke any OpenAI API key pasted into chat or exposed during live evals.
 ```
 

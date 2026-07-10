@@ -3,7 +3,7 @@
 > **Canonical file** (roadmap links here; keep it updated as Features 2–5 close).
 > A snapshot copy also lives at `~/Downloads/menu-extraction-pipeline.md`.
 >
-> **Last updated:** 2026-07-06 — Feature 1 (food-item extraction) CLOSED.
+> **Last updated:** 2026-07-09 — Feature 2 (food-item options) CLOSED; postprocess chain extended (fold + inline-choice parser + option filters). P1/P2 prompt text UNCHANGED.
 > **Legend:** 🟢 done · 🟡 built but not gated/benched · 🔴 not built yet.
 
 ```mermaid
@@ -32,10 +32,11 @@ sequenceDiagram
         end
         EF->>EF: mergeItemSources() — dedup, null-section compatible, alias collapse
     end
-    EF->>EF: postprocessItems()<br/>stripMenuNumbers → promoteSections → filterServingFormatOptions
+    EF->>EF: postprocessItems()<br/>stripMenuNumbers → foldVariantCards → promoteSections<br/>→ extractInlineChoices → filterServingFormatOptions<br/>(+ unenumerated / C-U / weight option filters)
     EF-->>C: items[] (+ image_layout, image_quality)
     end
     Note over EF,C: 🟢 Feature 1 CLOSED — scoreMenu items dimension:<br/>distinct food dish-names ±3, no true dups<br/>(section-headers → Feature 3)
+    Note over EF,C: 🟢 Feature 2 CLOSED 2026-07-09 — options dimension (food only):<br/>base variant on card, alternatives/choices/add-ons in options[]<br/>🟡 eval's per-page multi-photo recipe NOT yet wired into production extract
 
     rect rgb(70,50,20)
     Note over C,EN: STAGE 2 — enrichment 🟡 (model benchmark not finalized)
@@ -69,7 +70,8 @@ sequenceDiagram
 | Stage | State | Note |
 |---|---|---|
 | Food-item extraction (Feature 1) | 🟢 CLOSED | completeness gate: distinct dish-names ±3, no true dups |
-| Options / sections / categories / drinks (Features 2–5) | 🟡 | schema already captures the fields; per-dimension quality gates not yet closed |
+| Food-item options (Feature 2) | 🟢 CLOSED 2026-07-09 | fold convention (item owns options; base on card); deterministic postprocess: foldVariantCards + extractInlineChoices + option filters; 3/3 live gate (eval 038). Per-page multi-photo recipe proven in eval — production wiring pending |
+| Sections / categories / drinks (Features 3–5) | 🟡 | schema already captures the fields; per-dimension quality gates not yet closed. F3 inherits: Churrasquería block add-on, Pa' los Bukis |
 | Stage 2 enrichment (macros + allergens) | 🟡 | `enrich` stage wired (GPT-4o + Gemini paths); model benchmark not finalized (AGENTS.md) |
 | Dense-menu auto-cutter | 🔴 | eval feeds pre-cut Nikkori tiles; production needs an image lib + `extract-crops` extended to 4 high-detail uncompressed crops, keyed on `image_layout.dense` |
 | Goal re-ranking | 🟢 | soft-clamped z-scores merged to `main` |

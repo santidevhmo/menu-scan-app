@@ -34,6 +34,12 @@ interface ExpectedFixture {
     name_contains: string;
     category: Category;
   }[];
+  // F4: printed item-weight pins (grams as printed on the menu; parseItemGrams
+  // fills items[].grams). Any-match over food items.
+  grams_expectations?: {
+    name_contains: string;
+    grams: number;
+  }[];
   items_with_options: {
     name_contains: string;
     description_contains?: string;
@@ -65,6 +71,7 @@ interface MenuReport {
   categories: DimensionScore;
   section_context: DimensionScore;
   options: DimensionScore;
+  grams: DimensionScore;
   image_quality: DimensionScore | null;
 }
 
@@ -73,6 +80,7 @@ interface AggregateReport {
   categories: boolean;
   section_context: boolean;
   options: boolean;
+  grams: boolean;
   image_quality: boolean | null;
 }
 
@@ -383,6 +391,25 @@ export function scoreMenu(
       }`,
   };
 
+  // F4: printed-weight pins — any-match over food items (impostor same-name
+  // cards must not steal the check), grams filled by parseItemGrams.
+  const wrongGrams = (fixture.grams_expectations ?? []).flatMap((expected) => {
+    const matches = foodItems.filter((candidate) =>
+      normalize(candidate.name).includes(normalize(expected.name_contains))
+    );
+    if (matches.length === 0) {
+      return [`${expected.name_contains}→(item not found)`];
+    }
+    if (matches.some((item) => item.grams === expected.grams)) return [];
+    return [
+      `${matches[0].name}→${matches[0].grams ?? "null"} (expected ${expected.grams})`,
+    ];
+  });
+  const grams = {
+    pass: wrongGrams.length === 0,
+    detail: `wrong: ${wrongGrams.join("; ") || "none"}`,
+  };
+
   const expectedQuality = fixture.image_quality;
   const imageQuality = expectedQuality
     ? {
@@ -406,13 +433,14 @@ export function scoreMenu(
     categories,
     section_context: sectionContext,
     options,
+    grams,
     image_quality: imageQuality,
   };
 }
 
 export function aggregateReports(reports: MenuReport[]): AggregateReport {
   const green = (
-    dimension: "items" | "categories" | "section_context" | "options",
+    dimension: "items" | "categories" | "section_context" | "options" | "grams",
   ): boolean =>
     reports.filter((report) => report[dimension].pass).length >=
       Math.ceil(reports.length * 0.8);
@@ -425,6 +453,7 @@ export function aggregateReports(reports: MenuReport[]): AggregateReport {
     categories: green("categories"),
     section_context: green("section_context"),
     options: green("options"),
+    grams: green("grams"),
     image_quality: qualityReports.length === 0
       ? null
       : qualityReports.filter((score) => score.pass).length >=
@@ -437,6 +466,7 @@ type GateDimension =
   | "categories"
   | "section_context"
   | "options"
+  | "grams"
   | "image_quality";
 
 const GATE_DIMENSIONS: GateDimension[] = [
@@ -444,6 +474,7 @@ const GATE_DIMENSIONS: GateDimension[] = [
   "categories",
   "section_context",
   "options",
+  "grams",
   "image_quality",
 ];
 
@@ -515,6 +546,9 @@ function printReport(reports: MenuReport[], aggregate: AggregateReport): void {
       `  ${status(report.options.pass)} options: ${report.options.detail}`,
     );
     console.log(
+      `  ${status(report.grams.pass)} grams: ${report.grams.detail}`,
+    );
+    console.log(
       `  ${status(report.image_quality?.pass ?? null)} image_quality: ${
         report.image_quality?.detail ?? "not configured"
       }`,
@@ -526,6 +560,7 @@ function printReport(reports: MenuReport[], aggregate: AggregateReport): void {
   console.log(`  ${status(aggregate.categories)} categories`);
   console.log(`  ${status(aggregate.section_context)} section_context`);
   console.log(`  ${status(aggregate.options)} options`);
+  console.log(`  ${status(aggregate.grams)} grams`);
   console.log(`  ${status(aggregate.image_quality)} image_quality`);
 }
 
@@ -1233,6 +1268,31 @@ function runSelfCheck(): void {
   assert(
     scoreMenu(noPriceKeyFixture, revueltosAt(84)).options.pass,
     "absent price key: name-only semantics (F2 frozen) must still pass",
+  );
+
+  // F4: grams pins — any-match over food items, same semantics as the
+  // category/section pins.
+  const gramsFixture: ExpectedFixture = {
+    ...fixture,
+    grams_expectations: [{ name_contains: "Chilaquiles", grams: 70 }],
+  };
+  assert(
+    scoreMenu(gramsFixture, catItems([
+      { name: "CHILAQUILES (70gr.)", grams: 70 },
+    ])).grams.pass,
+    "grams pin: parsed printed weight must pass",
+  );
+  const gramsWrong = scoreMenu(gramsFixture, catItems([
+    { name: "CHILAQUILES (650gr.)", grams: 650 },
+  ]));
+  assert(
+    !gramsWrong.grams.pass &&
+      gramsWrong.grams.detail.includes("(expected 70)"),
+    "grams pin: digit-misread weight must fail with named diagnostic",
+  );
+  assert(
+    scoreMenu(fixture, catItems([{ name: "X" }])).grams.pass,
+    "no grams_expectations: dimension passes vacuously",
   );
 
   printReport([passing], aggregateReports([passing]));

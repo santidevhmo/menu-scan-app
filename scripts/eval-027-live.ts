@@ -172,9 +172,13 @@ for (let run = 1; run <= RUNS; run++) {
     console.log(
       `  ${report.categories.pass ? "PASS" : "FAIL"} ${fixture.menu} categories: ${report.categories.detail}`,
     );
+    console.log(
+      `  ${report.grams.pass ? "PASS" : "FAIL"} ${fixture.menu} grams: ${report.grams.detail}`,
+    );
     if (
       !report.items.pass || !report.options.pass ||
-      !report.section_context.pass || !report.categories.pass
+      !report.section_context.pass || !report.categories.pass ||
+      !report.grams.pass
     ) {
       await Deno.writeTextFile(
         `${MENU_DIR}/${fixture.menu}.eval027-r${run}.actual.json`,
@@ -188,7 +192,13 @@ for (let run = 1; run <= RUNS; run++) {
   // dimensions from the same response, so widening this array costs ZERO API calls.
   // Feature 1 = ["items"]; Feature 2 → ["items","options"]; Feature 3 →
   // ["items","options","section_context"]; etc. Widen it when you start a feature.
-  const GATE_DIMS = ["items", "options", "section_context", "categories"] as const;
+  const GATE_DIMS = [
+    "items",
+    "options",
+    "section_context",
+    "categories",
+    "grams",
+  ] as const;
   const failures = gateFailures(reports, [...GATE_DIMS]);
   if (failures.length === 0) {
     consecutivePasses++;

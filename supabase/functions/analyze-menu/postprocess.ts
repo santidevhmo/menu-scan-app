@@ -143,6 +143,9 @@ export function promoteSections(
       category: item.category,
       section_title: item.name,
       options: [],
+      // parseItemGrams runs after promotion and parses the printed weight
+      // from the promoted name ("Bandiola Adobada (150gr)").
+      grams: option.grams,
     }));
   });
 }
@@ -261,14 +264,40 @@ export function filterServingFormatOptions(
   }));
 }
 
+// Printed weight convention: a number followed by g/gr/grs/kg ("600g",
+// "70 gr.", "1kg"). Volumes (ml/L/oz) and "mg" are NOT grams. Name wins over
+// description; first match wins.
+// ponytail: multi-weight items take the first printed weight — refine to
+// per-component weights only if Stage-2 accuracy demands it.
+const GRAMS_TOKEN = /(?<![\p{L}\d])(\d+(?:[.,]\d+)?)\s*(kg|grs?|g)\b/iu;
+
+export function parseItemGrams(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  return items.map((item) => {
+    const match = GRAMS_TOKEN.exec(item.name) ??
+      GRAMS_TOKEN.exec(item.description);
+    // No printed token: keep grams already carried (promoteSections copies the
+    // source option's grams; raw model items have none → null).
+    if (!match) return { ...item, grams: item.grams ?? null };
+    const value = Number(match[1].replace(",", "."));
+    return {
+      ...item,
+      grams: match[2].toLowerCase() === "kg" ? value * 1000 : value,
+    };
+  });
+}
+
 export function postprocessItems(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
-  return filterServingFormatOptions(
+  // parseItemGrams runs LAST so items promoted from options
+  // ("Bandiola Adobada (150gr)") also get their printed weight parsed.
+  return parseItemGrams(filterServingFormatOptions(
     extractInlineChoices(
       dropHeaderEchoes(promoteSections(foldVariantCards(stripMenuNumbers(items)))),
     ),
-  );
+  ));
 }
 
 if (import.meta.main) {
@@ -279,6 +308,7 @@ if (import.meta.main) {
     category: "food",
     section_title: null,
     options: [],
+    grams: null,
     ...o,
   });
   // Folded meat grid → promoted to items under section "Cerdo".
@@ -493,5 +523,26 @@ if (import.meta.main) {
     item({ name: "Té Verde", price: 35, category: "drink" }),
   ]);
   if (distinct.length !== 2) throw new Error("fold: distinct names folded");
+  // Printed-weight parser: number + g/gr/grs/kg is grams; ml/L/oz/mg are not.
+  const grams = parseItemGrams([
+    item({ name: "CHILAQUILES (70gr.)" }),
+    item({ name: "Bandiola Adobada (150gr)" }),
+    item({ name: "Rib Eye", description: "Corte de 280 g a la parrilla" }),
+    item({ name: "Té Matcha (350mL)" }),
+    item({ name: "Ensalada", description: "2 slices of lettuce, 100 tomatoes" }),
+    item({ name: "Paella (1kg)" }),
+    item({ name: "Suplemento", description: "100 mg de cafeína" }),
+  ]);
+  const gramsGot = grams.map((i) => String(i.grams)).join(",");
+  if (gramsGot !== "70,150,280,null,null,1000,null") {
+    throw new Error(`parseItemGrams: got ${gramsGot}`);
+  }
+  // Name wins over description when both print a weight.
+  const gramsPriority = parseItemGrams([
+    item({ name: "Corte (300gr)", description: "con guarnición de 150gr" }),
+  ]);
+  if (gramsPriority[0].grams !== 300) {
+    throw new Error("parseItemGrams: name priority");
+  }
   console.log("postprocess self-check passed");
 }

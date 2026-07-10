@@ -26,6 +26,9 @@ export interface ExtractedItem {
   category: MenuCategory;
   section_title: string | null;
   options: { name: string; price: number | null; grams: number | null }[];
+  // Printed item weight in grams, parsed deterministically from name/description
+  // by postprocess (parseItemGrams) — NOT model-filled.
+  grams: number | null;
 }
 
 // Stage 2 reasoning substrate — ingredient tagged by macro category

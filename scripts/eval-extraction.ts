@@ -700,6 +700,7 @@ function runSelfCheck(): void {
         category: "food",
         section_title: "Mains",
         options: [{ name: "Add Cheese", price: 2, grams: null }],
+        grams: null,
       },
       {
         name: "Fries",
@@ -708,6 +709,7 @@ function runSelfCheck(): void {
         category: "side",
         section_title: "Sides",
         options: [{ name: "Large", price: 2, grams: null }],
+        grams: null,
       },
     ],
   };
@@ -733,6 +735,7 @@ function runSelfCheck(): void {
         category: "other",
         section_title: null,
         options: [{ name: "Not an option", price: null, grams: null }],
+        grams: null,
       },
       {
         name: "Soup",
@@ -741,6 +744,7 @@ function runSelfCheck(): void {
         category: "other",
         section_title: "Soups",
         options: [],
+        grams: null,
       },
       {
         name: "Cake",
@@ -749,6 +753,7 @@ function runSelfCheck(): void {
         category: "dessert",
         section_title: "Desserts",
         options: [],
+        grams: null,
       },
       {
         name: "Toast",
@@ -757,6 +762,7 @@ function runSelfCheck(): void {
         category: "food",
         section_title: "Mains",
         options: [],
+        grams: null,
       },
     ],
   });
@@ -789,6 +795,7 @@ function runSelfCheck(): void {
         category: "drink" as const,
         section_title: null,
         options: [],
+        grams: null,
       })),
     ],
   };
@@ -811,6 +818,7 @@ function runSelfCheck(): void {
           { name: "Manzanilla", price: null, grams: null },
           { name: "Negro", price: null, grams: null },
         ],
+        grams: null,
       },
     ],
   };
@@ -828,6 +836,7 @@ function runSelfCheck(): void {
     category: "drink" as const,
     section_title: "Cocktails",
     options: [],
+    grams: null,
   };
   const withDrink = scoreMenu(fixture, {
     image_quality: { usable: true, issues: [] },
@@ -877,6 +886,7 @@ function runSelfCheck(): void {
           category: "food",
           section_title: "Specials",
           options: [],
+          grams: null,
         },
       ],
     },
@@ -939,6 +949,7 @@ function runSelfCheck(): void {
     category: "food",
     section_title: null,
     options: [{ name: "camaron", price: null, grams: null }],
+    grams: null,
   }]).targets[0];
   assert(
     accentTarget.matchedItem === "Machaca de Marlin" &&
@@ -953,6 +964,7 @@ function runSelfCheck(): void {
     category: "food",
     section_title: "Mains",
     options: [],
+    grams: null,
   });
   assert(
     scoreMenu(fixture, {
@@ -1032,6 +1044,7 @@ function runSelfCheck(): void {
     category: "food",
     section_title: "Huevos",
     options,
+    grams: null,
   });
   const duplicateActual: ActualExtraction = {
     image_quality: { usable: true, issues: [] },
@@ -1073,6 +1086,7 @@ function runSelfCheck(): void {
           category: "food",
           section_title: "Mains",
           options: [],
+          grams: null,
         },
         {
           name: "Chilaquiles",
@@ -1081,6 +1095,7 @@ function runSelfCheck(): void {
           category: "food",
           section_title: "Mains",
           options: [],
+          grams: null,
         },
       ],
     }).items.pass,
@@ -1148,6 +1163,7 @@ function runSelfCheck(): void {
       category: "food" as const,
       section_title: null,
       options: [],
+      grams: null,
       ...o,
     })),
   });
@@ -1195,6 +1211,7 @@ function runSelfCheck(): void {
       category: "food",
       section_title: "Huevos",
       options: [{ name: "Con jamón, chorizo o tocino", price, grams: null }],
+      grams: null,
     }],
   });
   assert(

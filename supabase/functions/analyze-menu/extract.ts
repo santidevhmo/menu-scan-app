@@ -130,6 +130,9 @@ export interface ExtractedMenuItem {
   category: "food" | "side" | "dessert" | "drink" | "other";
   section_title: string | null;
   options: { name: string; price: number | null; grams: number | null }[];
+  // Printed item weight in grams, parsed deterministically from name/description
+  // by postprocess (parseItemGrams) — NOT model-filled; EXTRACT_SCHEMA unchanged.
+  grams: number | null;
 }
 
 export interface ExtractionResult {

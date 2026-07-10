@@ -21,6 +21,7 @@ const item = (
   category: "food",
   section_title: "Rollos",
   options: [],
+  grams: null,
 });
 
 Deno.test("two left-right crops overlap by 20 percent", () => {

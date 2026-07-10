@@ -23,6 +23,11 @@ interface ExpectedFixture {
     name_contains: string;
     section_title: string;
   }[];
+  // Drink-item mappings parked for Feature 5, unscored until then.
+  drink_section_expectations?: {
+    name_contains: string;
+    section_title: string;
+  }[];
   items_with_options: {
     name_contains: string;
     description_contains?: string;

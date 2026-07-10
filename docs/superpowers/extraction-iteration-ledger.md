@@ -351,3 +351,15 @@ Rules:
 ## Feature 2 CLOSED 2026-07-09
 - Exit gate met (eval 038, 3/3 live). Close-out done in the MAIN repo: F2 plan Execution Log filled, both Progress Checklists ticked, pipeline diagram updated (options 🟢, new postprocess chain, per-page-recipe production-wiring note) + re-copied to ~/Downloads, DoorDash prior-art section added to the roadmap (PDF paths + adoption decisions).
 - Frozen gates for Feature 3: `items` + `options` via eval-027-live.ts; widen GATE_DIMS to ["items","options","section_context"] when F3 starts.
+
+## Feature 3 START — gate widened + food-scoped section_context + section-oracle re-adjudication (ORACLE-CHANGE, user-approved 2026-07-10)
+- Date: 2026-07-10 | Plan: main repo `docs/superpowers/plans/2026-07-10-feature-3-extract-sections.md`. Scorer + fixture changes only; NO prompt/extraction change.
+- Gate: `eval-027-live.ts` GATE_DIMS widened to ["items","options","section_context"]; per-menu section_context line printed; failure dumps now trigger on section failures too.
+- Scorer (TDD, 3 new self-checks): section_context is FOOD-scoped — the nikkori crop path drops drinks before merge, so drink sections are unpassable by construction (drinks = Feature 5). Wrong mappings now NAMED in the detail string ("House Burger→Sides (expected Mains)"). New unscored fixture fields: `drink_sections`, `drink_section_expectations` (parked for F5).
+- Oracle rulings (user, 2026-07-10, all photos re-read):
+  - brasero-two: fixture only covered page 2 — added printed page-1 sections Entradas/Especialidades/Ensaladas/Caldos. Churrasquería = SECTION with entries (Sencilla@495, Doble@950 items under it; "Pídelo con queso" +$10 stays ungraded this feature; Taco JR Sirloin/Quesadilla independent, no section check). Replaced ambiguous "Chicharrón→Res" (3 chicharrón items collide) with Chicharrón Brasero→Entradas; added Hamburguesa Brasero→Especialidades, Sopa de Tortilla→Caldos, Sencilla→Churrasquería.
+  - el-marcos: De la Cafetería (all drinks) → drink_sections. Pa' los Bukis → section_headers (allowed, not required — prose kids-combo box, known junk-line nondeterminism). Stale pre-fold expectations "Dos huevos naturales/a la mexicana" (names no longer exist as items) → Revueltos→Huevos + Fritos→Huevos (the roadmap's "Huevos → Revueltos" full-name rule) + added Chilaquiles→Mexicanos, Cazuela de Marlín→De la Playa, Avena→Cereales.
+  - nikkori: food/drink split — sections now [Naturales, Empanizados, Horneados, Capeados, Postres]; 16 drink sections → drink_sections; 17 drink expectations → drink_section_expectations. Postres contradiction fixed (was in section_headers while an expectation required it). Parents Rollos/Bebidas con alcohol/Bebidas sin alcohol stay headers.
+  - brasero, casa-nostra, mochomos: photos match fixtures — untouched.
+- Verdict: ORACLE-CHANGE. Self-check green; eval-027-live type-checks.
+- Next: eval 039 — $0 offline probe + 1 live baseline run.

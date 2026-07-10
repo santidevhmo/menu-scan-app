@@ -11,14 +11,17 @@
     "De la Playa",
     "De la Panadería",
     "Cereales",
-    "De la Cafetería",
-    "Jugos y Frutas",
-    "Pa' los Bukis"
+    "Jugos y Frutas"
   ],
+  "section_headers": ["Pa' los Bukis"],
+  "drink_sections": ["De la Cafetería"],
   "section_expectations": [
-    { "name_contains": "Dos huevos naturales", "section_title": "Huevos" },
-    { "name_contains": "Dos huevos a la mexicana", "section_title": "Huevos" },
+    { "name_contains": "Revueltos", "section_title": "Huevos" },
+    { "name_contains": "Fritos", "section_title": "Huevos" },
+    { "name_contains": "Chilaquiles", "section_title": "Mexicanos" },
+    { "name_contains": "Cazuela de Marlín", "section_title": "De la Playa" },
     { "name_contains": "Waffles", "section_title": "De la Panadería" },
+    { "name_contains": "Avena", "section_title": "Cereales" },
     { "name_contains": "Plato Surtido", "section_title": "Jugos y Frutas" }
   ],
   "items_with_options": [

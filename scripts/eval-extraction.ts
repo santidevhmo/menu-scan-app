@@ -266,8 +266,14 @@ export function scoreMenu(
   const missingSections = [...expectedSections].filter(([key]) =>
     !actualSections.has(key)
   ).map(([, section]) => section);
+  // section_headers are tolerated as section_titles (allowed, not required):
+  // prose blocks (Pa' los Bukis) and parent headings whose subheading is on
+  // another crop tile (Rollos) are legitimate model output, just never required.
+  const toleratedSections = new Set(
+    (fixture.section_headers ?? []).map(normalize),
+  );
   const spuriousSections = [...actualSections].filter(([key]) =>
-    !expectedSections.has(key)
+    !expectedSections.has(key) && !toleratedSections.has(key)
   ).map(([, section]) => section);
   const wrongMappings = fixture.section_expectations.flatMap((expected) => {
     const item = foodItems.find((candidate) =>
@@ -783,6 +789,29 @@ function runSelfCheck(): void {
         "House Burger→Sides (expected Mains)",
       ),
     "wrong mappings must be named in the detail string",
+  );
+  // section_headers are TOLERATED as section_titles (allowed, not required) —
+  // Pa' los Bukis / parent headings under crop reality must not flag spurious.
+  const headerTitled = scoreMenu(
+    { ...fixture, section_headers: ["Specials"] },
+    {
+      image_quality: { usable: true, issues: [] },
+      items: [
+        ...actual.items,
+        {
+          name: "Combo del día",
+          description: "",
+          price: 7,
+          category: "food",
+          section_title: "Specials",
+          options: [],
+        },
+      ],
+    },
+  );
+  assert(
+    headerTitled.section_context.pass,
+    "a section_headers entry used as section_title must not be spurious",
   );
 
   const breakdown = optionBreakdown(fixture, actual.items);

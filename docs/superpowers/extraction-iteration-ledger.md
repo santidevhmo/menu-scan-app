@@ -363,3 +363,8 @@ Rules:
   - brasero, casa-nostra, mochomos: photos match fixtures — untouched.
 - Verdict: ORACLE-CHANGE. Self-check green; eval-027-live type-checks.
 - Next: eval 039 — $0 offline probe + 1 live baseline run.
+
+## Iteration 040 — spurious-check tolerates section_headers (deterministic, $0)
+- Date: 2026-07-10 | Scorer change (TDD, 1 new self-check); NO prompt/extraction change. Implements the user's "allowed, not required" ruling: a section_title matching a fixture `section_headers` entry is never spurious (Pa' los Bukis prose block; parent "Rollos" under crop reality) — headers are still never REQUIRED.
+- Offline re-score after 039 oracles + this fix: section_context 6/6 PASS on current archives (nikkori's archive is the stale full-page run — its verdict is directional only; live confirmation next).
+- Verdict: ACCEPTED.

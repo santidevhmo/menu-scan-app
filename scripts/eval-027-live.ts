@@ -64,11 +64,17 @@ async function loadFixtures(): Promise<Fixture[]> {
       names.push(entry.name);
     }
   }
-  return await Promise.all(
+  const fixtures = await Promise.all(
     names.sort().map(async (name) =>
       JSON.parse(await Deno.readTextFile(new URL(name, FIXTURE_DIR))) as Fixture
     ),
   );
+  // EVAL_MENUS=el-marcos,brasero-two → cheap targeted run while iterating.
+  // NEVER set for the exit gate — the gate is all 6 menus.
+  const only = Deno.env.get("EVAL_MENUS");
+  if (!only) return fixtures;
+  const wanted = new Set(only.split(",").map((menu) => menu.trim()));
+  return fixtures.filter((fixture) => wanted.has(fixture.menu));
 }
 
 async function extractMenu(fixture: Fixture): Promise<Actual> {

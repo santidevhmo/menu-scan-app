@@ -130,6 +130,59 @@ export function promoteSections(
   });
 }
 
+const INLINE_DISJUNCTION = /\s(?:o|u|or)\s/i;
+// Left scan excludes comma (commas separate list members: "Verdes, Rojas o
+// Suizas"); right scan includes it (the list ends at the first punctuation).
+const LEFT_BOUNDARY_CHARS = ".;:()";
+const RIGHT_BOUNDARY = /[.,;:()]/;
+const CHOICE_CONNECTOR = /^(?:a elegir:?\s+|choice of\s+|c\/\s*|(?:con|de|en|with)\s+)/i;
+const MAX_CHOICE_WORDS = 3;
+
+// GPT-4o reliably transcribes "con X o Y" choices into the description but
+// ignores prompt instructions to structure them (iter 032) — so parse them
+// deterministically. Returns null (no choices) unless every alternative is a
+// short noun phrase; long alternatives mean a sentence-level "o", not a list.
+// ponytail: disjunction tokens are es/en (o/u/or); extend per language from data.
+function parseInlineChoices(description: string): string[] | null {
+  const match = INLINE_DISJUNCTION.exec(description);
+  if (!match) return null;
+  const before = description.slice(0, match.index);
+  const boundaryIndex = Math.max(
+    ...[...LEFT_BOUNDARY_CHARS].map((ch) => before.lastIndexOf(ch)),
+  );
+  const leftText = before.slice(boundaryIndex + 1);
+  const after = match.index + match[0].length;
+  const rightStop = RIGHT_BOUNDARY.exec(description.slice(after));
+  const rightText = description
+    .slice(after, rightStop ? after + rightStop.index : undefined).trim();
+  const parts = leftText.split(",").map((part) => part.trim()).filter(Boolean);
+  if (parts.length === 0 || !rightText) return null;
+  parts[0] = parts[0].replace(CHOICE_CONNECTOR, "").trim();
+  const choices = [...parts, rightText].filter(Boolean);
+  if (choices.length < 2) return null;
+  if (choices.some((c) => c.split(/\s+/).length > MAX_CHOICE_WORDS)) return null;
+  return choices;
+}
+
+export function extractInlineChoices(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  return items.map((item) => {
+    const choices = parseInlineChoices(item.description);
+    if (!choices) return item;
+    const known = new Set(item.options.map((o) => normalizeName(o.name)));
+    const added = choices.filter((choice) => !known.has(normalizeName(choice)));
+    if (added.length === 0) return item;
+    return {
+      ...item,
+      options: [
+        ...item.options,
+        ...added.map((name) => ({ name, price: null, grams: null })),
+      ],
+    };
+  });
+}
+
 // ponytail: ratio+minimum heuristic; revisit only if a real menu defeats it.
 export function stripMenuNumbers(
   items: ExtractedMenuItem[],
@@ -155,7 +208,7 @@ export function postprocessItems(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
   return filterServingFormatOptions(
-    promoteSections(foldVariantCards(stripMenuNumbers(items))),
+    extractInlineChoices(promoteSections(foldVariantCards(stripMenuNumbers(items)))),
   );
 }
 
@@ -251,6 +304,52 @@ if (import.meta.main) {
   if (ocrDouble.length !== 2 || ocrDouble.some((i) => i.options.length > 0)) {
     throw new Error("fold: OCR double must not become an option");
   }
+  // Inline printed choices in descriptions become options.
+  const inlineCases: [string, string[]][] = [
+    ["Con huevo o verdura (Machaca 30gr.)", ["huevo", "verdura"]],
+    ["C/huevo o verdura", ["huevo", "verdura"]],
+    ["Verdes, Rojas o Suizas (verdes o rojas) 3 enchiladas rellenas de pollo.", ["Verdes", "Rojas", "Suizas"]],
+    ["Blanco o Integral (3 rebanadas)", ["Blanco", "Integral"]],
+    ["Con queso cottage o yogurt (50gr.)", ["queso cottage", "yogurt"]],
+    ["(Manzana o Plátano)", ["Manzana", "Plátano"]],
+  ];
+  for (const [desc, expected] of inlineCases) {
+    const parsed = extractInlineChoices([item({ name: "X", price: 10, description: desc })]);
+    const got = parsed[0].options.map((o) => o.name).join("|");
+    if (got !== expected.join("|")) {
+      throw new Error(`inline "${desc}": expected ${expected.join("|")}, got ${got}`);
+    }
+  }
+  // Long alternatives = sentence-level "o", NOT a choice list → no options.
+  const prose = extractInlineChoices([item({
+    name: "Pa' los Bukis",
+    price: 94,
+    description: "Hot cakes o huevo revuelto con su elección de jamón o tocino",
+  })]);
+  if (prose[0].options.length !== 0) {
+    throw new Error(`prose guard: got ${prose[0].options.map((o) => o.name).join("|")}`);
+  }
+  // Ingredient lists joined only by "y" are untouched.
+  const yList = extractInlineChoices([item({
+    name: "Roll",
+    description: "Por dentro: salmon, queso crema y aguacate.",
+  })]);
+  if (yList[0].options.length !== 0) throw new Error("y-list must not create options");
+  // Existing options are kept; parsed duplicates are not re-added.
+  const existing = extractInlineChoices([item({
+    name: "Pasta",
+    description: "A elegir: camarón o pollo",
+    options: [{ name: "camarón", price: null, grams: null }],
+  })]);
+  if (existing[0].options.length !== 2) {
+    throw new Error(`dedup: got ${existing[0].options.map((o) => o.name).join("|")}`);
+  }
+  // Unenumerated choice mentions create nothing.
+  const unenumerated = extractInlineChoices([item({
+    name: "Feijoada",
+    description: "Clásico caldo brasileño. (Tortillas a elegir)",
+  })]);
+  if (unenumerated[0].options.length !== 0) throw new Error("unenumerated must not create options");
   // Different names / different categories never fold.
   const distinct = foldVariantCards([
     item({ name: "Té", price: 32, category: "drink" }),

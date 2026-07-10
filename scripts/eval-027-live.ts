@@ -160,7 +160,12 @@ for (let run = 1; run <= RUNS; run++) {
     for (const line of formatOptionBreakdown(optionBreakdown(fixture, foodOnly))) {
       console.log(line);
     }
-    if (!report.items.pass || !report.options.pass) {
+    console.log(
+      `  ${report.section_context.pass ? "PASS" : "FAIL"} ${fixture.menu} section_context: ${report.section_context.detail}`,
+    );
+    if (
+      !report.items.pass || !report.options.pass || !report.section_context.pass
+    ) {
       await Deno.writeTextFile(
         `${MENU_DIR}/${fixture.menu}.eval027-r${run}.actual.json`,
         `${JSON.stringify(actual, null, 2)}\n`,
@@ -173,7 +178,7 @@ for (let run = 1; run <= RUNS; run++) {
   // dimensions from the same response, so widening this array costs ZERO API calls.
   // Feature 1 = ["items"]; Feature 2 → ["items","options"]; Feature 3 →
   // ["items","options","section_context"]; etc. Widen it when you start a feature.
-  const GATE_DIMS = ["items", "options"] as const;
+  const GATE_DIMS = ["items", "options", "section_context"] as const;
   const failures = gateFailures(reports, [...GATE_DIMS]);
   if (failures.length === 0) {
     consecutivePasses++;

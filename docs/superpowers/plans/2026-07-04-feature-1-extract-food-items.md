@@ -629,7 +629,7 @@ Every eval = one entry in `/private/tmp/menu-scan-app-extraction-eval-harness/do
 ## Progress Checklist (mirrors the roadmap)
 
 - [x] Feature 1 — Extract all Food menu items ✅ CLOSED 2026-07-06
-- [ ] Feature 2 — Extract options of Food items
+- [x] Feature 2 — Extract options of Food items ✅ CLOSED 2026-07-09 (see `2026-07-09-feature-2-extract-food-options.md`)
 - [ ] Feature 3 — Extract sections & sub-sections
 - [ ] Feature 4 — Extract closest section + category
 - [ ] Feature 5 — Extract all Drink menu items

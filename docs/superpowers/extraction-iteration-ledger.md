@@ -259,3 +259,13 @@ Rules:
 - TDD: failing self-checks first (drink-FP scoping, breakdown shape, no-options match); `--self-check` green after.
 - Verdict: ORACLE-CHANGE.
 - Lesson: an incomplete option oracle + unscoped FP check punishes CORRECT extractions; fixture completion is the next entry.
+
+## Option-oracle re-adjudication — fold convention, complete per menu (ORACLE-CHANGE, user-approved 2026-07-09)
+- Date: 2026-07-09 | Fixture change only (items_with_options); NO prompt/extraction change. All 6 photos re-read.
+- Convention LOCKED by user (aligned with DoorDash/POS modifier model researched this session): one item per base dish; variants/choices/priced extras attach as options (price+grams per option); options NEVER become new items. Supersedes the 2026-07-03 split-card semantics.
+- el-marcos: 4 old split-card targets → 11 fold-convention targets (Machaca de Marlín BEFORE Machaca — substring consumption order): Revueltos, Fritos, Chilaquiles, Machaca×2, Enchiladas, Pan Tostado, Hot Cakes, Waffles, Plato Surtido, Avena. Pa' los Bukis stays description-only (F3).
+- brasero-two: + Churrasquería [queso] (printed +$10 add-on; user chose to target it). "De su elección" tortilla lines stay description-only (nothing enumerated).
+- casa-nostra: Fettuccine target loosened "Spaghetti Gluten free"→"Gluten free" (test the swap, not exact phrasing). Cesar lettuce choice: user chose description-only.
+- mochomos/nikkori: stay empty; mochomos asterisk variants (versión cilantro / en salmón) = description-only per user.
+- Deferred note (user product convention): FOOD size variants should eventually surface as options; current serving-format filter keeps stripping them — widen with an exception only when a gate menu demands it.
+- Verdict: ORACLE-CHANGE. Self-check green; fixtures diff limited to items_with_options.

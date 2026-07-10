@@ -27,10 +27,8 @@
     { "name_contains": "Brownie", "section_title": "Postres" }
   ],
   "items_with_options": [
-    {
-      "name_contains": "Taco Loiro",
-      "options": ["picaña", "pollo"]
-    }
+    { "name_contains": "Taco Loiro", "options": ["picaña", "pollo"] },
+    { "name_contains": "Churrasquer", "options": ["queso"] }
   ],
   "image_quality": { "usable": true, "issues": [] }
 }

@@ -13,7 +13,7 @@
     { "name_contains": "Insalata CasaNostra", "section_title": "Insalate" }
   ],
   "items_with_options": [
-    { "name_contains": "Fettuccine CasaNostra", "options": ["Spaghetti Gluten free"] },
+    { "name_contains": "Fettuccine CasaNostra", "options": ["Gluten free"] },
     { "name_contains": "Pasta alla romana", "options": ["Gluten free"] },
     { "name_contains": "Spaghetti ai frutti di mare ubriaca", "options": ["Gluten free"] }
   ],

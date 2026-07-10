@@ -22,27 +22,17 @@
     { "name_contains": "Plato Surtido", "section_title": "Jugos y Frutas" }
   ],
   "items_with_options": [
-    {
-      "name_contains": "Con jamón, chorizo o tocino",
-      "price": 90,
-      "options": ["Jamón", "Chorizo", "Tocino"]
-    },
-    {
-      "name_contains": "Con jamón, chorizo o tocino",
-      "price": 90,
-      "options": ["Jamón", "Chorizo", "Tocino"]
-    },
-    {
-      "name_contains": "Con jamón, tocino o huevo",
-      "price": 78,
-      "options": ["Jamón", "Tocino", "Huevo"]
-    },
-    {
-      "name_contains": "Plato Surtido",
-      "description_contains": "queso cottage",
-      "price": 72,
-      "options": ["Queso cottage", "Yogurt"]
-    }
+    { "name_contains": "Machaca de Marlín", "options": ["huevo", "verdura"] },
+    { "name_contains": "Machaca", "options": ["huevo", "verdura"] },
+    { "name_contains": "Revueltos", "options": ["naturales", "mexicana", "jamón"] },
+    { "name_contains": "Fritos", "options": ["naturales", "jamón"] },
+    { "name_contains": "Chilaquiles", "options": ["Tradicionales", "Regionales", "Divorciados"] },
+    { "name_contains": "Enchiladas", "options": ["Verdes", "Rojas", "Suizas"] },
+    { "name_contains": "Pan Tostado", "options": ["Blanco", "Integral"] },
+    { "name_contains": "Hot Cakes", "options": ["Naturales", "jamón"] },
+    { "name_contains": "Waffles", "options": ["plátano", "frutos rojos"] },
+    { "name_contains": "Plato Surtido", "options": ["queso cottage", "yogurth"] },
+    { "name_contains": "Avena", "options": ["Manzana", "Plátano"] }
   ],
   "image_quality": { "usable": true, "issues": [] }
 }

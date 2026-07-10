@@ -168,6 +168,11 @@ export function extractInlineChoices(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
   return items.map((item) => {
+    // A dish with a printed inline choice carries a price; a price-null card
+    // whose description is a choice is a serving-note fragment (Churrasquería
+    // "En Taco") — never invent options on it. ponytail: drops price-less
+    // market-price dishes too; widen only if a gate menu prints one.
+    if (item.price === null) return item;
     const choices = parseInlineChoices(item.description);
     if (!choices) return item;
     const known = new Set(item.options.map((o) => normalizeName(o.name)));
@@ -337,6 +342,16 @@ if (import.meta.main) {
       throw new Error(`inline "${desc}": expected ${expected.join("|")}, got ${got}`);
     }
   }
+  // A price-less card is a serving-note fragment (Churrasquería "En Taco":
+  // "Tortilla de maíz o harina recién hecha"), not a dish — parser skips it.
+  const priceless = extractInlineChoices([item({
+    name: "En Taco",
+    price: null,
+    description: "Tortilla de maíz o harina recién hecha.",
+  })]);
+  if (priceless[0].options.length !== 0) {
+    throw new Error("inline: price-null item must not gain parsed options");
+  }
   // Long alternatives = sentence-level "o", NOT a choice list → no options.
   const prose = extractInlineChoices([item({
     name: "Pa' los Bukis",
@@ -349,12 +364,14 @@ if (import.meta.main) {
   // Ingredient lists joined only by "y" are untouched.
   const yList = extractInlineChoices([item({
     name: "Roll",
+    price: 159,
     description: "Por dentro: salmon, queso crema y aguacate.",
   })]);
   if (yList[0].options.length !== 0) throw new Error("y-list must not create options");
   // Existing options are kept; parsed duplicates are not re-added.
   const existing = extractInlineChoices([item({
     name: "Pasta",
+    price: 165,
     description: "A elegir: camarón o pollo",
     options: [{ name: "camarón", price: null, grams: null }],
   })]);
@@ -364,6 +381,7 @@ if (import.meta.main) {
   // Unenumerated choice mentions create nothing.
   const unenumerated = extractInlineChoices([item({
     name: "Feijoada",
+    price: 130,
     description: "Clásico caldo brasileño. (Tortillas a elegir)",
   })]);
   if (unenumerated[0].options.length !== 0) throw new Error("unenumerated must not create options");

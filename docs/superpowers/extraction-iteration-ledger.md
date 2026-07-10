@@ -368,3 +368,16 @@ Rules:
 - Date: 2026-07-10 | Scorer change (TDD, 1 new self-check); NO prompt/extraction change. Implements the user's "allowed, not required" ruling: a section_title matching a fixture `section_headers` entry is never spurious (Pa' los Bukis prose block; parent "Rollos" under crop reality) — headers are still never REQUIRED.
 - Offline re-score after 039 oracles + this fix: section_context 6/6 PASS on current archives (nikkori's archive is the stale full-page run — its verdict is directional only; live confirmation next).
 - Verdict: ACCEPTED.
+
+## Eval 039 — Feature 3 LIVE baseline (1 run, ~$0.35)
+- Date: 2026-07-10 | No extraction change. eval-027-live, GATE_DIMS=[items,options,section_context], EVAL_RUNS=1.
+- section_context: **6/6 PASS live** (brasero, brasero-two incl. Churrasquería/Sencilla ✓, casa-nostra, el-marcos incl. Revueltos→Huevos ✓, mochomos, nikkori through crops incl. Postres ✓). The 039 oracle re-adjudication + iter 040 header tolerance solved the F3 dimension with ZERO extraction changes.
+- items (frozen F1): 6/6 PASS (brasero-two 47/44 edge, nikkori 49/48, 0 dups).
+- options (frozen F2): 5/6 — brasero-two FAIL, 1 false positive: pseudo-item "En Taco" (price null, desc "Tortilla de maíz o harina recién hecha.") gained parser options. Cause: page-2 bleed-through re-extracts the Churrasquería block; the serving-note fragment's desc is a real "o" disjunction. Not present in eval 038 (vision nondeterminism in whether the fragment carries the desc).
+- Verdict: BASELINE (gate FAIL 0/1 — on the FROZEN options dim, not the active one).
+
+## Iteration 041 — inline-choice parser skips price-null items (deterministic, $0)
+- Date: 2026-07-10 | postprocess change (TDD): extractInlineChoices ignores items with price===null — a dish with a printed inline choice carries a price; a price-null card whose description is a choice list is a serving-note fragment (Churrasquería "En Taco"/"En Tostada"). ponytail ceiling: also skips price-less market-price dishes; widen only if a gate menu prints one. Three existing parser self-check stubs given prices (they were exercising the parser via price-null items only incidentally).
+- Offline validation: eval-039 brasero-two live dump → options FP 0, Taco Loiro [arrachera, pollo] intact; all 6 archives options/section_context unchanged-or-better; both self-check suites green.
+- Caveat (offline harness, not live): re-postprocessing an already-postprocessed dump can fold duplicate "En Taco" cards and unfold them into a spurious "En Taco" section — double-postprocess artifact only; live raw items never reach promoteSections with parser options (parser runs last).
+- Verdict: ACCEPTED. Next: eval 042 — 3/3 exit gate.

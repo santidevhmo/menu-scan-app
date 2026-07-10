@@ -16,6 +16,9 @@ interface ExpectedFixture {
   categories: Category[];
   sections: string[];
   section_headers?: string[];
+  // Sections that group only drink items — captured at F3 adjudication so the
+  // data isn't lost, scored by Feature 5, ignored until then.
+  drink_sections?: string[];
   section_expectations: {
     name_contains: string;
     section_title: string;
@@ -246,8 +249,10 @@ export function scoreMenu(
   const expectedSections = new Map(
     fixture.sections.map((section) => [normalize(section), section]),
   );
+  // Feature 3 is food-scoped: the nikkori crop path drops drinks before merge,
+  // so drink sections can never appear there — they are Feature 5's dimension.
   const actualSections = new Map(
-    actual.items.flatMap((item) =>
+    foodItems.flatMap((item) =>
       item.section_title
         ? [[normalize(item.section_title), item.section_title] as const]
         : []
@@ -259,20 +264,25 @@ export function scoreMenu(
   const spuriousSections = [...actualSections].filter(([key]) =>
     !expectedSections.has(key)
   ).map(([, section]) => section);
-  const incorrectMappings = fixture.section_expectations.filter((expected) => {
-    const item = actual.items.find((candidate) =>
+  const wrongMappings = fixture.section_expectations.flatMap((expected) => {
+    const item = foodItems.find((candidate) =>
       normalize(candidate.name).includes(normalize(expected.name_contains))
     );
-    return !item ||
-      normalize(item.section_title ?? "") !== normalize(expected.section_title);
+    if (!item) return [`${expected.name_contains}→(item not found)`];
+    if (
+      normalize(item.section_title ?? "") === normalize(expected.section_title)
+    ) return [];
+    return [
+      `${item.name}→${item.section_title ?? "null"} (expected ${expected.section_title})`,
+    ];
   });
   const sectionContext = {
     pass: missingSections.length === 0 &&
       spuriousSections.length === 0 &&
-      incorrectMappings.length === 0,
+      wrongMappings.length === 0,
     detail: `missing: ${missingSections.join(", ") || "none"}; spurious: ${
       spuriousSections.join(", ") || "none"
-    }; wrong item mappings: ${incorrectMappings.length}`,
+    }; wrong mappings: ${wrongMappings.join("; ") || "none"}`,
   };
 
   // Options are scored over FOOD items only (drinks are Feature 5): a drink
@@ -724,6 +734,50 @@ function runSelfCheck(): void {
   assert(
     scoreMenu(fixture, drinkWithOptions).options.pass,
     "a drink item with options must not fail the food-scoped options gate",
+  );
+
+  // Feature 3: section_context is food-scoped — drink items and their sections
+  // are Feature 5's dimension, neither satisfying nor polluting this one.
+  const mojito = {
+    name: "Mojito",
+    description: "",
+    price: 9,
+    category: "drink" as const,
+    section_title: "Cocktails",
+    options: [],
+  };
+  const withDrink = scoreMenu(fixture, {
+    image_quality: { usable: true, issues: [] },
+    items: [...actual.items, mojito],
+  });
+  assert(
+    withDrink.section_context.pass,
+    "a drink-only section must not count as spurious (food-scoped)",
+  );
+  const drinkSatisfied = scoreMenu(
+    { ...fixture, sections: [...fixture.sections, "Cocktails"] },
+    {
+      image_quality: { usable: true, issues: [] },
+      items: [...actual.items, mojito],
+    },
+  );
+  assert(
+    !drinkSatisfied.section_context.pass,
+    "a fixture section satisfied only by a drink item is still missing",
+  );
+  const namedWrong = scoreMenu(fixture, {
+    image_quality: { usable: true, issues: [] },
+    items: [
+      { ...actual.items[0], section_title: "Sides" },
+      actual.items[1],
+    ],
+  });
+  assert(
+    !namedWrong.section_context.pass &&
+      namedWrong.section_context.detail.includes(
+        "House Burger→Sides (expected Mains)",
+      ),
+    "wrong mappings must be named in the detail string",
   );
 
   const breakdown = optionBreakdown(fixture, actual.items);

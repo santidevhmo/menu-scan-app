@@ -15,7 +15,7 @@
   "items_with_options": [
     { "name_contains": "Fettuccine CasaNostra", "options": ["Gluten free"] },
     { "name_contains": "Pasta alla romana", "options": ["Gluten free"] },
-    { "name_contains": "Spaghetti ai frutti di mare ubriaca", "options": ["Gluten free"] }
+    { "name_contains": "frutti di mare", "options": ["Gluten free"] }
   ],
   "image_quality": { "usable": true, "issues": [] }
 }

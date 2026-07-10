@@ -269,3 +269,11 @@ Rules:
 - mochomos/nikkori: stay empty; mochomos asterisk variants (versión cilantro / en salmón) = description-only per user.
 - Deferred note (user product convention): FOOD size variants should eventually surface as options; current serving-format filter keeps stripping them — widen with an exception only when a gate menu demands it.
 - Verdict: ORACLE-CHANGE. Self-check green; fixtures diff limited to items_with_options.
+
+## Eval 030 — offline pre-baseline vs new option oracles + convention refinement ($0)
+- Date: 2026-07-09 | Offline re-score of newest archives; scorer normalize() now accent-insensitive (NFD strip — Marlín↔Marlin, TDD'd); user refined convention: BASE variant lives on the item card, only ALTERNATIVE variants required in options (matches model's natural POS-style output). Targets trimmed accordingly (Revueltos [mexicana,jamón], Fritos/Hot Cakes [jamón], Chilaquiles [Regionales,Divorciados], Waffles [frutos rojos], Plato Surtido yogurth→yogur); casa-nostra 3rd target loosened to "frutti di mare" (OCR misspelling tolerance).
+- Result (archived runs, current P1): brasero PASS 5/5, casa-nostra PASS 3/3, mochomos PASS, nikkori PASS (stale archive, trivial); el-marcos FAIL recall 6/20; brasero-two FAIL 0/3.
+- Dominant failure class (ONE): inline enumerated choices ("Con huevo o verdura", "Verdes, Rojas o Suizas", "Blanco o Integral", "A elegir: picaña/pollo") stay in description with options=[] — P1's prose-choice rule is ignored. Also: Revueltos' middle variant (@84 mexicana) vanished (price glued to wrong option); Churrasquería not extracted as an item (brasero-two).
+- Variant folding itself already works: Fritos/Chilaquiles/Hot Cakes/Waffles pass under the refined convention with zero prompt changes.
+- Verdict: DIAGNOSTIC (+ ORACLE-CHANGE for the normalize/targets refinement, user-approved).
+- Lesson: Task-6 iteration 031 should target ONLY the inline-choice capture; folding needs no prompt surgery. Live baseline (eval-027-live, gate items+options) still pending an API key.

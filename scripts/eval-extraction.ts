@@ -60,8 +60,11 @@ function assert(condition: boolean, message: string): void {
   if (!condition) throw new Error(`Self-check failed: ${message}`);
 }
 
+// Accent-insensitive: stable OCR accent drops (Marlín→Marlin) must not break
+// matching — same spelling-tolerance policy as the Feature 1 items gate.
 function normalize(value: string): string {
-  return value.toLocaleLowerCase().trim().replaceAll(/\s+/g, " ");
+  return value.toLocaleLowerCase().trim().replaceAll(/\s+/g, " ")
+    .normalize("NFD").replaceAll(/[\u0300-\u036f]/g, "");
 }
 
 function findOptionTargetIndex(
@@ -744,6 +747,24 @@ function runSelfCheck(): void {
       missedBreakdown.targets[0].matchedOptions.length === 0 &&
       missedBreakdown.targets[0].missingOptions.join(",") === "Cheese",
     "breakdown reports a matched item extracted with no options",
+  );
+
+  const accentFixture: ExpectedFixture = {
+    ...fixture,
+    items_with_options: [{ name_contains: "Marlín", options: ["Camarón"] }],
+  };
+  const accentTarget = optionBreakdown(accentFixture, [{
+    name: "Machaca de Marlin",
+    description: "",
+    price: 98,
+    category: "food",
+    section_title: null,
+    options: [{ name: "camaron", price: null, grams: null }],
+  }]).targets[0];
+  assert(
+    accentTarget.matchedItem === "Machaca de Marlin" &&
+      accentTarget.missingOptions.length === 0,
+    "target matching is accent-insensitive (Marlín matches Marlin)",
   );
 
   const filler = (name: string): ExtractedMenuItem => ({

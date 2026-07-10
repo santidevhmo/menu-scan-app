@@ -24,14 +24,14 @@
   "items_with_options": [
     { "name_contains": "Machaca de Marlín", "options": ["huevo", "verdura"] },
     { "name_contains": "Machaca", "options": ["huevo", "verdura"] },
-    { "name_contains": "Revueltos", "options": ["naturales", "mexicana", "jamón"] },
-    { "name_contains": "Fritos", "options": ["naturales", "jamón"] },
-    { "name_contains": "Chilaquiles", "options": ["Tradicionales", "Regionales", "Divorciados"] },
+    { "name_contains": "Revueltos", "options": ["mexicana", "jamón"] },
+    { "name_contains": "Fritos", "options": ["jamón"] },
+    { "name_contains": "Chilaquiles", "options": ["Regionales", "Divorciados"] },
     { "name_contains": "Enchiladas", "options": ["Verdes", "Rojas", "Suizas"] },
     { "name_contains": "Pan Tostado", "options": ["Blanco", "Integral"] },
-    { "name_contains": "Hot Cakes", "options": ["Naturales", "jamón"] },
-    { "name_contains": "Waffles", "options": ["plátano", "frutos rojos"] },
-    { "name_contains": "Plato Surtido", "options": ["queso cottage", "yogurth"] },
+    { "name_contains": "Hot Cakes", "options": ["jamón"] },
+    { "name_contains": "Waffles", "options": ["frutos rojos"] },
+    { "name_contains": "Plato Surtido", "options": ["queso cottage", "yogur"] },
     { "name_contains": "Avena", "options": ["Manzana", "Plátano"] }
   ],
   "image_quality": { "usable": true, "issues": [] }

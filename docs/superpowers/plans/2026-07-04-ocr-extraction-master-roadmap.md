@@ -88,8 +88,11 @@ Food first because the app's value is macro-sorted **food**; drinks come last.
 - **Goal:** each item is tagged with its nearest section ("Cocktails", "Steaks", "Desserts") and coarse category (Appetizer / Main / Drink).
 - **Scoped dimension:** `section_context` + `categories`.
 - **Harness work:** reuse `section_expectations` per fixture; may need more expectation entries per menu.
+- **Grams capture (added 2026-07-09, user request):** printed weights/volumes are high-value for Stage-2 macro accuracy (P2 already prefers printed weights over guesses). Today grams exist ONLY on options (`options[].grams`); item-level weights ride as text inside `name`/`description` ("CHILAQUILES (70gr.)", "(350mL)"). At F4 kickoff decide: add an item-level `grams` field to the schema + a scoped check, or keep text-embedded and verify P2 parses it. Known limit to watch: digit misreads in small print (60gr→650gr, ledger iter-036).
 - **Frozen gates when starting:** Features 1, 2, 3.
 - **Exit gate:** `section_context` + `categories` pass on all 6 menus, 3/3 runs, **AND** Features 1–3 still green.
+
+> **Stage-2 note:** grams flowing from Feature 4 feed enrichment directly — when benchmarking Stage 2, include printed-weight items (el-marcos gramajes, nikkori ml) in the comparison so the "prefer printed weights" P2 rule is actually measured.
 
 ### Feature 5 — Extract all Drink menu items
 - **Goal:** every drink item appears exactly once; count matches the fixture's drink total.

@@ -51,6 +51,62 @@ function hasServingFormatToken(name: string): boolean {
     .some((token) => isFormatToken(token));
 }
 
+function normalizeName(value: string): string {
+  return value.toLocaleLowerCase().trim().replaceAll(/\s+/g, " ")
+    .normalize("NFD").replaceAll(/[\u0300-\u036f]/g, "");
+}
+
+// Same-name, same-category cards in one extraction are printed variants of ONE
+// dish (POS convention: base variant on the card, alternatives as options).
+// Fold: first card = base; each later card contributes its options, and its
+// non-empty distinct description becomes a priced option — but ONLY when its
+// price differs from the base: printed variants carry their own price, while an
+// OCR double-read of the same dish repeats the price with drifted text (Nico
+// roll), and folding that would invent an option. Identical true duplicates
+// fold silently. ponytail: same-price distinct-desc cards and label-less price
+// variants are left unfolded — ambiguous; revisit if a real menu hits either.
+export function foldVariantCards(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  const baseByKey = new Map<string, ExtractedMenuItem>();
+  const result: ExtractedMenuItem[] = [];
+  for (const card of items) {
+    const key = `${normalizeName(card.name)}#${card.category}`;
+    const base = baseByKey.get(key);
+    if (!base) {
+      const copy = { ...card, options: [...card.options] };
+      baseByKey.set(key, copy);
+      result.push(copy);
+      continue;
+    }
+    const identical = card.price === base.price &&
+      normalizeName(card.description) === normalizeName(base.description) &&
+      card.options.length === 0;
+    const isPricedVariantLabel = card.description.trim() !== "" &&
+      normalizeName(card.description) !== normalizeName(base.description) &&
+      card.price !== base.price;
+    if (!identical && !isPricedVariantLabel && card.options.length === 0) {
+      result.push(card); // ambiguous double or label-less variant — leave as-is
+      continue;
+    }
+    const known = new Set(base.options.map((o) => normalizeName(o.name)));
+    for (const option of card.options) {
+      if (!known.has(normalizeName(option.name))) {
+        base.options.push(option);
+        known.add(normalizeName(option.name));
+      }
+    }
+    if (isPricedVariantLabel && !known.has(normalizeName(card.description))) {
+      base.options.push({
+        name: card.description,
+        price: card.price,
+        grams: null,
+      });
+    }
+  }
+  return result;
+}
+
 // A price===null item whose options are dishes (no serving-format tokens) is a
 // section GPT-4o folded into one line. Un-fold it: each option becomes its own
 // item under section_title = the folded name; drop the placeholder. Format-priced
@@ -98,7 +154,9 @@ export function filterServingFormatOptions(
 export function postprocessItems(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
-  return filterServingFormatOptions(promoteSections(stripMenuNumbers(items)));
+  return filterServingFormatOptions(
+    promoteSections(foldVariantCards(stripMenuNumbers(items))),
+  );
 }
 
 if (import.meta.main) {
@@ -150,5 +208,54 @@ if (import.meta.main) {
     throw new Error(`numeric: expected 1 surviving option, got ${numeric[0].options.length}`);
   }
   if (numeric[0].options[0].name !== "2 Chicken Breasts") throw new Error("numeric: wrong survivor");
+  // Same-name variant cards fold into one item; descriptions become priced options.
+  const folded = foldVariantCards([
+    item({ name: "REVUELTOS", price: 78, description: "Dos huevos naturales" }),
+    item({
+      name: "Revueltos",
+      price: 84,
+      description: "Dos huevos a la mexicana",
+      options: [{ name: "Con jamón, chorizo o tocino", price: 90, grams: null }],
+    }),
+  ]);
+  if (folded.length !== 1) throw new Error(`fold: expected 1 card, got ${folded.length}`);
+  if (folded[0].price !== 78 || folded[0].description !== "Dos huevos naturales") {
+    throw new Error("fold: base card must stay first card");
+  }
+  const foldedNames = folded[0].options.map((o) => `${o.name}@${o.price}`).join("|");
+  if (foldedNames !== "Con jamón, chorizo o tocino@90|Dos huevos a la mexicana@84") {
+    throw new Error(`fold: options wrong: ${foldedNames}`);
+  }
+  // A price-shell variant (empty description, has options) contributes only its options.
+  const shell = foldVariantCards([
+    item({ name: "FRITOS", price: 78, description: "Dos huevos naturales" }),
+    item({
+      name: "FRITOS",
+      price: 90,
+      options: [{ name: "Con jamón, chorizo o tocino", price: 90, grams: null }],
+    }),
+  ]);
+  if (shell.length !== 1 || shell[0].options.length !== 1) throw new Error("fold: shell");
+  // Identical true duplicates fold silently, no option added.
+  const dup = foldVariantCards([
+    item({ name: "Kurimu Roll", price: 169, description: "Salmón" }),
+    item({ name: "Kurimu Roll", price: 169, description: "Salmón" }),
+  ]);
+  if (dup.length !== 1 || dup[0].options.length !== 0) throw new Error("fold: dup");
+  // Same price + drifted description = OCR double-read, NOT a variant: no
+  // option is invented, both cards stay.
+  const ocrDouble = foldVariantCards([
+    item({ name: "Nico", price: 159, description: "Por dentro: Arroz frito" }),
+    item({ name: "Nico", price: 159, description: "Por dentro: Arroz frito con camarón" }),
+  ]);
+  if (ocrDouble.length !== 2 || ocrDouble.some((i) => i.options.length > 0)) {
+    throw new Error("fold: OCR double must not become an option");
+  }
+  // Different names / different categories never fold.
+  const distinct = foldVariantCards([
+    item({ name: "Té", price: 32, category: "drink" }),
+    item({ name: "Té Verde", price: 35, category: "drink" }),
+  ]);
+  if (distinct.length !== 2) throw new Error("fold: distinct names folded");
   console.log("postprocess self-check passed");
 }

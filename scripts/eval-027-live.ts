@@ -32,7 +32,8 @@ type Actual = Parameters<typeof scoreMenu>[1];
 
 const MENU_DIR = "/Users/santiagoaguirre/Downloads/MenusTesting";
 const FIXTURE_DIR = new URL("./fixtures/", import.meta.url);
-const RUNS = 3;
+// EVAL_RUNS=1 for iteration baselines; default 3 = the exit-gate protocol.
+const RUNS = Number(Deno.env.get("EVAL_RUNS") ?? "3");
 
 const DENSE_TILES: Record<string, string[]> = {
   nikkori: [

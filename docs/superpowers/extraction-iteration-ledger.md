@@ -277,3 +277,19 @@ Rules:
 - Variant folding itself already works: Fritos/Chilaquiles/Hot Cakes/Waffles pass under the refined convention with zero prompt changes.
 - Verdict: DIAGNOSTIC (+ ORACLE-CHANGE for the normalize/targets refinement, user-approved).
 - Lesson: Task-6 iteration 031 should target ONLY the inline-choice capture; folding needs no prompt surgery. Live baseline (eval-027-live, gate items+options) still pending an API key.
+
+## Eval 030-live — Feature 2 LIVE baseline (1 run, ~$0.30)
+- Date: 2026-07-09 | No code change. eval-027-live with GATE_DIMS=[items,options], EVAL_RUNS=1.
+- items (frozen F1 gate): 6/6 PASS — brasero 28/28, brasero-two 45/44, casa-nostra 23/23, el-marcos 28/28, mochomos 22/22, nikkori 49/48 (crops). 0 dups everywhere.
+- options: 4/6 PASS (brasero 5/5, casa-nostra 3/3, mochomos, nikkori clean). FAIL el-marcos (recall 4/20, 8 missed + 2 FP) + brasero-two (0/3, 2 missed + 1 FP).
+- el-marcos NEW shape vs archive: model SPLIT Revueltos/Fritos into two same-name cards (78 naturales / 84-90 variant+option) — target consumes the optionless first card, the second flags FP. Inline "con X o Y" class still dropped (Machaca×2, Enchiladas, Pan Tostado, Plato Surtido, Avena). brasero-two: Taco Loiro "A elegir" dropped (+price misread 115), Churrasquería not extracted, Feijoada FP "Tortillas a elegir" (unenumerated).
+- Verdict: BASELINE (gate FAIL 0/1).
+- Lesson: two independent levers — (1) deterministic same-name variant fold in postprocess (fixes el-marcos FPs + mexicana loss, zero prompt risk) = iteration 031; (2) prompt emphasis for printed inline choices = iteration 032.
+
+## Iteration 031 — deterministic foldVariantCards() in postprocess (hypothesis, NOT a prompt change)
+- Date: 2026-07-09 | Hypothesis: same-normalized-name, same-category cards in one extraction are variants of ONE dish (user-locked POS convention). Fold: first card = base; each later card contributes its options, and its non-empty distinct description becomes an option {name: desc, price: card price}; identical true dups fold silently. Chain: stripMenuNumbers → foldVariantCards → promoteSections → filterServingFormatOptions.
+- Expected: el-marcos Revueltos [mexicana@84, jamón@90] ✓, Fritos [jamón@90] ✓, FPs gone; Chilaquiles split-runs also covered; el-marcos count stability improves (same-name cards were the F1 wobble). No effect on other menus (unique names).
+- Risk watched: brasero-two 45/44 (+1) — folding only reduces cards; nikkori rolls unique names → untouched.
+- RESULT (offline validation on eval-030 live dumps + all archives, $0): el-marcos FPs 2→0, Revueltos ✓ [Con jamón@90, Dos huevos a la mexicana@84], Fritos ✓, missed 8→6, items 28/28 unchanged. First fold draft created a spurious option from nikkori's OCR-doubled "Nico" roll (same price, drifted desc) → added price-differs guard: desc→option ONLY when the card's price differs from base; same-price distinct-desc cards stay unfolded. All menus FP-free offline; brasero/casa-nostra/mochomos/nikkori unchanged. TDD: 5 fold self-checks incl. the Nico case.
+- Verdict: ACCEPTED (deterministic, offline-validated; live confirmation rides on the next paid run).
+- Remaining after 031: inline printed choices (el-marcos 6 misses + Taco Loiro) + Churrasquería item + Feijoada unenumerated-choice FP → iteration 032 = P1 prose-choice emphasis.

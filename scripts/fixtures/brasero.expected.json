@@ -17,7 +17,7 @@
   "section_expectations": [
     { "name_contains": "Rib Eye", "section_title": "Carne" },
     { "name_contains": "Pasta Alfredo", "section_title": "Pastas" },
-    { "name_contains": "Pasta Parmesano", "section_title": "Pastas" }
+    { "name_contains": "Pasta Parmesan", "section_title": "Pastas" }
   ],
   "items_with_options": [
     {
@@ -25,7 +25,7 @@
       "options": ["Camarón", "Pollo"]
     },
     {
-      "name_contains": "Pasta Parmesano",
+      "name_contains": "Pasta Parmesan",
       "options": ["Chorizo", "Pollo", "Camarón"]
     }
   ],

@@ -395,3 +395,9 @@ Rules:
 - L3 scorer wrongMappings: an expectation is satisfied when ANY name-matching food item carries the expected section (crop overlap / stable misreads produce impostor same-name cards; the true item's mapping is what the check is about).
 - Offline validation: el-marcos gate dumps r1+r2 → options 19/19 PASS both (L1 confirmed). nikkori gate dumps stay red offline — BOTH are double-postprocess artifacts: the merged dump lost the drink items L2 keys on (live runs per-tile), and re-folding merges the cross-tile Fire Dragon pair that live keeps separate (the dump itself contains both cards = live fold never saw them together). Standard archives: no regressions (only the two known stale-archive artifacts).
 - Verdict: ACCEPTED (L1 offline-proven; L2/L3 unit-proven, live-confirmed at the next gate).
+
+## Eval 043 — exit-gate attempt 2: crashed in run 1 (2 new findings, both fixed, $0.35 spent)
+- Date: 2026-07-10 | Run 1 partial: 5 menus scored (iter-042 levers CONFIRMED LIVE where visible — el-marcos Chilaquiles fold ✓ 19/19, brasero-two clean incl. iter-041 guard), then the run CRASHED on a nikkori tile with finish_reason=length (first occurrence ever; no max_tokens is set in runExtraction, verbosity nondeterminism overran the default completion cap) — extractWithRetry only covered timeouts.
+- Finding 2: brasero "PASTA PARMESANO" transcribed "PASTA PARMESAN" (one-letter drop) → options target missed+FP and section expectation "(item not found)". Same class as picaña→arrachera / Marlín→Marlin.
+- Fixes: (a) extractWithRetry retries finish_reason=length once (harness, mirrors iter-034 timeout retry); (b) ORACLE-CHANGE under the established F1/F2 stable-misread tolerance policy: brasero targets "Pasta Parmesano"→"Pasta Parmesan" (substring of BOTH spellings, matches either).
+- Verdict: HARNESS FIX + ORACLE-CHANGE. Next: gate attempt 3.

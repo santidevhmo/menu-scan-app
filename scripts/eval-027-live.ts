@@ -77,8 +77,10 @@ async function loadFixtures(): Promise<Fixture[]> {
   return fixtures.filter((fixture) => wanted.has(fixture.menu));
 }
 
-// One retry on the 120s model timeout: transient (nikkori tile, eval 031+033
-// validation) and must not kill a 3-run gate attempt.
+// One retry on transient model failures — the 120s timeout (nikkori tile,
+// eval 031+033 validation) and finish_reason=length (verbosity is
+// nondeterministic; a dense tile occasionally overruns the completion cap,
+// eval 043) — neither must kill a 3-run gate attempt.
 async function extractWithRetry(
   photos: string[],
   detail?: "high",
@@ -86,8 +88,12 @@ async function extractWithRetry(
   try {
     return await runExtraction(photos, apiKey, detail);
   } catch (error) {
-    if (!String(error).includes("timed out")) throw error;
-    console.log("  [retry] model timeout — retrying call once");
+    const message = String(error);
+    if (
+      !message.includes("timed out") &&
+      !message.includes("finish_reason=length")
+    ) throw error;
+    console.log("  [retry] transient model failure — retrying call once");
     return await runExtraction(photos, apiKey, detail);
   }
 }

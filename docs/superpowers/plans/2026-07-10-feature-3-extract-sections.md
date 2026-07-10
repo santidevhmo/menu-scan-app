@@ -422,21 +422,30 @@ git commit -m "docs(ledger): eval NNN — Feature 3 exit gate 3/3 (items+options
 
 > Fill during Tasks 4–7. This is the durable record Features 4–5 read. Per-iteration detail lives in the worktree ledger; this is the feature-level summary.
 
-**Status:** _fill at close_
+**Status:** ✅ **CLOSED 2026-07-10** (eval 044: 3/3 consecutive live `GATE PASS: items, options, section_context` on all 6 menus; ledger evals 039–044, iterations 040–042).
 
-**What failed initially (baseline eval 039):** _fill_
+**What failed initially (offline probe + baseline eval 039):** the fixtures, not the extraction — `section_context` passed 6/6 on the FIRST live run once the oracles were corrected (brasero-two's fixture only covered page 2; el-marcos/nikkori required drink sections the food-scoped gate can never see; two el-marcos expectations referenced pre-fold item names; nikkori's Postres was simultaneously required and unlisted). The gate attempts then surfaced frozen-dim nondeterminism: Chilaquiles returned as 3 same-price cards (fold refused desc→option), a nikkori tile emitting 9 drink headings as pseudo-items (58/48), an impostor "Fire Dragon" card stealing the expectation match, "PASTA PARMESAN" one-letter misread, and a `finish_reason=length` crash.
 
-**What fixed it (change → effect):** _fill_
+**What fixed it (change → effect, all in worktree `feat/extraction-eval-harness`):**
+1. Section-oracle re-adjudication from all 6 photos (user-approved ORACLE-CHANGE) → 6/6 live pass on the active dimension with ZERO extraction changes.
+2. Scorer (all TDD): food-scoped `section_context` (drinks = F5; nikkori crop path drops drinks pre-merge); named wrong-mapping diagnostics; `section_headers` tolerated as section_titles (allowed-not-required — Pa' los Bukis, parent "Rollos" under crop reality); any-match expectation semantics (impostor/duplicate same-name cards can't steal the check).
+3. Postprocess (all TDD): `extractInlineChoices` skips price-null items (serving-note fragments like Churrasquería "En Taco" never gain options — killed the eval-039 options FP); `foldVariantCards` folds 3+ same-name distinct-desc cards as a variant family even at equal prices (Chilaquiles' three preparations @138; OCR doubles come in pairs so the Nico guard is preserved); new `dropHeaderEchoes` after `promoteSections` (price-less/desc-less/option-less item whose name is another item's section_title = header echo — kills the pseudo-header spike class at tile level).
+4. Harness: `extractWithRetry` also retries `finish_reason=length` once (no `max_tokens` is set in `runExtraction`; verbosity nondeterminism can overrun the default cap).
 
-**Changes rejected (and why):** _fill_
+**Changes rejected (and why):** none reverted this feature — no P1/P2 edits were ever attempted (the F2 lesson held: every fix was oracle, scorer, or deterministic postprocess).
 
-**Oracle rulings (user):** _fill_
+**Oracle rulings (user, 2026-07-10):** Churrasquería = SECTION with entries (Sencilla@495/Doble@950 items under it; "Pídelo con queso" +$10 ungraded this feature — option-attachment semantics stay with F2's frozen conventions; Taco JR Sirloin/Quesadilla independent, uncheck­ed). Pa' los Bukis = allowed-not-required (`section_headers`). De la Cafetería + nikkori's 16 drink sections → `drink_sections` (new unscored field, parked for F5, with `drink_section_expectations` preserving the 17 drink mapping checks). Stale "Dos huevos …" expectations → "Revueltos→Huevos"/"Fritos→Huevos" (the roadmap's "Huevos → Revueltos" full-name rule) + new pins (Chilaquiles→Mexicanos, Cazuela de Marlín→De la Playa, Avena→Cereales, Chicharrón Brasero→Entradas, Hamburguesa Brasero→Especialidades, Sopa de Tortilla→Caldos, Sencilla→Churrasquería). "Pasta Parmesano"→"Pasta Parmesan" targets (stable-misread tolerance policy, matches both spellings).
 
-**Final results (per-menu, 3/3 runs):** _fill_
+**Final results (per-menu, 3/3 runs, eval 044):** brasero 28/28 + recall 5/5; brasero-two 47/44 + 1/1; casa-nostra 23/23 + 3/3; el-marcos 28–29/28 + 19/19; mochomos 22/22; nikkori 48–50/48 (crop-merge path). 0 duplicates, 0 option FPs, 0 missing/spurious sections, 0 wrong mappings in every run.
 
-**Frozen gate inherited by Feature 4:** _fill_
+**Frozen gate inherited by Feature 4:** `eval-027-live.ts` with `GATE_DIMS = ["items", "options", "section_context", "categories"]` (widen when F4 starts; F4 also extends the scorer to option prices + grams per the roadmap).
 
-**Gotchas for future features:** _fill_
+**Gotchas for future features:**
+- **Offline re-scoring double-postprocesses dumps** (stored items are already postprocessed; `--offline` runs `postprocessItems` again). Cross-tile same-name cards then fold in ways live never does (Fire Dragon), and `dropHeaderEchoes` can't see drink-carried sections in drink-filtered dumps. Trust unit self-checks + live runs for merge/fold levers; offline is only faithful for single-call menus.
+- **Vision nondeterminism now has a catalogue:** variant packaging flips between options-on-card and N same-name cards (Chilaquiles); tiles occasionally emit heading rows as items (9 at once, run-2 spike); impostor name substitution across neighboring cards (Fire Dragon@209 with Unagui Masago's desc); one-letter name drops (Parmesan); completion-cap overruns. All are handled deterministically — do NOT reach for P1 edits on these classes.
+- **F4 pins to reuse:** `section_expectations` are food-only and any-match; F4's `categories`/`section_context` widening should extend entries per menu rather than tighten match semantics.
+- **F5 inherits:** `drink_sections` + `drink_section_expectations` fixture fields (data preserved, unscored); the nikkori crop path currently DROPS drinks per tile (`eval-027-live.ts` extractMenu) — F5 must remove that filter and re-adjudicate drink counts.
+- **brasero-two still runs 47/44 (+3 edge)** — unchanged from F2; watch on any card-count-increasing change.
 
 ---
 
@@ -444,7 +453,7 @@ git commit -m "docs(ledger): eval NNN — Feature 3 exit gate 3/3 (items+options
 
 - [x] Feature 1 — Extract all Food menu items ✅ CLOSED 2026-07-06
 - [x] Feature 2 — Extract options of Food items ✅ CLOSED 2026-07-09
-- [ ] Feature 3 — Extract sections & sub-sections
+- [x] Feature 3 — Extract sections & sub-sections ✅ CLOSED 2026-07-10
 - [ ] Feature 4 — Extract closest section + category
 - [ ] Feature 5 — Extract all Drink menu items
 

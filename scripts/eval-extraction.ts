@@ -111,6 +111,87 @@ export function optionRecall(
   return { found, expected };
 }
 
+export interface OptionBreakdown {
+  targets: {
+    target: ExpectedFixture["items_with_options"][number];
+    matchedItem: string | null;
+    matchedOptions: string[];
+    missingOptions: string[];
+  }[];
+  falsePositives: { name: string; options: string[] }[];
+}
+
+export function optionBreakdown(
+  fixture: ExpectedFixture,
+  items: ExtractedMenuItem[],
+): OptionBreakdown {
+  const consumed = new Set<number>();
+  const targets = fixture.items_with_options.map((target) => {
+    const index = findOptionTargetIndex(target, items, consumed);
+    if (index === undefined) {
+      return {
+        target,
+        matchedItem: null,
+        matchedOptions: [],
+        missingOptions: target.options,
+      };
+    }
+    consumed.add(index);
+    const item = items[index];
+    const names = item.options.map((option) => option.name);
+    const missingOptions = target.options.filter((expected) =>
+      !names.some((name) => normalize(name).includes(normalize(expected)))
+    );
+    return {
+      target,
+      matchedItem: item.name,
+      matchedOptions: names,
+      missingOptions,
+    };
+  });
+  const falsePositives = items
+    .filter((item, index) => item.options.length > 0 && !consumed.has(index))
+    .map((item) => ({
+      name: item.name,
+      options: item.options.map((option) => option.name),
+    }));
+  return { targets, falsePositives };
+}
+
+export function formatOptionBreakdown(breakdown: OptionBreakdown): string[] {
+  const lines: string[] = [];
+  for (const entry of breakdown.targets) {
+    const want = `"${entry.target.name_contains}" wants [${
+      entry.target.options.join(", ")
+    }]`;
+    if (entry.matchedItem === null) {
+      lines.push(`    ✗ ${want} → no matching item extracted`);
+    } else if (entry.matchedOptions.length === 0) {
+      lines.push(
+        `    ✗ ${want} → "${entry.matchedItem}" extracted with NO options`,
+      );
+    } else if (entry.missingOptions.length > 0) {
+      lines.push(
+        `    ~ ${want} → "${entry.matchedItem}" has [${
+          entry.matchedOptions.join(", ")
+        }]; missing [${entry.missingOptions.join(", ")}]`,
+      );
+    } else {
+      lines.push(
+        `    ✓ ${want} → "${entry.matchedItem}" has [${
+          entry.matchedOptions.join(", ")
+        }]`,
+      );
+    }
+  }
+  for (const fp of breakdown.falsePositives) {
+    lines.push(
+      `    ⚠ FALSE POSITIVE "${fp.name}" has [${fp.options.join(", ")}]`,
+    );
+  }
+  return lines;
+}
+
 export function scoreMenu(
   fixture: ExpectedFixture,
   actual: ActualExtraction,
@@ -191,31 +272,19 @@ export function scoreMenu(
     }; wrong item mappings: ${incorrectMappings.length}`,
   };
 
-  const expectedOptionItems = fixture.items_with_options;
-  const consumedOptionIndices = new Set<number>();
-  const missingOptionItems = expectedOptionItems.filter((expected) => {
-    const index = findOptionTargetIndex(
-      expected,
-      actual.items,
-      consumedOptionIndices,
-    );
-    if (index === undefined) return true;
-    consumedOptionIndices.add(index);
-    const item = actual.items[index];
-    return item.options.length === 0 ||
-      expected.options.some((expectedOption) =>
-        !item.options.some((actualOption) =>
-          normalize(actualOption.name).includes(normalize(expectedOption))
-        )
-      );
-  });
-  const falsePositiveOptions = actual.items.filter((item, index) =>
-    item.options.length > 0 && !consumedOptionIndices.has(index)
+  // Options are scored over FOOD items only (drinks are Feature 5): a drink
+  // with options is neither a matchable target nor a false positive.
+  const optionsBreakdown = optionBreakdown(fixture, foodItems);
+  const missingOptionItems = optionsBreakdown.targets.filter((entry) =>
+    entry.matchedItem === null ||
+    entry.matchedOptions.length === 0 ||
+    entry.missingOptions.length > 0
   );
   const options = {
-    pass: missingOptionItems.length === 0 && falsePositiveOptions.length === 0,
+    pass: missingOptionItems.length === 0 &&
+      optionsBreakdown.falsePositives.length === 0,
     detail:
-      `missed targets: ${missingOptionItems.length}; false-positive items: ${falsePositiveOptions.length}`,
+      `missed targets: ${missingOptionItems.length}; false-positive items: ${optionsBreakdown.falsePositives.length}`,
   };
 
   const expectedQuality = fixture.image_quality;
@@ -470,6 +539,14 @@ async function offline(dir: string): Promise<void> {
     console.log(
       `option recall ${fixture.menu}: ${recall.found}/${recall.expected}`,
     );
+    for (
+      const line of formatOptionBreakdown(
+        optionBreakdown(
+          fixture,
+          processed.filter((item) => item.category !== "drink"),
+        ),
+      )
+    ) console.log(line);
   }
   printReport(reports, aggregateReports(reports));
   enforceGate(reports);
@@ -622,6 +699,51 @@ function runSelfCheck(): void {
   assert(
     scoreMenu(fixture, foodPlusDrinks).items.pass,
     "5 extra drink items must not break the food-only item count",
+  );
+
+  const drinkWithOptions: ActualExtraction = {
+    image_quality: { usable: true, issues: [] },
+    items: [
+      ...actual.items,
+      {
+        name: "Té",
+        description: "",
+        price: 32,
+        category: "drink" as const,
+        section_title: null,
+        options: [
+          { name: "Manzanilla", price: null, grams: null },
+          { name: "Negro", price: null, grams: null },
+        ],
+      },
+    ],
+  };
+  assert(
+    scoreMenu(fixture, drinkWithOptions).options.pass,
+    "a drink item with options must not fail the food-scoped options gate",
+  );
+
+  const breakdown = optionBreakdown(fixture, actual.items);
+  assert(
+    breakdown.targets.length === 2 &&
+      breakdown.targets[0].matchedItem === "House Burger" &&
+      breakdown.targets[0].matchedOptions.join(",") === "Add Cheese" &&
+      breakdown.targets[0].missingOptions.length === 0,
+    "breakdown reports the matched item and its actual options",
+  );
+  assert(
+    breakdown.falsePositives.length === 0,
+    "consumed targets are not false positives",
+  );
+  const missedBreakdown = optionBreakdown(fixture, [
+    { ...actual.items[0], options: [] },
+    actual.items[1],
+  ]);
+  assert(
+    missedBreakdown.targets[0].matchedItem === "House Burger" &&
+      missedBreakdown.targets[0].matchedOptions.length === 0 &&
+      missedBreakdown.targets[0].missingOptions.join(",") === "Cheese",
+    "breakdown reports a matched item extracted with no options",
   );
 
   const filler = (name: string): ExtractedMenuItem => ({

@@ -251,3 +251,11 @@ Rules:
 - Caveat (honest): NO fresh 3/3 live gate was run under the new metric (no API key this session). Closure rests on: 5 menus offline-green + Nikkori live-green (6 runs) + el-marcos completeness proven stable (iter 028b). A confirming `eval-027-live.ts` run under the new scorer is recommended as a formality, not a blocker.
 - Verdict: ORACLE-CHANGE + **Feature 1 CLOSED** (completeness met on all 6 menus).
 - Handed to Feature 2/3: variant fold/split (Chilaquiles/Revueltos → 1 item + options) = Feature 2; the "Pa' los Bukis" section-vs-item question + "$94 POR NIÑO" junk = Feature 3. Frozen gate for F2 = `items` (via `eval-027-live.ts`, which routes Nikkori through crops — the plain `--gate` path canNOT crop Nikkori) + `options`.
+
+## Scorer refinement — options dimension food-scoped + per-target breakdown (Feature 2 start)
+- Date: 2026-07-09 | Scorer change only; NO prompt/extraction change. Plan: main repo `docs/superpowers/plans/2026-07-09-feature-2-extract-food-options.md` (user-approved).
+- Change 1: options dimension now scores FOOD items only (`category !== "drink"`) — a drink with options (Té Manzanilla/Negro) is neither a target nor a false positive. Sanctioned verbatim by the roadmap's F2 line: "options pass + optionRecall, food items only". Drinks are Feature 5.
+- Change 2: new `optionBreakdown`/`formatOptionBreakdown` exports — per-target ✓/~/✗ (matched item + its actual options + missing expected options) and ⚠ false-positive lines, printed by `--offline` and (next commit) `eval-027-live.ts`, so option confusions are visually diagnosable per menu (user request 2026-07-09). `scoreMenu` options block refactored onto the same breakdown (one matcher).
+- TDD: failing self-checks first (drink-FP scoping, breakdown shape, no-options match); `--self-check` green after.
+- Verdict: ORACLE-CHANGE.
+- Lesson: an incomplete option oracle + unscoped FP check punishes CORRECT extractions; fixture completion is the next entry.

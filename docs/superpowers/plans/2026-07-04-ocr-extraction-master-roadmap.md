@@ -66,7 +66,8 @@ Food first because the app's value is macro-sorted **food**; drinks come last.
 - **Frozen gates when starting:** none (first feature).
 - **Exit gate:** `items` (food) passes on all 6 menus, 3/3 runs.
 
-### Feature 2 — Extract options of Food items
+### Feature 2 — Extract options of Food items ✅ CLOSED 2026-07-09
+- **Plan file:** `docs/superpowers/plans/2026-07-09-feature-2-extract-food-options.md` (see its Execution Log for the fold convention, oracle rulings, the deterministic postprocess chain, and Feature 3–5 gotchas).
 - **Goal:** food items with choices (e.g. "Caesar Salad" → Chicken / Fish) carry those choices in `options`.
 - **Scoped dimension:** `options` pass + `optionRecall`, food items only.
 - **Harness work:** reuse existing `items_with_options` fixtures; el-marcos option corrections already applied.
@@ -76,7 +77,8 @@ Food first because the app's value is macro-sorted **food**; drinks come last.
 - **UI intent (future):** options render as toggles in the already-merged selectable-options UI so the user sees macro deltas.
 - **Exit gate:** `options` passes on all 6 menus, 3/3 runs, **AND** Feature 1 (`items` completeness) still green in those runs.
 
-### Feature 3 — Extract sections & sub-sections
+### Feature 3 — Extract sections & sub-sections 🔄 ACTIVE since 2026-07-10
+- **Plan file:** `docs/superpowers/plans/2026-07-10-feature-3-extract-sections.md`.
 - **Goal:** section hierarchy is captured; trimmed item names get their parent section so "Revueltos" reads as "Huevos → Revueltos".
 - **Scoped dimension:** `sections` list match + full-item-name rule.
 - **Harness work:** reuse `sections` fixture arrays; el-marcos Huevos full-name expectations already in fixtures.
@@ -180,6 +182,6 @@ Last step: revoke any OpenAI API key pasted into chat or exposed during live eva
 
 - [x] Feature 1 — Extract all Food menu items ✅ CLOSED 2026-07-06 (completeness gate; see feature-1 plan Execution Log)
 - [x] Feature 2 — Extract options of Food items ✅ CLOSED 2026-07-09 (fold convention; 3/3 live gate eval 038; see `2026-07-09-feature-2-extract-food-options.md` Execution Log)
-- [ ] Feature 3 — Extract sections & sub-sections
+- [ ] Feature 3 — Extract sections & sub-sections 🔄 ACTIVE since 2026-07-10 (plan: `2026-07-10-feature-3-extract-sections.md`)
 - [ ] Feature 4 — Extract closest section + category
 - [ ] Feature 5 — Extract all Drink menu items

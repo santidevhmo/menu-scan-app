@@ -341,3 +341,9 @@ Rules:
 - (2) el-marcos Revueltos target → [jamón]. The "Dos huevos a la mexicana @84" line is dropped by the model ~2/3 runs (vision nondeterminism); when present, the fold captures it correctly. Known instability, not gate-blocking.
 - (3) Churrasquería target REMOVED from F2 → deferred to Feature 3 (section semantics: block-level add-on "Pídelo con Queso @10" attaching to a section's items; same bucket as Pa' los Bukis).
 - Next: 3/3 consecutive live exit gate (items+options, all 6 menus).
+
+## Eval 038 — Feature 2 EXIT GATE: 3/3 consecutive live GATE PASS (~$1.00)
+- Date: 2026-07-09 | No code change. eval-027-live, RUNS=3, GATE_DIMS=[items,options], all 6 menus.
+- Result: GATE PASS ×3. Per menu, all runs: brasero 28/28 + 5/5 recall; brasero-two 47/44 + 1/1; casa-nostra 23/23 + 3/3; el-marcos 28–30/28 + 19/19; mochomos 22/22; nikkori 49–50/48 (crop-merge path). 0 duplicates, 0 option false positives, 0 missed targets in every run.
+- Verdict: **Feature 2 exit gate MET** — items (frozen F1) + options green 3/3. Close-out pending one user discussion (DoorDash pipeline alignment) before the formal close.
+- What ships (worktree commits this session): foldVariantCards + extractInlineChoices + unenumerated/C-U/weight option filters (postprocess.ts, all TDD'd), accent-insensitive scorer + optionBreakdown diagnostics, per-page multi-photo recipe (eval runner; production wiring = close-out note), fold-convention oracles.

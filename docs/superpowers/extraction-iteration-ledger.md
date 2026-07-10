@@ -335,3 +335,9 @@ Rules:
 - RESULT (live full gate 1 run, ~$0.35): items 6/6 PASS (brasero-two 47/44, el-marcos 30/28, nikkori 50/48). options 4/6 clean PASS; ZERO false positives on all menus (all three filters — unenumerated, C/U, weight — confirmed live). Remaining misses: el-marcos Revueltos "mexicana" (model dropped the @84 line again — 2 of 3 recent runs; vision nondeterminism); brasero-two Taco Loiro "picaña"→"arrachera" stable misread + Churrasquería target-shape mismatch (it's a section).
 - Verdict: ACCEPTED (per-page recipe + filters). Remaining failures are ORACLE DECISIONS, not extraction defects — summary + user decisions next.
 - Options-miss trend: eval-030 baseline 11 missed / 3 FP → iter 031+033: 3 missed / 1 FP → iter 035: 3 / 1 → iter 036+037: 2 partial + 1 shape / 0 FP. Improving, not flat.
+
+## Oracle rulings — user decisions on the three converged misses (ORACLE-CHANGE, user-approved 2026-07-09)
+- (1) Taco Loiro target → [pollo]. The picaña option IS extracted (with printed price 165) under a stable vision misread "arrachera" — tolerated per the F1 stable-misread policy; revisit if a name-correction pass is built.
+- (2) el-marcos Revueltos target → [jamón]. The "Dos huevos a la mexicana @84" line is dropped by the model ~2/3 runs (vision nondeterminism); when present, the fold captures it correctly. Known instability, not gate-blocking.
+- (3) Churrasquería target REMOVED from F2 → deferred to Feature 3 (section semantics: block-level add-on "Pídelo con Queso @10" attaching to a section's items; same bucket as Pa' los Bukis).
+- Next: 3/3 consecutive live exit gate (items+options, all 6 menus).

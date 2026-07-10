@@ -18,7 +18,13 @@
 //        --allow-net scripts/eval-027-live.ts
 import { runExtraction } from "../supabase/functions/analyze-menu/extract.ts";
 import { mergeItemSources } from "../src/lib/adaptiveExtraction.ts";
-import { gateFailures, scoreMenu } from "./eval-extraction.ts";
+import {
+  formatOptionBreakdown,
+  gateFailures,
+  optionBreakdown,
+  optionRecall,
+  scoreMenu,
+} from "./eval-extraction.ts";
 import type { ExtractedItem } from "../src/types/scan.ts";
 
 type Fixture = Parameters<typeof scoreMenu>[0];
@@ -107,11 +113,19 @@ for (let run = 1; run <= RUNS; run++) {
     reports.push(report);
     const dups = duplicateNames(actual.items);
     console.log(
-      `  ${report.items.pass ? "PASS" : "FAIL"} ${fixture.menu}: ${report.items.detail}${
+      `  ${report.items.pass ? "PASS" : "FAIL"} ${fixture.menu} items: ${report.items.detail}${
         dups.length ? ` [dups: ${dups.join("; ")}]` : ""
       }`,
     );
-    if (!report.items.pass) {
+    const foodOnly = actual.items.filter((item) => item.category !== "drink");
+    const recall = optionRecall(fixture, foodOnly);
+    console.log(
+      `  ${report.options.pass ? "PASS" : "FAIL"} ${fixture.menu} options: ${report.options.detail}; recall ${recall.found}/${recall.expected}`,
+    );
+    for (const line of formatOptionBreakdown(optionBreakdown(fixture, foodOnly))) {
+      console.log(line);
+    }
+    if (!report.items.pass || !report.options.pass) {
       await Deno.writeTextFile(
         `${MENU_DIR}/${fixture.menu}.eval027-r${run}.actual.json`,
         `${JSON.stringify(actual, null, 2)}\n`,
@@ -124,7 +138,7 @@ for (let run = 1; run <= RUNS; run++) {
   // dimensions from the same response, so widening this array costs ZERO API calls.
   // Feature 1 = ["items"]; Feature 2 → ["items","options"]; Feature 3 →
   // ["items","options","section_context"]; etc. Widen it when you start a feature.
-  const GATE_DIMS = ["items"] as const;
+  const GATE_DIMS = ["items", "options"] as const;
   const failures = gateFailures(reports, [...GATE_DIMS]);
   if (failures.length === 0) {
     consecutivePasses++;

@@ -401,3 +401,13 @@ Rules:
 - Finding 2: brasero "PASTA PARMESANO" transcribed "PASTA PARMESAN" (one-letter drop) → options target missed+FP and section expectation "(item not found)". Same class as picaña→arrachera / Marlín→Marlin.
 - Fixes: (a) extractWithRetry retries finish_reason=length once (harness, mirrors iter-034 timeout retry); (b) ORACLE-CHANGE under the established F1/F2 stable-misread tolerance policy: brasero targets "Pasta Parmesano"→"Pasta Parmesan" (substring of BOTH spellings, matches either).
 - Verdict: HARNESS FIX + ORACLE-CHANGE. Next: gate attempt 3.
+
+## Eval 044 — Feature 3 EXIT GATE: 3/3 consecutive live GATE PASS (~$1.05)
+- Date: 2026-07-10 | No code change. eval-027-live, RUNS=3, GATE_DIMS=[items,options,section_context], all 6 menus.
+- Result: GATE PASS ×3. Per menu, all runs: brasero 28/28 + recall 5/5 (Pasta Parmesan tolerance held); brasero-two 47/44 + 1/1 + Churrasquería/Sencilla ✓; casa-nostra 23/23 + 3/3; el-marcos 28–29/28 + 19/19 (Chilaquiles variant-family fold ✓ live in all runs); mochomos 22/22; nikkori 48–50/48 via crops (header-echo filter: no pseudo-header spike recurred; Fire Dragon ✓). 0 duplicates, 0 option FPs, 0 missing/spurious sections, 0 wrong mappings in every run.
+- Verdict: **Feature 3 exit gate MET** — section_context green 3/3 with frozen items+options green in the same runs.
+
+## Feature 3 CLOSED 2026-07-10
+- Exit gate met (eval 044, 3/3 live). What shipped this feature (worktree commits): GATE_DIMS widened; food-scoped section_context with named wrong-mapping diagnostics + header-tolerance + any-match expectation semantics (scorer, TDD); section-oracle re-adjudication from all 6 photos (user-approved: brasero-two page-1 sections + Churrasquería-as-section, el-marcos De la Cafetería→drink_sections + Pa' los Bukis→headers + fold-convention expectations, nikkori food/drink split + Postres fix, Pasta Parmesan misread tolerance); postprocess: inline-choice parser price-null guard (iter 041), variant-family fold for 3+ same-name cards (iter 042 L1), dropHeaderEchoes (iter 042 L2); harness: finish_reason=length retry.
+- Close-out done in the MAIN repo: F3 plan Execution Log filled, both Progress Checklists ticked, pipeline diagram updated (sections 🟢, new postprocess chain) + re-copied to ~/Downloads.
+- Frozen gates for Feature 4: `items` + `options` + `section_context` via eval-027-live.ts; widen GATE_DIMS to ["items","options","section_context","categories"] when F4 starts (F4 also adds option-price + grams scoring per the roadmap).

@@ -203,6 +203,10 @@ const UNENUMERATED_CHOICE = /^\s*(?:\p{L}+\s+)?(?:a elegir|de su elecci[oó]n|su
 // Per-unit price notation ("$98 C/U" = cada uno / each) — a price note, not a choice.
 const PER_UNIT_NOTE = /^\s*c\/u\.?\s*$/i;
 
+// A pure weight/volume token is a weight note, not a choice (grams live in the
+// grams field). "650gr", "80 gr.", "300ml".
+const WEIGHT_NOTE = /^\s*\d+(?:[.,]\d+)?\s*(?:gr?|kg|ml|l|oz)\.?\s*$/i;
+
 export function filterServingFormatOptions(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
@@ -211,7 +215,8 @@ export function filterServingFormatOptions(
     options: item.options.filter((option) =>
       !isServingFormat(option.name) &&
       !UNENUMERATED_CHOICE.test(option.name) &&
-      !PER_UNIT_NOTE.test(option.name)
+      !PER_UNIT_NOTE.test(option.name) &&
+      !WEIGHT_NOTE.test(option.name)
     ),
   }));
 }
@@ -389,6 +394,20 @@ if (import.meta.main) {
   })]);
   if (perUnit[0].options.map((o) => o.name).join("|") !== "verdura") {
     throw new Error(`per-unit filter: got ${perUnit[0].options.map((o) => o.name).join("|")}`);
+  }
+  // Pure weight/volume tokens are weight notes, not choices.
+  const weightOpt = filterServingFormatOptions([item({
+    name: "Sirloin",
+    price: 135,
+    options: [
+      { name: "650gr", price: null, grams: 650 },
+      { name: "80 gr.", price: null, grams: 80 },
+      { name: "300ml", price: null, grams: null },
+      { name: "pollo", price: 150, grams: null },
+    ],
+  })]);
+  if (weightOpt[0].options.map((o) => o.name).join("|") !== "pollo") {
+    throw new Error(`weight filter: got ${weightOpt[0].options.map((o) => o.name).join("|")}`);
   }
   // Different names / different categories never fold.
   const distinct = foldVariantCards([

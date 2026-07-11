@@ -277,8 +277,11 @@ const UNENUMERATED_CHOICE = /^\s*(?:\p{L}+\s+)?(?:a elegir|de su elecci[oó]n|su
 // Per-unit price notation ("$98 C/U" = cada uno / each) — a price note, not a
 // choice. Single-letter c/X covers the model's digit-class misreads of the
 // same printed token ("C/J" for "C/U", eval 054); a real "c/<ingredient>"
-// choice always has a full word after the slash.
-const PER_UNIT_NOTE = /^\s*c\/[a-z]\.?\s*$/i;
+// choice always has a full word after the slash. The second pattern covers
+// per-person qualifiers ("POR NIÑO", "per person") emitted as options from
+// promo blocks (eval 054 — the same printed text that dropPriceNoteItems
+// handles at item level).
+const PER_UNIT_NOTE = /^\s*(?:c\/[a-z]\.?|(?:por|per)\s+\p{L}+\.?)\s*$/iu;
 
 // A pure weight/volume token is a weight note, not a choice (grams live in the
 // grams field). "650gr", "80 gr.", "300ml".
@@ -529,6 +532,17 @@ if (import.meta.main) {
   })]);
   if (priceless[0].options.length !== 0) {
     throw new Error("inline: price-null item must not gain parsed options");
+  }
+  // Per-person qualifiers as options are price notes, not choices.
+  const perPerson = filterServingFormatOptions([
+    item({
+      name: "Pa' los Bukis",
+      price: 94,
+      options: [{ name: "POR NIÑO", price: null, grams: null }],
+    }),
+  ]);
+  if (perPerson[0].options.length !== 0) {
+    throw new Error("per-person qualifier option must be dropped");
   }
   // Per-unit note misreads (C/J for C/U) are dropped like c/u itself.
   const perUnitMisread = filterServingFormatOptions([

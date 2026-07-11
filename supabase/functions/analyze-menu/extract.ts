@@ -35,6 +35,11 @@ or preparations, return ONE item named after the base dish and put each printed
 variant in options. Never return duplicate item names for variants of one dish.
 A choice printed inside a description ("con X o Y", "choice of X or Y") is an
 options list; capture each choice in options. Do not move options into the description.
+Ingredients joined by "y" or "and" ("con jamón y queso", "with ham and cheese")
+are parts of ONE dish, never options; keep them in the item's name or description.
+When a printed weight or volume accompanies an item (e.g. "(70gr.)", "350 ml"),
+keep it verbatim in that item's name or description; never omit or clean away
+printed weights.
 If a description is not printed, use an empty string. If a price is not printed, set it to null.
 Assess the visible menu layout. Set image_layout.dense=true only when small text,
 many tightly packed items, or a crowded multi-group layout risks incomplete
@@ -190,6 +195,7 @@ export async function runExtraction(
     });
     const json = await res.json() as {
       error?: { message?: string };
+      system_fingerprint?: string;
       choices?: { finish_reason: string; message: { content: string } }[];
     };
     if (!res.ok) throw new Error(json.error?.message ?? "OpenAI API error");
@@ -204,7 +210,12 @@ export async function runExtraction(
     const text = choice.message.content;
     if (!text) throw new Error("OpenAI returned no extraction content");
 
-    console.log("[openai] finish_reason:", choice.finish_reason);
+    console.log(
+      "[openai] finish_reason:",
+      choice.finish_reason,
+      "fingerprint:",
+      json.system_fingerprint ?? "n/a",
+    );
     const parsed = JSON.parse(text) as Omit<ExtractionResult, "raw_response">;
     return {
       ...parsed,

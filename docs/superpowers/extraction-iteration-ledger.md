@@ -430,3 +430,11 @@ Rules:
 - (2) el-marcos Revueltos jamón price → UNCHECKED (F2-precedent: @84-line drop nondeterminism). Fritos jamón@90 stays pinned — same printed price, verifies reliably.
 - (3) nikkori section_headers += "Rolls" (allowed-not-required, same semantics as "Rollos").
 - Next: eval 046 — 3/3 exit gate.
+
+## Eval 046 — exit-gate attempt 1: 2/3 (one known-class miss, fixed deterministically)
+- Date: 2026-07-10 | RUNS=3, GATE_DIMS=[items,options,section_context,categories,grams]. Runs 2+3: GATE PASS all 6 menus. Run 1: el-marcos categories FAIL — spurious "other" from pseudo-item "$94 POR NIÑO" (Pa' los Bukis prose-block price note; the F1-era junk-line nondeterminism finally hitting a gated dim). All eval-045 rulings held live (Puré de Papa 350 ✓, Revueltos unchecked ✓, Rolls tolerance ✓ ×3).
+
+## Iteration 046 — dropPriceNoteItems (deterministic, $0)
+- Date: 2026-07-10 | postprocess (TDD, 2 new self-checks): drop an item whose NAME starts with a currency amount ($ + digits) when it has no description and no options — a price note from a prose block, never a dish; "3 Quesadillas" (no $) and content-bearing promo cards survive. Chain: after stripMenuNumbers, before foldVariantCards. ponytail: $-prefix only; add currency symbols per market from data.
+- Offline validation: eval-046 run-1 el-marcos dump → categories PASS (junk item gone), options/grams unchanged; both self-check suites green; all other archives unaffected.
+- Verdict: ACCEPTED. Next: eval 047 — gate attempt 2.

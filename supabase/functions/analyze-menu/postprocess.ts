@@ -238,6 +238,23 @@ export function stripMenuNumbers(
   }));
 }
 
+// A pseudo-item whose NAME starts with a currency amount ("$94 POR NIÑO") is a
+// price note transcribed out of a prose block, not a dish — no real dish name
+// begins with a price. Description-less and option-less only, so a genuine
+// promo card with content survives. ponytail: $-prefix only; add currency
+// symbols per market from data.
+const PRICE_NOTE_NAME = /^\s*\$\s*\d/;
+
+export function dropPriceNoteItems(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  return items.filter((item) =>
+    !(PRICE_NOTE_NAME.test(item.name) &&
+      item.description.trim() === "" &&
+      item.options.length === 0)
+  );
+}
+
 // A choice MENTION with no printed alternatives ("Tortillas a elegir",
 // "de su elección") is not an option — mirrors the P1 rule and the inline
 // parser's guard. ponytail: es/en phrases; extend per language from data.
@@ -295,7 +312,9 @@ export function postprocessItems(
   // ("Bandiola Adobada (150gr)") also get their printed weight parsed.
   return parseItemGrams(filterServingFormatOptions(
     extractInlineChoices(
-      dropHeaderEchoes(promoteSections(foldVariantCards(stripMenuNumbers(items)))),
+      dropHeaderEchoes(promoteSections(foldVariantCards(
+        dropPriceNoteItems(stripMenuNumbers(items)),
+      ))),
     ),
   ));
 }
@@ -523,6 +542,22 @@ if (import.meta.main) {
     item({ name: "Té Verde", price: 35, category: "drink" }),
   ]);
   if (distinct.length !== 2) throw new Error("fold: distinct names folded");
+  // A pseudo-item whose NAME is a currency amount ("$94 POR NIÑO") is a price
+  // note from a prose block, never a dish; real dishes with digits ("3 Tacos")
+  // and every other item survive.
+  const priceNotes = dropPriceNoteItems([
+    item({ name: "$94 POR NIÑO", price: 94, section_title: "PA' LOS BUKIS" }),
+    item({ name: "3 Quesadillas", price: 80 }),
+    item({ name: "Tacos", price: 45, description: "Con todo" }),
+  ]);
+  if (priceNotes.map((i) => i.name).join("|") !== "3 Quesadillas|Tacos") {
+    throw new Error(`price note: got ${priceNotes.map((i) => i.name).join("|")}`);
+  }
+  // A price-note-named card that carries real content (desc/options) is kept.
+  const priceNoteKeep = dropPriceNoteItems([
+    item({ name: "$5 Wings", price: 5, description: "Every Tuesday special" }),
+  ]);
+  if (priceNoteKeep.length !== 1) throw new Error("price note: content card dropped");
   // Printed-weight parser: number + g/gr/grs/kg is grams; ml/L/oz/mg are not.
   const grams = parseItemGrams([
     item({ name: "CHILAQUILES (70gr.)" }),

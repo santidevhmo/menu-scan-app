@@ -59,7 +59,8 @@ After the eval gate is green: build to a physical iPhone, then (1) scan the orig
 
 ## Exit gate
 
-1. Full 6-menu gate 3/3 (`scripts/eval-027-live.ts`), frozen dims [items, options, section_context, categories, grams], with **Nikkori flowing the production path**: phase-1 detector → runtime `sips` cut via `gridCropRects` → `stage:"extract-pages"`-equivalent grouped extraction (5 calls). Other menus unchanged (still through `runPagedExtraction`).
+1. Full 6-menu gate 3/3 (`scripts/eval-027-live.ts`), frozen dims [items, options, section_context, categories, grams], with **Nikkori flowing the production path**: phase-1 detector → runtime `sips` cut via `gridCropRects` → `stage:"extract-pages"`-equivalent grouped extraction (5 calls). Other menus unchanged (still through `runPagedExtraction`). All scoring stays against the manually-adjudicated oracles (`scripts/fixtures/*.expected.json`) — every comparison and A/B in this feature is judged by `scoreMenu` against those fixtures, never by eyeball or raw counts (user requirement 2026-07-10).
+1b. **Detector false-positive check (user requirement 2026-07-10):** in those same 3 gate runs, the 5 non-dense menus (brasero, brasero-two, casa-nostra, el-marcos, mochomos) must NEVER dense-signal — no `needs_crops`, no phase 2, exactly the same call count as today (a false positive wastes ~4 extra calls + a round trip + client cropping per page). The eval logs each page's detector verdict per run so this is asserted, not assumed. Nikkori (production-compressed) must dense-signal in every run — a missed detection is equally a failure.
 2. `DENSE_TILES` deleted; no menu-name-keyed routing anywhere in the eval or solution code.
 3. Unit tests green (geometry, orchestration, edge handler validation); `deno check` + client `tsc` clean.
 4. Device checklist passed on a physical iPhone.

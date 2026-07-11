@@ -148,10 +148,21 @@ export interface ExtractionResult {
   raw_response: string;
 }
 
+// Sent ONLY with cropped-tile calls (dense flow): partial cards at tile edges
+// otherwise get "reconstructed" into phantom dishes (nikkori diagnosis
+// 2026-07-11 — "Cosmo de Pollo" cut mid-card became "Pollo Roll"). The
+// neighboring tile always contains the full card, so skipping is lossless.
+export const TILE_PROMPT_SUFFIX =
+  `\nThis image is one cropped tile of a larger menu photo; items at the edges
+may be cut off. Transcribe only items whose printed name is completely visible
+in this tile. Skip any partially visible or cut-off item entirely — do not
+guess or reconstruct its name; a neighboring tile shows it in full.`;
+
 export async function runExtraction(
   photos: string[],
   apiKey: string,
   detail?: "auto" | "high" | "low",
+  tile = false,
 ): Promise<ExtractionResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), MODEL_TIMEOUT_MS);
@@ -168,7 +179,10 @@ export async function runExtraction(
         messages: [{
           role: "user",
           content: [
-            { type: "text", text: EXTRACT_PROMPT },
+            {
+              type: "text",
+              text: tile ? EXTRACT_PROMPT + TILE_PROMPT_SUFFIX : EXTRACT_PROMPT,
+            },
             ...photos.map((photo) => ({
               type: "image_url",
               image_url: {
@@ -244,9 +258,10 @@ export async function extractWithRetry(
   apiKey: string,
   detail?: "auto" | "high" | "low",
   extract = runExtraction,
+  tile = false,
 ): Promise<ExtractionResult> {
   try {
-    return await extract(photos, apiKey, detail);
+    return await extract(photos, apiKey, detail, tile);
   } catch (error) {
     const message = String(error);
     if (
@@ -254,7 +269,7 @@ export async function extractWithRetry(
       !message.includes("finish_reason=length")
     ) throw error;
     console.log("[extract] transient model failure — retrying call once");
-    return await extract(photos, apiKey, detail);
+    return await extract(photos, apiKey, detail, tile);
   }
 }
 
@@ -332,7 +347,7 @@ export async function runGroupedExtraction(
       throw new Error(`extract-pages group ${index} must have 1 or 4 photos`);
     }
     const tiles = await Promise.all(
-      group.map((tile) => extract([tile], apiKey, "high")),
+      group.map((tile) => extract([tile], apiKey, "high", undefined, true)),
     );
     const sources = tiles.map((t) =>
       t.items.filter((i) => i.category !== "drink")

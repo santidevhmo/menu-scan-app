@@ -3,12 +3,14 @@ import {
   assertRejects,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
+  EXTRACT_PROMPT,
   EXTRACT_SCHEMA,
   extractWithRetry,
   runCropExtractions,
   runExtraction,
   runGroupedExtraction,
   runPagedExtraction,
+  TILE_PROMPT_SUFFIX,
 } from "./extract.ts";
 import type { ExtractionResult } from "./extract.ts";
 
@@ -386,4 +388,31 @@ Deno.test("runGroupedExtraction: rejects malformed group sizes", async () => {
     Error,
     "group",
   );
+});
+
+Deno.test("tile calls append TILE_PROMPT_SUFFIX; normal calls send P1 verbatim", async () => {
+  const originalFetch = globalThis.fetch;
+  const prompts: string[] = [];
+  globalThis.fetch = (async (input, init) => {
+    const request = new Request(input, init);
+    const body = JSON.parse(await request.text());
+    prompts.push(body.messages[0].content[0].text);
+    return new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: {
+          content:
+            '{"image_quality":{"usable":true,"issues":[]},"image_layout":{"dense":false,"crop_direction":"none"},"items":[]}',
+        },
+      }],
+    }));
+  }) as typeof fetch;
+  try {
+    await runExtraction(["p"], "key");
+    await runExtraction(["p"], "key", "high", true);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+  assertEquals(prompts[0], EXTRACT_PROMPT);
+  assertEquals(prompts[1], EXTRACT_PROMPT + TILE_PROMPT_SUFFIX);
 });

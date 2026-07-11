@@ -47,3 +47,32 @@ export function compressImage(
 ): Promise<CompressedImage> {
   return prepareImage(uri, sourceWidth, sourceHeight);
 }
+
+const TILE_MAX_DIMENSION = 2048;
+const TILE_QUALITY = 0.85;
+
+/** Cuts one dense-menu tile from the ORIGINAL image. Deliberately NOT the
+ * 1024px/q0.7 pipeline — production compression is what broke every rejected
+ * dense candidate (2026-07-04 spec). The 2048px cap keeps phone-camera tiles
+ * ~2x the linear resolution of the gate-proven 718x1138 tiles. */
+export async function prepareTile(
+  uri: string,
+  crop: CropRect,
+): Promise<CompressedImage> {
+  const context = ImageManipulator.manipulate(uri);
+  context.crop(crop);
+  const longest = Math.max(crop.width, crop.height);
+  if (longest > TILE_MAX_DIMENSION) {
+    const scale = TILE_MAX_DIMENSION / longest;
+    context.resize({
+      width: Math.round(crop.width * scale),
+      height: Math.round(crop.height * scale),
+    });
+  }
+  const rendered = await context.renderAsync();
+  const result = await rendered.saveAsync({
+    compress: TILE_QUALITY,
+    format: SaveFormat.JPEG,
+  });
+  return { uri: result.uri, width: result.width, height: result.height };
+}

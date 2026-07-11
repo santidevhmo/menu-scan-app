@@ -4,7 +4,8 @@ import {
   FunctionsHttpError,
   FunctionsRelayError,
 } from "@supabase/supabase-js";
-import { compressImage } from "./compressImage";
+import { compressImage, prepareTile } from "./compressImage";
+import { gridCropRects } from "./adaptiveExtraction";
 import { supabase } from "./supabase";
 import { scoreAndSort, type GoalVector } from "./zScoreSort";
 import { GOAL_PAIRS, GROUP_TO_MACRO, type MacroField } from "@/data/goals";
@@ -191,7 +192,51 @@ export async function extractMenu(
     return result;
   }
 
-  if (!data || !Array.isArray(data.items)) {
+  let payload = data;
+  if (Array.isArray(data?.needs_crops)) {
+    // Dense page(s): cut 2x2 tiles from the ORIGINAL photos (never the
+    // compressed copies — compression is what breaks dense extraction) and
+    // re-submit every page as a group for one unified menu.
+    console.log("[extractMenu] dense pages detected", data.needs_crops);
+    const dense = new Set<number>(data.needs_crops);
+    const pages = await Promise.all(
+      photos.map(async (photo, index) => {
+        if (!dense.has(index)) return [base64Photos[index]];
+        const tiles = await Promise.all(
+          gridCropRects(photo.width, photo.height).map((rect) =>
+            prepareTile(photo.uri, rect),
+          ),
+        );
+        return Promise.all(
+          tiles.map((tile) =>
+            FileSystem.readAsStringAsync(tile.uri, {
+              encoding: FileSystem.EncodingType.Base64,
+            }),
+          ),
+        );
+      }),
+    );
+    const phase2 = await supabase.functions.invoke(FUNCTION_NAME, {
+      body: { pages, provider, stage: "extract-pages" },
+    });
+    if (phase2.error) {
+      logFunctionInvokeError(debugContext, phase2.error);
+      const errMsg = await getFunctionErrorMessage(phase2.error);
+      const result: ExtractionResult = {
+        provider,
+        items: [],
+        image_layout: null,
+        latency_ms: 0,
+        model_id: provider,
+        error: errMsg,
+      };
+      logExtractionResult(result);
+      return result;
+    }
+    payload = phase2.data;
+  }
+
+  if (!payload || !Array.isArray(payload.items)) {
     const result: ExtractionResult = {
       provider,
       items: [],
@@ -207,12 +252,12 @@ export async function extractMenu(
 
   const result: ExtractionResult = {
     provider,
-    items: data.items,
-    image_layout: data.image_layout ?? null,
-    latency_ms: data.latency_ms,
-    model_id: data.model_id,
-    error: data.error ?? null,
-    raw_response: data.raw_response,
+    items: payload.items,
+    image_layout: payload.image_layout ?? null,
+    latency_ms: payload.latency_ms,
+    model_id: payload.model_id,
+    error: payload.error ?? null,
+    raw_response: payload.raw_response,
   };
 
   logExtractionResult(result);

@@ -3,6 +3,7 @@
   "photos": [
     "NikkoriMenu.png"
   ],
+  "dense": true,
   "total_items": 114,
   "food_items": 48,
   "drink_items": 66,

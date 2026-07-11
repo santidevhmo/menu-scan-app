@@ -486,3 +486,9 @@ Rules:
 - P1 delta vs eval 047 (2 sentences, both probe-validated + gate-validated): (1) "When a printed weight or volume accompanies an item… keep it verbatim in that item's name or description; never omit or clean away printed weights." (2) "Ingredients joined by 'y' or 'and' … are parts of ONE dish, never options." Schema unchanged. Fingerprint diagnostic log kept in runExtraction.
 - Day's total live spend ≈ $7 (6 gate attempts + probes) — user-approved unlimited testing.
 - Next per release scope: critical-path #2 dense-menu auto-cutter, then #3 Stage-2 enrichment benchmark. Watch item: nikkori crop-count edge (52/48 seen 2× today, in-band 3/3 in this gate) — if it recurs at gate-blocking frequency during #2, debug its dump then.
+
+## Eval 049 (auto-cutter Task 5) — input-fidelity probe: eval keeps ORIGINAL phase-1 input; client compression gap MEASURED
+- Date: 2026-07-11 | `scripts/probe-fidelity.ts`, 1 run per mode, all 6 menus, oracle-scored (~$0.45).
+- ORIGINAL mode: 5/5 non-dense menus ALL DIMS PASS; nikkori DENSE-SIGNAL pages=[0]. COMPRESSED (production 1024px/q0.7 via sips): nikkori still dense-signals, but brasero FAIL options+grams, el-marcos FAIL options+grams, mochomos FAIL section_context.
+- Decision (per plan rule): eval phase-1 stays on ORIGINAL photos — production compression does NOT keep the frozen dims green, and originals dense-signal nikkori reliably, so the detector is exercised without sacrificing oracle fidelity.
+- ⚠️ PRODUCTION FINDING (new, measured): the client's 1024px/q0.7 compression is now PROVEN to lose options/grams/sections on 3 of 6 test menus — the real app underperforms the eval on phase-1 quality. Candidate fix post-cutter: raise client compression ceiling (1536–2048px) and re-probe; cost = bigger uploads/image tokens (accepted domain: quality first, cost later). NOT in the auto-cutter's scope; needs its own probe + user decision.

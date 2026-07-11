@@ -3,27 +3,24 @@
 // food items) on all 6 menus, RUNS consecutive times. Prints per-menu PASS/FAIL
 // and a per-run gate verdict. Exit code 0 only if all RUNS pass.
 //
-// Routing:
-//   - Non-dense menus: the shared production path runPagedExtraction (single
-//     page = one production-faithful call; multi-page = one high-detail call
-//     per page, merged) — the same function the edge stage:"extract" runs.
-//   - Dense menus: the validated recipe — uncompressed 2x2 tiles at detail:"high",
-//     each a separate call, merged with mergeItemSources.
-//
-// GENERALIZATION NOTE: DENSE_TILES feeds Nikkori's PRE-CUT tiles (test assets).
-// The recipe (grid + high detail + merge) is general; automatically cutting any
-// dense menu worldwide is a separate production follow-up (image lib + extending
-// extract-crops to 4 high-detail crops). This map is test-harness INPUT ROUTING
-// only — it is not, and must not become, menu-specific logic in the solution.
+// Routing (production-faithful, no menu-keyed logic):
+//   Every menu runs phase-1 runPagedExtraction — the same function the edge
+//   stage:"extract" runs. Pages that dense-signal (image_layout.dense OR
+//   terminal timeout/finish_reason=length) are cut at runtime into the proven
+//   2x2 tiles from the ORIGINAL photo (sips; pixel-identical to the retired
+//   pre-cut assets) and re-extracted via runGroupedExtraction — the same
+//   function behind stage:"extract-pages". The detector verdict is asserted
+//   per menu against the fixture's `dense` flag (data, not code): a non-dense
+//   menu that dense-signals (wasted credits) or a dense menu that doesn't is
+//   a gate FAIL.
 //
 // Run: OPENAI_API_KEY=... deno run --allow-read --allow-write --allow-env \
-//        --allow-net scripts/eval-027-live.ts
+//        --allow-net --allow-run scripts/eval-027-live.ts
 import {
-  extractWithRetry,
+  runGroupedExtraction,
   runPagedExtraction,
 } from "../supabase/functions/analyze-menu/extract.ts";
-import type { ExtractedMenuItem } from "../supabase/functions/analyze-menu/extract.ts";
-import { mergeItemSources } from "../supabase/functions/analyze-menu/merge.ts";
+import { gridCropRects } from "../src/lib/adaptiveExtraction.ts";
 import {
   formatOptionBreakdown,
   gateFailures,
@@ -39,15 +36,6 @@ const MENU_DIR = "/Users/santiagoaguirre/Downloads/MenusTesting";
 const FIXTURE_DIR = new URL("./fixtures/", import.meta.url);
 // EVAL_RUNS=1 for iteration baselines; default 3 = the exit-gate protocol.
 const RUNS = Number(Deno.env.get("EVAL_RUNS") ?? "3");
-
-const DENSE_TILES: Record<string, string[]> = {
-  nikkori: [
-    "NikkoriMenu.grid-raw-1.png",
-    "NikkoriMenu.grid-raw-2.png",
-    "NikkoriMenu.grid-raw-3.png",
-    "NikkoriMenu.grid-raw-4.png",
-  ],
-};
 
 const rawKey = Deno.env.get("OPENAI_API_KEY");
 if (!rawKey) throw new Error("OPENAI_API_KEY is required");
@@ -82,28 +70,84 @@ async function loadFixtures(): Promise<Fixture[]> {
   return fixtures.filter((fixture) => wanted.has(fixture.menu));
 }
 
-async function extractMenu(fixture: Fixture): Promise<Actual> {
-  const tiles = DENSE_TILES[fixture.menu];
-  if (tiles) {
-    const sources: ExtractedMenuItem[][] = [];
-    let quality: Actual["image_quality"] | undefined;
-    for (const tile of tiles) {
-      const result = await extractWithRetry(
-        [await photoData(tile)],
-        apiKey,
-        "high",
-      );
-      quality ??= result.image_quality;
-      sources.push(result.items.filter((item) => item.category !== "drink"));
-    }
-    return { image_quality: quality!, items: mergeItemSources(sources) };
+const TILE_DIR = await Deno.makeTempDir({ prefix: "eval-tiles-" });
+
+async function sh(args: string[]): Promise<void> {
+  const out = await new Deno.Command(args[0], { args: args.slice(1) }).output();
+  if (!out.success) {
+    throw new Error(
+      `${args.join(" ")} failed: ${new TextDecoder().decode(out.stderr)}`,
+    );
   }
-  // Single- AND multi-page menus now run the exact shared production path the
-  // edge handler uses (iter-036 per-page recipe lives in runPagedExtraction),
-  // so the gate proves the real code.
+}
+
+async function dims(path: string): Promise<{ w: number; h: number }> {
+  const out = await new Deno.Command("sips", {
+    args: ["-g", "pixelWidth", "-g", "pixelHeight", path],
+  }).output();
+  const text = new TextDecoder().decode(out.stdout);
+  return {
+    w: Number(text.match(/pixelWidth: (\d+)/)?.[1]),
+    h: Number(text.match(/pixelHeight: (\d+)/)?.[1]),
+  };
+}
+
+// Runtime tile cutting from the ORIGINAL photo — the production recipe.
+// sips cropping is pixel-identical to the retired pre-cut tiles (verified
+// 2026-07-10: tile-4 TIFF hash match). Format per the tile A/B (Task 7).
+async function cutTiles(name: string): Promise<string[]> {
+  const src = `${MENU_DIR}/${name}`;
+  const { w, h } = await dims(src);
+  const tiles: string[] = [];
+  for (const [i, rect] of gridCropRects(w, h).entries()) {
+    const out = `${TILE_DIR}/${name.replaceAll("/", "_")}.tile${i}.png`;
+    await sh([
+      "sips",
+      "-s",
+      "format",
+      "png",
+      "--cropOffset",
+      String(rect.originY),
+      String(rect.originX),
+      "-c",
+      String(rect.height),
+      String(rect.width),
+      src,
+      "--out",
+      out,
+    ]);
+    tiles.push(`data:image/png;base64,${(await Deno.readFile(out)).toBase64()}`);
+  }
+  return tiles;
+}
+
+async function extractMenu(
+  fixture: Fixture,
+): Promise<Actual & { denseSignaled: boolean }> {
+  // Phase-1 input: ORIGINAL photos (Task-5 fidelity probe, ledger 2026-07-11):
+  // production compression (1024px/q0.7) measurably kills options/grams on
+  // brasero + el-marcos and sections on mochomos, while originals keep all 5
+  // non-dense menus green AND the original nikkori still dense-signals.
+  // The client-compression quality gap is logged as a production follow-up.
   const photos = await Promise.all(fixture.photos.map(photoData));
-  const result = await runPagedExtraction(photos, apiKey);
-  return { image_quality: result.image_quality, items: result.items };
+  const phase1 = await runPagedExtraction(photos, apiKey);
+  if (!("needs_crops" in phase1)) {
+    return {
+      image_quality: phase1.image_quality,
+      items: phase1.items,
+      denseSignaled: false,
+    };
+  }
+  const denseSet = new Set(phase1.needs_crops);
+  const groups = await Promise.all(fixture.photos.map(async (name, index) =>
+    denseSet.has(index) ? await cutTiles(name) : [await photoData(name)]
+  ));
+  const result = await runGroupedExtraction(groups, apiKey);
+  return {
+    image_quality: result.image_quality,
+    items: result.items,
+    denseSignaled: true,
+  };
 }
 
 // Mirrors the scorer's duplicate definition (name + price + description) so
@@ -126,8 +170,19 @@ let consecutivePasses = 0;
 for (let run = 1; run <= RUNS; run++) {
   console.log(`\n===== RUN ${run}/${RUNS} =====`);
   const reports = [];
+  const detectorFailures: string[] = [];
   for (const fixture of fixtures) {
     const actual = await extractMenu(fixture);
+    // Detector assertion (user requirement 2026-07-10): a non-dense menu
+    // that dense-signals wastes ~4 calls + a round trip per page; a dense
+    // menu that does not gets garbage items. Both fail the run.
+    const detectorOk = actual.denseSignaled === Boolean(fixture.dense);
+    console.log(
+      `  ${detectorOk ? "PASS" : "FAIL"} ${fixture.menu} detector: ${
+        actual.denseSignaled ? "dense-signaled" : "normal"
+      } (expected ${fixture.dense ? "dense" : "normal"})`,
+    );
+    if (!detectorOk) detectorFailures.push(fixture.menu);
     const report = scoreMenu(fixture, actual);
     reports.push(report);
     const dups = duplicateNames(actual.items);
@@ -178,9 +233,14 @@ for (let run = 1; run <= RUNS; run++) {
     "grams",
   ] as const;
   const failures = gateFailures(reports, [...GATE_DIMS]);
+  if (detectorFailures.length > 0) {
+    failures.push(`detector: ${detectorFailures.join(", ")}`);
+  }
   if (failures.length === 0) {
     consecutivePasses++;
-    console.log(`  GATE PASS: ${GATE_DIMS.join(", ")} on all ${reports.length} menus`);
+    console.log(
+      `  GATE PASS: ${GATE_DIMS.join(", ")} + detector on all ${reports.length} menus`,
+    );
   } else {
     consecutivePasses = 0;
     console.log(`  GATE FAIL: ${failures.join("; ")}`);

@@ -10,6 +10,10 @@ type Category = ExtractedMenuItem["category"];
 interface ExpectedFixture {
   menu: string;
   photos: string[];
+  // True when this menu is expected to dense-signal the phase-1 detector
+  // (fixture DATA, not menu-keyed code — the eval asserts the detector
+  // verdict matches this for every menu, every run).
+  dense?: boolean;
   total_items: number;
   food_items: number;
   drink_items: number;

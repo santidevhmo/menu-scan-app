@@ -37,6 +37,9 @@ A choice printed inside a description ("con X o Y", "choice of X or Y") is an
 options list; capture each choice in options. Do not move options into the description.
 Ingredients joined by "y" or "and" ("con jamón y queso", "with ham and cheese")
 are parts of ONE dish, never options; keep them in the item's name or description.
+Never invent an option from words inside a name or sentence unless the menu
+prints a choice word ("o", "or", "a elegir", "choice of") or prints a separate
+price or weight for that alternative.
 When a printed weight or volume accompanies an item (e.g. "(70gr.)", "350 ml"),
 keep it verbatim in that item's name or description; never omit or clean away
 printed weights.

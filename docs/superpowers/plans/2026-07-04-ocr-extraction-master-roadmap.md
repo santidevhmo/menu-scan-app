@@ -54,6 +54,26 @@ DoorDash runs LLM menu-photo transcription in production at scale. Their publish
 
 ---
 
+## Release scope decision (user, 2026-07-10) — READ BEFORE PICKING UP ANY WORK
+
+Features 1–4 are CLOSED and the user chose **release momentum over roadmap completeness**. The core feature the release must deliver: *user photographs a menu (one or several pages) → every food item + its variants extracted → macros enriched precisely (printed grams + ingredients) → items sorted by the user's nutritional goals.*
+
+**Pre-release critical path (work on THESE, in this order):**
+1. **Production wiring of the per-page multi-photo recipe** — proven in the eval runner since F2 (iter 036), the production `extract` stage still sends all photos in one call. Multi-page menus are part of the core sentence.
+2. **Dense-menu auto-cutter** — the eval feeds pre-cut Nikkori tiles; production needs a general cutter keyed on `image_layout.dense`.
+3. **Stage-2 enrichment benchmark** — model choice (GPT-4o vs Gemini 2.5 Flash) and macro accuracy have never been gated; include printed-weight items so the "prefer printed weights" P2 rule is measured (grams now flow from F4's `items[].grams`).
+
+**POST-RELEASE (deliberately deferred — do NOT work on these now, even if a file or plan mentions them):**
+- **Feature 5 — drinks** (deferred 2026-07-10; food-first value; the crop path's drink filter stays).
+- **Option-price perfection beyond the F4 gate** — known tolerated misses (Revueltos 84/90 migration, Plato Surtido's 82) stay tolerated; a name/price/weight verification pass is new scope.
+- **Combo suggestions** (drink+dish macro pairings) — idea only.
+- **`image_quality` photo-retake prompt in the client** and **consistency-as-confidence flags** (the existing Post-F5 backlog items in the DoorDash section above).
+- Everything in AGENTS.md's "Planned post-MVP" list (onboarding, paywall).
+
+Rationale (user, 2026-07-10): options matter mainly where variants invert macros (already solved by F2's fold convention); coarse categories were always extracted; drinks don't serve the food-sorting core. Price extraction stays in results — it's free — but is not to be perfected further pre-release.
+
+---
+
 ## Feature Sequence (MVP order)
 
 Food first because the app's value is macro-sorted **food**; drinks come last.
@@ -98,7 +118,7 @@ Food first because the app's value is macro-sorted **food**; drinks come last.
 
 > **Stage-2 note:** grams flowing from Feature 4 feed enrichment directly — when benchmarking Stage 2, include printed-weight items (el-marcos gramajes, nikkori ml) in the comparison so the "prefer printed weights" P2 rule is actually measured.
 
-### Feature 5 — Extract all Drink menu items
+### Feature 5 — Extract all Drink menu items ⏸ DEFERRED POST-RELEASE (user decision 2026-07-10 — see "Release scope decision" above)
 - **Goal:** every drink item appears exactly once; count matches the fixture's drink total.
 - **Scoped dimension:** `items` count, drink category.
 - **Harness work:** uses the drink counts created in Feature 1's fixture split.
@@ -185,4 +205,4 @@ Last step: revoke any OpenAI API key pasted into chat or exposed during live eva
 - [x] Feature 2 — Extract options of Food items ✅ CLOSED 2026-07-09 (fold convention; 3/3 live gate eval 038; see `2026-07-09-feature-2-extract-food-options.md` Execution Log)
 - [x] Feature 3 — Extract sections & sub-sections ✅ CLOSED 2026-07-10 (food-scoped section_context, 3/3 live gate eval 044; see `2026-07-10-feature-3-extract-sections.md` Execution Log)
 - [x] Feature 4 — Extract closest section + category ✅ CLOSED 2026-07-10 (categories/grams/option-price gate, 3/3 eval 047; postprocess-filled `items[].grams`; see `2026-07-10-feature-4-section-category-price-grams.md` Execution Log)
-- [ ] Feature 5 — Extract all Drink menu items (deferral post-release under discussion — user momentum decision 2026-07-10; production wiring + Stage-2 benchmark rank ahead of it)
+- [ ] Feature 5 — Extract all Drink menu items ⏸ DEFERRED POST-RELEASE (user decision 2026-07-10; pre-release critical path = production wiring → dense auto-cutter → Stage-2 benchmark — see "Release scope decision")

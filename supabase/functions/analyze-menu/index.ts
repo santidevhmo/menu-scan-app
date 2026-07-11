@@ -5,9 +5,8 @@ import {
   type EnrichedItem,
   type ExtractedItem,
 } from "./enrich.ts";
-import { runCropExtractions, runExtraction } from "./extract.ts";
+import { runCropExtractions, runPagedExtraction } from "./extract.ts";
 
-const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY")!;
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
 const MODEL_TIMEOUT_MS = 120000;
 const ENRICH_BATCH_SIZE = 10; // ponytail: small batches stop GPT-4o early-stopping; tune if drops persist
@@ -24,27 +23,6 @@ List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, s
 const ENRICH_INGREDIENT_PROPS = {
   name: { type: "string" },
   category: { type: "string", enum: ["protein", "carb", "fat", "veg", "other"] },
-};
-
-const ENRICH_SCHEMA_GEMINI = {
-  type: "array",
-  items: {
-    type: "object",
-    properties: {
-      name: { type: "string" },
-      description: { type: "string" },
-      price: { type: "number", nullable: true },
-      category: { type: "string", enum: ["food", "side", "dessert", "drink", "other"] },
-      ingredients: { type: "array", items: { type: "object", properties: ENRICH_INGREDIENT_PROPS, required: ["name", "category"] } },
-      protein_g: { type: "number" },
-      carb_g: { type: "number" },
-      fat_g: { type: "number" },
-      estimated_calories: { type: "number" },
-      confidence: { type: "string", enum: ["high", "medium", "low"] },
-      allergens: { type: "array", items: { type: "string" } },
-    },
-    required: ["name", "description", "price", "category", "ingredients", "protein_g", "carb_g", "fat_g", "estimated_calories", "confidence", "allergens"],
-  },
 };
 
 const ENRICH_SCHEMA_OPENAI = {
@@ -170,25 +148,6 @@ async function callGptEnrich(items: ExtractedItem[]): Promise<{ items: EnrichedI
   return { items: enriched, raw_response: JSON.stringify({ items: enriched }) };
 }
 
-/** Gemini text enrichment over extracted items (no photos). */
-async function callGeminiEnrich(items: unknown, model: string) {
-  const res = await fetchWithTimeout(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_API_KEY },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: buildEnrichContent(items) }] }],
-        generationConfig: { responseMimeType: "application/json", responseSchema: ENRICH_SCHEMA_GEMINI },
-      }),
-    },
-  );
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.error?.message ?? "Gemini API error");
-  const text = json.candidates[0].content.parts[0].text;
-  return { items: JSON.parse(text), raw_response: text };
-}
-
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -236,9 +195,6 @@ serve(async (req) => {
       if (provider === "gpt-4o") {
         result = await callGptEnrich(inputItems as ExtractedItem[]);
         modelId = "gpt-4o";
-      } else if (provider === "gemini-2.5-flash") {
-        result = await callGeminiEnrich(inputItems, "gemini-2.5-flash");
-        modelId = "gemini-2.5-flash";
       } else {
         throw new Error(`Unknown enrichment provider: ${provider}`);
       }
@@ -286,7 +242,9 @@ serve(async (req) => {
       if (provider !== "gpt-vision") {
         throw new Error(`Unknown extraction provider: ${provider}`);
       }
-      const result = await runExtraction(photos, OPENAI_API_KEY);
+      // Per-page multi-photo recipe (iter-036): N photos ⇒ N parallel calls
+      // merged into ONE menu; 1 photo ⇒ one call. Same path the eval gate proves.
+      const result = await runPagedExtraction(photos, OPENAI_API_KEY);
 
       return new Response(
         JSON.stringify({ image_quality: result.image_quality, image_layout: result.image_layout, items: result.items, raw_response: result.raw_response, latency_ms: Date.now() - start, model_id: "gpt-4o" }),

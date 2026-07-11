@@ -63,7 +63,7 @@ export interface EnrichmentResult {
 }
 
 export type ExtractionProvider = "gpt-vision";
-export type EnrichmentProvider = "gemini-2.5-flash" | "gpt-4o";
+export type EnrichmentProvider = "gpt-4o";
 export type PipelineStage = "extract" | "enrich";
 
 export interface ExtractionResult {

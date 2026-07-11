@@ -86,7 +86,8 @@ Food first because the app's value is macro-sorted **food**; drinks come last.
 - **UI intent (future):** display "Huevos → Revueltos" so trimmed titles aren't confusing.
 - **Exit gate:** `sections` passes on all 6 menus, 3/3 runs, **AND** Features 1–2 still green.
 
-### Feature 4 — Extract each item's closest section + category
+### Feature 4 — Extract each item's closest section + category ✅ CLOSED 2026-07-10
+- **Plan file:** `docs/superpowers/plans/2026-07-10-feature-4-section-category-price-grams.md` (see its Execution Log for the user-verified price/grams oracle, the postprocess-filled `items[].grams` design, dropPriceNoteItems, and Feature 5 gotchas).
 - **Goal:** each item is tagged with its nearest section ("Cocktails", "Steaks", "Desserts") and coarse category (Appetizer / Main / Drink).
 - **Scoped dimension:** `section_context` + `categories`.
 - **Harness work:** reuse `section_expectations` per fixture; may need more expectation entries per menu.
@@ -183,5 +184,5 @@ Last step: revoke any OpenAI API key pasted into chat or exposed during live eva
 - [x] Feature 1 — Extract all Food menu items ✅ CLOSED 2026-07-06 (completeness gate; see feature-1 plan Execution Log)
 - [x] Feature 2 — Extract options of Food items ✅ CLOSED 2026-07-09 (fold convention; 3/3 live gate eval 038; see `2026-07-09-feature-2-extract-food-options.md` Execution Log)
 - [x] Feature 3 — Extract sections & sub-sections ✅ CLOSED 2026-07-10 (food-scoped section_context, 3/3 live gate eval 044; see `2026-07-10-feature-3-extract-sections.md` Execution Log)
-- [ ] Feature 4 — Extract closest section + category
-- [ ] Feature 5 — Extract all Drink menu items
+- [x] Feature 4 — Extract closest section + category ✅ CLOSED 2026-07-10 (categories/grams/option-price gate, 3/3 eval 047; postprocess-filled `items[].grams`; see `2026-07-10-feature-4-section-category-price-grams.md` Execution Log)
+- [ ] Feature 5 — Extract all Drink menu items (deferral post-release under discussion — user momentum decision 2026-07-10; production wiring + Stage-2 benchmark rank ahead of it)

@@ -3,7 +3,7 @@
 > **Canonical file** (roadmap links here; keep it updated as Features 2–5 close).
 > A snapshot copy also lives at `~/Downloads/menu-extraction-pipeline.md`.
 >
-> **Last updated:** 2026-07-10 — Feature 3 (sections & sub-sections) CLOSED; postprocess chain extended (variant-family fold, price-null parser guard, dropHeaderEchoes). P1/P2 prompt text UNCHANGED.
+> **Last updated:** 2026-07-10 — Feature 4 (categories + option-price & grams checks) CLOSED; new postprocess stages `dropPriceNoteItems` + `parseItemGrams`; **new output field `items[].grams` filled by postprocess — EXTRACT_SCHEMA sent to the model and P1/P2 prompt text UNCHANGED.**
 > **Legend:** 🟢 done · 🟡 built but not gated/benched · 🔴 not built yet.
 
 ```mermaid
@@ -32,12 +32,13 @@ sequenceDiagram
         end
         EF->>EF: mergeItemSources() — dedup, null-section compatible, alias collapse
     end
-    EF->>EF: postprocessItems()<br/>stripMenuNumbers → foldVariantCards (incl. 3+-card variant families)<br/>→ promoteSections → dropHeaderEchoes → extractInlineChoices<br/>(price-null guard) → filterServingFormatOptions<br/>(+ unenumerated / C-U / weight option filters)
-    EF-->>C: items[] (+ image_layout, image_quality)
+    EF->>EF: postprocessItems()<br/>stripMenuNumbers → dropPriceNoteItems → foldVariantCards<br/>(incl. 3+-card variant families) → promoteSections → dropHeaderEchoes<br/>→ extractInlineChoices (price-null guard) → filterServingFormatOptions<br/>(+ unenumerated / C-U / weight option filters) → parseItemGrams<br/>(fills items[].grams from printed weights — NOT model-filled)
+    EF-->>C: items[] (+ grams + image_layout, image_quality)
     end
     Note over EF,C: 🟢 Feature 1 CLOSED — scoreMenu items dimension:<br/>distinct food dish-names ±3, no true dups<br/>(section-headers → Feature 3)
     Note over EF,C: 🟢 Feature 2 CLOSED 2026-07-09 — options dimension (food only):<br/>base variant on card, alternatives/choices/add-ons in options[]<br/>🟡 eval's per-page multi-photo recipe NOT yet wired into production extract
     Note over EF,C: 🟢 Feature 3 CLOSED 2026-07-10 — section_context (food-scoped):<br/>all printed food sections as section_titles, no spurious,<br/>expectations any-match; section_headers tolerated-not-required;<br/>drink sections parked in fixtures for Feature 5
+    Note over EF,C: 🟢 Feature 4 CLOSED 2026-07-10 — categories (food-scoped set + pins),<br/>option price/grams verified vs user-read photos,<br/>items[].grams postprocess-parsed from printed weights (350gr / 250g / 1kg)
 
     rect rgb(70,50,20)
     Note over C,EN: STAGE 2 — enrichment 🟡 (model benchmark not finalized)
@@ -73,7 +74,8 @@ sequenceDiagram
 | Food-item extraction (Feature 1) | 🟢 CLOSED | completeness gate: distinct dish-names ±3, no true dups |
 | Food-item options (Feature 2) | 🟢 CLOSED 2026-07-09 | fold convention (item owns options; base on card); deterministic postprocess: foldVariantCards + extractInlineChoices + option filters; 3/3 live gate (eval 038). Per-page multi-photo recipe proven in eval — production wiring pending |
 | Sections & sub-sections (Feature 3) | 🟢 CLOSED 2026-07-10 | food-scoped `section_context`: sections list + any-match item pins; rulings — Churrasquería = section with entries, Pa' los Bukis = tolerated header; postprocess adds variant-family fold + dropHeaderEchoes + price-null parser guard; 3/3 live gate (eval 044) |
-| Categories / drinks (Features 4–5) | 🟡 | schema already captures the fields; per-dimension gates not yet closed. F4 adds option-price + grams checks; F5 inherits `drink_sections` fixtures and must unfilter drinks in the crop path |
+| Categories + option-price/grams (Feature 4) | 🟢 CLOSED 2026-07-10 | food-scoped categories set + per-item pins; option prices/grams verified (user-read oracle); `items[].grams` parsed by postprocess `parseItemGrams` (EXTRACT_SCHEMA unchanged); `dropPriceNoteItems` kills $-amount pseudo-items; 3/3 live gate (eval 047). Known tolerated misreads: Mac and Cheese 250gr→"150g", Revueltos jamón 84/90 migration, Plato Surtido 82 never transcribed |
+| Drinks (Feature 5) | 🟡 | schema captures drinks already; gate not run. Inherits `drink_sections` fixtures + must unfilter drinks in the crop path. **Deferral post-release under discussion** — production wiring + Stage-2 benchmark rank ahead |
 | Stage 2 enrichment (macros + allergens) | 🟡 | `enrich` stage wired (GPT-4o + Gemini paths); model benchmark not finalized (AGENTS.md) |
 | Dense-menu auto-cutter | 🔴 | eval feeds pre-cut Nikkori tiles; production needs an image lib + `extract-crops` extended to 4 high-detail uncompressed crops, keyed on `image_layout.dense` |
 | Goal re-ranking | 🟢 | soft-clamped z-scores merged to `main` |
@@ -125,7 +127,7 @@ Assess image quality across all photos. Report blur, low_light, glare, or anothe
 Set usable to false only when the menu cannot be read reliably.
 ```
 
-Response is `json_schema` **strict** (`EXTRACT_SCHEMA`): `image_quality {usable, issues[]}`, `image_layout {dense, crop_direction}`, `items[] {name, description, price, category(food|side|dessert|drink|other), section_title, options[] {name, price, grams}}`. `temperature: 0`, `seed: 17`.
+Response is `json_schema` **strict** (`EXTRACT_SCHEMA`): `image_quality {usable, issues[]}`, `image_layout {dense, crop_direction}`, `items[] {name, description, price, category(food|side|dessert|drink|other), section_title, options[] {name, price, grams}}`. `temperature: 0`, `seed: 17`. **Note (F4):** the returned items additionally carry `grams: number|null` — added by postprocess `parseItemGrams` from printed weight text, NOT part of the schema the model fills.
 
 ### P2 · `ENRICH_PROMPT` — `supabase/functions/analyze-menu/index.ts`
 

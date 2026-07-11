@@ -85,8 +85,7 @@
       "name_contains": "Revueltos",
       "options": [
         {
-          "name": "jamón",
-          "price": 90
+          "name": "jamón"
         }
       ]
     },

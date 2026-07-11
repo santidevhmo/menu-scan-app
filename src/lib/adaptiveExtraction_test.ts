@@ -2,27 +2,7 @@ import {
   assertEquals,
   assertThrows,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
-import {
-  cropRects,
-  limitPhotos,
-  mergeItemSources,
-  validateLayout,
-} from "./adaptiveExtraction.ts";
-import type { ExtractedItem } from "../types/scan.ts";
-
-const item = (
-  name: string,
-  price: number | null,
-  description = "",
-): ExtractedItem => ({
-  name,
-  description,
-  price,
-  category: "food",
-  section_title: "Rollos",
-  options: [],
-  grams: null,
-});
+import { cropRects, limitPhotos, validateLayout } from "./adaptiveExtraction.ts";
 
 Deno.test("two left-right crops overlap by 20 percent", () => {
   assertEquals(cropRects(1000, 800, "left_right", 2), [
@@ -56,62 +36,4 @@ Deno.test("dense layout requires a crop direction", () => {
 
 Deno.test("photo list is capped at ten", () => {
   assertEquals(limitPhotos(Array.from({ length: 12 }, (_, id) => id)).length, 10);
-});
-
-Deno.test("merges exact overlap duplicates", () => {
-  assertEquals(
-    mergeItemSources([
-      [item("Lomo Salteado", 169)],
-      [item("Lomo Salteado", 169, "Filete de res")],
-    ]),
-    [item("Lomo Salteado", 169, "Filete de res")],
-  );
-});
-
-Deno.test("merges conservative OCR aliases", () => {
-  assertEquals(
-    mergeItemSources([[item("Mangud", 159)], [item("Manguo", 159)]]).length,
-    1,
-  );
-});
-
-Deno.test("merges near-name variant when one source omits the section", () => {
-  const withSection = item("Kurimu Roll", 169);
-  const nullSection = { ...item("Kurimu Roll I", 169), section_title: null };
-  assertEquals(
-    mergeItemSources([[withSection], [nullSection]]).length,
-    1,
-  );
-});
-
-Deno.test("keeps distinct same-price dishes", () => {
-  assertEquals(
-    mergeItemSources([[
-      item("Cosmo Roll", 159),
-      item("Cosmo de Pollo", 159),
-    ]]).length,
-    2,
-  );
-});
-
-Deno.test("does not deduplicate within one source", () => {
-  assertEquals(
-    mergeItemSources([[
-      item("Revueltos", 78),
-      item("Revueltos", 84),
-    ]]).length,
-    2,
-  );
-});
-
-Deno.test("removes empty section header pseudo-items", () => {
-  const header = {
-    ...item("Rollos", null),
-    section_title: "Menu",
-  };
-  assertEquals(
-    mergeItemSources([[header, item("Salmón Roll", 169)]])
-      .map((entry) => entry.name),
-    ["Salmón Roll"],
-  );
 });

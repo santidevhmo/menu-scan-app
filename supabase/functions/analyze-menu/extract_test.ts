@@ -59,6 +59,7 @@ Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async
         category: "food",
         section_title: "Huevos",
         options: [],
+        grams: null,
       }],
       raw_response:
         '{"image_quality":{"usable":true,"issues":[]},"image_layout":{"dense":false,"crop_direction":"none"},"items":[{"name":"Revueltos","description":"","price":78,"category":"food","section_title":"Huevos","options":[]}]}',

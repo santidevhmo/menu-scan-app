@@ -12,6 +12,7 @@ const item = (name: string): ExtractedMenuItem => ({
   category: "food",
   section_title: null,
   options: [],
+  grams: null,
 });
 
 const withOptions = (

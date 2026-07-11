@@ -1,5 +1,5 @@
 import { runExtraction } from "../supabase/functions/analyze-menu/extract.ts";
-import { mergeItemSources } from "../src/lib/adaptiveExtraction.ts";
+import { mergeItemSources } from "../supabase/functions/analyze-menu/merge.ts";
 import type { ExtractedItem } from "../src/types/scan.ts";
 
 const MENU_DIR = "/Users/santiagoaguirre/Downloads/MenusTesting";

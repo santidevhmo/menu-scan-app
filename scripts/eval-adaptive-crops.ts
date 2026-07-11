@@ -1,4 +1,4 @@
-import { mergeItemSources } from "../src/lib/adaptiveExtraction.ts";
+import { mergeItemSources } from "../supabase/functions/analyze-menu/merge.ts";
 import type { ExtractedItem } from "../src/types/scan.ts";
 
 const [label, ...paths] = Deno.args;

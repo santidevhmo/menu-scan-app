@@ -38,7 +38,8 @@
       "name_contains": "Fettuccine CasaNostra",
       "options": [
         {
-          "name": "Gluten free"
+          "name": "Gluten free",
+          "price": 330
         }
       ]
     },
@@ -46,7 +47,8 @@
       "name_contains": "Pasta alla romana",
       "options": [
         {
-          "name": "Gluten free"
+          "name": "Gluten free",
+          "price": 305
         }
       ]
     },
@@ -54,7 +56,8 @@
       "name_contains": "frutti di mare",
       "options": [
         {
-          "name": "Gluten free"
+          "name": "Gluten free",
+          "price": 355
         }
       ]
     }
@@ -62,5 +65,29 @@
   "image_quality": {
     "usable": true,
     "issues": []
-  }
+  },
+  "category_expectations": [
+    {
+      "name_contains": "Margherita",
+      "category": "food"
+    },
+    {
+      "name_contains": "Insalata CasaNostra",
+      "category": "food"
+    }
+  ],
+  "grams_expectations": [
+    {
+      "name_contains": "Lasagne al forno",
+      "grams": 250
+    },
+    {
+      "name_contains": "Risotto Caprese",
+      "grams": 200
+    },
+    {
+      "name_contains": "Salmone padella",
+      "grams": 200
+    }
+  ]
 }

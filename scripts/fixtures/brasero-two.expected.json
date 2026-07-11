@@ -84,7 +84,8 @@
       "name_contains": "Taco Loiro",
       "options": [
         {
-          "name": "pollo"
+          "name": "pollo",
+          "price": 150
         }
       ]
     }
@@ -92,5 +93,37 @@
   "image_quality": {
     "usable": true,
     "issues": []
-  }
+  },
+  "category_expectations": [
+    {
+      "name_contains": "Chicharrón Brasero",
+      "category": "food"
+    },
+    {
+      "name_contains": "Papas Cambray",
+      "category": "side"
+    },
+    {
+      "name_contains": "Brownie",
+      "category": "dessert"
+    }
+  ],
+  "grams_expectations": [
+    {
+      "name_contains": "Sencilla",
+      "grams": 300
+    },
+    {
+      "name_contains": "Doble",
+      "grams": 600
+    },
+    {
+      "name_contains": "Costillas Hormigueras",
+      "grams": 300
+    },
+    {
+      "name_contains": "Infladita Emiliana",
+      "grams": 70
+    }
+  ]
 }

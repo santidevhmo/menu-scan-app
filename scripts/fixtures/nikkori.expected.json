@@ -137,5 +137,15 @@
   "image_quality": {
     "usable": true,
     "issues": []
-  }
+  },
+  "category_expectations": [
+    {
+      "name_contains": "Salmón Roll",
+      "category": "food"
+    },
+    {
+      "name_contains": "Pastel de zanahoria",
+      "category": "dessert"
+    }
+  ]
 }

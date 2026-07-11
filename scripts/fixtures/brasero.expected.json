@@ -40,10 +40,12 @@
       "name_contains": "Pasta Alfredo",
       "options": [
         {
-          "name": "Camarón"
+          "name": "Camarón",
+          "price": null
         },
         {
-          "name": "Pollo"
+          "name": "Pollo",
+          "price": null
         }
       ]
     },
@@ -51,13 +53,16 @@
       "name_contains": "Pasta Parmesan",
       "options": [
         {
-          "name": "Chorizo"
+          "name": "Chorizo",
+          "price": 25
         },
         {
-          "name": "Pollo"
+          "name": "Pollo",
+          "price": 45
         },
         {
-          "name": "Camarón"
+          "name": "Camarón",
+          "price": 70
         }
       ]
     }
@@ -65,5 +70,37 @@
   "image_quality": {
     "usable": true,
     "issues": []
-  }
+  },
+  "category_expectations": [
+    {
+      "name_contains": "Rib Eye",
+      "category": "food"
+    },
+    {
+      "name_contains": "Puré de Papa",
+      "category": "side"
+    },
+    {
+      "name_contains": "Pasta Alfredo",
+      "category": "food"
+    }
+  ],
+  "grams_expectations": [
+    {
+      "name_contains": "Rib Eye",
+      "grams": 400
+    },
+    {
+      "name_contains": "Mac and Cheese",
+      "grams": 250
+    },
+    {
+      "name_contains": "Pulpo a las Brasas",
+      "grams": 280
+    },
+    {
+      "name_contains": "Chamorro Calafate",
+      "grams": 650
+    }
+  ]
 }

@@ -32,5 +32,15 @@
   "image_quality": {
     "usable": true,
     "issues": []
-  }
+  },
+  "category_expectations": [
+    {
+      "name_contains": "Ensalada Mochomos",
+      "category": "food"
+    },
+    {
+      "name_contains": "Torre de Betabel",
+      "category": "food"
+    }
+  ]
 }

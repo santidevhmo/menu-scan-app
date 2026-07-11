@@ -4,7 +4,9 @@
 // and a per-run gate verdict. Exit code 0 only if all RUNS pass.
 //
 // Routing:
-//   - Non-dense menus: one production-faithful runExtraction call.
+//   - Non-dense menus: the shared production path runPagedExtraction (single
+//     page = one production-faithful call; multi-page = one high-detail call
+//     per page, merged) — the same function the edge stage:"extract" runs.
 //   - Dense menus: the validated recipe — uncompressed 2x2 tiles at detail:"high",
 //     each a separate call, merged with mergeItemSources.
 //
@@ -16,8 +18,12 @@
 //
 // Run: OPENAI_API_KEY=... deno run --allow-read --allow-write --allow-env \
 //        --allow-net scripts/eval-027-live.ts
-import { runExtraction } from "../supabase/functions/analyze-menu/extract.ts";
-import { mergeItemSources } from "../src/lib/adaptiveExtraction.ts";
+import {
+  extractWithRetry,
+  runPagedExtraction,
+} from "../supabase/functions/analyze-menu/extract.ts";
+import type { ExtractedMenuItem } from "../supabase/functions/analyze-menu/extract.ts";
+import { mergeItemSources } from "../supabase/functions/analyze-menu/merge.ts";
 import {
   formatOptionBreakdown,
   gateFailures,
@@ -25,7 +31,6 @@ import {
   optionRecall,
   scoreMenu,
 } from "./eval-extraction.ts";
-import type { ExtractedItem } from "../src/types/scan.ts";
 
 type Fixture = Parameters<typeof scoreMenu>[0];
 type Actual = Parameters<typeof scoreMenu>[1];
@@ -77,54 +82,27 @@ async function loadFixtures(): Promise<Fixture[]> {
   return fixtures.filter((fixture) => wanted.has(fixture.menu));
 }
 
-// One retry on transient model failures — the 120s timeout (nikkori tile,
-// eval 031+033 validation) and finish_reason=length (verbosity is
-// nondeterministic; a dense tile occasionally overruns the completion cap,
-// eval 043) — neither must kill a 3-run gate attempt.
-async function extractWithRetry(
-  photos: string[],
-  detail?: "high",
-): ReturnType<typeof runExtraction> {
-  try {
-    return await runExtraction(photos, apiKey, detail);
-  } catch (error) {
-    const message = String(error);
-    if (
-      !message.includes("timed out") &&
-      !message.includes("finish_reason=length")
-    ) throw error;
-    console.log("  [retry] transient model failure — retrying call once");
-    return await runExtraction(photos, apiKey, detail);
-  }
-}
-
 async function extractMenu(fixture: Fixture): Promise<Actual> {
   const tiles = DENSE_TILES[fixture.menu];
   if (tiles) {
-    const sources: ExtractedItem[][] = [];
+    const sources: ExtractedMenuItem[][] = [];
     let quality: Actual["image_quality"] | undefined;
     for (const tile of tiles) {
-      const result = await extractWithRetry([await photoData(tile)], "high");
+      const result = await extractWithRetry(
+        [await photoData(tile)],
+        apiKey,
+        "high",
+      );
       quality ??= result.image_quality;
       sources.push(result.items.filter((item) => item.category !== "drink"));
     }
     return { image_quality: quality!, items: mergeItemSources(sources) };
   }
-  // iter-036: multi-photo menus get one call PER page, merged — the proven
-  // dense-tile recipe at page granularity (full budget per page). Single-photo
-  // menus stay production-faithful (one call, default detail).
-  if (fixture.photos.length > 1) {
-    const sources: ExtractedItem[][] = [];
-    let quality: Actual["image_quality"] | undefined;
-    for (const photo of fixture.photos) {
-      const result = await extractWithRetry([await photoData(photo)], "high");
-      quality ??= result.image_quality;
-      sources.push(result.items);
-    }
-    return { image_quality: quality!, items: mergeItemSources(sources) };
-  }
+  // Single- AND multi-page menus now run the exact shared production path the
+  // edge handler uses (iter-036 per-page recipe lives in runPagedExtraction),
+  // so the gate proves the real code.
   const photos = await Promise.all(fixture.photos.map(photoData));
-  const result = await extractWithRetry(photos);
+  const result = await runPagedExtraction(photos, apiKey);
   return { image_quality: result.image_quality, items: result.items };
 }
 

@@ -153,6 +153,11 @@ export function promoteSections(
 // A price-less, description-less, option-less item whose name is another
 // item's section_title is a section-header echo (a heading transcribed as an
 // item, e.g. a tile emitting "CERVEZAS" as a card), not a dish — drop it.
+// Second shape (eval 051): a price-less header that SWALLOWED its children as
+// options — name is a section_title AND most option names duplicate sibling
+// item names ("Postres" carrying the six desserts that also exist as items).
+// Wine-style format cards (null price, copa/botella options) never match:
+// their option names are formats, not sibling dishes.
 export function dropHeaderEchoes(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
@@ -161,11 +166,20 @@ export function dropHeaderEchoes(
       item.section_title ? [normalizeName(item.section_title)] : []
     ),
   );
-  return items.filter((item) =>
-    !(item.price === null && item.description.trim() === "" &&
-      item.options.length === 0 &&
-      sectionTitles.has(normalizeName(item.name)))
-  );
+  const itemNames = new Set(items.map((item) => normalizeName(item.name)));
+  return items.filter((item) => {
+    if (item.price !== null || !sectionTitles.has(normalizeName(item.name))) {
+      return true;
+    }
+    if (item.description.trim() === "" && item.options.length === 0) {
+      return false; // classic header echo
+    }
+    if (item.options.length === 0) return true;
+    const siblingMatches = item.options.filter((option) =>
+      itemNames.has(normalizeName(option.name))
+    ).length;
+    return siblingMatches < Math.ceil(item.options.length / 2);
+  });
 }
 
 const INLINE_DISJUNCTION = /\s(?:o|u|or)\s/i;
@@ -434,6 +448,43 @@ if (import.meta.main) {
   ]);
   if (echoes.map((i) => i.name).join("|") !== "Tecate Roja|En Taco") {
     throw new Error(`header echo: got ${echoes.map((i) => i.name).join("|")}`);
+  }
+  // A header that SWALLOWED its children as options (price-less item whose
+  // name is a section_title and whose option names mostly duplicate sibling
+  // item names) is dropped — nikkori "Postres" carrying the 6 desserts that
+  // also exist as items (eval 051 r2; promoteSections is blocked there by
+  // "Copa de nieve" tripping the wine serving-format guard). A null-price
+  // wine card with copa/botella options has no sibling-name options → kept.
+  const swallowed = dropHeaderEchoes([
+    item({
+      name: "Postres",
+      price: null,
+      category: "dessert",
+      section_title: "POSTRES",
+      options: [
+        { name: "Red velvet", price: 105, grams: null },
+        { name: "Copa de nieve", price: 49, grams: null },
+      ],
+    }),
+    item({ name: "Red velvet", price: 105, category: "dessert", section_title: "Postres" }),
+    item({ name: "Copa de nieve", price: 49, category: "dessert", section_title: "Postres" }),
+    item({
+      name: "Vino Blanco",
+      price: null,
+      category: "drink",
+      section_title: "Vinos",
+      options: [
+        { name: "Copa", price: 85, grams: null },
+        { name: "Botella", price: 450, grams: null },
+      ],
+    }),
+    item({ name: "Otro tinto", price: 99, category: "drink", section_title: "Vinos" }),
+  ]);
+  if (
+    swallowed.map((i) => i.name).join("|") !==
+      "Red velvet|Copa de nieve|Vino Blanco|Otro tinto"
+  ) {
+    throw new Error(`swallowed header: got ${swallowed.map((i) => i.name).join("|")}`);
   }
   // Inline printed choices in descriptions become options.
   const inlineCases: [string, string[]][] = [

@@ -1,4 +1,4 @@
-import { postprocessItems } from "./postprocess.ts";
+import { dropHeaderEchoes, postprocessItems } from "./postprocess.ts";
 import { mergeItemSources } from "./merge.ts";
 
 const MODEL_TIMEOUT_MS = 120000;
@@ -360,7 +360,12 @@ export async function runGroupedExtraction(
     return { calls: tiles, items: mergeItemSources(sources, true) };
   }));
   const allCalls = groupResults.flatMap((g) => g.calls);
-  const items = mergeItemSources(groupResults.map((g) => g.items));
+  // Post-merge hygiene: header echoes (both shapes) need CROSS-tile section
+  // knowledge — a tile can emit "Postres" while its dessert items come from
+  // the neighboring tile, so the per-call postprocess can't see the match.
+  const items = dropHeaderEchoes(
+    mergeItemSources(groupResults.map((g) => g.items)),
+  );
   return foldResults(allCalls, items);
 }
 

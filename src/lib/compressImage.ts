@@ -49,12 +49,13 @@ export function compressImage(
 }
 
 const TILE_MAX_DIMENSION = 2048;
-const TILE_QUALITY = 0.85;
 
 /** Cuts one dense-menu tile from the ORIGINAL image. Deliberately NOT the
  * 1024px/q0.7 pipeline — production compression is what broke every rejected
- * dense candidate (2026-07-04 spec). The 2048px cap keeps phone-camera tiles
- * ~2x the linear resolution of the gate-proven 718x1138 tiles. */
+ * dense candidate (2026-07-04 spec), and the tile A/B (ledger 2026-07-11)
+ * showed even JPEG q0.85 re-inflates phantom items vs lossless PNG. The
+ * 2048px cap keeps phone-camera tiles ~2x the linear resolution of the
+ * gate-proven 718x1138 tiles while bounding payload size. */
 export async function prepareTile(
   uri: string,
   crop: CropRect,
@@ -70,9 +71,6 @@ export async function prepareTile(
     });
   }
   const rendered = await context.renderAsync();
-  const result = await rendered.saveAsync({
-    compress: TILE_QUALITY,
-    format: SaveFormat.JPEG,
-  });
+  const result = await rendered.saveAsync({ format: SaveFormat.PNG });
   return { uri: result.uri, width: result.width, height: result.height };
 }

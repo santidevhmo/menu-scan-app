@@ -506,3 +506,9 @@ Rules:
 - Probe (el-marcos + brasero + casa-nostra, ×6, oracle-scored, ~$0.54): omelette FP 0/6 (from ~2/6 v3 baseline, 3-4/6 under v4); brasero recall 5/5 (priced add-ons safe by the "separate price" clause) and casa-nostra 3/3 (Gluten free options priced) in every run; 5/6 all-green.
 - Residual 1/6: "Pa' los Bukis" prose block as item+option ("Hot cakes o huevo revuelto…" + option "Leche con chocolate o jugo de naranja") — the F1-era junk-prose family (F4's dropPriceNoteItems killed its $-prefix shape; this is a new shape). Option-name-contains-"o" postprocess REJECTED (would break the fold convention: real option "Con jamón, chorizo o tocino"). Watch in the gate; treat only if it blocks.
 - Verdict: v5 ACCEPTED.
+
+## Eval 050 (auto-cutter T7) — tile-format A/B: PNG locked, jpeg q0.85 REJECTED
+- Date: 2026-07-11 | nikkori solo, full production path (detector → runtime cut → grouped), ×3 per format, oracle-scored (~$0.75).
+- PNG: items 50/49/50 (in band; suffix+lenient merge holding); 2/3 all-dim green; run-2 flake = Chipo not extracted at all that run (recall variance, count still in band — watch class).
+- JPEG q0.85: run 1 items 55/48 FAIL (compression artifacts re-inflate tile phantoms — consistent with 2026-07-04: every compressed dense candidate failed); run 2 terminal tile failure killed the eval process. Rejected without needing run 3.
+- Locked: eval `cutTiles` PNG (knob deleted); client `prepareTile` → SaveFormat.PNG (payload bounded by the 2048px cap; real-device payload viability confirmed in T9).

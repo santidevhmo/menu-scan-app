@@ -96,16 +96,20 @@ async function dims(path: string): Promise<{ w: number; h: number }> {
 // sips cropping is pixel-identical to the retired pre-cut tiles (verified
 // 2026-07-10: tile-4 TIFF hash match). Format per the tile A/B (Task 7).
 async function cutTiles(name: string): Promise<string[]> {
+  // PNG (lossless) locked by the tile A/B (ledger 2026-07-11): jpeg q0.85
+  // re-inflated phantom items 55/48 and destabilized a tile call; production
+  // client tiles are PNG too (prepareTile).
+  const fmtArgs = ["-s", "format", "png"];
+  const ext = "png";
+  const mimeType = "image/png";
   const src = `${MENU_DIR}/${name}`;
   const { w, h } = await dims(src);
   const tiles: string[] = [];
   for (const [i, rect] of gridCropRects(w, h).entries()) {
-    const out = `${TILE_DIR}/${name.replaceAll("/", "_")}.tile${i}.png`;
+    const out = `${TILE_DIR}/${name.replaceAll("/", "_")}.tile${i}.${ext}`;
     await sh([
       "sips",
-      "-s",
-      "format",
-      "png",
+      ...fmtArgs,
       "--cropOffset",
       String(rect.originY),
       String(rect.originX),
@@ -116,7 +120,7 @@ async function cutTiles(name: string): Promise<string[]> {
       "--out",
       out,
     ]);
-    tiles.push(`data:image/png;base64,${(await Deno.readFile(out)).toBase64()}`);
+    tiles.push(`data:${mimeType};base64,${(await Deno.readFile(out)).toBase64()}`);
   }
   return tiles;
 }

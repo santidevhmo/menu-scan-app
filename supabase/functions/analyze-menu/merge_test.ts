@@ -73,3 +73,19 @@ Deno.test("removes empty section header pseudo-items", () => {
     ["Salmón Roll"],
   );
 });
+
+Deno.test("sectionLenient merges near-name pair blocked only by section conflict", () => {
+  const rollos = { ...item("Nikkori Dynamite", 179), section_title: "ROLLOS" };
+  const empanizados = {
+    ...item("Nikori Dynamite", 179),
+    section_title: "EMPANIZADOS",
+  };
+  assertEquals(mergeItemSources([[rollos], [empanizados]]).length, 2);
+  assertEquals(mergeItemSources([[rollos], [empanizados]], true).length, 1);
+});
+
+Deno.test("sectionLenient still respects price and category gates", () => {
+  const a = { ...item("Salmon Crunch", 159), section_title: "ROLLOS" };
+  const b = { ...item("Salimon Crunch", 179), section_title: "EMPANIZADOS" };
+  assertEquals(mergeItemSources([[a], [b]], true).length, 2);
+});

@@ -352,7 +352,9 @@ export async function runGroupedExtraction(
     const sources = tiles.map((t) =>
       t.items.filter((i) => i.category !== "drink")
     );
-    return { calls: tiles, items: mergeItemSources(sources) };
+    // sectionLenient: tiles of one page see different heading context near
+    // their edges — section conflicts must not block the overlap dedup.
+    return { calls: tiles, items: mergeItemSources(sources, true) };
   }));
   const allCalls = groupResults.flatMap((g) => g.calls);
   const items = mergeItemSources(groupResults.map((g) => g.items));

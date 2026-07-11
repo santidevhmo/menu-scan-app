@@ -31,7 +31,11 @@ function editDistance(a: string, b: string): number {
   return row[b.length];
 }
 
-function duplicate(a: ExtractedMenuItem, b: ExtractedMenuItem): boolean {
+function duplicate(
+  a: ExtractedMenuItem,
+  b: ExtractedMenuItem,
+  sectionLenient: boolean,
+): boolean {
   const left = normalize(a.name);
   const right = normalize(b.name);
   const compatiblePrice =
@@ -39,9 +43,13 @@ function duplicate(a: ExtractedMenuItem, b: ExtractedMenuItem): boolean {
   if (left === right) return compatiblePrice;
   // A null/empty section means "unknown", not "a different section": a crop
   // that omits section_title must still merge with a sectioned near-name copy.
+  // sectionLenient (tile merges only): tiles of ONE physical page see
+  // different heading context near their edges, so a near-name same-price
+  // same-category pair with CONFLICTING sections is the same dish (nikkori
+  // "Nikkori/Nikori Dynamite" ROLLOS vs EMPANIZADOS, diagnosed 2026-07-11).
   const aSection = normalize(a.section_title ?? "");
   const bSection = normalize(b.section_title ?? "");
-  const compatibleSection =
+  const compatibleSection = sectionLenient ||
     aSection === bSection || aSection === "" || bSection === "";
   if (
     a.price === null ||
@@ -82,6 +90,7 @@ function richer(a: ExtractedMenuItem, b: ExtractedMenuItem): ExtractedMenuItem {
 
 export function mergeItemSources(
   sources: ExtractedMenuItem[][],
+  sectionLenient = false,
 ): ExtractedMenuItem[] {
   const sectionTitles = new Set(
     sources
@@ -105,7 +114,7 @@ export function mergeItemSources(
       const match = kept.find(
         (candidate) =>
           !candidate.sources.has(sourceIndex) &&
-          duplicate(candidate.item, entry),
+          duplicate(candidate.item, entry, sectionLenient),
       );
       if (match) {
         match.item = richer(match.item, entry);

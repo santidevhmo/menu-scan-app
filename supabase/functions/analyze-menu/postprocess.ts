@@ -274,8 +274,11 @@ export function dropPriceNoteItems(
 // parser's guard. ponytail: es/en phrases; extend per language from data.
 const UNENUMERATED_CHOICE = /^\s*(?:\p{L}+\s+)?(?:a elegir|de su elecci[oó]n|su elecci[oó]n|of your choice|to choose)\s*$/iu;
 
-// Per-unit price notation ("$98 C/U" = cada uno / each) — a price note, not a choice.
-const PER_UNIT_NOTE = /^\s*c\/u\.?\s*$/i;
+// Per-unit price notation ("$98 C/U" = cada uno / each) — a price note, not a
+// choice. Single-letter c/X covers the model's digit-class misreads of the
+// same printed token ("C/J" for "C/U", eval 054); a real "c/<ingredient>"
+// choice always has a full word after the slash.
+const PER_UNIT_NOTE = /^\s*c\/[a-z]\.?\s*$/i;
 
 // A pure weight/volume token is a weight note, not a choice (grams live in the
 // grams field). "650gr", "80 gr.", "300ml".
@@ -526,6 +529,17 @@ if (import.meta.main) {
   })]);
   if (priceless[0].options.length !== 0) {
     throw new Error("inline: price-null item must not gain parsed options");
+  }
+  // Per-unit note misreads (C/J for C/U) are dropped like c/u itself.
+  const perUnitMisread = filterServingFormatOptions([
+    item({
+      name: "Omelette de Camarón y Marlin",
+      price: 98,
+      options: [{ name: "C/J", price: null, grams: null }],
+    }),
+  ]);
+  if (perUnitMisread[0].options.length !== 0) {
+    throw new Error("per-unit note: C/J option must be dropped");
   }
   // Self-echo + price-note options are dropped; real options survive.
   const hygiene = filterServingFormatOptions([

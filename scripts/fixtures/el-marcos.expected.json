@@ -159,14 +159,8 @@
     },
     {
       "name_contains": "Plato Surtido",
-      "options": [
-        {
-          "name": "queso cottage"
-        },
-        {
-          "name": "yogur"
-        }
-      ]
+      "unchecked": true,
+      "options": []
     },
     {
       "name_contains": "Avena",

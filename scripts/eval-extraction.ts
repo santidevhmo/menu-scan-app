@@ -44,6 +44,10 @@ interface ExpectedFixture {
     name_contains: string;
     description_contains?: string;
     price?: number;
+    // Eval 048 ruling: unchecked=true ⇒ the item's options are tolerated —
+    // never a miss when absent, never false positives when present (the model
+    // intermittently drops the printed line; same class as an UNCHECKED price).
+    unchecked?: boolean;
     // F4: price/grams present ⇒ matched option's value must equal it (null =
     // "no per-option price printed"). Absent ⇒ unchecked (F2 name-only).
     options: {
@@ -218,6 +222,16 @@ export function formatOptionBreakdown(breakdown: OptionBreakdown): string[] {
     const want = `"${entry.target.name_contains}" wants [${
       entry.target.options.map((option) => option.name).join(", ")
     }]`;
+    if (entry.target.unchecked) {
+      lines.push(
+        `    · "${entry.target.name_contains}" UNCHECKED (tolerated) → ${
+          entry.matchedItem === null
+            ? "not matched"
+            : `"${entry.matchedItem}" has [${entry.matchedOptions.join(", ")}]`
+        }`,
+      );
+      continue;
+    }
     if (entry.matchedItem === null) {
       lines.push(`    ✗ ${want} → no matching item extracted`);
     } else if (entry.matchedOptions.length === 0) {
@@ -374,10 +388,12 @@ export function scoreMenu(
   // with options is neither a matchable target nor a false positive.
   const optionsBreakdown = optionBreakdown(fixture, foodItems);
   const missingOptionItems = optionsBreakdown.targets.filter((entry) =>
-    entry.matchedItem === null ||
-    entry.matchedOptions.length === 0 ||
-    entry.missingOptions.length > 0 ||
-    entry.valueMismatches.length > 0
+    !entry.target.unchecked && (
+      entry.matchedItem === null ||
+      entry.matchedOptions.length === 0 ||
+      entry.missingOptions.length > 0 ||
+      entry.valueMismatches.length > 0
+    )
   );
   const optionValueMismatches = optionsBreakdown.targets.flatMap((entry) =>
     entry.valueMismatches
@@ -1268,6 +1284,29 @@ function runSelfCheck(): void {
   assert(
     scoreMenu(noPriceKeyFixture, revueltosAt(84)).options.pass,
     "absent price key: name-only semantics (F2 frozen) must still pass",
+  );
+
+  // Eval 048 ruling: unchecked=true tolerates the item's options both ways —
+  // present options are consumed (not false positives), absent options are
+  // not a miss. Plato Surtido's intermittently-dropped printed line.
+  const uncheckedFixture: ExpectedFixture = {
+    ...fixture,
+    items_with_options: [{
+      name_contains: "Revueltos",
+      unchecked: true,
+      options: [],
+    }],
+  };
+  assert(
+    scoreMenu(uncheckedFixture, revueltosAt(84)).options.pass,
+    "unchecked target: extracted options must not count as false positives",
+  );
+  assert(
+    scoreMenu(uncheckedFixture, {
+      image_quality: { usable: true, issues: [] },
+      items: [{ ...revueltosAt(84).items[0], options: [] }],
+    }).options.pass,
+    "unchecked target: absent options must not count as a miss",
   );
 
   // F4: grams pins — any-match over food items, same semantics as the

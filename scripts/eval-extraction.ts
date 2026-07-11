@@ -14,6 +14,12 @@ interface ExpectedFixture {
   // (fixture DATA, not menu-keyed code — the eval asserts the detector
   // verdict matches this for every menu, every run).
   dense?: boolean;
+  // ORACLE-CHANGE 2026-07-12 (user-approved): per-fixture OVER-count band.
+  // The items check exists to catch MISSING dishes; dense tile extraction
+  // carries a stable 2-5 phantom over-count (model-level, geometry-independent
+  // — ledger evals 052-053) that the post-release verification pass owns.
+  // The -3 completeness floor stays strict for every menu.
+  items_over_tolerance?: number;
   total_items: number;
   food_items: number;
   drink_items: number;
@@ -296,8 +302,10 @@ export function scoreMenu(
     if (seenKeys.has(key)) duplicateNames.add(normalize(item.name));
     else seenKeys.add(key);
   }
+  const overTolerance = fixture.items_over_tolerance ?? 3;
   const items = {
-    pass: Math.abs(itemDelta) <= 3 && duplicateNames.size === 0,
+    pass: itemDelta >= -3 && itemDelta <= overTolerance &&
+      duplicateNames.size === 0,
     detail:
       `${distinctDishes.size}/${fixture.food_items} distinct food dishes; ${duplicateNames.size} duplicates; ${phantomHeaders} section-headers (→Feature 3)`,
   };
@@ -1042,6 +1050,36 @@ function runSelfCheck(): void {
     "item count at +4 should fail",
   );
 
+  // ORACLE-CHANGE 2026-07-12: per-fixture over-count tolerance widens ONLY
+  // the upper band; the -3 completeness floor stays strict.
+  const wideFixture: ExpectedFixture = { ...fixture, items_over_tolerance: 6 };
+  assert(
+    scoreMenu(wideFixture, {
+      ...actual,
+      items: [
+        ...actual.items,
+        ...["S1", "S2", "S3", "S4", "S5", "S6"].map(filler),
+      ],
+    }).items.pass,
+    "over-tolerance 6: +6 items should pass",
+  );
+  assert(
+    !scoreMenu(wideFixture, {
+      ...actual,
+      items: [
+        ...actual.items,
+        ...["S1", "S2", "S3", "S4", "S5", "S6", "S7"].map(filler),
+      ],
+    }).items.pass,
+    "over-tolerance 6: +7 items should fail",
+  );
+  assert(
+    !scoreMenu(
+      { ...wideFixture, food_items: 6 },
+      { ...actual, items: actual.items },
+    ).items.pass,
+    "over-tolerance must not loosen the -3 completeness floor",
+  );
   assert(
     aggregateReports([passing, passing, passing, passing, failing]).items,
     "four of five should be green",

@@ -4,6 +4,7 @@
     "NikkoriMenu.png"
   ],
   "dense": true,
+  "items_over_tolerance": 6,
   "total_items": 114,
   "food_items": 48,
   "drink_items": 66,

@@ -281,6 +281,17 @@ const PER_UNIT_NOTE = /^\s*c\/u\.?\s*$/i;
 // grams field). "650gr", "80 gr.", "300ml".
 const WEIGHT_NOTE = /^\s*\d+(?:[.,]\d+)?\s*(?:gr?|kg|ml|l|oz)\.?\s*$/i;
 
+// An option whose name is contained (whole words) in its OWN item's name is
+// self-decomposition ("Omelette de Camarón y Marlin" → options [Camarón,
+// Marlin], eval 052 attempt 4), never a printed choice: the fold convention
+// keeps the base variant on the card, so a real option always names something
+// the item name does not.
+function echoesOwnItemName(optionName: string, itemName: string): boolean {
+  const opt = normalizeName(optionName);
+  const item = ` ${normalizeName(itemName)} `;
+  return opt.length > 0 && item.includes(` ${opt} `);
+}
+
 export function filterServingFormatOptions(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
@@ -290,7 +301,11 @@ export function filterServingFormatOptions(
       !isServingFormat(option.name) &&
       !UNENUMERATED_CHOICE.test(option.name) &&
       !PER_UNIT_NOTE.test(option.name) &&
-      !WEIGHT_NOTE.test(option.name)
+      !WEIGHT_NOTE.test(option.name) &&
+      // "$94 por niño" as an option is a price note, not a choice (sibling
+      // of dropPriceNoteItems' item-level rule).
+      !PRICE_NOTE_NAME.test(option.name) &&
+      !echoesOwnItemName(option.name, item.name)
     ),
   }));
 }
@@ -511,6 +526,35 @@ if (import.meta.main) {
   })]);
   if (priceless[0].options.length !== 0) {
     throw new Error("inline: price-null item must not gain parsed options");
+  }
+  // Self-echo + price-note options are dropped; real options survive.
+  const hygiene = filterServingFormatOptions([
+    item({
+      name: "Omelette de Camarón y Marlin",
+      price: 98,
+      options: [
+        { name: "Camarón", price: null, grams: null },
+        { name: "Marlin", price: null, grams: null },
+      ],
+    }),
+    item({
+      name: "Pa' los Bukis",
+      price: 94,
+      options: [{ name: "$94 por niño", price: null, grams: null }],
+    }),
+    item({
+      name: "Revueltos",
+      price: 78,
+      options: [{ name: "Con jamón, chorizo o tocino", price: 90, grams: null }],
+    }),
+  ]);
+  if (
+    hygiene[0].options.length !== 0 || hygiene[1].options.length !== 0 ||
+    hygiene[2].options.length !== 1
+  ) {
+    throw new Error(
+      `option hygiene: got ${hygiene.map((i) => i.options.length).join(",")}`,
+    );
   }
   // Long alternatives = sentence-level "o", NOT a choice list → no options.
   const prose = extractInlineChoices([item({

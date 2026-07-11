@@ -5,7 +5,7 @@ import {
   type EnrichedItem,
   type ExtractedItem,
 } from "./enrich.ts";
-import { runCropExtractions, runPagedExtraction } from "./extract.ts";
+import { runCropExtractions, runGroupedExtraction, runPagedExtraction } from "./extract.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
 const MODEL_TIMEOUT_MS = 120000;
@@ -170,13 +170,14 @@ serve(async (req) => {
   }
 
   try {
-    const { photos, provider, stage, items: inputItems } = await req.json();
+    const { photos, pages, provider, stage, items: inputItems } = await req.json();
     if (typeof provider !== "string") {
       return badRequest("Invalid 'provider'");
     }
     if (
       stage !== "extract" &&
       stage !== "extract-crops" &&
+      stage !== "extract-pages" &&
       stage !== "enrich"
     ) {
       return badRequest("Invalid 'stage'");
@@ -202,6 +203,28 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ items: result.items, raw_response: result.raw_response, latency_ms: Date.now() - start, model_id: modelId }),
         { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (stage === "extract-pages") {
+      if (provider !== "gpt-vision") {
+        throw new Error(`Unknown extraction provider: ${provider}`);
+      }
+      if (
+        !Array.isArray(pages) || pages.length === 0 || pages.length > MAX_PHOTOS ||
+        !pages.every((group: unknown) =>
+          Array.isArray(group) &&
+          (group.length === 1 || group.length === 4) &&
+          group.every((p) => typeof p === "string" && p.length <= MAX_BASE64_LEN)
+        )
+      ) {
+        return badRequest("Invalid 'pages': expected 1-10 groups of 1 or 4 base64 images");
+      }
+      const start = Date.now();
+      const result = await runGroupedExtraction(pages, OPENAI_API_KEY);
+      return new Response(
+        JSON.stringify({ image_quality: result.image_quality, image_layout: result.image_layout, items: result.items, raw_response: result.raw_response, latency_ms: Date.now() - start, model_id: "gpt-4o" }),
+        { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
       );
     }
 
@@ -245,6 +268,14 @@ serve(async (req) => {
       // Per-page multi-photo recipe (iter-036): N photos ⇒ N parallel calls
       // merged into ONE menu; 1 photo ⇒ one call. Same path the eval gate proves.
       const result = await runPagedExtraction(photos, OPENAI_API_KEY);
+      if ("needs_crops" in result) {
+        // Dense page(s) detected: client must cut originals into 2x2 tiles
+        // and re-submit everything via stage:"extract-pages".
+        return new Response(
+          JSON.stringify({ needs_crops: result.needs_crops, latency_ms: Date.now() - start, model_id: "gpt-4o" }),
+          { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
+        );
+      }
 
       return new Response(
         JSON.stringify({ image_quality: result.image_quality, image_layout: result.image_layout, items: result.items, raw_response: result.raw_response, latency_ms: Date.now() - start, model_id: "gpt-4o" }),

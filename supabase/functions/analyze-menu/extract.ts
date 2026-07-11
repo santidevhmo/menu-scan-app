@@ -1,4 +1,5 @@
 import { postprocessItems } from "./postprocess.ts";
+import { mergeItemSources } from "./merge.ts";
 
 const MODEL_TIMEOUT_MS = 120000;
 const EXTRACT_SEED = 17;
@@ -220,6 +221,61 @@ export async function runExtraction(
   } finally {
     clearTimeout(timeout);
   }
+}
+
+// One retry on transient model failures — the 120s timeout (nikkori tile,
+// eval 031+033 validation) and finish_reason=length (verbosity is
+// nondeterministic; a dense page occasionally overruns the completion cap,
+// eval 043). Moved from the eval runner (2026-07-10) so production inherits
+// the resilience the 3/3 gate was measured with.
+export async function extractWithRetry(
+  photos: string[],
+  apiKey: string,
+  detail?: "auto" | "high" | "low",
+  extract = runExtraction,
+): Promise<ExtractionResult> {
+  try {
+    return await extract(photos, apiKey, detail);
+  } catch (error) {
+    const message = String(error);
+    if (
+      !message.includes("timed out") &&
+      !message.includes("finish_reason=length")
+    ) throw error;
+    console.log("[extract] transient model failure — retrying call once");
+    return await extract(photos, apiKey, detail);
+  }
+}
+
+// The iter-036 per-page recipe as the shared production path: 1 photo ⇒ one
+// call (default detail, no merge); N photos ⇒ one high-detail call PER page
+// (full completion budget each), in parallel, merged into ONE menu so
+// downstream stages (enrichment, ranking) run once per scan, never per page.
+// Multi-page detail is locked to "high" (gate-proven); the cheaper "auto"
+// A/B is deferred to the post-release cost pass.
+export async function runPagedExtraction(
+  photos: string[],
+  apiKey: string,
+  extract = extractWithRetry,
+): Promise<ExtractionResult> {
+  if (photos.length === 1) return await extract(photos, apiKey);
+
+  const results = await Promise.all(
+    photos.map((photo) => extract([photo], apiKey, "high")),
+  );
+  return {
+    items: mergeItemSources(results.map((r) => r.items)),
+    image_quality: {
+      usable: results.every((r) => r.image_quality.usable),
+      issues: [...new Set(results.flatMap((r) => r.image_quality.issues))],
+    },
+    // First dense page wins so the dense flag survives for the auto-cutter
+    // (critical-path #2) WITH its crop_direction (validateLayout forbids
+    // dense:true + "none"). No dense page ⇒ page 1's layout.
+    image_layout: results.find((r) => r.image_layout.dense)?.image_layout ??
+      results[0].image_layout,
+    raw_response: JSON.stringify(results.map((r) => r.raw_response)),
+  };
 }
 
 export async function runCropExtractions(

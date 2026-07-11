@@ -4,9 +4,12 @@ import {
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
   EXTRACT_SCHEMA,
+  extractWithRetry,
   runCropExtractions,
   runExtraction,
+  runPagedExtraction,
 } from "./extract.ts";
+import type { ExtractionResult } from "./extract.ts";
 
 Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async () => {
   const originalFetch = globalThis.fetch;
@@ -177,4 +180,117 @@ Deno.test("crop extraction invokes one model call per crop", async () => {
   );
   assertEquals(calls, [["left"], ["right"]]);
   assertEquals(regions.length, 2);
+});
+
+const fakeResult = (over: Partial<ExtractionResult> = {}): ExtractionResult => ({
+  image_quality: { usable: true, issues: [] },
+  image_layout: { dense: false, crop_direction: "none" },
+  items: [],
+  raw_response: "{}",
+  ...over,
+});
+
+const menuItem = (
+  name: string,
+  price: number | null,
+  description = "",
+): ExtractionResult["items"][number] => ({
+  name,
+  description,
+  price,
+  category: "food",
+  section_title: null,
+  options: [],
+  grams: null,
+});
+
+Deno.test("extractWithRetry retries exactly once on timeout", async () => {
+  let calls = 0;
+  const stub = (() => {
+    calls++;
+    return calls === 1
+      ? Promise.reject(new Error("Model request timed out after 120s"))
+      : Promise.resolve(fakeResult({ raw_response: "second" }));
+  }) as typeof runExtraction;
+  const result = await extractWithRetry(["p"], "key", undefined, stub);
+  assertEquals(calls, 2);
+  assertEquals(result.raw_response, "second");
+});
+
+Deno.test("extractWithRetry retries on finish_reason=length", async () => {
+  let calls = 0;
+  const stub = (() => {
+    calls++;
+    return calls === 1
+      ? Promise.reject(
+        new Error("OpenAI extraction stopped with finish_reason=length"),
+      )
+      : Promise.resolve(fakeResult());
+  }) as typeof runExtraction;
+  await extractWithRetry(["p"], "key", undefined, stub);
+  assertEquals(calls, 2);
+});
+
+Deno.test("extractWithRetry does not retry non-transient errors", async () => {
+  let calls = 0;
+  const stub = (() => {
+    calls++;
+    return Promise.reject(new Error("OpenAI API error"));
+  }) as typeof runExtraction;
+  await assertRejects(
+    () => extractWithRetry(["p"], "key", undefined, stub),
+    Error,
+    "OpenAI API error",
+  );
+  assertEquals(calls, 1);
+});
+
+Deno.test("runPagedExtraction: one photo means exactly one call, default detail, passthrough", async () => {
+  const seen: { photos: string[]; detail?: string }[] = [];
+  const stub = ((photos: string[], _key: string, detail?: string) => {
+    seen.push({ photos, detail });
+    return Promise.resolve(fakeResult({ raw_response: "single" }));
+  }) as typeof extractWithRetry;
+  const result = await runPagedExtraction(["a"], "key", stub);
+  assertEquals(seen, [{ photos: ["a"], detail: undefined }]);
+  assertEquals(result.raw_response, "single");
+});
+
+Deno.test("runPagedExtraction: N photos means N high-detail single-photo calls, unified menu", async () => {
+  const seen: { photos: string[]; detail?: string }[] = [];
+  const pages: ExtractionResult[] = [
+    fakeResult({
+      items: [menuItem("Tacos", 100)],
+      image_quality: { usable: true, issues: ["glare"] },
+      raw_response: "r1",
+    }),
+    fakeResult({
+      items: [menuItem("Tacos", 100, "de pastor"), menuItem("Sopa", 80)],
+      image_quality: { usable: false, issues: ["glare", "blur"] },
+      image_layout: { dense: true, crop_direction: "top_bottom" },
+      raw_response: "r2",
+    }),
+  ];
+  const stub = ((photos: string[], _key: string, detail?: string) => {
+    seen.push({ photos, detail });
+    return Promise.resolve(pages[seen.length - 1]);
+  }) as typeof extractWithRetry;
+
+  const result = await runPagedExtraction(["a", "b"], "key", stub);
+
+  assertEquals(seen, [
+    { photos: ["a"], detail: "high" },
+    { photos: ["b"], detail: "high" },
+  ]);
+  // ONE menu: cross-page duplicate collapsed, richer copy kept.
+  assertEquals(result.items, [
+    menuItem("Tacos", 100, "de pastor"),
+    menuItem("Sopa", 80),
+  ]);
+  // ONE quality verdict: any unusable page means unusable; issues deduped.
+  assertEquals(result.image_quality, { usable: false, issues: ["glare", "blur"] });
+  // Layout comes from the first dense page (dense + direction travel together).
+  assertEquals(result.image_layout, { dense: true, crop_direction: "top_bottom" });
+  // Raw payloads preserved per page as a JSON array string.
+  assertEquals(JSON.parse(result.raw_response), ["r1", "r2"]);
 });

@@ -7,6 +7,7 @@ import {
   extractWithRetry,
   runCropExtractions,
   runExtraction,
+  runGroupedExtraction,
   runPagedExtraction,
 } from "./extract.ts";
 import type { ExtractionResult } from "./extract.ts";
@@ -252,6 +253,7 @@ Deno.test("runPagedExtraction: one photo means exactly one call, default detail,
     return Promise.resolve(fakeResult({ raw_response: "single" }));
   }) as typeof extractWithRetry;
   const result = await runPagedExtraction(["a"], "key", stub);
+  if ("needs_crops" in result) throw new Error("unexpected dense");
   assertEquals(seen, [{ photos: ["a"], detail: undefined }]);
   assertEquals(result.raw_response, "single");
 });
@@ -267,7 +269,6 @@ Deno.test("runPagedExtraction: N photos means N high-detail single-photo calls, 
     fakeResult({
       items: [menuItem("Tacos", 100, "de pastor"), menuItem("Sopa", 80)],
       image_quality: { usable: false, issues: ["glare", "blur"] },
-      image_layout: { dense: true, crop_direction: "top_bottom" },
       raw_response: "r2",
     }),
   ];
@@ -277,6 +278,7 @@ Deno.test("runPagedExtraction: N photos means N high-detail single-photo calls, 
   }) as typeof extractWithRetry;
 
   const result = await runPagedExtraction(["a", "b"], "key", stub);
+  if ("needs_crops" in result) throw new Error("unexpected dense");
 
   assertEquals(seen, [
     { photos: ["a"], detail: "high" },
@@ -289,8 +291,99 @@ Deno.test("runPagedExtraction: N photos means N high-detail single-photo calls, 
   ]);
   // ONE quality verdict: any unusable page means unusable; issues deduped.
   assertEquals(result.image_quality, { usable: false, issues: ["glare", "blur"] });
-  // Layout comes from the first dense page (dense + direction travel together).
-  assertEquals(result.image_layout, { dense: true, crop_direction: "top_bottom" });
+  assertEquals(result.image_layout, { dense: false, crop_direction: "none" });
   // Raw payloads preserved per page as a JSON array string.
   assertEquals(JSON.parse(result.raw_response), ["r1", "r2"]);
+});
+
+Deno.test("runPagedExtraction: dense layout flag returns needs_crops, not items", async () => {
+  const stub = (() =>
+    Promise.resolve(fakeResult({
+      image_layout: { dense: true, crop_direction: "none" },
+      items: [menuItem("Garbage", 1)],
+    }))) as typeof extractWithRetry;
+  const result = await runPagedExtraction(["a"], "key", stub);
+  assertEquals(result, { needs_crops: [0] });
+});
+
+Deno.test("runPagedExtraction: terminal length failure is a dense signal", async () => {
+  const pages: (() => Promise<ExtractionResult>)[] = [
+    () => Promise.resolve(fakeResult()),
+    () =>
+      Promise.reject(
+        new Error("OpenAI extraction stopped with finish_reason=length"),
+      ),
+  ];
+  let call = 0;
+  const stub = (() => pages[call++]()) as typeof extractWithRetry;
+  const result = await runPagedExtraction(["a", "b"], "key", stub);
+  assertEquals(result, { needs_crops: [1] });
+});
+
+Deno.test("runPagedExtraction: non-dense terminal failure still throws", async () => {
+  const stub = (() =>
+    Promise.reject(new Error("OpenAI API error"))) as typeof extractWithRetry;
+  await assertRejects(
+    () => runPagedExtraction(["a"], "key", stub),
+    Error,
+    "OpenAI API error",
+  );
+});
+
+Deno.test("runGroupedExtraction: 1-photo and 4-tile groups merge to one menu", async () => {
+  const seen: { photos: string[]; detail?: string }[] = [];
+  const results: ExtractionResult[] = [
+    fakeResult({ items: [menuItem("Sopa", 80)], raw_response: "page1" }),
+    fakeResult({
+      items: [menuItem("Roll A", 100), {
+        ...menuItem("Cola", 30),
+        category: "drink" as const,
+      }],
+      raw_response: "t1",
+    }),
+    fakeResult({ items: [menuItem("Roll A", 100)], raw_response: "t2" }),
+    fakeResult({ items: [menuItem("Roll B", 120)], raw_response: "t3" }),
+    fakeResult({ items: [], raw_response: "t4" }),
+  ];
+  let call = 0;
+  const stub = ((photos: string[], _key: string, detail?: string) => {
+    seen.push({ photos, detail });
+    return Promise.resolve(results[call++]);
+  }) as typeof extractWithRetry;
+
+  const merged = await runGroupedExtraction(
+    [["p1"], ["a", "b", "c", "d"]],
+    "key",
+    stub,
+  );
+
+  assertEquals(seen[0], { photos: ["p1"], detail: undefined });
+  assertEquals(seen.slice(1).map((s) => s.detail), [
+    "high",
+    "high",
+    "high",
+    "high",
+  ]);
+  // Tile drink filtered, tile duplicate merged, groups merged in order.
+  assertEquals(merged.items, [
+    menuItem("Sopa", 80),
+    menuItem("Roll A", 100),
+    menuItem("Roll B", 120),
+  ]);
+  assertEquals(JSON.parse(merged.raw_response), [
+    "page1",
+    "t1",
+    "t2",
+    "t3",
+    "t4",
+  ]);
+});
+
+Deno.test("runGroupedExtraction: rejects malformed group sizes", async () => {
+  const stub = (() => Promise.resolve(fakeResult())) as typeof extractWithRetry;
+  await assertRejects(
+    () => runGroupedExtraction([["a", "b"]], "key", stub),
+    Error,
+    "group",
+  );
 });

@@ -258,35 +258,90 @@ export async function extractWithRetry(
   }
 }
 
-// The iter-036 per-page recipe as the shared production path: 1 photo ⇒ one
-// call (default detail, no merge); N photos ⇒ one high-detail call PER page
-// (full completion budget each), in parallel, merged into ONE menu so
-// downstream stages (enrichment, ranking) run once per scan, never per page.
-// Multi-page detail is locked to "high" (gate-proven); the cheaper "auto"
-// A/B is deferred to the post-release cost pass.
-export async function runPagedExtraction(
-  photos: string[],
-  apiKey: string,
-  extract = extractWithRetry,
-): Promise<ExtractionResult> {
-  if (photos.length === 1) return await extract(photos, apiKey);
+export type PagedExtraction = ExtractionResult | { needs_crops: number[] };
 
-  const results = await Promise.all(
-    photos.map((photo) => extract([photo], apiKey, "high")),
-  );
+const DENSE_FAILURE = /timed out|finish_reason=length/;
+
+function foldResults(
+  results: ExtractionResult[],
+  items: ExtractedMenuItem[],
+): ExtractionResult {
   return {
-    items: mergeItemSources(results.map((r) => r.items)),
+    items,
     image_quality: {
       usable: results.every((r) => r.image_quality.usable),
       issues: [...new Set(results.flatMap((r) => r.image_quality.issues))],
     },
-    // First dense page wins so the dense flag survives for the auto-cutter
-    // (critical-path #2) WITH its crop_direction (validateLayout forbids
-    // dense:true + "none"). No dense page ⇒ page 1's layout.
-    image_layout: results.find((r) => r.image_layout.dense)?.image_layout ??
-      results[0].image_layout,
+    image_layout: results[0].image_layout,
     raw_response: JSON.stringify(results.map((r) => r.raw_response)),
   };
+}
+
+// The iter-036 per-page recipe as the shared production path, now with the
+// dense detector (failure-as-signal, probed 2026-07-10 3/3): a page is dense
+// when it reports image_layout.dense OR terminally fails with timeout /
+// finish_reason=length after the retry — the two ways a dense page presents
+// (garbage items or truncation). Dense pages' items are never returned; the
+// client must cut 2x2 tiles from the originals and use stage:"extract-pages".
+// Non-dense terminal failures still fail the scan. 1 photo ⇒ one call
+// (default detail); N photos ⇒ one high-detail call per page, in parallel,
+// merged into ONE menu so enrichment runs once per scan.
+export async function runPagedExtraction(
+  photos: string[],
+  apiKey: string,
+  extract = extractWithRetry,
+): Promise<PagedExtraction> {
+  const settled = await Promise.allSettled(
+    photos.length === 1
+      ? [extract(photos, apiKey)]
+      : photos.map((photo) => extract([photo], apiKey, "high")),
+  );
+  const needsCrops = settled.flatMap((s, index) =>
+    (s.status === "fulfilled"
+        ? s.value.image_layout.dense
+        : DENSE_FAILURE.test(String(s.reason)))
+      ? [index]
+      : []
+  );
+  if (needsCrops.length > 0) return { needs_crops: needsCrops };
+  const rejected = settled.find((s) => s.status === "rejected");
+  if (rejected) throw (rejected as PromiseRejectedResult).reason;
+  const results = settled.map((s) =>
+    (s as PromiseFulfilledResult<ExtractionResult>).value
+  );
+  if (results.length === 1) return results[0];
+  return foldResults(results, mergeItemSources(results.map((r) => r.items)));
+}
+
+// Phase 2: stateless grouped extraction. A group is one page — either its
+// single compressed photo (normal) or its 4 original-resolution 2x2 tiles
+// (dense). Tiles run the gate-proven recipe: parallel detail:"high", per-tile
+// drink filter (release-scope decision: crop path drops drinks until F5),
+// tile merge; then one cross-page merge so the scan yields ONE menu.
+export async function runGroupedExtraction(
+  groups: string[][],
+  apiKey: string,
+  extract = extractWithRetry,
+): Promise<ExtractionResult> {
+  const groupResults = await Promise.all(groups.map(async (group, index) => {
+    if (group.length === 1) {
+      const result = await extract(group, apiKey);
+      return { calls: [result], items: result.items };
+    }
+    if (group.length !== 4) {
+      throw new Error(`extract-pages group ${index} must have 1 or 4 photos`);
+    }
+    const tiles = await Promise.all(
+      group.map((tile) => extract([tile], apiKey, "high")),
+    );
+    const sources = tiles.map((t) =>
+      t.items.filter((i) => i.category !== "drink")
+    );
+    return { calls: tiles, items: mergeItemSources(sources) };
+  }));
+  const allCalls = groupResults.flatMap((g) => g.calls);
+  const items = mergeItemSources(groupResults.map((g) => g.items));
+  return foldResults(allCalls, items);
 }
 
 export async function runCropExtractions(

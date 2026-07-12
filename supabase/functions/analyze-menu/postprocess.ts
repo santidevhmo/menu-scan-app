@@ -316,6 +316,29 @@ export function filterServingFormatOptions(
   }));
 }
 
+// A price-null option whose name is contained (whole words) in a SAME-SECTION
+// sibling item's name is the model re-attaching a neighboring card's dish as a
+// choice ("Omelette de Camarón" + option "Marlin" beside "Cazuela de Marlín",
+// overnight gate loop — 10/18 fails): a real printed choice either carries its
+// own price (casa-nostra "Gluten free" 330, kept) or names something no
+// sibling card in that section prints. Cross-section matches (Chilaquiles
+// "divorciados" vs HUEVOS "Huevos Divorciados") are untouched.
+export function dropSiblingEchoOptions(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  return items.map((item) => ({
+    ...item,
+    options: item.options.filter((option) =>
+      option.price !== null ||
+      !items.some((sibling) =>
+        sibling !== item &&
+        sibling.section_title === item.section_title &&
+        echoesOwnItemName(option.name, sibling.name)
+      )
+    ),
+  }));
+}
+
 // Printed weight convention: a number followed by g/gr/grs/kg ("600g",
 // "70 gr.", "1kg"). Volumes (ml/L/oz) and "mg" are NOT grams. Name wins over
 // description; first match wins.
@@ -345,13 +368,13 @@ export function postprocessItems(
 ): ExtractedMenuItem[] {
   // parseItemGrams runs LAST so items promoted from options
   // ("Bandiola Adobada (150gr)") also get their printed weight parsed.
-  return parseItemGrams(filterServingFormatOptions(
+  return parseItemGrams(dropSiblingEchoOptions(filterServingFormatOptions(
     extractInlineChoices(
       dropHeaderEchoes(promoteSections(foldVariantCards(
         dropPriceNoteItems(stripMenuNumbers(items)),
       ))),
     ),
-  ));
+  )));
 }
 
 if (import.meta.main) {
@@ -658,6 +681,54 @@ if (import.meta.main) {
   })]);
   if (weightOpt[0].options.map((o) => o.name).join("|") !== "pollo") {
     throw new Error(`weight filter: got ${weightOpt[0].options.map((o) => o.name).join("|")}`);
+  }
+  // A price-null option echoing a SAME-SECTION sibling's name is a re-attached
+  // neighboring dish, not a choice; priced options and cross-section matches
+  // survive.
+  const siblingEcho = dropSiblingEchoOptions([
+    item({
+      name: "Omelette de Camarón",
+      price: 98,
+      section_title: "DE LA PLAYA",
+      options: [{ name: "Marlín", price: null, grams: null }],
+    }),
+    item({
+      name: "Cazuela de Marlin",
+      price: 98,
+      section_title: "DE LA PLAYA",
+    }),
+    item({
+      name: "Fettuccine CasaNostra",
+      price: 300,
+      section_title: "Pasta",
+      options: [{ name: "Gluten free", price: 330, grams: null }],
+    }),
+    item({
+      name: "Spaghetti Gluten free",
+      price: 330,
+      section_title: "Pasta",
+    }),
+    item({
+      name: "Chilaquiles",
+      price: 90,
+      section_title: "MEXICANOS",
+      options: [{ name: "divorciados", price: null, grams: null }],
+    }),
+    item({
+      name: "Huevos Divorciados",
+      price: 85,
+      section_title: "HUEVOS",
+    }),
+    item({
+      name: "Taco Loiro",
+      price: 120,
+      section_title: "ESPECIALIDADES",
+      options: [{ name: "arrachera", price: null, grams: null }],
+    }),
+  ]);
+  const siblingGot = siblingEcho.map((i) => i.options.length).join(",");
+  if (siblingGot !== "0,0,1,0,1,0,1") {
+    throw new Error(`sibling echo: got ${siblingGot}`);
   }
   // Different names / different categories never fold.
   const distinct = foldVariantCards([

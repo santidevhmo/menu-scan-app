@@ -159,9 +159,18 @@ export async function extractMenu(
   const base64Photos = await Promise.all(
     photos.map(async (p) => {
       const compressed = await compressImage(p.uri, p.width, p.height);
-      return FileSystem.readAsStringAsync(compressed.uri, {
+      const b64 = await FileSystem.readAsStringAsync(compressed.uri, {
         encoding: FileSystem.EncodingType.Base64,
       });
+      // ponytail: temp instrumentation (ticket #3) — remove after device verification.
+      console.log("[fidelity] upload photo", {
+        srcW: p.width,
+        srcH: p.height,
+        outW: compressed.width,
+        outH: compressed.height,
+        base64Chars: b64.length,
+      });
+      return b64;
     }),
   );
   const debugContext = getSupabaseDebugContext(

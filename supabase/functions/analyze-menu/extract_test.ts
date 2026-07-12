@@ -6,6 +6,7 @@ import {
   EXTRACT_PROMPT,
   EXTRACT_SCHEMA,
   extractWithRetry,
+  PAGE_PROMPT_SUFFIX,
   runCropExtractions,
   runExtraction,
   runGroupedExtraction,
@@ -410,9 +411,39 @@ Deno.test("tile calls append TILE_PROMPT_SUFFIX; normal calls send P1 verbatim",
   try {
     await runExtraction(["p"], "key");
     await runExtraction(["p"], "key", "high", true);
+    await runExtraction(["p"], "key", "high", false, true);
   } finally {
     globalThis.fetch = originalFetch;
   }
   assertEquals(prompts[0], EXTRACT_PROMPT);
   assertEquals(prompts[1], EXTRACT_PROMPT + TILE_PROMPT_SUFFIX);
+  assertEquals(prompts[2], EXTRACT_PROMPT + PAGE_PROMPT_SUFFIX);
+});
+
+Deno.test("multi-photo pages get the page suffix; single-photo scans do not", async () => {
+  const calls: { photos: string[]; tile: boolean; page: boolean }[] = [];
+  const fake = (
+    photos: string[],
+    _key: string,
+    _detail?: "auto" | "high" | "low",
+    _extract?: unknown,
+    tile = false,
+    page = false,
+  ) => {
+    calls.push({ photos, tile, page });
+    return Promise.resolve({
+      image_quality: { usable: true, issues: [] },
+      image_layout: { dense: false, crop_direction: "none" as const },
+      items: [],
+      raw_response: "",
+    });
+  };
+  // deno-lint-ignore no-explicit-any
+  await runPagedExtraction(["a"], "key", fake as any);
+  // deno-lint-ignore no-explicit-any
+  await runPagedExtraction(["a", "b"], "key", fake as any);
+  // deno-lint-ignore no-explicit-any
+  await runGroupedExtraction([["a"]], "key", fake as any);
+  assertEquals(calls.map((c) => c.page), [false, true, true, true]);
+  assertEquals(calls.every((c) => !c.tile), true);
 });

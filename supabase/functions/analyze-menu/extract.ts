@@ -161,11 +161,27 @@ may be cut off. Transcribe only items whose printed name is completely visible
 in this tile. Skip any partially visible or cut-off item entirely — do not
 guess or reconstruct its name; a neighboring tile shows it in full.`;
 
+// Sent ONLY with per-page calls of a multi-photo scan (and the 1-photo groups
+// of stage extract-pages): the completeness rule that fixed brasero-two's
+// dropped "A elegir" line and skipped boxed insert (page-only A/B 2026-07-11:
+// loiro options 8/8 vs intermittent) REGRESSED single-photo menus when global
+// (P1 v6 gate loop 2/12: false-positive items from promo boxes on el-marcos /
+// mochomos, and nikkori's dense self-assessment stopped firing) — so it is
+// scoped to the page mode where it earned its evidence, like TILE_PROMPT_SUFFIX.
+export const PAGE_PROMPT_SUFFIX =
+  `\nThis photo is one page of a multi-page menu. Transcribe each item's card
+completely: include its final printed line even when it is smaller or italic
+(a trailing "a elegir"/"choice of" line with prices is part of that item's
+options). Menus also print items inside boxed or bordered insert blocks and
+sidebars; extract the items in every box exactly like items in the main
+columns.`;
+
 export async function runExtraction(
   photos: string[],
   apiKey: string,
   detail?: "auto" | "high" | "low",
   tile = false,
+  page = false,
 ): Promise<ExtractionResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), MODEL_TIMEOUT_MS);
@@ -184,7 +200,8 @@ export async function runExtraction(
           content: [
             {
               type: "text",
-              text: tile ? EXTRACT_PROMPT + TILE_PROMPT_SUFFIX : EXTRACT_PROMPT,
+              text: EXTRACT_PROMPT +
+                (tile ? TILE_PROMPT_SUFFIX : page ? PAGE_PROMPT_SUFFIX : ""),
             },
             ...photos.map((photo) => ({
               type: "image_url",
@@ -262,9 +279,10 @@ export async function extractWithRetry(
   detail?: "auto" | "high" | "low",
   extract = runExtraction,
   tile = false,
+  page = false,
 ): Promise<ExtractionResult> {
   try {
-    return await extract(photos, apiKey, detail, tile);
+    return await extract(photos, apiKey, detail, tile, page);
   } catch (error) {
     const message = String(error);
     if (
@@ -272,7 +290,7 @@ export async function extractWithRetry(
       !message.includes("finish_reason=length")
     ) throw error;
     console.log("[extract] transient model failure — retrying call once");
-    return await extract(photos, apiKey, detail, tile);
+    return await extract(photos, apiKey, detail, tile, page);
   }
 }
 
@@ -312,7 +330,9 @@ export async function runPagedExtraction(
   const settled = await Promise.allSettled(
     photos.length === 1
       ? [extract(photos, apiKey)]
-      : photos.map((photo) => extract([photo], apiKey, "high")),
+      : photos.map((photo) =>
+        extract([photo], apiKey, "high", undefined, false, true)
+      ),
   );
   const needsCrops = settled.flatMap((s, index) =>
     (s.status === "fulfilled"
@@ -343,7 +363,9 @@ export async function runGroupedExtraction(
 ): Promise<ExtractionResult> {
   const groupResults = await Promise.all(groups.map(async (group, index) => {
     if (group.length === 1) {
-      const result = await extract(group, apiKey);
+      // A 1-photo group is always one page of a multi-page scan (a single
+      // dense page arrives as its 4 tiles) — same page mode as phase 1.
+      const result = await extract(group, apiKey, undefined, undefined, false, true);
       return { calls: [result], items: result.items };
     }
     if (group.length !== 4) {

@@ -11,11 +11,6 @@ Do NOT estimate calories or nutrition. Do NOT invent items you cannot read.
 Extract all visible menu items from every provided photo and every menu section.
 Do not stop after a representative sample, a section summary, or the first page.
 There is no maximum number of items; keep going until every readable item is returned.
-Transcribe each item's card completely: include its final printed line even when
-it is smaller or italic (a trailing "a elegir"/"choice of" line with prices is
-part of that item's options). Menus also print items inside boxed or bordered
-insert blocks and sidebars; extract the items in every box exactly like items
-in the main columns.
 Never return a section header as an item.
 Copy the nearest printed heading that visually groups an item into section_title.
 When a heading contains smaller subheadings, each item belongs to its nearest

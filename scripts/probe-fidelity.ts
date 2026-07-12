@@ -36,6 +36,8 @@ const MODES: Mode[] = [
   { key: "1024q70", maxDim: 1024, quality: 70 },
   { key: "1536q80", maxDim: 1536, quality: 80 },
   { key: "2048q85", maxDim: 2048, quality: 85 },
+  { key: "2048q90", maxDim: 2048, quality: 90 },
+  { key: "2048q95", maxDim: 2048, quality: 95 },
 ];
 
 const fixtures: Fixture[] = [];

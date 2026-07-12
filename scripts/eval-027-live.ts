@@ -28,6 +28,7 @@ import {
   optionRecall,
   scoreMenu,
 } from "./eval-extraction.ts";
+import { productionPhotoData } from "./photo-input.ts";
 
 type Fixture = Parameters<typeof scoreMenu>[0];
 type Actual = Parameters<typeof scoreMenu>[1];
@@ -41,13 +42,12 @@ const rawKey = Deno.env.get("OPENAI_API_KEY");
 if (!rawKey) throw new Error("OPENAI_API_KEY is required");
 const apiKey: string = rawKey;
 
-function mime(name: string): string {
-  return name.toLowerCase().endsWith(".png") ? "image/png" : "image/jpeg";
-}
+const INPUT_TMP = await Deno.makeTempDir({ prefix: "eval-input-" });
 
-async function photoData(name: string): Promise<string> {
-  const bytes = await Deno.readFile(`${MENU_DIR}/${name}`);
-  return `data:${mime(name)};base64,${bytes.toBase64()}`;
+// Phase-1 input: PRODUCTION-MIRROR compression (ticket #3, spec 2026-07-12).
+// Dense tiles still cut from ORIGINALS (cutTiles), exactly like prepareTile.
+function photoData(name: string): Promise<string> {
+  return productionPhotoData(name, INPUT_TMP);
 }
 
 async function loadFixtures(): Promise<Fixture[]> {
@@ -128,11 +128,7 @@ async function cutTiles(name: string): Promise<string[]> {
 async function extractMenu(
   fixture: Fixture,
 ): Promise<Actual & { denseSignaled: boolean }> {
-  // Phase-1 input: ORIGINAL photos (Task-5 fidelity probe, ledger 2026-07-11):
-  // production compression (1024px/q0.7) measurably kills options/grams on
-  // brasero + el-marcos and sections on mochomos, while originals keep all 5
-  // non-dense menus green AND the original nikkori still dense-signals.
-  // The client-compression quality gap is logged as a production follow-up.
+  // Phase-1 input: production-mirror compressed (see photoData above).
   const photos = await Promise.all(fixture.photos.map(photoData));
   const phase1 = await runPagedExtraction(photos, apiKey);
   if (!("needs_crops" in phase1)) {

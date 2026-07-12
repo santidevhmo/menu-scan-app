@@ -156,21 +156,32 @@ export async function extractMenu(
   photos: ScanPhoto[],
   provider: ExtractionProvider,
 ): Promise<ExtractionResult> {
+  // Ticket #3 (ledger eval 056): upload ORIGINAL bytes when they fit the
+  // budget — every 2048px JPEG re-encode stably lost gated dims. Oversized
+  // photos fall back to compressImage (2048/q0.95). The edge accepts full
+  // data: URLs as-is; correct mime matters for passthrough PNGs.
+  const PASSTHROUGH_MAX_BYTES = 6_750_000; // ≈9M base64 chars; edge cap 10M
   const base64Photos = await Promise.all(
     photos.map(async (p) => {
-      const compressed = await compressImage(p.uri, p.width, p.height);
-      const b64 = await FileSystem.readAsStringAsync(compressed.uri, {
+      const info = await FileSystem.getInfoAsync(p.uri);
+      const size =
+        info.exists && typeof info.size === "number" ? info.size : Infinity;
+      const passthrough = size <= PASSTHROUGH_MAX_BYTES;
+      const src = passthrough ? p : await compressImage(p.uri, p.width, p.height);
+      const b64 = await FileSystem.readAsStringAsync(src.uri, {
         encoding: FileSystem.EncodingType.Base64,
       });
+      const ext = src.uri.split(".").pop()?.toLowerCase();
+      const mime = ext === "png" ? "image/png" : "image/jpeg";
       // ponytail: temp instrumentation (ticket #3) — remove after device verification.
       console.log("[fidelity] upload photo", {
+        passthrough,
+        fileBytes: size,
         srcW: p.width,
         srcH: p.height,
-        outW: compressed.width,
-        outH: compressed.height,
         base64Chars: b64.length,
       });
-      return b64;
+      return `data:${mime};base64,${b64}`;
     }),
   );
   const debugContext = getSupabaseDebugContext(

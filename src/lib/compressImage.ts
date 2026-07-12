@@ -7,11 +7,13 @@ export interface CompressedImage {
   height: number;
 }
 
-// Ticket #3 (spec 2026-07-12): 1024/q0.7 measurably lost options/grams/sections
-// on 3 of 6 gate menus. 2048/q0.85 is the ladder-probe target and is mirrored
-// by scripts/photo-input.ts.
+// Ticket #3 checkpoint A (ledger eval 056): phase-1 uploads PASSTHROUGH original
+// bytes (see analyzeMenu.extractMenu); this compression is only the fallback for
+// photos over the passthrough budget. 2048/q0.95 = best measured compressed
+// setting (q0.85/q0.90 stably misread small price digits: Chorizo 25→55).
+// Mirrored by scripts/photo-input.ts PROD_*.
 const MAX_DIMENSION = 2048;
-const QUALITY = 0.85;
+const QUALITY = 0.95;
 
 /** Optionally crops, then compresses an image to a max 2048px side. */
 export async function prepareImage(

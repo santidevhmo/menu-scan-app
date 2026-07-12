@@ -24,6 +24,14 @@ Raise the two constants in `prepareImage` (`MAX_DIMENSION`, `QUALITY`) to the la
 
 Rejected: **B** upload picked asset unresized (3–5MB uploads near the base64 cap on 12MP photos; the control arm already measures whether full-res buys anything over 2048). **C** PNG phase-1 (full-page 12MP PNG blows the base64 cap; T5's failure mode was resolution + aggressive JPEG, not JPEG itself; tiles are PNG because they're crops).
 
+## Post-approval discovery (2026-07-12, user-approved fold-in)
+
+Tracing the real client flow found the intake layer, not just the ceiling, at fault — and a checkout drift:
+
+- **This worktree's intake code is already correct**: `GalleryButton.tsx`, `(tabs)/index.tsx`, and `scan.store.ts` on `feat/extraction-eval-harness` store the ORIGINAL asset uri/dims (no intake compression; the store enforces `MAX_SCAN_PHOTOS`). `extractMenu` compresses once at upload; tiles cut from `photo.uri` = true originals.
+- **The MAIN checkout's copies are stale** (old intake-compression code): they compress at intake (1024/q0.7), store the compressed uri, so `extractMenu` double-compresses uploads AND `prepareTile` cuts dense tiles from a 1024px q0.7 JPEG. The T9 device build synced only part of the client slice (analyzeMenu/compressImage/adaptiveExtraction/scan.ts/review.tsx — NOT these three files), so **the T9 device quality delta is largely explained by the stale intake files**, with ImagePicker re-encode a secondary open question (instrumentation still rides in the device build).
+- **Fix (user ruling: fold into ticket #3):** raise the ceiling constants in the worktree's `compressImage.ts`, then sync the FULL client slice (8 files) into the main checkout for the device build. No new client code paths needed beyond temporary instrumentation logs.
+
 ## Step 1 — Ladder probe (~$1.35)
 
 Extend `scripts/probe-fidelity.ts` from 2 modes to 4:

@@ -110,7 +110,8 @@ function logExtractionResult(result: ExtractionResult) {
     item_count: result.items.length,
     error: result.error,
     items: result.items,
-    raw_response: result.raw_response ?? null,
+    // raw_response omitted from the log: it duplicates items as the raw
+    // per-page model output and doubles/triples the console block.
   };
 
   console.log(

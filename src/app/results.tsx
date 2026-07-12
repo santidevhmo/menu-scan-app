@@ -17,7 +17,7 @@ import { GoalSelector } from "@/components/results/GoalSelector";
 import { MenuItemRow } from "@/components/results/MenuItemRow";
 import { PhaseIndicator } from "@/components/results/PhaseIndicator";
 import { selectedMacros, sortItemsByGoals } from "@/lib/analyzeMenu";
-import { squashZScore } from "@/lib/zScoreSort";
+// import { squashZScore } from "@/lib/zScoreSort"; // used by the disabled ranked-items dump below
 import type {
   EnrichmentResult,
   ExtractionResult,
@@ -179,30 +179,34 @@ function ResultsPhase({
     if (!__DEV__ || !result || result.error || result.items.length === 0)
       return;
 
-    console.log(
-      JSON.stringify(
-        {
-          selected_goals: selectedGoals,
-          total_items: sorted.length,
-          items: sorted.map((item, index) => ({
-            rank: index + 1,
-            name: item.name,
-            macros: {
-              protein_g: item.protein_g,
-              carb_g: item.carb_g,
-              fat_g: item.fat_g,
-              estimated_calories: item.estimated_calories,
-            },
-            alignment_score: item.alignment_score,
-            display_score: squashZScore(item.alignment_score),
-            goal_scores: item.goal_scores,
-            allergens: item.allergens,
-          })),
-        },
-        null,
-        2,
-      ),
-    );
+    // Full ranked-items JSON dump disabled (ticket #3 console-noise pass):
+    // re-enable when debugging Stage-2 ranking; the [rank top10] block below
+    // covers everyday sanity checks. Uses squashZScore(item.alignment_score)
+    // for display_score when restored.
+    // console.log(
+    //   JSON.stringify(
+    //     {
+    //       selected_goals: selectedGoals,
+    //       total_items: sorted.length,
+    //       items: sorted.map((item, index) => ({
+    //         rank: index + 1,
+    //         name: item.name,
+    //         macros: {
+    //           protein_g: item.protein_g,
+    //           carb_g: item.carb_g,
+    //           fat_g: item.fat_g,
+    //           estimated_calories: item.estimated_calories,
+    //         },
+    //         alignment_score: item.alignment_score,
+    //         display_score: squashZScore(item.alignment_score),
+    //         goal_scores: item.goal_scores,
+    //         allergens: item.allergens,
+    //       })),
+    //     },
+    //     null,
+    //     2,
+    //   ),
+    // );
     console.log(
       "[rank top10]\n" +
         sorted

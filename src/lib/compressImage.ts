@@ -7,10 +7,13 @@ export interface CompressedImage {
   height: number;
 }
 
-const MAX_DIMENSION = 1024;
-const QUALITY = 0.7;
+// Ticket #3 (spec 2026-07-12): 1024/q0.7 measurably lost options/grams/sections
+// on 3 of 6 gate menus. 2048/q0.85 is the ladder-probe target and is mirrored
+// by scripts/photo-input.ts.
+const MAX_DIMENSION = 2048;
+const QUALITY = 0.85;
 
-/** Optionally crops, then compresses an image to a max 1024px side. */
+/** Optionally crops, then compresses an image to a max 2048px side. */
 export async function prepareImage(
   uri: string,
   sourceWidth: number,

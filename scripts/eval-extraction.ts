@@ -109,6 +109,29 @@ function normalize(value: string): string {
     .normalize("NFD").replaceAll(/[\u0300-\u036f]/g, "");
 }
 
+// True when `hay` contains `want` with exactly one letter inserted or dropped
+// ("chiplo" vs "chipo"). Exact containment is the caller's job (cheaper and
+// unambiguous); short needles (<5 chars) never match — too easy to cross-match
+// real near-name dishes. Substitutions intentionally unsupported.
+function containsWithOneIndel(hay: string, want: string): boolean {
+  if (want.length < 5) return false;
+  // One char inserted in hay: some (want.length+1)-window minus one char = want.
+  for (let i = 0; i + want.length + 1 <= hay.length; i++) {
+    const window = hay.slice(i, i + want.length + 1);
+    for (let j = 0; j < window.length; j++) {
+      if (window.slice(0, j) + window.slice(j + 1) === want) return true;
+    }
+  }
+  // One char dropped in hay: some (want.length-1)-window = want minus one char.
+  for (let i = 0; i + want.length - 1 <= hay.length; i++) {
+    const window = hay.slice(i, i + want.length - 1);
+    for (let j = 0; j < want.length; j++) {
+      if (want.slice(0, j) + want.slice(j + 1) === window) return true;
+    }
+  }
+  return false;
+}
+
 function findOptionTargetIndex(
   target: ExpectedFixture["items_with_options"][number],
   items: ExtractedMenuItem[],
@@ -375,8 +398,21 @@ export function scoreMenu(
   // expectation — crop overlap and stable misreads produce extra same-name
   // cards; the true item's mapping is what the check is about.
   const wrongMappings = fixture.section_expectations.flatMap((expected) => {
-    const matches = foodItems.filter((candidate) =>
+    const exact = foodItems.filter((candidate) =>
       normalize(candidate.name).includes(normalize(expected.name_contains))
+    );
+    // Tolerant fallback (user ruling, eval 055): one inserted or dropped
+    // letter in a ≥5-char name is OCR transcription variance ("Chipo" →
+    // "Chiplo"), not a different dish — this check verifies the MAPPING, not
+    // the spelling (name fidelity was never a gated dimension). Substitutions
+    // and short names stay strict so near-name dishes (Nico vs Pico) can
+    // never cross-match. SECTION check only; categories/grams lookups stay
+    // exact.
+    const matches = exact.length > 0 ? exact : foodItems.filter((candidate) =>
+      containsWithOneIndel(
+        normalize(candidate.name),
+        normalize(expected.name_contains),
+      )
     );
     if (matches.length === 0) return [`${expected.name_contains}→(item not found)`];
     const satisfied = matches.some((item) =>
@@ -785,6 +821,47 @@ function runSelfCheck(): void {
   assert(
     passing.image_quality?.pass === true,
     "image-quality score should pass",
+  );
+
+  // Section-check tolerant lookup (user ruling, eval 055): one inserted or
+  // dropped letter in a ≥5-char name_contains is OCR transcription variance
+  // ("Chipo" → "Chiplo") — the check verifies the MAPPING, not the spelling.
+  // Substitutions and short names stay strict so near-name dishes (Nico vs
+  // Pico) can never cross-match.
+  const capeadosFixture = (nameContains: string): ExpectedFixture => ({
+    ...fixture,
+    sections: ["Capeados"],
+    section_headers: [],
+    section_expectations: [
+      { name_contains: nameContains, section_title: "Capeados" },
+    ],
+  });
+  const capeadosItem = (name: string): ActualExtraction => ({
+    image_quality: { usable: true, issues: [] },
+    items: [{
+      name,
+      description: "",
+      price: 159,
+      category: "food",
+      section_title: "Capeados",
+      options: [],
+      grams: null,
+    }],
+  });
+  assert(
+    scoreMenu(capeadosFixture("Chipo"), capeadosItem("Chiplo"))
+      .section_context.pass,
+    "one-indel name (Chiplo≈Chipo) must satisfy the section expectation",
+  );
+  assert(
+    !scoreMenu(capeadosFixture("Chipo"), capeadosItem("Chapo"))
+      .section_context.pass,
+    "substitution (Chapo vs Chipo) must stay strict",
+  );
+  assert(
+    !scoreMenu(capeadosFixture("Nico"), capeadosItem("Nixco"))
+      .section_context.pass,
+    "short names (<5 chars) must stay strict",
   );
 
   const failing = scoreMenu(fixture, {

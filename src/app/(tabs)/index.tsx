@@ -41,12 +41,6 @@ export default function ScanScreen() {
         skipProcessing: false,
       });
       if (!photo) return;
-      // ponytail: temp instrumentation (ticket #3) — remove after device verification.
-      console.log("[fidelity] camera photo", {
-        width: photo.width,
-        height: photo.height,
-        uriExt: photo.uri.split(".").pop(),
-      });
       addPhoto({
         id: randomId(),
         uri: photo.uri,

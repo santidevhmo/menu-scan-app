@@ -174,14 +174,6 @@ export async function extractMenu(
       });
       const ext = src.uri.split(".").pop()?.toLowerCase();
       const mime = ext === "png" ? "image/png" : "image/jpeg";
-      // ponytail: temp instrumentation (ticket #3) — remove after device verification.
-      console.log("[fidelity] upload photo", {
-        passthrough,
-        fileBytes: size,
-        srcW: p.width,
-        srcH: p.height,
-        base64Chars: b64.length,
-      });
       return `data:${mime};base64,${b64}`;
     }),
   );

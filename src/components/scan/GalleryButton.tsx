@@ -31,14 +31,6 @@ export function GalleryButton() {
     if (remaining <= 0) return;
 
     for (const asset of result.assets.slice(0, remaining)) {
-      // ponytail: temp instrumentation (ticket #3) — remove after device verification.
-      console.log("[fidelity] picked asset", {
-        width: asset.width,
-        height: asset.height,
-        fileSize: asset.fileSize ?? null,
-        mimeType: asset.mimeType ?? null,
-        uriExt: asset.uri.split(".").pop(),
-      });
       addPhoto({
         id: randomId(),
         uri: asset.uri,

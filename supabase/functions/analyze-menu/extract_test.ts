@@ -250,14 +250,15 @@ Deno.test("extractWithRetry does not retry non-transient errors", async () => {
   assertEquals(calls, 1);
 });
 
-Deno.test("verifyTileItems drops items with printed=false verdicts", async () => {
+Deno.test("verifyTileItems drops items with name_printed=false verdicts", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = (() =>
     Promise.resolve(new Response(JSON.stringify({
       choices: [{
         finish_reason: "stop",
         message: {
-          content: '{"verdicts":[{"index":1,"printed":false}]}',
+          content:
+            '{"verdicts":[{"index":1,"name_printed":false,"price_matches":true}]}',
         },
       }],
     })))) as typeof fetch;
@@ -274,6 +275,106 @@ Deno.test("verifyTileItems drops items with printed=false verdicts", async () =>
   }
 });
 
+Deno.test("verifyTileItems keeps a unique item when only price_matches=false", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (() =>
+    Promise.resolve(new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: {
+          content:
+            '{"verdicts":[{"index":0,"name_printed":true,"price_matches":false}]}',
+        },
+      }],
+    })))) as typeof fetch;
+
+  try {
+    const kept = await verifyTileItems(
+      ["data:image/png;base64,tile"],
+      [menuItem("A", 10), menuItem("B", 20)],
+      "key",
+    );
+    assertEquals(kept, [menuItem("A", 10), menuItem("B", 20)]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("verifyTileItems drops only the price-rejected twin when a verified sibling exists", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (() =>
+    Promise.resolve(new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: {
+          content:
+            '{"verdicts":[{"index":0,"name_printed":true,"price_matches":false},{"index":1,"name_printed":true,"price_matches":true}]}',
+        },
+      }],
+    })))) as typeof fetch;
+
+  try {
+    const kept = await verifyTileItems(
+      ["data:image/png;base64,tile"],
+      [menuItem("Cheesy Bacon", 159), menuItem("Cheesy Bacon", 169)],
+      "key",
+    );
+    assertEquals(kept, [menuItem("Cheesy Bacon", 169)]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("verifyTileItems keeps both twins when both are price-rejected", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (() =>
+    Promise.resolve(new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: {
+          content:
+            '{"verdicts":[{"index":0,"name_printed":true,"price_matches":false},{"index":1,"name_printed":true,"price_matches":false}]}',
+        },
+      }],
+    })))) as typeof fetch;
+
+  try {
+    const kept = await verifyTileItems(
+      ["data:image/png;base64,tile"],
+      [menuItem("Cheesy Bacon", 159), menuItem("Cheesy Bacon", 169)],
+      "key",
+    );
+    assertEquals(kept, [menuItem("Cheesy Bacon", 159), menuItem("Cheesy Bacon", 169)]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("verifyTileItems uses one-indel matching for price-rejected twins", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (() =>
+    Promise.resolve(new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: {
+          content:
+            '{"verdicts":[{"index":0,"name_printed":true,"price_matches":false},{"index":1,"name_printed":true,"price_matches":true}]}',
+        },
+      }],
+    })))) as typeof fetch;
+
+  try {
+    const kept = await verifyTileItems(
+      ["data:image/png;base64,tile"],
+      [menuItem("Cheesy Bacon", 159), menuItem("Cheesey Bacon", 169)],
+      "key",
+    );
+    assertEquals(kept, [menuItem("Cheesey Bacon", 169)]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 Deno.test("verifyTileItems keeps items missing from the verdict list", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = (() =>
@@ -281,7 +382,8 @@ Deno.test("verifyTileItems keeps items missing from the verdict list", async () 
       choices: [{
         finish_reason: "stop",
         message: {
-          content: '{"verdicts":[{"index":0,"printed":true}]}',
+          content:
+            '{"verdicts":[{"index":0,"name_printed":true,"price_matches":true}]}',
         },
       }],
     })))) as typeof fetch;

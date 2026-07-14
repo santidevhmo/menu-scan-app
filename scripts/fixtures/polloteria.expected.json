@@ -68,6 +68,16 @@
       "name_contains": "Grande",
       "unchecked": true,
       "options": []
+    },
+    {
+      "name_contains": "Cabeza",
+      "unchecked": true,
+      "options": []
+    },
+    {
+      "name_contains": "El Tender",
+      "unchecked": true,
+      "options": []
     }
   ],
   "image_quality": {

@@ -161,3 +161,65 @@ Deno.test("non-tile merge path keeps twin-fold candidates byte-identical", () =>
     [...sourceA, ...sourceB],
   );
 });
+
+Deno.test("sectionLenient drops truncated same-price subset when full name exists", () => {
+  const truncated = item("Buffalo", 150, "", {
+    section_title: "Sandwiches & Hamburguesas",
+    grams: 300,
+  });
+  const full = item("Boneless Buffalo", 150, "", {
+    section_title: "Sandwiches & Hamburguesas",
+    grams: 300,
+  });
+  assertEquals(mergeItemSources([[truncated], [full]], true), [full]);
+});
+
+Deno.test("sectionLenient drops multiple fragments when a fuller same-price name exists", () => {
+  const cheesy = item("Cheesy", 159, "", {
+    section_title: "Sandwiches & Hamburguesas",
+    grams: 300,
+  });
+  const bacon = item("Bacon", 159, "", {
+    section_title: "Sandwiches & Hamburguesas",
+    grams: 300,
+  });
+  const full = item("Cheesey Bacon", 159, "", {
+    section_title: "Sandwiches & Hamburguesas",
+    grams: 300,
+  });
+  assertEquals(mergeItemSources([[cheesy], [bacon], [full]], true), [full]);
+});
+
+Deno.test("sectionLenient keeps same-section subset shape when prices differ", () => {
+  const truncated = item("Buffalo", 150, "", {
+    section_title: "Sandwiches & Hamburguesas",
+    grams: 300,
+  });
+  const full = item("Boneless Buffalo", 159, "", {
+    section_title: "Sandwiches & Hamburguesas",
+    grams: 300,
+  });
+  assertEquals(mergeItemSources([[truncated], [full]], true).length, 2);
+});
+
+Deno.test("sectionLenient keeps same-source truncation candidates", () => {
+  const truncated = item("Buffalo", 150, "", {
+    section_title: "Sandwiches & Hamburguesas",
+    grams: 300,
+  });
+  const full = item("Boneless Buffalo", 150, "", {
+    section_title: "Sandwiches & Hamburguesas",
+    grams: 300,
+  });
+  assertEquals(mergeItemSources([[truncated, full]], true), [truncated, full]);
+});
+
+Deno.test("sectionLenient keeps overlapping same-price names when neither is a subset", () => {
+  const brasero = item("Taco Brasero", 120, "", {
+    section_title: "Especialidades",
+  });
+  const tradicional = item("Taco Tradicional", 120, "", {
+    section_title: "Especialidades",
+  });
+  assertEquals(mergeItemSources([[brasero], [tradicional]], true).length, 2);
+});

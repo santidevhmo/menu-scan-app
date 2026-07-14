@@ -101,6 +101,26 @@ function twinFoldCandidate(
     a.section_title === b.section_title;
 }
 
+function normalizedWords(value: string): string[] {
+  return normalize(value).split(" ").filter(Boolean);
+}
+
+function wordMatches(a: string, b: string): boolean {
+  return a === b || editDistance(a, b) <= 1;
+}
+
+function strictWordSubset(
+  subsetCandidate: string,
+  supersetCandidate: string,
+): boolean {
+  const small = normalizedWords(subsetCandidate);
+  const large = normalizedWords(supersetCandidate);
+  if (small.length === 0 || small.length >= large.length) return false;
+  return small.every((smallWord) =>
+    large.some((largeWord) => wordMatches(smallWord, largeWord))
+  );
+}
+
 export function mergeItemSources(
   sources: ExtractedMenuItem[][],
   sectionLenient = false,
@@ -172,5 +192,21 @@ export function mergeItemSources(
     }
   });
 
-  return kept.map(({ item }) => item);
+function dropTileTruncations(
+  kept: { item: ExtractedMenuItem; sources: Set<number>; primarySource: number }[],
+): { item: ExtractedMenuItem; sources: Set<number>; primarySource: number }[] {
+  return kept.filter((candidate, index, all) =>
+    !all.some((other, otherIndex) =>
+      otherIndex !== index &&
+      other.primarySource !== candidate.primarySource &&
+      candidate.item.section_title === other.item.section_title &&
+      candidate.item.price !== null &&
+      candidate.item.price === other.item.price &&
+      strictWordSubset(candidate.item.name, other.item.name)
+    )
+  );
+}
+
+  const merged = sectionLenient ? dropTileTruncations(kept) : kept;
+  return merged.map(({ item }) => item);
 }

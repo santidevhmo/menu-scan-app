@@ -31,7 +31,8 @@
   ],
   "section_headers": [
     "Paletas Heladas",
-    "Hamburguesas"
+    "Hamburguesas",
+    "Acompañadas de Papas"
   ],
   "section_expectations": [
     {
@@ -39,7 +40,7 @@
       "section_title": "Entradas"
     },
     {
-      "name_contains": "El Tendedero",
+      "name_contains": "Megach",
       "section_title": "Pa'Compartir"
     },
     {
@@ -89,8 +90,8 @@
   ],
   "grams_expectations": [
     {
-      "name_contains": "tiBoneless",
-      "grams": 450
+      "name_contains": "Cheesy Chicken Balls",
+      "grams": 250
     },
     {
       "name_contains": "Megach",

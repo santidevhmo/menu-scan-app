@@ -1,0 +1,140 @@
+// Forced-tile geometry A/B (horizontal Phase 1 step 2): bypass the (broken)
+// detector and run Polloteria through runGroupedExtraction as ONE dense page,
+// with two tile geometries, x3 runs each, oracle-scored.
+//   2x2     — the gate-proven portrait grid (gridCropRects)
+//   4x1col  — landscape column strips: 40% width, full height, origins
+//             0/20/40/60. Portrait-shaped tiles preserve text height through
+//             GPT-4o's rescale; 4 tiles = production group size.
+// Usage: deno run --allow-read --allow-write --allow-env --allow-net \
+//   --allow-run scripts/probe-tiles.ts
+import { runGroupedExtraction } from "../supabase/functions/analyze-menu/extract.ts";
+import { gridCropRects, type CropRect } from "../src/lib/adaptiveExtraction.ts";
+import { scoreMenu } from "./eval-extraction.ts";
+import { MENU_DIR } from "./photo-input.ts";
+
+type Fixture = Parameters<typeof scoreMenu>[0];
+type ScoredDim = "items" | "options" | "section_context" | "categories" | "grams";
+
+const apiKey = Deno.env.get("OPENAI_API_KEY")!;
+const tmp = await Deno.makeTempDir({ prefix: "tiles-" });
+const PHOTO = "PolloteriaMenu.png";
+const fixture: Fixture = JSON.parse(
+  await Deno.readTextFile(
+    new URL("./fixtures/polloteria.expected.json", import.meta.url),
+  ),
+);
+const DIMS: ScoredDim[] = [
+  "items",
+  "options",
+  "section_context",
+  "categories",
+  "grams",
+];
+
+function colStripRects(w: number, h: number): CropRect[] {
+  const tileW = Math.round(w * 0.4);
+  return [0, 0.2, 0.4, 0.6].map((o) => {
+    const originX = Math.round(w * o);
+    return {
+      originX,
+      originY: 0,
+      width: Math.min(tileW, w - originX),
+      height: h,
+    };
+  });
+}
+
+async function sh(args: string[]): Promise<void> {
+  const out = await new Deno.Command(args[0], { args: args.slice(1) }).output();
+  if (!out.success) {
+    throw new Error(
+      `${args.join(" ")} failed: ${new TextDecoder().decode(out.stderr)}`,
+    );
+  }
+}
+
+async function dims(path: string): Promise<{ w: number; h: number }> {
+  const out = await new Deno.Command("sips", {
+    args: ["-g", "pixelWidth", "-g", "pixelHeight", path],
+  }).output();
+  if (!out.success) {
+    throw new Error(
+      `sips dims failed: ${new TextDecoder().decode(out.stderr)}`,
+    );
+  }
+  const text = new TextDecoder().decode(out.stdout);
+  const w = Number(text.match(/pixelWidth:\s+(\d+)/)?.[1]);
+  const h = Number(text.match(/pixelHeight:\s+(\d+)/)?.[1]);
+  if (!Number.isFinite(w) || !Number.isFinite(h)) {
+    throw new Error(`could not parse dimensions from sips output: ${text}`);
+  }
+  return { w, h };
+}
+
+async function cutTiles(rects: CropRect[], tag: string): Promise<string[]> {
+  const src = `${MENU_DIR}/${PHOTO}`;
+  const tiles: string[] = [];
+  for (const [i, rect] of rects.entries()) {
+    const out = `${tmp}/${tag}-tile${i + 1}.png`;
+    await sh([
+      "sips",
+      "-s",
+      "format",
+      "png",
+      "--cropOffset",
+      String(rect.originY),
+      String(rect.originX),
+      "-c",
+      String(rect.height),
+      String(rect.width),
+      src,
+      "--out",
+      out,
+    ]);
+    tiles.push(`data:image/png;base64,${(await Deno.readFile(out)).toBase64()}`);
+  }
+  return tiles;
+}
+
+const { w, h } = await dims(`${MENU_DIR}/${PHOTO}`);
+const GEOMETRIES = [
+  { key: "2x2", rects: gridCropRects(w, h) },
+  { key: "4x1col", rects: colStripRects(w, h) },
+];
+
+for (const g of GEOMETRIES) {
+  console.log(`\n===== GEOMETRY: ${g.key} rects=${JSON.stringify(g.rects)} =====`);
+  const tiles = await cutTiles(g.rects, g.key);
+  for (let run = 1; run <= 3; run++) {
+    try {
+      const result = await runGroupedExtraction([tiles], apiKey);
+      const report = scoreMenu(fixture, {
+        image_quality: result.image_quality,
+        items: result.items,
+      });
+      const fails = DIMS.filter((d) => !report[d].pass);
+      const detail = DIMS.map((d) => `${d}=${report[d].pass ? "P" : "F"}`).join(
+        " ",
+      );
+      console.log(
+        `${g.key} run ${run}: ${detail}; ${
+          fails.length === 0 ? "ALL PASS" : `FAIL ${fails.join(",")}`
+        }`,
+      );
+      if (fails.length > 0) {
+        await Deno.writeTextFile(
+          `${MENU_DIR}/polloteria.tiles-${g.key}-r${run}.actual.json`,
+          `${JSON.stringify({
+            image_quality: result.image_quality,
+            items: result.items,
+          }, null, 2)}\n`,
+        );
+        for (const d of fails) {
+          console.log(`  ${d}: ${report[d].detail}`);
+        }
+      }
+    } catch (error) {
+      console.log(`${g.key} run ${run}: TERMINAL ${String(error).slice(0, 100)}`);
+    }
+  }
+}

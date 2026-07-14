@@ -99,7 +99,6 @@ async function cutTiles(rects: CropRect[], tag: string): Promise<string[]> {
 const { w, h } = await dims(`${MENU_DIR}/${PHOTO}`);
 const GEOMETRIES = [
   { key: "2x2", rects: gridCropRects(w, h) },
-  { key: "4x1col", rects: colStripRects(w, h) },
 ];
 
 for (const g of GEOMETRIES) {

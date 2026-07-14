@@ -136,7 +136,13 @@
       "section_title": "Cocteles"
     }
   ],
-  "items_with_options": [],
+  "items_with_options": [
+      {
+          "name_contains": "Nico",
+          "unchecked": true,
+          "options": []
+      }
+  ],
   "image_quality": {
     "usable": true,
     "issues": []

@@ -594,3 +594,8 @@ Rules:
 - Fixtures: bistro (24 food; Agrega block tolerated via section_headers + ±3 band), polloteria (dense:true — the failing detector test Phase 1 must fix; 40 food + 15 drink parked; Cubeta Pollotera unchecked per aderezos ruling; ORACLE fix: draft's residual "Cabeza Pollotera $469" misread → photo-verified "Cubeta Pollotera $468"), guest-house (48 food; Seafood Plateau section null; English).
 - Measured gaps documented for later phases: Polloteria uncorrected extraction = 42 items vs 40-food truth with heavy name mangling + detector dense=false (Phase 1); ~90% of size-variant titles lose variant text (Phase 2, Shape A ruled); GuestHouse Enhancements column-pairing price misreads.
 - NOTE: any LIVE eval-027 run now fails polloteria's detector assertion until Phase 1 lands — intentional.
+
+## Eval 060 — horizontal Phase 1 step 1: detector diagnosis — TOTAL blind spot on landscape-dense (~$0.15)
+- Date: 2026-07-13 | probe-detector.ts (commit ff26f10), Polloteria ×3 phase-1: dense=false AND crop_direction="none" in 3/3; items 39/43/46 vs 55 truth (unstable incomplete reads; failure-as-signal never fires — the model returns confident partial menus).
+- Mechanism hypothesis (explains Polloteria-vs-GuestHouse): GPT-4o high-detail rescales to 768px SHORTEST side. Portrait: shortest=width, text height preserved. Landscape: shortest=HEIGHT → Polloteria 2274×1572 → ~1111×768, small print crushed below readability; GuestHouse's larger type survives. Landscape manufactures density.
+- Decision: prove the CURE first (forced-tile geometry A/B on Polloteria, step 2) before designing the TRIGGER (detector fix, step 3) — if tiles don't recover quality, detector work is moot.

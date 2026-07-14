@@ -392,6 +392,10 @@ export function dropBannerEchoOptions(
 // per-component weights only if Stage-2 accuracy demands it.
 const GRAMS_TOKEN = /(?<![\p{L}\d])(\d+(?:[.,]\d+)?)\s*(kg|grs?|g)\b/iu;
 
+function parseWeightNumber(value: string): number {
+  return Number(value.replace(/,(?=\d{3}\b)/g, "").replace(",", "."));
+}
+
 export function parseItemGrams(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
@@ -401,7 +405,7 @@ export function parseItemGrams(
     // No printed token: keep grams already carried (promoteSections copies the
     // source option's grams; raw model items have none → null).
     if (!match) return { ...item, grams: item.grams ?? null };
-    const value = Number(match[1].replace(",", "."));
+    const value = parseWeightNumber(match[1]);
     return {
       ...item,
       grams: match[2].toLowerCase() === "kg" ? value * 1000 : value,
@@ -878,6 +882,15 @@ if (import.meta.main) {
   const gramsGot = grams.map((i) => String(i.grams)).join(",");
   if (gramsGot !== "70,150,280,null,null,1000,null") {
     throw new Error(`parseItemGrams: got ${gramsGot}`);
+  }
+  const gramsComma = parseItemGrams([
+    item({ name: "Megach (1,200gr)" }),
+    item({ name: "Paella (1.5kg)" }),
+    item({ name: "Cheesy Chicken Balls (250gr)" }),
+  ]);
+  const gramsCommaGot = gramsComma.map((i) => String(i.grams)).join(",");
+  if (gramsCommaGot !== "1200,1500,250") {
+    throw new Error(`parseItemGrams comma: got ${gramsCommaGot}`);
   }
   // Name wins over description when both print a weight.
   const gramsPriority = parseItemGrams([

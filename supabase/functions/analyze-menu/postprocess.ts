@@ -339,6 +339,36 @@ export function dropSiblingEchoOptions(
   }));
 }
 
+// A price-null option repeated verbatim across 3+ distinct items is a printed
+// banner/promo line re-attached as a choice on every card, not a real option.
+// Tile-mode only: the evidence is cross-tile bleed on dense pages, so the
+// normal per-page path keeps its behavior unchanged.
+export function dropBannerEchoOptions(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  const counts = new Map<string, number>();
+  for (const item of items) {
+    const names = new Set(
+      item.options
+        .filter((option) => option.price === null)
+        .map((option) => normalizeName(option.name)),
+    );
+    for (const name of names) {
+      counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
+  }
+  const echoed = new Set(
+    [...counts].filter(([, count]) => count >= 3).map(([name]) => name),
+  );
+  if (echoed.size === 0) return items;
+  return items.map((item) => ({
+    ...item,
+    options: item.options.filter((option) =>
+      option.price !== null || !echoed.has(normalizeName(option.name))
+    ),
+  }));
+}
+
 // Printed weight convention: a number followed by g/gr/grs/kg ("600g",
 // "70 gr.", "1kg"). Volumes (ml/L/oz) and "mg" are NOT grams. Name wins over
 // description; first match wins.
@@ -729,6 +759,58 @@ if (import.meta.main) {
   const siblingGot = siblingEcho.map((i) => i.options.length).join(",");
   if (siblingGot !== "0,0,1,0,1,0,1") {
     throw new Error(`sibling echo: got ${siblingGot}`);
+  }
+  // A price-null banner note repeated across 3+ distinct items is not a real
+  // option in tile mode — remove it from every item.
+  const banner = dropBannerEchoOptions(Array.from({ length: 7 }, (_, i) =>
+    item({
+      name: `Tender ${i + 1}`,
+      price: 150 + i,
+      options: [
+        {
+          name: "Cambia tu Tender por Pollo a la Plancha",
+          price: null,
+          grams: null,
+        },
+      ],
+    })
+  ));
+  if (banner.some((i) => i.options.length !== 0)) {
+    throw new Error(`banner echo: expected all options removed, got ${
+      banner.map((i) => i.options.length).join(",")
+    }`);
+  }
+  // Priced repeated options are real printed values — untouched.
+  const pricedBanner = dropBannerEchoOptions([
+    item({
+      name: "Revueltos",
+      price: 78,
+      options: [{ name: "jamón", price: 90, grams: null }],
+    }),
+    item({
+      name: "Fritos",
+      price: 78,
+      options: [{ name: "jamón", price: 90, grams: null }],
+    }),
+  ]);
+  if (pricedBanner.some((i) => i.options.length !== 1)) {
+    throw new Error("banner echo: priced options must stay");
+  }
+  // Two repeated price-null options stay (below the 3-item threshold).
+  const belowThreshold = dropBannerEchoOptions([
+    item({
+      name: "Burger",
+      price: 10,
+      options: [{ name: "Sin papas", price: null, grams: null }],
+    }),
+    item({
+      name: "Sandwich",
+      price: 12,
+      options: [{ name: "Sin papas", price: null, grams: null }],
+    }),
+  ]);
+  if (belowThreshold.some((i) => i.options.length !== 1)) {
+    throw new Error("banner echo: below-threshold null-price options must stay");
   }
   // Different names / different categories never fold.
   const distinct = foldVariantCards([

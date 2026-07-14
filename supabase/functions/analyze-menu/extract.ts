@@ -1,4 +1,8 @@
-import { dropHeaderEchoes, postprocessItems } from "./postprocess.ts";
+import {
+  dropBannerEchoOptions,
+  dropHeaderEchoes,
+  postprocessItems,
+} from "./postprocess.ts";
 import { mergeItemSources } from "./merge.ts";
 
 const MODEL_TIMEOUT_MS = 120000;
@@ -385,8 +389,10 @@ export async function runGroupedExtraction(
   // Post-merge hygiene: header echoes (both shapes) need CROSS-tile section
   // knowledge — a tile can emit "Postres" while its dessert items come from
   // the neighboring tile, so the per-call postprocess can't see the match.
-  const items = dropHeaderEchoes(
-    mergeItemSources(groupResults.map((g) => g.items)),
+  const items = dropBannerEchoOptions(
+    dropHeaderEchoes(
+      mergeItemSources(groupResults.map((g) => g.items)),
+    ),
   );
   return foldResults(allCalls, items);
 }

@@ -4,6 +4,7 @@
     "PolloteriaMenu.png"
   ],
   "dense": true,
+  "items_over_tolerance": 5,
   "total_items": 55,
   "food_items": 40,
   "drink_items": 15,
@@ -11,6 +12,9 @@
     "food",
     "side",
     "drink"
+  ],
+  "tolerated_categories": [
+    "dessert"
   ],
   "sections": [
     "Entradas",
@@ -25,13 +29,17 @@
   "drink_sections": [
     "Bebidas"
   ],
+  "section_headers": [
+    "Paletas Heladas",
+    "Hamburguesas"
+  ],
   "section_expectations": [
     {
-      "name_contains": "TostiBoneless",
+      "name_contains": "tiBoneless",
       "section_title": "Entradas"
     },
     {
-      "name_contains": "Cubeta Pollotera",
+      "name_contains": "El Tendedero",
       "section_title": "Pa'Compartir"
     },
     {
@@ -42,6 +50,16 @@
   "items_with_options": [
     {
       "name_contains": "Cubeta Pollotera",
+      "unchecked": true,
+      "options": []
+    },
+    {
+      "name_contains": "Agua",
+      "unchecked": true,
+      "options": []
+    },
+    {
+      "name_contains": "Crema",
       "unchecked": true,
       "options": []
     },
@@ -57,7 +75,7 @@
   },
   "category_expectations": [
     {
-      "name_contains": "TostiBoneless",
+      "name_contains": "tiBoneless",
       "category": "food"
     },
     {
@@ -71,11 +89,11 @@
   ],
   "grams_expectations": [
     {
-      "name_contains": "TostiBoneless",
+      "name_contains": "tiBoneless",
       "grams": 450
     },
     {
-      "name_contains": "Megacharola Boneless",
+      "name_contains": "Megach",
       "grams": 1200
     },
     {

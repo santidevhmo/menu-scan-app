@@ -1,0 +1,90 @@
+{
+  "menu": "polloteria",
+  "photos": [
+    "PolloteriaMenu.png"
+  ],
+  "dense": true,
+  "total_items": 55,
+  "food_items": 40,
+  "drink_items": 15,
+  "categories": [
+    "food",
+    "side",
+    "drink"
+  ],
+  "sections": [
+    "Entradas",
+    "Pa'Compartir",
+    "Ensaladas",
+    "Crispy Chicken",
+    "Especialidades",
+    "Sandwiches & Hamburguesas",
+    "Sides",
+    "Pollo Kids"
+  ],
+  "drink_sections": [
+    "Bebidas"
+  ],
+  "section_expectations": [
+    {
+      "name_contains": "TostiBoneless",
+      "section_title": "Entradas"
+    },
+    {
+      "name_contains": "Cubeta Pollotera",
+      "section_title": "Pa'Compartir"
+    },
+    {
+      "name_contains": "Boneless Barbecue",
+      "section_title": "Sandwiches & Hamburguesas"
+    }
+  ],
+  "items_with_options": [
+    {
+      "name_contains": "Cubeta Pollotera",
+      "unchecked": true,
+      "options": []
+    },
+    {
+      "name_contains": "Grandes (300gr) $162 / Jumbo (600gr) $235",
+      "unchecked": true,
+      "options": []
+    }
+  ],
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  },
+  "category_expectations": [
+    {
+      "name_contains": "TostiBoneless",
+      "category": "food"
+    },
+    {
+      "name_contains": "Papas Sazonadas",
+      "category": "side"
+    },
+    {
+      "name_contains": "Boneless Jr",
+      "category": "food"
+    }
+  ],
+  "grams_expectations": [
+    {
+      "name_contains": "TostiBoneless",
+      "grams": 450
+    },
+    {
+      "name_contains": "Megacharola Boneless",
+      "grams": 1200
+    },
+    {
+      "name_contains": "PapaBoneless",
+      "grams": 600
+    },
+    {
+      "name_contains": "Papas Sazonadas",
+      "grams": 300
+    }
+  ]
+}

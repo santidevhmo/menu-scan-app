@@ -24,6 +24,9 @@ interface ExpectedFixture {
   food_items: number;
   drink_items: number;
   categories: Category[];
+  // Allowed-but-not-required food-scope categories: if they appear, they are
+  // not spurious; if they do not appear, they are not missing.
+  tolerated_categories?: Category[];
   sections: string[];
   section_headers?: string[];
   // Sections that group only drink items — captured at F3 adjudication so the
@@ -339,12 +342,17 @@ export function scoreMenu(
   const expectedCategories = new Set<Category>(
     fixture.categories.filter((category) => category !== "drink"),
   );
+  const toleratedCategories = new Set<Category>(
+    (fixture.tolerated_categories ?? []).filter((category) =>
+      category !== "drink"
+    ),
+  );
   const actualCategories = new Set(foodItems.map((item) => item.category));
   const missingCategories = [...expectedCategories].filter((category) =>
     !actualCategories.has(category)
   );
   const spuriousCategories = [...actualCategories].filter((category) =>
-    !expectedCategories.has(category)
+    !expectedCategories.has(category) && !toleratedCategories.has(category)
   );
   // ANY name-matching food item with the expected category satisfies the pin —
   // impostor/duplicate same-name cards must not steal the check (F3 lesson).
@@ -1361,6 +1369,31 @@ function runSelfCheck(): void {
       { name: "Flan", category: "dessert" },
     ])).categories.pass === false,
     "spurious category (other) must fail even when the pin is satisfied by any-match",
+  );
+  const toleratedCatFixture: ExpectedFixture = {
+    ...fixture,
+    categories: ["food"],
+    tolerated_categories: ["dessert"],
+  };
+  assert(
+    scoreMenu(toleratedCatFixture, catItems([
+      { name: "Rib Eye", category: "food" },
+      { name: "Flan", category: "dessert" },
+    ])).categories.pass,
+    "tolerated category present: dessert must not be spurious",
+  );
+  assert(
+    scoreMenu(toleratedCatFixture, catItems([
+      { name: "Rib Eye", category: "food" },
+    ])).categories.pass,
+    "tolerated category absent: dessert must not be missing",
+  );
+  assert(
+    !scoreMenu(toleratedCatFixture, catItems([
+      { name: "Rib Eye", category: "food" },
+      { name: "Soup", category: "other" },
+    ])).categories.pass,
+    "category outside required+tolerated sets must stay spurious",
   );
 
   // F4: a present price/grams key on an expected option is verified against

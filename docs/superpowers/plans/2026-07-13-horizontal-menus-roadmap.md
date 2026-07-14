@@ -35,12 +35,13 @@ Key diagnostic facts:
 - **Mode/aspect-scoped prompt changes only** (master-roadmap lesson from v6/v7): any P1 sentence added for landscape evidence must be scoped to where it was measured, never global, unless probe evidence justifies global.
 - **Cost policy:** iterate on `EVAL_MENUS`/single-menu probes ($0.05–0.30) + offline re-scoring of archived dumps and the 3 corrected drafts ($0). The 6-menu vertical suite re-runs live ONLY at the Phase-4 combined exit gate (9 menus ≈ $1.35–1.50/attempt, user-approved per attempt).
 
-## Open rulings (user) — resolve at each phase's kickoff
+## Rulings
 
-1. **Size-variant fold shape (Phase 2 kickoff):** Shape A (recommended): card = smallest printed size (its price+grams), other sizes as priced options with grams in the option name ("G (300gr)" @179, grams 300) — consistent with F2's fold (Hot Cakes precedent) and keeps every card priced for the results list. Shape B: price-less parent, ALL sizes as options. Also covers: Alitas 6/12/20 PZ, GuestHouse Parmesan filet 7oz/10oz 65/85, Seafood Plateau FOR TWO 150 / FOR THREE+ 280, Tomahawk 6.50 PER OZ (may need its own ruling — per-unit pricing, PER_UNIT_NOTE family).
-2. **Polloteria "¡Elige hasta 3 aderezos! +$15" prose option:** recommend fixture `unchecked: true` (Plato Surtido precedent) unless the user wants "papas sazonadas @15" pinned.
-3. **Detector strategy (after Phase 1 diagnosis):** prompt-rule vs deterministic assist (aspect ratio + expected-density heuristics) — decide on probe evidence, not upfront.
-4. **New-menu gate dims:** which dimensions gate the 3 new fixtures in Phase 4 (recommend: same 5 frozen dims, food-scoped, same as the vertical six).
+1. ✅ **Size-variant fold shape = Shape A (user, 2026-07-13):** card = smallest printed size (its price+grams); other sizes = priced options with grams in the option name (`{"name":"Ensalada Boneless","price":158,"grams":150,"options":[{"name":"G (300gr)","price":179,"grams":300}]}`). Covers Alitas 6/12/20 PZ, GuestHouse Parmesan filet 7oz/10oz 65/85, Seafood Plateau FOR TWO 150 / FOR THREE+ 280. Tomahawk 6.50 PER OZ = per-unit pricing (PER_UNIT_NOTE family), separate micro-ruling at Phase 2 if it surfaces. **Shape-A option pins enter the fixtures at PHASE 2 KICKOFF, not Phase 0** — the corrected drafts (= Phase-0 truth) still carry variant text embedded in titles, so pinning Shape A now would break fixture↔draft self-consistency; Phase 2's exit is precisely closing that gap.
+2. ✅ **Polloteria aderezos prose option = `unchecked: true`** (user, 2026-07-13; Plato Surtido precedent) on the Cubeta Pollotera entry.
+3. ⏳ **Detector strategy (after Phase 1 diagnosis):** prompt-rule vs deterministic assist (aspect ratio + expected-density heuristics) — decide on probe evidence, not upfront.
+4. ⏳ **New-menu gate dims** for Phase 4 (recommend: same 5 frozen dims, food-scoped, same as the vertical six).
+5. ✅ **Fixture-count decisions (user, 2026-07-13):** Bistro gates 24 food dishes (Pizzas 15 + Ensaladas 4 + Pastas 5); the 2-item "Agrega a tu pasta o ensalada" block is IGNORED (tolerated via section_headers + the ±3 items band). Polloteria: Malteadas stays inside Bebidas (drinks, ungated) → 40 food + 15 drink. GuestHouse: 48 food-scope items; Seafood Plateau = one item, section_title null. All three corrected drafts verified against manual counts 2026-07-13.
 
 ## Phases
 

@@ -258,6 +258,7 @@ export function stripMenuNumbers(
 // promo card with content survives. ponytail: $-prefix only; add currency
 // symbols per market from data.
 const PRICE_NOTE_NAME = /^\s*\$\s*\d/;
+const PRICE_NOTE_SECTION = /\$\s*\d/;
 
 export function dropPriceNoteItems(
   items: ExtractedMenuItem[],
@@ -267,6 +268,21 @@ export function dropPriceNoteItems(
       item.description.trim() === "" &&
       item.options.length === 0)
   );
+}
+
+// A section heading is never priced. When the model emits a promo/prose line
+// as section_title ("Hazlas sazonadas por $20"), keep the item but clear the
+// bogus heading. Item-level "$94 POR NIÑO" notes are handled separately by
+// dropPriceNoteItems.
+export function nullPriceNoteSections(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  return items.map((item) => ({
+    ...item,
+    section_title: item.section_title && PRICE_NOTE_SECTION.test(item.section_title)
+      ? null
+      : item.section_title,
+  }));
 }
 
 // A choice MENTION with no printed alternatives ("Tortillas a elegir",
@@ -400,9 +416,9 @@ export function postprocessItems(
   // ("Bandiola Adobada (150gr)") also get their printed weight parsed.
   return parseItemGrams(dropSiblingEchoOptions(filterServingFormatOptions(
     extractInlineChoices(
-      dropHeaderEchoes(promoteSections(foldVariantCards(
+      dropHeaderEchoes(nullPriceNoteSections(promoteSections(foldVariantCards(
         dropPriceNoteItems(stripMenuNumbers(items)),
-      ))),
+      )))),
     ),
   )));
 }
@@ -828,6 +844,21 @@ if (import.meta.main) {
   ]);
   if (priceNotes.map((i) => i.name).join("|") !== "3 Quesadillas|Tacos") {
     throw new Error(`price note: got ${priceNotes.map((i) => i.name).join("|")}`);
+  }
+  // A priced promo/prose line is not a real section heading.
+  const priceNoteSection = nullPriceNoteSections([
+    item({ name: "Tender", price: 165, section_title: "Hazlas sazonadas por $20" }),
+    item({ name: "Burger", price: 180, section_title: "Hamburguesas" }),
+    item({ name: "$94 POR NIÑO", price: 94, section_title: "Pa' los Bukis" }),
+  ]);
+  if (priceNoteSection[0].section_title !== null) {
+    throw new Error("price note section: priced promo heading must be nulled");
+  }
+  if (priceNoteSection[1].section_title !== "Hamburguesas") {
+    throw new Error("price note section: normal section must stay");
+  }
+  if (priceNoteSection[2].name !== "$94 POR NIÑO") {
+    throw new Error("price note section: item names must stay untouched");
   }
   // A price-note-named card that carries real content (desc/options) is kept.
   const priceNoteKeep = dropPriceNoteItems([

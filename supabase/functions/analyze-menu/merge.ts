@@ -88,6 +88,19 @@ function richer(a: ExtractedMenuItem, b: ExtractedMenuItem): ExtractedMenuItem {
   return { ...best, options: mergeOptions(a.options, b.options) };
 }
 
+function twinFoldCandidate(
+  a: ExtractedMenuItem,
+  b: ExtractedMenuItem,
+): boolean {
+  return a.price !== null &&
+    b.price !== null &&
+    a.price !== b.price &&
+    normalize(a.name) === normalize(b.name) &&
+    a.category === b.category &&
+    a.grams === b.grams &&
+    a.section_title === b.section_title;
+}
+
 export function mergeItemSources(
   sources: ExtractedMenuItem[][],
   sectionLenient = false,
@@ -99,7 +112,18 @@ export function mergeItemSources(
         entry.section_title ? [normalize(entry.section_title)] : [],
       ),
   );
-  const kept: { item: ExtractedMenuItem; sources: Set<number> }[] = [];
+  const sectionCounts = sources.map((source) => {
+    const counts = new Map<string | null, number>();
+    for (const entry of source) {
+      counts.set(entry.section_title, (counts.get(entry.section_title) ?? 0) + 1);
+    }
+    return counts;
+  });
+  const kept: {
+    item: ExtractedMenuItem;
+    sources: Set<number>;
+    primarySource: number;
+  }[] = [];
 
   sources.forEach((source, sourceIndex) => {
     for (const entry of source) {
@@ -111,6 +135,25 @@ export function mergeItemSources(
       )
         continue;
 
+      if (sectionLenient) {
+        const twin = kept.find((candidate) =>
+          !candidate.sources.has(sourceIndex) &&
+          twinFoldCandidate(candidate.item, entry)
+        );
+        if (twin) {
+          const currentCount =
+            sectionCounts[sourceIndex].get(entry.section_title) ?? 0;
+          const keptCount =
+            sectionCounts[twin.primarySource].get(twin.item.section_title) ?? 0;
+          if (currentCount > keptCount) {
+            twin.item = entry;
+            twin.primarySource = sourceIndex;
+          }
+          twin.sources.add(sourceIndex);
+          continue;
+        }
+      }
+
       const match = kept.find(
         (candidate) =>
           !candidate.sources.has(sourceIndex) &&
@@ -120,7 +163,11 @@ export function mergeItemSources(
         match.item = richer(match.item, entry);
         match.sources.add(sourceIndex);
       } else {
-        kept.push({ item: entry, sources: new Set([sourceIndex]) });
+        kept.push({
+          item: entry,
+          sources: new Set([sourceIndex]),
+          primarySource: sourceIndex,
+        });
       }
     }
   });

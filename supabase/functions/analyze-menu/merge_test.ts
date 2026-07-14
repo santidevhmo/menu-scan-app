@@ -6,6 +6,7 @@ const item = (
   name: string,
   price: number | null,
   description = "",
+  overrides: Partial<ExtractedMenuItem> = {},
 ): ExtractedMenuItem => ({
   name,
   description,
@@ -14,6 +15,7 @@ const item = (
   section_title: "Rollos",
   options: [],
   grams: null,
+  ...overrides,
 });
 
 Deno.test("merges exact overlap duplicates", () => {
@@ -88,4 +90,74 @@ Deno.test("sectionLenient still respects price and category gates", () => {
   const a = { ...item("Salmon Crunch", 159), section_title: "ROLLOS" };
   const b = { ...item("Salimon Crunch", 179), section_title: "EMPANIZADOS" };
   assertEquals(mergeItemSources([[a], [b]], true).length, 2);
+});
+
+Deno.test("sectionLenient twin fold keeps the copy from the richer section source", () => {
+  const sourceA = [
+    item("Nuggets", 89, "", { section_title: "Pollo Kids", grams: 200 }),
+  ];
+  const sourceB = [
+    item("Nuggets", 99, "", { section_title: "Pollo Kids", grams: 200 }),
+    item("Chicken-Little", 99, "", { section_title: "Pollo Kids", grams: 200 }),
+    item("Nuggets de Coliflor", 99, "", {
+      section_title: "Pollo Kids",
+      grams: 200,
+    }),
+  ];
+  assertEquals(
+    mergeItemSources([sourceA, sourceB], true).filter((i) => i.name === "Nuggets"),
+    [sourceB[0]],
+  );
+});
+
+Deno.test("sectionLenient twin fold keeps same-name items from different sections", () => {
+  const crispy = item("Tender", 165, "", {
+    section_title: "Crispy Chicken",
+    grams: 350,
+  });
+  const sandwich = item("Tender", 159, "", {
+    section_title: "Sandwiches & Hamburguesas",
+    grams: 350,
+  });
+  assertEquals(mergeItemSources([[crispy], [sandwich]], true).length, 2);
+});
+
+Deno.test("sectionLenient twin fold does not deduplicate same-source price variants", () => {
+  assertEquals(
+    mergeItemSources([[
+      item("Revueltos", 78, "", { section_title: "Huevos", grams: 70 }),
+      item("Revueltos", 84, "", { section_title: "Huevos", grams: 70 }),
+    ]], true).length,
+    2,
+  );
+});
+
+Deno.test("sectionLenient twin fold keeps same-name items with different grams", () => {
+  const small = item("Nuggets", 89, "", {
+    section_title: "Pollo Kids",
+    grams: 200,
+  });
+  const large = item("Nuggets", 99, "", {
+    section_title: "Pollo Kids",
+    grams: 250,
+  });
+  assertEquals(mergeItemSources([[small], [large]], true).length, 2);
+});
+
+Deno.test("non-tile merge path keeps twin-fold candidates byte-identical", () => {
+  const sourceA = [
+    item("Nuggets", 89, "", { section_title: "Pollo Kids", grams: 200 }),
+  ];
+  const sourceB = [
+    item("Nuggets", 99, "", { section_title: "Pollo Kids", grams: 200 }),
+    item("Chicken-Little", 99, "", { section_title: "Pollo Kids", grams: 200 }),
+    item("Nuggets de Coliflor", 99, "", {
+      section_title: "Pollo Kids",
+      grams: 200,
+    }),
+  ];
+  assertEquals(
+    mergeItemSources([sourceA, sourceB]),
+    [...sourceA, ...sourceB],
+  );
 });

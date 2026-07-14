@@ -124,6 +124,26 @@ export const EXTRACT_SCHEMA = {
   additionalProperties: false,
 };
 
+export const VERIFY_SCHEMA = {
+  type: "object",
+  properties: {
+    verdicts: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          index: { type: "integer" },
+          printed: { type: "boolean" },
+        },
+        required: ["index", "printed"],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["verdicts"],
+  additionalProperties: false,
+};
+
 export type CropDirection = "none" | "left_right" | "top_bottom";
 
 export interface ImageLayout {
@@ -155,6 +175,20 @@ export interface ExtractionResult {
   raw_response: string;
 }
 
+function logVerifyResult(
+  total: ExtractedMenuItem[],
+  kept: ExtractedMenuItem[],
+): void {
+  const keptSet = new Set(kept);
+  const dropped = total.filter((item) => !keptSet.has(item));
+  console.log("[verify]", {
+    kept: kept.length,
+    dropped: dropped.length,
+    total: total.length,
+    dropped_names: dropped.map((item) => item.name),
+  });
+}
+
 // Sent ONLY with cropped-tile calls (dense flow): partial cards at tile edges
 // otherwise get "reconstructed" into phantom dishes (nikkori diagnosis
 // 2026-07-11 — "Cosmo de Pollo" cut mid-card became "Pollo Roll"). The
@@ -179,6 +213,14 @@ completely: include its final printed line even when it is smaller or italic
 options). Menus also print items inside boxed or bordered insert blocks and
 sidebars; extract the items in every box exactly like items in the main
 columns.`;
+
+export const VERIFY_PROMPT =
+  `You are verifying a menu transcription against photos. The photos are overlapping
+tiles of ONE menu page. For each candidate in the JSON list, check the photos:
+set printed=false ONLY when no menu item with that name appears in any photo,
+or when the printed price for that item clearly differs from the given price.
+Judge only what is printed. Do not judge plausibility, spelling style, or
+completeness. When unsure, set printed=true.`;
 
 export async function runExtraction(
   photos: string[],
@@ -298,6 +340,100 @@ export async function extractWithRetry(
   }
 }
 
+export async function verifyTileItems(
+  tiles: string[],
+  items: ExtractedMenuItem[],
+  apiKey: string,
+): Promise<ExtractedMenuItem[]> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), MODEL_TIMEOUT_MS);
+
+    try {
+      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [{
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `${VERIFY_PROMPT}\n\n${
+                  JSON.stringify(
+                    items.map((item, index) => ({
+                      index,
+                      name: item.name,
+                      price: item.price,
+                      grams: item.grams,
+                    })),
+                  )
+                }`,
+              },
+              ...tiles.map((tile) => ({
+                type: "image_url",
+                image_url: {
+                  url: tile.startsWith("data:")
+                    ? tile
+                    : `data:image/jpeg;base64,${tile}`,
+                  detail: "high",
+                },
+              })),
+            ],
+          }],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "menu_item_verdicts",
+              strict: true,
+              schema: VERIFY_SCHEMA,
+            },
+          },
+          temperature: 0,
+          seed: EXTRACT_SEED,
+        }),
+        signal: controller.signal,
+      });
+      const json = await res.json() as {
+        error?: { message?: string };
+        choices?: { finish_reason: string; message: { content: string } }[];
+      };
+      if (!res.ok) throw new Error(json.error?.message ?? "OpenAI API error");
+
+      const choice = json.choices?.[0];
+      if (!choice) throw new Error("OpenAI returned no verification choice");
+      if (choice.finish_reason !== "stop") {
+        throw new Error(
+          `OpenAI verification stopped with finish_reason=${choice.finish_reason}`,
+        );
+      }
+      const text = choice.message.content;
+      if (!text) throw new Error("OpenAI returned no verification content");
+
+      const parsed = JSON.parse(text) as {
+        verdicts: { index: number; printed: boolean }[];
+      };
+      const droppedIndexes = new Set(
+        parsed.verdicts
+          .filter((verdict) => verdict.printed === false)
+          .map((verdict) => verdict.index),
+      );
+      const kept = items.filter((_, index) => !droppedIndexes.has(index));
+      logVerifyResult(items, kept);
+      return kept;
+    } finally {
+      clearTimeout(timeout);
+    }
+  } catch {
+    logVerifyResult(items, items);
+    return items;
+  }
+}
+
 export type PagedExtraction = ExtractionResult | { needs_crops: number[] };
 
 const DENSE_FAILURE = /timed out|finish_reason=length/;
@@ -364,6 +500,7 @@ export async function runGroupedExtraction(
   groups: string[][],
   apiKey: string,
   extract = extractWithRetry,
+  verify = verifyTileItems,
 ): Promise<ExtractionResult> {
   const groupResults = await Promise.all(groups.map(async (group, index) => {
     if (group.length === 1) {
@@ -383,7 +520,17 @@ export async function runGroupedExtraction(
     );
     // sectionLenient: tiles of one page see different heading context near
     // their edges — section conflicts must not block the overlap dedup.
-    return { calls: tiles, items: mergeItemSources(sources, true) };
+    const merged = mergeItemSources(sources, true);
+    let verified = merged;
+    try {
+      verified = await verify(group, merged, apiKey);
+    } catch {
+      logVerifyResult(merged, merged);
+    }
+    return {
+      calls: tiles,
+      items: verified,
+    };
   }));
   const allCalls = groupResults.flatMap((g) => g.calls);
   // Post-merge hygiene: header echoes (both shapes) need CROSS-tile section

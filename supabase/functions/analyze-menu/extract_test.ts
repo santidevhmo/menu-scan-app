@@ -12,6 +12,7 @@ import {
   runGroupedExtraction,
   runPagedExtraction,
   TILE_PROMPT_SUFFIX,
+  verifyTileItems,
 } from "./extract.ts";
 import type { ExtractionResult } from "./extract.ts";
 
@@ -249,6 +250,70 @@ Deno.test("extractWithRetry does not retry non-transient errors", async () => {
   assertEquals(calls, 1);
 });
 
+Deno.test("verifyTileItems drops items with printed=false verdicts", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (() =>
+    Promise.resolve(new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: {
+          content: '{"verdicts":[{"index":1,"printed":false}]}',
+        },
+      }],
+    })))) as typeof fetch;
+
+  try {
+    const kept = await verifyTileItems(
+      ["data:image/png;base64,tile"],
+      [menuItem("A", 10), menuItem("B", 20)],
+      "key",
+    );
+    assertEquals(kept, [menuItem("A", 10)]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("verifyTileItems keeps items missing from the verdict list", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (() =>
+    Promise.resolve(new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: {
+          content: '{"verdicts":[{"index":0,"printed":true}]}',
+        },
+      }],
+    })))) as typeof fetch;
+
+  try {
+    const kept = await verifyTileItems(
+      ["data:image/png;base64,tile"],
+      [menuItem("A", 10), menuItem("B", 20)],
+      "key",
+    );
+    assertEquals(kept, [menuItem("A", 10), menuItem("B", 20)]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("verifyTileItems fails open when verification throws", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (() => Promise.reject(new Error("boom"))) as typeof fetch;
+
+  try {
+    const kept = await verifyTileItems(
+      ["data:image/png;base64,tile"],
+      [menuItem("A", 10), menuItem("B", 20)],
+      "key",
+    );
+    assertEquals(kept, [menuItem("A", 10), menuItem("B", 20)]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 Deno.test("runPagedExtraction: one photo means exactly one call, default detail, passthrough", async () => {
   const seen: { photos: string[]; detail?: string }[] = [];
   const stub = ((photos: string[], _key: string, detail?: string) => {
@@ -389,6 +454,43 @@ Deno.test("runGroupedExtraction: rejects malformed group sizes", async () => {
     Error,
     "group",
   );
+});
+
+Deno.test("runGroupedExtraction: 1-photo groups never call the verifier", async () => {
+  let verifyCalls = 0;
+  const stub = (() =>
+    Promise.resolve(fakeResult({ items: [menuItem("Sopa", 80)] }))) as typeof extractWithRetry;
+  const verify = (() => {
+    verifyCalls++;
+    return Promise.resolve([menuItem("Nope", 0)]);
+  }) as typeof verifyTileItems;
+
+  const result = await runGroupedExtraction([["a"]], "key", stub, verify);
+  assertEquals(verifyCalls, 0);
+  assertEquals(result.items, [menuItem("Sopa", 80)]);
+});
+
+Deno.test("runGroupedExtraction: verifier fail-open does not reject a 4-tile scan", async () => {
+  const results: ExtractionResult[] = [
+    fakeResult({ items: [menuItem("Roll A", 100)], raw_response: "t1" }),
+    fakeResult({ items: [menuItem("Roll A", 100)], raw_response: "t2" }),
+    fakeResult({ items: [menuItem("Roll B", 120)], raw_response: "t3" }),
+    fakeResult({ items: [], raw_response: "t4" }),
+  ];
+  let call = 0;
+  const stub = (() => Promise.resolve(results[call++])) as typeof extractWithRetry;
+  let verifyCalls = 0;
+  const verify = (() => {
+    verifyCalls++;
+    return Promise.reject(new Error("boom"));
+  }) as typeof verifyTileItems;
+
+  const result = await runGroupedExtraction([["a", "b", "c", "d"]], "key", stub, verify);
+  assertEquals(verifyCalls, 1);
+  assertEquals(result.items, [
+    menuItem("Roll A", 100),
+    menuItem("Roll B", 120),
+  ]);
 });
 
 Deno.test("tile calls append TILE_PROMPT_SUFFIX; normal calls send P1 verbatim", async () => {

@@ -134,9 +134,8 @@ export const VERIFY_SCHEMA = {
         properties: {
           index: { type: "integer" },
           name_printed: { type: "boolean" },
-          price_matches: { type: "boolean" },
         },
-        required: ["index", "name_printed", "price_matches"],
+        required: ["index", "name_printed"],
         additionalProperties: false,
       },
     },
@@ -180,7 +179,6 @@ function logVerifyResult(
   total: ExtractedMenuItem[],
   kept: ExtractedMenuItem[],
   nameRejected = 0,
-  priceRejected = 0,
 ): void {
   const keptSet = new Set(kept);
   const dropped = total.filter((item) => !keptSet.has(item));
@@ -189,7 +187,6 @@ function logVerifyResult(
     dropped: dropped.length,
     total: total.length,
     name_rejected: nameRejected,
-    price_rejected: priceRejected,
     dropped_names: dropped.map((item) => item.name),
   });
 }
@@ -220,69 +217,16 @@ sidebars; extract the items in every box exactly like items in the main
 columns.`;
 
 export const VERIFY_PROMPT =
-  `You are verifying a menu transcription against photos. The photos are overlapping
-tiles of ONE menu page. For each candidate in the JSON list answer two questions
-from the photos only:
-name_printed: does this dish exist on the menu? Answer true when a printed menu
-item corresponds to this name, ignoring small spelling differences, accents,
-capitalization, and size or weight annotations like "(300gr)". Answer false only
-when no printed dish corresponds to it — for example a name that combines words
-from two different printed dishes is NOT printed.
-price_matches: is the given price consistent with what is printed for that dish?
-Answer true when the price matches, when no price is given, or when you cannot
-read the printed price clearly.
-When unsure about either answer, answer true.`;
-
-function normalizeName(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLocaleLowerCase()
-    .replace(/[^\p{Letter}\p{Number}]+/gu, " ")
-    .trim()
-    .replace(/\s+/g, " ");
-}
-
-function editDistance(a: string, b: string): number {
-  const row = Array.from({ length: b.length + 1 }, (_, index) => index);
-  for (let i = 1; i <= a.length; i++) {
-    let diagonal = row[0];
-    row[0] = i;
-    for (let j = 1; j <= b.length; j++) {
-      const above = row[j];
-      row[j] = Math.min(
-        row[j] + 1,
-        row[j - 1] + 1,
-        diagonal + Number(a[i - 1] !== b[j - 1]),
-      );
-      diagonal = above;
-    }
-  }
-  return row[b.length];
-}
-
-function sameVerifiedDishName(a: string, b: string): boolean {
-  const left = normalizeName(a);
-  const right = normalizeName(b);
-  if (left === right) return true;
-  const leftWords = left.split(" ").filter(Boolean);
-  const rightWords = right.split(" ").filter(Boolean);
-  if (
-    leftWords.length <= 1 ||
-    rightWords.length <= 1 ||
-    leftWords.length !== rightWords.length
-  ) return false;
-  let fuzzyWords = 0;
-  for (let i = 0; i < leftWords.length; i++) {
-    if (leftWords[i] === rightWords[i]) continue;
-    if (editDistance(leftWords[i], rightWords[i]) <= 1) {
-      fuzzyWords++;
-      continue;
-    }
-    return false;
-  }
-  return fuzzyWords === 1;
-}
+  `You are verifying a menu transcription against a photo. The photo is one
+cropped tile of a larger menu page; every candidate in the JSON list was
+transcribed from THIS image. For each candidate answer ONE question from the
+image only:
+name_printed: does a printed menu item in this image correspond to this name?
+Answer true when one does, ignoring small spelling differences, accents,
+capitalization, and size or weight annotations like "(300gr)". Answer false
+only when no printed dish corresponds to it — for example a name that combines
+words from two different printed dishes is NOT printed.
+When unsure, answer true.`;
 
 export async function runExtraction(
   photos: string[],
@@ -403,10 +347,11 @@ export async function extractWithRetry(
 }
 
 export async function verifyTileItems(
-  tiles: string[],
+  tile: string,
   items: ExtractedMenuItem[],
   apiKey: string,
 ): Promise<ExtractedMenuItem[]> {
+  if (items.length === 0) return items;
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), MODEL_TIMEOUT_MS);
@@ -427,16 +372,11 @@ export async function verifyTileItems(
                 type: "text",
                 text: `${VERIFY_PROMPT}\n\n${
                   JSON.stringify(
-                    items.map((item, index) => ({
-                      index,
-                      name: item.name,
-                      price: item.price,
-                      grams: item.grams,
-                    })),
+                    items.map((item, index) => ({ index, name: item.name })),
                   )
                 }`,
               },
-              ...tiles.map((tile) => ({
+              {
                 type: "image_url",
                 image_url: {
                   url: tile.startsWith("data:")
@@ -444,7 +384,7 @@ export async function verifyTileItems(
                     : `data:image/jpeg;base64,${tile}`,
                   detail: "high",
                 },
-              })),
+              },
             ],
           }],
           response_format: {
@@ -477,38 +417,15 @@ export async function verifyTileItems(
       if (!text) throw new Error("OpenAI returned no verification content");
 
       const parsed = JSON.parse(text) as {
-        verdicts: {
-          index: number;
-          name_printed: boolean;
-          price_matches: boolean;
-        }[];
+        verdicts: { index: number; name_printed: boolean }[];
       };
       const nameRejected = new Set(
         parsed.verdicts
           .filter((verdict) => verdict.name_printed === false)
           .map((verdict) => verdict.index),
       );
-      const priceRejected = new Set(
-        parsed.verdicts
-          .filter((verdict) => verdict.price_matches === false)
-          .map((verdict) => verdict.index),
-      );
-      const afterNameCheck = items.map((item, index) => ({ item, index })).filter(
-        ({ index }) => !nameRejected.has(index),
-      );
-      const kept = afterNameCheck.filter(({ item, index }) =>
-        !priceRejected.has(index) ||
-        !afterNameCheck.some(({ item: other, index: otherIndex }) =>
-          otherIndex !== index &&
-          !priceRejected.has(otherIndex) &&
-          sameVerifiedDishName(item.name, other.name)
-        )
-      ).map(({ item }) => item);
-      const droppedByPrice = afterNameCheck.filter(({ item, index }) =>
-        priceRejected.has(index) &&
-        !kept.includes(item)
-      ).length;
-      logVerifyResult(items, kept, nameRejected.size, droppedByPrice);
+      const kept = items.filter((_, index) => !nameRejected.has(index));
+      logVerifyResult(items, kept, nameRejected.size);
       return kept;
     } finally {
       clearTimeout(timeout);
@@ -600,21 +517,26 @@ export async function runGroupedExtraction(
     const tiles = await Promise.all(
       group.map((tile) => extract([tile], apiKey, "high", undefined, true)),
     );
-    const sources = tiles.map((t) =>
-      t.items.filter((i) => i.category !== "drink")
-    );
+    // Verify PRE-merge, per tile: each tile's raw items are checked against
+    // that single tile image (v3, eval 064 — one image + a dozen names is a
+    // tractable task; 4 overlapping images + 50 names was not). A phantom
+    // dies at its source tile before it can fold into a merged item; a real
+    // dish flake-rejected in one tile survives via its overlap-tile copy.
+    const sources = await Promise.all(tiles.map(async (t, tileIndex) => {
+      const items = t.items.filter((i) => i.category !== "drink");
+      try {
+        return await verify(group[tileIndex], items, apiKey);
+      } catch {
+        logVerifyResult(items, items);
+        return items;
+      }
+    }));
     // sectionLenient: tiles of one page see different heading context near
     // their edges — section conflicts must not block the overlap dedup.
     const merged = mergeItemSources(sources, true);
-    let verified = merged;
-    try {
-      verified = await verify(group, merged, apiKey);
-    } catch {
-      logVerifyResult(merged, merged);
-    }
     return {
       calls: tiles,
-      items: verified,
+      items: merged,
     };
   }));
   const allCalls = groupResults.flatMap((g) => g.calls);

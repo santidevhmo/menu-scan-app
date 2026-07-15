@@ -257,119 +257,18 @@ Deno.test("verifyTileItems drops items with name_printed=false verdicts", async 
       choices: [{
         finish_reason: "stop",
         message: {
-          content:
-            '{"verdicts":[{"index":1,"name_printed":false,"price_matches":true}]}',
+          content: '{"verdicts":[{"index":1,"name_printed":false}]}',
         },
       }],
     })))) as typeof fetch;
 
   try {
     const kept = await verifyTileItems(
-      ["data:image/png;base64,tile"],
+      "data:image/png;base64,tile",
       [menuItem("A", 10), menuItem("B", 20)],
       "key",
     );
     assertEquals(kept, [menuItem("A", 10)]);
-  } finally {
-    globalThis.fetch = originalFetch;
-  }
-});
-
-Deno.test("verifyTileItems keeps a unique item when only price_matches=false", async () => {
-  const originalFetch = globalThis.fetch;
-  globalThis.fetch = (() =>
-    Promise.resolve(new Response(JSON.stringify({
-      choices: [{
-        finish_reason: "stop",
-        message: {
-          content:
-            '{"verdicts":[{"index":0,"name_printed":true,"price_matches":false}]}',
-        },
-      }],
-    })))) as typeof fetch;
-
-  try {
-    const kept = await verifyTileItems(
-      ["data:image/png;base64,tile"],
-      [menuItem("A", 10), menuItem("B", 20)],
-      "key",
-    );
-    assertEquals(kept, [menuItem("A", 10), menuItem("B", 20)]);
-  } finally {
-    globalThis.fetch = originalFetch;
-  }
-});
-
-Deno.test("verifyTileItems drops only the price-rejected twin when a verified sibling exists", async () => {
-  const originalFetch = globalThis.fetch;
-  globalThis.fetch = (() =>
-    Promise.resolve(new Response(JSON.stringify({
-      choices: [{
-        finish_reason: "stop",
-        message: {
-          content:
-            '{"verdicts":[{"index":0,"name_printed":true,"price_matches":false},{"index":1,"name_printed":true,"price_matches":true}]}',
-        },
-      }],
-    })))) as typeof fetch;
-
-  try {
-    const kept = await verifyTileItems(
-      ["data:image/png;base64,tile"],
-      [menuItem("Cheesy Bacon", 159), menuItem("Cheesy Bacon", 169)],
-      "key",
-    );
-    assertEquals(kept, [menuItem("Cheesy Bacon", 169)]);
-  } finally {
-    globalThis.fetch = originalFetch;
-  }
-});
-
-Deno.test("verifyTileItems keeps both twins when both are price-rejected", async () => {
-  const originalFetch = globalThis.fetch;
-  globalThis.fetch = (() =>
-    Promise.resolve(new Response(JSON.stringify({
-      choices: [{
-        finish_reason: "stop",
-        message: {
-          content:
-            '{"verdicts":[{"index":0,"name_printed":true,"price_matches":false},{"index":1,"name_printed":true,"price_matches":false}]}',
-        },
-      }],
-    })))) as typeof fetch;
-
-  try {
-    const kept = await verifyTileItems(
-      ["data:image/png;base64,tile"],
-      [menuItem("Cheesy Bacon", 159), menuItem("Cheesy Bacon", 169)],
-      "key",
-    );
-    assertEquals(kept, [menuItem("Cheesy Bacon", 159), menuItem("Cheesy Bacon", 169)]);
-  } finally {
-    globalThis.fetch = originalFetch;
-  }
-});
-
-Deno.test("verifyTileItems uses one-indel matching for price-rejected twins", async () => {
-  const originalFetch = globalThis.fetch;
-  globalThis.fetch = (() =>
-    Promise.resolve(new Response(JSON.stringify({
-      choices: [{
-        finish_reason: "stop",
-        message: {
-          content:
-            '{"verdicts":[{"index":0,"name_printed":true,"price_matches":false},{"index":1,"name_printed":true,"price_matches":true}]}',
-        },
-      }],
-    })))) as typeof fetch;
-
-  try {
-    const kept = await verifyTileItems(
-      ["data:image/png;base64,tile"],
-      [menuItem("Cheesy Bacon", 159), menuItem("Cheesey Bacon", 169)],
-      "key",
-    );
-    assertEquals(kept, [menuItem("Cheesey Bacon", 169)]);
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -382,15 +281,14 @@ Deno.test("verifyTileItems keeps items missing from the verdict list", async () 
       choices: [{
         finish_reason: "stop",
         message: {
-          content:
-            '{"verdicts":[{"index":0,"name_printed":true,"price_matches":true}]}',
+          content: '{"verdicts":[{"index":0,"name_printed":true}]}',
         },
       }],
     })))) as typeof fetch;
 
   try {
     const kept = await verifyTileItems(
-      ["data:image/png;base64,tile"],
+      "data:image/png;base64,tile",
       [menuItem("A", 10), menuItem("B", 20)],
       "key",
     );
@@ -406,11 +304,61 @@ Deno.test("verifyTileItems fails open when verification throws", async () => {
 
   try {
     const kept = await verifyTileItems(
-      ["data:image/png;base64,tile"],
+      "data:image/png;base64,tile",
       [menuItem("A", 10), menuItem("B", 20)],
       "key",
     );
     assertEquals(kept, [menuItem("A", 10), menuItem("B", 20)]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("verifyTileItems sends exactly one image and name-only candidates", async () => {
+  const originalFetch = globalThis.fetch;
+  // deno-lint-ignore no-explicit-any
+  let sentContent: any[] = [];
+  globalThis.fetch = (async (input, init) => {
+    const request = new Request(input, init);
+    const body = JSON.parse(await request.text());
+    sentContent = body.messages[0].content;
+    return new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: { content: '{"verdicts":[]}' },
+      }],
+    }));
+  }) as typeof fetch;
+
+  try {
+    await verifyTileItems(
+      "data:image/png;base64,tile",
+      [menuItem("A", 10)],
+      "key",
+    );
+    const images = sentContent.filter((part) => part.type === "image_url");
+    assertEquals(images.length, 1);
+    const candidates = JSON.parse(
+      sentContent[0].text.slice(sentContent[0].text.indexOf("[")),
+    );
+    assertEquals(candidates, [{ index: 0, name: "A" }]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("verifyTileItems skips the API call for an empty tile", async () => {
+  const originalFetch = globalThis.fetch;
+  let fetchCalls = 0;
+  globalThis.fetch = (() => {
+    fetchCalls++;
+    return Promise.reject(new Error("should not be called"));
+  }) as typeof fetch;
+
+  try {
+    const kept = await verifyTileItems("data:image/png;base64,tile", [], "key");
+    assertEquals(kept, []);
+    assertEquals(fetchCalls, 0);
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -588,11 +536,35 @@ Deno.test("runGroupedExtraction: verifier fail-open does not reject a 4-tile sca
   }) as typeof verifyTileItems;
 
   const result = await runGroupedExtraction([["a", "b", "c", "d"]], "key", stub, verify);
-  assertEquals(verifyCalls, 1);
+  assertEquals(verifyCalls, 4);
   assertEquals(result.items, [
     menuItem("Roll A", 100),
     menuItem("Roll B", 120),
   ]);
+});
+
+Deno.test("runGroupedExtraction: verifies each tile pre-merge, phantoms die at source", async () => {
+  const results: ExtractionResult[] = [
+    fakeResult({
+      items: [menuItem("Roll A", 100), menuItem("Phantom Roll", 50)],
+      raw_response: "t1",
+    }),
+    fakeResult({ items: [menuItem("Roll A", 100)], raw_response: "t2" }),
+    fakeResult({ items: [menuItem("Roll B", 120)], raw_response: "t3" }),
+    fakeResult({ items: [], raw_response: "t4" }),
+  ];
+  let call = 0;
+  const stub = (() => Promise.resolve(results[call++])) as typeof extractWithRetry;
+  const seen: string[][] = [];
+  const verify = ((_tile: string, items: ExtractionResult["items"]) => {
+    seen.push(items.map((i) => i.name));
+    return Promise.resolve(items.filter((i) => i.name !== "Phantom Roll"));
+  }) as typeof verifyTileItems;
+
+  const result = await runGroupedExtraction([["a", "b", "c", "d"]], "key", stub, verify);
+  assertEquals(seen.length, 4);
+  assertEquals(seen[0], ["Roll A", "Phantom Roll"]);
+  assertEquals(result.items, [menuItem("Roll A", 100), menuItem("Roll B", 120)]);
 });
 
 Deno.test("tile calls append TILE_PROMPT_SUFFIX; normal calls send P1 verbatim", async () => {

@@ -78,6 +78,11 @@
       "name_contains": "El Tender",
       "unchecked": true,
       "options": []
+    },
+    {
+      "name_contains": "Alitas",
+      "unchecked": true,
+      "options": []
     }
   ],
   "image_quality": {

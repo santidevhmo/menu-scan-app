@@ -1,11 +1,15 @@
 import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
+  dropOptionEchoItems,
   filterServingFormatOptions,
   stripMenuNumbers,
 } from "./postprocess.ts";
 import type { ExtractedMenuItem } from "./extract.ts";
 
-const item = (name: string): ExtractedMenuItem => ({
+const item = (
+  name: string,
+  overrides: Partial<ExtractedMenuItem> = {},
+): ExtractedMenuItem => ({
   name,
   description: "",
   price: 10,
@@ -13,6 +17,7 @@ const item = (name: string): ExtractedMenuItem => ({
   section_title: null,
   options: [],
   grams: null,
+  ...overrides,
 });
 
 const withOptions = (
@@ -83,4 +88,55 @@ Deno.test("removes observed serving formats with quantities", () => {
   ];
   assertEquals(filterServingFormatOptions(items)[0].options, []);
   assertEquals(filterServingFormatOptions(items)[1].options, []);
+});
+
+Deno.test("dropOptionEchoItems drops a bare item duplicating another item's option (eval 065: Paletas flavors)", () => {
+  const parent = item("Paletas Heladas Agua", {
+    price: 20,
+    options: [
+      { name: "Uva", price: null, grams: null },
+      { name: "Piña", price: null, grams: null },
+    ],
+  });
+  const echo = item("Uva", { price: 20, options: [] });
+  assertEquals(dropOptionEchoItems([parent, echo]), [parent]);
+});
+
+Deno.test("dropOptionEchoItems keeps a standalone whose price disagrees (combo guard)", () => {
+  const combo = item("Combo Familiar", {
+    price: 300,
+    options: [{ name: "Pizza de Pepperoni", price: null, grams: null }],
+  });
+  const dish = item("Pizza de Pepperoni", { price: 280, options: [] });
+  assertEquals(dropOptionEchoItems([combo, dish]), [combo, dish]);
+});
+
+Deno.test("dropOptionEchoItems matches option names with their own printed price", () => {
+  const parent = item("Paletas Heladas Crema", {
+    price: 30,
+    options: [{ name: "Yoghurt con Cajeta", price: 30, grams: null }],
+  });
+  const echo = item("Yoghurt con Cajeta", { price: 30, options: [] });
+  assertEquals(dropOptionEchoItems([parent, echo]), [parent]);
+});
+
+Deno.test("dropOptionEchoItems never drops items that have their own options", () => {
+  const parent = item("Paletas Heladas Agua", {
+    price: 20,
+    options: [{ name: "Combinada", price: null, grams: null }],
+  });
+  const alsoParent = item("Combinada", {
+    price: 20,
+    options: [{ name: "Fresa-Vainilla", price: null, grams: null }],
+  });
+  assertEquals(dropOptionEchoItems([parent, alsoParent]), [parent, alsoParent]);
+});
+
+Deno.test("dropOptionEchoItems ignores unmatched option names", () => {
+  const parent = item("Tacos", {
+    price: 50,
+    options: [{ name: "Pizza de Pepperoni", price: null, grams: null }],
+  });
+  const dish = item("Pizza", { price: 50, options: [] });
+  assertEquals(dropOptionEchoItems([parent, dish]), [parent, dish]);
 });

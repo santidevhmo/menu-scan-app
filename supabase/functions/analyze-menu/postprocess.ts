@@ -385,6 +385,30 @@ export function dropBannerEchoOptions(
   }));
 }
 
+// A tile can read a multi-flavor card as one item with options while its
+// overlap twin reads the flavors as standalone items (eval 065: "Paletas
+// Heladas Agua" opts=[Uva, Piña…] vs standalone "Uva" $20). The echo
+// duplicates an option of another kept item, so drop it on exact normalized
+// name match plus price agreement (the option's own price, or the parent's
+// price when the option is unpriced). A bare item that itself has options
+// is a real card, not an echo.
+export function dropOptionEchoItems(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  return items.filter((item) =>
+    item.options.length > 0 ||
+    !items.some((parent) =>
+      parent !== item &&
+      parent.options.some((option) =>
+        normalizeName(option.name) === normalizeName(item.name) &&
+        (option.price !== null
+          ? option.price === item.price
+          : parent.price === item.price)
+      )
+    )
+  );
+}
+
 // Printed weight convention: a number followed by g/gr/grs/kg ("600g",
 // "70 gr.", "1kg"). Volumes (ml/L/oz) and "mg" are NOT grams. Name wins over
 // description; first match wins.

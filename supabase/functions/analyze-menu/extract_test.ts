@@ -567,6 +567,34 @@ Deno.test("runGroupedExtraction: verifies each tile pre-merge, phantoms die at s
   assertEquals(result.items, [menuItem("Roll A", 100), menuItem("Roll B", 120)]);
 });
 
+Deno.test("runGroupedExtraction: drops standalone option echoes after tile merge", async () => {
+  const results: ExtractionResult[] = [
+    fakeResult({
+      items: [{
+        ...menuItem("Paletas Heladas Agua", 20),
+        options: [{ name: "Uva", price: null, grams: null }],
+      }],
+      raw_response: "t1",
+    }),
+    fakeResult({
+      items: [menuItem("Uva", 20)],
+      raw_response: "t2",
+    }),
+    fakeResult({ items: [], raw_response: "t3" }),
+    fakeResult({ items: [], raw_response: "t4" }),
+  ];
+  let call = 0;
+  const stub = (() => Promise.resolve(results[call++])) as typeof extractWithRetry;
+  const verify = ((_tile: string, items: ExtractionResult["items"]) =>
+    Promise.resolve(items)) as typeof verifyTileItems;
+
+  const result = await runGroupedExtraction([["a", "b", "c", "d"]], "key", stub, verify);
+  assertEquals(result.items, [{
+    ...menuItem("Paletas Heladas Agua", 20),
+    options: [{ name: "Uva", price: null, grams: null }],
+  }]);
+});
+
 Deno.test("tile calls append TILE_PROMPT_SUFFIX; normal calls send P1 verbatim", async () => {
   const originalFetch = globalThis.fetch;
   const prompts: string[] = [];

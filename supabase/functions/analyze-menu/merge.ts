@@ -114,6 +114,8 @@ function twinFoldCandidate(
   return a.price !== null &&
     b.price !== null &&
     a.price !== b.price &&
+    a.grams !== null &&
+    b.grams !== null &&
     (eitherSectionUnknown
       ? nearName(a.name, b.name)
       : sameSection

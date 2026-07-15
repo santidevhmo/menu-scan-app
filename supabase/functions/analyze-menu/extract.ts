@@ -1,7 +1,7 @@
 import {
-  dropOptionEchoItems,
   dropBannerEchoOptions,
   dropHeaderEchoes,
+  dropOptionEchoItems,
   postprocessItems,
   remapTruncatedSectionTitles,
 } from "./postprocess.ts";
@@ -438,6 +438,35 @@ export async function verifyTileItems(
   }
 }
 
+const VERIFY_OVERLOAD_THRESHOLD = 24;
+const VERIFY_BATCH_SIZE = 12;
+
+export async function verifyTileItemsBatched(
+  tile: string,
+  items: ExtractedMenuItem[],
+  apiKey: string,
+  verify: typeof verifyTileItems = verifyTileItems,
+): Promise<ExtractedMenuItem[]> {
+  if (items.length <= VERIFY_OVERLOAD_THRESHOLD) {
+    return await verify(tile, items, apiKey);
+  }
+
+  const batches = Array.from(
+    { length: Math.ceil(items.length / VERIFY_BATCH_SIZE) },
+    (_, index) =>
+      items.slice(
+        index * VERIFY_BATCH_SIZE,
+        (index + 1) * VERIFY_BATCH_SIZE,
+      ),
+  );
+
+  return (
+    await Promise.all(
+      batches.map((batch) => verify(tile, batch, apiKey)),
+    )
+  ).flat();
+}
+
 export type PagedExtraction = ExtractionResult | { needs_crops: number[] };
 
 const DENSE_FAILURE = /timed out|finish_reason=length/;
@@ -510,7 +539,14 @@ export async function runGroupedExtraction(
     if (group.length === 1) {
       // A 1-photo group is always one page of a multi-page scan (a single
       // dense page arrives as its 4 tiles) — same page mode as phase 1.
-      const result = await extract(group, apiKey, undefined, undefined, false, true);
+      const result = await extract(
+        group,
+        apiKey,
+        undefined,
+        undefined,
+        false,
+        true,
+      );
       return { calls: [result], items: result.items };
     }
     if (group.length !== 4) {
@@ -524,10 +560,17 @@ export async function runGroupedExtraction(
     // tractable task; 4 overlapping images + 50 names was not). A phantom
     // dies at its source tile before it can fold into a merged item; a real
     // dish flake-rejected in one tile survives via its overlap-tile copy.
+    // Lists over 24 candidates are split into ordered batches of at most 12 so
+    // one unusually dense tile does not overload the name-verification task.
     const sources = await Promise.all(tiles.map(async (t, tileIndex) => {
       const items = t.items.filter((i) => i.category !== "drink");
       try {
-        return await verify(group[tileIndex], items, apiKey);
+        return await verifyTileItemsBatched(
+          group[tileIndex],
+          items,
+          apiKey,
+          verify,
+        );
       } catch {
         logVerifyResult(items, items);
         return items;

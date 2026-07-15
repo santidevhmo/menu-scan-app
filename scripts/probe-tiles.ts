@@ -36,7 +36,7 @@ const DIMS: ScoredDim[] = [
   "categories",
   "grams",
 ];
-const DUMP_TAG = "eval067";
+const DUMP_TAG = "eval068";
 
 function colStripRects(w: number, h: number): CropRect[] {
   const tileW = Math.round(w * 0.4);

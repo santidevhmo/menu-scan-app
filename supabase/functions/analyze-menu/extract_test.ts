@@ -13,6 +13,7 @@ import {
   runPagedExtraction,
   TILE_PROMPT_SUFFIX,
   verifyTileItems,
+  verifyTileItemsBatched,
 } from "./extract.ts";
 import type { ExtractionResult } from "./extract.ts";
 
@@ -150,12 +151,14 @@ Deno.test("extraction schema requires image_layout", () => {
 Deno.test("runExtraction rejects truncated model output before JSON parsing", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = (() =>
-    Promise.resolve(new Response(JSON.stringify({
-      choices: [{
-        finish_reason: "length",
-        message: { content: '{"image_quality":' },
-      }],
-    })))) as typeof fetch;
+    Promise.resolve(
+      new Response(JSON.stringify({
+        choices: [{
+          finish_reason: "length",
+          message: { content: '{"image_quality":' },
+        }],
+      })),
+    )) as typeof fetch;
 
   try {
     await assertRejects(
@@ -187,7 +190,9 @@ Deno.test("crop extraction invokes one model call per crop", async () => {
   assertEquals(regions.length, 2);
 });
 
-const fakeResult = (over: Partial<ExtractionResult> = {}): ExtractionResult => ({
+const fakeResult = (
+  over: Partial<ExtractionResult> = {},
+): ExtractionResult => ({
   image_quality: { usable: true, issues: [] },
   image_layout: { dense: false, crop_direction: "none" },
   items: [],
@@ -253,14 +258,16 @@ Deno.test("extractWithRetry does not retry non-transient errors", async () => {
 Deno.test("verifyTileItems drops items with name_printed=false verdicts", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = (() =>
-    Promise.resolve(new Response(JSON.stringify({
-      choices: [{
-        finish_reason: "stop",
-        message: {
-          content: '{"verdicts":[{"index":1,"name_printed":false}]}',
-        },
-      }],
-    })))) as typeof fetch;
+    Promise.resolve(
+      new Response(JSON.stringify({
+        choices: [{
+          finish_reason: "stop",
+          message: {
+            content: '{"verdicts":[{"index":1,"name_printed":false}]}',
+          },
+        }],
+      })),
+    )) as typeof fetch;
 
   try {
     const kept = await verifyTileItems(
@@ -277,14 +284,16 @@ Deno.test("verifyTileItems drops items with name_printed=false verdicts", async 
 Deno.test("verifyTileItems keeps items missing from the verdict list", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = (() =>
-    Promise.resolve(new Response(JSON.stringify({
-      choices: [{
-        finish_reason: "stop",
-        message: {
-          content: '{"verdicts":[{"index":0,"name_printed":true}]}',
-        },
-      }],
-    })))) as typeof fetch;
+    Promise.resolve(
+      new Response(JSON.stringify({
+        choices: [{
+          finish_reason: "stop",
+          message: {
+            content: '{"verdicts":[{"index":0,"name_printed":true}]}',
+          },
+        }],
+      })),
+    )) as typeof fetch;
 
   try {
     const kept = await verifyTileItems(
@@ -364,6 +373,94 @@ Deno.test("verifyTileItems skips the API call for an empty tile", async () => {
   }
 });
 
+Deno.test("verifyTileItemsBatched keeps 24 candidates in one verifier call", async () => {
+  const items = Array.from(
+    { length: 24 },
+    (_, index) => menuItem(`Item ${index}`, index),
+  );
+  const batchSizes: number[] = [];
+  const verify = ((
+    _tile: string,
+    batch: ExtractionResult["items"],
+  ) => {
+    batchSizes.push(batch.length);
+    return Promise.resolve(batch);
+  }) as typeof verifyTileItems;
+
+  const kept = await verifyTileItemsBatched(
+    "data:image/png;base64,tile",
+    items,
+    "key",
+    verify,
+  );
+
+  assertEquals(batchSizes, [24]);
+  assertEquals(kept, items);
+});
+
+Deno.test("verifyTileItemsBatched splits 36 candidates into ordered batches of 12", async () => {
+  const items = Array.from(
+    { length: 36 },
+    (_, index) => menuItem(`Item ${index}`, index),
+  );
+  const batches: string[][] = [];
+  const verify = ((
+    _tile: string,
+    batch: ExtractionResult["items"],
+  ) => {
+    batches.push(batch.map((item) => item.name));
+    return Promise.resolve(batch);
+  }) as typeof verifyTileItems;
+
+  const kept = await verifyTileItemsBatched(
+    "data:image/png;base64,tile",
+    items,
+    "key",
+    verify,
+  );
+
+  assertEquals(batches.map((batch) => batch.length), [12, 12, 12]);
+  assertEquals(batches.flat(), items.map((item) => item.name));
+  assertEquals(kept, items);
+});
+
+Deno.test("runGroupedExtraction batches an overloaded tile before verification", async () => {
+  const overloaded = Array.from(
+    { length: 36 },
+    (_, index) => menuItem(`Candidate ${index}`, index),
+  );
+  const results: ExtractionResult[] = [
+    fakeResult({ items: overloaded, raw_response: "t1" }),
+    fakeResult({ items: [], raw_response: "t2" }),
+    fakeResult({ items: [], raw_response: "t3" }),
+    fakeResult({ items: [], raw_response: "t4" }),
+  ];
+  let call = 0;
+  const stub =
+    (() => Promise.resolve(results[call++])) as typeof extractWithRetry;
+  const batchSizes: number[] = [];
+  const verify = ((
+    _tile: string,
+    batch: ExtractionResult["items"],
+  ) => {
+    if (batch.length > 0) batchSizes.push(batch.length);
+    return Promise.resolve(batch);
+  }) as typeof verifyTileItems;
+
+  const result = await runGroupedExtraction(
+    [["a", "b", "c", "d"]],
+    "key",
+    stub,
+    verify,
+  );
+
+  assertEquals(batchSizes, [12, 12, 12]);
+  assertEquals(
+    result.items.map((item) => item.name),
+    overloaded.map((item) => item.name),
+  );
+});
+
 Deno.test("runPagedExtraction: one photo means exactly one call, default detail, passthrough", async () => {
   const seen: { photos: string[]; detail?: string }[] = [];
   const stub = ((photos: string[], _key: string, detail?: string) => {
@@ -408,7 +505,10 @@ Deno.test("runPagedExtraction: N photos means N high-detail single-photo calls, 
     menuItem("Sopa", 80),
   ]);
   // ONE quality verdict: any unusable page means unusable; issues deduped.
-  assertEquals(result.image_quality, { usable: false, issues: ["glare", "blur"] });
+  assertEquals(result.image_quality, {
+    usable: false,
+    issues: ["glare", "blur"],
+  });
   assertEquals(result.image_layout, { dense: false, crop_direction: "none" });
   // Raw payloads preserved per page as a JSON array string.
   assertEquals(JSON.parse(result.raw_response), ["r1", "r2"]);
@@ -439,8 +539,9 @@ Deno.test("runPagedExtraction: terminal length failure is a dense signal", async
 });
 
 Deno.test("runPagedExtraction: non-dense terminal failure still throws", async () => {
-  const stub = (() =>
-    Promise.reject(new Error("OpenAI API error"))) as typeof extractWithRetry;
+  const stub =
+    (() =>
+      Promise.reject(new Error("OpenAI API error"))) as typeof extractWithRetry;
   await assertRejects(
     () => runPagedExtraction(["a"], "key", stub),
     Error,
@@ -509,7 +610,9 @@ Deno.test("runGroupedExtraction: rejects malformed group sizes", async () => {
 Deno.test("runGroupedExtraction: 1-photo groups never call the verifier", async () => {
   let verifyCalls = 0;
   const stub = (() =>
-    Promise.resolve(fakeResult({ items: [menuItem("Sopa", 80)] }))) as typeof extractWithRetry;
+    Promise.resolve(
+      fakeResult({ items: [menuItem("Sopa", 80)] }),
+    )) as typeof extractWithRetry;
   const verify = (() => {
     verifyCalls++;
     return Promise.resolve([menuItem("Nope", 0)]);
@@ -528,14 +631,20 @@ Deno.test("runGroupedExtraction: verifier fail-open does not reject a 4-tile sca
     fakeResult({ items: [], raw_response: "t4" }),
   ];
   let call = 0;
-  const stub = (() => Promise.resolve(results[call++])) as typeof extractWithRetry;
+  const stub =
+    (() => Promise.resolve(results[call++])) as typeof extractWithRetry;
   let verifyCalls = 0;
   const verify = (() => {
     verifyCalls++;
     return Promise.reject(new Error("boom"));
   }) as typeof verifyTileItems;
 
-  const result = await runGroupedExtraction([["a", "b", "c", "d"]], "key", stub, verify);
+  const result = await runGroupedExtraction(
+    [["a", "b", "c", "d"]],
+    "key",
+    stub,
+    verify,
+  );
   assertEquals(verifyCalls, 4);
   assertEquals(result.items, [
     menuItem("Roll A", 100),
@@ -554,17 +663,26 @@ Deno.test("runGroupedExtraction: verifies each tile pre-merge, phantoms die at s
     fakeResult({ items: [], raw_response: "t4" }),
   ];
   let call = 0;
-  const stub = (() => Promise.resolve(results[call++])) as typeof extractWithRetry;
+  const stub =
+    (() => Promise.resolve(results[call++])) as typeof extractWithRetry;
   const seen: string[][] = [];
   const verify = ((_tile: string, items: ExtractionResult["items"]) => {
     seen.push(items.map((i) => i.name));
     return Promise.resolve(items.filter((i) => i.name !== "Phantom Roll"));
   }) as typeof verifyTileItems;
 
-  const result = await runGroupedExtraction([["a", "b", "c", "d"]], "key", stub, verify);
+  const result = await runGroupedExtraction(
+    [["a", "b", "c", "d"]],
+    "key",
+    stub,
+    verify,
+  );
   assertEquals(seen.length, 4);
   assertEquals(seen[0], ["Roll A", "Phantom Roll"]);
-  assertEquals(result.items, [menuItem("Roll A", 100), menuItem("Roll B", 120)]);
+  assertEquals(result.items, [
+    menuItem("Roll A", 100),
+    menuItem("Roll B", 120),
+  ]);
 });
 
 Deno.test("runGroupedExtraction: drops standalone option echoes after tile merge", async () => {
@@ -584,11 +702,18 @@ Deno.test("runGroupedExtraction: drops standalone option echoes after tile merge
     fakeResult({ items: [], raw_response: "t4" }),
   ];
   let call = 0;
-  const stub = (() => Promise.resolve(results[call++])) as typeof extractWithRetry;
-  const verify = ((_tile: string, items: ExtractionResult["items"]) =>
-    Promise.resolve(items)) as typeof verifyTileItems;
+  const stub =
+    (() => Promise.resolve(results[call++])) as typeof extractWithRetry;
+  const verify =
+    ((_tile: string, items: ExtractionResult["items"]) =>
+      Promise.resolve(items)) as typeof verifyTileItems;
 
-  const result = await runGroupedExtraction([["a", "b", "c", "d"]], "key", stub, verify);
+  const result = await runGroupedExtraction(
+    [["a", "b", "c", "d"]],
+    "key",
+    stub,
+    verify,
+  );
   assertEquals(result.items, [{
     ...menuItem("Paletas Heladas Agua", 20),
     options: [{ name: "Uva", price: null, grams: null }],

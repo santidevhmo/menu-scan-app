@@ -19,7 +19,6 @@
   "sections": [
     "Entradas",
     "Pa'Compartir",
-    "Ensaladas",
     "Crispy Chicken",
     "Especialidades",
     "Sandwiches & Hamburguesas",
@@ -30,6 +29,7 @@
     "Bebidas"
   ],
   "section_headers": [
+    "Ensaladas",
     "Paletas Heladas",
     "Hamburguesas",
     "Acompañadas de Papas"

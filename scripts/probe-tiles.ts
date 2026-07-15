@@ -8,12 +8,18 @@
 // Usage: deno run --allow-read --allow-write --allow-env --allow-net \
 //   --allow-run scripts/probe-tiles.ts
 import { runGroupedExtraction } from "../supabase/functions/analyze-menu/extract.ts";
-import { gridCropRects, type CropRect } from "../src/lib/adaptiveExtraction.ts";
+import { type CropRect, gridCropRects } from "../src/lib/adaptiveExtraction.ts";
 import { scoreMenu } from "./eval-extraction.ts";
 import { MENU_DIR } from "./photo-input.ts";
+import { buildProbeDump } from "./probe-output.ts";
 
 type Fixture = Parameters<typeof scoreMenu>[0];
-type ScoredDim = "items" | "options" | "section_context" | "categories" | "grams";
+type ScoredDim =
+  | "items"
+  | "options"
+  | "section_context"
+  | "categories"
+  | "grams";
 
 const apiKey = Deno.env.get("OPENAI_API_KEY")!;
 const tmp = await Deno.makeTempDir({ prefix: "tiles-" });
@@ -30,6 +36,7 @@ const DIMS: ScoredDim[] = [
   "categories",
   "grams",
 ];
+const DUMP_TAG = "eval067";
 
 function colStripRects(w: number, h: number): CropRect[] {
   const tileW = Math.round(w * 0.4);
@@ -91,7 +98,9 @@ async function cutTiles(rects: CropRect[], tag: string): Promise<string[]> {
       "--out",
       out,
     ]);
-    tiles.push(`data:image/png;base64,${(await Deno.readFile(out)).toBase64()}`);
+    tiles.push(
+      `data:image/png;base64,${(await Deno.readFile(out)).toBase64()}`,
+    );
   }
   return tiles;
 }
@@ -102,8 +111,11 @@ const GEOMETRIES = [
 ];
 
 for (const g of GEOMETRIES) {
-  console.log(`\n===== GEOMETRY: ${g.key} rects=${JSON.stringify(g.rects)} =====`);
+  console.log(
+    `\n===== GEOMETRY: ${g.key} rects=${JSON.stringify(g.rects)} =====`,
+  );
   const tiles = await cutTiles(g.rects, g.key);
+
   for (let run = 1; run <= 3; run++) {
     try {
       const result = await runGroupedExtraction([tiles], apiKey);
@@ -115,25 +127,33 @@ for (const g of GEOMETRIES) {
       const detail = DIMS.map((d) => `${d}=${report[d].pass ? "P" : "F"}`).join(
         " ",
       );
+      const dumpPath =
+        `${MENU_DIR}/polloteria.tiles-${g.key}-${DUMP_TAG}-r${run}.actual.json`;
+
+      await Deno.writeTextFile(
+        dumpPath,
+        `${JSON.stringify(buildProbeDump(result), null, 2)}\n`,
+      );
+
       console.log(
         `${g.key} run ${run}: ${detail}; ${
           fails.length === 0 ? "ALL PASS" : `FAIL ${fails.join(",")}`
-        }`,
+        }; dump=${dumpPath}`,
       );
+
       if (fails.length > 0) {
-        await Deno.writeTextFile(
-          `${MENU_DIR}/polloteria.tiles-${g.key}-r${run}.actual.json`,
-          `${JSON.stringify({
-            image_quality: result.image_quality,
-            items: result.items,
-          }, null, 2)}\n`,
-        );
         for (const d of fails) {
           console.log(`  ${d}: ${report[d].detail}`);
         }
+        console.log(
+          "stopping after first scored failure; diagnostic trace captured",
+        );
+        break;
       }
     } catch (error) {
-      console.log(`${g.key} run ${run}: TERMINAL ${String(error).slice(0, 100)}`);
+      console.log(
+        `${g.key} run ${run}: TERMINAL ${String(error).slice(0, 100)}`,
+      );
     }
   }
 }

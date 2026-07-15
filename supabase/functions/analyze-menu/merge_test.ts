@@ -144,6 +144,58 @@ Deno.test("sectionLenient twin fold keeps same-name items with different grams",
   assertEquals(mergeItemSources([[small], [large]], true).length, 2);
 });
 
+Deno.test("tile twin fold ignores section conflicts (eval 065: PapaBoneless)", () => {
+  const a = item("PapaBoneless (600gr)", 192, "", {
+    grams: 600,
+    section_title: null,
+  });
+  const b = item("Papaboneless (600gr)", 189, "", {
+    grams: 600,
+    section_title: "Crispy Chicken",
+  });
+  const merged = mergeItemSources([[a], [b]], true);
+  assertEquals(merged.length, 1);
+});
+
+Deno.test("tile twin fold matches near-names within the dedup threshold (eval 065: Papabones)", () => {
+  const a = item("PapaBoneless (600gr)", 192, "", {
+    grams: 600,
+    section_title: null,
+  });
+  const b = item("Papabones (600gr)", 189, "", {
+    grams: 600,
+    section_title: "Crispy Chicken",
+  });
+  const merged = mergeItemSources([[a], [b]], true);
+  assertEquals(merged.length, 1);
+});
+
+Deno.test("tile twin fold folds conflicting non-null sections (eval 065: Boneless Jr)", () => {
+  const a = item("Boneless Jr(200gr)", 132, "", {
+    grams: 200,
+    section_title: "Pollo Kids",
+  });
+  const b = item("Boneless Jr (200gr)", 99, "", {
+    grams: 200,
+    section_title: "Crispy Chicken",
+  });
+  const merged = mergeItemSources([[a], [b]], true);
+  assertEquals(merged.length, 1);
+});
+
+Deno.test("tile twin fold never folds items with different grams (real size pairs)", () => {
+  const a = item("Ensalada", 150, "", {
+    grams: 150,
+    section_title: "Sides",
+  });
+  const b = item("Ensalada", 220, "", {
+    grams: 350,
+    section_title: "Sides",
+  });
+  const merged = mergeItemSources([[a], [b]], true);
+  assertEquals(merged.length, 2);
+});
+
 Deno.test("non-tile merge path keeps twin-fold candidates byte-identical", () => {
   const sourceA = [
     item("Nuggets", 89, "", { section_title: "Pollo Kids", grams: 200 }),

@@ -88,17 +88,39 @@ function richer(a: ExtractedMenuItem, b: ExtractedMenuItem): ExtractedMenuItem {
   return { ...best, options: mergeOptions(a.options, b.options) };
 }
 
+function nearName(a: string, b: string): boolean {
+  const left = normalize(a);
+  const right = normalize(b);
+  if (left === right) return true;
+  return (
+    editDistance(left, right) <=
+    Math.max(1, Math.floor(Math.max(left.length, right.length) * 0.2))
+  );
+}
+
 function twinFoldCandidate(
   a: ExtractedMenuItem,
   b: ExtractedMenuItem,
 ): boolean {
+  const left = normalize(a.name);
+  const right = normalize(b.name);
+  const eitherSectionUnknown = !a.section_title || !b.section_title;
+  const sameSection = a.section_title === b.section_title;
+  const exactMultiWordName = left === right && left.includes(" ");
+  // Tile twins routinely disagree on section_title (edge crop = different
+  // heading context) and drift a letter or two in the name (eval 065:
+  // PapaBoneless $192 no-section vs Papaboneless $189 "Crispy Chicken").
+  // Same-grams is the guard that keeps real distinct dishes from folding.
   return a.price !== null &&
     b.price !== null &&
     a.price !== b.price &&
-    normalize(a.name) === normalize(b.name) &&
+    (eitherSectionUnknown
+      ? nearName(a.name, b.name)
+      : sameSection
+      ? left === right
+      : exactMultiWordName) &&
     a.category === b.category &&
-    a.grams === b.grams &&
-    a.section_title === b.section_title;
+    a.grams === b.grams;
 }
 
 function normalizedWords(value: string): string[] {

@@ -2,6 +2,7 @@ import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
   dropOptionEchoItems,
   filterServingFormatOptions,
+  remapTruncatedSectionTitles,
   stripMenuNumbers,
 } from "./postprocess.ts";
 import type { ExtractedMenuItem } from "./extract.ts";
@@ -139,4 +140,39 @@ Deno.test("dropOptionEchoItems ignores unmatched option names", () => {
   });
   const dish = item("Pizza", { price: 50, options: [] });
   assertEquals(dropOptionEchoItems([parent, dish]), [parent, dish]);
+});
+
+Deno.test("remapTruncatedSectionTitles remaps a fragment to its unique superset (eval 065: Sandwiches)", () => {
+  const a = item("Nashville", {
+    price: 159,
+    section_title: "Sandwiches",
+  });
+  const b = item("Dallas", {
+    price: 159,
+    section_title: "Sandwiches & Hamburguesas",
+  });
+  const out = remapTruncatedSectionTitles([a, b]);
+  assertEquals(out.map((i: ExtractedMenuItem) => i.section_title), [
+    "Sandwiches & Hamburguesas",
+    "Sandwiches & Hamburguesas",
+  ]);
+});
+
+Deno.test("remapTruncatedSectionTitles leaves ambiguous subsets alone (two supersets)", () => {
+  const a = item("X", { price: 1, section_title: "Rollos" });
+  const b = item("Y", { price: 2, section_title: "Rollos Especiales" });
+  const c = item("Z", { price: 3, section_title: "Rollos Empanizados" });
+  const out = remapTruncatedSectionTitles([a, b, c]);
+  assertEquals(out.map((i: ExtractedMenuItem) => i.section_title), [
+    "Rollos",
+    "Rollos Especiales",
+    "Rollos Empanizados",
+  ]);
+});
+
+Deno.test("remapTruncatedSectionTitles ignores null and unrelated titles", () => {
+  const a = item("X", { price: 1, section_title: null });
+  const b = item("Y", { price: 2, section_title: "Sides" });
+  const out = remapTruncatedSectionTitles([a, b]);
+  assertEquals(out.map((i: ExtractedMenuItem) => i.section_title), [null, "Sides"]);
 });

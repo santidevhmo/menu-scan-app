@@ -409,6 +409,34 @@ export function dropOptionEchoItems(
   );
 }
 
+// A tile whose cut slices a heading emits only the visible fragment as its
+// section ("Sandwiches" for "Sandwiches & Hamburguesas", eval 065). When a
+// title's words are a strict subset of EXACTLY one other emitted title's
+// words, remap to the longer read; ambiguity (two possible supersets —
+// parent/child heading families) leaves it untouched.
+export function remapTruncatedSectionTitles(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  const titles = new Map(
+    items.flatMap((item) =>
+      item.section_title
+        ? [[normalizeName(item.section_title), item.section_title] as const]
+        : []
+    ),
+  );
+  return items.map((item) => {
+    if (!item.section_title) return item;
+    const words = normalizeName(item.section_title).split(" ").filter(Boolean);
+    const supersets = [...titles].filter(([key]) => {
+      const otherWords = key.split(" ").filter(Boolean);
+      return otherWords.length > words.length &&
+        words.every((word) => otherWords.includes(word));
+    });
+    if (supersets.length !== 1) return item;
+    return { ...item, section_title: supersets[0][1] };
+  });
+}
+
 // Printed weight convention: a number followed by g/gr/grs/kg ("600g",
 // "70 gr.", "1kg"). Volumes (ml/L/oz) and "mg" are NOT grams. Name wins over
 // description; first match wins.

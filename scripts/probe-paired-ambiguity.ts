@@ -127,32 +127,7 @@ When two separate menu cards are printed, return "neither".
 When multiple sizes or prices are printed on one size-variant card, return
 "neither"; that card is handled by a later extraction phase.
 When unsure, return "neither".
-Never drop both candidates.
-
-SCHEMA
-
-{
-  "type": "object",
-  "properties": {
-    "verdicts": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "drop": {
-            "type": "string",
-            "enum": ["a", "b", "neither"]
-          }
-        },
-        "required": ["id", "drop"],
-        "additionalProperties": false
-      }
-    }
-  },
-  "required": ["verdicts"],
-  "additionalProperties": false
-}`;
+Never drop both candidates.`;
 
 export const PAIR_SCHEMA = {
   type: "object",

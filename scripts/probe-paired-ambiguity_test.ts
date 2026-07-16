@@ -1,5 +1,9 @@
 import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
-import { assessVerdicts, EVAL069_GROUPS } from "./probe-paired-ambiguity.ts";
+import {
+  assessVerdicts,
+  EVAL069_GROUPS,
+  PAIR_PROMPT,
+} from "./probe-paired-ambiguity.ts";
 
 type ExpectedPair = { id: string; expected: "a" | "b" | "neither" };
 
@@ -7,6 +11,10 @@ Deno.test(
   "eval 069 config uses exactly two calls and covers five fakes plus three controls",
   () => {
     assertEquals(EVAL069_GROUPS.length, 2);
+    assertEquals(
+      PAIR_PROMPT.endsWith("Never drop both candidates."),
+      true,
+    );
     const pairs = EVAL069_GROUPS.flatMap((group: { pairs: ExpectedPair[] }) =>
       group.pairs
     );

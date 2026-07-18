@@ -110,6 +110,28 @@ Deno.test("polarity flags but keeps a contradicted item without a sibling", () =
   ]);
 });
 
+Deno.test("contradictions rank the anchor most owned by the candidate", () => {
+  const b = blocks(
+    "Bacon Cheese Fries (300gr) $139",
+    "Cheesey Bacon (300gr) $155",
+  );
+  const real = item({ name: "Bacon Cheese Fries (300gr)", price: 139 });
+  const priceFlake = item({ name: "Cheesey Bacon (300gr)", price: 161 });
+  const verdict = judgeItem(b, priceFlake);
+  assertEquals(verdict.verdict, "contradicted");
+  assertEquals(verdict.anchor, 1);
+  assertEquals(applyColocation(b, [real, priceFlake]), [real, priceFlake]);
+
+  const fake = item({ name: "Ensalada Verde (350gr)", price: 70 });
+  assertEquals(
+    applyColocation(
+      blocks("Ensalada Verde (150gr) $52"),
+      [item({ name: "Ensalada Verde (150gr)", price: 52 }), fake],
+    ),
+    [item({ name: "Ensalada Verde (150gr)", price: 52 })],
+  );
+});
+
 Deno.test("unverifiable items are kept", () => {
   const alitas = item({ name: "Alitas (125gr)", price: 129 });
   assertEquals(

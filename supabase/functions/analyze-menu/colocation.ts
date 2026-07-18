@@ -139,12 +139,17 @@ export function judgeItem(
   const nTokens = nameTokens(item.name);
   const grams = parseGrams(item.name);
   const price = item.price;
+  const anchorScores = new Map<
+    number,
+    { matchedFraction: number; blockCoverage: number }
+  >();
   const anchors = blocks.filter((b) => {
     if (nTokens.length === 0) return false;
     const matched = nTokens.filter((t) =>
       b.tokens.some((p) => tokenMatch(t, p))
     );
-    if (matched.length / nTokens.length < 0.6) return false;
+    const matchedFraction = matched.length / nTokens.length;
+    if (matchedFraction < 0.6) return false;
     // A line about this dish, not the dish itself: at least half of the
     // block's own name-like tokens must belong to the candidate's name.
     const blockAlpha = b.tokens.filter((t) =>
@@ -153,7 +158,16 @@ export function judgeItem(
     const covered = blockAlpha.filter((p) =>
       nTokens.some((t) => tokenMatch(t, p))
     );
-    return blockAlpha.length > 0 && covered.length / blockAlpha.length >= 0.5;
+    const blockCoverage = covered.length / blockAlpha.length;
+    if (blockAlpha.length === 0 || blockCoverage < 0.5) return false;
+    anchorScores.set(b.block, { matchedFraction, blockCoverage });
+    return true;
+  });
+  const rankedAnchors = [...anchors].sort((a, b) => {
+    const aScore = anchorScores.get(a.block)!;
+    const bScore = anchorScores.get(b.block)!;
+    return bScore.matchedFraction - aScore.matchedFraction ||
+      bScore.blockCoverage - aScore.blockCoverage || a.block - b.block;
   });
   const priceOk = (b: BlockText) =>
     price === null || b.tokens.includes(String(price));
@@ -162,7 +176,7 @@ export function judgeItem(
   const gramsTypePresent = (b: BlockText) => /(^| )\d+ ?gr( |$)/.test(b.joined);
   const win = anchors.find((b) => priceOk(b) && gramsOk(b));
   if (win) return { verdict: "verified", anchor: win.block, anchored: true };
-  for (const b of anchors) {
+  for (const b of rankedAnchors) {
     if (!b.priced) continue;
     const priceContradicts = price !== null && !priceOk(b) &&
       b.tokens.some((t) => /^\d+$/.test(t));

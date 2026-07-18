@@ -85,8 +85,13 @@ export function parseOcrUnits(raw: unknown): OcrUnit[] {
         const obj = node as Record<string, unknown>;
         const children = obj.lines ?? obj.words ?? obj.blocks;
         if (children) { collect(children); return; }
-        if (typeof obj.text === "string" && obj.text.length > 0) {
-          units.push({ text: obj.text, block: blockIdx });
+        const text = typeof obj.text === "string"
+          ? obj.text
+          : typeof obj.content === "string"
+          ? obj.content
+          : null;
+        if (text && text.length > 0) {
+          units.push({ text, block: blockIdx });
         }
       };
       collect(blockNode);

@@ -121,3 +121,33 @@ Deno.test("checkCase: null price skips the price requirement", () => {
   );
   assert(v.colocated);
 });
+
+const SHAPE_CONTENT = {
+  pages: [{
+    blocks: [
+      {
+        top_left_x: 127,
+        top_left_y: 299,
+        bottom_right_x: 323,
+        bottom_right_y: 315,
+        content: "TostiBoneless (450gr) $182",
+        type: "text",
+      },
+      {
+        top_left_x: 1691,
+        top_left_y: 338,
+        bottom_right_x: 1905,
+        bottom_right_y: 356,
+        content: "Ensalada Verde (150gr) $52",
+        type: "text",
+      },
+    ],
+  }],
+};
+
+Deno.test("parseOcrUnits handles flat content-key blocks (real mistral-ocr-latest shape)", () => {
+  const u = parseOcrUnits(SHAPE_CONTENT);
+  assertEquals(u.length, 2);
+  assertEquals(u.map((x) => x.block), [0, 1]);
+  assertEquals(u[1].text, "Ensalada Verde (150gr) $52");
+});

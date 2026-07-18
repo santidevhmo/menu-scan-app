@@ -38,6 +38,10 @@ After polarity v1, a second tier drops novel-name inventions — items whose nam
 - **Existence check:** for each kept non-drink item that is `unverifiable` AND has no anchor: compute best per-block similarity of significant name tokens (≥3 chars, non-numeric/unit; loose edit-distance allowance ≤ min(3, len/3); score = matched / max(candidate, block token counts) — long prose self-penalizes). Score < 0.75 → **drop**, logged `[colocation] drop-invented`. Score ≥ 0.75 → keep (real-but-misread name class: TortiBoneless, El Tenderazo, Cabeza Pollotera all score 1.00; all 6 known inventions score ≤ 0.67).
 - Replay expectations with the tier: eval-068 baseline 46 → 40 exact (4 sibling drops + Sour Cream Cheese Fries + Ensalada de Pollo a la Plancha); nikkori 0 drops ×3 unchanged.
 
+## Amendment v1.2 — condiment-panel filter (user-approved 2026-07-17; evidence: ledger eval 076)
+
+The tile path drops items with `category === "other"` in the same per-tile filter that already drops drinks. Rationale: printed sauce/dressing/topping panels are sometimes extracted as items (eval-076 r1: 9 such items, 3 spurious sections); they are printed text, so evidence tiers correctly cannot veto them — but GPT itself labels them `other`. Archive survey (4,037 items, all dumps ever): 42 `other` instances, every one a condiment/topping or banner echo, zero real dishes. Structural, model-supplied signal; single-photo portrait path untouched.
+
 ## Explicitly out of scope
 
 - Nested tile geometry (REJECTED, eval 072 — do not re-probe).

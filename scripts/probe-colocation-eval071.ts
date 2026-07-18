@@ -8,17 +8,19 @@ import { MENU_DIR } from "./photo-input.ts";
 
 const SOURCE_PHOTO = `${MENU_DIR}/PolloteriaMenu.png`;
 const OCR_DUMP = `${MENU_DIR}/polloteria.mistral-ocr-eval071.json`;
-const RESULT_DUMP = `${MENU_DIR}/polloteria.colocation-eval071-r1.actual.json`;
+const RESULT_DUMP = `${MENU_DIR}/polloteria.colocation-eval071-3way.actual.json`;
 const CASES_PATH = new URL("./fixtures/polloteria.eval071-cases.json", import.meta.url);
 
 export interface Eval071Case {
   id: string;
   role: "fake" | "real-keep" | "control-keep";
-  expect_colocated: boolean;
+  expect: Verdict3;
   name: string;
   price: number | null;
   section_title: string | null;
 }
+
+export type Verdict3 = "verified" | "contradicted" | "unverifiable";
 
 /** One OCR text unit (word or line) with its box and owning block. */
 export interface OcrUnit {
@@ -100,71 +102,88 @@ export function parseOcrUnits(raw: unknown): OcrUnit[] {
   return units;
 }
 
-interface BlockText {
+export interface BlockText {
   block: number;
   tokens: string[];
   joined: string; // normalized tokens joined by single spaces
+  priced: boolean; // raw text prints a $-price — only these blocks may contradict
 }
 
 export function groupBlocks(units: OcrUnit[]): BlockText[] {
-  const byBlock = new Map<number, string[]>();
+  const byBlock = new Map<number, { tokens: string[]; raw: string[] }>();
   for (const u of units) {
-    const tokens = normTokens(u.text);
-    if (!byBlock.has(u.block)) byBlock.set(u.block, []);
-    byBlock.get(u.block)!.push(...tokens);
+    if (!byBlock.has(u.block)) byBlock.set(u.block, { tokens: [], raw: [] });
+    const e = byBlock.get(u.block)!;
+    e.tokens.push(...normTokens(u.text));
+    e.raw.push(u.text);
   }
-  return [...byBlock.entries()].map(([block, tokens]) => ({
+  return [...byBlock.entries()].map(([block, e]) => ({
     block,
-    tokens,
-    joined: tokens.join(" "),
+    tokens: e.tokens,
+    joined: e.tokens.join(" "),
+    priced: /\$\s*\d/.test(e.raw.join(" ")),
   }));
 }
 
 export interface CaseVerdict {
   id: string;
   role: string;
-  expect_colocated: boolean;
-  colocated: boolean;
+  expect: Verdict3;
+  verdict: Verdict3;
   pass: boolean;
   name_blocks: number[];
   evidence: string;
 }
 
 /**
- * A candidate co-locates iff SOME block matches >=60% of its name tokens AND
- * contains every field the candidate claims (price token; "NNN gr" grams).
+ * Ruling 9: verified = some anchor prints every claimed field; contradicted =
+ * no anchor verifies and a priced anchor prints a different claimed field;
+ * unverifiable = neither verifies nor contradicts (keep, flag).
  */
 export function checkCase(blocks: BlockText[], c: Eval071Case): CaseVerdict {
   const nTokens = nameTokens(c.name);
   const grams = parseGrams(c.name);
-  const nameBlocks: number[] = [];
-  let colocated = false;
-  let evidence = "name not found in any block";
-  for (const b of blocks) {
+  const anchors = blocks.filter((b) => {
+    if (nTokens.length === 0) return false;
     const matched = nTokens.filter((t) => b.tokens.some((p) => tokenMatch(t, p)));
-    if (nTokens.length === 0 || matched.length / nTokens.length < 0.6) continue;
-    nameBlocks.push(b.block);
-    const priceOk = c.price === null || b.tokens.includes(String(c.price));
-    const gramsOk = grams === null ||
-      new RegExp(`(^| )${grams} ?gr( |$)`).test(b.joined);
-    if (priceOk && gramsOk) {
-      colocated = true;
-      evidence = `block ${b.block}: name ${matched.length}/${nTokens.length}` +
-        `${c.price !== null ? `, price ${c.price} present` : ""}` +
-        `${grams !== null ? `, ${grams}gr present` : ""}`;
-      break;
+    return matched.length / nTokens.length >= 0.6;
+  });
+  const priceOk = (b: BlockText) => c.price === null || b.tokens.includes(String(c.price));
+  const gramsOk = (b: BlockText) =>
+    grams === null || new RegExp(`(^| )${grams} ?gr( |$)`).test(b.joined);
+  const gramsTypePresent = (b: BlockText) => /(^| )\d+ ?gr( |$)/.test(b.joined);
+
+  let verdict: Verdict3 = "unverifiable";
+  let evidence = anchors.length === 0
+    ? "name not found in any block"
+    : "claims not printed, nothing contradicts";
+  const win = anchors.find((b) => priceOk(b) && gramsOk(b));
+  if (win) {
+    verdict = "verified";
+    evidence = `block ${win.block}: claims printed together`;
+  } else {
+    for (const b of anchors) {
+      if (!b.priced) continue;
+      const priceContradicts = c.price !== null && !priceOk(b) &&
+        b.tokens.some((t) => /^\d+$/.test(t));
+      const gramsContradicts = grams !== null && gramsTypePresent(b) && !gramsOk(b);
+      if (priceContradicts || gramsContradicts) {
+        verdict = "contradicted";
+        evidence = `block ${b.block}: ` +
+          `${priceContradicts ? `a different price (claimed ${c.price})` : ""}` +
+          `${priceContradicts && gramsContradicts ? ", " : ""}` +
+          `${gramsContradicts ? `different grams (claimed ${grams}gr)` : ""}`;
+        break;
+      }
     }
-    evidence = `block ${b.block}: name matched but ` +
-      `${priceOk ? "" : `price ${c.price} ABSENT`}` +
-      `${!priceOk && !gramsOk ? ", " : ""}${gramsOk ? "" : `${grams}gr ABSENT`}`;
   }
   return {
     id: c.id,
     role: c.role,
-    expect_colocated: c.expect_colocated,
-    colocated,
-    pass: colocated === c.expect_colocated,
-    name_blocks: nameBlocks,
+    expect: c.expect,
+    verdict,
+    pass: verdict === c.expect,
+    name_blocks: anchors.map((b) => b.block),
     evidence,
   };
 }
@@ -213,7 +232,7 @@ if (import.meta.main) {
   console.log(`OCR parsed: ${units.length} units in ${blocks.length} blocks`);
   if (blocks.length < 5) {
     console.log(
-      "WARNING: fewer than 5 blocks — block granularity too coarse for co-location; needs line-clustering v2 before verdicts count.",
+      "WARNING: fewer than 5 blocks — block granularity too coarse for co-location; verdicts invalid.",
     );
   }
   const { cases } = JSON.parse(await Deno.readTextFile(CASES_PATH)) as {
@@ -222,22 +241,21 @@ if (import.meta.main) {
   const verdicts = cases.map((c) => checkCase(blocks, c));
   for (const v of verdicts) {
     console.log(
-      `${v.pass ? "PASS" : "FAIL"} ${v.id.padEnd(26)} expect=${v.expect_colocated} got=${v.colocated} | ${v.evidence}`,
+      `${v.pass ? "PASS" : "FAIL"} ${v.id.padEnd(26)} expect=${v.expect} got=${v.verdict} | ${v.evidence}`,
     );
   }
   const fakes = verdicts.filter((v) => v.role === "fake");
   const keeps = verdicts.filter((v) => v.role !== "fake");
-  const fakesRejected = fakes.filter((v) => !v.colocated).length;
-  const keepsHeld = keeps.filter((v) => v.colocated).length;
+  const fakesContradicted = fakes.filter((v) => v.verdict === "contradicted").length;
+  const keepsKept = keeps.filter((v) => v.verdict !== "contradicted").length;
+  const met = verdicts.filter((v) => v.pass).length;
   console.log(
-    `GATE: fakes rejected ${fakesRejected}/${fakes.length}; keeps held ${keepsHeld}/${keeps.length}`,
+    `GATE: fakes contradicted ${fakesContradicted}/${fakes.length}; keeps not deleted ${keepsKept}/${keeps.length}; expected ${verdicts.length}`,
   );
   console.log(
-    fakesRejected === fakes.length && keepsHeld === keeps.length
-      ? "GATE RESULT: FULL PASS — promote co-location per ruling 8"
-      : fakesRejected >= 4 && keepsHeld === keeps.length
-      ? "GATE RESULT: PARTIAL (>=4/5, controls held) — advisory-flag tier only"
-      : "GATE RESULT: FAIL — tighten or reject per ruling 8",
+    met === verdicts.length && fakesContradicted === fakes.length
+      ? "GATE RESULT: FULL PASS — ruling 9"
+      : "GATE RESULT: FAIL — planner audit required before any claim",
   );
   await Deno.writeTextFile(
     RESULT_DUMP,

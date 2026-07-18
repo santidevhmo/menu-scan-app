@@ -90,6 +90,14 @@ Create rotated copies (`sips -r 90`) of the 3 landscape photos = portrait files 
 ### Phase 4 — Combined exit gate + device verification
 `eval-027-live.ts` grows the 3 new fixtures (detector expectations per fixture; rotation assertions per Phase 3). **Gate: 3/3 consecutive all-green on ALL 9 menus × frozen dims + detector + rotation assertions** (~$1.35–1.50/attempt, user approval per attempt). Then device: scan at least Polloteria (dense landscape) + one rotated capture on the iPhone; offline-score via `score-dump.ts` (ticket-#3 protocol). Close-out: ledger, pipeline diagram (landscape/rotation branches), master-roadmap #4 tick, memory.
 
+## Parked hypotheses from prior-art research #2 (eval 080, 2026-07-18) — trigger-gated, no spend before the Phase-1 ×3 gate
+
+- **Document-anchoring probe (olmOCR pattern):** inject the full-photo OCR text (+ positions) into the tile extraction prompt — published hallucination reduction; attacks invention at GENERATION rather than cleanup; we already pay for the OCR call. TRIGGER: the live ×3 on true tile-3 geometry reveals a phantom class the colocation stack cannot catch. Single-variable probe; P1 non-local-side-effect discipline applies.
+- **OCR `title` blocks = printed section headers (free, already in our caches):** polloteria's 12 title-typed blocks are exactly the printed headers/panels. TRIGGER: Phase 2 kickoff — $0 exploration vs cached OCR as a section-title verification/repair signal (Ensaladas restore, remapTruncatedSectionTitles hardening).
+- **v2 field-repair mechanism note:** localized re-read — re-OCR only the disputed anchor region WITH a white margin (eval-079 pad finding) to adjudicate GPT-vs-OCR field disagreements (Dedos $119/$199 class). TRIGGER: the ×3 probes accumulate more reader-disagreement data points (spec v2 precondition).
+- **Per-scan trust score (DoorDash guardrail analog, free):** the colocation verdict distribution (verified fraction + readability) already computed per scan → powers the deferred retake-prompt / confidence-flag features with no new models. TRIGGER: post-release feature work on either.
+- **Bake-off additions:** copy-only constrained decoding over the OCR token lattice (report: unclaimed ground — the only mechanism making name-minting IMPOSSIBLE rather than detectable; needs self-hosted model + grammar engine; composes with layout-first); GutenOCR conditional detection (open weights, F1 0.877, zero menu-domain evidence — our Mistral pipeline already provides the primitive at $0.004). Layout-first candidates (below) gain PP-DocLayoutV3 version specifics + the card-detector caveat (menu card ≠ layout class; guarantee only as strong as segmentation).
+
 ## Deferred / known limits (do NOT work here)
 - Stable name misreads surviving Phase 1 → bake-off + post-release name-verification pass (Polloteria = new bake-off fixture; GuestHouse = the English menu E2 needed).
 - Drinks on the new menus (F5): counts parked in fixtures.

@@ -36,7 +36,7 @@ const DIMS: ScoredDim[] = [
   "categories",
   "grams",
 ];
-const DUMP_TAG = "eval076";
+const DUMP_TAG = "eval077";
 
 function colStripRects(w: number, h: number): CropRect[] {
   const tileW = Math.round(w * 0.4);
@@ -116,7 +116,7 @@ for (const g of GEOMETRIES) {
   );
   const tiles = await cutTiles(g.rects, g.key);
 
-  for (let run = 1; run <= 2; run++) {
+  for (let run = 1; run <= 1; run++) {
     try {
       const result = await runGroupedExtraction([tiles], apiKey);
       const report = scoreMenu(fixture, {

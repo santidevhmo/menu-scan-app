@@ -146,7 +146,14 @@ export function checkCase(blocks: BlockText[], c: Eval071Case): CaseVerdict {
   const anchors = blocks.filter((b) => {
     if (nTokens.length === 0) return false;
     const matched = nTokens.filter((t) => b.tokens.some((p) => tokenMatch(t, p)));
-    return matched.length / nTokens.length >= 0.6;
+    if (matched.length / nTokens.length < 0.6) return false;
+    // A line about this dish, not the dish itself: at least half of the
+    // block's own name-like tokens must belong to the candidate's name.
+    const blockAlpha = b.tokens.filter((t) =>
+      /[a-z]/.test(t) && !/^\d+(gr|pz)?$/.test(t) && t !== "gr" && t !== "pz"
+    );
+    const covered = blockAlpha.filter((p) => nTokens.some((t) => tokenMatch(t, p)));
+    return blockAlpha.length > 0 && covered.length / blockAlpha.length >= 0.5;
   });
   const priceOk = (b: BlockText) => c.price === null || b.tokens.includes(String(c.price));
   const gramsOk = (b: BlockText) =>

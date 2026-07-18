@@ -181,3 +181,19 @@ Deno.test("verified trivially when the candidate claims no fields", () => {
   );
   assertEquals(v.verdict, "verified");
 });
+
+Deno.test("a prose combo line that mentions the dish and ends with a price cannot anchor", () => {
+  const blocks = groupBlocks([
+    {
+      text:
+        "Una orden de boneless(300gr), 12 piezas de alitas, una orden de papas fritas(300gr), 5 piezas de dedos de queso por $499",
+      block: 0,
+    },
+    { text: "Alitas 6 PZ $129 / 12PZ $169 / 20PZ $269", block: 1 },
+  ]);
+  const v = checkCase(
+    blocks,
+    caseOf({ name: "Alitas (125gr)", expect: "unverifiable", role: "control-keep" }),
+  );
+  assertEquals(v.verdict, "unverifiable", v.evidence);
+});

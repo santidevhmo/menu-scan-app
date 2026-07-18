@@ -49,6 +49,53 @@ export function tokenMatch(candidate: string, printed: string): boolean {
     editDistanceLeq1(candidate, printed);
 }
 
+const EXISTENCE_SIM_THRESHOLD = 0.75;
+const READABILITY_MIN_ANCHORED = 0.5;
+
+export function editDistance(a: string, b: string): number {
+  if (Math.abs(a.length - b.length) > 3) return 99;
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    for (let j = 1; j <= b.length; j++) {
+      cur.push(Math.min(
+        prev[j] + 1,
+        cur[j - 1] + 1,
+        prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1),
+      ));
+    }
+    prev = cur;
+  }
+  return prev[b.length];
+}
+
+/** Looser than tokenMatch: misread names drift 2-3 edits (tenderazo~tendedero). */
+export function looseTokenMatch(candidate: string, printed: string): boolean {
+  if (candidate === printed) return true;
+  if (candidate.length < 5 || printed.length < 5) return false;
+  return editDistance(candidate, printed) <=
+    Math.max(1, Math.min(3, Math.floor(candidate.length / 3)));
+}
+
+/** Significant name tokens: >=3 chars, not a number/weight/count. */
+export function sigTokens(tokens: string[]): string[] {
+  return tokens.filter((t) => t.length >= 3 && !/^\d+(g|gr|pz|oz|ml)?$/.test(t));
+}
+
+/** Best per-block name similarity; finalize via max(). */
+export function bestLineSim(name: string, blocks: BlockText[]): number {
+  const ct = sigTokens(normTokens(name));
+  if (ct.length === 0) return 1;
+  let best = 0;
+  for (const b of blocks) {
+    const pt = sigTokens(b.tokens);
+    if (pt.length === 0) continue;
+    const m = ct.filter((t) => pt.some((p) => looseTokenMatch(t, p))).length;
+    best = Math.max(best, m / Math.max(ct.length, pt.length));
+  }
+  return best;
+}
+
 export type Verdict3 = "verified" | "contradicted" | "unverifiable";
 
 interface BlockText {
@@ -73,6 +120,7 @@ export function toBlockTexts(blocks: OcrBlock[]): BlockText[] {
 export interface ItemVerdict {
   verdict: Verdict3;
   anchor: number | null;
+  anchored: boolean;
 }
 
 /** Eval-071 v3 matcher: mention-guard verdict. */
@@ -97,17 +145,17 @@ export function judgeItem(blocks: BlockText[], item: ExtractedMenuItem): ItemVer
     grams === null || new RegExp(`(^| )${grams} ?gr( |$)`).test(b.joined);
   const gramsTypePresent = (b: BlockText) => /(^| )\d+ ?gr( |$)/.test(b.joined);
   const win = anchors.find((b) => priceOk(b) && gramsOk(b));
-  if (win) return { verdict: "verified", anchor: win.block };
+  if (win) return { verdict: "verified", anchor: win.block, anchored: true };
   for (const b of anchors) {
     if (!b.priced) continue;
     const priceContradicts = price !== null && !priceOk(b) &&
       b.tokens.some((t) => /^\d+$/.test(t));
     const gramsContradicts = grams !== null && gramsTypePresent(b) && !gramsOk(b);
     if (priceContradicts || gramsContradicts) {
-      return { verdict: "contradicted", anchor: b.block };
+      return { verdict: "contradicted", anchor: b.block, anchored: true };
     }
   }
-  return { verdict: "unverifiable", anchor: null };
+  return { verdict: "unverifiable", anchor: null, anchored: anchors.length > 0 };
 }
 
 /**
@@ -120,7 +168,7 @@ export function applyColocation(
 ): ExtractedMenuItem[] {
   const judged = items.map((item) =>
     item.category === "drink"
-      ? { item, verdict: "verified" as Verdict3, anchor: null as number | null }
+      ? { item, verdict: "verified" as Verdict3, anchor: null as number | null, anchored: true }
       : { item, ...judgeItem(blocks, item) }
   );
   const verifiedAnchors = new Set(
@@ -149,7 +197,32 @@ export function applyColocation(
       }`,
     );
   }
-  return kept;
+  // Amendment v1.1: novel-name inventions anchor nothing and match no printed
+  // line even loosely. Active only when this menu's OCR reads names well enough;
+  // otherwise (nikkori-class menus) every real dish would look invented.
+  const nonDrink = judged.filter((j) => j.item.category !== "drink");
+  const readability = nonDrink.length === 0
+    ? 0
+    : nonDrink.filter((j) => j.anchored).length / nonDrink.length;
+  if (readability < READABILITY_MIN_ANCHORED) {
+    console.log(
+      `[colocation] existence tier inert: readability=${readability.toFixed(2)}`,
+    );
+    return kept;
+  }
+  const judgedByItem = new Map(judged.map((j) => [j.item, j]));
+  return kept.filter((item) => {
+    const j = judgedByItem.get(item)!;
+    if (item.category === "drink" || j.anchored || j.verdict !== "unverifiable") {
+      return true;
+    }
+    const sim = bestLineSim(item.name, blocks);
+    if (sim >= EXISTENCE_SIM_THRESHOLD) return true;
+    console.log(
+      `[colocation] drop-invented: "${item.name}" bestSim=${sim.toFixed(2)}`,
+    );
+    return false;
+  });
 }
 
 export async function fetchOcrBlocks(tile: string, apiKey: string): Promise<OcrBlock[]> {

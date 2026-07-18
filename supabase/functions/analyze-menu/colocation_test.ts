@@ -2,10 +2,14 @@ import { assert, assertEquals } from "jsr:@std/assert";
 import {
   applyColocation,
   colocationStage,
+  bestLineSim,
+  editDistance,
   judgeItem,
   nameTokens,
   normTokens,
   parseGrams,
+  looseTokenMatch,
+  sigTokens,
   toBlockTexts,
   tokenMatch,
 } from "./colocation.ts";
@@ -131,4 +135,53 @@ Deno.test("runGroupedExtraction portrait path skips co-location fetches", async 
   };
   assertEquals(await colocationStage([], [alitas], "key", fetchOcr), [alitas]);
   assertEquals(calls, 0);
+});
+
+Deno.test("existence editDistance and looseTokenMatch allow bounded name drift", () => {
+  assertEquals(editDistance("tenderazo", "tendedero"), 3);
+  assert(looseTokenMatch("tenderazo", "tenderue"));
+  assert(!looseTokenMatch("tender", "tendedero"));
+  assert(!looseTokenMatch("chicken", "cheesey"));
+});
+
+Deno.test("bestLineSim compares significant name tokens per OCR block", () => {
+  assertEquals(sigTokens(["el", "tenderazo", "150gr", "52"]), ["tenderazo"]);
+  assertEquals(bestLineSim("El Tenderazo", blocks("El Tenderazo")), 1);
+  assert(
+    bestLineSim(
+      "Boneless el Pollo (150gr)",
+      blocks("Megacharola Boneless $599", "El Tendedero $165"),
+    ) < 0.75,
+  );
+});
+
+Deno.test("existence tier stays inert when the menu is unreadable", () => {
+  const invented = item({ name: "Plato Nuevo", price: 99 });
+  assertEquals(applyColocation(blocks("Ensalada Verde (150gr) $52"), [invented]), [invented]);
+});
+
+Deno.test("existence tier drops low-sim inventions but keeps misreads, flags, and drinks", () => {
+  const real = item({ name: "Ensalada Verde (150gr)", price: 52 });
+  const flagged = item({ name: "Tender (150gr)", price: 165 });
+  const misread = item({ name: "El Tenderazo", price: 200 });
+  const invented = item({ name: "Plato Nuevo", price: 99 });
+  const drink = item({ name: "Refresco (350gr)", price: 70, category: "drink" });
+  const result = applyColocation(
+    blocks(
+      "Ensalada Verde (150gr) $52",
+      "Tender (350gr) $165",
+      "El Tendedero $200",
+      "Agua (500ml) $20",
+    ),
+    [real, flagged, misread, invented, drink],
+  );
+  assertEquals(result, [real, flagged, misread, drink]);
+});
+
+Deno.test("unpriced anchored title keeps Paletas through the existence tier", () => {
+  const paletas = item({ name: "Paletas Heladas Agua", price: 20 });
+  const boneless = item({ name: "Boneless Jr (200gr)", price: 132 });
+  const b = blocks("# Paletas Heladas", "Boneless Jr(200gr) $132");
+  assertEquals(judgeItem(b, paletas).anchored, true);
+  assertEquals(applyColocation(b, [paletas, boneless]), [paletas, boneless]);
 });

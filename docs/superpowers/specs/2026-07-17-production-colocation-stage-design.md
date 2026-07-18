@@ -42,6 +42,14 @@ After polarity v1, a second tier drops novel-name inventions — items whose nam
 
 The tile path drops items with `category === "other"` in the same per-tile filter that already drops drinks. Rationale: printed sauce/dressing/topping panels are sometimes extracted as items (eval-076 r1: 9 such items, 3 spurious sections); they are printed text, so evidence tiers correctly cannot veto them — but GPT itself labels them `other`. Archive survey (4,037 items, all dumps ever): 42 `other` instances, every one a condiment/topping or banner echo, zero real dishes. Structural, model-supplied signal; single-photo portrait path untouched.
 
+## Amendment v1.3 — evidence source = full-photo OCR via `ocr_photos` (user-approved 2026-07-18, ruling 15; evidence: ledger eval 079)
+
+Per-tile OCR is REPLACED as the evidence source. Eval-079 measurements (3 archived live dumps, OCR deterministic ×3): tile-edge cuts mint merged fragment blocks that spuriously anchor description-minted inventions (defeating the existence tier), and whole tiles can deterministically OCR as ONE mega-block (polloteria tile 2), starving their exclusive region of evidence — on the corrected tile union the existence tier false-drops 9–11 REAL cards per dump; interior-edge exclusion does not save it. A single OCR call on a 2048px/q0.95 JPEG copy of the ORIGINAL photo drops exactly the audited inventions across all three dumps with zero false effects (43→41, 40→39, 44→42) and is 4× cheaper (~$0.004/dense scan).
+
+- **Protocol:** the `extract-pages` request gains optional `ocr_photos: (string|null)[]`, parallel to `pages` — for each dense (4-tile) page the client attaches a full data-URL of the existing `compressImage` output (2048/q0.95 JPEG, the ticket-#3 fallback transform, ~1MB b64); null for single-photo pages. Field absent/empty → stage skipped (fail-open; old builds harmless). Length/size validated in `index.ts`.
+- **Stage:** `colocationStage(ocrPhotos, items, key)` — one `fetchOcrBlocks` call per dense page, blocks unioned. Matcher, polarity v1, existence tier v1.1 (readability gate), and the v1.2 cat-other filter are UNCHANGED — all replay gates were always validated against exactly this full-photo input shape. The per-tile OCR path is deleted (it also never worked on-device: production tiles are bare base64 without the `data:` prefix Mistral requires — harness-only behavior to date).
+- **Harness mirror:** probes/gate runner pass `ocr_photos` built with `photo-input.ts` `compressedPhotoData(…, 2048, 95)`. Separately, the harness tile CUTTER is fixed (eval 079: `sips --cropOffset` silently no-ops flush-bottom left-aligned crops, so every harness "tile 3" since eval 061 was the full photo; production client unaffected) — a shared verified cutter with dims assertion + lossless rotate-180 fallback.
+
 ## Explicitly out of scope
 
 - Nested tile geometry (REJECTED, eval 072 — do not re-probe).

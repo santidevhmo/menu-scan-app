@@ -2,7 +2,7 @@
 
 > **What this is:** the working plan for critical-path #4 (horizontal/landscape menu handling), structured like the master roadmap: phases with cheap-probe-first iteration, frozen-gate discipline, and user rulings at checkpoints. Master roadmap: main repo `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md` ("Release scope decision" item 4). Read its **Strategy Rules** and **Lessons learned** before any phase.
 
-**Status:** ACTIVE 2026-07-17 · Phase 1 in progress. Eval 071 co-location replay PASSED 14/14 (rulings 8/9 release-gate tier on the replay; production wiring deferred until after Eval 072) — **NEXT: Eval 072 nested tile-3 probe (recall arm; ~$0.72 cap, cost approval pending), then production co-location wiring + ×3 confirmation.**
+**Status:** ACTIVE 2026-07-17 · Phase 1 in progress. Eval 071 co-location replay PASSED 14/14; Eval 072 nested tile-3 REJECTED standalone (r1 hard fail; $0 cross-audits in ledger) — **NEXT: production co-location stage spec (2×2 path + sibling-aware polarity; Dedos price photo-adjudication pending), then ×3 confirmation (1e) + detector trigger (1f).** Do NOT re-probe nested geometry.
 **Working directory:** the worktree `/Users/santiagoaguirre/Desktop/CODING/menu-scan-app/.worktrees/extraction-eval-harness`, branch `feat/extraction-eval-harness` (pushed to origin). MOVED 2026-07-17 out of `/private/tmp`: macOS reaps /private/tmp files unused ≥3 days every night (`tmp_cleaner` 00:00 + `dirhelper` 03:35, CLEAN_FILES_OLDER_THAN_DAYS=3) and wipes it on reboot — the root cause of both worktree-loss incidents. Main checkout is device-builds only; never commit there (docs excepted).
 
 ## Division of labor (formalized from ticket #3, which closed under this model)

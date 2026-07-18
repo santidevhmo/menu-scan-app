@@ -30,6 +30,14 @@ New module `supabase/functions/analyze-menu/colocation.ts`:
 
 **Wiring point:** `runGroupedExtraction`, after the existing `dropOptionEchoItems(remapTruncatedSectionTitles(...))` chain, before `foldResults`. The stage receives the per-page tile images (already in scope) + merged items.
 
+## Amendment v1.1 — printed-name existence tier (user-approved 2026-07-17; evidence: ledger eval 075)
+
+After polarity v1, a second tier drops novel-name inventions — items whose names are printed nowhere:
+
+- **Menu readability gate (mandatory):** the tier activates ONLY when ≥50% of the menu's non-drink items are anchored (any mention-guard anchor). Where the OCR cannot read a menu's names (nikkori ≈12% anchored — its real rolls score 0.00 on name similarity and would all be deleted otherwise), the tier is inert. Deletion authority is granted per menu only where the evidence source proves it reads that menu.
+- **Existence check:** for each kept non-drink item that is `unverifiable` AND has no anchor: compute best per-block similarity of significant name tokens (≥3 chars, non-numeric/unit; loose edit-distance allowance ≤ min(3, len/3); score = matched / max(candidate, block token counts) — long prose self-penalizes). Score < 0.75 → **drop**, logged `[colocation] drop-invented`. Score ≥ 0.75 → keep (real-but-misread name class: TortiBoneless, El Tenderazo, Cabeza Pollotera all score 1.00; all 6 known inventions score ≤ 0.67).
+- Replay expectations with the tier: eval-068 baseline 46 → 40 exact (4 sibling drops + Sour Cream Cheese Fries + Ensalada de Pollo a la Plancha); nikkori 0 drops ×3 unchanged.
+
 ## Explicitly out of scope
 
 - Nested tile geometry (REJECTED, eval 072 — do not re-probe).

@@ -153,6 +153,19 @@ export function selectedMacros(goals: string[]): Set<MacroField> {
 }
 
 /** Runs the live Stage 1 GPT-4o Vision extraction path through Supabase. */
+export function buildExtractPagesBody(
+  pages: string[][],
+  ocrPhotos: (string | null)[],
+  provider: ExtractionProvider,
+) {
+  return {
+    pages,
+    ocr_photos: ocrPhotos,
+    provider,
+    stage: "extract-pages" as const,
+  };
+}
+
 export async function extractMenu(
   photos: ScanPhoto[],
   provider: ExtractionProvider,
@@ -212,6 +225,16 @@ export async function extractMenu(
     // re-submit every page as a group for one unified menu.
     console.log("[extractMenu] dense pages detected", data.needs_crops);
     const dense = new Set<number>(data.needs_crops);
+    const ocrPhotos = await Promise.all(
+      photos.map(async (photo, index) => {
+        if (!dense.has(index)) return null;
+        const compressed = await compressImage(photo.uri, photo.width, photo.height);
+        const b64 = await FileSystem.readAsStringAsync(compressed.uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        return `data:image/jpeg;base64,${b64}`;
+      }),
+    );
     const pages = await Promise.all(
       photos.map(async (photo, index) => {
         if (!dense.has(index)) return [base64Photos[index]];
@@ -230,7 +253,7 @@ export async function extractMenu(
       }),
     );
     const phase2 = await supabase.functions.invoke(FUNCTION_NAME, {
-      body: { pages, provider, stage: "extract-pages" },
+      body: buildExtractPagesBody(pages, ocrPhotos, provider),
     });
     if (phase2.error) {
       logFunctionInvokeError(debugContext, phase2.error);

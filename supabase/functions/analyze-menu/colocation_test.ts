@@ -1,14 +1,14 @@
 import { assert, assertEquals } from "jsr:@std/assert";
 import {
   applyColocation,
-  colocationStage,
   bestLineSim,
+  colocationStage,
   editDistance,
   judgeItem,
+  looseTokenMatch,
   nameTokens,
   normTokens,
   parseGrams,
-  looseTokenMatch,
   sigTokens,
   toBlockTexts,
   tokenMatch,
@@ -64,7 +64,9 @@ function item(partial: Partial<ExtractedMenuItem> = {}): ExtractedMenuItem {
 }
 
 function blocks(...content: string[]) {
-  return toBlockTexts(content.map((value) => ({ content: value, type: "text" })));
+  return toBlockTexts(
+    content.map((value) => ({ content: value, type: "text" })),
+  );
 }
 
 Deno.test("judgeItem distinguishes verified, contradicted, and unverifiable", () => {
@@ -103,17 +105,28 @@ Deno.test("polarity drops a contradicted item when a sibling verifies the block"
 
 Deno.test("polarity flags but keeps a contradicted item without a sibling", () => {
   const tender = item({ name: "Tender (150gr)", price: 165 });
-  assertEquals(applyColocation(blocks("Tender (350gr) $165"), [tender]), [tender]);
+  assertEquals(applyColocation(blocks("Tender (350gr) $165"), [tender]), [
+    tender,
+  ]);
 });
 
 Deno.test("unverifiable items are kept", () => {
   const alitas = item({ name: "Alitas (125gr)", price: 129 });
-  assertEquals(applyColocation(blocks("Ensalada Verde (150gr) $52"), [alitas]), [alitas]);
+  assertEquals(
+    applyColocation(blocks("Ensalada Verde (150gr) $52"), [alitas]),
+    [alitas],
+  );
 });
 
 Deno.test("drinks are never judged or dropped", () => {
-  const drink = item({ name: "Refresco (350gr)", price: 70, category: "drink" });
-  assertEquals(applyColocation(blocks("Refresco (150gr) $50"), [drink]), [drink]);
+  const drink = item({
+    name: "Refresco (350gr)",
+    price: 70,
+    category: "drink",
+  });
+  assertEquals(applyColocation(blocks("Refresco (150gr) $50"), [drink]), [
+    drink,
+  ]);
 });
 
 Deno.test("colocationStage fails open and skips empty tile groups", async () => {
@@ -123,11 +136,15 @@ Deno.test("colocationStage fails open and skips empty tile groups", async () => 
     calls++;
     throw new Error("offline");
   };
-  assertEquals(await colocationStage([["tile"]], [alitas], "key", fetchOcr), [alitas]);
+  assertEquals(await colocationStage(["tile"], [alitas], "key", fetchOcr), [
+    alitas,
+  ]);
   assertEquals(calls, 1);
   assertEquals(await colocationStage([], [alitas], "key", fetchOcr), [alitas]);
   assertEquals(calls, 1);
-  assertEquals(await colocationStage([["tile"]], [alitas], undefined, fetchOcr), [alitas]);
+  assertEquals(await colocationStage(["tile"], [alitas], undefined, fetchOcr), [
+    alitas,
+  ]);
   assertEquals(calls, 1);
 });
 
@@ -140,6 +157,25 @@ Deno.test("runGroupedExtraction portrait path skips co-location fetches", async 
   };
   assertEquals(await colocationStage([], [alitas], "key", fetchOcr), [alitas]);
   assertEquals(calls, 0);
+});
+
+Deno.test("colocationStage fetches each supplied full-photo OCR entry once", async () => {
+  const seen: string[] = [];
+  const fetchOcr = async (photo: string) => {
+    seen.push(photo);
+    return Array.from({ length: 5 }, (_, index) => ({
+      content: `line ${index}`,
+      type: "text",
+    }));
+  };
+  const result = await colocationStage(
+    ["photo-a", "photo-b"],
+    [item({ name: "Alitas" })],
+    "key",
+    fetchOcr,
+  );
+  assertEquals(seen, ["photo-a", "photo-b"]);
+  assertEquals(result.length, 1);
 });
 
 Deno.test("existence editDistance and looseTokenMatch allow bounded name drift", () => {
@@ -176,7 +212,10 @@ Deno.test("bestLineSim compares significant name tokens per OCR block", () => {
 
 Deno.test("existence tier stays inert when the menu is unreadable", () => {
   const invented = item({ name: "Plato Nuevo", price: 99 });
-  assertEquals(applyColocation(blocks("Ensalada Verde (150gr) $52"), [invented]), [invented]);
+  assertEquals(
+    applyColocation(blocks("Ensalada Verde (150gr) $52"), [invented]),
+    [invented],
+  );
 });
 
 Deno.test("existence tier drops low-sim inventions but keeps misreads, flags, and drinks", () => {
@@ -184,7 +223,11 @@ Deno.test("existence tier drops low-sim inventions but keeps misreads, flags, an
   const flagged = item({ name: "Tender (150gr)", price: 165 });
   const misread = item({ name: "El Tenderazo", price: 200 });
   const invented = item({ name: "Plato Nuevo", price: 99 });
-  const drink = item({ name: "Refresco (350gr)", price: 70, category: "drink" });
+  const drink = item({
+    name: "Refresco (350gr)",
+    price: 70,
+    category: "drink",
+  });
   const result = applyColocation(
     blocks(
       "Ensalada Verde (150gr) $52",
@@ -210,11 +253,14 @@ Deno.test("tile path drops category:other condiment echoes", async () => {
     {
       image_quality: { usable: true, issues: [] },
       image_layout: { dense: false, crop_direction: "none" },
-      items: [item({ name: "Tacos", price: 100 }), item({
-        name: "Ranch",
-        price: 10,
-        category: "other",
-      })],
+      items: [
+        item({ name: "Tacos", price: 100 }),
+        item({
+          name: "Ranch",
+          price: 10,
+          category: "other",
+        }),
+      ],
       raw_response: "t1",
     },
     {

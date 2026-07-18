@@ -1,11 +1,16 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import {
   chunk,
-  reassembleEnriched,
   type EnrichedItem,
   type ExtractedItem,
+  reassembleEnriched,
 } from "./enrich.ts";
-import { runCropExtractions, runGroupedExtraction, runPagedExtraction } from "./extract.ts";
+import {
+  runCropExtractions,
+  runGroupedExtraction,
+  runPagedExtraction,
+} from "./extract.ts";
+import { isValidOcrPhotos } from "./request-validation.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
 const MODEL_TIMEOUT_MS = 120000;
@@ -14,7 +19,8 @@ const ENRICH_SEED = 17; // fixed seed + temperature 0 run-to-run stability
 
 // ── Stage 2: enrichment (gram-based CoT, goal-agnostic) ─────────────────────
 
-const ENRICH_PROMPT = `You estimate the nutrition profile of restaurant menu items. For each item, work step by step:
+const ENRICH_PROMPT =
+  `You estimate the nutrition profile of restaurant menu items. For each item, work step by step:
 1. List the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other.
 2. From those ingredients and the likely preparation (e.g. grilled vs fried), estimate per typical single restaurant serving: protein_g, carb_g, fat_g, estimated_calories. If the item's name or description contains explicit weight or portion info — e.g. (280gr), chicken (80gr), 2 chicken breasts sliced — use it as the primary basis for gram estimates rather than a typical portion; prefer printed weights over guesses.
 3. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive, leaving you with little ingredient information to go on.
@@ -22,7 +28,10 @@ List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, s
 
 const ENRICH_INGREDIENT_PROPS = {
   name: { type: "string" },
-  category: { type: "string", enum: ["protein", "carb", "fat", "veg", "other"] },
+  category: {
+    type: "string",
+    enum: ["protein", "carb", "fat", "veg", "other"],
+  },
 };
 
 const ENRICH_SCHEMA_OPENAI = {
@@ -36,8 +45,19 @@ const ENRICH_SCHEMA_OPENAI = {
           name: { type: "string" },
           description: { type: "string" },
           price: { type: ["number", "null"] },
-          category: { type: "string", enum: ["food", "side", "dessert", "drink", "other"] },
-          ingredients: { type: "array", items: { type: "object", properties: ENRICH_INGREDIENT_PROPS, required: ["name", "category"], additionalProperties: false } },
+          category: {
+            type: "string",
+            enum: ["food", "side", "dessert", "drink", "other"],
+          },
+          ingredients: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: ENRICH_INGREDIENT_PROPS,
+              required: ["name", "category"],
+              additionalProperties: false,
+            },
+          },
           protein_g: { type: "number" },
           carb_g: { type: "number" },
           fat_g: { type: "number" },
@@ -45,7 +65,19 @@ const ENRICH_SCHEMA_OPENAI = {
           confidence: { type: "string", enum: ["high", "medium", "low"] },
           allergens: { type: "array", items: { type: "string" } },
         },
-        required: ["name", "description", "price", "category", "ingredients", "protein_g", "carb_g", "fat_g", "estimated_calories", "confidence", "allergens"],
+        required: [
+          "name",
+          "description",
+          "price",
+          "category",
+          "ingredients",
+          "protein_g",
+          "carb_g",
+          "fat_g",
+          "estimated_calories",
+          "confidence",
+          "allergens",
+        ],
         additionalProperties: false,
       },
     },
@@ -82,23 +114,28 @@ async function callOpenAIChat(
   schema: unknown,
   options?: { temperature?: number; seed?: number },
 ): Promise<string> {
-  const res = await fetchWithTimeout("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [{ role: "user", content }],
-      response_format: {
-        type: "json_schema",
-        json_schema: { name: "menu_items", strict: true, schema },
+  const res = await fetchWithTimeout(
+    "https://api.openai.com/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
-      ...(options?.temperature !== undefined ? { temperature: options.temperature } : {}),
-      ...(options?.seed !== undefined ? { seed: options.seed } : {}),
-    }),
-  });
+      body: JSON.stringify({
+        model,
+        messages: [{ role: "user", content }],
+        response_format: {
+          type: "json_schema",
+          json_schema: { name: "menu_items", strict: true, schema },
+        },
+        ...(options?.temperature !== undefined
+          ? { temperature: options.temperature }
+          : {}),
+        ...(options?.seed !== undefined ? { seed: options.seed } : {}),
+      }),
+    },
+  );
   const json = await res.json();
   if (!res.ok) throw new Error(json.error?.message ?? "OpenAI API error");
   console.log("[openai] finish_reason:", json.choices[0].finish_reason);
@@ -112,26 +149,39 @@ function buildEnrichContent(items: unknown): string {
 
 /** Enriches one small batch of items with stabilized sampling. */
 async function enrichBatch(items: ExtractedItem[]): Promise<EnrichedItem[]> {
-  const text = await callOpenAIChat("gpt-4o", buildEnrichContent(items), ENRICH_SCHEMA_OPENAI, {
-    temperature: 0,
-    seed: ENRICH_SEED,
-  });
+  const text = await callOpenAIChat(
+    "gpt-4o",
+    buildEnrichContent(items),
+    ENRICH_SCHEMA_OPENAI,
+    {
+      temperature: 0,
+      seed: ENRICH_SEED,
+    },
+  );
   return JSON.parse(text).items as EnrichedItem[];
 }
 
 /** Enriches a batch, retrying once if the model returns fewer items than sent. */
-async function enrichBatchWithRetry(batch: ExtractedItem[]): Promise<EnrichedItem[]> {
+async function enrichBatchWithRetry(
+  batch: ExtractedItem[],
+): Promise<EnrichedItem[]> {
   try {
     const first = await enrichBatch(batch);
     if (first.length >= batch.length) return first;
   } catch (err) {
-    console.error("[enrich] batch failed, retrying:", err instanceof Error ? err.message : err);
+    console.error(
+      "[enrich] batch failed, retrying:",
+      err instanceof Error ? err.message : err,
+    );
   }
 
   try {
     return await enrichBatch(batch);
   } catch (err) {
-    console.error("[enrich] batch failed twice, backfilling:", err instanceof Error ? err.message : err);
+    console.error(
+      "[enrich] batch failed twice, backfilling:",
+      err instanceof Error ? err.message : err,
+    );
     return [];
   }
 }
@@ -141,7 +191,9 @@ async function enrichBatchWithRetry(batch: ExtractedItem[]): Promise<EnrichedIte
  * to avoid early-stopping/truncation, then reassembles to guarantee one enriched
  * item per input (dropped items are backfilled in enrich.ts).
  */
-async function callGptEnrich(items: ExtractedItem[]): Promise<{ items: EnrichedItem[]; raw_response: string }> {
+async function callGptEnrich(
+  items: ExtractedItem[],
+): Promise<{ items: EnrichedItem[]; raw_response: string }> {
   const batches = chunk(items, ENRICH_BATCH_SIZE);
   const settled = await Promise.all(batches.map(enrichBatchWithRetry));
   const enriched = reassembleEnriched(items, settled.flat());
@@ -150,7 +202,8 @@ async function callGptEnrich(items: ExtractedItem[]): Promise<{ items: EnrichedI
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 const MAX_PHOTOS = 10;
 const MAX_BASE64_LEN = 10_000_000;
@@ -158,8 +211,16 @@ const MAX_BASE64_LEN = 10_000_000;
 /** Returns the standard edge-function 400 response shape. */
 function badRequest(message: string): Response {
   return new Response(
-    JSON.stringify({ items: [], latency_ms: 0, model_id: "error", error: message }),
-    { status: 400, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
+    JSON.stringify({
+      items: [],
+      latency_ms: 0,
+      model_id: "error",
+      error: message,
+    }),
+    {
+      status: 400,
+      headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+    },
   );
 }
 
@@ -170,7 +231,8 @@ serve(async (req) => {
   }
 
   try {
-    const { photos, pages, provider, stage, items: inputItems } = await req.json();
+    const { photos, pages, ocr_photos, provider, stage, items: inputItems } =
+      await req.json();
     if (typeof provider !== "string") {
       return badRequest("Invalid 'provider'");
     }
@@ -186,7 +248,9 @@ serve(async (req) => {
     // ponytail: trusted server-derived ExtractedItem[]; validate deeper if clients post raw items.
     if (stage === "enrich") {
       if (!Array.isArray(inputItems) || inputItems.length === 0) {
-        return badRequest("Invalid 'items': expected a non-empty array of extracted items");
+        return badRequest(
+          "Invalid 'items': expected a non-empty array of extracted items",
+        );
       }
 
       const start = Date.now();
@@ -201,8 +265,13 @@ serve(async (req) => {
       }
 
       return new Response(
-        JSON.stringify({ items: result.items, raw_response: result.raw_response, latency_ms: Date.now() - start, model_id: modelId }),
-        { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
+        JSON.stringify({
+          items: result.items,
+          raw_response: result.raw_response,
+          latency_ms: Date.now() - start,
+          model_id: modelId,
+        }),
+        { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
       );
     }
 
@@ -211,19 +280,40 @@ serve(async (req) => {
         throw new Error(`Unknown extraction provider: ${provider}`);
       }
       if (
-        !Array.isArray(pages) || pages.length === 0 || pages.length > MAX_PHOTOS ||
+        !Array.isArray(pages) || pages.length === 0 ||
+        pages.length > MAX_PHOTOS ||
         !pages.every((group: unknown) =>
           Array.isArray(group) &&
           (group.length === 1 || group.length === 4) &&
-          group.every((p) => typeof p === "string" && p.length <= MAX_BASE64_LEN)
+          group.every((p) =>
+            typeof p === "string" && p.length <= MAX_BASE64_LEN
+          )
         )
       ) {
-        return badRequest("Invalid 'pages': expected 1-10 groups of 1 or 4 base64 images");
+        return badRequest(
+          "Invalid 'pages': expected 1-10 groups of 1 or 4 base64 images",
+        );
+      }
+      if (!isValidOcrPhotos(ocr_photos, pages.length)) {
+        return badRequest("Invalid 'ocr_photos'");
       }
       const start = Date.now();
-      const result = await runGroupedExtraction(pages, OPENAI_API_KEY);
+      const result = await runGroupedExtraction(
+        pages,
+        OPENAI_API_KEY,
+        undefined,
+        undefined,
+        ocr_photos ?? [],
+      );
       return new Response(
-        JSON.stringify({ image_quality: result.image_quality, image_layout: result.image_layout, items: result.items, raw_response: result.raw_response, latency_ms: Date.now() - start, model_id: "gpt-4o" }),
+        JSON.stringify({
+          image_quality: result.image_quality,
+          image_layout: result.image_layout,
+          items: result.items,
+          raw_response: result.raw_response,
+          latency_ms: Date.now() - start,
+          model_id: "gpt-4o",
+        }),
         { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
       );
     }
@@ -234,7 +324,9 @@ serve(async (req) => {
       photos.length > MAX_PHOTOS ||
       !photos.every((p) => typeof p === "string" && p.length <= MAX_BASE64_LEN)
     ) {
-      return badRequest("Invalid 'photos': expected 1-10 base64 image strings within size limit");
+      return badRequest(
+        "Invalid 'photos': expected 1-10 base64 image strings within size limit",
+      );
     }
 
     const start = Date.now();
@@ -272,14 +364,25 @@ serve(async (req) => {
         // Dense page(s) detected: client must cut originals into 2x2 tiles
         // and re-submit everything via stage:"extract-pages".
         return new Response(
-          JSON.stringify({ needs_crops: result.needs_crops, latency_ms: Date.now() - start, model_id: "gpt-4o" }),
+          JSON.stringify({
+            needs_crops: result.needs_crops,
+            latency_ms: Date.now() - start,
+            model_id: "gpt-4o",
+          }),
           { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
         );
       }
 
       return new Response(
-        JSON.stringify({ image_quality: result.image_quality, image_layout: result.image_layout, items: result.items, raw_response: result.raw_response, latency_ms: Date.now() - start, model_id: "gpt-4o" }),
-        { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
+        JSON.stringify({
+          image_quality: result.image_quality,
+          image_layout: result.image_layout,
+          items: result.items,
+          raw_response: result.raw_response,
+          latency_ms: Date.now() - start,
+          model_id: "gpt-4o",
+        }),
+        { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
       );
     }
 
@@ -292,7 +395,10 @@ serve(async (req) => {
         model_id: "error",
         error: err instanceof Error ? err.message : "Unknown error",
       }),
-      { status: 500, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } }
+      {
+        status: 500,
+        headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+      },
     );
   }
 });

@@ -10,7 +10,12 @@
 import { runGroupedExtraction } from "../supabase/functions/analyze-menu/extract.ts";
 import { type CropRect, gridCropRects } from "../src/lib/adaptiveExtraction.ts";
 import { scoreMenu } from "./eval-extraction.ts";
-import { MENU_DIR } from "./photo-input.ts";
+import {
+  compressedPhotoData,
+  MENU_DIR,
+  PROD_JPEG_QUALITY,
+  PROD_MAX_DIMENSION,
+} from "./photo-input.ts";
 import { buildProbeDump } from "./probe-output.ts";
 import { cutTile } from "./tile-cut.ts";
 
@@ -84,6 +89,12 @@ async function cutTiles(rects: CropRect[], tag: string): Promise<string[]> {
 }
 
 const { w, h } = await dims(`${MENU_DIR}/${PHOTO}`);
+const ocrPhoto = await compressedPhotoData(
+  PHOTO,
+  PROD_MAX_DIMENSION,
+  PROD_JPEG_QUALITY,
+  tmp,
+);
 const GEOMETRIES = [
   { key: "2x2", rects: gridCropRects(w, h) },
 ];
@@ -96,7 +107,13 @@ for (const g of GEOMETRIES) {
 
   for (let run = 1; run <= 3; run++) {
     try {
-      const result = await runGroupedExtraction([tiles], apiKey);
+      const result = await runGroupedExtraction(
+        [tiles],
+        apiKey,
+        undefined,
+        undefined,
+        [ocrPhoto],
+      );
       const report = scoreMenu(fixture, {
         image_quality: result.image_quality,
         items: result.items,

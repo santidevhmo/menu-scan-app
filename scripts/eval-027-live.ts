@@ -28,7 +28,12 @@ import {
   optionRecall,
   scoreMenu,
 } from "./eval-extraction.ts";
-import { productionPhotoData } from "./photo-input.ts";
+import {
+  compressedPhotoData,
+  PROD_JPEG_QUALITY,
+  PROD_MAX_DIMENSION,
+  productionPhotoData,
+} from "./photo-input.ts";
 import { cutTile } from "./tile-cut.ts";
 
 type Fixture = Parameters<typeof scoreMenu>[0];
@@ -125,7 +130,25 @@ async function extractMenu(
       denseSet.has(index) ? await cutTiles(name) : [await photoData(name)]
     ),
   );
-  const result = await runGroupedExtraction(groups, apiKey);
+  const ocrPhotos = await Promise.all(
+    fixture.photos.map((name, index) =>
+      denseSet.has(index)
+        ? compressedPhotoData(
+          name,
+          PROD_MAX_DIMENSION,
+          PROD_JPEG_QUALITY,
+          INPUT_TMP,
+        )
+        : Promise.resolve(null)
+    ),
+  );
+  const result = await runGroupedExtraction(
+    groups,
+    apiKey,
+    undefined,
+    undefined,
+    ocrPhotos,
+  );
   return {
     image_quality: result.image_quality,
     items: result.items,

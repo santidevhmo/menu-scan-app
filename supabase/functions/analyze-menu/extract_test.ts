@@ -776,3 +776,53 @@ Deno.test("multi-photo pages get the page suffix; single-photo scans do not", as
   assertEquals(calls.map((c) => c.page), [false, true, true, true]);
   assertEquals(calls.every((c) => !c.tile), true);
 });
+
+Deno.test("runGroupedExtraction sends OCR photos only for dense groups", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalKey = Deno.env.get("MISTRAL_API_KEY");
+  const ocrPhotos: string[] = [];
+  globalThis.fetch = (async (input, init) => {
+    const body = JSON.parse(await new Request(input, init).text()) as {
+      document: { image_url: string };
+    };
+    ocrPhotos.push(body.document.image_url);
+    return new Response(JSON.stringify({
+      pages: [{
+        blocks: Array.from({ length: 5 }, (_, index) => ({
+          content: `line ${index}`,
+          type: "text",
+        })),
+      }],
+    }));
+  }) as typeof fetch;
+  Deno.env.set("MISTRAL_API_KEY", "test-key");
+  try {
+    const results = [
+      fakeResult({ raw_response: "portrait" }),
+      ...[
+        "tile-1",
+        "tile-2",
+        "tile-3",
+        "tile-4",
+      ].map((raw_response) => fakeResult({ raw_response })),
+    ];
+    let call = 0;
+    const extract = (() =>
+      Promise.resolve(results[call++])) as typeof extractWithRetry;
+    const verify = ((_tile: string, items: ExtractionResult["items"]) =>
+      Promise.resolve(items)) as typeof verifyTileItems;
+
+    await runGroupedExtraction(
+      [["portrait"], ["tile-1", "tile-2", "tile-3", "tile-4"]],
+      "openai-key",
+      extract,
+      verify,
+      ["portrait-ocr", "full-photo-ocr"],
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (originalKey === undefined) Deno.env.delete("MISTRAL_API_KEY");
+    else Deno.env.set("MISTRAL_API_KEY", originalKey);
+  }
+  assertEquals(ocrPhotos, ["full-photo-ocr"]);
+});

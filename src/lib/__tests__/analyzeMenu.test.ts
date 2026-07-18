@@ -1,4 +1,4 @@
-import { sortItemsByGoals } from "../analyzeMenu";
+import { buildExtractPagesBody, sortItemsByGoals } from "../analyzeMenu";
 import type { EnrichedItem } from "@/types/scan";
 
 let passed = 0;
@@ -68,6 +68,17 @@ console.log("\nsortItemsByGoals - goal order affects ranking");
   );
   check("carb-first goals rank carb item first", carbFirst[0].name === "Carb");
 }
+
+const phase2Body = buildExtractPagesBody(
+  [["tile-a", "tile-b", "tile-c", "tile-d"], ["portrait"]],
+  ["data:image/jpeg;base64,dense-photo", null],
+  "gpt-vision",
+);
+check(
+  "phase-2 body carries full-photo OCR data URL for dense pages",
+  phase2Body.ocr_photos[0] === "data:image/jpeg;base64,dense-photo" &&
+    phase2Body.ocr_photos[1] === null,
+);
 
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) {

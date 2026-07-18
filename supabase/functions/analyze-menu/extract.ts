@@ -535,6 +535,7 @@ export async function runGroupedExtraction(
   apiKey: string,
   extract = extractWithRetry,
   verify = verifyTileItems,
+  ocrPhotos: (string | null)[] = [],
 ): Promise<ExtractionResult> {
   const groupResults = await Promise.all(groups.map(async (group, index) => {
     if (group.length === 1) {
@@ -611,7 +612,12 @@ export async function runGroupedExtraction(
     mistralApiKey = undefined;
   }
   const cleaned = await colocationStage(
-    groups.filter((g) => g.length === 4),
+    groups.flatMap((group, index) => {
+      const photo = ocrPhotos[index];
+      return group.length === 4 && typeof photo === "string" && photo.length > 0
+        ? [photo]
+        : [];
+    }),
     items,
     mistralApiKey,
   );

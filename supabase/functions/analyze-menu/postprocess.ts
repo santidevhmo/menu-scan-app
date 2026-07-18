@@ -187,7 +187,8 @@ const INLINE_DISJUNCTION = /\s(?:o|u|or)\s/i;
 // Suizas"); right scan includes it (the list ends at the first punctuation).
 const LEFT_BOUNDARY_CHARS = ".;:()";
 const RIGHT_BOUNDARY = /[.,;:()]/;
-const CHOICE_CONNECTOR = /^(?:a elegir:?\s+|choice of\s+|c\/\s*|(?:con|de|en|with)\s+)/i;
+const CHOICE_CONNECTOR =
+  /^(?:a elegir:?\s+|choice of\s+|c\/\s*|(?:con|de|en|with)\s+)/i;
 const MAX_CHOICE_WORDS = 3;
 
 // GPT-4o reliably transcribes "con X o Y" choices into the description but
@@ -212,7 +213,9 @@ function parseInlineChoices(description: string): string[] | null {
   parts[0] = parts[0].replace(CHOICE_CONNECTOR, "").trim();
   const choices = [...parts, rightText].filter(Boolean);
   if (choices.length < 2) return null;
-  if (choices.some((c) => c.split(/\s+/).length > MAX_CHOICE_WORDS)) return null;
+  if (choices.some((c) => c.split(/\s+/).length > MAX_CHOICE_WORDS)) {
+    return null;
+  }
   return choices;
 }
 
@@ -279,16 +282,18 @@ export function nullPriceNoteSections(
 ): ExtractedMenuItem[] {
   return items.map((item) => ({
     ...item,
-    section_title: item.section_title && PRICE_NOTE_SECTION.test(item.section_title)
-      ? null
-      : item.section_title,
+    section_title:
+      item.section_title && PRICE_NOTE_SECTION.test(item.section_title)
+        ? null
+        : item.section_title,
   }));
 }
 
 // A choice MENTION with no printed alternatives ("Tortillas a elegir",
 // "de su elección") is not an option — mirrors the P1 rule and the inline
 // parser's guard. ponytail: es/en phrases; extend per language from data.
-const UNENUMERATED_CHOICE = /^\s*(?:\p{L}+\s+)?(?:a elegir|de su elecci[oó]n|su elecci[oó]n|of your choice|to choose)\s*$/iu;
+const UNENUMERATED_CHOICE =
+  /^\s*(?:\p{L}+\s+)?(?:a elegir|de su elecci[oó]n|su elecci[oó]n|of your choice|to choose)\s*$/iu;
 
 // Per-unit price notation ("$98 C/U" = cada uno / each) — a price note, not a
 // choice. Single-letter c/X covers the model's digit-class misreads of the
@@ -395,18 +400,23 @@ export function dropBannerEchoOptions(
 export function dropOptionEchoItems(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
-  return items.filter((item) =>
-    item.options.length > 0 ||
-    !items.some((parent) =>
+  return items.filter((item) => {
+    if (item.options.length > 0) return true;
+    const name = normalizeName(item.name);
+    const section = item.section_title && normalizeName(item.section_title);
+    const echoName = section && name.startsWith(`${section} `)
+      ? name.slice(section.length).trim()
+      : name;
+    return !items.some((parent) =>
       parent !== item &&
       parent.options.some((option) =>
-        normalizeName(option.name) === normalizeName(item.name) &&
+        normalizeName(option.name) === echoName &&
         (option.price !== null
           ? option.price === item.price
           : parent.price === item.price)
       )
-    )
-  );
+    );
+  });
 }
 
 // A tile whose cut slices a heading emits only the visible fragment as its
@@ -499,23 +509,37 @@ if (import.meta.main) {
       { name: "Chistorra (150gr)", price: null, grams: null },
     ],
   })]);
-  if (cerdo.length !== 2) throw new Error(`cerdo: expected 2, got ${cerdo.length}`);
-  if (cerdo.some((i) => i.section_title !== "Cerdo")) throw new Error("cerdo: section_title");
-  if (cerdo[0].name !== "Bandiola Adobada (150gr)") throw new Error("cerdo: name");
+  if (cerdo.length !== 2) {
+    throw new Error(`cerdo: expected 2, got ${cerdo.length}`);
+  }
+  if (cerdo.some((i) => i.section_title !== "Cerdo")) {
+    throw new Error("cerdo: section_title");
+  }
+  if (cerdo[0].name !== "Bandiola Adobada (150gr)") {
+    throw new Error("cerdo: name");
+  }
   // Wine (format-priced) → left as a single item, NOT promoted.
   const wine = promoteSections([item({
     name: "Cabernet Sauvignon",
     section_title: "Tintos",
-    options: [{ name: "Copa 85 mxn / Botella 450 mxn", price: null, grams: null }],
+    options: [{
+      name: "Copa 85 mxn / Botella 450 mxn",
+      price: null,
+      grams: null,
+    }],
   })]);
-  if (wine.length !== 1 || wine[0].name !== "Cabernet Sauvignon") throw new Error("wine promoted");
+  if (wine.length !== 1 || wine[0].name !== "Cabernet Sauvignon") {
+    throw new Error("wine promoted");
+  }
   // Priced item with options → untouched.
   const priced = promoteSections([item({
     name: "Con jamón, chorizo o tocino",
     price: 90,
     options: [{ name: "jamón", price: null, grams: null }],
   })]);
-  if (priced.length !== 1 || priced[0].price !== 90) throw new Error("priced promoted");
+  if (priced.length !== 1 || priced[0].price !== 90) {
+    throw new Error("priced promoted");
+  }
   // Numeric tokens are serving-format generally, not via a hardcoded list.
   const numeric = filterServingFormatOptions([item({
     name: "Cabernet",
@@ -526,9 +550,13 @@ if (import.meta.main) {
     ],
   })]);
   if (numeric[0].options.length !== 1) {
-    throw new Error(`numeric: expected 1 surviving option, got ${numeric[0].options.length}`);
+    throw new Error(
+      `numeric: expected 1 surviving option, got ${numeric[0].options.length}`,
+    );
   }
-  if (numeric[0].options[0].name !== "2 Chicken Breasts") throw new Error("numeric: wrong survivor");
+  if (numeric[0].options[0].name !== "2 Chicken Breasts") {
+    throw new Error("numeric: wrong survivor");
+  }
   // Same-name variant cards fold into one item; descriptions become priced options.
   const folded = foldVariantCards([
     item({ name: "REVUELTOS", price: 78, description: "Dos huevos naturales" }),
@@ -536,15 +564,27 @@ if (import.meta.main) {
       name: "Revueltos",
       price: 84,
       description: "Dos huevos a la mexicana",
-      options: [{ name: "Con jamón, chorizo o tocino", price: 90, grams: null }],
+      options: [{
+        name: "Con jamón, chorizo o tocino",
+        price: 90,
+        grams: null,
+      }],
     }),
   ]);
-  if (folded.length !== 1) throw new Error(`fold: expected 1 card, got ${folded.length}`);
-  if (folded[0].price !== 78 || folded[0].description !== "Dos huevos naturales") {
+  if (folded.length !== 1) {
+    throw new Error(`fold: expected 1 card, got ${folded.length}`);
+  }
+  if (
+    folded[0].price !== 78 || folded[0].description !== "Dos huevos naturales"
+  ) {
     throw new Error("fold: base card must stay first card");
   }
-  const foldedNames = folded[0].options.map((o) => `${o.name}@${o.price}`).join("|");
-  if (foldedNames !== "Con jamón, chorizo o tocino@90|Dos huevos a la mexicana@84") {
+  const foldedNames = folded[0].options.map((o) => `${o.name}@${o.price}`).join(
+    "|",
+  );
+  if (
+    foldedNames !== "Con jamón, chorizo o tocino@90|Dos huevos a la mexicana@84"
+  ) {
     throw new Error(`fold: options wrong: ${foldedNames}`);
   }
   // A price-shell variant (empty description, has options) contributes only its options.
@@ -553,21 +593,33 @@ if (import.meta.main) {
     item({
       name: "FRITOS",
       price: 90,
-      options: [{ name: "Con jamón, chorizo o tocino", price: 90, grams: null }],
+      options: [{
+        name: "Con jamón, chorizo o tocino",
+        price: 90,
+        grams: null,
+      }],
     }),
   ]);
-  if (shell.length !== 1 || shell[0].options.length !== 1) throw new Error("fold: shell");
+  if (shell.length !== 1 || shell[0].options.length !== 1) {
+    throw new Error("fold: shell");
+  }
   // Identical true duplicates fold silently, no option added.
   const dup = foldVariantCards([
     item({ name: "Kurimu Roll", price: 169, description: "Salmón" }),
     item({ name: "Kurimu Roll", price: 169, description: "Salmón" }),
   ]);
-  if (dup.length !== 1 || dup[0].options.length !== 0) throw new Error("fold: dup");
+  if (dup.length !== 1 || dup[0].options.length !== 0) {
+    throw new Error("fold: dup");
+  }
   // Same price + drifted description = OCR double-read, NOT a variant: no
   // option is invented, both cards stay.
   const ocrDouble = foldVariantCards([
     item({ name: "Nico", price: 159, description: "Por dentro: Arroz frito" }),
-    item({ name: "Nico", price: 159, description: "Por dentro: Arroz frito con camarón" }),
+    item({
+      name: "Nico",
+      price: 159,
+      description: "Por dentro: Arroz frito con camarón",
+    }),
   ]);
   if (ocrDouble.length !== 2 || ocrDouble.some((i) => i.options.length > 0)) {
     throw new Error("fold: OCR double must not become an option");
@@ -576,20 +628,46 @@ if (import.meta.main) {
   // family even at the same price (Chilaquiles' three preparations @138) —
   // OCR double-reads come in pairs, so the pair case (Nico) stays unfolded.
   const triple = foldVariantCards([
-    item({ name: "CHILAQUILES (70gr.)", price: 138, description: "Tradicionales. Con pollo." }),
-    item({ name: "CHILAQUILES (70gr.)", price: 138, description: "Regionales. Con pollo, crema." }),
-    item({ name: "CHILAQUILES (70gr.)", price: 138, description: "Divorciados Mitad rojos." }),
+    item({
+      name: "CHILAQUILES (70gr.)",
+      price: 138,
+      description: "Tradicionales. Con pollo.",
+    }),
+    item({
+      name: "CHILAQUILES (70gr.)",
+      price: 138,
+      description: "Regionales. Con pollo, crema.",
+    }),
+    item({
+      name: "CHILAQUILES (70gr.)",
+      price: 138,
+      description: "Divorciados Mitad rojos.",
+    }),
   ]);
-  if (triple.length !== 1) throw new Error(`fold triple: expected 1 card, got ${triple.length}`);
+  if (triple.length !== 1) {
+    throw new Error(`fold triple: expected 1 card, got ${triple.length}`);
+  }
   const tripleNames = triple[0].options.map((o) => o.name).join("|");
-  if (tripleNames !== "Regionales. Con pollo, crema.|Divorciados Mitad rojos.") {
+  if (
+    tripleNames !== "Regionales. Con pollo, crema.|Divorciados Mitad rojos."
+  ) {
     throw new Error(`fold triple: options wrong: ${tripleNames}`);
   }
   // A section-header echo (price-less, desc-less, option-less item whose name
   // is another item's section_title) is dropped; real dishes stay.
   const echoes = dropHeaderEchoes([
-    item({ name: "CERVEZAS", price: null, category: "other", section_title: "BEBIDAS CON ALCOHOL" }),
-    item({ name: "Tecate Roja", price: 45, category: "drink", section_title: "CERVEZAS" }),
+    item({
+      name: "CERVEZAS",
+      price: null,
+      category: "other",
+      section_title: "BEBIDAS CON ALCOHOL",
+    }),
+    item({
+      name: "Tecate Roja",
+      price: 45,
+      category: "drink",
+      section_title: "CERVEZAS",
+    }),
     item({ name: "En Taco", price: null, section_title: "Churrasquería" }),
   ]);
   if (echoes.map((i) => i.name).join("|") !== "Tecate Roja|En Taco") {
@@ -612,8 +690,18 @@ if (import.meta.main) {
         { name: "Copa de nieve", price: 49, grams: null },
       ],
     }),
-    item({ name: "Red velvet", price: 105, category: "dessert", section_title: "Postres" }),
-    item({ name: "Copa de nieve", price: 49, category: "dessert", section_title: "Postres" }),
+    item({
+      name: "Red velvet",
+      price: 105,
+      category: "dessert",
+      section_title: "Postres",
+    }),
+    item({
+      name: "Copa de nieve",
+      price: 49,
+      category: "dessert",
+      section_title: "Postres",
+    }),
     item({
       name: "Vino Blanco",
       price: null,
@@ -624,28 +712,42 @@ if (import.meta.main) {
         { name: "Botella", price: 450, grams: null },
       ],
     }),
-    item({ name: "Otro tinto", price: 99, category: "drink", section_title: "Vinos" }),
+    item({
+      name: "Otro tinto",
+      price: 99,
+      category: "drink",
+      section_title: "Vinos",
+    }),
   ]);
   if (
     swallowed.map((i) => i.name).join("|") !==
       "Red velvet|Copa de nieve|Vino Blanco|Otro tinto"
   ) {
-    throw new Error(`swallowed header: got ${swallowed.map((i) => i.name).join("|")}`);
+    throw new Error(
+      `swallowed header: got ${swallowed.map((i) => i.name).join("|")}`,
+    );
   }
   // Inline printed choices in descriptions become options.
   const inlineCases: [string, string[]][] = [
     ["Con huevo o verdura (Machaca 30gr.)", ["huevo", "verdura"]],
     ["C/huevo o verdura", ["huevo", "verdura"]],
-    ["Verdes, Rojas o Suizas (verdes o rojas) 3 enchiladas rellenas de pollo.", ["Verdes", "Rojas", "Suizas"]],
+    [
+      "Verdes, Rojas o Suizas (verdes o rojas) 3 enchiladas rellenas de pollo.",
+      ["Verdes", "Rojas", "Suizas"],
+    ],
     ["Blanco o Integral (3 rebanadas)", ["Blanco", "Integral"]],
     ["Con queso cottage o yogurt (50gr.)", ["queso cottage", "yogurt"]],
     ["(Manzana o Plátano)", ["Manzana", "Plátano"]],
   ];
   for (const [desc, expected] of inlineCases) {
-    const parsed = extractInlineChoices([item({ name: "X", price: 10, description: desc })]);
+    const parsed = extractInlineChoices([
+      item({ name: "X", price: 10, description: desc }),
+    ]);
     const got = parsed[0].options.map((o) => o.name).join("|");
     if (got !== expected.join("|")) {
-      throw new Error(`inline "${desc}": expected ${expected.join("|")}, got ${got}`);
+      throw new Error(
+        `inline "${desc}": expected ${expected.join("|")}, got ${got}`,
+      );
     }
   }
   // A price-less card is a serving-note fragment (Churrasquería "En Taco":
@@ -698,7 +800,11 @@ if (import.meta.main) {
     item({
       name: "Revueltos",
       price: 78,
-      options: [{ name: "Con jamón, chorizo o tocino", price: 90, grams: null }],
+      options: [{
+        name: "Con jamón, chorizo o tocino",
+        price: 90,
+        grams: null,
+      }],
     }),
   ]);
   if (
@@ -716,7 +822,9 @@ if (import.meta.main) {
     description: "Hot cakes o huevo revuelto con su elección de jamón o tocino",
   })]);
   if (prose[0].options.length !== 0) {
-    throw new Error(`prose guard: got ${prose[0].options.map((o) => o.name).join("|")}`);
+    throw new Error(
+      `prose guard: got ${prose[0].options.map((o) => o.name).join("|")}`,
+    );
   }
   // Ingredient lists joined only by "y" are untouched.
   const yList = extractInlineChoices([item({
@@ -724,7 +832,9 @@ if (import.meta.main) {
     price: 159,
     description: "Por dentro: salmon, queso crema y aguacate.",
   })]);
-  if (yList[0].options.length !== 0) throw new Error("y-list must not create options");
+  if (yList[0].options.length !== 0) {
+    throw new Error("y-list must not create options");
+  }
   // Existing options are kept; parsed duplicates are not re-added.
   const existing = extractInlineChoices([item({
     name: "Pasta",
@@ -733,7 +843,9 @@ if (import.meta.main) {
     options: [{ name: "camarón", price: null, grams: null }],
   })]);
   if (existing[0].options.length !== 2) {
-    throw new Error(`dedup: got ${existing[0].options.map((o) => o.name).join("|")}`);
+    throw new Error(
+      `dedup: got ${existing[0].options.map((o) => o.name).join("|")}`,
+    );
   }
   // Unenumerated choice mentions create nothing.
   const unenumerated = extractInlineChoices([item({
@@ -741,7 +853,9 @@ if (import.meta.main) {
     price: 130,
     description: "Clásico caldo brasileño. (Tortillas a elegir)",
   })]);
-  if (unenumerated[0].options.length !== 0) throw new Error("unenumerated must not create options");
+  if (unenumerated[0].options.length !== 0) {
+    throw new Error("unenumerated must not create options");
+  }
   // A model-emitted choice MENTION without alternatives is not an option.
   const unenumeratedOpt = filterServingFormatOptions([item({
     name: "Feijoada",
@@ -754,7 +868,9 @@ if (import.meta.main) {
   })]);
   if (unenumeratedOpt[0].options.map((o) => o.name).join("|") !== "picaña") {
     throw new Error(
-      `unenumerated filter: got ${unenumeratedOpt[0].options.map((o) => o.name).join("|")}`,
+      `unenumerated filter: got ${
+        unenumeratedOpt[0].options.map((o) => o.name).join("|")
+      }`,
     );
   }
   // Per-unit price notation ("C/U" = cada uno) is not a choice.
@@ -768,7 +884,9 @@ if (import.meta.main) {
     ],
   })]);
   if (perUnit[0].options.map((o) => o.name).join("|") !== "verdura") {
-    throw new Error(`per-unit filter: got ${perUnit[0].options.map((o) => o.name).join("|")}`);
+    throw new Error(
+      `per-unit filter: got ${perUnit[0].options.map((o) => o.name).join("|")}`,
+    );
   }
   // Pure weight/volume tokens are weight notes, not choices.
   const weightOpt = filterServingFormatOptions([item({
@@ -782,7 +900,9 @@ if (import.meta.main) {
     ],
   })]);
   if (weightOpt[0].options.map((o) => o.name).join("|") !== "pollo") {
-    throw new Error(`weight filter: got ${weightOpt[0].options.map((o) => o.name).join("|")}`);
+    throw new Error(
+      `weight filter: got ${weightOpt[0].options.map((o) => o.name).join("|")}`,
+    );
   }
   // A price-null option echoing a SAME-SECTION sibling's name is a re-attached
   // neighboring dish, not a choice; priced options and cross-section matches
@@ -834,23 +954,26 @@ if (import.meta.main) {
   }
   // A price-null banner note repeated across 3+ distinct items is not a real
   // option in tile mode — remove it from every item.
-  const banner = dropBannerEchoOptions(Array.from({ length: 7 }, (_, i) =>
-    item({
-      name: `Tender ${i + 1}`,
-      price: 150 + i,
-      options: [
-        {
-          name: "Cambia tu Tender por Pollo a la Plancha",
-          price: null,
-          grams: null,
-        },
-      ],
-    })
-  ));
+  const banner = dropBannerEchoOptions(
+    Array.from({ length: 7 }, (_, i) =>
+      item({
+        name: `Tender ${i + 1}`,
+        price: 150 + i,
+        options: [
+          {
+            name: "Cambia tu Tender por Pollo a la Plancha",
+            price: null,
+            grams: null,
+          },
+        ],
+      })),
+  );
   if (banner.some((i) => i.options.length !== 0)) {
-    throw new Error(`banner echo: expected all options removed, got ${
-      banner.map((i) => i.options.length).join(",")
-    }`);
+    throw new Error(
+      `banner echo: expected all options removed, got ${
+        banner.map((i) => i.options.length).join(",")
+      }`,
+    );
   }
   // Priced repeated options are real printed values — untouched.
   const pricedBanner = dropBannerEchoOptions([
@@ -882,7 +1005,9 @@ if (import.meta.main) {
     }),
   ]);
   if (belowThreshold.some((i) => i.options.length !== 1)) {
-    throw new Error("banner echo: below-threshold null-price options must stay");
+    throw new Error(
+      "banner echo: below-threshold null-price options must stay",
+    );
   }
   // Different names / different categories never fold.
   const distinct = foldVariantCards([
@@ -899,11 +1024,17 @@ if (import.meta.main) {
     item({ name: "Tacos", price: 45, description: "Con todo" }),
   ]);
   if (priceNotes.map((i) => i.name).join("|") !== "3 Quesadillas|Tacos") {
-    throw new Error(`price note: got ${priceNotes.map((i) => i.name).join("|")}`);
+    throw new Error(
+      `price note: got ${priceNotes.map((i) => i.name).join("|")}`,
+    );
   }
   // A priced promo/prose line is not a real section heading.
   const priceNoteSection = nullPriceNoteSections([
-    item({ name: "Tender", price: 165, section_title: "Hazlas sazonadas por $20" }),
+    item({
+      name: "Tender",
+      price: 165,
+      section_title: "Hazlas sazonadas por $20",
+    }),
     item({ name: "Burger", price: 180, section_title: "Hamburguesas" }),
     item({ name: "$94 POR NIÑO", price: 94, section_title: "Pa' los Bukis" }),
   ]);
@@ -920,14 +1051,19 @@ if (import.meta.main) {
   const priceNoteKeep = dropPriceNoteItems([
     item({ name: "$5 Wings", price: 5, description: "Every Tuesday special" }),
   ]);
-  if (priceNoteKeep.length !== 1) throw new Error("price note: content card dropped");
+  if (priceNoteKeep.length !== 1) {
+    throw new Error("price note: content card dropped");
+  }
   // Printed-weight parser: number + g/gr/grs/kg is grams; ml/L/oz/mg are not.
   const grams = parseItemGrams([
     item({ name: "CHILAQUILES (70gr.)" }),
     item({ name: "Bandiola Adobada (150gr)" }),
     item({ name: "Rib Eye", description: "Corte de 280 g a la parrilla" }),
     item({ name: "Té Matcha (350mL)" }),
-    item({ name: "Ensalada", description: "2 slices of lettuce, 100 tomatoes" }),
+    item({
+      name: "Ensalada",
+      description: "2 slices of lettuce, 100 tomatoes",
+    }),
     item({ name: "Paella (1kg)" }),
     item({ name: "Suplemento", description: "100 mg de cafeína" }),
   ]);

@@ -142,6 +142,46 @@ Deno.test("dropOptionEchoItems ignores unmatched option names", () => {
   assertEquals(dropOptionEchoItems([parent, dish]), [parent, dish]);
 });
 
+Deno.test("dropOptionEchoItems strips a matching section prefix before echo matching", () => {
+  const parent = item("Paletas Heladas Agua", {
+    price: 20,
+    section_title: "Paletas Heladas",
+    options: [{ name: "Piña", price: null, grams: null }],
+  });
+  const echo = item("Paletas Heladas Piña", {
+    price: 20,
+    section_title: "Paletas Heladas",
+  });
+  assertEquals(dropOptionEchoItems([parent, echo]), [parent]);
+});
+
+Deno.test("dropOptionEchoItems keeps prefixed items with options", () => {
+  const parent = item("Paletas Heladas Agua", {
+    price: 20,
+    section_title: "Paletas Heladas",
+    options: [{ name: "Piña", price: null, grams: null }],
+  });
+  const alsoParent = item("Paletas Heladas Crema", {
+    price: 20,
+    section_title: "Paletas Heladas",
+    options: [{ name: "Piña", price: null, grams: null }],
+  });
+  assertEquals(dropOptionEchoItems([parent, alsoParent]), [parent, alsoParent]);
+});
+
+Deno.test("dropOptionEchoItems keeps a prefixed echo when its price differs", () => {
+  const parent = item("Paletas Heladas Agua", {
+    price: 20,
+    section_title: "Paletas Heladas",
+    options: [{ name: "Piña", price: null, grams: null }],
+  });
+  const dish = item("Paletas Heladas Piña", {
+    price: 25,
+    section_title: "Paletas Heladas",
+  });
+  assertEquals(dropOptionEchoItems([parent, dish]), [parent, dish]);
+});
+
 Deno.test("remapTruncatedSectionTitles remaps a fragment to its unique superset (eval 065: Sandwiches)", () => {
   const a = item("Nashville", {
     price: 159,
@@ -174,5 +214,8 @@ Deno.test("remapTruncatedSectionTitles ignores null and unrelated titles", () =>
   const a = item("X", { price: 1, section_title: null });
   const b = item("Y", { price: 2, section_title: "Sides" });
   const out = remapTruncatedSectionTitles([a, b]);
-  assertEquals(out.map((i: ExtractedMenuItem) => i.section_title), [null, "Sides"]);
+  assertEquals(out.map((i: ExtractedMenuItem) => i.section_title), [
+    null,
+    "Sides",
+  ]);
 });

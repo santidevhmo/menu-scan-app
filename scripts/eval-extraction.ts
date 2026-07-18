@@ -135,6 +135,56 @@ function containsWithOneIndel(hay: string, want: string): boolean {
   return false;
 }
 
+function editDistanceLeq1(a: string, b: string): boolean {
+  if (a === b) return true;
+  if (Math.abs(a.length - b.length) > 1) return false;
+  let i = 0;
+  let j = 0;
+  let edits = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) {
+      i++;
+      j++;
+      continue;
+    }
+    if (++edits > 1) return false;
+    if (a.length > b.length) i++;
+    else if (b.length > a.length) j++;
+    else {
+      i++;
+      j++;
+    }
+  }
+  return edits + (a.length - i) + (b.length - j) <= 1;
+}
+
+function tokensLookupMatch(hay: string, want: string): boolean {
+  const hayTokens = hay.split(/\s+/).filter(Boolean);
+  const wantTokens = want.split(/\s+/).filter(Boolean);
+  let hayIndex = 0;
+  for (const wantToken of wantTokens) {
+    let matched = false;
+    for (; hayIndex < hayTokens.length; hayIndex++) {
+      const hayToken = hayTokens[hayIndex];
+      const shortPlural = hayToken.length === 4 && wantToken === `${hayToken}s`;
+      const tokenMatches = wantToken === hayToken || (
+        shortPlural || (
+          wantToken.length >= 5 &&
+          hayToken.length >= 5 &&
+          editDistanceLeq1(hayToken, wantToken)
+        )
+      );
+      if (tokenMatches) {
+        matched = true;
+        hayIndex++;
+        break;
+      }
+    }
+    if (!matched) return false;
+  }
+  return true;
+}
+
 function findOptionTargetIndex(
   target: ExpectedFixture["items_with_options"][number],
   items: ExtractedMenuItem[],
@@ -225,12 +275,16 @@ export function optionBreakdown(
       const mismatches: string[] = [];
       if ("price" in expected && matched.price !== expected.price) {
         mismatches.push(
-          `${expected.name}: price ${matched.price ?? "null"} (expected ${expected.price ?? "null"})`,
+          `${expected.name}: price ${matched.price ?? "null"} (expected ${
+            expected.price ?? "null"
+          })`,
         );
       }
       if ("grams" in expected && matched.grams !== expected.grams) {
         mismatches.push(
-          `${expected.name}: grams ${matched.grams ?? "null"} (expected ${expected.grams ?? "null"})`,
+          `${expected.name}: grams ${matched.grams ?? "null"} (expected ${
+            expected.grams ?? "null"
+          })`,
         );
       }
       return mismatches;
@@ -323,8 +377,9 @@ export function scoreMenu(
   const seenKeys = new Set<string>();
   const duplicateNames = new Set<string>();
   for (const item of foodItems) {
-    const key =
-      `${normalize(item.name)}@${item.price}@${normalize(item.description)}`;
+    const key = `${normalize(item.name)}@${item.price}@${
+      normalize(item.description)
+    }`;
     if (seenKeys.has(key)) duplicateNames.add(normalize(item.name));
     else seenKeys.add(key);
   }
@@ -358,15 +413,27 @@ export function scoreMenu(
   // impostor/duplicate same-name cards must not steal the check (F3 lesson).
   const wrongCategories = (fixture.category_expectations ?? []).flatMap(
     (expected) => {
-      const matches = foodItems.filter((candidate) =>
+      const exact = foodItems.filter((candidate) =>
         normalize(candidate.name).includes(normalize(expected.name_contains))
       );
+      const matches = exact.length > 0
+        ? exact
+        : foodItems.filter((candidate) =>
+          tokensLookupMatch(
+            normalize(candidate.name),
+            normalize(expected.name_contains),
+          )
+        );
       if (matches.length === 0) {
         return [`${expected.name_contains}→(item not found)`];
       }
-      if (matches.some((item) => item.category === expected.category)) return [];
+      if (matches.some((item) => item.category === expected.category)) {
+        return [];
+      }
       return [
-        `${matches[0].name}→${matches[0].category} (expected ${expected.category})`,
+        `${matches[0].name}→${
+          matches[0].category
+        } (expected ${expected.category})`,
       ];
     },
   );
@@ -414,21 +481,27 @@ export function scoreMenu(
     // "Chiplo"), not a different dish — this check verifies the MAPPING, not
     // the spelling (name fidelity was never a gated dimension). Substitutions
     // and short names stay strict so near-name dishes (Nico vs Pico) can
-    // never cross-match. SECTION check only; categories/grams lookups stay
-    // exact.
-    const matches = exact.length > 0 ? exact : foodItems.filter((candidate) =>
-      containsWithOneIndel(
-        normalize(candidate.name),
-        normalize(expected.name_contains),
-      )
-    );
-    if (matches.length === 0) return [`${expected.name_contains}→(item not found)`];
+    // never cross-match. SECTION check only; categories/grams use ruling-14
+    // fallback lookup.
+    const matches = exact.length > 0
+      ? exact
+      : foodItems.filter((candidate) =>
+        containsWithOneIndel(
+          normalize(candidate.name),
+          normalize(expected.name_contains),
+        )
+      );
+    if (matches.length === 0) {
+      return [`${expected.name_contains}→(item not found)`];
+    }
     const satisfied = matches.some((item) =>
       normalize(item.section_title ?? "") === normalize(expected.section_title)
     );
     if (satisfied) return [];
     return [
-      `${matches[0].name}→${matches[0].section_title ?? "null"} (expected ${expected.section_title})`,
+      `${matches[0].name}→${
+        matches[0].section_title ?? "null"
+      } (expected ${expected.section_title})`,
     ];
   });
   const sectionContext = {
@@ -466,15 +539,25 @@ export function scoreMenu(
   // F4: printed-weight pins — any-match over food items (impostor same-name
   // cards must not steal the check), grams filled by parseItemGrams.
   const wrongGrams = (fixture.grams_expectations ?? []).flatMap((expected) => {
-    const matches = foodItems.filter((candidate) =>
+    const exact = foodItems.filter((candidate) =>
       normalize(candidate.name).includes(normalize(expected.name_contains))
     );
+    const matches = exact.length > 0
+      ? exact
+      : foodItems.filter((candidate) =>
+        tokensLookupMatch(
+          normalize(candidate.name),
+          normalize(expected.name_contains),
+        )
+      );
     if (matches.length === 0) {
       return [`${expected.name_contains}→(item not found)`];
     }
     if (matches.some((item) => item.grams === expected.grams)) return [];
     return [
-      `${matches[0].name}→${matches[0].grams ?? "null"} (expected ${expected.grams})`,
+      `${matches[0].name}→${
+        matches[0].grams ?? "null"
+      } (expected ${expected.grams})`,
     ];
   });
   const grams = {
@@ -1346,28 +1429,94 @@ function runSelfCheck(): void {
     })),
   });
   assert(
-    scoreMenu(catFixture, catItems([
-      { name: "Rib Eye", category: "food" },
-      { name: "Flan", category: "dessert" },
-    ])).categories.pass,
+    scoreMenu(
+      catFixture,
+      catItems([
+        { name: "Rib Eye", category: "food" },
+        { name: "Flan", category: "dessert" },
+      ]),
+    ).categories.pass,
     "food-scoped categories: missing drink category must not fail",
   );
-  const flanWrong = scoreMenu(catFixture, catItems([
-    { name: "Rib Eye", category: "food" },
-    { name: "Flan", category: "food" },
-    { name: "Brownie", category: "dessert" },
-  ]));
+  const flanWrong = scoreMenu(
+    catFixture,
+    catItems([
+      { name: "Rib Eye", category: "food" },
+      { name: "Flan", category: "food" },
+      { name: "Brownie", category: "dessert" },
+    ]),
+  );
   assert(
     !flanWrong.categories.pass &&
       flanWrong.categories.detail.includes("Flan→food (expected dessert)"),
     "category pin: Flan mislabeled food must fail even when the set matches",
   );
+  const papaFixture: ExpectedFixture = {
+    ...fixture,
+    categories: ["side"],
+    category_expectations: [{
+      name_contains: "Papas Sazonadas",
+      category: "side",
+    }],
+  };
+  const papaCategory = scoreMenu(
+    papaFixture,
+    catItems([
+      { name: "Papa Sazonada (350gr)", category: "side", grams: 350 },
+    ]),
+  );
   assert(
-    scoreMenu(catFixture, catItems([
-      { name: "Rib Eye", category: "food" },
-      { name: "Flan", category: "other" },
-      { name: "Flan", category: "dessert" },
-    ])).categories.pass === false,
+    papaCategory.categories.pass &&
+      !papaCategory.categories.detail.includes("(item not found)"),
+    "ruling 14 category lookup: Papa Sazonada matches Papas Sazonadas",
+  );
+  const papaGramsFixture: ExpectedFixture = {
+    ...fixture,
+    grams_expectations: [{ name_contains: "Papas Sazonadas", grams: 300 }],
+  };
+  const papaGrams = scoreMenu(
+    papaGramsFixture,
+    catItems([
+      { name: "Papa Sazonada (350gr)", category: "side", grams: 350 },
+    ]),
+  );
+  assert(
+    papaGrams.grams.detail.includes(
+      "Papa Sazonada (350gr)→350 (expected 300)",
+    ) && !papaGrams.grams.detail.includes("(item not found)"),
+    "ruling 14 grams lookup: name tolerance preserves strict value mismatch",
+  );
+  const nameGuardFixture: ExpectedFixture = {
+    ...fixture,
+    categories: ["food"],
+    category_expectations: [
+      { name_contains: "Nico", category: "food" },
+      { name_contains: "Boneless Buffalo", category: "food" },
+    ],
+  };
+  const nameGuards = scoreMenu(
+    nameGuardFixture,
+    catItems([
+      { name: "Pico", category: "food" },
+      { name: "Boneless Barbecue", category: "food" },
+    ]),
+  );
+  assert(
+    nameGuards.categories.detail.includes("Nico→(item not found)") &&
+      nameGuards.categories.detail.includes(
+        "Boneless Buffalo→(item not found)",
+      ),
+    "ruling 14 guards: short and distinct near-names never cross-match",
+  );
+  assert(
+    scoreMenu(
+      catFixture,
+      catItems([
+        { name: "Rib Eye", category: "food" },
+        { name: "Flan", category: "other" },
+        { name: "Flan", category: "dessert" },
+      ]),
+    ).categories.pass === false,
     "spurious category (other) must fail even when the pin is satisfied by any-match",
   );
   const toleratedCatFixture: ExpectedFixture = {
@@ -1376,23 +1525,32 @@ function runSelfCheck(): void {
     tolerated_categories: ["dessert"],
   };
   assert(
-    scoreMenu(toleratedCatFixture, catItems([
-      { name: "Rib Eye", category: "food" },
-      { name: "Flan", category: "dessert" },
-    ])).categories.pass,
+    scoreMenu(
+      toleratedCatFixture,
+      catItems([
+        { name: "Rib Eye", category: "food" },
+        { name: "Flan", category: "dessert" },
+      ]),
+    ).categories.pass,
     "tolerated category present: dessert must not be spurious",
   );
   assert(
-    scoreMenu(toleratedCatFixture, catItems([
-      { name: "Rib Eye", category: "food" },
-    ])).categories.pass,
+    scoreMenu(
+      toleratedCatFixture,
+      catItems([
+        { name: "Rib Eye", category: "food" },
+      ]),
+    ).categories.pass,
     "tolerated category absent: dessert must not be missing",
   );
   assert(
-    !scoreMenu(toleratedCatFixture, catItems([
-      { name: "Rib Eye", category: "food" },
-      { name: "Soup", category: "other" },
-    ])).categories.pass,
+    !scoreMenu(
+      toleratedCatFixture,
+      catItems([
+        { name: "Rib Eye", category: "food" },
+        { name: "Soup", category: "other" },
+      ]),
+    ).categories.pass,
     "category outside required+tolerated sets must stay spurious",
   );
 
@@ -1468,18 +1626,38 @@ function runSelfCheck(): void {
     grams_expectations: [{ name_contains: "Chilaquiles", grams: 70 }],
   };
   assert(
-    scoreMenu(gramsFixture, catItems([
-      { name: "CHILAQUILES (70gr.)", grams: 70 },
-    ])).grams.pass,
+    scoreMenu(
+      gramsFixture,
+      catItems([
+        { name: "CHILAQUILES (70gr.)", grams: 70 },
+      ]),
+    ).grams.pass,
     "grams pin: parsed printed weight must pass",
   );
-  const gramsWrong = scoreMenu(gramsFixture, catItems([
-    { name: "CHILAQUILES (650gr.)", grams: 650 },
-  ]));
+  const gramsWrong = scoreMenu(
+    gramsFixture,
+    catItems([
+      { name: "CHILAQUILES (650gr.)", grams: 650 },
+    ]),
+  );
   assert(
     !gramsWrong.grams.pass &&
       gramsWrong.grams.detail.includes("(expected 70)"),
     "grams pin: digit-misread weight must fail with named diagnostic",
+  );
+  const gramsGuardFixture: ExpectedFixture = {
+    ...fixture,
+    grams_expectations: [{ name_contains: "Boneless Buffalo", grams: 150 }],
+  };
+  const gramsGuard = scoreMenu(
+    gramsGuardFixture,
+    catItems([
+      { name: "Boneless Barbecue", grams: 150 },
+    ]),
+  );
+  assert(
+    gramsGuard.grams.detail.includes("Boneless Buffalo→(item not found)"),
+    "ruling 14 grams guard: Buffalo must not match Barbecue",
   );
   assert(
     scoreMenu(fixture, catItems([{ name: "X" }])).grams.pass,

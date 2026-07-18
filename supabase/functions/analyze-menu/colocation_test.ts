@@ -132,6 +132,34 @@ Deno.test("contradictions rank the anchor most owned by the candidate", () => {
   );
 });
 
+Deno.test("verification and contradiction use the same owned anchor", () => {
+  const b = blocks(
+    "Waffle Cheese Sandwich (350gr) $185",
+    "Chicken & Waffles Sandwich (350gr) $185",
+  );
+  const waffle = item({ name: "Waffle Cheese Sandwich (350gr)", price: 185 });
+  const chicken = item({
+    name: "Chicken & Waffles Sandwich (350gr)",
+    price: 185,
+  });
+  const twin = item({
+    name: "Chicken & Waffles Sandwich (300gr)",
+    price: 179,
+  });
+
+  assertEquals(judgeItem(b, chicken), {
+    verdict: "verified",
+    anchor: 1,
+    anchored: true,
+  });
+  assertEquals(judgeItem(b, twin), {
+    verdict: "contradicted",
+    anchor: 1,
+    anchored: true,
+  });
+  assertEquals(applyColocation(b, [waffle, chicken, twin]), [waffle, chicken]);
+});
+
 Deno.test("unverifiable items are kept", () => {
   const alitas = item({ name: "Alitas (125gr)", price: 129 });
   assertEquals(

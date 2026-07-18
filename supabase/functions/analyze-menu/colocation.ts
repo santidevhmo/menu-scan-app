@@ -174,7 +174,7 @@ export function judgeItem(
   const gramsOk = (b: BlockText) =>
     grams === null || new RegExp(`(^| )${grams} ?gr( |$)`).test(b.joined);
   const gramsTypePresent = (b: BlockText) => /(^| )\d+ ?gr( |$)/.test(b.joined);
-  const win = anchors.find((b) => priceOk(b) && gramsOk(b));
+  const win = rankedAnchors.find((b) => priceOk(b) && gramsOk(b));
   if (win) return { verdict: "verified", anchor: win.block, anchored: true };
   for (const b of rankedAnchors) {
     if (!b.priced) continue;

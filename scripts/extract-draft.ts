@@ -10,18 +10,10 @@ import {
 } from "../supabase/functions/analyze-menu/extract.ts";
 import { gridCropRects } from "../src/lib/adaptiveExtraction.ts";
 import { MENU_DIR, productionPhotoData } from "./photo-input.ts";
+import { cutTile } from "./tile-cut.ts";
 
 const apiKey = Deno.env.get("OPENAI_API_KEY")!;
 const tmp = await Deno.makeTempDir({ prefix: "draft-" });
-
-async function sh(args: string[]): Promise<void> {
-  const out = await new Deno.Command(args[0], { args: args.slice(1) }).output();
-  if (!out.success) {
-    throw new Error(
-      `${args.join(" ")} failed: ${new TextDecoder().decode(out.stderr)}`,
-    );
-  }
-}
 
 async function dims(path: string): Promise<{ w: number; h: number }> {
   const out = await new Deno.Command("sips", {
@@ -41,21 +33,7 @@ async function cutTiles(name: string): Promise<string[]> {
   const tiles: string[] = [];
   for (const [i, rect] of gridCropRects(w, h).entries()) {
     const out = `${tmp}/${name.replaceAll("/", "_")}.tile${i}.png`;
-    await sh([
-      "sips",
-      "-s",
-      "format",
-      "png",
-      "--cropOffset",
-      String(rect.originY),
-      String(rect.originX),
-      "-c",
-      String(rect.height),
-      String(rect.width),
-      src,
-      "--out",
-      out,
-    ]);
+    await cutTile(src, rect, out);
     tiles.push(
       `data:image/png;base64,${(await Deno.readFile(out)).toBase64()}`,
     );
@@ -74,11 +52,13 @@ for (const arg of Deno.args) {
   if ("needs_crops" in phase1) {
     dense = phase1.needs_crops;
     const denseSet = new Set(dense);
-    const groups = await Promise.all(pages.map(async (name, index) =>
-      denseSet.has(index)
-        ? await cutTiles(name)
-        : [await productionPhotoData(name, tmp)]
-    ));
+    const groups = await Promise.all(
+      pages.map(async (name, index) =>
+        denseSet.has(index)
+          ? await cutTiles(name)
+          : [await productionPhotoData(name, tmp)]
+      ),
+    );
     result = await runGroupedExtraction(groups, apiKey);
   } else {
     result = phase1;
@@ -99,6 +79,8 @@ for (const arg of Deno.args) {
     }\n`,
   );
   console.log(
-    `${arg}: ${dense.length ? `DENSE pages=${JSON.stringify(dense)}` : "normal"}; ${result.items.length} items → ${outPath}`,
+    `${arg}: ${
+      dense.length ? `DENSE pages=${JSON.stringify(dense)}` : "normal"
+    }; ${result.items.length} items → ${outPath}`,
   );
 }

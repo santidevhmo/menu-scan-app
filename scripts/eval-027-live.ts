@@ -29,6 +29,7 @@ import {
   scoreMenu,
 } from "./eval-extraction.ts";
 import { productionPhotoData } from "./photo-input.ts";
+import { cutTile } from "./tile-cut.ts";
 
 type Fixture = Parameters<typeof scoreMenu>[0];
 type Actual = Parameters<typeof scoreMenu>[1];
@@ -72,15 +73,6 @@ async function loadFixtures(): Promise<Fixture[]> {
 
 const TILE_DIR = await Deno.makeTempDir({ prefix: "eval-tiles-" });
 
-async function sh(args: string[]): Promise<void> {
-  const out = await new Deno.Command(args[0], { args: args.slice(1) }).output();
-  if (!out.success) {
-    throw new Error(
-      `${args.join(" ")} failed: ${new TextDecoder().decode(out.stderr)}`,
-    );
-  }
-}
-
 async function dims(path: string): Promise<{ w: number; h: number }> {
   const out = await new Deno.Command("sips", {
     args: ["-g", "pixelWidth", "-g", "pixelHeight", path],
@@ -99,7 +91,6 @@ async function cutTiles(name: string): Promise<string[]> {
   // PNG (lossless) locked by the tile A/B (ledger 2026-07-11): jpeg q0.85
   // re-inflated phantom items 55/48 and destabilized a tile call; production
   // client tiles are PNG too (prepareTile).
-  const fmtArgs = ["-s", "format", "png"];
   const ext = "png";
   const mimeType = "image/png";
   const src = `${MENU_DIR}/${name}`;
@@ -107,20 +98,10 @@ async function cutTiles(name: string): Promise<string[]> {
   const tiles: string[] = [];
   for (const [i, rect] of gridCropRects(w, h).entries()) {
     const out = `${TILE_DIR}/${name.replaceAll("/", "_")}.tile${i}.${ext}`;
-    await sh([
-      "sips",
-      ...fmtArgs,
-      "--cropOffset",
-      String(rect.originY),
-      String(rect.originX),
-      "-c",
-      String(rect.height),
-      String(rect.width),
-      src,
-      "--out",
-      out,
-    ]);
-    tiles.push(`data:${mimeType};base64,${(await Deno.readFile(out)).toBase64()}`);
+    await cutTile(src, rect, out);
+    tiles.push(
+      `data:${mimeType};base64,${(await Deno.readFile(out)).toBase64()}`,
+    );
   }
   return tiles;
 }
@@ -139,9 +120,11 @@ async function extractMenu(
     };
   }
   const denseSet = new Set(phase1.needs_crops);
-  const groups = await Promise.all(fixture.photos.map(async (name, index) =>
-    denseSet.has(index) ? await cutTiles(name) : [await photoData(name)]
-  ));
+  const groups = await Promise.all(
+    fixture.photos.map(async (name, index) =>
+      denseSet.has(index) ? await cutTiles(name) : [await photoData(name)]
+    ),
+  );
   const result = await runGroupedExtraction(groups, apiKey);
   return {
     image_quality: result.image_quality,
@@ -187,26 +170,38 @@ for (let run = 1; run <= RUNS; run++) {
     reports.push(report);
     const dups = duplicateNames(actual.items);
     console.log(
-      `  ${report.items.pass ? "PASS" : "FAIL"} ${fixture.menu} items: ${report.items.detail}${
+      `  ${
+        report.items.pass ? "PASS" : "FAIL"
+      } ${fixture.menu} items: ${report.items.detail}${
         dups.length ? ` [dups: ${dups.join("; ")}]` : ""
       }`,
     );
     const foodOnly = actual.items.filter((item) => item.category !== "drink");
     const recall = optionRecall(fixture, foodOnly);
     console.log(
-      `  ${report.options.pass ? "PASS" : "FAIL"} ${fixture.menu} options: ${report.options.detail}; recall ${recall.found}/${recall.expected}`,
+      `  ${
+        report.options.pass ? "PASS" : "FAIL"
+      } ${fixture.menu} options: ${report.options.detail}; recall ${recall.found}/${recall.expected}`,
     );
-    for (const line of formatOptionBreakdown(optionBreakdown(fixture, foodOnly))) {
+    for (
+      const line of formatOptionBreakdown(optionBreakdown(fixture, foodOnly))
+    ) {
       console.log(line);
     }
     console.log(
-      `  ${report.section_context.pass ? "PASS" : "FAIL"} ${fixture.menu} section_context: ${report.section_context.detail}`,
+      `  ${
+        report.section_context.pass ? "PASS" : "FAIL"
+      } ${fixture.menu} section_context: ${report.section_context.detail}`,
     );
     console.log(
-      `  ${report.categories.pass ? "PASS" : "FAIL"} ${fixture.menu} categories: ${report.categories.detail}`,
+      `  ${
+        report.categories.pass ? "PASS" : "FAIL"
+      } ${fixture.menu} categories: ${report.categories.detail}`,
     );
     console.log(
-      `  ${report.grams.pass ? "PASS" : "FAIL"} ${fixture.menu} grams: ${report.grams.detail}`,
+      `  ${
+        report.grams.pass ? "PASS" : "FAIL"
+      } ${fixture.menu} grams: ${report.grams.detail}`,
     );
     if (
       !report.items.pass || !report.options.pass ||
@@ -239,7 +234,9 @@ for (let run = 1; run <= RUNS; run++) {
   if (failures.length === 0) {
     consecutivePasses++;
     console.log(
-      `  GATE PASS: ${GATE_DIMS.join(", ")} + detector on all ${reports.length} menus`,
+      `  GATE PASS: ${
+        GATE_DIMS.join(", ")
+      } + detector on all ${reports.length} menus`,
     );
   } else {
     consecutivePasses = 0;
@@ -247,5 +244,7 @@ for (let run = 1; run <= RUNS; run++) {
   }
 }
 
-console.log(`\n===== ${consecutivePasses}/${RUNS} consecutive all-menu passing runs =====`);
+console.log(
+  `\n===== ${consecutivePasses}/${RUNS} consecutive all-menu passing runs =====`,
+);
 if (consecutivePasses < RUNS) Deno.exitCode = 1;

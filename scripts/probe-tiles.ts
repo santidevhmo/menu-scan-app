@@ -12,6 +12,7 @@ import { type CropRect, gridCropRects } from "../src/lib/adaptiveExtraction.ts";
 import { scoreMenu } from "./eval-extraction.ts";
 import { MENU_DIR } from "./photo-input.ts";
 import { buildProbeDump } from "./probe-output.ts";
+import { cutTile } from "./tile-cut.ts";
 
 type Fixture = Parameters<typeof scoreMenu>[0];
 type ScoredDim =
@@ -51,15 +52,6 @@ function colStripRects(w: number, h: number): CropRect[] {
   });
 }
 
-async function sh(args: string[]): Promise<void> {
-  const out = await new Deno.Command(args[0], { args: args.slice(1) }).output();
-  if (!out.success) {
-    throw new Error(
-      `${args.join(" ")} failed: ${new TextDecoder().decode(out.stderr)}`,
-    );
-  }
-}
-
 async function dims(path: string): Promise<{ w: number; h: number }> {
   const out = await new Deno.Command("sips", {
     args: ["-g", "pixelWidth", "-g", "pixelHeight", path],
@@ -83,21 +75,7 @@ async function cutTiles(rects: CropRect[], tag: string): Promise<string[]> {
   const tiles: string[] = [];
   for (const [i, rect] of rects.entries()) {
     const out = `${tmp}/${tag}-tile${i + 1}.png`;
-    await sh([
-      "sips",
-      "-s",
-      "format",
-      "png",
-      "--cropOffset",
-      String(rect.originY),
-      String(rect.originX),
-      "-c",
-      String(rect.height),
-      String(rect.width),
-      src,
-      "--out",
-      out,
-    ]);
+    await cutTile(src, rect, out);
     tiles.push(
       `data:image/png;base64,${(await Deno.readFile(out)).toBase64()}`,
     );

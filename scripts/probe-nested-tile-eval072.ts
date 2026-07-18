@@ -24,14 +24,26 @@ import { type CropRect, gridCropRects } from "../src/lib/adaptiveExtraction.ts";
 import { scoreMenu } from "./eval-extraction.ts";
 import { MENU_DIR } from "./photo-input.ts";
 import { buildProbeDump } from "./probe-output.ts";
+import { cutTile } from "./tile-cut.ts";
 
 type Fixture = Parameters<typeof scoreMenu>[0];
-type ScoredDim = "items" | "options" | "section_context" | "categories" | "grams";
+type ScoredDim =
+  | "items"
+  | "options"
+  | "section_context"
+  | "categories"
+  | "grams";
 
 const PHOTO = "PolloteriaMenu.png";
 const ARCHIVE = `${MENU_DIR}/polloteria.tiles-2x2-eval068-r1.actual.json`;
 export const OVERLOADED = 2;
-const DIMS: ScoredDim[] = ["items", "options", "section_context", "categories", "grams"];
+const DIMS: ScoredDim[] = [
+  "items",
+  "options",
+  "section_context",
+  "categories",
+  "grams",
+];
 
 /** 2x2 sub-grid over one parent with 25% overlap by parent side. */
 export function nestedRects(parent: CropRect): CropRect[] {
@@ -48,7 +60,11 @@ export function nestedRects(parent: CropRect): CropRect[] {
 /** Rebuild exactly what runExtraction returns: parse + postprocess + raw. */
 export function frozenTileResult(raw: string): ExtractionResult {
   const parsed = JSON.parse(raw) as Omit<ExtractionResult, "raw_response">;
-  return { ...parsed, items: postprocessItems(parsed.items), raw_response: raw };
+  return {
+    ...parsed,
+    items: postprocessItems(parsed.items),
+    raw_response: raw,
+  };
 }
 
 /** Frozen tiles replay the archive; the overloaded parent runs the nested 2x2 live. */
@@ -75,7 +91,8 @@ export function buildInjectedExtract(
       );
       console.log(
         `[eval072] nested sub food counts: ${
-          subs.map((s) => s.items.filter((i) => i.category === "food").length).join("/")
+          subs.map((s) => s.items.filter((i) => i.category === "food").length)
+            .join("/")
         }`,
       );
       const items = mergeItemSources(subs.map((s) => s.items), true);
@@ -91,19 +108,14 @@ export function buildInjectedExtract(
   };
 }
 
-async function sh(args: string[]): Promise<void> {
-  const out = await new Deno.Command(args[0], { args: args.slice(1) }).output();
-  if (!out.success) {
-    throw new Error(`${args.join(" ")} failed: ${new TextDecoder().decode(out.stderr)}`);
-  }
-}
-
 async function dims(path: string): Promise<{ w: number; h: number }> {
   const out = await new Deno.Command("sips", {
     args: ["-g", "pixelWidth", "-g", "pixelHeight", path],
   }).output();
   if (!out.success) {
-    throw new Error(`sips dims failed: ${new TextDecoder().decode(out.stderr)}`);
+    throw new Error(
+      `sips dims failed: ${new TextDecoder().decode(out.stderr)}`,
+    );
   }
   const text = new TextDecoder().decode(out.stdout);
   const w = Number(text.match(/pixelWidth:\s+(\d+)/)?.[1]);
@@ -114,26 +126,16 @@ async function dims(path: string): Promise<{ w: number; h: number }> {
   return { w, h };
 }
 
-async function cutTiles(rects: CropRect[], tag: string, tmp: string): Promise<string[]> {
+async function cutTiles(
+  rects: CropRect[],
+  tag: string,
+  tmp: string,
+): Promise<string[]> {
   const src = `${MENU_DIR}/${PHOTO}`;
   const tiles: string[] = [];
   for (const [i, rect] of rects.entries()) {
     const out = `${tmp}/${tag}-tile-${i}.png`;
-    await sh([
-      "sips",
-      "-s",
-      "format",
-      "png",
-      "--cropOffset",
-      String(rect.originY),
-      String(rect.originX),
-      "-c",
-      String(rect.height),
-      String(rect.width),
-      src,
-      "--out",
-      out,
-    ]);
+    await cutTile(src, rect, out);
     const bytes = await Deno.readFile(out);
     let binary = "";
     for (let offset = 0; offset < bytes.length; offset += 32768) {
@@ -153,13 +155,23 @@ if (import.meta.main) {
     const { w, h } = await dims(`${MENU_DIR}/${PHOTO}`);
     const parentRects = gridCropRects(w, h);
     const parentImgs = await cutTiles(parentRects, "parent", tmp);
-    const nestedImgs = await cutTiles(nestedRects(parentRects[OVERLOADED]), "nested", tmp);
-    const archive = JSON.parse(await Deno.readTextFile(ARCHIVE)) as { raw_response: string };
+    const nestedImgs = await cutTiles(
+      nestedRects(parentRects[OVERLOADED]),
+      "nested",
+      tmp,
+    );
+    const archive = JSON.parse(await Deno.readTextFile(ARCHIVE)) as {
+      raw_response: string;
+    };
     const archived = JSON.parse(archive.raw_response) as string[];
-    if (archived.length !== 4) throw new Error("expected four archived tile responses");
+    if (archived.length !== 4) {
+      throw new Error("expected four archived tile responses");
+    }
 
     const frozen = new Map<string, ExtractionResult>();
-    for (const i of [0, 1, 3]) frozen.set(parentImgs[i], frozenTileResult(archived[i]));
+    for (const i of [0, 1, 3]) {
+      frozen.set(parentImgs[i], frozenTileResult(archived[i]));
+    }
     const injected = buildInjectedExtract(
       frozen,
       parentImgs[OVERLOADED],
@@ -167,21 +179,33 @@ if (import.meta.main) {
       extractWithRetry,
     );
     const fixture: Fixture = JSON.parse(
-      await Deno.readTextFile(new URL("./fixtures/polloteria.expected.json", import.meta.url)),
+      await Deno.readTextFile(
+        new URL("./fixtures/polloteria.expected.json", import.meta.url),
+      ),
     );
 
     for (let run = 1; run <= 3; run++) {
       try {
-        const result = await runGroupedExtraction([parentImgs], apiKey, injected);
+        const result = await runGroupedExtraction(
+          [parentImgs],
+          apiKey,
+          injected,
+        );
         const report = scoreMenu(fixture, {
           image_quality: result.image_quality,
           items: result.items,
         });
         const fails = DIMS.filter((d) => !report[d].pass);
-        const dumpPath = `${MENU_DIR}/polloteria.nested-tile-eval072-r${run}.actual.json`;
-        await Deno.writeTextFile(dumpPath, `${JSON.stringify(buildProbeDump(result), null, 2)}\n`);
+        const dumpPath =
+          `${MENU_DIR}/polloteria.nested-tile-eval072-r${run}.actual.json`;
+        await Deno.writeTextFile(
+          dumpPath,
+          `${JSON.stringify(buildProbeDump(result), null, 2)}\n`,
+        );
         console.log(
-          `run ${run}: ${DIMS.map((d) => `${d}=${report[d].pass ? "P" : "F"}`).join(" ")}; ${
+          `run ${run}: ${
+            DIMS.map((d) => `${d}=${report[d].pass ? "P" : "F"}`).join(" ")
+          }; ${
             fails.length === 0 ? "ALL PASS" : `FAIL ${fails.join(",")}`
           }; dump=${dumpPath}`,
         );

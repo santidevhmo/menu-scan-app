@@ -1,5 +1,6 @@
 import { gridCropRects } from "../src/lib/adaptiveExtraction.ts";
 import { MENU_DIR } from "./photo-input.ts";
+import { cutTile } from "./tile-cut.ts";
 
 const INPUT_DUMP = `${MENU_DIR}/polloteria.tiles-2x2-eval068-r1.actual.json`;
 const SOURCE_PHOTO = `${MENU_DIR}/PolloteriaMenu.png`;
@@ -324,16 +325,6 @@ function pairPayloads(pairs: ResolvedPair[]) {
   return pairs.map(({ id, a, b }) => ({ id, a, b }));
 }
 
-async function shell(args: string[]): Promise<void> {
-  const result = await new Deno.Command(args[0], { args: args.slice(1) })
-    .output();
-  if (!result.success) {
-    throw new Error(
-      `${args.join(" ")} failed: ${new TextDecoder().decode(result.stderr)}`,
-    );
-  }
-}
-
 async function imageDimensions(
   path: string,
 ): Promise<{ width: number; height: number }> {
@@ -362,21 +353,7 @@ async function reconstructTiles(
   const tiles: string[] = [];
   for (const [index, rect] of gridCropRects(width, height).entries()) {
     const output = `${tmpDir}/tile-${index}.png`;
-    await shell([
-      "sips",
-      "-s",
-      "format",
-      "png",
-      "--cropOffset",
-      String(rect.originY),
-      String(rect.originX),
-      "-c",
-      String(rect.height),
-      String(rect.width),
-      source,
-      "--out",
-      output,
-    ]);
+    await cutTile(source, rect, output);
     tiles.push(
       `data:image/png;base64,${(await Deno.readFile(output)).toBase64()}`,
     );

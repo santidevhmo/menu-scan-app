@@ -564,7 +564,11 @@ export async function runGroupedExtraction(
     // Lists over 24 candidates are split into ordered batches of at most 12 so
     // one unusually dense tile does not overload the name-verification task.
     const sources = await Promise.all(tiles.map(async (t, tileIndex) => {
-      const items = t.items.filter((i) => i.category !== "drink");
+      // Tile path drops drinks (F5 release scope) and condiment/topping panel
+      // echoes (spec v1.2, ruling 12: cat "other" is never a real dish).
+      const items = t.items.filter((i) =>
+        i.category !== "drink" && i.category !== "other"
+      );
       try {
         return await verifyTileItemsBatched(
           group[tileIndex],

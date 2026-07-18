@@ -13,7 +13,12 @@ import {
   toBlockTexts,
   tokenMatch,
 } from "./colocation.ts";
-import type { ExtractedMenuItem } from "./extract.ts";
+import {
+  extractWithRetry,
+  runGroupedExtraction,
+  verifyTileItems,
+} from "./extract.ts";
+import type { ExtractedMenuItem, ExtractionResult } from "./extract.ts";
 
 Deno.test("normTokens strips accents, case, punctuation", () => {
   assertEquals(normTokens("Boneless de Coliflor / Vegetarianas (300gr) $139"), [
@@ -184,4 +189,52 @@ Deno.test("unpriced anchored title keeps Paletas through the existence tier", ()
   const b = blocks("# Paletas Heladas", "Boneless Jr(200gr) $132");
   assertEquals(judgeItem(b, paletas).anchored, true);
   assertEquals(applyColocation(b, [paletas, boneless]), [paletas, boneless]);
+});
+
+Deno.test("tile path drops category:other condiment echoes", async () => {
+  const results: ExtractionResult[] = [
+    {
+      image_quality: { usable: true, issues: [] },
+      image_layout: { dense: false, crop_direction: "none" },
+      items: [item({ name: "Tacos", price: 100 }), item({
+        name: "Ranch",
+        price: 10,
+        category: "other",
+      })],
+      raw_response: "t1",
+    },
+    {
+      image_quality: { usable: true, issues: [] },
+      image_layout: { dense: false, crop_direction: "none" },
+      items: [],
+      raw_response: "t2",
+    },
+    {
+      image_quality: { usable: true, issues: [] },
+      image_layout: { dense: false, crop_direction: "none" },
+      items: [],
+      raw_response: "t3",
+    },
+    {
+      image_quality: { usable: true, issues: [] },
+      image_layout: { dense: false, crop_direction: "none" },
+      items: [],
+      raw_response: "t4",
+    },
+  ];
+  let call = 0;
+  const extract =
+    (() => Promise.resolve(results[call++])) as typeof extractWithRetry;
+  const verify =
+    ((_tile: string, items: ExtractionResult["items"]) =>
+      Promise.resolve(items)) as typeof verifyTileItems;
+
+  const result = await runGroupedExtraction(
+    [["a", "b", "c", "d"]],
+    "key",
+    extract,
+    verify,
+  );
+
+  assertEquals(result.items.map((entry) => entry.name), ["Tacos"]);
 });

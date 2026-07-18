@@ -72,7 +72,7 @@ export function editDistance(a: string, b: string): number {
 /** Looser than tokenMatch: misread names drift 2-3 edits (tenderazo~tendedero). */
 export function looseTokenMatch(candidate: string, printed: string): boolean {
   if (candidate === printed) return true;
-  if (candidate.length < 5 || printed.length < 5) return false;
+  if (candidate.length < 4 || printed.length < 4) return false;
   return editDistance(candidate, printed) <=
     Math.max(1, Math.min(3, Math.floor(candidate.length / 3)));
 }

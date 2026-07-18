@@ -145,7 +145,9 @@ Deno.test("runGroupedExtraction portrait path skips co-location fetches", async 
 Deno.test("existence editDistance and looseTokenMatch allow bounded name drift", () => {
   assertEquals(editDistance("tenderazo", "tendedero"), 3);
   assert(looseTokenMatch("tenderazo", "tenderue"));
+  assert(looseTokenMatch("papa", "papas"));
   assert(!looseTokenMatch("tender", "tendedero"));
+  assert(!looseTokenMatch("jr", "gr"));
   assert(!looseTokenMatch("chicken", "cheesey"));
 });
 
@@ -154,8 +156,20 @@ Deno.test("bestLineSim compares significant name tokens per OCR block", () => {
   assertEquals(bestLineSim("El Tenderazo", blocks("El Tenderazo")), 1);
   assert(
     bestLineSim(
+      "Papa Sazonada (350gr)",
+      blocks("Papas Sazonadas (300gr) $70"),
+    ) >= 0.75,
+  );
+  assert(
+    bestLineSim(
       "Boneless el Pollo (150gr)",
       blocks("Megacharola Boneless $599", "El Tendedero $165"),
+    ) < 0.75,
+  );
+  assert(
+    bestLineSim(
+      "Chicken Bacon (300gr)",
+      blocks("Cheesey Bacon (300gr) $155", "Aguacate Chicken M (150gr) $178"),
     ) < 0.75,
   );
 });

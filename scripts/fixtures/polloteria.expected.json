@@ -16,6 +16,9 @@
   "tolerated_categories": [
     "dessert"
   ],
+  "tolerated_option_names": [
+    "Queso"
+  ],
   "sections": [
     "Entradas",
     "Pa'Compartir",
@@ -81,6 +84,21 @@
     },
     {
       "name_contains": "Alitas",
+      "unchecked": true,
+      "options": []
+    },
+    {
+      "name_contains": "Ensalada Boneless",
+      "unchecked": true,
+      "options": []
+    },
+    {
+      "name_contains": "Aguacate Chicken",
+      "unchecked": true,
+      "options": []
+    },
+    {
+      "name_contains": "Ensalada Pollotera",
       "unchecked": true,
       "options": []
     }

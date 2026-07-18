@@ -447,6 +447,45 @@ export function remapTruncatedSectionTitles(
   });
 }
 
+/** Folds punctuation-only OCR variants to the majority section spelling. */
+export function foldSectionTitlePunctuation(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  const counts = new Map<string, Map<string, number>>();
+  for (const item of items) {
+    if (!item.section_title) continue;
+    const key = normalizeName(item.section_title)
+      .replace(/[^\p{L}\p{N}]+/gu, " ")
+      .replaceAll(/\s+/g, " ")
+      .trim();
+    const variants = counts.get(key) ?? new Map<string, number>();
+    variants.set(
+      item.section_title,
+      (variants.get(item.section_title) ?? 0) + 1,
+    );
+    counts.set(key, variants);
+  }
+  const winners = new Map<string, string>();
+  for (const [key, variants] of counts) {
+    if (variants.size < 2) continue;
+    winners.set(
+      key,
+      [...variants].sort((a, b) =>
+        b[1] - a[1] || b[0].length - a[0].length
+      )[0][0],
+    );
+  }
+  return items.map((item) => {
+    if (!item.section_title) return item;
+    const key = normalizeName(item.section_title)
+      .replace(/[^\p{L}\p{N}]+/gu, " ")
+      .replaceAll(/\s+/g, " ")
+      .trim();
+    const winner = winners.get(key);
+    return winner ? { ...item, section_title: winner } : item;
+  });
+}
+
 // Printed weight convention: a number followed by g/gr/grs/kg ("600g",
 // "70 gr.", "1kg"). Volumes (ml/L/oz) and "mg" are NOT grams. Name wins over
 // description; first match wins.

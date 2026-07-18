@@ -27,6 +27,7 @@ interface ExpectedFixture {
   // Allowed-but-not-required food-scope categories: if they appear, they are
   // not spurious; if they do not appear, they are not missing.
   tolerated_categories?: Category[];
+  tolerated_option_names?: string[];
   sections: string[];
   section_headers?: string[];
   // Sections that group only drink items — captured at F3 adjudication so the
@@ -298,7 +299,14 @@ export function optionBreakdown(
     };
   });
   const falsePositives = items
-    .filter((item, index) => item.options.length > 0 && !consumed.has(index))
+    .filter((item, index) => {
+      if (item.options.length === 0 || consumed.has(index)) return false;
+      const tolerated = fixture.tolerated_option_names;
+      return !(tolerated &&
+        item.options.every((option) =>
+          tolerated.some((name) => normalize(name) === normalize(option.name))
+        ));
+    })
     .map((item) => ({
       name: item.name,
       options: item.options.map((option) => option.name),
@@ -1153,6 +1161,35 @@ function runSelfCheck(): void {
   assert(
     breakdown.falsePositives.length === 0,
     "consumed targets are not false positives",
+  );
+  const toleratedOptionFixture = {
+    ...fixture,
+    tolerated_option_names: ["Queso"],
+  } as ExpectedFixture & { tolerated_option_names: string[] };
+  const optioned = (options: string[]): ExtractedMenuItem => ({
+    name: "Unconsumed",
+    description: "",
+    price: 10,
+    category: "food",
+    section_title: null,
+    options: options.map((name) => ({ name, price: 10, grams: null })),
+    grams: null,
+  });
+  assert(
+    optionBreakdown(toleratedOptionFixture, [optioned(["Queso"])])
+      .falsePositives
+      .length === 0,
+    "tolerated option names must not count as false positives",
+  );
+  assert(
+    optionBreakdown(toleratedOptionFixture, [
+      optioned(["Queso", "Fabricada"]),
+    ]).falsePositives.length === 1,
+    "an item with a non-tolerated option must remain a false positive",
+  );
+  assert(
+    optionBreakdown(fixture, [optioned(["Queso"])]).falsePositives.length === 1,
+    "fixtures without tolerated option names keep existing behavior",
   );
   const missedBreakdown = optionBreakdown(fixture, [
     { ...actual.items[0], options: [] },

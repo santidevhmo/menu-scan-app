@@ -2,6 +2,7 @@ import {
   dropBannerEchoOptions,
   dropHeaderEchoes,
   dropOptionEchoItems,
+  foldSectionTitlePunctuation,
   postprocessItems,
   remapTruncatedSectionTitles,
 } from "./postprocess.ts";
@@ -596,9 +597,11 @@ export async function runGroupedExtraction(
   // the neighboring tile, so the per-call postprocess can't see the match.
   const items = dropOptionEchoItems(
     remapTruncatedSectionTitles(
-      dropBannerEchoOptions(
-        dropHeaderEchoes(
-          mergeItemSources(groupResults.map((g) => g.items)),
+      foldSectionTitlePunctuation(
+        dropBannerEchoOptions(
+          dropHeaderEchoes(
+            mergeItemSources(groupResults.map((g) => g.items)),
+          ),
         ),
       ),
     ),

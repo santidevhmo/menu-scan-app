@@ -2,6 +2,7 @@ import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
   dropOptionEchoItems,
   filterServingFormatOptions,
+  foldSectionTitlePunctuation,
   remapTruncatedSectionTitles,
   stripMenuNumbers,
 } from "./postprocess.ts";
@@ -180,6 +181,43 @@ Deno.test("dropOptionEchoItems keeps a prefixed echo when its price differs", ()
     section_title: "Paletas Heladas",
   });
   assertEquals(dropOptionEchoItems([parent, dish]), [parent, dish]);
+});
+
+Deno.test("foldSectionTitlePunctuation uses the majority raw spelling", () => {
+  const out = foldSectionTitlePunctuation([
+    item("A", { section_title: "Pa Compartir" }),
+    item("B", { section_title: "Pa'Compartir" }),
+    item("C", { section_title: "Pa'Compartir" }),
+  ]);
+  assertEquals(out.map((i) => i.section_title), [
+    "Pa'Compartir",
+    "Pa'Compartir",
+    "Pa'Compartir",
+  ]);
+});
+
+Deno.test("foldSectionTitlePunctuation breaks ties with the longest spelling", () => {
+  const out = foldSectionTitlePunctuation([
+    item("A", { section_title: "Pa Compartir" }),
+    item("B", { section_title: "Pa' Compartir" }),
+  ]);
+  assertEquals(out.map((i) => i.section_title), [
+    "Pa' Compartir",
+    "Pa' Compartir",
+  ]);
+});
+
+Deno.test("foldSectionTitlePunctuation leaves different titles untouched", () => {
+  const out = foldSectionTitlePunctuation([
+    item("A", { section_title: "Entradas" }),
+    item("B", { section_title: "Especialidades" }),
+    item("C", { section_title: null }),
+  ]);
+  assertEquals(out.map((i) => i.section_title), [
+    "Entradas",
+    "Especialidades",
+    null,
+  ]);
 });
 
 Deno.test("remapTruncatedSectionTitles remaps a fragment to its unique superset (eval 065: Sandwiches)", () => {

@@ -1,0 +1,134 @@
+import { assert, assertEquals } from "jsr:@std/assert";
+import {
+  applyColocation,
+  colocationStage,
+  judgeItem,
+  nameTokens,
+  normTokens,
+  parseGrams,
+  toBlockTexts,
+  tokenMatch,
+} from "./colocation.ts";
+import type { ExtractedMenuItem } from "./extract.ts";
+
+Deno.test("normTokens strips accents, case, punctuation", () => {
+  assertEquals(normTokens("Boneless de Coliflor / Vegetarianas (300gr) $139"), [
+    "boneless",
+    "de",
+    "coliflor",
+    "vegetarianas",
+    "300gr",
+    "139",
+  ]);
+  assertEquals(normTokens("Bañados en salsa"), ["banados", "en", "salsa"]);
+});
+
+Deno.test("nameTokens drops numeric/gr/pz field text", () => {
+  assertEquals(nameTokens("Buffalo (350gr) $150"), ["buffalo"]);
+  assertEquals(nameTokens("Alitas 6 Pz $129 / 12Pz $169"), ["alitas"]);
+  assertEquals(nameTokens("Chicken-Little (200gr)"), ["chicken", "little"]);
+});
+
+Deno.test("parseGrams reads the first printed-weight claim", () => {
+  assertEquals(parseGrams("Buffalo (350gr) $150"), 350);
+  assertEquals(parseGrams("Boneless Jr(200gr)"), 200);
+  assertEquals(parseGrams("Alitas 6 Pz $129"), null);
+});
+
+Deno.test("tokenMatch allows one edit only for long tokens", () => {
+  assert(tokenMatch("vegetarianos", "vegetarianas"));
+  assert(!tokenMatch("jr", "gr"));
+  assert(!tokenMatch("boneless", "buffalo"));
+});
+
+function item(partial: Partial<ExtractedMenuItem> = {}): ExtractedMenuItem {
+  return {
+    name: "Alitas",
+    description: "",
+    price: null,
+    category: "food",
+    section_title: null,
+    options: [],
+    grams: null,
+    ...partial,
+  };
+}
+
+function blocks(...content: string[]) {
+  return toBlockTexts(content.map((value) => ({ content: value, type: "text" })));
+}
+
+Deno.test("judgeItem distinguishes verified, contradicted, and unverifiable", () => {
+  const b = blocks("Ensalada Verde (150gr) $52", "Papas (350gr) $70");
+  assertEquals(
+    judgeItem(b, item({ name: "Ensalada Verde (150gr)", price: 52 })).verdict,
+    "verified",
+  );
+  assertEquals(
+    judgeItem(b, item({ name: "Ensalada Verde (350gr)", price: 70 })).verdict,
+    "contradicted",
+  );
+  assertEquals(
+    judgeItem(b, item({ name: "Alitas (125gr)", price: 129 })).verdict,
+    "unverifiable",
+  );
+});
+
+Deno.test("mention-guard rejects prose combo lines as anchors", () => {
+  const b = blocks(
+    "Una orden de boneless(300gr), 12 piezas de alitas, una orden de papas fritas(300gr), 5 piezas de dedos de queso por $499",
+    "Alitas 6 PZ $129 / 12PZ $169 / 20PZ $269",
+  );
+  assertEquals(
+    judgeItem(b, item({ name: "Alitas (125gr)" })).verdict,
+    "unverifiable",
+  );
+});
+
+Deno.test("polarity drops a contradicted item when a sibling verifies the block", () => {
+  const b = blocks("Ensalada Verde (150gr) $52");
+  const real = item({ name: "Ensalada Verde (150gr)", price: 52 });
+  const fake = item({ name: "Ensalada Verde (350gr)", price: 70 });
+  assertEquals(applyColocation(b, [real, fake]), [real]);
+});
+
+Deno.test("polarity flags but keeps a contradicted item without a sibling", () => {
+  const tender = item({ name: "Tender (150gr)", price: 165 });
+  assertEquals(applyColocation(blocks("Tender (350gr) $165"), [tender]), [tender]);
+});
+
+Deno.test("unverifiable items are kept", () => {
+  const alitas = item({ name: "Alitas (125gr)", price: 129 });
+  assertEquals(applyColocation(blocks("Ensalada Verde (150gr) $52"), [alitas]), [alitas]);
+});
+
+Deno.test("drinks are never judged or dropped", () => {
+  const drink = item({ name: "Refresco (350gr)", price: 70, category: "drink" });
+  assertEquals(applyColocation(blocks("Refresco (150gr) $50"), [drink]), [drink]);
+});
+
+Deno.test("colocationStage fails open and skips empty tile groups", async () => {
+  const alitas = item({ name: "Alitas (125gr)", price: 129 });
+  let calls = 0;
+  const fetchOcr = async () => {
+    calls++;
+    throw new Error("offline");
+  };
+  assertEquals(await colocationStage([["tile"]], [alitas], "key", fetchOcr), [alitas]);
+  assertEquals(calls, 1);
+  assertEquals(await colocationStage([], [alitas], "key", fetchOcr), [alitas]);
+  assertEquals(calls, 1);
+  assertEquals(await colocationStage([["tile"]], [alitas], undefined, fetchOcr), [alitas]);
+  assertEquals(calls, 1);
+});
+
+Deno.test("runGroupedExtraction portrait path skips co-location fetches", async () => {
+  const alitas = item({ name: "Alitas (125gr)", price: 129 });
+  let calls = 0;
+  const fetchOcr = async () => {
+    calls++;
+    return [];
+  };
+  assertEquals(await colocationStage([], [alitas], "key", fetchOcr), [alitas]);
+  assertEquals(calls, 0);
+});

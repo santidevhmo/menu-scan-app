@@ -6,6 +6,7 @@ import {
   remapTruncatedSectionTitles,
 } from "./postprocess.ts";
 import { mergeItemSources } from "./merge.ts";
+import { colocationStage } from "./colocation.ts";
 
 const MODEL_TIMEOUT_MS = 120000;
 const EXTRACT_SEED = 17;
@@ -597,7 +598,20 @@ export async function runGroupedExtraction(
       ),
     ),
   );
-  return foldResults(allCalls, items);
+  // Co-location stage (spec 2026-07-17, ruling 10): tile path only,
+  // fail-open. Single-photo groups are untouched by construction.
+  let mistralApiKey: string | undefined;
+  try {
+    mistralApiKey = Deno.env.get("MISTRAL_API_KEY");
+  } catch {
+    mistralApiKey = undefined;
+  }
+  const cleaned = await colocationStage(
+    groups.filter((g) => g.length === 4),
+    items,
+    mistralApiKey,
+  );
+  return foldResults(allCalls, cleaned);
 }
 
 export async function runCropExtractions(

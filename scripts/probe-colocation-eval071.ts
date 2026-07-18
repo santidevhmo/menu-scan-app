@@ -2,7 +2,7 @@
 // Phase A (paid, ONCE): Mistral OCR on PolloteriaMenu.png -> word/line boxes, cached to disk.
 // Phase B ($0, iterate): deterministic check that each archived candidate's claimed
 // name + price + grams co-locate inside ONE OCR block. Fakes must fail, keeps must pass.
-// Launch: deno run --env-file=.env.local --allow-read --allow-write --allow-net=api.mistral.ai scripts/probe-colocation-eval071.ts
+// Launch: deno run --env-file=.env.local --allow-env --allow-read --allow-write --allow-net=api.mistral.ai scripts/probe-colocation-eval071.ts
 
 import { MENU_DIR } from "./photo-input.ts";
 

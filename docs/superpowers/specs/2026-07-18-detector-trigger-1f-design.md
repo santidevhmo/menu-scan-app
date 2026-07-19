@@ -1,8 +1,26 @@
 # Detector Trigger (step 1f) — Design Spec
 
-**Date:** 2026-07-18 · **Status:** DRAFT for Santiago's spec review (design approach approved — ruling 21; sentence approved 2026-07-18)
+**Date:** 2026-07-18 · **Status:** AMENDED v2 (2026-07-18) — ruling 24 replaced the suffix mechanism with deterministic tile-all; sections marked SUPERSEDED below no longer apply. Read "Amendment v2" first.
 **Owner:** horizontal-menus container (critical-path #4, Phase 1 step 1f — the last Phase-1 exit blocker)
-**Evidence base:** eval 060 (landscape detector blind spot: `dense=false` + `crop_direction="none"` 3/3 on Polloteria); eval 085 (polloteria ×3 clean through the tile path, detector FORCED by the harness — 1f removes the force); rulings 21–23.
+**Evidence base:** eval 060 (landscape detector blind spot: `dense=false` + `crop_direction="none"` 3/3 on Polloteria); eval 085 (polloteria ×3 clean through the tile path, detector FORCED by the harness — 1f removes the force); rulings 21–24; evals 086–088 (detection infeasibility trail).
+
+## Amendment v2 — deterministic tile-all-horizontal (ruling 24, user 2026-07-18)
+
+The B1 probes killed the suffix mechanism this spec was written around: eval 086 (approved wording → all 3 wide menus `dense=true`; Bistro false positive), eval 087 (packing reword → all 3 `dense=false`; Polloteria lost — the two wordings bracket the model without separating the menus), eval 088 (physical text-size measurement from OCR block geometry — Bistro's 10.9px sits BETWEEN Polloteria's 9.2 and Nikkori's 12.2; no floor exists at any statistic). Ruling 24: dense discrimination on wide menus is abandoned for release; it becomes a POST-RELEASE cost optimization (master roadmap list).
+
+**Mechanism (replaces "The approved sentence" and §3's suffix threading):** `runPagedExtraction` short-circuits every landscape page (`photoDims[i].width > photoDims[i].height`) into `needs_crops` with NO model call. `LANDSCAPE_PROMPT_SUFFIX` and the `landscape` parameters threaded through `runExtraction`/`extractWithRetry` are DELETED (signatures revert to the pre-1f `tile`/`page` shape). Portrait and dims-absent pages: byte-identical to today (pin unchanged). Mixed multi-photo scans: `extract` runs only for portrait pages; `needs_crops` = landscape indexes ∪ portrait model-dense/terminal-failure indexes, ascending, no duplicates.
+
+**Still valid from this spec:** §1 (client `photo_dims`), §2 (`isValidPhotoDims` validation + absent-field fail-open), the byte-identical portrait pin, and the harness mirror (probe-detector passes real dims — a landscape menu now yields `needs_crops` deterministically at $0 with zero API calls).
+
+**SUPERSEDED sections:** "The approved sentence", §3's suffix/`landscape`-param threading, the "Detector-verdict expectations" table (no verdicts exist — routing is deterministic), and the "Fallback lever" section (all levers burned or made irrelevant: reword spent in eval 087; `detail:"high"` irrelevant — no model judgment remains on landscape; deterministic force IS this amendment).
+
+**Revised verification ladder:**
+1. Unit tests ($0): landscape short-circuit (injected `extract` stub NOT called for landscape pages); mixed-scan `needs_crops` union + ordering; portrait/dims-absent byte-identical pin; suffix fully removed.
+2. $0 probe-detector run on the 3 wide menus: expect `needs_crops=[0]` ×3 with 0 API calls.
+3. B1' — bistro THROUGH-TILES quality probe (~$0.24/run, up to 3): bistro has never ridden the tile path — the one real risk of tile-all. Gate: scored dims vs its fixture + ruling-6 raw-dump/photo audit.
+4. B2 — polloteria e2e trigger-live ×3 (~$0.87): expect eval-085's clean result reproduced with the routing deciding (no harness force).
+5. B3 — guest-house through tiles (~$0.29 ×1): recorded + audited.
+Fresh cost approval at each launch (B1'–B3).
 
 ## Problem (plain)
 

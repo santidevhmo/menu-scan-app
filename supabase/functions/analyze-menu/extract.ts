@@ -224,8 +224,9 @@ columns.`;
 // make dense text too small to read after model resizing, so ask the model to
 // report dense when it cannot read every item across the full width.
 export const LANDSCAPE_PROMPT_SUFFIX =
-  `\nThis is a wide (landscape) menu photo, so packed text can look small. If you
-cannot clearly read every item across the full width, set image_layout.dense=true.`;
+  `\nThis is a wide (landscape) menu photo, scaled down before you see it, so
+packed text can look small. If you cannot clearly read every item across the
+full width, set image_layout.dense=true.`;
 
 export const VERIFY_PROMPT =
   `You are verifying a menu transcription against a photo. The photo is one

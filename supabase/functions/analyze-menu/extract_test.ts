@@ -833,6 +833,15 @@ Deno.test("runPagedExtraction: landscape dims route only landscape calls", async
   assertEquals(seen, [false, false, true]);
 });
 
+Deno.test("LANDSCAPE_PROMPT_SUFFIX matches the approved wording verbatim", () => {
+  assertEquals(
+    LANDSCAPE_PROMPT_SUFFIX.replace(/\s+/g, " ").trim(),
+    "This is a wide (landscape) menu photo, scaled down before you see it, so " +
+      "packed text can look small. If you cannot clearly read every item across " +
+      "the full width, set image_layout.dense=true.",
+  );
+});
+
 Deno.test("runGroupedExtraction sends OCR photos only for dense groups", async () => {
   const originalFetch = globalThis.fetch;
   const originalKey = Deno.env.get("MISTRAL_API_KEY");

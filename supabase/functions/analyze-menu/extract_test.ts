@@ -836,9 +836,11 @@ Deno.test("runPagedExtraction: landscape dims route only landscape calls", async
 Deno.test("LANDSCAPE_PROMPT_SUFFIX matches the approved wording verbatim", () => {
   assertEquals(
     LANDSCAPE_PROMPT_SUFFIX.replace(/\s+/g, " ").trim(),
-    "This is a wide (landscape) menu photo, scaled down before you see it, so " +
-      "packed text can look small. If you cannot clearly read every item across " +
-      "the full width, set image_layout.dense=true.",
+    "This is a wide (landscape) menu photo. Base image_layout.dense on how " +
+      "tightly the items are packed together, not on the photo's width. Set " +
+      "dense=true only when many items are crowded close together with little " +
+      "space between them; if the items are few or clearly spaced out, set " +
+      "dense=false even though the photo is wide.",
   );
 });
 

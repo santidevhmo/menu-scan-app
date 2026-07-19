@@ -220,13 +220,15 @@ options). Menus also print items inside boxed or bordered insert blocks and
 sidebars; extract the items in every box exactly like items in the main
 columns.`;
 
-// Sent only on phase-1 (non-tile) calls for landscape pages. Wide photos can
-// make dense text too small to read after model resizing, so ask the model to
-// report dense when it cannot read every item across the full width.
+// Sent only on phase-1 (non-tile) calls for landscape pages. Wide menus fooled
+// the detector into dense=false (eval 060); the first wording over-triggered —
+// every wide menu went dense (eval 086). This version bases the verdict on item
+// packing, not photo width, so crowded wide menus tile and spacious ones do not.
 export const LANDSCAPE_PROMPT_SUFFIX =
-  `\nThis is a wide (landscape) menu photo, scaled down before you see it, so
-packed text can look small. If you cannot clearly read every item across the
-full width, set image_layout.dense=true.`;
+  `\nThis is a wide (landscape) menu photo. Base image_layout.dense on how tightly
+the items are packed together, not on the photo's width. Set dense=true only when
+many items are crowded close together with little space between them; if the items
+are few or clearly spaced out, set dense=false even though the photo is wide.`;
 
 export const VERIFY_PROMPT =
   `You are verifying a menu transcription against a photo. The photo is one

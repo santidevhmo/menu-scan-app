@@ -1,11 +1,13 @@
 import {
   assertEquals,
   assertRejects,
+  assertStringIncludes,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
   EXTRACT_PROMPT,
   EXTRACT_SCHEMA,
   extractWithRetry,
+  LANDSCAPE_PROMPT_SUFFIX,
   PAGE_PROMPT_SUFFIX,
   runCropExtractions,
   runExtraction,
@@ -775,6 +777,60 @@ Deno.test("multi-photo pages get the page suffix; single-photo scans do not", as
   await runGroupedExtraction([["a"]], "key", fake as any);
   assertEquals(calls.map((c) => c.page), [false, true, true, true]);
   assertEquals(calls.every((c) => !c.tile), true);
+});
+
+Deno.test("runExtraction appends LANDSCAPE_PROMPT_SUFFIX only on landscape phase-1 calls", async () => {
+  const originalFetch = globalThis.fetch;
+  let sentText = "";
+  globalThis.fetch = (async (input, init) => {
+    const body = JSON.parse(await new Request(input, init).text()) as {
+      messages: { content: { text?: string }[] }[];
+    };
+    sentText = body.messages[0].content[0].text ?? "";
+    return new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: {
+          content:
+            '{"image_quality":{"usable":true,"issues":[]},"image_layout":{"dense":false,"crop_direction":"none"},"items":[]}',
+        },
+      }],
+    }));
+  }) as typeof fetch;
+  try {
+    await runExtraction(["p"], "key", undefined, false, false, true);
+    assertStringIncludes(sentText, LANDSCAPE_PROMPT_SUFFIX);
+
+    await runExtraction(["p"], "key");
+    assertEquals(sentText.includes(LANDSCAPE_PROMPT_SUFFIX), false);
+
+    await runExtraction(["p"], "key", "high", true, false, true);
+    assertEquals(sentText.includes(LANDSCAPE_PROMPT_SUFFIX), false);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("runPagedExtraction: landscape dims route only landscape calls", async () => {
+  const seen: (boolean | undefined)[] = [];
+  const stub = ((
+    _photos: string[],
+    _key: string,
+    _detail?: "auto" | "high" | "low",
+    _extract?: unknown,
+    _tile?: boolean,
+    _page?: boolean,
+    landscape?: boolean,
+  ) => {
+    seen.push(landscape);
+    return Promise.resolve(fakeResult());
+  }) as typeof extractWithRetry;
+
+  await runPagedExtraction(["a"], "key", stub, []);
+  await runPagedExtraction(["a"], "key", stub, [{ width: 100, height: 200 }]);
+  await runPagedExtraction(["a"], "key", stub, [{ width: 200, height: 100 }]);
+
+  assertEquals(seen, [false, false, true]);
 });
 
 Deno.test("runGroupedExtraction sends OCR photos only for dense groups", async () => {

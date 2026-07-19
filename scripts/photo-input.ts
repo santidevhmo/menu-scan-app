@@ -12,6 +12,33 @@ export const MAX_BASE64_LEN = 10_000_000;
 // 9M leaves headroom under the edge fn's 10M per-photo cap.
 export const PASSTHROUGH_MAX_B64 = 9_000_000;
 
+/** Original pixel dimensions of a MenusTesting photo. */
+export async function photoDims(
+  name: string,
+): Promise<{ width: number; height: number }> {
+  const out = await new Deno.Command("sips", {
+    args: [
+      "-g",
+      "pixelWidth",
+      "-g",
+      "pixelHeight",
+      `${MENU_DIR}/${name}`,
+    ],
+  }).output();
+  const text = new TextDecoder().decode(out.stdout);
+  if (!out.success) {
+    throw new Error(
+      `sips dims ${name} failed: ${new TextDecoder().decode(out.stderr)}`,
+    );
+  }
+  const width = Number(text.match(/pixelWidth:\s*(\d+)/)?.[1]);
+  const height = Number(text.match(/pixelHeight:\s*(\d+)/)?.[1]);
+  if (!Number.isFinite(width) || !Number.isFinite(height)) {
+    throw new Error(`sips dims ${name}: could not parse dimensions`);
+  }
+  return { width, height };
+}
+
 async function sh(args: string[]): Promise<void> {
   const out = await new Deno.Command(args[0], { args: args.slice(1) }).output();
   if (!out.success) {
@@ -67,7 +94,12 @@ export async function productionPhotoData(
   if (b64.length <= PASSTHROUGH_MAX_B64) {
     return `data:${mimeOf(name)};base64,${b64}`;
   }
-  return compressedPhotoData(name, PROD_MAX_DIMENSION, PROD_JPEG_QUALITY, tmpDir);
+  return compressedPhotoData(
+    name,
+    PROD_MAX_DIMENSION,
+    PROD_JPEG_QUALITY,
+    tmpDir,
+  );
 }
 
 if (import.meta.main && Deno.args.includes("--self-check")) {
@@ -80,14 +112,21 @@ if (import.meta.main && Deno.args.includes("--self-check")) {
     if (!ok) failed++;
   };
   check("returns a jpeg data URL", url.startsWith("data:image/jpeg;base64,"));
-  check("compressed smaller than original", url.length < original.byteLength * (4 / 3));
+  check(
+    "compressed smaller than original",
+    url.length < original.byteLength * (4 / 3),
+  );
   check("under edge base64 cap", url.length < MAX_BASE64_LEN);
   const prod = await productionPhotoData("ElMarcosMenu.png", tmp);
   const rawElMarcos = await Deno.readFile(`${MENU_DIR}/ElMarcosMenu.png`);
-  check("large fixture passthroughs as png", prod.startsWith("data:image/png;base64,"));
+  check(
+    "large fixture passthroughs as png",
+    prod.startsWith("data:image/png;base64,"),
+  );
   check(
     "passthrough is byte-identical to the original",
-    prod.length === "data:image/png;base64,".length + rawElMarcos.toBase64().length,
+    prod.length ===
+      "data:image/png;base64,".length + rawElMarcos.toBase64().length,
   );
   console.log(failed === 0 ? "SELF-CHECK PASS" : "SELF-CHECK FAIL");
   if (failed > 0) Deno.exitCode = 1;

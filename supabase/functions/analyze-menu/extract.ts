@@ -220,6 +220,13 @@ options). Menus also print items inside boxed or bordered insert blocks and
 sidebars; extract the items in every box exactly like items in the main
 columns.`;
 
+// Sent only on phase-1 (non-tile) calls for landscape pages. Wide photos can
+// make dense text too small to read after model resizing, so ask the model to
+// report dense when it cannot read every item across the full width.
+export const LANDSCAPE_PROMPT_SUFFIX =
+  `\nThis is a wide (landscape) menu photo, so packed text can look small. If you
+cannot clearly read every item across the full width, set image_layout.dense=true.`;
+
 export const VERIFY_PROMPT =
   `You are verifying a menu transcription against a photo. The photo is one
 cropped tile of a larger menu page; every candidate in the JSON list was
@@ -238,6 +245,7 @@ export async function runExtraction(
   detail?: "auto" | "high" | "low",
   tile = false,
   page = false,
+  landscape = false,
 ): Promise<ExtractionResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), MODEL_TIMEOUT_MS);
@@ -257,7 +265,8 @@ export async function runExtraction(
             {
               type: "text",
               text: EXTRACT_PROMPT +
-                (tile ? TILE_PROMPT_SUFFIX : page ? PAGE_PROMPT_SUFFIX : ""),
+                (tile ? TILE_PROMPT_SUFFIX : page ? PAGE_PROMPT_SUFFIX : "") +
+                (landscape && !tile ? LANDSCAPE_PROMPT_SUFFIX : ""),
             },
             ...photos.map((photo) => ({
               type: "image_url",
@@ -336,9 +345,10 @@ export async function extractWithRetry(
   extract = runExtraction,
   tile = false,
   page = false,
+  landscape = false,
 ): Promise<ExtractionResult> {
   try {
-    return await extract(photos, apiKey, detail, tile, page);
+    return await extract(photos, apiKey, detail, tile, page, landscape);
   } catch (error) {
     const message = String(error);
     if (
@@ -346,7 +356,7 @@ export async function extractWithRetry(
       !message.includes("finish_reason=length")
     ) throw error;
     console.log("[extract] transient model failure — retrying call once");
-    return await extract(photos, apiKey, detail, tile, page);
+    return await extract(photos, apiKey, detail, tile, page, landscape);
   }
 }
 
@@ -501,12 +511,35 @@ export async function runPagedExtraction(
   photos: string[],
   apiKey: string,
   extract = extractWithRetry,
+  photoDims: { width: number; height: number }[] = [],
 ): Promise<PagedExtraction> {
+  const isLandscape = (index: number) => {
+    const dims = photoDims[index];
+    return dims !== undefined && dims.width > dims.height;
+  };
   const settled = await Promise.allSettled(
     photos.length === 1
-      ? [extract(photos, apiKey)]
-      : photos.map((photo) =>
-        extract([photo], apiKey, "high", undefined, false, true)
+      ? [
+        extract(
+          photos,
+          apiKey,
+          undefined,
+          undefined,
+          false,
+          false,
+          isLandscape(0),
+        ),
+      ]
+      : photos.map((photo, index) =>
+        extract(
+          [photo],
+          apiKey,
+          "high",
+          undefined,
+          false,
+          true,
+          isLandscape(index),
+        )
       ),
   );
   const needsCrops = settled.flatMap((s, index) =>

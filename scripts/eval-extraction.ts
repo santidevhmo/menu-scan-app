@@ -465,8 +465,12 @@ export function scoreMenu(
         : []
     ),
   );
+  const sectionSatisfies = (actualKey: string, expectedKey: string) =>
+    actualKey === expectedKey || actualKey.startsWith(expectedKey + " ");
   const missingSections = [...expectedSections].filter(([key]) =>
-    !actualSections.has(key)
+    ![...actualSections.keys()].some((actualKey) =>
+      sectionSatisfies(actualKey, key)
+    )
   ).map(([, section]) => section);
   // section_headers are tolerated as section_titles (allowed, not required):
   // prose blocks (Pa' los Bukis) and parent headings whose subheading is on
@@ -475,7 +479,9 @@ export function scoreMenu(
     (fixture.section_headers ?? []).map(normalize),
   );
   const spuriousSections = [...actualSections].filter(([key]) =>
-    !expectedSections.has(key) && !toleratedSections.has(key)
+    ![...expectedSections.keys()].some((expectedKey) =>
+      sectionSatisfies(key, expectedKey)
+    ) && !toleratedSections.has(key)
   ).map(([, section]) => section);
   // ANY name-matching food item with the expected section satisfies the
   // expectation — crop overlap and stable misreads produce extra same-name
@@ -503,7 +509,10 @@ export function scoreMenu(
       return [`${expected.name_contains}→(item not found)`];
     }
     const satisfied = matches.some((item) =>
-      normalize(item.section_title ?? "") === normalize(expected.section_title)
+      sectionSatisfies(
+        normalize(item.section_title ?? ""),
+        normalize(expected.section_title),
+      )
     );
     if (satisfied) return [];
     return [
@@ -961,6 +970,40 @@ function runSelfCheck(): void {
     !scoreMenu(capeadosFixture("Nico"), capeadosItem("Nixco"))
       .section_context.pass,
     "short names (<5 chars) must stay strict",
+  );
+
+  const prefixFixture: ExpectedFixture = {
+    ...fixture,
+    sections: ["Pizzas Bistro"],
+    section_headers: [],
+    section_expectations: [{
+      name_contains: "Burger",
+      section_title: "Pizzas Bistro",
+    }],
+  };
+  const prefixItem = (section_title: string): ActualExtraction => ({
+    image_quality: { usable: true, issues: [] },
+    items: [{ ...actual.items[0], section_title }],
+  });
+  assert(
+    scoreMenu(prefixFixture, prefixItem("Pizzas Bistro 28CM"))
+      .section_context.pass,
+    "an actual section may extend the required section with a word prefix",
+  );
+  assert(
+    !scoreMenu(prefixFixture, prefixItem("Pizzas"))
+      .section_context.pass,
+    "a truncated actual section must not satisfy a longer required section",
+  );
+  assert(
+    !scoreMenu(prefixFixture, prefixItem("Garden"))
+      .section_context.pass,
+    "an unrelated actual section must remain spurious",
+  );
+  assert(
+    scoreMenu(prefixFixture, prefixItem("Pizzas Bistro"))
+      .section_context.pass,
+    "exact section equality must remain valid",
   );
 
   const failing = scoreMenu(fixture, {

@@ -28,6 +28,7 @@ type ScoredDim =
   | "grams";
 
 const apiKey = Deno.env.get("OPENAI_API_KEY")!;
+const runs = Number(Deno.env.get("PROBE_RUNS") ?? "3");
 const tmp = await Deno.makeTempDir({ prefix: "tiles-" });
 const PHOTO = Deno.env.get("PROBE_PHOTO") ?? "PolloteriaMenu.png";
 const PROBE_NAME = Deno.env.get("PROBE_NAME") ?? "polloteria";
@@ -108,7 +109,7 @@ for (const g of GEOMETRIES) {
   );
   const tiles = await cutTiles(g.rects, g.key);
 
-  for (let run = 1; run <= 3; run++) {
+  for (let run = 1; run <= runs; run++) {
     try {
       const result = await runGroupedExtraction(
         [tiles],

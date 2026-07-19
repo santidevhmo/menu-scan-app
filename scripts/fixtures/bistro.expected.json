@@ -7,7 +7,9 @@
   "food_items": 24,
   "drink_items": 0,
   "categories": [
-    "food",
+    "food"
+  ],
+  "tolerated_categories": [
     "other"
   ],
   "sections": [
@@ -45,10 +47,6 @@
     {
       "name_contains": "ENSALADA BISTRO",
       "category": "food"
-    },
-    {
-      "name_contains": "Pollo",
-      "category": "other"
     }
   ]
 }

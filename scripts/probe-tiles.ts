@@ -29,10 +29,13 @@ type ScoredDim =
 
 const apiKey = Deno.env.get("OPENAI_API_KEY")!;
 const tmp = await Deno.makeTempDir({ prefix: "tiles-" });
-const PHOTO = "PolloteriaMenu.png";
+const PHOTO = Deno.env.get("PROBE_PHOTO") ?? "PolloteriaMenu.png";
+const PROBE_NAME = Deno.env.get("PROBE_NAME") ?? "polloteria";
+const FIXTURE_FILE = Deno.env.get("PROBE_FIXTURE") ??
+  "polloteria.expected.json";
 const fixture: Fixture = JSON.parse(
   await Deno.readTextFile(
-    new URL("./fixtures/polloteria.expected.json", import.meta.url),
+    new URL(`./fixtures/${FIXTURE_FILE}`, import.meta.url),
   ),
 );
 const DIMS: ScoredDim[] = [
@@ -42,7 +45,7 @@ const DIMS: ScoredDim[] = [
   "categories",
   "grams",
 ];
-const DUMP_TAG = "eval085";
+const DUMP_TAG = Deno.env.get("DUMP_TAG") ?? "eval085";
 
 function colStripRects(w: number, h: number): CropRect[] {
   const tileW = Math.round(w * 0.4);
@@ -123,7 +126,7 @@ for (const g of GEOMETRIES) {
         " ",
       );
       const dumpPath =
-        `${MENU_DIR}/polloteria.tiles-${g.key}-${DUMP_TAG}-r${run}.actual.json`;
+        `${MENU_DIR}/${PROBE_NAME}.tiles-${g.key}-${DUMP_TAG}-r${run}.actual.json`;
 
       await Deno.writeTextFile(
         dumpPath,

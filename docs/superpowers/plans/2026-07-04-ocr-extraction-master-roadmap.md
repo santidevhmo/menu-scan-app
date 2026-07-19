@@ -100,6 +100,7 @@ Features 1–4 are CLOSED and the user chose **release momentum over roadmap com
 - **Option-price perfection beyond the F4 gate** — known tolerated misses (Revueltos 84/90 migration, Plato Surtido's 82, jamón@78 price-null flake) stay tolerated; macro-inverting variants are already handled by F2's fold convention.
 
 *Remaining deferred scope:*
+- **Wide-menu dense discrimination (cost optimization)** — container ruling 24 (2026-07-18) tiles ALL landscape pages (~$0.24 vs ~$0.05 on the rare simple wide menu; dense wide scans actually get ~$0.05 cheaper) because evals 086–088 proved cheap single-signal dense detection infeasible on wide photos: the prompt brackets without separating, items/MP fails on dense under-reads, and physical text size interleaves (bistro 10.9px sits between polloteria 9.2 and nikkori 12.2 after the 768 rescale). If revisited post-release: OCR-geometry caches exist for all 9 fixture menus (`~/Downloads/MenusTesting/*.mistral-ocr-2048q95.json`); OCR blocks-per-megapixel showed a 1.6× boundary gap on only N=2 dense samples — collect many more wide fixtures before trusting any threshold.
 - **Feature 5 — drinks** (deferred 2026-07-10; food-first value; the crop path's drink filter stays).
 - **Combo suggestions** (drink+dish macro pairings) — idea only.
 - **`image_quality` photo-retake prompt in the client** and **consistency-as-confidence flags** (the existing Post-F5 backlog items in the DoorDash section above).

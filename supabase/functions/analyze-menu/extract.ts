@@ -220,16 +220,6 @@ options). Menus also print items inside boxed or bordered insert blocks and
 sidebars; extract the items in every box exactly like items in the main
 columns.`;
 
-// Sent only on phase-1 (non-tile) calls for landscape pages. Wide menus fooled
-// the detector into dense=false (eval 060); the first wording over-triggered —
-// every wide menu went dense (eval 086). This version bases the verdict on item
-// packing, not photo width, so crowded wide menus tile and spacious ones do not.
-export const LANDSCAPE_PROMPT_SUFFIX =
-  `\nThis is a wide (landscape) menu photo. Base image_layout.dense on how tightly
-the items are packed together, not on the photo's width. Set dense=true only when
-many items are crowded close together with little space between them; if the items
-are few or clearly spaced out, set dense=false even though the photo is wide.`;
-
 export const VERIFY_PROMPT =
   `You are verifying a menu transcription against a photo. The photo is one
 cropped tile of a larger menu page; every candidate in the JSON list was
@@ -248,7 +238,6 @@ export async function runExtraction(
   detail?: "auto" | "high" | "low",
   tile = false,
   page = false,
-  landscape = false,
 ): Promise<ExtractionResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), MODEL_TIMEOUT_MS);
@@ -268,8 +257,7 @@ export async function runExtraction(
             {
               type: "text",
               text: EXTRACT_PROMPT +
-                (tile ? TILE_PROMPT_SUFFIX : page ? PAGE_PROMPT_SUFFIX : "") +
-                (landscape && !tile ? LANDSCAPE_PROMPT_SUFFIX : ""),
+                (tile ? TILE_PROMPT_SUFFIX : page ? PAGE_PROMPT_SUFFIX : ""),
             },
             ...photos.map((photo) => ({
               type: "image_url",
@@ -348,10 +336,9 @@ export async function extractWithRetry(
   extract = runExtraction,
   tile = false,
   page = false,
-  landscape = false,
 ): Promise<ExtractionResult> {
   try {
-    return await extract(photos, apiKey, detail, tile, page, landscape);
+    return await extract(photos, apiKey, detail, tile, page);
   } catch (error) {
     const message = String(error);
     if (
@@ -359,7 +346,7 @@ export async function extractWithRetry(
       !message.includes("finish_reason=length")
     ) throw error;
     console.log("[extract] transient model failure — retrying call once");
-    return await extract(photos, apiKey, detail, tile, page, landscape);
+    return await extract(photos, apiKey, detail, tile, page);
   }
 }
 
@@ -520,38 +507,33 @@ export async function runPagedExtraction(
     const dims = photoDims[index];
     return dims !== undefined && dims.width > dims.height;
   };
+  const landscapeIndexes = photos.map((_, index) => index).filter(isLandscape);
+  if (photos.length === 1 && landscapeIndexes.length > 0) {
+    // Ruling 24 (evals 086–088): wide-menu dense discrimination is not
+    // reliably detectable; skip the discarded whole read and tile directly.
+    return { needs_crops: [0] };
+  }
+  const portraitIndexes = photos.map((_, index) => index).filter((index) =>
+    !isLandscape(index)
+  );
   const settled = await Promise.allSettled(
     photos.length === 1
-      ? [
-        extract(
-          photos,
-          apiKey,
-          undefined,
-          undefined,
-          false,
-          false,
-          isLandscape(0),
-        ),
-      ]
-      : photos.map((photo, index) =>
-        extract(
-          [photo],
-          apiKey,
-          "high",
-          undefined,
-          false,
-          true,
-          isLandscape(index),
-        )
+      ? [extract(photos, apiKey)]
+      : portraitIndexes.map((index) =>
+        extract([photos[index]], apiKey, "high", undefined, false, true)
       ),
   );
-  const needsCrops = settled.flatMap((s, index) =>
-    (s.status === "fulfilled"
-        ? s.value.image_layout.dense
-        : DENSE_FAILURE.test(String(s.reason)))
-      ? [index]
-      : []
-  );
+  const needsCrops = [
+    ...landscapeIndexes,
+    ...settled.flatMap((s, settledIndex) => {
+      const index = photos.length === 1 ? 0 : portraitIndexes[settledIndex];
+      return (s.status === "fulfilled"
+          ? s.value.image_layout.dense
+          : DENSE_FAILURE.test(String(s.reason)))
+        ? [index]
+        : [];
+    }),
+  ].sort((a, b) => a - b);
   if (needsCrops.length > 0) return { needs_crops: needsCrops };
   const rejected = settled.find((s) => s.status === "rejected");
   if (rejected) throw (rejected as PromiseRejectedResult).reason;

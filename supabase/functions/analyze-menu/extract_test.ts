@@ -1,13 +1,11 @@
 import {
   assertEquals,
   assertRejects,
-  assertStringIncludes,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
   EXTRACT_PROMPT,
   EXTRACT_SCHEMA,
   extractWithRetry,
-  LANDSCAPE_PROMPT_SUFFIX,
   PAGE_PROMPT_SUFFIX,
   runCropExtractions,
   runExtraction,
@@ -779,69 +777,83 @@ Deno.test("multi-photo pages get the page suffix; single-photo scans do not", as
   assertEquals(calls.every((c) => !c.tile), true);
 });
 
-Deno.test("runExtraction appends LANDSCAPE_PROMPT_SUFFIX only on landscape phase-1 calls", async () => {
-  const originalFetch = globalThis.fetch;
-  let sentText = "";
-  globalThis.fetch = (async (input, init) => {
-    const body = JSON.parse(await new Request(input, init).text()) as {
-      messages: { content: { text?: string }[] }[];
-    };
-    sentText = body.messages[0].content[0].text ?? "";
-    return new Response(JSON.stringify({
-      choices: [{
-        finish_reason: "stop",
-        message: {
-          content:
-            '{"image_quality":{"usable":true,"issues":[]},"image_layout":{"dense":false,"crop_direction":"none"},"items":[]}',
-        },
-      }],
+Deno.test("runPagedExtraction routes landscape pages to deterministic tiles", async () => {
+  const calls: Parameters<typeof extractWithRetry>[] = [];
+  let denseFirstPortrait = false;
+  const stub = ((...args: Parameters<typeof extractWithRetry>) => {
+    calls.push(args);
+    const photo = args[0][0];
+    return Promise.resolve(fakeResult({
+      image_layout: {
+        dense: denseFirstPortrait && photo === "p0",
+        crop_direction: "none",
+      },
     }));
-  }) as typeof fetch;
-  try {
-    await runExtraction(["p"], "key", undefined, false, false, true);
-    assertStringIncludes(sentText, LANDSCAPE_PROMPT_SUFFIX);
-
-    await runExtraction(["p"], "key");
-    assertEquals(sentText.includes(LANDSCAPE_PROMPT_SUFFIX), false);
-
-    await runExtraction(["p"], "key", "high", true, false, true);
-    assertEquals(sentText.includes(LANDSCAPE_PROMPT_SUFFIX), false);
-  } finally {
-    globalThis.fetch = originalFetch;
-  }
-});
-
-Deno.test("runPagedExtraction: landscape dims route only landscape calls", async () => {
-  const seen: (boolean | undefined)[] = [];
-  const stub = ((
-    _photos: string[],
-    _key: string,
-    _detail?: "auto" | "high" | "low",
-    _extract?: unknown,
-    _tile?: boolean,
-    _page?: boolean,
-    landscape?: boolean,
-  ) => {
-    seen.push(landscape);
-    return Promise.resolve(fakeResult());
   }) as typeof extractWithRetry;
 
-  await runPagedExtraction(["a"], "key", stub, []);
-  await runPagedExtraction(["a"], "key", stub, [{ width: 100, height: 200 }]);
-  await runPagedExtraction(["a"], "key", stub, [{ width: 200, height: 100 }]);
+  assertEquals(
+    await runPagedExtraction(
+      ["wide"],
+      "key",
+      stub,
+      [{ width: 2000, height: 1500 }],
+    ),
+    { needs_crops: [0] },
+  );
+  assertEquals(calls, []);
 
-  assertEquals(seen, [false, false, true]);
+  const dims = [
+    { width: 1500, height: 2000 },
+    { width: 2000, height: 1500 },
+    { width: 1500, height: 2000 },
+  ];
+  assertEquals(
+    await runPagedExtraction(["p0", "wide", "p2"], "key", stub, dims),
+    { needs_crops: [1] },
+  );
+  assertEquals(
+    calls.map(([photos, _key, detail, _extract, tile, page]) => ({
+      photos,
+      detail,
+      tile,
+      page,
+    })),
+    [
+      { photos: ["p0"], detail: "high", tile: false, page: true },
+      { photos: ["p2"], detail: "high", tile: false, page: true },
+    ],
+  );
+
+  calls.length = 0;
+  denseFirstPortrait = true;
+  assertEquals(
+    await runPagedExtraction(["p0", "wide", "p2"], "key", stub, dims),
+    { needs_crops: [0, 1] },
+  );
+  assertEquals(calls.length, 2);
 });
 
-Deno.test("LANDSCAPE_PROMPT_SUFFIX matches the approved wording verbatim", () => {
-  assertEquals(
-    LANDSCAPE_PROMPT_SUFFIX.replace(/\s+/g, " ").trim(),
-    "This is a wide (landscape) menu photo. Base image_layout.dense on how " +
-      "tightly the items are packed together, not on the photo's width. Set " +
-      "dense=true only when many items are crowded close together with little " +
-      "space between them; if the items are few or clearly spaced out, set " +
-      "dense=false even though the photo is wide.",
-  );
+Deno.test("runPagedExtraction keeps portrait and absent-dims call shapes", async () => {
+  const calls: Parameters<typeof extractWithRetry>[] = [];
+  const stub = ((...args: Parameters<typeof extractWithRetry>) => {
+    calls.push(args);
+    return Promise.resolve(fakeResult());
+  }) as typeof extractWithRetry;
+  const portrait = { width: 1500, height: 2000 };
+
+  await runPagedExtraction(["single"], "key", stub, [portrait]);
+  assertEquals(calls, [[["single"], "key"]]);
+
+  calls.length = 0;
+  await runPagedExtraction(["a", "b"], "key", stub, [portrait, portrait]);
+  assertEquals(calls, [
+    [["a"], "key", "high", undefined, false, true],
+    [["b"], "key", "high", undefined, false, true],
+  ]);
+
+  calls.length = 0;
+  await runPagedExtraction(["single"], "key", stub);
+  assertEquals(calls, [[["single"], "key"]]);
 });
 
 Deno.test("runGroupedExtraction sends OCR photos only for dense groups", async () => {

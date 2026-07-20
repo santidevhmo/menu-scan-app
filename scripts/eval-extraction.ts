@@ -304,7 +304,10 @@ export function optionBreakdown(
       const tolerated = fixture.tolerated_option_names;
       return !(tolerated &&
         item.options.every((option) =>
-          tolerated.some((name) => normalize(name) === normalize(option.name))
+          tolerated.some((name) => {
+            const token = normalize(name);
+            return token.length > 0 && normalize(option.name).includes(token);
+          })
         ));
     })
     .map((item) => ({
@@ -1223,6 +1226,17 @@ function runSelfCheck(): void {
       .falsePositives
       .length === 0,
     "tolerated option names must not count as false positives",
+  );
+  assert(
+    optionBreakdown(toleratedOptionFixture, [
+      optioned(["Agrega queso a tus papas"]),
+    ]).falsePositives.length === 0,
+    "tolerated option names match upsell phrasing by substring",
+  );
+  assert(
+    optionBreakdown(toleratedOptionFixture, [optioned(["Extra Bacon"])])
+      .falsePositives.length === 1,
+    "unrelated option names remain false positives",
   );
   assert(
     optionBreakdown(toleratedOptionFixture, [

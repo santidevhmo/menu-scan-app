@@ -3,6 +3,7 @@
   "photos": [
     "GuestHouseMenu.png"
   ],
+  "items_over_tolerance": 6,
   "total_items": 48,
   "food_items": 48,
   "drink_items": 0,
@@ -59,7 +60,7 @@
     },
     {
       "name_contains": "OSETRA CAVIAR",
-      "grams": 30
+      "grams": 3
     }
   ]
 }

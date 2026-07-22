@@ -117,6 +117,21 @@ function sectionKey(value: string): string {
   return normalize(value).replace(/[^a-z0-9]+/g, " ").trim();
 }
 
+function commonPrefixLen(a: string, b: string): number {
+  let i = 0;
+  while (i < a.length && i < b.length && a[i] === b[i]) i++;
+  return i;
+}
+
+// A section-title word matches despite OCR/translation misreads: exact,
+// one-indel (Especialidodes), or a strong shared prefix (Hamburguesas~Hamburgers).
+function sectionWordMatch(a: string, b: string): boolean {
+  if (a === b || editDistanceLeq1(a, b)) return true;
+  const p = commonPrefixLen(a, b);
+  return a.length >= 5 && b.length >= 5 && p >= 5 &&
+    p >= 0.5 * Math.max(a.length, b.length);
+}
+
 // True when `hay` contains `want` with exactly one letter inserted or dropped
 // ("chiplo" vs "chipo"). Exact containment is the caller's job (cheaper and
 // unambiguous); short needles (<5 chars) never match — too easy to cross-match
@@ -472,8 +487,14 @@ export function scoreMenu(
         : []
     ),
   );
-  const sectionSatisfies = (actualKey: string, expectedKey: string) =>
-    actualKey === expectedKey || actualKey.startsWith(expectedKey + " ");
+  const sectionSatisfies = (actualKey: string, expectedKey: string) => {
+    const a = actualKey.split(" ").filter(Boolean);
+    const e = expectedKey.split(" ").filter(Boolean);
+    if (a.length < e.length) return false;
+    return e.every((expectedWord, index) =>
+      sectionWordMatch(a[index], expectedWord)
+    );
+  };
   const missingSections = [...expectedSections].filter(([key]) =>
     ![...actualSections.keys()].some((actualKey) =>
       sectionSatisfies(actualKey, key)
@@ -1060,6 +1081,39 @@ function runSelfCheck(): void {
       },
     ).section_context.pass,
     "genuinely different sections must remain distinct",
+  );
+  assert(
+    scoreMenu(
+      punctuationFixture("Sandwiches & Hamburguesas"),
+      {
+        ...actual,
+        items: [
+          { ...actual.items[0], section_title: "Sandwiches & Hamburgers" },
+          actual.items[1],
+        ],
+      },
+    ).section_context.pass,
+    "strong shared word prefixes must satisfy section expectations",
+  );
+  assert(
+    !scoreMenu(
+      punctuationFixture("Entradas"),
+      {
+        ...actual,
+        items: [
+          { ...actual.items[0], section_title: "Ensaladas" },
+          actual.items[1],
+        ],
+      },
+    ).section_context.pass,
+    "Entradas and Ensaladas must remain distinct",
+  );
+  assert(
+    !scoreMenu(fixture, {
+      ...actual,
+      items: [actual.items[0], { ...actual.items[1], section_title: "Salads" }],
+    }).section_context.pass,
+    "Sides and Salads must remain distinct",
   );
 
   const failing = scoreMenu(fixture, {

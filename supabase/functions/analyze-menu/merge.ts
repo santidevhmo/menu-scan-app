@@ -38,8 +38,8 @@ function duplicate(
 ): boolean {
   const left = normalize(a.name);
   const right = normalize(b.name);
-  const compatiblePrice =
-    a.price === b.price || a.price === null || b.price === null;
+  const compatiblePrice = a.price === b.price || a.price === null ||
+    b.price === null;
   if (left === right) return compatiblePrice;
   // A null/empty section means "unknown", not "a different section": a crop
   // that omits section_title must still merge with a sectioned near-name copy.
@@ -57,11 +57,12 @@ function duplicate(
     a.price !== b.price ||
     a.category !== b.category ||
     !compatibleSection
-  )
+  ) {
     return false;
+  }
   return (
     editDistance(left, right) <=
-    Math.max(1, Math.floor(Math.max(left.length, right.length) * 0.2))
+      Math.max(1, Math.floor(Math.max(left.length, right.length) * 0.2))
   );
 }
 
@@ -80,11 +81,10 @@ function mergeOptions(
 }
 
 function richer(a: ExtractedMenuItem, b: ExtractedMenuItem): ExtractedMenuItem {
-  const best =
-    b.description.length + b.options.length >
-    a.description.length + a.options.length
-      ? b
-      : a;
+  const best = b.description.length + b.options.length >
+      a.description.length + a.options.length
+    ? b
+    : a;
   return { ...best, options: mergeOptions(a.options, b.options) };
 }
 
@@ -94,7 +94,7 @@ function nearName(a: string, b: string): boolean {
   if (left === right) return true;
   return (
     editDistance(left, right) <=
-    Math.max(1, Math.floor(Math.max(left.length, right.length) * 0.2))
+      Math.max(1, Math.floor(Math.max(left.length, right.length) * 0.2))
   );
 }
 
@@ -145,6 +145,21 @@ function strictWordSubset(
   );
 }
 
+function nullGramsTwinFoldCandidate(
+  a: ExtractedMenuItem,
+  b: ExtractedMenuItem,
+): boolean {
+  return a.grams === null &&
+    b.grams === null &&
+    a.section_title !== null &&
+    a.section_title !== "" &&
+    a.section_title === b.section_title &&
+    a.category === b.category &&
+    (normalize(a.name) === normalize(b.name) ||
+      strictWordSubset(a.name, b.name) || strictWordSubset(b.name, a.name)) &&
+    (a.price !== b.price || a.price === null || b.price === null);
+}
+
 export function mergeItemSources(
   sources: ExtractedMenuItem[][],
   sectionLenient = false,
@@ -153,13 +168,16 @@ export function mergeItemSources(
     sources
       .flat()
       .flatMap((entry) =>
-        entry.section_title ? [normalize(entry.section_title)] : [],
+        entry.section_title ? [normalize(entry.section_title)] : []
       ),
   );
   const sectionCounts = sources.map((source) => {
     const counts = new Map<string | null, number>();
     for (const entry of source) {
-      counts.set(entry.section_title, (counts.get(entry.section_title) ?? 0) + 1);
+      counts.set(
+        entry.section_title,
+        (counts.get(entry.section_title) ?? 0) + 1,
+      );
     }
     return counts;
   });
@@ -176,15 +194,30 @@ export function mergeItemSources(
         entry.description.trim() === "" &&
         entry.options.length === 0 &&
         sectionTitles.has(normalize(entry.name))
-      )
+      ) {
         continue;
+      }
 
       if (sectionLenient) {
         const twin = kept.find((candidate) =>
           !candidate.sources.has(sourceIndex) &&
-          twinFoldCandidate(candidate.item, entry)
+          (twinFoldCandidate(candidate.item, entry) ||
+            nullGramsTwinFoldCandidate(candidate.item, entry))
         );
         if (twin) {
+          if (nullGramsTwinFoldCandidate(twin.item, entry)) {
+            if (twin.item.price === null && entry.price === null) {
+              twin.item = richer(twin.item, entry);
+            } else if (
+              twin.item.price === null ||
+              (entry.price !== null && entry.price > twin.item.price)
+            ) {
+              twin.item = entry;
+              twin.primarySource = sourceIndex;
+            }
+            twin.sources.add(sourceIndex);
+            continue;
+          }
           const currentCount =
             sectionCounts[sourceIndex].get(entry.section_title) ?? 0;
           const keptCount =
@@ -216,20 +249,28 @@ export function mergeItemSources(
     }
   });
 
-function dropTileTruncations(
-  kept: { item: ExtractedMenuItem; sources: Set<number>; primarySource: number }[],
-): { item: ExtractedMenuItem; sources: Set<number>; primarySource: number }[] {
-  return kept.filter((candidate, index, all) =>
-    !all.some((other, otherIndex) =>
-      otherIndex !== index &&
-      other.primarySource !== candidate.primarySource &&
-      candidate.item.section_title === other.item.section_title &&
-      candidate.item.price !== null &&
-      candidate.item.price === other.item.price &&
-      strictWordSubset(candidate.item.name, other.item.name)
-    )
-  );
-}
+  function dropTileTruncations(
+    kept: {
+      item: ExtractedMenuItem;
+      sources: Set<number>;
+      primarySource: number;
+    }[],
+  ): {
+    item: ExtractedMenuItem;
+    sources: Set<number>;
+    primarySource: number;
+  }[] {
+    return kept.filter((candidate, index, all) =>
+      !all.some((other, otherIndex) =>
+        otherIndex !== index &&
+        other.primarySource !== candidate.primarySource &&
+        candidate.item.section_title === other.item.section_title &&
+        candidate.item.price !== null &&
+        candidate.item.price === other.item.price &&
+        strictWordSubset(candidate.item.name, other.item.name)
+      )
+    );
+  }
 
   const merged = sectionLenient ? dropTileTruncations(kept) : kept;
   return merged.map(({ item }) => item);

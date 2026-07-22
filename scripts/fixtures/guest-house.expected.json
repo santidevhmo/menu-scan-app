@@ -8,7 +8,6 @@
   "drink_items": 0,
   "categories": [
     "food",
-    "other",
     "side"
   ],
   "sections": [
@@ -46,7 +45,7 @@
     },
     {
       "name_contains": "FOIE GRAS",
-      "category": "other"
+      "category": "food"
     },
     {
       "name_contains": "YUKON POTATO PUREE",

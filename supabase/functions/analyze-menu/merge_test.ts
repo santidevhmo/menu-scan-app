@@ -105,7 +105,9 @@ Deno.test("sectionLenient twin fold keeps the copy from the richer section sourc
     }),
   ];
   assertEquals(
-    mergeItemSources([sourceA, sourceB], true).filter((i) => i.name === "Nuggets"),
+    mergeItemSources([sourceA, sourceB], true).filter((i) =>
+      i.name === "Nuggets"
+    ),
     [sourceB[0]],
   );
 });
@@ -274,4 +276,52 @@ Deno.test("sectionLenient keeps overlapping same-price names when neither is a s
     section_title: "Especialidades",
   });
   assertEquals(mergeItemSources([[brasero], [tradicional]], true).length, 2);
+});
+
+Deno.test("sectionLenient folds null-grams exact-name butcher price twins", () => {
+  const full = item("MISHIMA RESERVE WAGYU NEW YORK* GF", 155, "", {
+    section_title: "BUTCHER'S BEST",
+  });
+  const truncated = item("MISHIMA RESERVE WAGYU NEW YORK* GF", 1, "", {
+    section_title: "BUTCHER'S BEST",
+  });
+  assertEquals(mergeItemSources([[full], [truncated]], true), [full]);
+});
+
+Deno.test("sectionLenient folds null-grams butcher suffix price twins", () => {
+  const full = item("40-DAY DRY AGED BONE-IN RIBEYE* 20oz", 145, "", {
+    section_title: "BUTCHER'S BEST",
+  });
+  const suffix = item("40-DAY DRY AGED BONE-IN RIBEYE* 20oz GF", 14, "", {
+    section_title: "BUTCHER'S BEST",
+  });
+  assertEquals(mergeItemSources([[full], [suffix]], true), [full]);
+});
+
+Deno.test("sectionLenient folds null-price butcher suffix twins", () => {
+  const base = item("BUTCHER'S CUT*", null, "", {
+    section_title: "BUTCHER'S BEST",
+  });
+  const suffix = item("BUTCHER'S CUT* GF", null, "", {
+    section_title: "BUTCHER'S BEST",
+  });
+  assertEquals(mergeItemSources([[base], [suffix]], true).length, 1);
+});
+
+Deno.test("null-grams butcher folding keeps distinct names and is tile-only", () => {
+  const ribeye = item("PRIME RIBEYE", 145, "", {
+    section_title: "BUTCHER'S BEST",
+  });
+  const strip = item("NEW YORK STRIP", 155, "", {
+    section_title: "BUTCHER'S BEST",
+  });
+  assertEquals(mergeItemSources([[ribeye], [strip]], true), [ribeye, strip]);
+
+  const full = item("BUTCHER'S CUT*", 145, "", {
+    section_title: "BUTCHER'S BEST",
+  });
+  const suffix = item("BUTCHER'S CUT* GF", 14, "", {
+    section_title: "BUTCHER'S BEST",
+  });
+  assertEquals(mergeItemSources([[full], [suffix]]), [full, suffix]);
 });

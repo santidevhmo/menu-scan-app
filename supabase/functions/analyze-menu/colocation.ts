@@ -90,13 +90,28 @@ export function sigTokens(tokens: string[]): string[] {
   );
 }
 
+function splitPricedRow(tokens: string[]): string[][] {
+  if (tokens.filter((t) => /^\d+$/.test(t)).length < 2) return [tokens];
+  const rows: string[][] = [];
+  let row: string[] = [];
+  for (const token of tokens) {
+    row.push(token);
+    if (/^\d+$/.test(token)) {
+      rows.push(row);
+      row = [];
+    }
+  }
+  if (row.length > 0) rows.push(row);
+  return rows;
+}
+
 /** Best per-block name similarity; finalize via max(). */
 export function bestLineSim(name: string, blocks: BlockText[]): number {
   const ct = sigTokens(normTokens(name));
   if (ct.length === 0) return 1;
   let best = 0;
-  for (const b of blocks) {
-    const pt = sigTokens(b.tokens);
+  for (const tokens of blocks.flatMap((b) => splitPricedRow(b.tokens))) {
+    const pt = sigTokens(tokens);
     if (pt.length === 0) continue;
     const m = ct.filter((t) => pt.some((p) => looseTokenMatch(t, p))).length;
     best = Math.max(best, m / Math.max(ct.length, pt.length));

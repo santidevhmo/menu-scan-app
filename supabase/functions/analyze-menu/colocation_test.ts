@@ -242,6 +242,25 @@ Deno.test("bestLineSim compares significant name tokens per OCR block", () => {
   assertEquals(bestLineSim("El Tenderazo", blocks("El Tenderazo")), 1);
   assert(
     bestLineSim(
+      "MISO MUSHROOMS",
+      blocks("MISO MUSHROOMS 15 PARMESAN TRUFFLE FRIES 16"),
+    ) >= 0.75,
+  );
+  assert(
+    bestLineSim(
+      "MISO MUSHROOMS",
+      blocks("MISO MUSHROOMS served with PARMESAN TRUFFLE FRIES"),
+    ) < 0.75,
+  );
+  assertEquals(
+    bestLineSim("MISO MUSHROOMS", blocks("MISO MUSHROOMS 15")),
+    1,
+  );
+  assert(
+    bestLineSim("Mint", blocks("Fresh mint with MISO MUSHROOMS 15")) < 0.75,
+  );
+  assert(
+    bestLineSim(
       "Papa Sazonada (350gr)",
       blocks("Papas Sazonadas (300gr) $70"),
     ) >= 0.75,

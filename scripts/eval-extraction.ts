@@ -113,6 +113,10 @@ function normalize(value: string): string {
     .normalize("NFD").replaceAll(/[\u0300-\u036f]/g, "");
 }
 
+function sectionKey(value: string): string {
+  return normalize(value).replace(/[^a-z0-9]+/g, " ").trim();
+}
+
 // True when `hay` contains `want` with exactly one letter inserted or dropped
 // ("chiplo" vs "chipo"). Exact containment is the caller's job (cheaper and
 // unambiguous); short needles (<5 chars) never match — too easy to cross-match
@@ -457,14 +461,14 @@ export function scoreMenu(
   };
 
   const expectedSections = new Map(
-    fixture.sections.map((section) => [normalize(section), section]),
+    fixture.sections.map((section) => [sectionKey(section), section]),
   );
   // Feature 3 is food-scoped: the nikkori crop path drops drinks before merge,
   // so drink sections can never appear there — they are Feature 5's dimension.
   const actualSections = new Map(
     foodItems.flatMap((item) =>
       item.section_title
-        ? [[normalize(item.section_title), item.section_title] as const]
+        ? [[sectionKey(item.section_title), item.section_title] as const]
         : []
     ),
   );
@@ -479,7 +483,7 @@ export function scoreMenu(
   // prose blocks (Pa' los Bukis) and parent headings whose subheading is on
   // another crop tile (Rollos) are legitimate model output, just never required.
   const toleratedSections = new Set(
-    (fixture.section_headers ?? []).map(normalize),
+    (fixture.section_headers ?? []).map(sectionKey),
   );
   const spuriousSections = [...actualSections].filter(([key]) =>
     ![...expectedSections.keys()].some((expectedKey) =>
@@ -513,8 +517,8 @@ export function scoreMenu(
     }
     const satisfied = matches.some((item) =>
       sectionSatisfies(
-        normalize(item.section_title ?? ""),
-        normalize(expected.section_title),
+        sectionKey(item.section_title ?? ""),
+        sectionKey(expected.section_title),
       )
     );
     if (satisfied) return [];
@@ -1007,6 +1011,55 @@ function runSelfCheck(): void {
     scoreMenu(prefixFixture, prefixItem("Pizzas Bistro"))
       .section_context.pass,
     "exact section equality must remain valid",
+  );
+
+  const punctuationFixture = (section: string): ExpectedFixture => ({
+    ...fixture,
+    sections: [section, "Sides"],
+    section_headers: [],
+    section_expectations: [
+      { name_contains: "Burger", section_title: section },
+      { name_contains: "Fries", section_title: "Sides" },
+    ],
+  });
+  assert(
+    scoreMenu(
+      punctuationFixture("Pa'Compartir"),
+      {
+        ...actual,
+        items: [
+          { ...actual.items[0], section_title: "Pa Compartir" },
+          actual.items[1],
+        ],
+      },
+    ).section_context.pass,
+    "apostrophe fixture section must match punctuation-free actual section",
+  );
+  assert(
+    scoreMenu(
+      punctuationFixture("Pa Compartir"),
+      {
+        ...actual,
+        items: [
+          { ...actual.items[0], section_title: "Pa'Compartir" },
+          actual.items[1],
+        ],
+      },
+    ).section_context.pass,
+    "punctuation-free fixture section must match apostrophe actual section",
+  );
+  assert(
+    !scoreMenu(
+      punctuationFixture("Pa'Compartir"),
+      {
+        ...actual,
+        items: [
+          { ...actual.items[0], section_title: "Pa Beber" },
+          actual.items[1],
+        ],
+      },
+    ).section_context.pass,
+    "genuinely different sections must remain distinct",
   );
 
   const failing = scoreMenu(fixture, {

@@ -47,6 +47,8 @@ const DIMS: ScoredDim[] = [
   "grams",
 ];
 const DUMP_TAG = Deno.env.get("DUMP_TAG") ?? "eval085";
+const GEOM = Deno.env.get("GEOM") === "old" ? "old" : "new";
+const UNION = Deno.env.get("UNION") === "1";
 
 function colStripRects(w: number, h: number): CropRect[] {
   const tileW = Math.round(w * 0.4);
@@ -100,19 +102,59 @@ const ocrPhoto = await compressedPhotoData(
   tmp,
 );
 const GEOMETRIES = [
-  { key: "2x2", rects: gridCropRects(w, h) },
+  {
+    key: "2x2",
+    rects: GEOM === "old"
+      ? (() => {
+        const tileW = Math.round(w * 0.6);
+        const tileH = Math.round(h * 0.6);
+        const oX = Math.round(w * 0.4);
+        const oY = Math.round(h * 0.4);
+        return [
+          { originX: 0, originY: 0, width: tileW, height: tileH },
+          {
+            originX: oX,
+            originY: 0,
+            width: Math.min(tileW, w - oX),
+            height: tileH,
+          },
+          {
+            originX: 0,
+            originY: oY,
+            width: tileW,
+            height: Math.min(tileH, h - oY),
+          },
+          {
+            originX: oX,
+            originY: oY,
+            width: Math.min(tileW, w - oX),
+            height: Math.min(tileH, h - oY),
+          },
+        ];
+      })()
+      : gridCropRects(w, h),
+  },
 ];
 
 for (const g of GEOMETRIES) {
   console.log(
-    `\n===== GEOMETRY: ${g.key} rects=${JSON.stringify(g.rects)} =====`,
+    `\n===== GEOMETRY: ${g.key} (${GEOM}) rects=${
+      JSON.stringify(g.rects)
+    } =====`,
   );
   const tiles = await cutTiles(g.rects, g.key);
+  // Union mode: add the whole photo as a SEPARATE page-mode group (length 1),
+  // NOT a 5th tile — runGroupedExtraction requires each group to be 1 or 4
+  // photos, and a 1-photo group extracts in page mode (no tile skip-cut-off
+  // suffix). Its items merge with the tile items (line ~621) and run through
+  // the same hygiene + colocation, which is the union we want to test.
+  const groups = UNION ? [tiles, [ocrPhoto]] : [tiles];
+  if (UNION) console.log("[union] whole-photo added as a page-mode group");
 
   for (let run = 1; run <= runs; run++) {
     try {
       const result = await runGroupedExtraction(
-        [tiles],
+        groups,
         apiKey,
         undefined,
         undefined,

@@ -10,6 +10,18 @@ Deno.test("grid produces the proven 2x2 nikkori tiles", () => {
   ]);
 });
 
+Deno.test("landscape grid uses the overlap-safe 0.65/0.35 geometry", () => {
+  const rects = gridCropRects(2606, 1580);
+  assertEquals(rects, [
+    { originX: 0, originY: 0, width: 1694, height: 1027 },
+    { originX: 912, originY: 0, width: 1694, height: 1027 },
+    { originX: 0, originY: 553, width: 1694, height: 1027 },
+    { originX: 912, originY: 553, width: 1694, height: 1027 },
+  ]);
+  assertEquals(rects[1].originX + rects[1].width, 2606);
+  assertEquals(rects[3].originY + rects[3].height, 1580);
+});
+
 Deno.test("grid rects stay within bounds for odd dimensions", () => {
   for (const rect of gridCropRects(1197, 1895)) {
     assertEquals(rect.originX + rect.width <= 1197, true);
@@ -18,5 +30,8 @@ Deno.test("grid rects stay within bounds for odd dimensions", () => {
 });
 
 Deno.test("photo list is capped at ten", () => {
-  assertEquals(limitPhotos(Array.from({ length: 12 }, (_, id) => id)).length, 10);
+  assertEquals(
+    limitPhotos(Array.from({ length: 12 }, (_, id) => id)).length,
+    10,
+  );
 });

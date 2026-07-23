@@ -31,7 +31,7 @@ Deno.test("reshape tolerates invalid document annotation JSON", () => {
 Deno.test("options field carries the exact approved E instruction", () => {
   assertEquals(
     OPTION_FIELD_INSTRUCTION,
-    "Only the sizes or extras printed on an item's own card. Never turn a general note printed elsewhere on the menu (e.g. 'add chicken/shrimp to any pasta or salad') into options on one unrelated item.",
+    "Only the sizes or extras printed as choices on THIS dish's own card. Never turn a general note printed elsewhere on the menu (e.g. 'add chicken/shrimp to any pasta or salad') into options on one unrelated item.",
   );
   const opt = (MENU_ANNOTATION_SCHEMA as {
     properties: { items: { items: { properties: { options: unknown } } } };

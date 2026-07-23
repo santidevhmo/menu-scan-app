@@ -1,7 +1,6 @@
 // M1 — Mistral-specific deterministic cleanup layer (planner-designed, ruling 29,
 // 2026-07-22). Turns Mistral's document_annotation output into the clean menu
 // shape our scorer expects. Harness-only ($0); NO production edge code.
-import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
 import type { ExtractedMenuItem } from "../supabase/functions/analyze-menu/extract.ts";
 
 const WEIGHT_PAREN = /\(\s*\d[\d.,]*\s*(gr|g|kg|oz|ml|lt|l)\b[^)]*\)/i;
@@ -70,11 +69,13 @@ export function mistralCleanup(
   const a = dropDrinkSections(items);
   const b = dropOtherCategoryItems(a);
   const c = dropSelfEchoWeightOptions(b);
-  const d = c.map((it) => ({
+  // Grams come from the folded weight-options (summed for combos); Mistral puts
+  // weights in options, not names, so parseItemGrams is NOT used — it would grab
+  // the first weight in a combo's description and clobber the correct sum.
+  return c.map((it) => ({
     ...it,
     section_title: normalizeSectionTitle(it.section_title),
   }));
-  return parseItemGrams(d);
 }
 
 const MENUS = ["polloteria", "bistro", "guest-house"];

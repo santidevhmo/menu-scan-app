@@ -24,17 +24,20 @@ export function dropSelfEchoWeightOptions(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
   return items.map((it) => {
-    let grams = it.grams ?? null;
+    let folded = 0;
     const kept: typeof it.options = [];
     for (const opt of it.options ?? []) {
       const artifact = opt.price == null &&
         (optionEchoesItem(opt.name, it.name) || WEIGHT_PAREN.test(opt.name));
       if (artifact) {
-        if (grams == null && opt.grams != null) grams = opt.grams;
+        if (opt.grams != null) folded += opt.grams;
         continue;
       }
       kept.push(opt);
     }
+    // Combo weight = SUM of folded component weights (total food); single-
+    // component items get their one weight. Only fills when grams is unset.
+    const grams = it.grams ?? (folded > 0 ? folded : null);
     return { ...it, grams, options: kept };
   });
 }
@@ -42,6 +45,19 @@ export function dropOtherCategoryItems(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
   return items.filter((it) => it.category !== "other");
+}
+/** Drop drinks (F5-deferred) and any section containing a drink item, using the
+ * model's own category labels — no hardcoded section names (menu-generic). */
+export function dropDrinkSections(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  const drinkSections = new Set(
+    items.filter((it) => it.category === "drink" && it.section_title)
+      .map((it) => it.section_title),
+  );
+  return items.filter((it) =>
+    it.category !== "drink" && !drinkSections.has(it.section_title)
+  );
 }
 /** PolloKids -> Pollo Kids (split camel/Pascal runs); leaves normal titles intact. */
 export function normalizeSectionTitle(title: string | null): string | null {
@@ -51,13 +67,14 @@ export function normalizeSectionTitle(title: string | null): string | null {
 export function mistralCleanup(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
-  const a = dropOtherCategoryItems(items);
-  const b = dropSelfEchoWeightOptions(a);
-  const c = b.map((it) => ({
+  const a = dropDrinkSections(items);
+  const b = dropOtherCategoryItems(a);
+  const c = dropSelfEchoWeightOptions(b);
+  const d = c.map((it) => ({
     ...it,
     section_title: normalizeSectionTitle(it.section_title),
   }));
-  return parseItemGrams(c); // fallback fill for any still-null grams from name text
+  return parseItemGrams(d);
 }
 
 const MENUS = ["polloteria", "bistro", "guest-house"];

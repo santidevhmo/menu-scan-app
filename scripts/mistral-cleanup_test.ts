@@ -1,6 +1,7 @@
 import { assertEquals } from "jsr:@std/assert";
 import type { ExtractedMenuItem } from "../supabase/functions/analyze-menu/extract.ts";
 import {
+  dropDrinkSections,
   dropOtherCategoryItems,
   dropSelfEchoWeightOptions,
   normalizeSectionTitle,
@@ -66,6 +67,34 @@ Deno.test("dropSelfEchoWeightOptions drops component weight options", () => {
   assertEquals(cleaned.grams, 300);
 });
 
+Deno.test("dropSelfEchoWeightOptions sums combo weights", () => {
+  const [cleaned] = dropSelfEchoWeightOptions([
+    item({
+      name: "PapaBoneless",
+      options: [
+        { name: "Boneless (300gr)", price: null, grams: 300 },
+        { name: "Papas sazonadas (300gr)", price: null, grams: 300 },
+      ],
+    }),
+  ]);
+  assertEquals(cleaned.options, []);
+  assertEquals(cleaned.grams, 600);
+});
+
+Deno.test("dropSelfEchoWeightOptions sums all Megacharola component weights", () => {
+  const [cleaned] = dropSelfEchoWeightOptions([
+    item({
+      name: "Megacharola",
+      options: [
+        { name: "Boneless (1,200gr)", price: null, grams: 1200 },
+        { name: "Papas fritas (600gr)", price: null, grams: 600 },
+        { name: "Apio y zanahoria", price: null, grams: null },
+      ],
+    }),
+  ]);
+  assertEquals(cleaned.grams, 1800);
+});
+
 Deno.test("optionEchoesItem matches normalized name tokens", () => {
   assertEquals(optionEchoesItem("Steak tartare", "STEAK TARTARE"), true);
   assertEquals(optionEchoesItem("Uva", "Paletas Heladas"), false);
@@ -79,6 +108,21 @@ Deno.test("dropOtherCategoryItems removes other items", () => {
     ])
       .map((entry: ExtractedMenuItem) => entry.category),
     ["food"],
+  );
+});
+
+Deno.test("dropDrinkSections drops a drink section including non-drink items", () => {
+  assertEquals(
+    dropDrinkSections([
+      item({ name: "Limonada", category: "drink", section_title: "Bebidas" }),
+      item({
+        name: "Malteadas",
+        category: "dessert",
+        section_title: "Bebidas",
+      }),
+      item({ name: "Tacos", category: "food", section_title: "Comida" }),
+    ]).map((entry: ExtractedMenuItem) => entry.name),
+    ["Tacos"],
   );
 });
 

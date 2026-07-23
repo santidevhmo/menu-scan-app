@@ -58,12 +58,17 @@
       "options": []
     },
     {
-      "name_contains": "Paletas Heladas Agua",
+      "name_contains": "Megacharola",
       "unchecked": true,
       "options": []
     },
     {
-      "name_contains": "Paletas Heladas Crema",
+      "name_contains": "Paletas Heladas",
+      "unchecked": true,
+      "options": []
+    },
+    {
+      "name_contains": "Paletas Heladas",
       "unchecked": true,
       "options": []
     },
@@ -128,7 +133,7 @@
     },
     {
       "name_contains": "Megach",
-      "grams": 1200
+      "grams": 1800
     },
     {
       "name_contains": "PapaBoneless",

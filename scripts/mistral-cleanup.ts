@@ -81,10 +81,11 @@ export function mistralCleanup(
 const MENUS = ["polloteria", "bistro", "guest-house"];
 if (import.meta.main) {
   const DIR = `${Deno.env.get("HOME")}/Downloads/MenusTesting`;
+  const TAG = Deno.env.get("TAG") ?? "b1";
   for (const m of MENUS) {
     for (const r of [1, 2, 3]) {
       const raw = JSON.parse(
-        await Deno.readTextFile(`${DIR}/${m}.mistral-b1-r${r}.dump.json`),
+        await Deno.readTextFile(`${DIR}/${m}.mistral-${TAG}-r${r}.dump.json`),
       );
       const items: ExtractedMenuItem[] = (raw.items ?? []).map((
         it: Record<string, unknown>,
@@ -106,7 +107,7 @@ if (import.meta.main) {
       }));
       const cleaned = mistralCleanup(items);
       await Deno.writeTextFile(
-        `${DIR}/${m}.mistral-b1-r${r}.clean.dump.json`,
+        `${DIR}/${m}.mistral-${TAG}-r${r}.clean.dump.json`,
         JSON.stringify(
           { image_quality: { usable: true, issues: [] }, items: cleaned },
           null,

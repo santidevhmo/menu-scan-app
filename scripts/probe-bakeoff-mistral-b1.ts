@@ -6,7 +6,10 @@ const MENUS = [
   { menu: "guest-house", photo: "GuestHouseMenu.png" },
 ];
 
-const MENU_ANNOTATION_SCHEMA = {
+export const OPTION_FIELD_INSTRUCTION =
+  "Only the sizes or extras printed on an item's own card. Never turn a general note printed elsewhere on the menu (e.g. 'add chicken/shrimp to any pasta or salad') into options on one unrelated item.";
+
+export const MENU_ANNOTATION_SCHEMA = {
   type: "object",
   properties: {
     items: {
@@ -24,6 +27,7 @@ const MENU_ANNOTATION_SCHEMA = {
           section_title: { type: ["string", "null"] },
           options: {
             type: "array",
+            description: OPTION_FIELD_INSTRUCTION,
             items: {
               type: "object",
               properties: {
@@ -104,13 +108,14 @@ async function fetchAnnotation(dataUrl: string, key: string): Promise<unknown> {
 if (import.meta.main) {
   const key = Deno.env.get("MISTRAL_API_KEY");
   if (!key) throw new Error("MISTRAL_API_KEY missing (worktree .env.local)");
+  const TAG = Deno.env.get("TAG") ?? "b1";
   const limit = Number(Deno.env.get("LIMIT") ?? "1");
   const tmp = await Deno.makeTempDir();
   let paid = 0;
   for (const m of MENUS) {
     for (let run = 1; run <= 3; run++) {
-      const rawPath = `${MENU_DIR}/${m.menu}.mistral-b1-r${run}.raw.json`;
-      const dumpPath = `${MENU_DIR}/${m.menu}.mistral-b1-r${run}.dump.json`;
+      const rawPath = `${MENU_DIR}/${m.menu}.mistral-${TAG}-r${run}.raw.json`;
+      const dumpPath = `${MENU_DIR}/${m.menu}.mistral-${TAG}-r${run}.dump.json`;
       let raw: unknown;
       try {
         raw = JSON.parse(await Deno.readTextFile(rawPath));

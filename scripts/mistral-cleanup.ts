@@ -2,6 +2,14 @@
 // 2026-07-22). Turns Mistral's document_annotation output into the clean menu
 // shape our scorer expects. Harness-only ($0); NO production edge code.
 import type { ExtractedMenuItem } from "../supabase/functions/analyze-menu/extract.ts";
+import { mergeItemSources } from "../supabase/functions/analyze-menu/merge.ts";
+import { MENU_DIR } from "./photo-input.ts";
+import {
+  MENU_PHOTOS,
+  rawPath,
+  reshape,
+  WIDE_MENUS,
+} from "./probe-bakeoff-mistral-b1.ts";
 
 const WEIGHT_PAREN = /\(\s*\d[\d.,]*\s*(gr|g|kg|oz|ml|lt|l)\b[^)]*\)/i;
 
@@ -154,45 +162,61 @@ export function mistralCleanup(
   }));
 }
 
-const MENUS = ["polloteria", "bistro", "guest-house"];
+/** Coerce Mistral's annotation items into ExtractedMenuItem (grams unset). */
+export function toExtractedItems(raw: unknown[]): ExtractedMenuItem[] {
+  return raw.map((r) => {
+    const it = r as Record<string, unknown>;
+    return {
+      name: (it.name as string) ?? "",
+      description: (it.description as string) ?? "",
+      price: (it.price as number | null) ?? null,
+      category: (it.category as ExtractedMenuItem["category"]) ?? "food",
+      section_title: (it.section_title as string | null) ?? null,
+      options: ((it.options as unknown[]) ?? []).map((o) => {
+        const oo = o as Record<string, unknown>;
+        return {
+          name: (oo.name as string) ?? "",
+          price: (oo.price as number | null) ?? null,
+          grams: (oo.grams as number | null) ?? null,
+        };
+      }),
+      grams: null,
+    };
+  });
+}
+
 if (import.meta.main) {
-  const DIR = `${Deno.env.get("HOME")}/Downloads/MenusTesting`;
+  const DIR = MENU_DIR;
   const TAG = Deno.env.get("TAG") ?? "b1";
-  for (const m of MENUS) {
-    for (const r of [1, 2, 3]) {
-      const raw = JSON.parse(
-        await Deno.readTextFile(`${DIR}/${m}.mistral-${TAG}-r${r}.dump.json`),
-      );
-      const items: ExtractedMenuItem[] = (raw.items ?? []).map((
-        it: Record<string, unknown>,
-      ) => ({
-        name: (it.name as string) ?? "",
-        description: (it.description as string) ?? "",
-        price: (it.price as number | null) ?? null,
-        category: (it.category as ExtractedMenuItem["category"]) ?? "food",
-        section_title: (it.section_title as string | null) ?? null,
-        options: ((it.options as unknown[]) ?? []).map((o) => {
-          const oo = o as Record<string, unknown>;
-          return {
-            name: (oo.name as string) ?? "",
-            price: (oo.price as number | null) ?? null,
-            grams: (oo.grams as number | null) ?? null,
-          };
-        }),
-        grams: null,
-      }));
-      const resp = JSON.parse(
-        await Deno.readTextFile(`${DIR}/${m}.mistral-${TAG}-r${r}.raw.json`),
-      );
-      const p0 = resp.pages?.[0];
-      const page = p0
-        ? {
-          blocks: p0.blocks ?? [],
-          width: p0.dimensions.width,
-          height: p0.dimensions.height,
-        }
-        : undefined;
-      const cleaned = mistralCleanup(items, page);
+  const runs = Number(Deno.env.get("RUNS") ?? "3");
+  const menus = (Deno.env.get("MENUS") ?? WIDE_MENUS.join(",")).split(",")
+    .map((m) => m.trim()).filter((m) => m.length > 0);
+  for (const m of menus) {
+    const photos = MENU_PHOTOS[m];
+    if (!photos) throw new Error(`unknown menu: ${m}`);
+    for (let r = 1; r <= runs; r++) {
+      // Per PAGE: clean with that page's OWN blocks (blocks are per-photo, so
+      // this is exactly how production must wire it), then merge across pages.
+      const perPage: ExtractedMenuItem[][] = [];
+      for (const page of photos.keys()) {
+        const resp = JSON.parse(
+          await Deno.readTextFile(rawPath(DIR, m, TAG, r, page)),
+        );
+        const p0 = resp.pages?.[0];
+        perPage.push(mistralCleanup(
+          toExtractedItems(reshape(resp).items),
+          p0
+            ? {
+              blocks: p0.blocks ?? [],
+              width: p0.dimensions.width,
+              height: p0.dimensions.height,
+            }
+            : undefined,
+        ));
+      }
+      const cleaned = perPage.length === 1
+        ? perPage[0]
+        : mergeItemSources(perPage);
       await Deno.writeTextFile(
         `${DIR}/${m}.mistral-${TAG}-r${r}.clean.dump.json`,
         JSON.stringify(
@@ -203,5 +227,5 @@ if (import.meta.main) {
       );
     }
   }
-  console.log("clean dumps written for", MENUS.join(", "), "x3");
+  console.log("clean dumps written for", menus.join(", "), `x${runs}`);
 }

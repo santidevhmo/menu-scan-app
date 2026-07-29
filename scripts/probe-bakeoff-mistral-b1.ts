@@ -1,10 +1,30 @@
 import { compressedPhotoData, MENU_DIR } from "./photo-input.ts";
 
-const MENUS = [
-  { menu: "polloteria", photo: "PolloteriaMenu.png" },
-  { menu: "bistro", photo: "BistroMenu.png" },
-  { menu: "guest-house", photo: "GuestHouseMenu.png" },
-];
+// All 9 fixture menus (photos per menu = the fixture's `photos` list).
+export const MENU_PHOTOS: Record<string, string[]> = {
+  polloteria: ["PolloteriaMenu.png"],
+  bistro: ["BistroMenu.png"],
+  "guest-house": ["GuestHouseMenu.png"],
+  brasero: ["BraseroMenu.png"],
+  "brasero-two": ["BraseroMenuTwo.png", "BraseroMenuTwo_TWo.png"],
+  "casa-nostra": ["CasaNostraMenu.png"],
+  "el-marcos": ["ElMarcosMenu.png"],
+  mochomos: ["MochomosMenu.png"],
+  nikkori: ["NikkoriMenu.png"],
+};
+export const WIDE_MENUS = ["polloteria", "bistro", "guest-house"];
+/** Raw-response path for one menu/run/page; page 0 keeps the historical name. */
+export function rawPath(
+  dir: string,
+  menu: string,
+  tag: string,
+  run: number,
+  page: number,
+): string {
+  return `${dir}/${menu}.mistral-${tag}-r${run}${
+    page === 0 ? "" : `.p${page}`
+  }.raw.json`;
+}
 
 const MENU_ANNOTATION_SCHEMA = {
   type: "object",
@@ -106,50 +126,67 @@ if (import.meta.main) {
   if (!key) throw new Error("MISTRAL_API_KEY missing (worktree .env.local)");
   const TAG = Deno.env.get("TAG") ?? "b1";
   const limit = Number(Deno.env.get("LIMIT") ?? "1");
+  const runs = Number(Deno.env.get("RUNS") ?? "3");
+  const menus = (Deno.env.get("MENUS") ?? WIDE_MENUS.join(",")).split(",")
+    .map((m) => m.trim()).filter((m) => m.length > 0);
   const tmp = await Deno.makeTempDir();
   let paid = 0;
-  for (const m of MENUS) {
-    for (let run = 1; run <= 3; run++) {
-      const rawPath = `${MENU_DIR}/${m.menu}.mistral-${TAG}-r${run}.raw.json`;
-      const dumpPath = `${MENU_DIR}/${m.menu}.mistral-${TAG}-r${run}.dump.json`;
-      let raw: unknown;
-      try {
-        raw = JSON.parse(await Deno.readTextFile(rawPath));
-        console.log(`[cache hit] ${m.menu} r${run}`);
-      } catch {
-        if (paid >= limit || paid >= 9) {
-          console.log(`[stop] reached LIMIT=${limit} (paid ${paid})`);
-          console.log(`\npaid calls: ${paid} (~$${(paid * 0.005).toFixed(3)})`);
-          Deno.exit(0);
+  for (const menu of menus) {
+    const photos = MENU_PHOTOS[menu];
+    if (!photos) throw new Error(`unknown menu: ${menu}`);
+    for (let run = 1; run <= runs; run++) {
+      const dumpPath = `${MENU_DIR}/${menu}.mistral-${TAG}-r${run}.dump.json`;
+      const allItems: unknown[] = [];
+      let topKeys: string[] = [];
+      for (const [page, photo] of photos.entries()) {
+        const path = rawPath(MENU_DIR, menu, TAG, run, page);
+        let raw: unknown;
+        try {
+          raw = JSON.parse(await Deno.readTextFile(path));
+          console.log(`[cache hit] ${menu} r${run} p${page}`);
+        } catch {
+          if (paid >= limit) {
+            console.log(`[stop] reached LIMIT=${limit} (paid ${paid})`);
+            console.log(
+              `\npaid calls: ${paid} (~$${(paid * 0.005).toFixed(3)})`,
+            );
+            Deno.exit(0);
+          }
+          paid++;
+          console.log(`[call ${paid}] ${menu} r${run} p${page} ...`);
+          const dataUrl = await compressedPhotoData(photo, 2048, 95, tmp);
+          raw = await fetchAnnotation(dataUrl, key);
+          await Deno.writeTextFile(path, JSON.stringify(raw, null, 2));
         }
-        paid++;
-        console.log(`[call ${paid}] ${m.menu} r${run} ...`);
-        const dataUrl = await compressedPhotoData(m.photo, 2048, 95, tmp);
-        raw = await fetchAnnotation(dataUrl, key);
-        await Deno.writeTextFile(rawPath, JSON.stringify(raw, null, 2));
+        const { rawTopKeys, items } = reshape(raw);
+        topKeys = rawTopKeys;
+        allItems.push(...items);
       }
-      const { rawTopKeys, items } = reshape(raw);
+      // Combined dump = every page's items concatenated (the per-page cleanup +
+      // cross-page merge happens in mistral-cleanup.ts, mirroring production).
       await Deno.writeTextFile(
         dumpPath,
         JSON.stringify(
           {
             image_quality: { usable: true, issues: [] },
             image_layout: { dense: false, crop_direction: "none" },
-            items,
+            items: allItems,
           },
           null,
           2,
         ),
       );
       console.log(
-        `  ${m.menu} r${run}: items=${items.length} | rawTopKeys=[${
-          rawTopKeys.join(",")
+        `  ${menu} r${run}: items=${allItems.length} | rawTopKeys=[${
+          topKeys.join(",")
         }] | first3=${
-          items.slice(0, 3).map((it) => (it as { name?: string }).name ?? "?")
+          allItems.slice(0, 3).map((it) =>
+            (it as { name?: string }).name ?? "?"
+          )
             .join(" / ")
         }`,
       );
-      if (items.length === 0) {
+      if (allItems.length === 0) {
         console.log(
           "  !! zero items — likely schema/field-path issue; STOP for planner.",
         );

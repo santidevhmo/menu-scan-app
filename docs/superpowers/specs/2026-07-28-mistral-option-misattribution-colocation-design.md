@@ -1,6 +1,6 @@
 # Spec — Mistral option misattribution guard (colocation via native blocks)
 
-**Date:** 2026-07-28 · **Status:** design approved (Santiago, this session), pre-implementation
+**Date:** 2026-07-28 · **Status:** IMPLEMENTED + gate MET (eval 097, commit `f8a0efc`) — bistro 5/5 ×3, polloteria ALL-5 ×3, GH recall unchanged, ruling-6 clean. Vertical re-validation deferred to M4.
 **Context:** Priority Zero (ruling 29) — GPT-4o→Mistral-OCR extraction migration. Sub-step: close the last M2 gap (bistro `5 Formaggi` carrying two misattached options) **at the extraction/cleanup layer**, before M3 edge wiring.
 **Scope of change:** harness-only ($0). `scripts/mistral-cleanup.ts` + its test + its offline re-score main. NO production edge code (that is M3). NO API calls.
 

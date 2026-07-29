@@ -63,12 +63,88 @@ export function normalizeSectionTitle(title: string | null): string | null {
   if (!title) return title;
   return title.replace(/([a-záéíóúñ])([A-ZÁÉÍÓÚÑ])/g, "$1 $2");
 }
+
+interface Block {
+  top_left_x: number;
+  top_left_y: number;
+  bottom_right_x: number;
+  bottom_right_y: number;
+  content: string;
+}
+export interface Page {
+  blocks: Block[];
+  width: number;
+  height: number;
+}
+
+const MATCH_FLOOR = 0.6; // token-set match strength required before we act
+const FAR_DIST = 0.35; // normalized-coord Euclidean distance treated as "different card"
+
+function tokenOverlap(a: string[], b: string[]): number {
+  if (a.length === 0) return 0;
+  const bset = new Set(b);
+  return a.filter((t) => bset.has(t)).length / a.length;
+}
+/** High only when the two token sets are nearly identical (block IS mostly the name). */
+function bidiMatch(a: string[], b: string[]): number {
+  return Math.min(tokenOverlap(a, b), tokenOverlap(b, a));
+}
+function blockCenter(b: Block, w: number, h: number): [number, number] {
+  return [
+    (b.top_left_x + b.bottom_right_x) / 2 / w,
+    (b.top_left_y + b.bottom_right_y) / 2 / h,
+  ];
+}
+/** Best-matching block for a name (bidirectional token match) + its strength. */
+function bestBlock(
+  name: string,
+  blocks: Block[],
+): { block: Block | null; strength: number } {
+  const nt = norm(name);
+  let block: Block | null = null;
+  let strength = 0;
+  for (const b of blocks) {
+    const m = bidiMatch(nt, norm(b.content ?? ""));
+    if (m > strength) {
+      strength = m;
+      block = b;
+    }
+  }
+  return { block, strength };
+}
+/** Drop options whose printed text co-locates FAR from the item's own card.
+ * Fail-open: only drops when BOTH the item anchor and the option block match
+ * tightly (>=MATCH_FLOOR) AND print > FAR_DIST apart. Absent page => no-op. */
+export function dropMisattachedOptions(
+  items: ExtractedMenuItem[],
+  page?: Page,
+): ExtractedMenuItem[] {
+  if (!page || !page.blocks || page.blocks.length === 0) return items;
+  const { blocks, width, height } = page;
+  return items.map((it) => {
+    if (!it.options || it.options.length === 0) return it;
+    const anchor = bestBlock(it.name, blocks);
+    if (!anchor.block || anchor.strength < MATCH_FLOOR) return it; // can't anchor -> keep all
+    const ac = blockCenter(anchor.block, width, height);
+    const kept = it.options.filter((opt) => {
+      const src = bestBlock(opt.name, blocks);
+      if (!src.block || src.strength < MATCH_FLOOR) return true; // weak -> keep
+      const sc = blockCenter(src.block, width, height);
+      const dist = Math.hypot(ac[0] - sc[0], ac[1] - sc[1]);
+      return dist <= FAR_DIST; // far -> drop
+    });
+    return { ...it, options: kept };
+  });
+}
+
 export function mistralCleanup(
   items: ExtractedMenuItem[],
+  page?: Page,
 ): ExtractedMenuItem[] {
   const a = dropDrinkSections(items);
   const b = dropOtherCategoryItems(a);
-  const c = dropSelfEchoWeightOptions(b);
+  const m = dropMisattachedOptions(b, page);
+  const c = dropSelfEchoWeightOptions(m);
   // Grams come from the folded weight-options (summed for combos); Mistral puts
   // weights in options, not names, so parseItemGrams is NOT used — it would grab
   // the first weight in a combo's description and clobber the correct sum.
@@ -105,7 +181,18 @@ if (import.meta.main) {
         }),
         grams: null,
       }));
-      const cleaned = mistralCleanup(items);
+      const resp = JSON.parse(
+        await Deno.readTextFile(`${DIR}/${m}.mistral-${TAG}-r${r}.raw.json`),
+      );
+      const p0 = resp.pages?.[0];
+      const page = p0
+        ? {
+          blocks: p0.blocks ?? [],
+          width: p0.dimensions.width,
+          height: p0.dimensions.height,
+        }
+        : undefined;
+      const cleaned = mistralCleanup(items, page);
       await Deno.writeTextFile(
         `${DIR}/${m}.mistral-${TAG}-r${r}.clean.dump.json`,
         JSON.stringify(

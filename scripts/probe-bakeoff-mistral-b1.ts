@@ -6,10 +6,7 @@ const MENUS = [
   { menu: "guest-house", photo: "GuestHouseMenu.png" },
 ];
 
-export const OPTION_FIELD_INSTRUCTION =
-  "Only the sizes or extras printed as choices on THIS dish's own card. Never turn a general note printed elsewhere on the menu (e.g. 'add chicken/shrimp to any pasta or salad') into options on one unrelated item.";
-
-export const MENU_ANNOTATION_SCHEMA = {
+const MENU_ANNOTATION_SCHEMA = {
   type: "object",
   properties: {
     items: {
@@ -27,7 +24,6 @@ export const MENU_ANNOTATION_SCHEMA = {
           section_title: { type: ["string", "null"] },
           options: {
             type: "array",
-            description: OPTION_FIELD_INSTRUCTION,
             items: {
               type: "object",
               properties: {

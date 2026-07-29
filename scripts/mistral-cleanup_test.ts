@@ -2,6 +2,7 @@ import { assertEquals } from "jsr:@std/assert";
 import type { ExtractedMenuItem } from "../supabase/functions/analyze-menu/extract.ts";
 import {
   dropDrinkSections,
+  dropMisattachedOptions,
   dropOtherCategoryItems,
   dropSelfEchoWeightOptions,
   normalizeSectionTitle,
@@ -130,4 +131,117 @@ Deno.test("normalizeSectionTitle splits camel case and preserves normal titles",
   assertEquals(normalizeSectionTitle("PolloKids"), "Pollo Kids");
   assertEquals(normalizeSectionTitle("Entradas"), "Entradas");
   assertEquals(normalizeSectionTitle(null), null);
+});
+
+const page = (
+  blocks: Array<
+    {
+      top_left_x: number;
+      top_left_y: number;
+      bottom_right_x: number;
+      bottom_right_y: number;
+      content: string;
+    }
+  >,
+) => ({ blocks, width: 100, height: 100 });
+
+Deno.test("dropMisattachedOptions drops options printed far from the item's card", () => {
+  const p = page([
+    {
+      top_left_x: 10,
+      top_left_y: 20,
+      bottom_right_x: 30,
+      bottom_right_y: 25,
+      content: "5 Formaggi",
+    },
+    {
+      top_left_x: 44,
+      top_left_y: 70,
+      bottom_right_x: 50,
+      bottom_right_y: 74,
+      content: "Pollo",
+    },
+    {
+      top_left_x: 44,
+      top_left_y: 72,
+      bottom_right_x: 52,
+      bottom_right_y: 76,
+      content: "Camaron",
+    },
+  ]);
+  const [out] = dropMisattachedOptions([
+    item({
+      name: "5 Formaggi",
+      options: [
+        { name: "Pollo", price: 20, grams: null },
+        { name: "Camaron", price: 25, grams: null },
+      ],
+    }),
+  ], p);
+  assertEquals(out.options, []);
+});
+
+Deno.test("dropMisattachedOptions keeps options printed on the item's own card", () => {
+  const p = page([
+    {
+      top_left_x: 10,
+      top_left_y: 20,
+      bottom_right_x: 30,
+      bottom_right_y: 25,
+      content: "Paletas Heladas",
+    },
+    {
+      top_left_x: 11,
+      top_left_y: 26,
+      bottom_right_x: 20,
+      bottom_right_y: 30,
+      content: "Uva",
+    },
+  ]);
+  const [out] = dropMisattachedOptions([
+    item({
+      name: "Paletas Heladas",
+      options: [{ name: "Uva", price: null, grams: null }],
+    }),
+  ], p);
+  assertEquals(out.options.length, 1);
+});
+
+Deno.test("dropMisattachedOptions keeps options when the block match is weak (fail-open)", () => {
+  const p = page([
+    {
+      top_left_x: 10,
+      top_left_y: 20,
+      bottom_right_x: 30,
+      bottom_right_y: 25,
+      content: "Alitas",
+    },
+    {
+      top_left_x: 44,
+      top_left_y: 70,
+      bottom_right_x: 80,
+      bottom_right_y: 78,
+      content: "una orden de boneless papas alitas dedos apio",
+    },
+  ]);
+  const [out] = dropMisattachedOptions([
+    item({
+      name: "Alitas",
+      options: [{ name: "Alitas 6 PZ", price: 129, grams: null }],
+    }),
+  ], p);
+  assertEquals(out.options.length, 1);
+});
+
+Deno.test("dropMisattachedOptions is a no-op without page blocks", () => {
+  const it = item({
+    name: "X",
+    options: [{ name: "Y", price: 1, grams: null }],
+  });
+  assertEquals(dropMisattachedOptions([it], undefined)[0].options.length, 1);
+  assertEquals(
+    dropMisattachedOptions([it], { blocks: [], width: 100, height: 100 })[0]
+      .options.length,
+    1,
+  );
 });

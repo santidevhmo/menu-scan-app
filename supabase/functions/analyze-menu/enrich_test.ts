@@ -1,10 +1,13 @@
-import { assertEquals, assertThrows } from "https://deno.land/std@0.168.0/testing/asserts.ts";
+import {
+  assertEquals,
+  assertThrows,
+} from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
   chunk,
-  fallbackEnriched,
-  reassembleEnriched,
   type EnrichedItem,
   type ExtractedItem,
+  fallbackEnriched,
+  reassembleEnriched,
 } from "./enrich.ts";
 
 const extracted = (name: string): ExtractedItem => ({

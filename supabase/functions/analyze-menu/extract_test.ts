@@ -16,6 +16,10 @@ import {
   verifyTileItemsBatched,
 } from "./extract.ts";
 import type { ExtractionResult } from "./extract.ts";
+import {
+  extractMistralWithRetry,
+  type MistralExtraction,
+} from "./mistral-extract.ts";
 
 Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async () => {
   const originalFetch = globalThis.fetch;
@@ -462,91 +466,180 @@ Deno.test("runGroupedExtraction batches an overloaded tile before verification",
 });
 
 Deno.test("runPagedExtraction: one photo means exactly one call, default detail, passthrough", async () => {
-  const seen: { photos: string[]; detail?: string }[] = [];
-  const stub = ((photos: string[], _key: string, detail?: string) => {
-    seen.push({ photos, detail });
-    return Promise.resolve(fakeResult({ raw_response: "single" }));
-  }) as typeof extractWithRetry;
+  const seen: string[] = [];
+  const stub = ((photo: string) => {
+    seen.push(photo);
+    return Promise.resolve({
+      items: [{
+        name: "Tacos",
+        description: "",
+        price: 100,
+        category: "food",
+        section_title: null,
+        options: [],
+      }],
+      page: undefined,
+      raw_response: "single",
+    });
+  }) as typeof extractMistralWithRetry;
   const result = await runPagedExtraction(["a"], "key", stub);
-  if ("needs_crops" in result) throw new Error("unexpected dense");
-  assertEquals(seen, [{ photos: ["a"], detail: undefined }]);
+  if ("needs_crops" in result) throw new Error("unexpected needs_crops");
+  assertEquals(seen, ["a"]);
+  assertEquals(result.items, [menuItem("Tacos", 100)]);
   assertEquals(result.raw_response, "single");
 });
 
-Deno.test("runPagedExtraction: N photos means N high-detail single-photo calls, unified menu", async () => {
-  const seen: { photos: string[]; detail?: string }[] = [];
-  const pages: ExtractionResult[] = [
-    fakeResult({
+Deno.test("runPagedExtraction: N photos means one parallel call per photo and a cross-page merge", async () => {
+  const seen: string[] = [];
+  const pages: MistralExtraction[] = [
+    {
       items: [menuItem("Tacos", 100)],
-      image_quality: { usable: true, issues: ["glare"] },
+      page: undefined,
       raw_response: "r1",
-    }),
-    fakeResult({
+    },
+    {
       items: [menuItem("Tacos", 100, "de pastor"), menuItem("Sopa", 80)],
-      image_quality: { usable: false, issues: ["glare", "blur"] },
+      page: undefined,
       raw_response: "r2",
-    }),
+    },
   ];
-  const stub = ((photos: string[], _key: string, detail?: string) => {
-    seen.push({ photos, detail });
-    return Promise.resolve(pages[seen.length - 1]);
-  }) as typeof extractWithRetry;
+  const resolvePages: (() => void)[] = [];
+  const stub = ((photo: string) => {
+    const index = seen.length;
+    seen.push(photo);
+    return new Promise<MistralExtraction>((resolve) =>
+      resolvePages.push(() => resolve(pages[index]))
+    );
+  }) as typeof extractMistralWithRetry;
 
-  const result = await runPagedExtraction(["a", "b"], "key", stub);
-  if ("needs_crops" in result) throw new Error("unexpected dense");
-
-  assertEquals(seen, [
-    { photos: ["a"], detail: "high" },
-    { photos: ["b"], detail: "high" },
-  ]);
-  // ONE menu: cross-page duplicate collapsed, richer copy kept.
+  const pending = runPagedExtraction(["a", "b"], "key", stub);
+  assertEquals(seen, ["a", "b"]);
+  resolvePages.forEach((resolve) => resolve());
+  const result = await pending;
+  if ("needs_crops" in result) throw new Error("unexpected needs_crops");
   assertEquals(result.items, [
     menuItem("Tacos", 100, "de pastor"),
     menuItem("Sopa", 80),
   ]);
-  // ONE quality verdict: any unusable page means unusable; issues deduped.
   assertEquals(result.image_quality, {
-    usable: false,
-    issues: ["glare", "blur"],
+    usable: true,
+    issues: [],
   });
   assertEquals(result.image_layout, { dense: false, crop_direction: "none" });
-  // Raw payloads preserved per page as a JSON array string.
   assertEquals(JSON.parse(result.raw_response), ["r1", "r2"]);
 });
 
-Deno.test("runPagedExtraction: dense layout flag returns needs_crops, not items", async () => {
-  const stub = (() =>
-    Promise.resolve(fakeResult({
-      image_layout: { dense: true, crop_direction: "none" },
-      items: [menuItem("Garbage", 1)],
-    }))) as typeof extractWithRetry;
-  const result = await runPagedExtraction(["a"], "key", stub);
-  assertEquals(result, { needs_crops: [0] });
-});
-
-Deno.test("runPagedExtraction: terminal length failure is a dense signal", async () => {
-  const pages: (() => Promise<ExtractionResult>)[] = [
-    () => Promise.resolve(fakeResult()),
-    () =>
-      Promise.reject(
-        new Error("OpenAI extraction stopped with finish_reason=length"),
-      ),
+Deno.test("runPagedExtraction: per-page blocks clean only their own page", async () => {
+  const pages: MistralExtraction[] = [
+    {
+      items: [{
+        name: "Pizza Uno",
+        description: "",
+        price: null,
+        category: "food",
+        section_title: null,
+        options: [{ name: "Pollo", price: 20, grams: null }],
+      }],
+      page: {
+        blocks: [
+          {
+            top_left_x: 10,
+            top_left_y: 20,
+            bottom_right_x: 30,
+            bottom_right_y: 25,
+            content: "Pizza Uno",
+          },
+          {
+            top_left_x: 70,
+            top_left_y: 70,
+            bottom_right_x: 80,
+            bottom_right_y: 75,
+            content: "Pollo",
+          },
+        ],
+        width: 100,
+        height: 100,
+      },
+      raw_response: "p1",
+    },
+    {
+      items: [{
+        name: "Pizza Dos",
+        description: "",
+        price: null,
+        category: "food",
+        section_title: null,
+        options: [{ name: "Pollo", price: 20, grams: null }],
+      }],
+      page: {
+        blocks: [{
+          top_left_x: 10,
+          top_left_y: 20,
+          bottom_right_x: 30,
+          bottom_right_y: 25,
+          content: "Pizza Dos",
+        }],
+        width: 100,
+        height: 100,
+      },
+      raw_response: "p2",
+    },
   ];
   let call = 0;
-  const stub = (() => pages[call++]()) as typeof extractWithRetry;
+  const stub =
+    (() => Promise.resolve(pages[call++])) as typeof extractMistralWithRetry;
   const result = await runPagedExtraction(["a", "b"], "key", stub);
-  assertEquals(result, { needs_crops: [1] });
+  if ("needs_crops" in result) throw new Error("unexpected needs_crops");
+  assertEquals(result.items.map((item) => item.options.length), [0, 1]);
 });
 
-Deno.test("runPagedExtraction: non-dense terminal failure still throws", async () => {
-  const stub =
-    (() =>
-      Promise.reject(new Error("OpenAI API error"))) as typeof extractWithRetry;
-  await assertRejects(
-    () => runPagedExtraction(["a"], "key", stub),
-    Error,
-    "OpenAI API error",
+Deno.test("runPagedExtraction: cleanup folds a generic weight option", async () => {
+  const stub = (() =>
+    Promise.resolve({
+      items: [{
+        name: "New York",
+        description: "",
+        price: null,
+        category: "food",
+        section_title: null,
+        options: [{ name: "Peso", price: null, grams: 400 }],
+      }],
+      page: undefined,
+      raw_response: "weight",
+    })) as typeof extractMistralWithRetry;
+  const result = await runPagedExtraction(["a"], "key", stub);
+  if ("needs_crops" in result) throw new Error("unexpected needs_crops");
+  assertEquals(result.items[0].options, []);
+  assertEquals(result.items[0].grams, 400);
+});
+
+Deno.test("runPagedExtraction: never returns needs_crops for a landscape-shaped photo", async () => {
+  const stub = (() =>
+    Promise.resolve({
+      items: [],
+      page: undefined,
+      raw_response: "landscape",
+    })) as typeof extractMistralWithRetry;
+  const result = await runPagedExtraction(
+    ["data:image/jpeg;base64,wide"],
+    "key",
+    stub,
   );
+  assertEquals("needs_crops" in result, false);
+});
+
+Deno.test("extractMistralWithRetry retries a timeout once then propagates", async () => {
+  let calls = 0;
+  const stub = (() => {
+    calls++;
+    return Promise.reject(new Error("Model request timed out after 120s"));
+  }) as typeof extractMistralWithRetry;
+  await assertRejects(
+    () => extractMistralWithRetry("a", "key", stub),
+    Error,
+    "timed out",
+  );
+  assertEquals(calls, 2);
 });
 
 Deno.test("runGroupedExtraction: 1-photo and 4-tile groups merge to one menu", async () => {
@@ -749,8 +842,8 @@ Deno.test("tile calls append TILE_PROMPT_SUFFIX; normal calls send P1 verbatim",
   assertEquals(prompts[2], EXTRACT_PROMPT + PAGE_PROMPT_SUFFIX);
 });
 
-Deno.test("multi-photo pages get the page suffix; single-photo scans do not", async () => {
-  const calls: { photos: string[]; tile: boolean; page: boolean }[] = [];
+Deno.test("runGroupedExtraction single-photo pages get the page suffix", async () => {
+  const calls: { tile: boolean; page: boolean }[] = [];
   const fake = (
     photos: string[],
     _key: string,
@@ -759,7 +852,7 @@ Deno.test("multi-photo pages get the page suffix; single-photo scans do not", as
     tile = false,
     page = false,
   ) => {
-    calls.push({ photos, tile, page });
+    calls.push({ tile, page });
     return Promise.resolve({
       image_quality: { usable: true, issues: [] },
       image_layout: { dense: false, crop_direction: "none" as const },
@@ -768,92 +861,9 @@ Deno.test("multi-photo pages get the page suffix; single-photo scans do not", as
     });
   };
   // deno-lint-ignore no-explicit-any
-  await runPagedExtraction(["a"], "key", fake as any);
-  // deno-lint-ignore no-explicit-any
-  await runPagedExtraction(["a", "b"], "key", fake as any);
-  // deno-lint-ignore no-explicit-any
   await runGroupedExtraction([["a"]], "key", fake as any);
-  assertEquals(calls.map((c) => c.page), [false, true, true, true]);
+  assertEquals(calls.map((c) => c.page), [true]);
   assertEquals(calls.every((c) => !c.tile), true);
-});
-
-Deno.test("runPagedExtraction routes landscape pages to deterministic tiles", async () => {
-  const calls: Parameters<typeof extractWithRetry>[] = [];
-  let denseFirstPortrait = false;
-  const stub = ((...args: Parameters<typeof extractWithRetry>) => {
-    calls.push(args);
-    const photo = args[0][0];
-    return Promise.resolve(fakeResult({
-      image_layout: {
-        dense: denseFirstPortrait && photo === "p0",
-        crop_direction: "none",
-      },
-    }));
-  }) as typeof extractWithRetry;
-
-  assertEquals(
-    await runPagedExtraction(
-      ["wide"],
-      "key",
-      stub,
-      [{ width: 2000, height: 1500 }],
-    ),
-    { needs_crops: [0] },
-  );
-  assertEquals(calls, []);
-
-  const dims = [
-    { width: 1500, height: 2000 },
-    { width: 2000, height: 1500 },
-    { width: 1500, height: 2000 },
-  ];
-  assertEquals(
-    await runPagedExtraction(["p0", "wide", "p2"], "key", stub, dims),
-    { needs_crops: [1] },
-  );
-  assertEquals(
-    calls.map(([photos, _key, detail, _extract, tile, page]) => ({
-      photos,
-      detail,
-      tile,
-      page,
-    })),
-    [
-      { photos: ["p0"], detail: "high", tile: false, page: true },
-      { photos: ["p2"], detail: "high", tile: false, page: true },
-    ],
-  );
-
-  calls.length = 0;
-  denseFirstPortrait = true;
-  assertEquals(
-    await runPagedExtraction(["p0", "wide", "p2"], "key", stub, dims),
-    { needs_crops: [0, 1] },
-  );
-  assertEquals(calls.length, 2);
-});
-
-Deno.test("runPagedExtraction keeps portrait and absent-dims call shapes", async () => {
-  const calls: Parameters<typeof extractWithRetry>[] = [];
-  const stub = ((...args: Parameters<typeof extractWithRetry>) => {
-    calls.push(args);
-    return Promise.resolve(fakeResult());
-  }) as typeof extractWithRetry;
-  const portrait = { width: 1500, height: 2000 };
-
-  await runPagedExtraction(["single"], "key", stub, [portrait]);
-  assertEquals(calls, [[["single"], "key"]]);
-
-  calls.length = 0;
-  await runPagedExtraction(["a", "b"], "key", stub, [portrait, portrait]);
-  assertEquals(calls, [
-    [["a"], "key", "high", undefined, false, true],
-    [["b"], "key", "high", undefined, false, true],
-  ]);
-
-  calls.length = 0;
-  await runPagedExtraction(["single"], "key", stub);
-  assertEquals(calls, [[["single"], "key"]]);
 });
 
 Deno.test("runGroupedExtraction sends OCR photos only for dense groups", async () => {

@@ -47,6 +47,9 @@ const RUNS = Number(Deno.env.get("EVAL_RUNS") ?? "3");
 const rawKey = Deno.env.get("OPENAI_API_KEY");
 if (!rawKey) throw new Error("OPENAI_API_KEY is required");
 const apiKey: string = rawKey;
+const rawMistralKey = Deno.env.get("MISTRAL_API_KEY");
+if (!rawMistralKey) throw new Error("MISTRAL_API_KEY is required");
+const mistralApiKey: string = rawMistralKey;
 
 const INPUT_TMP = await Deno.makeTempDir({ prefix: "eval-input-" });
 
@@ -116,7 +119,7 @@ async function extractMenu(
 ): Promise<Actual & { denseSignaled: boolean }> {
   // Phase-1 input: production-mirror compressed (see photoData above).
   const photos = await Promise.all(fixture.photos.map(photoData));
-  const phase1 = await runPagedExtraction(photos, apiKey);
+  const phase1 = await runPagedExtraction(photos, mistralApiKey);
   if (!("needs_crops" in phase1)) {
     return {
       image_quality: phase1.image_quality,

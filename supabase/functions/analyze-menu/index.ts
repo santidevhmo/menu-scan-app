@@ -13,6 +13,7 @@ import {
 import { isValidOcrPhotos } from "./request-validation.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
+const MISTRAL_API_KEY = Deno.env.get("MISTRAL_API_KEY")!;
 const MODEL_TIMEOUT_MS = 120000;
 const ENRICH_BATCH_SIZE = 10; // ponytail: small batches stop GPT-4o early-stopping; tune if drops persist
 const ENRICH_SEED = 17; // fixed seed + temperature 0 run-to-run stability
@@ -359,7 +360,7 @@ serve(async (req) => {
       }
       // Per-page multi-photo recipe (iter-036): N photos ⇒ N parallel calls
       // merged into ONE menu; 1 photo ⇒ one call. Same path the eval gate proves.
-      const result = await runPagedExtraction(photos, OPENAI_API_KEY);
+      const result = await runPagedExtraction(photos, MISTRAL_API_KEY);
       if ("needs_crops" in result) {
         // Dense page(s) detected: client must cut originals into 2x2 tiles
         // and re-submit everything via stage:"extract-pages".
@@ -367,7 +368,7 @@ serve(async (req) => {
           JSON.stringify({
             needs_crops: result.needs_crops,
             latency_ms: Date.now() - start,
-            model_id: "gpt-4o",
+            model_id: "mistral-ocr-latest",
           }),
           { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
         );
@@ -380,7 +381,7 @@ serve(async (req) => {
           items: result.items,
           raw_response: result.raw_response,
           latency_ms: Date.now() - start,
-          model_id: "gpt-4o",
+          model_id: "mistral-ocr-latest",
         }),
         { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
       );

@@ -8,8 +8,10 @@ import {
 } from "./postprocess.ts";
 import { mergeItemSources } from "./merge.ts";
 import { colocationStage } from "./colocation.ts";
+import { extractMistralWithRetry } from "./mistral-extract.ts";
+import { mistralCleanup, toExtractedItems } from "./mistral-cleanup.ts";
 
-const MODEL_TIMEOUT_MS = 120000;
+export const MODEL_TIMEOUT_MS = 120000;
 const EXTRACT_SEED = 17;
 
 export const EXTRACT_PROMPT =
@@ -471,8 +473,6 @@ export async function verifyTileItemsBatched(
 
 export type PagedExtraction = ExtractionResult | { needs_crops: number[] };
 
-const DENSE_FAILURE = /timed out|finish_reason=length/;
-
 function foldResults(
   results: ExtractionResult[],
   items: ExtractedMenuItem[],
@@ -488,58 +488,20 @@ function foldResults(
   };
 }
 
-// The iter-036 per-page recipe as the shared production path, now with the
-// dense detector (failure-as-signal, probed 2026-07-10 3/3): a page is dense
-// when it reports image_layout.dense OR terminally fails with timeout /
-// finish_reason=length after the retry — the two ways a dense page presents
-// (garbage items or truncation). Dense pages' items are never returned; the
-// client must cut 2x2 tiles from the originals and use stage:"extract-pages".
-// Non-dense terminal failures still fail the scan. 1 photo ⇒ one call
-// (default detail); N photos ⇒ one high-detail call per page, in parallel,
-// merged into ONE menu so enrichment runs once per scan.
 export async function runPagedExtraction(
   photos: string[],
   apiKey: string,
-  extract = extractWithRetry,
-  photoDims: { width: number; height: number }[] = [],
+  extract = extractMistralWithRetry,
 ): Promise<PagedExtraction> {
-  const isLandscape = (index: number) => {
-    const dims = photoDims[index];
-    return dims !== undefined && dims.width > dims.height;
-  };
-  const landscapeIndexes = photos.map((_, index) => index).filter(isLandscape);
-  if (photos.length === 1 && landscapeIndexes.length > 0) {
-    // Ruling 24 (evals 086–088): wide-menu dense discrimination is not
-    // reliably detectable; skip the discarded whole read and tile directly.
-    return { needs_crops: [0] };
-  }
-  const portraitIndexes = photos.map((_, index) => index).filter((index) =>
-    !isLandscape(index)
-  );
-  const settled = await Promise.allSettled(
-    photos.length === 1
-      ? [extract(photos, apiKey)]
-      : portraitIndexes.map((index) =>
-        extract([photos[index]], apiKey, "high", undefined, false, true)
-      ),
-  );
-  const needsCrops = [
-    ...landscapeIndexes,
-    ...settled.flatMap((s, settledIndex) => {
-      const index = photos.length === 1 ? 0 : portraitIndexes[settledIndex];
-      return (s.status === "fulfilled"
-          ? s.value.image_layout.dense
-          : DENSE_FAILURE.test(String(s.reason)))
-        ? [index]
-        : [];
-    }),
-  ].sort((a, b) => a - b);
-  if (needsCrops.length > 0) return { needs_crops: needsCrops };
-  const rejected = settled.find((s) => s.status === "rejected");
-  if (rejected) throw (rejected as PromiseRejectedResult).reason;
-  const results = settled.map((s) =>
-    (s as PromiseFulfilledResult<ExtractionResult>).value
-  );
+  const results = await Promise.all(photos.map(async (photo) => {
+    const raw = await extract(photo, apiKey);
+    return {
+      image_quality: { usable: true, issues: [] },
+      image_layout: { dense: false, crop_direction: "none" as const },
+      items: mistralCleanup(toExtractedItems(raw.items), raw.page),
+      raw_response: raw.raw_response,
+    };
+  }));
   if (results.length === 1) return results[0];
   return foldResults(results, mergeItemSources(results.map((r) => r.items)));
 }

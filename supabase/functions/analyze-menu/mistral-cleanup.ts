@@ -5,6 +5,11 @@ const WEIGHT_PAREN = /\(\s*\d[\d.,]*\s*(gr|g|kg|oz|ml|lt|l)\b[^)]*\)/i;
 // 0.75-0.90 (eval 099): el-marcos "Jugos y Frutas" is 71% drink and holds real
 // food; polloteria "Bebidas" is 93% drink and must die (the Malteadas case).
 const DRINK_SECTION_FRAC = 0.8;
+export const SPACED_RUN_MIN = 3;
+const SPACED_TITLE_RUN = new RegExp(
+  `\\b(?:[\\p{L}\\p{N}]\\s+){${SPACED_RUN_MIN - 1},}[\\p{L}\\p{N}]\\b`,
+  "gu",
+);
 
 export function stripTrailingParen(name: string): string {
   return name.replace(/\s*\([^)]*\)\s*$/, "").trim();
@@ -73,7 +78,38 @@ export function dropDrinkSections(
 /** PolloKids -> Pollo Kids (split camel/Pascal runs); leaves normal titles intact. */
 export function normalizeSectionTitle(title: string | null): string | null {
   if (!title) return title;
-  return title.replace(/([a-záéíóúñ])([A-ZÁÉÍÓÚÑ])/g, "$1 $2");
+  return title.replace(/([a-záéíóúñ])([A-ZÁÉÍÓÚÑ])/g, "$1 $2").replace(
+    SPACED_TITLE_RUN,
+    (run) => run.replace(/\s+/g, ""),
+  );
+}
+
+/** Null a dish's section when the title is that dish's own card name. */
+export function dropSelfNamedSectionTitles(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  return items.map((it) => {
+    const section = norm(it.section_title ?? "");
+    const name = norm(it.name);
+    return section.length > 0 && section.join(" ") === name.join(" ")
+      ? { ...it, section_title: null }
+      : it;
+  });
+}
+
+/** Deterministic cleanup for the (c) text-structuring path (ruling 30).
+ *  Model-agnostic only — acts on the model's own labels/titles, never on
+ *  Mistral-annotation artifacts. C3 renames this module. */
+export function textStructureCleanup(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  const normalized = items.map((it) => ({
+    ...it,
+    section_title: normalizeSectionTitle(it.section_title),
+  }));
+  return dropSelfNamedSectionTitles(
+    dropDrinkSections(dropOtherCategoryItems(normalized)),
+  );
 }
 
 interface Block {

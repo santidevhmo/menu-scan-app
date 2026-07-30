@@ -1,9 +1,10 @@
 import { assertEquals, assertThrows } from "jsr:@std/assert";
 import {
   archivePayloads,
+  assertSinglePageMenu,
   buildRequest,
-  ocrCacheName,
   ocrMarkdown,
+  ocrSourceName,
   parseResponse,
   TEXT_PROMPT_SUFFIX,
 } from "./probe-c-textstructure.ts";
@@ -119,11 +120,22 @@ Deno.test("parseResponse rejects empty content", () => {
   );
 });
 
-Deno.test("ocrCacheName uses the nikkori cache exception", () => {
-  assertEquals(ocrCacheName("nikkori"), "nikkori.mistral-ocr.json");
+Deno.test("ocrSourceName maps menus to their b1 raw response", () => {
   assertEquals(
-    ocrCacheName("polloteria"),
-    "polloteria.mistral-ocr-2048q95.json",
+    ocrSourceName("nikkori"),
+    "nikkori.mistral-b1-r1.raw.json",
+  );
+  assertEquals(
+    ocrSourceName("polloteria"),
+    "polloteria.mistral-b1-r1.raw.json",
+  );
+});
+
+Deno.test("brasero-two is refused because its b1 raw response is multi-page", () => {
+  assertThrows(
+    () => assertSinglePageMenu("brasero-two"),
+    Error,
+    "brasero-two is multi-page; not supported by this probe",
   );
 });
 

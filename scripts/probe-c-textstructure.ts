@@ -93,10 +93,18 @@ export function parseResponse(
   };
 }
 
-export function ocrCacheName(menu: string): string {
-  return menu === "nikkori"
-    ? "nikkori.mistral-ocr.json"
-    : `${menu}.mistral-ocr-2048q95.json`;
+/** Stage-1a source = the b1 raw OCR response, so the probe's text and the
+ *  annotation it is compared against come from the SAME response.
+ *  (The older *.mistral-ocr-*.json caches are a different capture — nikkori's
+ *  is missing two printed rolls, which would silently cap recall.) */
+export function ocrSourceName(menu: string): string {
+  return `${menu}.mistral-b1-r1.raw.json`;
+}
+
+export function assertSinglePageMenu(menu: string): void {
+  if (menu === "brasero-two") {
+    throw new Error("brasero-two is multi-page; not supported by this probe");
+  }
 }
 
 type ParsedResponse = ReturnType<typeof parseResponse>;
@@ -159,7 +167,8 @@ async function request(
 
 if (import.meta.main) {
   const menu = Deno.args[0] ?? "polloteria";
-  const cache = ocrCacheName(menu);
+  assertSinglePageMenu(menu);
+  const cache = ocrSourceName(menu);
   const cachePath = `${MENU_DIR}/${cache}`;
   const markdown = ocrMarkdown(JSON.parse(await Deno.readTextFile(cachePath)));
   const model = Deno.env.get("MODEL") ?? "gpt-4o-2024-11-20";

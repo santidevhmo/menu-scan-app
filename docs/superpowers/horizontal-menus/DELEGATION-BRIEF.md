@@ -109,6 +109,34 @@ Two LLM sessions, one human (Santiago):
 6. Vertical safety during iteration is proven BY CONSTRUCTION (portrait behavior unit-pinned byte-identical; new rules scoped to the tile pass / landscape mode), not by burning gates. The 6 vertical menus re-run live only at the Phase-4 combined exit gate (~$1.35-1.50/attempt, approval per attempt).
 7. Generalization rule: no hardcoded menu-specific counts/names/geometry in production code. Fixture-level tolerances are the mechanism for menu-specific quirks.
 
+## ⚠️ Repo hygiene — WHICH COPY IS AUTHORITATIVE (audited 2026-07-29, read before trusting any doc)
+
+The repo has **three** worktrees and the two live branches have diverged (366 commits on the eval
+branch that main lacks; 25 on main that the eval branch lacks). Several governing docs exist in only
+one place, and one exists in BOTH with different content. Get this wrong and you read stale guidance.
+
+| doc | where it lives | how to read it |
+|---|---|---|
+| `AGENTS.md` | **BOTH branches, DIFFERENT content** | **Read the MAIN checkout's copy** (`feat/selectable-options`). The eval-branch copy is STALE — it lacks the release-scope/critical-path block and still says the Apple Developer Program is unpaid (it was paid 2026-07-11). A planner read the stale copy on 2026-07-29 and found no critical-path status line, which is exactly the trap. |
+| MASTER ROADMAP `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md` | **MAIN checkout ONLY** — does not exist on the eval branch | read from `/Users/santiagoaguirre/Desktop/CODING/menu-scan-app` |
+| pipeline diagram `docs/superpowers/diagrams/menu-extraction-pipeline.md` | **MAIN checkout ONLY** | read from main; **last touched 2026-07-12, so it predates colocation, the Mistral migration AND ruling 30 — treat as STALE doc-debt, not as truth** |
+| this brief, ROADMAP.md, the ledger, all specs, `scripts/`, `supabase/functions/` | **eval branch ONLY** | read from the worktree |
+
+**Worktrees (`git worktree list`):**
+- `menu-scan-app` → `feat/selectable-options` — MAIN checkout, device builds + docs only. **Never commit the client slice here** (docs-only commits allowed).
+- `.worktrees/extraction-eval-harness` → `feat/extraction-eval-harness` — **the only place to commit this work.**
+- `.worktrees/options-extraction-eval` → `feat/options-extraction-eval` — **DORMANT leftover from the Feature-2 era** (last commit 2026-07-01, clean tree). Not part of this work; do not read or commit there.
+
+**KNOWN DOC-DEBT (both need a Santiago-approved docs-only commit on main):** (1) `AGENTS.md` still states
+*"Use GPT-4o Vision as the selected OCR/extraction model"* — superseded by rulings 29 and **30** (Stage-1a
+Mistral OCR text + Stage-1b a pinned model; GPT-4o retained for enrichment only). (2) the pipeline diagram
+predates all of it.
+
+**Shell hazard that has already caused one bad commit:** the Bash tool's cwd RESETS to the main checkout
+between calls. A bare `cat >> docs/…` or `git commit` therefore lands in the MAIN checkout, not the
+worktree. On 2026-07-29 this created a stray ledger file and a commit on `feat/selectable-options`
+(unpushed; reverted with `git reset --mixed HEAD~1`). **Always use `git -C <worktree>` and absolute paths.**
+
 ## File map (all paths)
 
 **This folder (worktree):** `docs/superpowers/horizontal-menus/`

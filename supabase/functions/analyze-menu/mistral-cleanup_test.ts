@@ -19,6 +19,11 @@ const item = (
   ...overrides,
 });
 
+const cleanWithMarkdown = textStructureCleanup as (
+  items: ExtractedMenuItem[],
+  markdown?: string,
+) => ExtractedMenuItem[];
+
 Deno.test("normalizeSectionTitle collapses only runs of three or more single-character tokens", () => {
   assertEquals(normalizeSectionTitle("P O"), "P O");
   assertEquals(normalizeSectionTitle("P O S"), "POS");
@@ -108,4 +113,80 @@ Deno.test("textStructureCleanup leaves non-per-unit and multi-member sections un
     item({ name: "Steak", section_title: "BUTCHER'S BEST" }),
   ];
   assertEquals(textStructureCleanup(source), source);
+});
+
+Deno.test("textStructureCleanup folds a section matched by a priced markdown heading", () => {
+  const cleaned = cleanWithMarkdown([
+    item({ name: "Uva", price: 20, grams: 100, section_title: "AGUA" }),
+    item({ name: "Piña", price: 20, section_title: "AGUA" }),
+  ], "# AGUA $20");
+  assertEquals(cleaned, [item({
+    name: "AGUA",
+    price: 20,
+    section_title: null,
+    options: [
+      { name: "Uva", price: 20, grams: 100 },
+      { name: "Piña", price: 20, grams: null },
+    ],
+  })]);
+});
+
+Deno.test("textStructureCleanup keeps a section matched only by an unpriced heading", () => {
+  const source = [
+    item({ name: "Papas", section_title: "VEGETARIANO" }),
+    item({ name: "Ensalada", section_title: "VEGETARIANO" }),
+  ];
+  assertEquals(cleanWithMarkdown(source, "# VEGETARIANO"), source);
+});
+
+Deno.test("textStructureCleanup drops MALTEADAS before a priced heading can fold it", () => {
+  assertEquals(
+    cleanWithMarkdown([
+      item({ name: "Fresa", category: "drink", section_title: "MALTEADAS" }),
+    ], "# MALTEADAS $89"),
+    [],
+  );
+});
+
+Deno.test("textStructureCleanup without markdown is byte-identical", () => {
+  const source = [
+    item({ name: "Uva", price: 20, section_title: "AGUA" }),
+    item({ name: "Piña", price: 20, section_title: "AGUA" }),
+  ];
+  assertEquals(textStructureCleanup(source), source);
+});
+
+Deno.test("textStructureCleanup does not fold VEGETARIANO from HONGO VEGETARIANO $285", () => {
+  const source = [
+    item({
+      name: "Torre de Betabel",
+      price: 200,
+      section_title: "VEGETARIANO",
+    }),
+    item({
+      name: "Hongo Vegetariano",
+      price: 285,
+      section_title: "VEGETARIANO",
+    }),
+  ];
+  assertEquals(
+    cleanWithMarkdown(source, "# HONGO VEGETARIANO $285"),
+    source,
+  );
+});
+
+Deno.test("textStructureCleanup folds a section matched by a trailing bare heading price", () => {
+  const cleaned = cleanWithMarkdown([
+    item({ name: "Uva", price: 20, section_title: "AGUA" }),
+    item({ name: "Piña", price: 20, section_title: "AGUA" }),
+  ], "# AGUA 20 MXN");
+  assertEquals(cleaned, [item({
+    name: "AGUA",
+    price: 20,
+    section_title: null,
+    options: [
+      { name: "Uva", price: 20, grams: null },
+      { name: "Piña", price: 20, grams: null },
+    ],
+  })]);
 });

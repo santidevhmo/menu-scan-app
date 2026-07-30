@@ -8,6 +8,7 @@ import {
 } from "../supabase/functions/analyze-menu/mistral-cleanup.ts";
 import { scoreMenu } from "./eval-extraction.ts";
 import { MENU_DIR } from "./photo-input.ts";
+import { ocrMarkdown, ocrSourcePaths } from "./probe-c-textstructure.ts";
 
 const DEFAULT_MENUS = [
   "polloteria",
@@ -28,7 +29,7 @@ const DIMS = [
   "grams",
 ] as const;
 
-export function cleanForScore(items: ExtractedMenuItem[]): {
+export function cleanForScore(items: ExtractedMenuItem[], markdown?: string): {
   items: ExtractedMenuItem[];
   rewrites: string[];
   nulled: string[];
@@ -49,7 +50,7 @@ export function cleanForScore(items: ExtractedMenuItem[]): {
       ? [`${it.name} | ${survivors[index].section_title} → null`]
       : []
   );
-  return { items: textStructureCleanup(items), rewrites, nulled };
+  return { items: textStructureCleanup(items, markdown), rewrites, nulled };
 }
 
 if (import.meta.main) {
@@ -70,7 +71,12 @@ if (import.meta.main) {
     if (!Array.isArray(dump.items)) {
       throw new Error(`${menu}: dump has no items`);
     }
-    const cleaned = cleanForScore(dump.items as ExtractedMenuItem[]);
+    const markdown = (await Promise.all(
+      ocrSourcePaths(menu).map(async (path) =>
+        ocrMarkdown(JSON.parse(await Deno.readTextFile(path)))
+      ),
+    )).join("\n");
+    const cleaned = cleanForScore(dump.items as ExtractedMenuItem[], markdown);
     const report = scoreMenu(fixture, {
       image_quality: dump.image_quality ?? { usable: true, issues: [] },
       items: cleaned.items,

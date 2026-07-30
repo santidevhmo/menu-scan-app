@@ -93,7 +93,8 @@
       "options": [
         {
           "name": "Doble",
-          "price": 950
+          "price": 950,
+          "grams": 600
         }
       ]
     }

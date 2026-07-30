@@ -144,19 +144,87 @@ function foldPerUnitNoteSections(
   );
 }
 
+const HEADING_PRICE =
+  /\$\s*\d+(?:[.,]\d+)?|(?:^|\s)\d{2,4}(?:[.,]\d+)?\s*(?:mxn)?\s*$/i;
+
+function headingPrice(line: string, section: string): number | null {
+  const text = line.replace(/^#+\s*/, "");
+  const price = text.match(HEADING_PRICE);
+  const remaining = norm(text.replace(price?.[0] ?? "", ""));
+  const sectionTitle = norm(section);
+  if (
+    !price || remaining.length === 0 ||
+    remaining.join(" ") !== sectionTitle.join(" ")
+  ) return null;
+  const number = price[0].match(/\d+(?:[.,]\d+)?/);
+  return number ? Number(number[0].replace(",", ".")) : null;
+}
+
+function foldPricedHeadingCards(
+  items: ExtractedMenuItem[],
+  markdown?: string,
+): ExtractedMenuItem[] {
+  if (!markdown) return items;
+  const headings = markdown.split("\n").filter((line) => line.startsWith("#"));
+  const sections = new Map<string, ExtractedMenuItem[]>();
+  for (const it of items) {
+    if (!it.section_title) continue;
+    const group = sections.get(it.section_title) ?? [];
+    group.push(it);
+    sections.set(it.section_title, group);
+  }
+  const cards = new Map<string, ExtractedMenuItem>();
+  for (const [section, children] of sections) {
+    const price = headings.map((heading) => headingPrice(heading, section))
+      .find((price) => price != null);
+    if (price == null) continue;
+    const categories = new Map<ExtractedMenuItem["category"], number>();
+    for (const child of children) {
+      categories.set(child.category, (categories.get(child.category) ?? 0) + 1);
+    }
+    const category = [...categories].reduce((best, current) =>
+      current[1] > best[1] ? current : best
+    )[0];
+    cards.set(section, {
+      name: section,
+      description: "",
+      price,
+      category,
+      section_title: null,
+      options: children.map((child) => ({
+        name: child.name,
+        price: child.price,
+        grams: child.grams,
+      })),
+      grams: null,
+    });
+  }
+  const seen = new Set<string>();
+  return items.flatMap((it) => {
+    if (!it.section_title || !cards.has(it.section_title)) return [it];
+    if (seen.has(it.section_title)) return [];
+    seen.add(it.section_title);
+    return [cards.get(it.section_title)!];
+  });
+}
+
 /** Deterministic cleanup for the (c) text-structuring path (ruling 30).
  *  Model-agnostic only — acts on the model's own labels/titles, never on
  *  Mistral-annotation artifacts. C3 renames this module. */
 export function textStructureCleanup(
   items: ExtractedMenuItem[],
+  markdown?: string,
 ): ExtractedMenuItem[] {
   const normalized = items.map((it) => ({
     ...it,
     section_title: normalizeSectionTitle(it.section_title),
   }));
   const filtered = dropDrinkSections(dropOtherCategoryItems(normalized));
-  return foldPerUnitNoteSections(
-    foldSmallestOptionGrams(dropSelfNamedSectionTitles(filtered)),
+  return foldPricedHeadingCards(
+    foldPerUnitNoteSections(
+      foldSmallestOptionGrams(dropSelfNamedSectionTitles(filtered)),
+    ),
+    markdown,
   );
 }
 

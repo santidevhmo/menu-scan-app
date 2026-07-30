@@ -1,10 +1,9 @@
 import { assertEquals, assertThrows } from "jsr:@std/assert";
 import {
   archivePayloads,
-  assertSinglePageMenu,
   buildRequest,
   ocrMarkdown,
-  ocrSourceName,
+  ocrSourcePaths,
   parseResponse,
   TEXT_PROMPT_SUFFIX,
 } from "./probe-c-textstructure.ts";
@@ -14,6 +13,7 @@ import {
 } from "../supabase/functions/analyze-menu/extract.ts";
 import type { ExtractedMenuItem } from "../supabase/functions/analyze-menu/extract.ts";
 import { postprocessItems } from "../supabase/functions/analyze-menu/postprocess.ts";
+import { MENU_DIR } from "./photo-input.ts";
 
 Deno.test("ocrMarkdown reads all pages from the responses cache shape", () => {
   assertEquals(
@@ -120,22 +120,28 @@ Deno.test("parseResponse rejects empty content", () => {
   );
 });
 
-Deno.test("ocrSourceName maps menus to their b1 raw response", () => {
+Deno.test("ocrSourcePaths returns brasero-two's two cached pages in order", () => {
   assertEquals(
-    ocrSourceName("nikkori"),
-    "nikkori.mistral-b1-r1.raw.json",
-  );
-  assertEquals(
-    ocrSourceName("polloteria"),
-    "polloteria.mistral-b1-r1.raw.json",
+    ocrSourcePaths("brasero-two"),
+    [
+      `${MENU_DIR}/brasero-two.mistral-b1-r1.raw.json`,
+      `${MENU_DIR}/brasero-two.mistral-b1-r1.p1.raw.json`,
+    ],
   );
 });
 
-Deno.test("brasero-two is refused because its b1 raw response is multi-page", () => {
+Deno.test("ocrSourcePaths keeps a single-page menu's cached path unchanged", () => {
+  assertEquals(
+    ocrSourcePaths("polloteria"),
+    [`${MENU_DIR}/polloteria.mistral-b1-r1.raw.json`],
+  );
+});
+
+Deno.test("ocrSourcePaths rejects an unknown menu", () => {
   assertThrows(
-    () => assertSinglePageMenu("brasero-two"),
+    () => ocrSourcePaths("nope"),
     Error,
-    "brasero-two is multi-page; not supported by this probe",
+    "unknown menu: nope",
   );
 });
 

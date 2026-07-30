@@ -3,7 +3,9 @@ import {
   EXTRACT_SCHEMA,
   type ExtractedMenuItem,
 } from "../supabase/functions/analyze-menu/extract.ts";
+import { mergeItemSources } from "../supabase/functions/analyze-menu/merge.ts";
 import { postprocessItems } from "../supabase/functions/analyze-menu/postprocess.ts";
+import { MENU_PHOTOS, rawPath } from "./probe-bakeoff-mistral-b1.ts";
 import { MENU_DIR } from "./photo-input.ts";
 
 export const TEXT_PROMPT_SUFFIX =
@@ -93,23 +95,20 @@ export function parseResponse(
   };
 }
 
-/** Stage-1a source = the b1 raw OCR response, so the probe's text and the
- *  annotation it is compared against come from the SAME response.
- *  (The older *.mistral-ocr-*.json caches are a different capture — nikkori's
- *  is missing two printed rolls, which would silently cap recall.) */
-export function ocrSourceName(menu: string): string {
-  return `${menu}.mistral-b1-r1.raw.json`;
-}
-
-export function assertSinglePageMenu(menu: string): void {
-  if (menu === "brasero-two") {
-    throw new Error("brasero-two is multi-page; not supported by this probe");
-  }
+/** Stage-1a source = b1 raw OCR responses, one cached response per photo. */
+export function ocrSourcePaths(menu: string): string[] {
+  const photos = MENU_PHOTOS[menu];
+  if (!photos) throw new Error(`unknown menu: ${menu}`);
+  return photos.map((_, page) => rawPath(MENU_DIR, menu, "b1", 1, page));
 }
 
 type ParsedResponse = ReturnType<typeof parseResponse>;
 
-export function archivePayloads(raw: unknown, parsed = parseResponse(raw)): {
+export function archivePayloads(
+  raw: unknown,
+  parsed = parseResponse(raw),
+  postItems = postprocessItems(parsed.items as ExtractedMenuItem[]),
+): {
   raw: unknown;
   nopost: {
     image_quality: { usable: boolean; issues: string[] };
@@ -126,7 +125,7 @@ export function archivePayloads(raw: unknown, parsed = parseResponse(raw)): {
     nopost: { image_quality, items: parsed.items },
     post: {
       image_quality,
-      items: postprocessItems(parsed.items as ExtractedMenuItem[]),
+      items: postItems,
     },
   };
 }
@@ -167,29 +166,52 @@ async function request(
 
 if (import.meta.main) {
   const menu = Deno.args[0] ?? "polloteria";
-  assertSinglePageMenu(menu);
-  const cache = ocrSourceName(menu);
-  const cachePath = `${MENU_DIR}/${cache}`;
-  const markdown = ocrMarkdown(JSON.parse(await Deno.readTextFile(cachePath)));
+  const cachePaths = ocrSourcePaths(menu);
+  const markdowns = await Promise.all(
+    cachePaths.map(async (path) =>
+      ocrMarkdown(JSON.parse(await Deno.readTextFile(path)))
+    ),
+  );
   const model = Deno.env.get("MODEL") ?? "gpt-4o-2024-11-20";
   const tag = Deno.env.get("TAG") ?? "eval103c";
   const outDir = Deno.env.get("OUT_DIR") ?? MENU_DIR;
-  const body = buildRequest(markdown, model);
+  const bodies = markdowns.map((markdown) => buildRequest(markdown, model));
 
   if (Deno.env.get("LIVE") !== "1") {
     console.log(`[dry-run] menu=${menu}`);
-    console.log(`[dry-run] cache=${cache}`);
-    console.log(`[dry-run] markdown_chars=${markdown.length}`);
-    console.log(`[dry-run] request=${JSON.stringify(body)}`);
+    console.log(`[dry-run] pages=${cachePaths.length}`);
+    console.log(`[dry-run] cache_paths=${cachePaths.join(",")}`);
+    console.log(`[dry-run] markdown_chars=${markdowns.map((m) => m.length)}`);
+    console.log(`[dry-run] requests=${JSON.stringify(bodies)}`);
   } else {
     const apiKey = Deno.env.get("OPENAI_API_KEY");
     if (!apiKey) throw new Error("OPENAI_API_KEY is required");
-    const { raw, parsed } = await request(body, apiKey);
-    const payloads = archivePayloads(raw, parsed);
+    const responses = await Promise.all(
+      bodies.map((body) => request(body, apiKey)),
+    );
+    const perPageItems = responses.map(({ parsed }) =>
+      parsed.items as ExtractedMenuItem[]
+    );
+    const postprocessed = perPageItems.map(postprocessItems);
+    const merged = postprocessed.length > 1
+      ? mergeItemSources(postprocessed)
+      : postprocessed[0];
+    const payloads = archivePayloads(
+      responses[0].raw,
+      { ...responses[0].parsed, items: perPageItems.flat() },
+      merged,
+    );
     await Deno.writeTextFile(
       `${outDir}/${menu}.${tag}-r1.raw.json`,
       JSON.stringify(payloads.raw, null, 2),
     );
+    for (const [page, { raw }] of responses.entries()) {
+      if (page === 0) continue;
+      await Deno.writeTextFile(
+        `${outDir}/${menu}.${tag}-r1.p${page}.raw.json`,
+        JSON.stringify(raw, null, 2),
+      );
+    }
     await Deno.writeTextFile(
       `${outDir}/${menu}.${tag}-r1.nopost.dump.json`,
       JSON.stringify(payloads.nopost, null, 2),
@@ -198,17 +220,19 @@ if (import.meta.main) {
       `${outDir}/${menu}.${tag}-r1.dump.json`,
       JSON.stringify(payloads.post, null, 2),
     );
-    const choices = record(raw)?.choices;
+    const choices = record(responses[0].raw)?.choices;
     const choice = Array.isArray(choices) ? record(choices[0]) : undefined;
-    const usage = record(record(raw)?.usage);
+    const usage = record(record(responses[0].raw)?.usage);
     console.log(
-      `${menu}: items=${parsed.items.length} post=${payloads.post.items.length} ` +
+      `${menu}: pages=${responses.length} items=[${
+        perPageItems.map((items) => items.length)
+      }] merged=${merged.length} post=${payloads.post.items.length} ` +
         `finish=${choice?.finish_reason} fp=${
-          record(raw)?.system_fingerprint ?? "n/a"
+          record(responses[0].raw)?.system_fingerprint ?? "n/a"
         } ` +
         `in=${usage?.prompt_tokens} out=${usage?.completion_tokens} ` +
-        `model_quality=${JSON.stringify(parsed.image_quality)} ` +
-        `model_layout=${JSON.stringify(parsed.image_layout)}`,
+        `model_quality=${JSON.stringify(responses[0].parsed.image_quality)} ` +
+        `model_layout=${JSON.stringify(responses[0].parsed.image_layout)}`,
     );
   }
 }

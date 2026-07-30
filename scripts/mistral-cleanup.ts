@@ -12,6 +12,10 @@ import {
 } from "./probe-bakeoff-mistral-b1.ts";
 
 const WEIGHT_PAREN = /\(\s*\d[\d.,]*\s*(gr|g|kg|oz|ml|lt|l)\b[^)]*\)/i;
+// A section dies only when it is OVERWHELMINGLY drinks. Measured plateau
+// 0.75-0.90 (eval 099): el-marcos "Jugos y Frutas" is 71% drink and holds real
+// food; polloteria "Bebidas" is 93% drink and must die (the Malteadas case).
+const DRINK_SECTION_FRAC = 0.8;
 
 export function stripTrailingParen(name: string): string {
   return name.replace(/\s*\([^)]*\)\s*$/, "").trim();
@@ -35,7 +39,8 @@ export function dropSelfEchoWeightOptions(
     const kept: typeof it.options = [];
     for (const opt of it.options ?? []) {
       const artifact = opt.price == null &&
-        (optionEchoesItem(opt.name, it.name) || WEIGHT_PAREN.test(opt.name));
+        (optionEchoesItem(opt.name, it.name) || WEIGHT_PAREN.test(opt.name) ||
+          opt.grams != null);
       if (artifact) {
         if (opt.grams != null) folded += opt.grams;
         continue;
@@ -53,17 +58,27 @@ export function dropOtherCategoryItems(
 ): ExtractedMenuItem[] {
   return items.filter((it) => it.category !== "other");
 }
-/** Drop drinks (F5-deferred) and any section containing a drink item, using the
+/** Drop drinks (F5-deferred) and overwhelmingly-drink sections, using the
  * model's own category labels — no hardcoded section names (menu-generic). */
 export function dropDrinkSections(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
+  const sections = new Map<string, { drinks: number; total: number }>();
+  for (const it of items) {
+    if (!it.section_title) continue;
+    const counts = sections.get(it.section_title) ?? { drinks: 0, total: 0 };
+    counts.total++;
+    if (it.category === "drink") counts.drinks++;
+    sections.set(it.section_title, counts);
+  }
   const drinkSections = new Set(
-    items.filter((it) => it.category === "drink" && it.section_title)
-      .map((it) => it.section_title),
+    [...sections].filter(([, counts]) =>
+      counts.drinks > 0 && counts.drinks / counts.total >= DRINK_SECTION_FRAC
+    ).map(([section]) => section),
   );
   return items.filter((it) =>
-    it.category !== "drink" && !drinkSections.has(it.section_title)
+    it.category !== "drink" &&
+    (!it.section_title || !drinkSections.has(it.section_title))
   );
 }
 /** PolloKids -> Pollo Kids (split camel/Pascal runs); leaves normal titles intact. */
@@ -87,6 +102,10 @@ export interface Page {
 
 const MATCH_FLOOR = 0.6; // token-set match strength required before we act
 const FAR_DIST = 0.35; // normalized-coord Euclidean distance treated as "different card"
+// An option is legitimate if its words are PRINTED NEXT TO the dish, even when
+// the source block is a whole sentence (so it can never match tightly). Measured
+// plateau 0.05-0.30 (eval 099); 0.35 loses the bistro fix.
+const RESCUE_DIST = 0.15;
 
 function tokenOverlap(a: string[], b: string[]): number {
   if (a.length === 0) return 0;
@@ -139,7 +158,14 @@ export function dropMisattachedOptions(
       if (!src.block || src.strength < MATCH_FLOOR) return true; // weak -> keep
       const sc = blockCenter(src.block, width, height);
       const dist = Math.hypot(ac[0] - sc[0], ac[1] - sc[1]);
-      return dist <= FAR_DIST; // far -> drop
+      if (dist <= FAR_DIST) return true;
+      const optionTokens = norm(opt.name);
+      return blocks.some((block) => {
+        const bc = blockCenter(block, width, height);
+        const nearby = Math.hypot(ac[0] - bc[0], ac[1] - bc[1]) <= RESCUE_DIST;
+        const blockTokens = new Set(norm(block.content ?? ""));
+        return nearby && optionTokens.every((token) => blockTokens.has(token));
+      });
     });
     return { ...it, options: kept };
   });

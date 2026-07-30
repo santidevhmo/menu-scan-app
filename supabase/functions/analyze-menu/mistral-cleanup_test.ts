@@ -73,3 +73,39 @@ Deno.test("textStructureCleanup normalizes titles before dropping labels, others
     [item({ name: "POSTRES", section_title: null })],
   );
 });
+
+Deno.test("textStructureCleanup folds the smallest parseable option weight without changing options", () => {
+  const source = item({
+    name: "CHURRASQUERÍA",
+    options: [
+      { name: "SENCILLA (300gr)", price: 495, grams: null },
+      { name: "DOBLE (600gr)", price: 950, grams: null },
+    ],
+  });
+  const [cleaned] = textStructureCleanup([source]);
+  assertEquals(cleaned.grams, 300);
+  assertEquals(cleaned.options, source.options);
+});
+
+Deno.test("textStructureCleanup turns a singleton per-unit note into its section's item", () => {
+  const [cleaned] = textStructureCleanup([
+    item({
+      name: "per oz",
+      price: 6.5,
+      section_title: "PRIME TOMAHAWK* GF, DF",
+    }),
+  ]);
+  assertEquals(cleaned.name, "PRIME TOMAHAWK* GF, DF");
+  assertEquals(cleaned.price, 6.5);
+  assertEquals(cleaned.options, []);
+  assertEquals(cleaned.section_title, null);
+});
+
+Deno.test("textStructureCleanup leaves non-per-unit and multi-member sections untouched", () => {
+  const source = [
+    item({ name: "per oz", price: 6.5, section_title: "PRIME TOMAHAWK" }),
+    item({ name: "Side", section_title: "PRIME TOMAHAWK" }),
+    item({ name: "Steak", section_title: "BUTCHER'S BEST" }),
+  ];
+  assertEquals(textStructureCleanup(source), source);
+});

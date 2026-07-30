@@ -1,4 +1,5 @@
 import type { ExtractedMenuItem } from "./extract.ts";
+import { parseItemGrams, PER_UNIT_NOTE } from "./postprocess.ts";
 
 const WEIGHT_PAREN = /\(\s*\d[\d.,]*\s*(gr|g|kg|oz|ml|lt|l)\b[^)]*\)/i;
 // A section dies only when it is OVERWHELMINGLY drinks. Measured plateau
@@ -106,6 +107,43 @@ export function dropSelfNamedSectionTitles(
   });
 }
 
+function foldSmallestOptionGrams(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  return items.map((it) => {
+    if (it.grams != null) return it;
+    const weights = it.options.flatMap((option) => {
+      const [parsed] = parseItemGrams([{
+        ...it,
+        name: option.name,
+        description: "",
+        options: [],
+        grams: option.grams,
+      }]);
+      return parsed.grams == null ? [] : [parsed.grams];
+    });
+    return weights.length > 0 ? { ...it, grams: Math.min(...weights) } : it;
+  });
+}
+
+function foldPerUnitNoteSections(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  const sections = new Map<string, ExtractedMenuItem[]>();
+  for (const it of items) {
+    if (!it.section_title) continue;
+    const group = sections.get(it.section_title) ?? [];
+    group.push(it);
+    sections.set(it.section_title, group);
+  }
+  return items.map((it) =>
+    it.section_title && sections.get(it.section_title)?.length === 1 &&
+      PER_UNIT_NOTE.test(it.name)
+      ? { ...it, name: it.section_title, section_title: null }
+      : it
+  );
+}
+
 /** Deterministic cleanup for the (c) text-structuring path (ruling 30).
  *  Model-agnostic only — acts on the model's own labels/titles, never on
  *  Mistral-annotation artifacts. C3 renames this module. */
@@ -116,8 +154,9 @@ export function textStructureCleanup(
     ...it,
     section_title: normalizeSectionTitle(it.section_title),
   }));
-  return dropSelfNamedSectionTitles(
-    dropDrinkSections(dropOtherCategoryItems(normalized)),
+  const filtered = dropDrinkSections(dropOtherCategoryItems(normalized));
+  return foldPerUnitNoteSections(
+    foldSmallestOptionGrams(dropSelfNamedSectionTitles(filtered)),
   );
 }
 

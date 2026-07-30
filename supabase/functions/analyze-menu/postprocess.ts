@@ -302,7 +302,8 @@ const UNENUMERATED_CHOICE =
 // per-person qualifiers ("POR NIÑO", "per person") emitted as options from
 // promo blocks (eval 054 — the same printed text that dropPriceNoteItems
 // handles at item level).
-const PER_UNIT_NOTE = /^\s*(?:c\/[a-z]\.?|(?:por|per)\s+\p{L}+\.?)\s*$/iu;
+export const PER_UNIT_NOTE =
+  /^\s*(?:c\/[a-z]\.?|(?:por|per)\s+\p{L}+\.?)\s*$/iu;
 
 // A pure weight/volume token is a weight note, not a choice (grams live in the
 // grams field). "650gr", "80 gr.", "300ml".

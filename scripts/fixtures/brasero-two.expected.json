@@ -15,7 +15,6 @@
   "sections": [
     "Entradas",
     "Especialidades",
-    "Churrasquería",
     "Ensaladas",
     "Caldos",
     "Especialidades Brasero",
@@ -39,8 +38,8 @@
       "section_title": "Especialidades"
     },
     {
-      "name_contains": "Sencilla",
-      "section_title": "Churrasquería"
+      "name_contains": "Churrasquería",
+      "section_title": "Especialidades"
     },
     {
       "name_contains": "Sopa de Tortilla",
@@ -88,6 +87,15 @@
           "price": 150
         }
       ]
+    },
+    {
+      "name_contains": "Churrasquería",
+      "options": [
+        {
+          "name": "Doble",
+          "price": 950
+        }
+      ]
     }
   ],
   "image_quality": {
@@ -110,12 +118,8 @@
   ],
   "grams_expectations": [
     {
-      "name_contains": "Sencilla",
+      "name_contains": "Churrasquería",
       "grams": 300
-    },
-    {
-      "name_contains": "Doble",
-      "grams": 600
     },
     {
       "name_contains": "Costillas Hormigueras",

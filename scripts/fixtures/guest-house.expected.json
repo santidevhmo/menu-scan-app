@@ -34,7 +34,41 @@
       "section_title": "Entrees"
     }
   ],
-  "items_with_options": [],
+  "items_with_options": [
+    {
+      "name_contains": "SEAFOOD PLATEAU*",
+      "options": [
+        {
+          "name": "FOR TWO",
+          "price": 150
+        },
+        {
+          "name": "FOR THREE OR MORE",
+          "price": 280
+        }
+      ]
+    },
+    {
+      "name_contains": "HALF MAINE LOBSTER TAIL",
+      "options": [
+        {
+          "name": "chilled"
+        },
+        {
+          "name": "grilled"
+        }
+      ]
+    },
+    {
+      "name_contains": "MEXICAN WHITE SHRIMP",
+      "options": [
+        {
+          "name": "EA",
+          "price": 7
+        }
+      ]
+    }
+  ],
   "image_quality": {
     "usable": true,
     "issues": []

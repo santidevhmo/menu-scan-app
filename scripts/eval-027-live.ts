@@ -182,14 +182,19 @@ for (let run = 1; run <= RUNS; run++) {
   const detectorFailures: string[] = [];
   for (const fixture of fixtures) {
     const actual = await extractMenu(fixture);
-    // Detector assertion (user requirement 2026-07-10): a non-dense menu
-    // that dense-signals wastes ~4 calls + a round trip per page; a dense
-    // menu that does not gets garbage items. Both fail the run.
-    const detectorOk = actual.denseSignaled === Boolean(fixture.dense);
+    // M3.1 (ruling 29): the old detector assertion (denseSignaled ===
+    // fixture.dense) is OBSOLETE — Mistral reads whole images, so there is no
+    // dense signal and exactly ONE path for every menu. The fixtures' `dense`
+    // flags are now vestigial data (left in place; they are oracle files).
+    // What IS still worth pinning is that the tile path stays DISCONNECTED:
+    // any needs_crops here means the extractor got rewired by accident.
+    const detectorOk = !actual.denseSignaled;
     console.log(
-      `  ${detectorOk ? "PASS" : "FAIL"} ${fixture.menu} detector: ${
-        actual.denseSignaled ? "dense-signaled" : "normal"
-      } (expected ${fixture.dense ? "dense" : "normal"})`,
+      `  ${detectorOk ? "PASS" : "FAIL"} ${fixture.menu} routing: ${
+        actual.denseSignaled
+          ? "needs_crops returned — TILE PATH RECONNECTED"
+          : "single Mistral read"
+      }`,
     );
     if (!detectorOk) detectorFailures.push(fixture.menu);
     const report = scoreMenu(fixture, actual);
@@ -255,7 +260,9 @@ for (let run = 1; run <= RUNS; run++) {
   ] as const;
   const failures = gateFailures(reports, [...GATE_DIMS]);
   if (detectorFailures.length > 0) {
-    failures.push(`detector: ${detectorFailures.join(", ")}`);
+    failures.push(
+      `routing (unexpected needs_crops): ${detectorFailures.join(", ")}`,
+    );
   }
   if (failures.length === 0) {
     consecutivePasses++;

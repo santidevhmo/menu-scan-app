@@ -28,13 +28,37 @@ Deno.test("normalizeSectionTitle collapses only runs of three or more single-cha
   );
 });
 
-Deno.test("dropSelfNamedSectionTitles nulls only the item in its own same-named section", () => {
+Deno.test("dropSelfNamedSectionTitles nulls a single-member same-named section", () => {
   const cleaned = dropSelfNamedSectionTitles([
     item({ name: "SEAFOOD PLATEAU*", section_title: "seafood plateau" }),
+  ]);
+  assertEquals(cleaned.map((it) => it.section_title), [null]);
+});
+
+Deno.test("dropSelfNamedSectionTitles keeps two-member and five-member same-named sections", () => {
+  const twoMember = [
+    item({ name: "Crispy Chicken", section_title: "Crispy Chicken" }),
+    item({ name: "Boneless", section_title: "Crispy Chicken" }),
+  ];
+  const fiveMember = [
+    item({ name: "Crispy Chicken", section_title: "Crispy Chicken" }),
+    ...Array.from(
+      { length: 4 },
+      (_, index) =>
+        item({ name: `Dish ${index}`, section_title: "Crispy Chicken" }),
+    ),
+  ];
+  assertEquals(dropSelfNamedSectionTitles(twoMember), twoMember);
+  assertEquals(dropSelfNamedSectionTitles(fiveMember), fiveMember);
+});
+
+Deno.test("dropSelfNamedSectionTitles keeps an item in a differently named section", () => {
+  const cleaned = dropSelfNamedSectionTitles([
+    item({ name: "Oysters", section_title: "seafood plateau" }),
     item({ name: "Oysters", section_title: "seafood plateau" }),
   ]);
   assertEquals(cleaned.map((it) => it.section_title), [
-    null,
+    "seafood plateau",
     "seafood plateau",
   ]);
 });

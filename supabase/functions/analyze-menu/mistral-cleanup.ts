@@ -88,10 +88,19 @@ export function normalizeSectionTitle(title: string | null): string | null {
 export function dropSelfNamedSectionTitles(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
+  const sectionCounts = new Map<string, number>();
+  for (const it of items) {
+    const section = norm(it.section_title ?? "").join(" ");
+    if (section) {
+      sectionCounts.set(section, (sectionCounts.get(section) ?? 0) + 1);
+    }
+  }
   return items.map((it) => {
     const section = norm(it.section_title ?? "");
     const name = norm(it.name);
-    return section.length > 0 && section.join(" ") === name.join(" ")
+    const sectionKey = section.join(" ");
+    return section.length > 0 && sectionCounts.get(sectionKey) === 1 &&
+        sectionKey === name.join(" ")
       ? { ...it, section_title: null }
       : it;
   });

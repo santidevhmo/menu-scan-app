@@ -17,7 +17,8 @@
     "dessert"
   ],
   "tolerated_option_names": [
-    "Queso"
+    "Queso",
+    "tocino"
   ],
   "sections": [
     "Entradas",
@@ -78,6 +79,11 @@
       "options": []
     },
     {
+      "name_contains": "Crispy Chicken",
+      "unchecked": true,
+      "options": []
+    },
+    {
       "name_contains": "Cabeza",
       "unchecked": true,
       "options": []
@@ -104,6 +110,16 @@
     },
     {
       "name_contains": "Ensalada Pollotera",
+      "unchecked": true,
+      "options": []
+    },
+    {
+      "name_contains": "Gyro",
+      "unchecked": true,
+      "options": []
+    },
+    {
+      "name_contains": "Tender Cordon Bleu",
       "unchecked": true,
       "options": []
     }

@@ -147,8 +147,12 @@ function foldPerUnitNoteSections(
 const HEADING_PRICE =
   /\$\s*\d+(?:[.,]\d+)?|(?:^|\s)\d{2,4}(?:[.,]\d+)?\s*(?:mxn)?\s*$/i;
 
+function headingText(line: string): string {
+  return line.replace(/^#+\s*/, "");
+}
+
 function headingPrice(line: string, section: string): number | null {
-  const text = line.replace(/^#+\s*/, "");
+  const text = headingText(line);
   const price = text.match(HEADING_PRICE);
   const remaining = norm(text.replace(price?.[0] ?? "", ""));
   const sectionTitle = norm(section);
@@ -158,6 +162,21 @@ function headingPrice(line: string, section: string): number | null {
   ) return null;
   const number = price[0].match(/\d+(?:[.,]\d+)?/);
   return number ? Number(number[0].replace(",", ".")) : null;
+}
+
+function cardHeadingName(headings: string[], index: number): string {
+  const own = headingText(headings[index]).replace(HEADING_PRICE, "").trim();
+  const parent = headings.slice(0, index).reverse().find((heading) =>
+    !HEADING_PRICE.test(headingText(heading))
+  );
+  if (!parent) return own;
+  const parentText = headingText(parent);
+  const parentTokens = norm(parentText);
+  const ownTokens = new Set(norm(own));
+  return parentTokens.length > 0 &&
+      !parentTokens.every((token) => ownTokens.has(token))
+    ? `${parentText} ${own}`
+    : own;
 }
 
 function foldPricedHeadingCards(
@@ -175,9 +194,10 @@ function foldPricedHeadingCards(
   }
   const cards = new Map<string, ExtractedMenuItem>();
   for (const [section, children] of sections) {
-    const price = headings.map((heading) => headingPrice(heading, section))
-      .find((price) => price != null);
-    if (price == null) continue;
+    const prices = headings.map((heading) => headingPrice(heading, section));
+    const index = prices.findIndex((price) => price != null);
+    if (index < 0) continue;
+    const price = prices[index]!;
     const categories = new Map<ExtractedMenuItem["category"], number>();
     for (const child of children) {
       categories.set(child.category, (categories.get(child.category) ?? 0) + 1);
@@ -186,7 +206,7 @@ function foldPricedHeadingCards(
       current[1] > best[1] ? current : best
     )[0];
     cards.set(section, {
-      name: section,
+      name: cardHeadingName(headings, index),
       description: "",
       price,
       category,

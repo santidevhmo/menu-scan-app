@@ -131,6 +131,38 @@ Deno.test("textStructureCleanup folds a section matched by a priced markdown hea
   })]);
 });
 
+Deno.test("textStructureCleanup prefixes a priced card with its nearest unpriced heading", () => {
+  const cleaned = cleanWithMarkdown([
+    item({ name: "Uva", price: 20, section_title: "Agua" }),
+    item({ name: "Piña", price: 20, section_title: "Agua" }),
+  ], "# Paletas Heladas\n# Agua $20");
+  assertEquals(cleaned.map((it) => it.name), ["Paletas Heladas Agua"]);
+});
+
+Deno.test("textStructureCleanup skips priced parents while finding a card prefix", () => {
+  const cleaned = cleanWithMarkdown([
+    item({ name: "Uva", price: 20, section_title: "Agua" }),
+    item({ name: "Piña", price: 20, section_title: "Agua" }),
+  ], "# Paletas Heladas\n# Crema $30\n# Agua $20");
+  assertEquals(cleaned.map((it) => it.name), ["Paletas Heladas Agua"]);
+});
+
+Deno.test("textStructureCleanup does not duplicate parent tokens already in a card heading", () => {
+  const cleaned = cleanWithMarkdown([
+    item({
+      name: "Uva",
+      price: 20,
+      section_title: "Paletas Heladas Agua",
+    }),
+    item({
+      name: "Piña",
+      price: 20,
+      section_title: "Paletas Heladas Agua",
+    }),
+  ], "# Paletas Heladas\n# Paletas Heladas Agua $20");
+  assertEquals(cleaned.map((it) => it.name), ["Paletas Heladas Agua"]);
+});
+
 Deno.test("textStructureCleanup keeps a section matched only by an unpriced heading", () => {
   const source = [
     item({ name: "Papas", section_title: "VEGETARIANO" }),

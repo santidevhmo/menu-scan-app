@@ -60,7 +60,16 @@ never deletes an item. Risk: a real section legitimately sharing a dish's name (
 containing a `Tacos` dish). Sweep: none needed (exact-match predicate) — but the sweep must report
 **every** affected item across the 9 so Santiago can eyeball collateral.
 
-### C2-3 — a heading that is really a dish card, children are its options (Class B2) · brasero-two ×1
+### C2-3 — a `#` heading that is really a dish card, children are its options (Classes B2 **and D, now UNIFIED**) · brasero-two + polloteria
+
+**UNIFICATION (eval 105):** Class D (polloteria Paletas) and Class B2 (brasero-two Taco Loiro) are ONE
+class — `#` markup in the OCR markdown turns a priced dish card into a section. GPT-4o **vision** never
+had this failure because it saw the cards visually; its eval-093 passing dump is the worked target:
+`Paletas Heladas Agua $20 | sec=Paletas Heladas | opts=[Uva, Piña, Melón, Nuez, Tamarindo, Fresa, Limón]`
+— i.e. **name synthesized from PARENT + child heading**, price from the child heading, flavors as
+null-price options, `section_title` = the PARENT (which technically violates the prompt's
+"nearest subheading, never the parent" rule, yet is what passed the gate ×3).
+
 OCR prints `# TACO LOIRO (sirloin)` then `picaña $165` / `pollo $150`. The `#` markup overrides
 `EXTRACT_PROMPT`'s semantic rule (*"a heading … must also group menu items beneath it"*), so the
 model emits two standalone items under a `TACO LOIRO (sirloin)` section. The fixture wants ONE item
@@ -73,6 +82,11 @@ child count (2..5), and whether to require all children description-less vs a fr
 abort condition: if the plateau is narrower than 2× on either side, do NOT adopt — report and stop.**
 
 ### C2-4 — combo grams SUM (Class F) · known M1 bug · polloteria ×1
+**Eval-105 context: NO extractor has ever met this expectation.** GPT-4o vision's own eval-093
+passing dump also reads `Megacharra Boneless … g=1200`, identical to (c) — the 1800 value entered the
+fixture during M1 (Santiago re-adjudicated it as boneless 1200 + fries 600) AFTER eval 093 had passed
+against 1200. So this is NEW work required of any extractor, **not a (c) regression.**
+
 `Megacharola Boneless` scores 1200 where the oracle says 1800: `parseItemGrams` takes the FIRST
 weight in a combo description (`boneless(1200gr) … papas(600gr)`) instead of summing. M1 hit this
 from the other side and removed `parseItemGrams` from the Mistral chain entirely; under (c) it is
@@ -108,21 +122,19 @@ regressed polloteria 5/5→2/5 while correctly fixing its target.
 
 ## 5. Santiago decisions that block part of C2
 
-### 5.1 Paletas Heladas — the parent heading the model cannot emit (Class D, polloteria)
-Print nests `Paletas Heladas` → `AGUA $20` (6 flavors) / `CREMA $30` (6 flavors). Model emits 12
-items under sections `AGUA`/`CREMA`; oracle wants 2 items matching `name_contains: "Paletas Heladas"`.
-The 12→2 collapse is C2-3's mechanism, but the resulting names would be `AGUA` and `CREMA` — the
-oracle's pin still misses. **This single class is the entire cause of polloteria's `items` 51/40 AND
-its 2 spurious sections** (52−12+2 = 42 = exactly the count Mistral passes at). Options:
-- **(a) ORACLE-CHANGE the two Paletas pins to `name_contains: "AGUA"` / `"CREMA"`** — $0, no code,
-  but the app would show a card literally named "AGUA".
-- **(b) Recover the parent heading from the Stage-1a OCR text** during cleanup (the text is right
-  there in the same pipeline). More machinery, menu-generic, and it also fixes any future nested
-  subheading — but it makes cleanup depend on the OCR text, a new coupling.
-- **(c) Accept polloteria's overcount** and let `items`/`section_context` stay red on the
-  release-critical menu. Not recommended.
-Planner recommends **(b)** if you want polloteria green without touching truth, **(a)** if you want
-it cheapest; both are defensible, and (b) is the one that generalizes.
+### 5.1 Paletas Heladas — RESOLVED IN SHAPE by eval 105; only the mechanism is open
+Print nests `Paletas Heladas` → `AGUA $20` (6-7 flavors) / `CREMA $30`. (c) emits 12 flavor ITEMS under
+sections `AGUA`/`CREMA`. **~~(a) ORACLE-CHANGE the pins~~ — WITHDRAWN, it fixes nothing:** the fixture's
+two Paletas pins are `unchecked: true`, so they TOLERATE the items rather than require them. polloteria's
+`items` 51/40 failure is caused by the **12 extra items**, not by a pin missing its target. Only the
+12 → 2 collapse fixes the count, and the same collapse also removes the 2 spurious `AGUA`/`CREMA`
+sections. **So the mechanism is settled: reproduce GPT-vision's eval-093 shape** (§C2-3) — collapse the
+priced `#` sub-heading into ONE item, name it `<parent heading> <child heading>`, price from the child
+heading, flavors as null-price options, `section_title` = the parent. **The parent heading is present in
+the Stage-1a OCR text** (`# Paletas Heladas`), so cleanup gains an OCR-text input — a new coupling, and
+the only way to recover a name the model discards by instruction. Santiago's remaining call is just
+whether that coupling is acceptable (planner: yes — the text is already in the same pipeline, and it
+generalizes to every nested subheading rather than to this menu).
 
 ### 5.2 Promote the Shape-A pins (rulings 1 + 17) — affects brasero-two + guest-house
 (c) natively emits ruling-1 Shape A: `CHURRASQUERÍA $495 → [SENCILLA (300gr)@495, DOBLE (600gr)@950]`,

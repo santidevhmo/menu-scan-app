@@ -64,7 +64,9 @@ Keep the implementation simple and readable
 
 ## OCR / Extraction Model Decision
 
-Use **GPT-4o Vision** as the selected OCR/extraction model for menu reading (`provider: "gpt-vision"`, `model_id: "gpt-4o"`). This was selected after the Stage 1 extraction benchmark.
+**SUPERSEDED 2026-07-29 by container rulings 29 + 30 — the Stage-1 extractor is being SPLIT.** Historical decision (still describes what is DEPLOYED today): **GPT-4o Vision** was selected as the OCR/extraction model after the Stage 1 extraction benchmark (`provider: "gpt-vision"`, `model_id: "gpt-4o"`).
+
+**Current architecture decision (ruling 30, in migration — NOT yet deployed):** Stage-1 splits into **Stage-1a = Mistral OCR** returning page `markdown` (the layer measured as stable week-over-week) and **Stage-1b = a PINNED dated model snapshot** that converts that text into the menu schema using the existing `EXTRACT_PROMPT`/`EXTRACT_SCHEMA` verbatim. Rationale: Mistral's own structuring LLM proved unpinnable and changed shape without notice, while a dated snapshot can be pinned and re-run. GPT-4o is retained for **Stage-2 enrichment only**. Migration status and NEXT ACTION live in the container brief (see the extraction-quality section below) — do not restate them here.
 
 Current project cost assumption: **$0.03 USD per GPT-4o Vision extraction call**. Stage 2 adds a **second** GPT-4o call (enrichment), so a full scan costs extraction **+** enrichment: ~**$0.06/scan**. Enrichment is GPT-4o (same model as extraction); Gemini 2.5 Flash was discarded 2026-07-10. Finalize the per-scan number after the Stage 2 accuracy benchmark gate.
 

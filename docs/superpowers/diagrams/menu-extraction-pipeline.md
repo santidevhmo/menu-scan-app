@@ -1,5 +1,26 @@
 # Menu Extraction Pipeline — Current Status
 
+> # ⛔ STALE AS OF 2026-07-29 — DO NOT TREAT THIS FILE AS TRUTH
+>
+> Everything below describes the pipeline as of **2026-07-12** and is now wrong in its most important
+> respect: the Stage-1 extractor. Since then the extraction stack has changed twice —
+> a **production colocation stage** (container ruling 15), and then the **Stage-1 extractor migration**
+> away from GPT-4o Vision (container rulings 29 and **30**: Stage-1a = Mistral OCR `markdown`,
+> Stage-1b = a PINNED model snapshot using the existing `EXTRACT_PROMPT`/`EXTRACT_SCHEMA`; GPT-4o kept
+> for Stage-2 enrichment only). The tile/auto-cutter machinery described below is being made unreachable
+> rather than deleted, and the whole-image read makes tiling moot on every fixture measured so far.
+>
+> **Authoritative sources instead of this file:**
+> - status + NEXT ACTION → `docs/superpowers/horizontal-menus/DELEGATION-BRIEF.md` (newest PROGRESS LOG
+>   entry) on branch `feat/extraction-eval-harness`
+> - rulings + phase plan → `docs/superpowers/horizontal-menus/ROADMAP.md` (same branch)
+> - every experiment → `docs/superpowers/extraction-iteration-ledger.md` (same branch)
+>
+> This file gets rewritten when the migration closes (master-roadmap "Diagram discipline" requires it at
+> that point, not before — writing a diagram for a half-built architecture would just create a second
+> stale artifact). Kept as-is meanwhile because it accurately documents what is still DEPLOYED.
+
+
 > **Canonical file** (roadmap links here; keep it updated as Features 2–5 close).
 > A snapshot copy also lives at `~/Downloads/menu-extraction-pipeline.md`.
 >

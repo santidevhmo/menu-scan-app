@@ -114,9 +114,17 @@ async function cutTiles(name: string): Promise<string[]> {
   return tiles;
 }
 
+// ⚠️ raw_response IS PART OF THE RETURN, AND IT IS ARCHIVED ON EVERY RUN.
+// Eval 115 spent ~$0.30 on a ×3 live gate that surfaced a release-blocking
+// silent data loss (guest-house read 48 dishes, then 36, then 48) — and the
+// run could not be diagnosed at all, because this function used to drop the
+// model's own output on the floor and the caller only archived scored items,
+// only on failure. The raw response is the ONLY artifact that can separate a
+// model defect from a defect in our own postprocess (master-roadmap lessons
+// 20/21). Never let it be discarded again.
 async function extractMenu(
   fixture: Fixture,
-): Promise<Actual & { denseSignaled: boolean }> {
+): Promise<Actual & { denseSignaled: boolean; raw_response: string }> {
   // Phase-1 input: production-mirror compressed (see photoData above).
   const photos = await Promise.all(fixture.photos.map(photoData));
   const phase1 = await runPagedExtraction(photos, mistralApiKey, apiKey);
@@ -125,6 +133,7 @@ async function extractMenu(
       image_quality: phase1.image_quality,
       items: phase1.items,
       denseSignaled: false,
+      raw_response: phase1.raw_response,
     };
   }
   const denseSet = new Set(phase1.needs_crops);
@@ -156,6 +165,7 @@ async function extractMenu(
     image_quality: result.image_quality,
     items: result.items,
     denseSignaled: true,
+    raw_response: result.raw_response,
   };
 }
 
@@ -233,6 +243,13 @@ for (let run = 1; run <= RUNS; run++) {
       `  ${
         report.grams.pass ? "PASS" : "FAIL"
       } ${fixture.menu} grams: ${report.grams.detail}`,
+    );
+    // ALWAYS archive the raw model output — a passing run is exactly when you
+    // want the draw that passed, and a failing run cannot be diagnosed without
+    // it. Cheap (KBs) next to what a live run costs to repeat.
+    await Deno.writeTextFile(
+      `${MENU_DIR}/${fixture.menu}.eval027-r${run}.raw.json`,
+      `${actual.raw_response}\n`,
     );
     if (
       !report.items.pass || !report.options.pass ||

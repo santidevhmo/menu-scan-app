@@ -56,8 +56,13 @@ function normalizeName(value: string): string {
     .normalize("NFD").replaceAll(/[\u0300-\u036f]/g, "");
 }
 
-// Same-name, same-category cards in one extraction are printed variants of ONE
+// Same-name, same-category cards in ONE SECTION are printed variants of ONE
 // dish (POS convention: base variant on the card, alternatives as options).
+// The section is part of the key because variants of a dish sit on a single
+// printed card: el-marcos prints two separate egg cards, REVUELTOS and FRITOS,
+// each listing "Dos huevos naturales 78", and a name+category key folded FRITOS
+// away entirely — deleting a real printed dish while the scorer reported it as
+// a model miss (eval 110).
 // Fold: first card = base; each later card contributes its options, and its
 // non-empty distinct description becomes a priced option — but ONLY when its
 // price differs from the base: printed variants carry their own price, while an
@@ -68,15 +73,18 @@ function normalizeName(value: string): string {
 export function foldVariantCards(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
+  const foldKey = (card: ExtractedMenuItem) =>
+    `${normalizeName(card.name)}#${card.category}#${
+      normalizeName(card.section_title ?? "")
+    }`;
   const cardCounts = new Map<string, number>();
   for (const card of items) {
-    const key = `${normalizeName(card.name)}#${card.category}`;
-    cardCounts.set(key, (cardCounts.get(key) ?? 0) + 1);
+    cardCounts.set(foldKey(card), (cardCounts.get(foldKey(card)) ?? 0) + 1);
   }
   const baseByKey = new Map<string, ExtractedMenuItem>();
   const result: ExtractedMenuItem[] = [];
   for (const card of items) {
-    const key = `${normalizeName(card.name)}#${card.category}`;
+    const key = foldKey(card);
     const base = baseByKey.get(key);
     if (!base) {
       const copy = { ...card, options: [...card.options] };

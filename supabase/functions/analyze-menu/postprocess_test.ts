@@ -4,6 +4,7 @@ import {
   filterServingFormatOptions,
   foldPerUnitPrice,
   foldSectionTitlePunctuation,
+  foldVariantCards,
   promoteSections,
   remapTruncatedSectionTitles,
   stripMenuNumbers,
@@ -339,4 +340,67 @@ Deno.test("foldPerUnitPrice ignores a real choice option", () => {
     options: [{ name: "picaña", price: 165, grams: null }],
   });
   assertEquals(foldPerUnitPrice([dish])[0].price, null);
+});
+
+// eval 110 — foldVariantCards keyed on name+category only, so two DIFFERENT
+// printed cards that share a variant line name were folded together and one was
+// silently deleted (el-marcos prints both REVUELTOS and FRITOS, each with a
+// "Dos huevos naturales 78" line). Variants of one dish sit on one card, hence
+// in one section.
+Deno.test("foldVariantCards keeps same-name cards in DIFFERENT sections", () => {
+  const revueltos = item("Dos huevos naturales", {
+    price: 78,
+    section_title: "REVUELTOS",
+  });
+  const fritos = item("Dos huevos naturales", {
+    price: 78,
+    section_title: "FRITOS",
+  });
+  const out = foldVariantCards([revueltos, fritos]);
+  assertEquals(out.length, 2);
+  assertEquals(out.map((i: ExtractedMenuItem) => i.section_title), [
+    "REVUELTOS",
+    "FRITOS",
+  ]);
+});
+
+Deno.test("foldVariantCards keeps a cross-section card that carries options", () => {
+  const withOpts = (section: string) =>
+    item("Con jamón, chorizo o tocino", {
+      price: 90,
+      section_title: section,
+      options: [{ name: "jamón", price: 90, grams: null }],
+    });
+  assertEquals(
+    foldVariantCards([withOpts("REVUELTOS"), withOpts("FRITOS")]).length,
+    2,
+  );
+});
+
+Deno.test("foldVariantCards still folds true duplicates in the SAME section", () => {
+  const a = item("Dos huevos naturales", {
+    price: 78,
+    section_title: "REVUELTOS",
+  });
+  const b = item("Dos huevos naturales", {
+    price: 78,
+    section_title: "REVUELTOS",
+  });
+  assertEquals(foldVariantCards([a, b]).length, 1);
+});
+
+Deno.test("foldVariantCards still folds a priced variant label in the SAME section", () => {
+  const base = item("CHILAQUILES", {
+    price: 138,
+    description: "Tradicionales.",
+    section_title: "MEXICANOS",
+  });
+  const variant = item("CHILAQUILES", {
+    price: 150,
+    description: "Regionales.",
+    section_title: "MEXICANOS",
+  });
+  const out = foldVariantCards([base, variant]);
+  assertEquals(out.length, 1);
+  assertEquals(out[0].options.map((o) => o.name), ["Regionales."]);
 });

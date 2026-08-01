@@ -543,10 +543,15 @@ Deno.test("runPagedExtraction: N photos run in parallel and cross-page merge", a
 });
 
 Deno.test("runPagedExtraction: cleanup runs AFTER the merge over ALL pages' markdown joined by newline", async () => {
-  // The priced-heading card fold (C2-3) needs the heading `# TORTAS $20`, which
-  // is printed on page 0, to reach an item that arrived on page 1. It can only
-  // fire if the cleanup runs once, post-merge, on the joined text. A per-page
-  // cleanup — the order the OLD Mistral-annotation path used — cannot see it.
+  // THIS TEST IS THE ONLY THING PINNING THE CHAIN ORDER — do not delete it as
+  // redundant. Measured 2026-08-01 (eval 114): on the 9 real fixtures the
+  // per-page and post-merge orders are a STRICT NO-OP, both scoring 40/45, so
+  // neither the replay gate nor the harness comparison notices the difference.
+  // Eight fixtures are single-page and the one two-page menu has no cross-page
+  // fold. The case below is therefore SYNTHETIC on purpose: the priced-heading
+  // card fold (C2-3) needs the heading `# TORTAS $20`, printed on page 0, to
+  // reach an item that arrived on page 1. Only a single post-merge cleanup over
+  // the joined text can see it. Verified RED under the per-page order.
   const markdowns = ["# TORTAS $20", "nothing here"];
   const structured: Structured[] = [
     { items: [rawItem()], raw_response: "s0" },

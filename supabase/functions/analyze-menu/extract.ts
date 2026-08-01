@@ -627,13 +627,23 @@ function foldResults(
 // Phase 1 under ruling 30: per photo, Mistral OCRs it to text and a pinned
 // model structures that text; then the deterministic chain.
 //
-// THE CHAIN ORDER IS LOAD-BEARING. It is copied from scripts/score-c-dumps.ts,
-// the harness that measured 40/45: postprocessItems PER PAGE -> mergeItemSources
-// -> ONE textStructureCleanup over ALL pages' markdown joined by "\n". The C2
-// folds read that markdown to decide whether a heading is a real section or a
-// dish card, so cleaning per page would hide headings printed on another page.
-// (The OLD annotation path cleaned per page because its guard keyed on that
-// photo's own layout `blocks`; the text path uses no blocks at all.)
+// CHAIN ORDER — copied from scripts/score-c-dumps.ts, the harness that measured
+// 40/45: postprocessItems PER PAGE -> mergeItemSources -> ONE
+// textStructureCleanup over ALL pages' markdown joined by "\n".
+//
+// MEASURED 2026-08-01, so nobody re-derives it wrong: cleaning per page instead
+// is a STRICT NO-OP on the 9 fixtures — both orders score 40/45. Eight menus are
+// single-page (where the orders are identical by construction) and brasero-two,
+// the only multi-page one, has no fold reaching across its pages. So this order
+// is NOT defended by the gate; it is defended by one synthetic unit test
+// ("cleanup runs AFTER the merge over ALL pages' markdown joined by newline").
+//
+// It is still the right order: the C2 folds read this markdown to decide whether
+// a heading is a real section or a dish card, so a two-page menu printing a card
+// heading on one page and its priced versions on the next needs the joined text.
+// That case does not exist in the fixture suite yet — the reason to keep it is
+// an argument, not evidence. (The OLD annotation path cleaned per page because
+// its guard keyed on that photo's own layout `blocks`; this path uses none.)
 export async function runPagedExtraction(
   photos: string[],
   mistralKey: string,

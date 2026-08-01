@@ -131,11 +131,18 @@ items = pages.length > 1 ? mergeItemSources(pages.map(p => p.items)) : pages[0].
 items = textStructureCleanup(items, pages.map(p => p.markdown).join("\n"))
 ```
 
-**This order is load-bearing and is the single most likely place to get C3 wrong.** The 40/45 was
-produced by `scripts/score-c-dumps.ts`, which postprocesses PER PAGE, merges, and then runs
-`textStructureCleanup` ONCE over the `"\n"`-joined markdown of all pages. The current edge code
-instead cleans per page (correct for the old path, where the cleanup keyed on per-photo `blocks`).
-Copy the harness order exactly, including the `"\n"` separator.
+**⚠️ THIS PARAGRAPH ORIGINALLY CLAIMED THE OLD ORDER "WILL MOVE DIMS". THAT WAS WRONG AND WAS
+MEASURED WRONG ON 2026-08-01 (eval 114) — DO NOT RE-DERIVE IT.** Cleaning per page instead of once
+post-merge is a **strict no-op on the 9 fixtures: both orders score 40/45.** Eight menus are
+single-page, where the two orders are identical by construction, and brasero-two — the only
+multi-page menu — has no fold reaching across its pages.
+
+The post-merge order is still the one to ship, because it is the one the 40/45 was measured with and
+because the C2 folds read this markdown to decide whether a heading is a real section or a dish card
+— a two-page menu printing a card heading on one page and its priced versions on the next would need
+the joined text. **No such menu exists in the suite, so that is an argument, not evidence.** It is
+pinned by ONE synthetic unit test, verified RED under the per-page order; the replay gate does NOT
+catch it. Copy the harness order exactly, including the `"\n"` separator.
 
 - `mistralCleanup(items, page)` is no longer called; `blocks` are not fetched or used at all. Leave
   `mistralCleanup`/`dropMisattachedOptions`/`Page` in `mistral-cleanup.ts` untouched (prove-then-remove).

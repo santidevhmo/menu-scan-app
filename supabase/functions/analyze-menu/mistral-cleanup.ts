@@ -179,18 +179,68 @@ function cardHeadingName(headings: string[], index: number): string {
     : own;
 }
 
+/** Maps each printed non-heading line to the heading it sits under, so an item
+ *  the model left unsectioned can still be placed on the page. Keyed by
+ *  `textKey` — the SAME normaliser the fold's own comparisons use, so the two
+ *  sides can never disagree (master-roadmap lessons 12/23). */
+function headingOwners(markdown: string): Map<string, string> {
+  const owners = new Map<string, string>();
+  let heading: string | null = null;
+  for (const raw of markdown.split("\n")) {
+    const line = raw.trim();
+    if (!line) continue;
+    if (line.startsWith("#")) {
+      // Strip the printed price: the fold compares this against a SECTION TITLE
+      // ("AGUA"), never against the raw heading ("AGUA $20"). Storing the raw
+      // form made every comparison miss and the change scored exactly zero —
+      // the same two-sides-normalised-differently bug as lessons 12/23.
+      heading = headingText(line).replace(HEADING_PRICE, "").trim();
+      continue;
+    }
+    if (!heading) continue;
+    const key = textKey(line);
+    // First printing wins, and an ambiguous line (the same text printed under
+    // two different headings) is REFUSED rather than guessed.
+    if (owners.has(key)) owners.set(key, "\u0000ambiguous");
+    else owners.set(key, heading);
+  }
+  for (const [key, value] of owners) {
+    if (value === "\u0000ambiguous") owners.delete(key);
+  }
+  return owners;
+}
+
 function foldPricedHeadingCards(
   items: ExtractedMenuItem[],
   markdown?: string,
 ): ExtractedMenuItem[] {
   if (!markdown) return items;
   const headings = markdown.split("\n").filter((line) => line.startsWith("#"));
+  // An item's group comes from the PRINTED PAGE, not from the model's own
+  // section_title, whenever the model declined to set one.
+  //
+  // WHY (eval 117/118): this fold used to group by section_title alone. Across
+  // three identical calls polloteria returned the SAME 95 items every time, but
+  // draw 1 labelled the ice-cream flavours section_title:"AGUA"/"CREMA" while
+  // draws 2 and 3 left them NULL — so the fold fired once and skipped twice,
+  // and the menu scored 42 / 52 / 52 items against a target of ~40. The printed
+  // markdown (`# AGUA $20` followed by plain flavour lines) was identical in all
+  // three. A rule keyed on a choice the model varies is a rule that fires at
+  // random; key it on what the model cannot vary (master-roadmap lesson 25).
+  const owner = headingOwners(markdown);
+  // ONE definition of an item's group, used for BOTH grouping and replacement.
+  // Computing it in two places is how the first attempt built the card and then
+  // never substituted it — the replacement still read `section_title`, so the
+  // change was provably correct and moved the score by exactly zero twice.
+  const groupOf = (it: ExtractedMenuItem): string | null =>
+    it.section_title ?? owner.get(textKey(it.name)) ?? null;
   const sections = new Map<string, ExtractedMenuItem[]>();
   for (const it of items) {
-    if (!it.section_title) continue;
-    const group = sections.get(it.section_title) ?? [];
+    const title = groupOf(it);
+    if (!title) continue;
+    const group = sections.get(title) ?? [];
     group.push(it);
-    sections.set(it.section_title, group);
+    sections.set(title, group);
   }
   const cards = new Map<string, ExtractedMenuItem>();
   for (const [section, children] of sections) {
@@ -221,10 +271,11 @@ function foldPricedHeadingCards(
   }
   const seen = new Set<string>();
   return items.flatMap((it) => {
-    if (!it.section_title || !cards.has(it.section_title)) return [it];
-    if (seen.has(it.section_title)) return [];
-    seen.add(it.section_title);
-    return [cards.get(it.section_title)!];
+    const title = groupOf(it);
+    if (!title || !cards.has(title)) return [it];
+    if (seen.has(title)) return [];
+    seen.add(title);
+    return [cards.get(title)!];
   });
 }
 

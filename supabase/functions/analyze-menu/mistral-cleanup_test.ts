@@ -384,3 +384,63 @@ Deno.test("omitting the markdown stays byte-identical (both fold rules are inert
   ];
   assertEquals(textStructureCleanup(source), source);
 });
+
+// ─── The card fold must not depend on the model's grouping choice (eval 118) ──
+// Across three identical calls polloteria returned the SAME 95 items, but draw 1
+// labelled the ice-cream flavours section_title:"AGUA" while draws 2 and 3 left
+// them NULL. The fold keyed on section_title, so it fired once and skipped
+// twice: 42 / 52 / 52 items. The printed markdown was identical in all three.
+// Both shapes must now produce the same card (master-roadmap lesson 25).
+Deno.test("priced-heading fold places unsectioned items from the printed page", () => {
+  const item = (name: string, section: string | null) => ({
+    name,
+    description: "",
+    price: 20,
+    category: "food" as const,
+    section_title: section,
+    options: [],
+    grams: null,
+  });
+  const markdown = ["# Paletas Heladas", "# AGUA $20", "Uva", "Piña", "Melón"]
+    .join("\n");
+  const sectioned = textStructureCleanup(
+    [item("Uva", "AGUA"), item("Piña", "AGUA"), item("Melón", "AGUA")],
+    markdown,
+  );
+  const unsectioned = textStructureCleanup(
+    [item("Uva", null), item("Piña", null), item("Melón", null)],
+    markdown,
+  );
+  assertEquals(sectioned.length, 1);
+  assertEquals(sectioned[0].name, "Paletas Heladas AGUA");
+  assertEquals(sectioned[0].options.length, 3);
+  // The whole point: the model's choice of section_title changes nothing.
+  assertEquals(unsectioned, sectioned);
+});
+
+// REFUSAL, and it is the part that matters: a line printed under two different
+// headings cannot be placed, so it is left alone rather than guessed at.
+// polloteria prints "Fresa" three times — under AGUA $20, CREMA $30 and
+// MALTEADAS $89. Guessing would attach a 20-peso paleta to the milkshake card.
+Deno.test("an ambiguously printed line is refused, not guessed", () => {
+  const item = (name: string, price: number) => ({
+    name,
+    description: "",
+    price,
+    category: "food" as const,
+    section_title: null,
+    options: [],
+    grams: null,
+  });
+  const markdown = [
+    "# AGUA $20",
+    "Fresa",
+    "Uva",
+    "# CREMA $30",
+    "Fresa",
+    "Nuez",
+  ].join("\n");
+  const out = textStructureCleanup([item("Fresa", 20), item("Uva", 20)], markdown);
+  // Uva is unambiguous and folds; Fresa is printed twice and stays standalone.
+  assertEquals(out.some((i) => i.name === "Fresa" && i.options.length === 0), true);
+});

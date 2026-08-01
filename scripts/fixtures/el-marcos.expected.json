@@ -10,6 +10,10 @@
     "food",
     "drink"
   ],
+  "tolerated_option_names": [
+    "queso panela",
+    "mezcla de quesos"
+  ],
   "sections": [
     "Huevos",
     "Mexicanos",
@@ -101,6 +105,7 @@
     },
     {
       "name_contains": "Chilaquiles",
+      "unchecked": true,
       "options": [
         {
           "name": "Regionales"
@@ -144,8 +149,7 @@
       "name_contains": "Hot Cakes",
       "options": [
         {
-          "name": "jamón",
-          "price": 78
+          "name": "jamón"
         }
       ]
     },

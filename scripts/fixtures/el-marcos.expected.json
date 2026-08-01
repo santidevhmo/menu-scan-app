@@ -175,6 +175,11 @@
           "price": null
         }
       ]
+    },
+    {
+      "name_contains": "huevo revuelto",
+      "unchecked": true,
+      "options": []
     }
   ],
   "image_quality": {

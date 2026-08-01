@@ -348,10 +348,34 @@ const WEIGHT_NOTE = /^\s*\d+(?:[.,]\d+)?\s*(?:gr?|kg|ml|l|oz)\.?\s*$/i;
 // Marlin], eval 052 attempt 4), never a printed choice: the fold convention
 // keeps the base variant on the card, so a real option always names something
 // the item name does not.
+// ...UNLESS the name spells the choice out. "Machaca de Marlín c/huevo O
+// verdura" prints two alternatives; "Omelette de Camarón Y Marlin" lists two
+// ingredients of one dish. Master-roadmap lesson 4 already draws that line, and
+// INLINE_DISJUNCTION already encodes the words. Measured across the 9 fixtures:
+// echoesOwnItemName drops 21 options, this exemption keeps 16, and every one of
+// the 16 is a choice the menu really prints. The eval-052 Omelette case and the
+// guest-house "7 OZ / 10 OZ" sizes are unaffected — neither sits beside an o/or.
+const DISJUNCTION_WORDS = new Set(["o", "u", "or"]);
+
+function offeredAsChoice(optionName: string, itemName: string): boolean {
+  const opt = normalizeName(optionName).split(" ").filter(Boolean);
+  const name = normalizeName(itemName).split(" ").filter(Boolean);
+  if (opt.length === 0) return false;
+  for (let at = 0; at + opt.length <= name.length; at++) {
+    if (name.slice(at, at + opt.length).join(" ") !== opt.join(" ")) continue;
+    if (
+      DISJUNCTION_WORDS.has(name[at - 1] ?? "") ||
+      DISJUNCTION_WORDS.has(name[at + opt.length] ?? "")
+    ) return true;
+  }
+  return false;
+}
+
 function echoesOwnItemName(optionName: string, itemName: string): boolean {
   const opt = normalizeName(optionName);
   const item = ` ${normalizeName(itemName)} `;
-  return opt.length > 0 && item.includes(` ${opt} `);
+  return opt.length > 0 && item.includes(` ${opt} `) &&
+    !offeredAsChoice(optionName, itemName);
 }
 
 export function filterServingFormatOptions(

@@ -427,3 +427,40 @@ Deno.test("filterServingFormatOptions drops a bare EA option", () => {
   });
   assertEquals(filterServingFormatOptions([shrimp])[0].options, []);
 });
+
+// eval 112 — echoesOwnItemName drops an option whose words appear in the item's
+// own name. That is right for self-decomposition ("Omelette de Camarón Y Marlin"
+// → fake options), but wrong when the name spells out a printed CHOICE
+// ("Machaca de Marlín c/huevo O verdura"). Master-roadmap lesson 4: y/and joins
+// ingredients, o/or marks a choice.
+Deno.test("keeps an option the item name offers as a choice (…c/huevo o verdura)", () => {
+  const dish = item("Machaca de Marlín c/huevo o verdura", {
+    price: 98,
+    options: [
+      { name: "huevo", price: null, grams: null },
+      { name: "verdura", price: null, grams: null },
+    ],
+  });
+  assertEquals(
+    filterServingFormatOptions([dish])[0].options.map((o) => o.name),
+    ["huevo", "verdura"],
+  );
+});
+
+Deno.test("still drops self-decomposition joined by y/and (eval 052 Omelette)", () => {
+  const dish = item("Omelette de Camarón y Marlin", {
+    price: 98,
+    options: [
+      { name: "Camarón", price: null, grams: null },
+      { name: "Marlin", price: null, grams: null },
+    ],
+  });
+  assertEquals(filterServingFormatOptions([dish])[0].options, []);
+});
+
+Deno.test("still drops an echo with no disjunction anywhere near it", () => {
+  const dish = item("Ensalada Verde", {
+    options: [{ name: "Verde", price: null, grams: null }],
+  });
+  assertEquals(filterServingFormatOptions([dish])[0].options, []);
+});

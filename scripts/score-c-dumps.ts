@@ -60,19 +60,31 @@ export function cleanForScore(items: ExtractedMenuItem[], markdown?: string): {
 }
 
 /**
- * Rebuild a menu's items from the archived RAW model responses through the real
- * chain: postprocessItems per page, then mergeItemSources — the order
- * probe-c-textstructure.ts uses live, and the order production uses.
+ * A GATE MAY ONLY EVER READ THE MOST UPSTREAM CACHED ARTIFACT — the raw model
+ * response. Everything downstream of it (`.dump.json`, `.clean.dump.json`,
+ * `.actual.json`) is DERIVED: it was produced by the code as it stood when the
+ * probe ran, so scoring it makes the gate blind to the very code it claims to
+ * measure, and a real change reads as "no change".
  *
- * The cached `.dump.json` files were postprocessed at probe time, so scoring
- * them makes this harness BLIND to any change in postprocess.ts (found in eval
- * 110: three postprocess fixes scored a flat 35/45 here while actually being
- * worth +2). Rebuilding is byte-identical at unchanged code and is the only way
- * postprocess is really gated.
+ * That is not hypothetical. This harness used to score `.dump.json`, which had
+ * been postprocessed at probe time, and re-ran only `mistral-cleanup`. Eval
+ * 110's three `postprocess.ts` fixes therefore scored a flat 35/45 while
+ * actually being worth +2 dims. It went unnoticed because every C2 rule until
+ * then happened to live in `mistral-cleanup.ts`, which IS re-run.
+ *
+ * So: rebuild from `.raw.json` through the real chain — `postprocessItems` per
+ * page, then `mergeItemSources` — the order `probe-c-textstructure.ts` uses
+ * live and production uses. Verified a strict no-op at unchanged code.
+ *
+ * `transform` exists ONLY so `score-c-dumps_test.ts` can inject a stub and
+ * prove this function is still sensitive to it. Never pass it in production
+ * code: a caller that overrides it is re-creating the eval-110 blindness.
  */
 export async function itemsFromRaw(
   menu: string,
   tag: string,
+  transform: (items: ExtractedMenuItem[]) => ExtractedMenuItem[] =
+    postprocessItems,
 ): Promise<ExtractedMenuItem[]> {
   const pages = await Promise.all(
     ocrSourcePaths(menu).map(async (_, page) => {
@@ -83,7 +95,7 @@ export async function itemsFromRaw(
         .items as ExtractedMenuItem[];
     }),
   );
-  const processed = pages.map(postprocessItems);
+  const processed = pages.map(transform);
   return processed.length > 1 ? mergeItemSources(processed) : processed[0];
 }
 
@@ -99,26 +111,18 @@ if (import.meta.main) {
         new URL(`./fixtures/${menu}.expected.json`, import.meta.url),
       ),
     );
-    const dump = JSON.parse(
-      await Deno.readTextFile(`${MENU_DIR}/${menu}.${tag}-r1.dump.json`),
-    );
-    if (!Array.isArray(dump.items)) {
-      throw new Error(`${menu}: dump has no items`);
-    }
-    // FROM_DUMP=1 scores the cached post-postprocess dumps (the pre-eval-110
-    // behaviour) — useful only to confirm an archived number, never to gate a
-    // postprocess change.
-    dump.items = Deno.env.get("FROM_DUMP") === "1"
-      ? dump.items
-      : await itemsFromRaw(menu, tag);
+    const items = await itemsFromRaw(menu, tag);
     const markdown = (await Promise.all(
       ocrSourcePaths(menu).map(async (path) =>
         ocrMarkdown(JSON.parse(await Deno.readTextFile(path)))
       ),
     )).join("\n");
-    const cleaned = cleanForScore(dump.items as ExtractedMenuItem[], markdown);
+    const cleaned = cleanForScore(items, markdown);
     const report = scoreMenu(fixture, {
-      image_quality: dump.image_quality ?? { usable: true, issues: [] },
+      // The archived dumps only ever carried this constant (archivePayloads
+      // hardcodes it), and image_quality is not in DIMS — so this is identical
+      // to what the old dump-reading path scored.
+      image_quality: { usable: true, issues: [] },
       items: cleaned.items,
     });
     const passing = DIMS.filter((dim) => report[dim].pass);

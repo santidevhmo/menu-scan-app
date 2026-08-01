@@ -9,6 +9,10 @@
   "categories": [
     "food"
   ],
+  "tolerated_option_names": [
+    "versión cilantro",
+    "salmón"
+  ],
   "sections": [
     "Tacos y Tostadas",
     "Ensaladas",

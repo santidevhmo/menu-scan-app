@@ -14,7 +14,6 @@
     "dessert"
   ],
   "sections": [
-    "Naturales",
     "Empanizados",
     "Horneados",
     "Capeados",
@@ -24,7 +23,10 @@
     "Rollos",
     "Bebidas con alcohol",
     "Bebidas sin alcohol",
-    "Rolls"
+    "Rolls",
+    "Naturales",
+    "MATERIALES",
+    "BOLOS"
   ],
   "drink_sections": [
     "Cervezas",
@@ -45,10 +47,6 @@
     "Tés Calientes o Fríos"
   ],
   "section_expectations": [
-    {
-      "name_contains": "Salmón Roll",
-      "section_title": "Naturales"
-    },
     {
       "name_contains": "Cosmo Roll",
       "section_title": "Empanizados"

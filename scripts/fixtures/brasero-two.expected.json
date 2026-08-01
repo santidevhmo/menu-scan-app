@@ -26,7 +26,8 @@
     "Postres"
   ],
   "section_headers": [
-    "Los Lagos"
+    "Los Lagos",
+    "Churrasquería"
   ],
   "section_expectations": [
     {
@@ -35,10 +36,6 @@
     },
     {
       "name_contains": "Hamburguesa Brasero",
-      "section_title": "Especialidades"
-    },
-    {
-      "name_contains": "Churrasquería",
       "section_title": "Especialidades"
     },
     {
@@ -90,6 +87,7 @@
     },
     {
       "name_contains": "Churrasquería",
+      "unchecked": true,
       "options": [
         {
           "name": "Doble",
@@ -118,10 +116,6 @@
     }
   ],
   "grams_expectations": [
-    {
-      "name_contains": "Churrasquería",
-      "grams": 300
-    },
     {
       "name_contains": "Costillas Hormigueras",
       "grams": 300

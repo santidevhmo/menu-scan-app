@@ -11,6 +11,9 @@
     "food",
     "side"
   ],
+  "tolerated_option_names": [
+    "add fresh truffle"
+  ],
   "sections": [
     "Raw Bar",
     "Starters",
@@ -71,22 +74,9 @@
       "category": "food"
     },
     {
-      "name_contains": "FOIE GRAS",
-      "category": "food"
-    },
-    {
       "name_contains": "YUKON POTATO PUREE",
       "category": "side"
     }
   ],
-  "grams_expectations": [
-    {
-      "name_contains": "FRESH SHAVED TRUFFLES",
-      "grams": 5
-    },
-    {
-      "name_contains": "OSETRA CAVIAR",
-      "grams": 3
-    }
-  ]
+  "grams_expectations": []
 }

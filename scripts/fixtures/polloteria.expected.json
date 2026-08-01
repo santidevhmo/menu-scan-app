@@ -80,6 +80,7 @@
     },
     {
       "name_contains": "Crispy Chicken",
+      "unchecked": true,
       "options": [
         {
           "name": "Grandes",

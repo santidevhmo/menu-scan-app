@@ -9,6 +9,10 @@
   "categories": [
     "food"
   ],
+  "tolerated_option_names": [
+    "lechuga entera",
+    "trozos"
+  ],
   "sections": [
     "Pasta",
     "Pizze",

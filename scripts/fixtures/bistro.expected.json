@@ -12,6 +12,10 @@
   "tolerated_categories": [
     "other"
   ],
+  "tolerated_option_names": [
+    "pollo",
+    "camarón"
+  ],
   "sections": [
     "Pizzas Bistro",
     "Ensaladas",

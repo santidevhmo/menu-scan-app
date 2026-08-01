@@ -104,7 +104,10 @@ async function request(
 
 if (import.meta.main) {
   const menu = Deno.args[0] ?? "polloteria";
-  const cachePaths = ocrSourcePaths(menu);
+  // OCR_SRC: comma-separated raw OCR response paths overriding the b1 cache —
+  // lets a probe vary ONLY the Stage-1a text (eval 121: passthrough vs cached).
+  const cachePaths = Deno.env.get("OCR_SRC")?.split(",") ??
+    ocrSourcePaths(menu);
   const markdowns = await Promise.all(
     cachePaths.map(async (path) =>
       ocrMarkdown(JSON.parse(await Deno.readTextFile(path)))

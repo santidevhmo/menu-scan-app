@@ -13,7 +13,7 @@
 ## Context primer (you have zero context — read this)
 
 - **Product:** Menu Scan photographs a restaurant menu → GPT-4o Vision extracts every food item (+options/sections/categories/grams) → a second GPT-4o call enriches macros → items sort by the user's nutritional goals. Extraction quality is gated by a frozen oracle-scored regression suite.
-- **Two checkouts, one branch matters:** ALL work in this plan happens in the worktree `/private/tmp/menu-scan-app-extraction-eval-harness` (branch `feat/extraction-eval-harness`) — commit there, early and often. The main checkout `/Users/santiagoaguirre/Desktop/CODING/menu-scan-app` (branch `feat/selectable-options`) is ONLY for device builds; client files are copied there UNCOMMITTED. **Never commit in the main checkout.**
+- **Two checkouts, one branch matters:** ALL work in this plan happens in the worktree `/private/tmp/menu-scan-app-extraction-eval-harness` (branch `feat/extraction-eval-harness`) — commit there, early and often. The primary folder (`feat/selectable-options`) `/Users/santiagoaguirre/Desktop/CODING/menu-scan-app` (branch `feat/selectable-options`) is ONLY for device builds; client files are copied there UNCOMMITTED. **Never commit in the primary folder (`feat/selectable-options`).**
 - **Key files (worktree-relative):**
   - `src/lib/compressImage.ts` — `prepareImage` (phase-1 upload compression, the constants this plan changes) and `prepareTile` (dense-tile cutter, ≤2048px PNG from originals — DO NOT touch).
   - `src/lib/analyzeMenu.ts` — client `extractMenu`: compresses each photo at upload, calls edge `stage:"extract"`; on `{needs_crops}` cuts 2×2 tiles from `photo.uri` (originals) and re-submits `stage:"extract-pages"`.
@@ -23,17 +23,17 @@
   - `scripts/fixtures/<menu>.expected.json` — hand-counted oracles (`menu`, `photos[]`, optional `dense: true` — only nikkori). NEVER edit fixtures; oracle changes are user-only decisions.
   - `supabase/functions/analyze-menu/extract.ts` — `runPagedExtraction` (phase-1; returns `{needs_crops}` on dense) and `runGroupedExtraction` (extract-pages). DO NOT touch.
 - **Menu photos:** `/Users/santiagoaguirre/Downloads/MenusTesting/` — `BraseroMenu.png`, `BraseroMenuTwo.png`+`BraseroMenuTwo_TWo.png` (one 2-page menu), `CasaNostraMenu.png`, `ElMarcosMenu.png`, `MochomosMenu.png`, `NikkoriMenu.png` (the dense one — phase-1 must return `needs_crops` for it).
-- **Why this plan exists (measured facts):** production 1024px/q0.7 compression loses options+grams on brasero and el-marcos and sections on mochomos vs originals (ledger eval 049); device scans showed further degradation (ledger T9). The worktree's intake code already stores ORIGINAL photo uri/dims; the main checkout's stale intake files (`GalleryButton.tsx`, `(tabs)/index.tsx`, `scan.store.ts`) still compress at intake — the full-slice sync in Task 4 fixes that on the next device build.
+- **Why this plan exists (measured facts):** production 1024px/q0.7 compression loses options+grams on brasero and el-marcos and sections on mochomos vs originals (ledger eval 049); device scans showed further degradation (ledger T9). The worktree's intake code already stores ORIGINAL photo uri/dims; the primary folder (`feat/selectable-options`)'s stale intake files (`GalleryButton.tsx`, `(tabs)/index.tsx`, `scan.store.ts`) still compress at intake — the full-slice sync in Task 4 fixes that on the next device build.
 - **Cost/ops rules (learned the expensive way):**
   - `OPENAI_API_KEY` is in the worktree's `.env.local` (never print or commit it). gpt-4o Tier-1: 30k TPM / 90k TPD — campaigns can exhaust the daily window.
   - Long live runs: `nohup deno run … > log 2>&1 &` then poll the log file. NEVER pipe live output through tail/grep; foreground Bash dies at 10 min and kills the run.
   - Validate offline ($0) before paying for live runs. One live run proves nothing (GPT-4o is nondeterministic at temp 0/seed 17) — the ambiguity rule in Checkpoint A exists for that.
-  - Every code change gets its check first (self-check or `deno check`); client files also need `npx tsc --noEmit` in the MAIN checkout after syncing.
+  - Every code change gets its check first (self-check or `deno check`); client files also need `npx tsc --noEmit` in the primary folder (`feat/selectable-options`) after syncing.
 
 ## Global Constraints
 
 - Worktree `/private/tmp/menu-scan-app-extraction-eval-harness`, branch `feat/extraction-eval-harness` — all commits go here.
-- Main checkout `/Users/santiagoaguirre/Desktop/CODING/menu-scan-app` — copy files in, never commit.
+- primary folder (`feat/selectable-options`) `/Users/santiagoaguirre/Desktop/CODING/menu-scan-app` — copy files in, never commit.
 - No changes to: P1/P2 prompts, `EXTRACT_SCHEMA`, `extract.ts`, `postprocess.ts`, `merge.ts`, `index.ts` (edge fn), `prepareTile`, any fixture `.expected.json`.
 - Uploads must stay under the edge fn's 10,000,000-char base64 cap (`MAX_BASE64_LEN`).
 - Winning setting default: **2048px / JPEG q0.85** (`sips` formatOptions 85). If Checkpoint A picks a different winner, substitute it at the exact locations flagged `⟨WINNER⟩` — there are only three: `PROD_MAX_DIMENSION`/`PROD_JPEG_QUALITY` in `scripts/photo-input.ts` (Task 1) and `MAX_DIMENSION`/`QUALITY` in `src/lib/compressImage.ts` (Task 4).
@@ -379,15 +379,15 @@ git commit -m "feat(eval): gate phase-1 input switched to production-mirror comp
 
 ---
 
-### Task 4: Client constants + full slice sync to the main checkout
+### Task 4: Client constants + full slice sync to the primary folder (`feat/selectable-options`)
 
 **Files:**
 - Modify: `src/lib/compressImage.ts` (worktree — canonical)
-- Copy (worktree → main checkout, UNCOMMITTED): 8 client files listed in Step 3.
+- Copy (worktree → primary folder (`feat/selectable-options`), UNCOMMITTED): 8 client files listed in Step 3.
 
 **Interfaces:**
 - Consumes: Checkpoint A's winning setting (default 2048 / q0.85).
-- Produces: `prepareImage` compressing to `⟨WINNER⟩`; a main checkout whose intake files finally store ORIGINAL photos (they exist on this branch already — the sync carries them over).
+- Produces: `prepareImage` compressing to `⟨WINNER⟩`; a primary folder (`feat/selectable-options`) whose intake files finally store ORIGINAL photos (they exist on this branch already — the sync carries them over).
 
 - [ ] **Step 1: Raise the constants in the worktree**
 
@@ -426,9 +426,9 @@ git commit -m "feat(client): phase-1 upload compression ceiling 1024/q0.7 -> 204
 
 Expected: tsc exits 0.
 
-- [ ] **Step 3: Sync the FULL client slice into the main checkout (uncommitted)**
+- [ ] **Step 3: Sync the FULL client slice into the primary folder (`feat/selectable-options`) (uncommitted)**
 
-The T9 device build missed 3 of these files — the main checkout still compresses at intake and cuts tiles from compressed copies. Copy all 8:
+The T9 device build missed 3 of these files — the primary folder (`feat/selectable-options`) still compresses at intake and cuts tiles from compressed copies. Copy all 8:
 
 ```bash
 WT=/private/tmp/menu-scan-app-extraction-eval-harness
@@ -449,7 +449,7 @@ done
 - [ ] **Step 4: Main-checkout typecheck**
 
 Run: `cd /Users/santiagoaguirre/Desktop/CODING/menu-scan-app && npx tsc --noEmit`
-Expected: exit 0. Do NOT commit anything in the main checkout.
+Expected: exit 0. Do NOT commit anything in the primary folder (`feat/selectable-options`).
 
 ---
 
@@ -627,7 +627,7 @@ Expected for close: `3/3`. On failure: diagnose from the run log + failure dumps
 
 **Files:** none (build + scans + offline scoring).
 
-- [ ] **Step 1: User builds and runs on iPhone from the main checkout** (dev build with Metro console visible; the synced slice from Tasks 4–5 is what ships).
+- [ ] **Step 1: User builds and runs on iPhone from the primary folder (`feat/selectable-options`)** (dev build with Metro console visible; the synced slice from Tasks 4–5 is what ships).
 
 - [ ] **Step 2: Scan protocol** — gallery-import (same photos as fixtures, from `/Users/santiagoaguirre/Downloads/MenusTesting/` synced to the phone): (a) NikkoriMenu.png — expect `dense pages detected [0]`, tile flow, one unified menu; (b) BraseroMenuTwo.png + BraseroMenuTwo_TWo.png — expect single-phase 2-page merge. For each, capture from the Metro console: all `[fidelity]` lines + the full `STAGE 1 EXTRACTION RESULT` JSON block, saved to `/tmp/device-nikkori.json` and `/tmp/device-brasero-two.json` (the `items` array payload).
 

@@ -8,7 +8,7 @@ Date: 2026-07-03
 - Active implementation worktree:
   `/private/tmp/menu-scan-app-extraction-eval-harness`
 - Active branch: `feat/extraction-eval-harness`
-- Main checkout branch: `feat/selectable-options`
+- primary folder (`feat/selectable-options`) branch: `feat/selectable-options`
 - `feat/selectable-options` was pushed to
   `origin/feat/selectable-options` before this work began.
 - Worktree is expected to be clean after the handoff commit.

@@ -22,7 +22,7 @@
 - **Failure handling:** any terminal non-dense failure fails the whole scan with the page/group index; no silent partial menus.
 - **Exit gate:** full 6-menu 3/3 via `scripts/eval-027-live.ts`, frozen dims `[items, options, section_context, categories, grams]` + detector assertions, nikkori through the production path. Then physical-iPhone checklist (Apple Developer is PAID — fix the stale AGENTS.md blocker in Task 9).
 - **A/B latitude (user):** variation testing is encouraged and pre-approved; log every comparison in the ledger (newest last). Costs unconstrained.
-- **Ledger + diagram discipline** as in the roadmap (diagram lives in the MAIN checkout; re-copy to `~/Downloads` on close).
+- **Ledger + diagram discipline** as in the roadmap (diagram lives in the primary folder (`feat/selectable-options`); re-copy to `~/Downloads` on close).
 - Live calls need `OPENAI_API_KEY` (in worktree `.env.local`). ~$0.03/call.
 - **Long runs:** launch with `nohup … > log 2>&1 &` + monitor the log; NEVER pipe the live gate through grep/tail (roadmap Lessons #8).
 
@@ -809,7 +809,7 @@ git commit -m "docs: ledger — auto-cutter exit gate 3/3"
 ### Task 9: Device verification on physical iPhone
 
 **Files:**
-- Modify: `/Users/santiagoaguirre/Desktop/CODING/menu-scan-app/AGENTS.md` (main checkout — Status/Pending Blockers: replace the "NOT YET PAID" Apple Developer line with `- **Apple Developer Program — PAID ✅ (2026-07-10).** Device testing unblocked.`)
+- Modify: `/Users/santiagoaguirre/Desktop/CODING/menu-scan-app/AGENTS.md` (primary folder (`feat/selectable-options`) — Status/Pending Blockers: replace the "NOT YET PAID" Apple Developer line with `- **Apple Developer Program — PAID ✅ (2026-07-10).** Device testing unblocked.`)
 - No code files.
 
 **Precondition:** deploy the CURRENT worktree function to the test project (allowed: deploy-to-TEST only): `cd /private/tmp/menu-scan-app-extraction-eval-harness && supabase functions deploy analyze-menu` (needs project link + `OPENAI_API_KEY` secret already set; verify with `supabase secrets list`). The deployed fn was an F2-era snapshot — this deploy brings F1–F4 + wiring + cutter to the test endpoint for the first time; note it in the ledger.
@@ -825,17 +825,17 @@ git commit -m "docs: ledger — auto-cutter exit gate 3/3"
 3. Multi-page scan (both brasero-two pages) → expect: one unified results list, no duplicate Taco Loiro.
 4. Note latency feel for the dense flow (5 calls; parallel tiles ≈ one call wall-clock + phase 1).
 
-- [ ] **Step 3: Record + commit ledger note (worktree); AGENTS.md edit stays uncommitted in main checkout (doc-batch precedent)**
+- [ ] **Step 3: Record + commit ledger note (worktree); AGENTS.md edit stays uncommitted in primary folder (`feat/selectable-options`) (doc-batch precedent)**
 
 ---
 
 ### Task 10: Close-out — diagram, roadmap, memory
 
 **Files:**
-- Modify (MAIN checkout): `docs/superpowers/diagrams/menu-extraction-pipeline.md` — dense branch 🔴→🟢: replace the old `extract-crops` dense branch in the sequence diagram with the two-phase flow (phase-1 detector → `needs_crops` → client cuts originals via `gridCropRects` → `stage:"extract-pages"` → grouped extraction → one menu); update Call order + Status table (auto-cutter row 🟢 CLOSED with date + gate eval number); note the legacy `extract-crops` stage as unused/cleanup-flagged. Re-copy to `~/Downloads/menu-extraction-pipeline.md`.
-- Modify (MAIN checkout): `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md` — tick critical-path #2 with a summary line (detector, stateless two-phase, tile A/B outcome, DENSE_TILES deleted, device-verified).
+- Modify (primary folder (`feat/selectable-options`)): `docs/superpowers/diagrams/menu-extraction-pipeline.md` — dense branch 🔴→🟢: replace the old `extract-crops` dense branch in the sequence diagram with the two-phase flow (phase-1 detector → `needs_crops` → client cuts originals via `gridCropRects` → `stage:"extract-pages"` → grouped extraction → one menu); update Call order + Status table (auto-cutter row 🟢 CLOSED with date + gate eval number); note the legacy `extract-crops` stage as unused/cleanup-flagged. Re-copy to `~/Downloads/menu-extraction-pipeline.md`.
+- Modify (primary folder (`feat/selectable-options`)): `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md` — tick critical-path #2 with a summary line (detector, stateless two-phase, tile A/B outcome, DENSE_TILES deleted, device-verified).
 - Memory: update `project_prerelease_wiring_status.md` (or a new `project_autocutter_status.md` + MEMORY.md line): #2 closed, next = #3 Stage-2 enrichment benchmark; note the deployed-fn drift is now partially resolved (test deploy in Task 9).
-- Verify: `git status --short` clean in worktree; main checkout shows only doc edits.
+- Verify: `git status --short` clean in worktree; primary folder (`feat/selectable-options`) shows only doc edits.
 
 - [ ] **Step 1: Diagram + Downloads copy**
 - [ ] **Step 2: Roadmap tick**

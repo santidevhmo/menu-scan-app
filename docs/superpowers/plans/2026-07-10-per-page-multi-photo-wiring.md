@@ -22,7 +22,7 @@
 - **Exit gate:** full 6-menu gate green 3/3 via `scripts/eval-027-live.ts` — all frozen dims (`items`, `options`, `section_context`, `categories`, `grams`). NOT `eval-extraction.ts --gate` (Nikkori needs the crop-merge path).
 - **Never hardcode menu-specific values or counts** in solution code.
 - **Ledger discipline:** log the wiring + detail-lock decision in `docs/superpowers/extraction-iteration-ledger.md` (worktree), newest last; results in `docs/superpowers/extraction-eval-log.md`.
-- **Diagram discipline:** on close, update `docs/superpowers/diagrams/menu-extraction-pipeline.md` **in the main checkout** (`/Users/santiagoaguirre/Desktop/CODING/menu-scan-app`) — Stage-1 per-page note + status flags — and re-copy to `~/Downloads/menu-extraction-pipeline.md`.
+- **Diagram discipline:** on close, update `docs/superpowers/diagrams/menu-extraction-pipeline.md` **in the primary folder (`feat/selectable-options`)** (`/Users/santiagoaguirre/Desktop/CODING/menu-scan-app`) — Stage-1 per-page note + status flags — and re-copy to `~/Downloads/menu-extraction-pipeline.md`.
 - Live evals cost ~$0.03/GPT-4o call and need `OPENAI_API_KEY` in the env. Full 3-run gate ≈ 30 calls ≈ $0.90 (user-approved; cost is not a pre-release concern).
 
 ---
@@ -758,13 +758,13 @@ git commit -m "docs: ledger + eval log for per-page production wiring (3/3 gate)
 ### Task 6: Diagram discipline + roadmap sync
 
 **Files:**
-- Modify: `/Users/santiagoaguirre/Desktop/CODING/menu-scan-app/docs/superpowers/diagrams/menu-extraction-pipeline.md` (MAIN checkout — where prior features' diagram edits live, currently uncommitted like theirs)
-- Modify: `/Users/santiagoaguirre/Desktop/CODING/menu-scan-app/docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md` (MAIN checkout — tick critical-path #1)
+- Modify: `/Users/santiagoaguirre/Desktop/CODING/menu-scan-app/docs/superpowers/diagrams/menu-extraction-pipeline.md` (primary folder (`feat/selectable-options`) — where prior features' diagram edits live, currently uncommitted like theirs)
+- Modify: `/Users/santiagoaguirre/Desktop/CODING/menu-scan-app/docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md` (primary folder (`feat/selectable-options`) — tick critical-path #1)
 - Copy to: `~/Downloads/menu-extraction-pipeline.md`
 
 - [ ] **Step 1: Update the sequence diagram**
 
-In the main checkout's `menu-extraction-pipeline.md`: update the Stage-1 extract flow to show `stage:"extract"` → `runPagedExtraction` (1 photo ⇒ 1 call; N photos ⇒ N parallel `detail:"high"` calls → `mergeItemSources` → ONE unified menu), note `extractWithRetry` (one retry on timeout/length) now wraps every production call, note `mergeItemSources`' new home (`analyze-menu/merge.ts`), and flip the "production wiring" status flag to 🟢 in the status legend/table. P1/P2 prompt appendix is untouched (no prompt change).
+In the primary folder (`feat/selectable-options`)'s `menu-extraction-pipeline.md`: update the Stage-1 extract flow to show `stage:"extract"` → `runPagedExtraction` (1 photo ⇒ 1 call; N photos ⇒ N parallel `detail:"high"` calls → `mergeItemSources` → ONE unified menu), note `extractWithRetry` (one retry on timeout/length) now wraps every production call, note `mergeItemSources`' new home (`analyze-menu/merge.ts`), and flip the "production wiring" status flag to 🟢 in the status legend/table. P1/P2 prompt appendix is untouched (no prompt change).
 
 - [ ] **Step 2: Re-copy to Downloads**
 
@@ -774,7 +774,7 @@ cp /Users/santiagoaguirre/Desktop/CODING/menu-scan-app/docs/superpowers/diagrams
 
 - [ ] **Step 3: Tick the roadmap**
 
-In the main checkout's roadmap, "Release scope decision" → "Pre-release critical path" item 1, mark it done:
+In the primary folder (`feat/selectable-options`)'s roadmap, "Release scope decision" → "Pre-release critical path" item 1, mark it done:
 `1. **Production wiring of the per-page multi-photo recipe** ✅ DONE 2026-07-10 — shared `runPagedExtraction` in extract.ts, edge + eval both call it; multi-page detail locked to "high" (auto A/B deferred to cost pass); see the worktree plan/spec.`
 
 - [ ] **Step 4: Verify nothing else drifted, report**
@@ -783,6 +783,6 @@ In the main checkout's roadmap, "Release scope decision" → "Pre-release critic
 cd /private/tmp/menu-scan-app-extraction-eval-harness && git status --short
 cd /Users/santiagoaguirre/Desktop/CODING/menu-scan-app && git status --short
 ```
-Expected: worktree clean (all commits made); main checkout shows only the diagram + roadmap edits (left uncommitted, matching how prior features' doc edits are staged there — the user batches doc commits in the main checkout).
+Expected: worktree clean (all commits made); primary folder (`feat/selectable-options`) shows only the diagram + roadmap edits (left uncommitted, matching how prior features' doc edits are staged there — the user batches doc commits in the primary folder (`feat/selectable-options`)).
 
 Main-checkout doc edits are NOT committed by this plan (precedent: F1–F4 diagram/roadmap edits sit uncommitted on `feat/selectable-options`). Mention this in the final report.

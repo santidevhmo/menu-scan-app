@@ -1326,3 +1326,23 @@ Rules:
 - **METHOD CHANGE, effective now:** `scripts/score-c-draws.ts` replaces single-draw scoring as the measurement of record. **Never quote a single-draw number as the extractor's quality again** — report the range (master-roadmap lesson 25). `score-c-dumps.ts` stays as the single-draw tool the guards and the C3 replay gate are pinned to.
 - Cost ~$0.27 (27 structuring calls, Stage-1a free from cache). Running total ~**$0.91**.
 - **NEXT, in this order (planner recommendation):** (1) $0 — make `eval-027-live.ts` archive raw responses; without it the release-blocking short read is undiagnosable. (2) $0 — re-derive the polloteria and brasero-two folds against ALL THREE draws instead of one, using the firing-list discipline (lessons 11-13, 22); these two menus are worth up to 4 dims and are the only brittle ones. (3) Only then re-run C4, and gate on the RANGE, not on a single pass.
+
+## Eval 118 — diagnosing the two brittle menus ($0): one is a RULE keyed on the wrong thing, the other is NOT FIXABLE by a layout rule
+
+- **polloteria — the fold is keyed on something the model varies, and that is repairable.** All three draws return **95 pre-cleanup items**; cleanup then yields **42 / 52 / 52**. So the MODEL is stable here and OUR RULE is what differs. Cause: `foldPricedHeadingCards` groups by the model's `section_title`. Draw 1 labels the ice-cream flavours `section_title:"AGUA"`/`"CREMA"`/`"MALTEADAS"` and the fold fires (ruling 33 → `Paletas Heladas Agua` + 6 flavour options). **Draws 2 and 3 label the identical items `section_title: null`**, the fold skips null sections entirely, and 18 flavours survive as standalone dishes ⇒ 52 items, `items` FAILS. **The printed markdown is identical in all three draws (`# AGUA $20` followed by plain flavour lines) — it is only the model's grouping choice that moved.** ⇒ **PROPOSED FIX: key the fold on the MARKDOWN's heading structure (which printed lines fall under which heading) instead of on the model's `section_title`.** That is master-roadmap lesson 25(c) applied literally — prefer a rule keyed on what the model cannot vary. Needs the full firing-list discipline across 9 menus × 3 draws before adoption (lessons 11-13, 22); NOT yet built.
+- **brasero-two — PLANNER RECOMMENDATION: DO NOT BUILD A RULE FOR THIS.** The card prints as:
+
+  ```
+  # CHURRASQUERÍA
+  SENCILLA (300gr) $495          <- variant of the card
+  DOBLE (600gr) $950             <- variant of the card
+  EN TACO: …  /  EN TOSTADA: …   <- serving styles
+  PÍDELO CON QUESO: … por $10.   <- upsell
+  TACO JR SIRLOIN (50gr) $90     <- a DIFFERENT dish
+  QUESADILLA (30gr) $60          <- a DIFFERENT dish
+  ```
+
+  The truth (which draws 2/3 satisfy at 5/5) folds the first five into a Shape-A card and keeps the last two as separate dishes. **All seven print identically — plain lines under one heading, most in `NAME (WEIGHT) $PRICE` form. There is NO layout discriminator between them.** The only thing separating `SENCILLA` from `QUESADILLA` is that one is a size word and the other is a different food — **vocabulary, which ruling 7 forbids and lesson 22 explicitly deprioritises against layout.** Note also that `# HAMBURGUESA BRASERO` on the same menu is a `#` heading that IS a dish, so this menu's OCR marks dish cards as headings routinely and the existing "a real section is a `#` heading" guard (which correctly protects the other 8 menus) cannot be relaxed here without collateral.
+- **⚠️ CORRECTION TO EVAL 116's WORDING — the third self-correction today.** That entry said the fold "FIRES" on all three markdowns. **No fold ever fired for CHURRASQUERÍA.** The July archive already contained `CHURRASQUERÍA|495|opts=5` *before* `textStructureCleanup`, and pre/post counts are both 43 — the MODEL produced Shape A natively. My probe's `foldFired()` inspected the OUTPUT shape, which was already present in the INPUT, so it reported a fold that never happened. **Eval 116's CONCLUSION is unaffected** — it rested on the bisect (live items + cached markdown ⇒ wrong shape; cached items + live markdown ⇒ right shape), which is untouched. But the mechanism was described wrongly. Lesson 23 says "if a probe surprises you, suspect the probe"; **this result did not surprise me, which is why it went unchecked — a confirming result deserves the same audit as a surprising one.**
+- **Observed frequency of the brasero-two bad shape: 4 of 7 draws** (July archive good; offline draws 1/2/3 = bad/good/good; live r1/r2/r3 = bad/bad/bad). Roughly a coin flip on ~3 dims, with no deterministic repair available.
+- $0. Running total unchanged ~**$0.91**. Nothing was changed in production code.

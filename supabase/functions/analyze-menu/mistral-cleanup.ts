@@ -6,6 +6,9 @@ const WEIGHT_PAREN = /\(\s*\d[\d.,]*\s*(gr|g|kg|oz|ml|lt|l)\b[^)]*\)/i;
 // 0.75-0.90 (eval 099): el-marcos "Jugos y Frutas" is 71% drink and holds real
 // food; polloteria "Bebidas" is 93% drink and must die (the Malteadas case).
 const DRINK_SECTION_FRAC = 0.8;
+// Minimum residents a parent heading needs before its drink share may kill a
+// folded card (see foldPricedHeadingCards) — Paletas-class parents own 0.
+const DRINK_BLOCK_MIN_NEIGHBORS = 3;
 export const SPACED_RUN_MIN = 3;
 const SPACED_TITLE_RUN = new RegExp(
   `\\b(?:[\\p{L}\\p{N}]\\s+){${SPACED_RUN_MIN - 1},}[\\p{L}\\p{N}]\\b`,
@@ -164,13 +167,19 @@ function headingPrice(line: string, section: string): number | null {
   return number ? Number(number[0].replace(",", ".")) : null;
 }
 
-function cardHeadingName(headings: string[], index: number): string {
-  const own = headingText(headings[index]).replace(HEADING_PRICE, "").trim();
+/** Nearest preceding UNPRICED heading — the ruling-33 parent walk, shared by
+ *  the card-naming and the drink-block guard so the two can never disagree. */
+function parentHeadingText(headings: string[], index: number): string | null {
   const parent = headings.slice(0, index).reverse().find((heading) =>
     !HEADING_PRICE.test(headingText(heading))
   );
-  if (!parent) return own;
-  const parentText = headingText(parent);
+  return parent ? headingText(parent) : null;
+}
+
+function cardHeadingName(headings: string[], index: number): string {
+  const own = headingText(headings[index]).replace(HEADING_PRICE, "").trim();
+  const parentText = parentHeadingText(headings, index);
+  if (!parentText) return own;
   const parentTokens = norm(parentText);
   const ownTokens = new Set(norm(own));
   return parentTokens.length > 0 &&
@@ -213,6 +222,7 @@ function headingOwners(markdown: string): Map<string, string> {
 function foldPricedHeadingCards(
   items: ExtractedMenuItem[],
   markdown?: string,
+  original: ExtractedMenuItem[] = items,
 ): ExtractedMenuItem[] {
   if (!markdown) return items;
   const headings = markdown.split("\n").filter((line) => line.startsWith("#"));
@@ -243,10 +253,34 @@ function foldPricedHeadingCards(
     sections.set(title, group);
   }
   const cards = new Map<string, ExtractedMenuItem>();
+  const drinkBlocks = new Set<string>();
   for (const [section, children] of sections) {
     const prices = headings.map((heading) => headingPrice(heading, section));
     const index = prices.findIndex((price) => price != null);
     if (index < 0) continue;
+    // A priced heading printed INSIDE A DRINKS BLOCK is a drinks card no matter
+    // what the model labelled its members (eval 122: polloteria's `# MALTEADAS
+    // $89` — runs 1/3 labelled the flavours drink and dropDrinkSections got
+    // them, run 2 said dessert and a food-scope "Bebidas MALTEADAS" card
+    // leaked). The members are the DISPUTED evidence, so the verdict comes from
+    // the NEIGHBOURS: the parent heading's other residents, read from the
+    // pre-dropDrinkSections list. Paletas-class cards are refused by count — a
+    // parent owning fewer than 3 residents of its own is no evidence.
+    const parent = parentHeadingText(headings, index);
+    if (parent) {
+      const neighbors = original.filter((it) => {
+        const title = groupOf(it);
+        return title != null && textKey(title) === textKey(parent);
+      });
+      const drinks = neighbors.filter((it) => it.category === "drink").length;
+      if (
+        neighbors.length >= DRINK_BLOCK_MIN_NEIGHBORS &&
+        drinks / neighbors.length >= DRINK_SECTION_FRAC
+      ) {
+        drinkBlocks.add(section);
+        continue;
+      }
+    }
     const price = prices[index]!;
     const categories = new Map<ExtractedMenuItem["category"], number>();
     for (const child of children) {
@@ -272,7 +306,9 @@ function foldPricedHeadingCards(
   const seen = new Set<string>();
   return items.flatMap((it) => {
     const title = groupOf(it);
-    if (!title || !cards.has(title)) return [it];
+    if (!title) return [it];
+    if (drinkBlocks.has(title)) return [];
+    if (!cards.has(title)) return [it];
     if (seen.has(title)) return [];
     seen.add(title);
     return [cards.get(title)!];
@@ -475,6 +511,9 @@ export function textStructureCleanup(
           foldSmallestOptionGrams(dropSelfNamedSectionTitles(filtered)),
         ),
         markdown,
+        // The pre-dropDrinkSections list: the drink-block guard reads the
+        // neighbourhood evidence that filter deletes (eval 122).
+        normalized,
       ),
       markdown,
     ),

@@ -180,6 +180,53 @@ Deno.test("textStructureCleanup drops MALTEADAS before a priced heading can fold
   );
 });
 
+Deno.test("textStructureCleanup drops a dessert-labelled card folded inside a drink block (eval 122)", () => {
+  // polloteria run 2: the model labels the milkshake flavours DESSERT (runs 1/3
+  // say drink), so dropDrinkSections misses them and foldPricedHeadingCards
+  // builds a food-scope "Bebidas MALTEADAS" card. The members are the DISPUTED
+  // evidence; the verdict comes from the NEIGHBOURS — every other resident of
+  // the parent heading "Bebidas" is model-labelled drink, so the priced heading
+  // lives inside a drinks block and its whole group is dropped.
+  const markdown =
+    "# Bebidas\n\nTe Helado (455ml) $35\n\nRefresco (355ml) $35\n\n" +
+    "Agua Embotellada (500ml) $2\n\n# MALTEADAS $89\n\nVainilla\n\nFresa\n\nChocolate";
+  const cleaned = cleanWithMarkdown([
+    item({ name: "Te Helado (455ml)", category: "drink", section_title: "Bebidas", price: 35 }),
+    item({ name: "Refresco (355ml)", category: "drink", section_title: "Bebidas", price: 35 }),
+    item({ name: "Agua Embotellada (500ml)", category: "drink", section_title: "Bebidas", price: 2 }),
+    item({ name: "Vainilla", category: "dessert", section_title: "MALTEADAS", price: 89 }),
+    item({ name: "Fresa", category: "dessert", section_title: "MALTEADAS", price: 89 }),
+    item({ name: "Chocolate", category: "dessert", section_title: "MALTEADAS", price: 89 }),
+  ], markdown);
+  assertEquals(cleaned, []);
+});
+
+Deno.test("REFUSES the drink-block drop when the parent owns too few residents (Paletas)", () => {
+  // Paletas Heladas: the parent heading owns no plain lines of its own — the
+  // flavours belong to the priced AGUA heading. Fewer than 3 parent residents
+  // is no evidence, so ruling 33's fold proceeds untouched.
+  const cleaned = cleanWithMarkdown([
+    item({ name: "Uva", category: "dessert", section_title: "AGUA", price: 20 }),
+    item({ name: "Piña", category: "dessert", section_title: "AGUA", price: 20 }),
+  ], "# Paletas Heladas\n\n# AGUA $20\n\nUva\n\nPiña");
+  assertEquals(cleaned.length, 1);
+  assertEquals(cleaned[0].name, "Paletas Heladas AGUA");
+});
+
+Deno.test("REFUSES the drink-block drop when the neighbours are food", () => {
+  // A priced heading in a FOOD block folds normally even when its own members
+  // are labelled dessert — only a drink neighbourhood may kill the card.
+  const cleaned = cleanWithMarkdown([
+    item({ name: "Flan", category: "dessert", section_title: "Postres", price: 50 }),
+    item({ name: "Pastel", category: "dessert", section_title: "Postres", price: 60 }),
+    item({ name: "Gelatina", category: "dessert", section_title: "Postres", price: 30 }),
+    item({ name: "Nutella", category: "dessert", section_title: "CREPAS", price: 80 }),
+    item({ name: "Cajeta", category: "dessert", section_title: "CREPAS", price: 80 }),
+  ], "# Postres\n\nFlan $50\n\nPastel $60\n\nGelatina $30\n\n# CREPAS $80\n\nNutella\n\nCajeta");
+  assertEquals(cleaned.length, 4);
+  assertEquals(cleaned.some((it) => it.name === "Postres CREPAS"), true);
+});
+
 Deno.test("textStructureCleanup without markdown is byte-identical", () => {
   const source = [
     item({ name: "Uva", price: 20, section_title: "AGUA" }),

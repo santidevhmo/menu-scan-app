@@ -546,29 +546,46 @@ export function foldSectionTitlePunctuation(
 }
 
 // Printed weight convention: a number followed by g/gr/grs/kg ("600g",
-// "70 gr.", "1kg"). Volumes (ml/L/oz) and "mg" are NOT grams. Name wins over
-// description; first match wins.
-// ponytail: multi-weight items take the first printed weight — refine to
-// per-component weights only if Stage-2 accuracy demands it.
+// "70 gr.", "1kg"). Volumes (ml/L/oz) and "mg" are NOT grams, and neither is a
+// number carrying a currency sign — "$7.25 gr." is a per-gram PRICE (ruling 31
+// family; casa-nostra's lobster prints one next to its real "750 gr"). A weight
+// in the NAME is the portion size and wins outright. A DESCRIPTION listing
+// several weighted components ("4 ordenes de boneless (1,200gr), 2 ordenes de
+// papas fritas(600gr)") describes ONE combo plate, so its grams are the printed
+// SUM (eval 122: Megacharola read 1200 where the menu totals 1800).
 const GRAMS_TOKEN = /(?<![\p{L}\d])(\d+(?:[.,]\d+)?)\s*(kg|grs?|g)\b/iu;
+const GRAMS_TOKENS = new RegExp(GRAMS_TOKEN.source, "giu");
+
+/** A currency amount is a price, never a weight — deleting it whole keeps the
+ *  token scanner from re-matching its tail digits ("$7.25 gr." -> "25 gr"). */
+function stripCurrencyAmounts(text: string): string {
+  return text.replace(/\$\s*\d+(?:[.,]\d+)?/g, " ");
+}
 
 function parseWeightNumber(value: string): number {
   return Number(value.replace(/,(?=\d{3}\b)/g, "").replace(",", "."));
+}
+
+function tokenGrams(match: RegExpMatchArray): number {
+  const value = parseWeightNumber(match[1]);
+  return match[2].toLowerCase() === "kg" ? value * 1000 : value;
 }
 
 export function parseItemGrams(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
   return items.map((item) => {
-    const match = GRAMS_TOKEN.exec(item.name) ??
-      GRAMS_TOKEN.exec(item.description);
+    const nameMatch = GRAMS_TOKEN.exec(stripCurrencyAmounts(item.name));
+    if (nameMatch) return { ...item, grams: tokenGrams(nameMatch) };
+    const components = [
+      ...stripCurrencyAmounts(item.description).matchAll(GRAMS_TOKENS),
+    ];
     // No printed token: keep grams already carried (promoteSections copies the
     // source option's grams; raw model items have none → null).
-    if (!match) return { ...item, grams: item.grams ?? null };
-    const value = parseWeightNumber(match[1]);
+    if (components.length === 0) return { ...item, grams: item.grams ?? null };
     return {
       ...item,
-      grams: match[2].toLowerCase() === "kg" ? value * 1000 : value,
+      grams: components.reduce((sum, match) => sum + tokenGrams(match), 0),
     };
   });
 }
@@ -1184,6 +1201,28 @@ if (import.meta.main) {
   ]);
   if (gramsPriority[0].grams !== 300) {
     throw new Error("parseItemGrams: name priority");
+  }
+  // A description listing SEVERAL weighted components is ONE combo plate: its
+  // grams are the printed TOTAL (eval 122: Megacharola read 1200 where the menu
+  // prints 1,200gr of boneless + 600gr of fries = 1800). A weight in the NAME
+  // is a portion size and never sums — "Corte (300gr)" above keeps 300.
+  const gramsSum = parseItemGrams([
+    item({
+      name: "Megacharola Boneless",
+      description:
+        "4 ordenes de boneless (1,200gr), 2 ordenes de papas fritas(600gr), 4 aderezos, apio y zanahoria.",
+    }),
+  ]);
+  if (gramsSum[0].grams !== 1800) {
+    throw new Error(`parseItemGrams sum: got ${gramsSum[0].grams}`);
+  }
+  // A per-unit RATE is a price, not a weight: "$7.25 gr." never joins the sum
+  // (casa-nostra's lobster prints "Peso promedio 750 gr. $7.25 gr." -> 750).
+  const gramsRate = parseItemGrams([
+    item({ name: "La agosta", description: "Peso promedio 750 gr. $7.25 gr." }),
+  ]);
+  if (gramsRate[0].grams !== 750) {
+    throw new Error(`parseItemGrams rate: got ${gramsRate[0].grams}`);
   }
   console.log("postprocess self-check passed");
 }

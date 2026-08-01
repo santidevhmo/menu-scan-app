@@ -316,8 +316,11 @@ const UNENUMERATED_CHOICE =
 // per-person qualifiers ("POR NIÑO", "per person") emitted as options from
 // promo blocks (eval 054 — the same printed text that dropPriceNoteItems
 // handles at item level).
+// A bare "ea"/"ea." is the English each-notation ("MEXICAN WHITE SHRIMP 7 EA",
+// guest-house) — the same printed-rate family as "6.50 PER OZ", ruling 31. The
+// anchors keep it from touching dish names that merely start with those letters.
 export const PER_UNIT_NOTE =
-  /^\s*(?:c\/[a-z]\.?|(?:por|per)\s+\p{L}+\.?)\s*$/iu;
+  /^\s*(?:c\/[a-z]\.?|ea\.?|(?:por|per)\s+\p{L}+\.?)\s*$/iu;
 
 // A card priced only by a printed rate ("PRIME TOMAHAWK* 6.50 PER OZ") carries
 // that rate as an option. filterServingFormatOptions drops per-unit notes, which

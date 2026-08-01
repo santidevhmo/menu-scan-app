@@ -5,6 +5,7 @@ import {
   foldPerUnitPrice,
   foldSectionTitlePunctuation,
   foldVariantCards,
+  PER_UNIT_NOTE,
   promoteSections,
   remapTruncatedSectionTitles,
   stripMenuNumbers,
@@ -403,4 +404,26 @@ Deno.test("foldVariantCards still folds a priced variant label in the SAME secti
   const out = foldVariantCards([base, variant]);
   assertEquals(out.length, 1);
   assertEquals(out[0].options.map((o) => o.name), ["Regionales."]);
+});
+
+// eval 110 — "MEXICAN WHITE SHRIMP  7 EA" is the same per-unit family as
+// "PRIME TOMAHAWK* 6.50 PER OZ" (ruling 31): a printed rate, never a choice.
+Deno.test("PER_UNIT_NOTE matches a bare EA", () => {
+  assertEquals(PER_UNIT_NOTE.test("EA"), true);
+  assertEquals(PER_UNIT_NOTE.test("ea."), true);
+  assertEquals(PER_UNIT_NOTE.test("per oz"), true);
+});
+
+Deno.test("PER_UNIT_NOTE does not match dish names starting with ea", () => {
+  for (const name of ["Ealing Salad", "Easy Bowl", "Tea", "Sea Bass"]) {
+    assertEquals(PER_UNIT_NOTE.test(name), false, name);
+  }
+});
+
+Deno.test("filterServingFormatOptions drops a bare EA option", () => {
+  const shrimp = item("MEXICAN WHITE SHRIMP", {
+    price: 7,
+    options: [{ name: "EA", price: 7, grams: null }],
+  });
+  assertEquals(filterServingFormatOptions([shrimp])[0].options, []);
 });

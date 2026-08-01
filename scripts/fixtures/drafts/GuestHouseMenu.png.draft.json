@@ -47,7 +47,18 @@
       "price": 35,
       "category": "food",
       "section_title": "RAW BAR",
-      "options": [],
+      "options": [
+        {
+          "name": "chilled",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "grilled",
+          "price": null,
+          "grams": null
+        }
+      ],
       "grams": null
     },
     {
@@ -137,7 +148,18 @@
       "price": null,
       "category": "food",
       "section_title": null,
-      "options": [],
+      "options": [
+        {
+          "name": "FOR TWO",
+          "price": 150,
+          "grams": null
+        },
+        {
+          "name": "FOR THREE OR MORE",
+          "price": 280,
+          "grams": null
+        }
+      ],
       "grams": null
     },
     {

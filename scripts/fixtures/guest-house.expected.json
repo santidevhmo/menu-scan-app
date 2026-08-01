@@ -57,16 +57,8 @@
         {
           "name": "grilled"
         }
-      ]
-    },
-    {
-      "name_contains": "MEXICAN WHITE SHRIMP",
-      "options": [
-        {
-          "name": "EA",
-          "price": 7
-        }
-      ]
+      ],
+      "unchecked": true
     }
   ],
   "image_quality": {

@@ -1,0 +1,243 @@
+{
+  "dense_pages": [],
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  },
+  "items": [
+    {
+      "name": "5 FORMAGGI",
+      "description": "Queso mozzarella, chihuahua, azul, feta y cabra",
+      "price": 240,
+      "category": "food",
+      "section_title": "PIZZAS BISTRO",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "CAPRICCIOSA",
+      "description": "Jamón serrano, alcachofa, aceituna negra y champiñón",
+      "price": 262,
+      "category": "food",
+      "section_title": "PIZZAS BISTRO",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "FLAMENKUCHEN",
+      "description": "Base de crema, tocino y cebolla caramelizada",
+      "price": 240,
+      "category": "food",
+      "section_title": "PIZZAS BISTRO",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "QUESO AZUL",
+      "description": "\"Nuestra Especialidad\" Base de crema, queso azul, espinaca, jamón serrano y láminas de manzana verde",
+      "price": 272,
+      "category": "food",
+      "section_title": "PIZZAS BISTRO",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "4 STAGIONI",
+      "description": "Pepperoni, jamón, tocino y chistorra",
+      "price": 262,
+      "category": "food",
+      "section_title": "PIZZAS BISTRO",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "ITALIANA",
+      "description": "Pepperoni, cebolla morada, pimiento verde, aceituna negra y champiñones",
+      "price": 240,
+      "category": "food",
+      "section_title": "PIZZAS BISTRO",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "HAWAIANA",
+      "description": "Jamón y piña",
+      "price": 208,
+      "category": "food",
+      "section_title": "PIZZAS BISTRO",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "CAPRESE",
+      "description": "Espinacas, jamón serrano y tomate deshidratado",
+      "price": 262,
+      "category": "food",
+      "section_title": "PIZZAS BISTRO",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "ALFREDO PORTOBELLO",
+      "description": "Base de crema, láminas de portobello y pollo marinado",
+      "price": 262,
+      "category": "food",
+      "section_title": "PIZZAS BISTRO",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "MEXICANA",
+      "description": "Cebolla morada, pimiento verde y chorizo",
+      "price": 252,
+      "category": "food",
+      "section_title": "PIZZAS BISTRO",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "VEGETARIANA",
+      "description": "Espinaca, calabaza, champiñón, cebolla morada, pimiento verde y aceituna negra",
+      "price": 230,
+      "category": "food",
+      "section_title": "PIZZAS BISTRO",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "OSTRICA",
+      "description": "Ostión ahumado, tocino y mostaza dijon",
+      "price": 252,
+      "category": "food",
+      "section_title": "PIZZAS BISTRO",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "MARGARITA",
+      "description": "Rebanadas de tomate fresco y albahaca deshidratada",
+      "price": 225,
+      "category": "food",
+      "section_title": "PIZZAS BISTRO",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "JAMON CON CHAMPIÑONES",
+      "description": "",
+      "price": 205,
+      "category": "food",
+      "section_title": "PIZZAS BISTRO",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "PEPPERONI",
+      "description": "",
+      "price": 198,
+      "category": "food",
+      "section_title": "PIZZAS BISTRO",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "ENSALADA GRIEGA",
+      "description": "Lechuga, pepino, tomate, cebolla morada, aceituna negra, queso feta y vinagreta balsámica",
+      "price": 185,
+      "category": "food",
+      "section_title": "ENSALADAS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "ENSALADA BISTRO",
+      "description": "\"Al horno\" Tomate, champiñones, pimiento verde, cebolla morada, pera, manzana, calabaza, queso brie y chistorra",
+      "price": 225,
+      "category": "food",
+      "section_title": "ENSALADAS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "ENSALADA BALI",
+      "description": "Espinaca, mandarina, arándanos, tomate cherry coco rallado, cacahuate y vinagreta de la casa",
+      "price": 185,
+      "category": "food",
+      "section_title": "ENSALADAS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "ENSALADA DE LA SEMANA",
+      "description": "Combinación de lechuga y espinaca, arándanos, tomate cherry, champiñón, calabaza, pera, manzana, almendra y queso de oaxaca",
+      "price": 185,
+      "category": "food",
+      "section_title": "ENSALADAS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "CARBONARA",
+      "description": "\"Extracto de huevo\" Salsa blanca a base de crema y queso parmesano, con un toque de tocino y nuez moscada",
+      "price": 235,
+      "category": "food",
+      "section_title": "PASTAS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "LINGUINNI PARISIENNE",
+      "description": "Pimientos, champiñones, jamón en salsa cremosa a base de quesos",
+      "price": 225,
+      "category": "food",
+      "section_title": "PASTAS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "PASTA ESPECIAL",
+      "description": "Salsa de tomate de la casa, champiñones, chistorra y queso de cabra",
+      "price": 235,
+      "category": "food",
+      "section_title": "PASTAS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "FRADIAVOLA",
+      "description": "Crema de tomate con un toque de chile de árbol, espinacas y queso feta",
+      "price": 225,
+      "category": "food",
+      "section_title": "PASTAS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "FETUCCINI ALFREDO",
+      "description": "Salsa Alfredo a base de queso parmesano",
+      "price": 235,
+      "category": "food",
+      "section_title": "PASTAS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Pollo",
+      "description": "",
+      "price": 65,
+      "category": "other",
+      "section_title": "Agrega a tu pasta o ensalada",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Camarón",
+      "description": "",
+      "price": 75,
+      "category": "other",
+      "section_title": "Agrega a tu pasta o ensalada",
+      "options": [],
+      "grams": null
+    }
+  ]
+}

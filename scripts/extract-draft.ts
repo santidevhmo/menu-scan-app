@@ -1,6 +1,7 @@
 // Draft extraction for NEW menu photos (fixture onboarding, ticket #4+):
 // runs the full production path (passthrough input; dense → 2x2 tiles from the
-// ORIGINAL) and writes <MENU_DIR>/<photo>.draft.json for oracle drafting.
+// ORIGINAL) and writes scripts/fixtures/drafts/<photo>.draft.json (oracle files
+// live in the repo — see fixtures/drafts/README.md).
 // Usage: OPENAI_API_KEY=... deno run --allow-read --allow-write --allow-env \
 //   --allow-net --allow-run scripts/extract-draft.ts BistroMenu.png PolloteriaMenu.png
 // Multi-page menus: comma-join pages into one arg ("PageOne.png,PageTwo.png").
@@ -63,7 +64,11 @@ for (const arg of Deno.args) {
   } else {
     result = phase1;
   }
-  const outPath = `${MENU_DIR}/${pages[0]}.draft.json`;
+  // Drafts are ORACLE files: they live in the repo so they get history and are
+  // guarded by drafts_test.ts. MENU_DIR holds the photos only (eval 109).
+  const outPath =
+    new URL(`./fixtures/drafts/${pages[0]}.draft.json`, import.meta.url)
+      .pathname;
   await Deno.writeTextFile(
     outPath,
     `${

@@ -1,0 +1,623 @@
+{
+  "dense_pages": [],
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  },
+  "items": [
+    {
+      "name": "TostiBoneless (450g)",
+      "description": "Tostitos Salsa Verde Sabor Verdura bañadas con Buffalo Cheese, servidos con una orden de boneless (300gr), queso cheddar y cebollín",
+      "price": 182,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": 450
+    },
+    {
+      "name": "Cheesy Chicken Balls (250gr)",
+      "description": "Bolitas empanizadas de mezcla de quesos (crema, mozzarella, cheddar) y pollo desmenuzado, acompañadas con aderezo ranch y salsa buffalo.",
+      "price": 139,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": 250
+    },
+    {
+      "name": "Bacon Cheese Fries (300gr)",
+      "description": "Papas a la francesa bañadas con Buffalo Cheese, con trocitos de tocino y un toque de perejil",
+      "price": 139,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": 300
+    },
+    {
+      "name": "Dedo de Queso (200gr)",
+      "description": "Ocho dedos de queso mozzarella empanizados. Acompañados con aderezo ranch y salsa buffalo.",
+      "price": 199,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "Parmesano Fries (300gr)",
+      "description": "Papas a la francesa con parmesano y perejil.",
+      "price": 119,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": 300
+    },
+    {
+      "name": "Salas's Boneless Fries (450g)",
+      "description": "Boneless y papas a la francesa bañadas con aderezo de cilantro, aderezo de chipotle, ranch, salsa buffalo y chile serrano.",
+      "price": 189,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": 450
+    },
+    {
+      "name": "Cubeta Pollotera",
+      "description": "Una orden de boneless(300gr), 12 piezas de alitas, una orden de papas fritas(500gr), 5 piezas de dedos de queso, apio y zanahoria.",
+      "price": 468,
+      "category": "food",
+      "section_title": "Pa'Compartir",
+      "options": [
+        {
+          "name": "¡Elige hasta 3 aderezos!",
+          "price": 15,
+          "grams": null
+        }
+      ],
+      "grams": 300
+    },
+    {
+      "name": "El Tendedero",
+      "description": "12 piezas de tender (750gr) de pechuga de pollo partidas a la mitad, acompañadas de TODAS nuestras salsas y TODOS nuestros aderezos. Pruébalos!",
+      "price": 468,
+      "category": "food",
+      "section_title": "Pa'Compartir",
+      "options": [],
+      "grams": 750
+    },
+    {
+      "name": "Megacharola Boneless",
+      "description": "4 órdenes de boneless(1200gr), 2 órdenes de papas fritas(600gr), 4 aderezos, apio y zanahoria.",
+      "price": 599,
+      "category": "food",
+      "section_title": "Pa'Compartir",
+      "options": [],
+      "grams": 1800
+    },
+    {
+      "name": "Ensalada Boneless",
+      "description": "Mezcla de lechugas, zanahoria, col morada, crotones y boneless en tu salsa favorita. Elige tu aderezo!",
+      "price": 158,
+      "category": "food",
+      "section_title": "Ensaladas",
+      "options": [
+        {
+          "name": "M (150gr)",
+          "price": 158,
+          "grams": 150
+        },
+        {
+          "name": "G (300gr)",
+          "price": 179,
+          "grams": 300
+        }
+      ],
+      "grams": 150
+    },
+    {
+      "name": "Aguacate Chicken",
+      "description": "Mezcla de lechugas, aguacate, tocino, elote, cebollín, pollo a la plancha y vinagreta de limón.",
+      "price": 178,
+      "category": "food",
+      "section_title": "Ensaladas",
+      "options": [
+        {
+          "name": "M (150gr)",
+          "price": 178,
+          "grams": 150
+        },
+        {
+          "name": "G (300gr)",
+          "price": 199,
+          "grams": 300
+        }
+      ],
+      "grams": 150
+    },
+    {
+      "name": "Ensalada Pollotera",
+      "description": "Mezcla de lechugas, zanahoria, col morada, tomate, pepino, aguacate, crotones y boneless en tu salsa favorita. Elige tu aderezo!",
+      "price": 168,
+      "category": "food",
+      "section_title": "Ensaladas",
+      "options": [
+        {
+          "name": "M (150gr)",
+          "price": 168,
+          "grams": 150
+        },
+        {
+          "name": "G (300gr)",
+          "price": 189,
+          "grams": 300
+        }
+      ],
+      "grams": 150
+    },
+    {
+      "name": "Crispy Chicken",
+      "description": "Trozos de pechuga de pollo empanizados y bañados en la salsa de tu elección acompañados con apio y zanahoria. ¡Elige tu aderezo!",
+      "price": 162,
+      "category": "food",
+      "section_title": "Crispy Chicken",
+      "options": [
+        {
+          "name": "Grandes (300gr)",
+          "price": 162,
+          "grams": 300
+        },
+        {
+          "name": "Jumbo (600gr)",
+          "price": 235,
+          "grams": 600
+        }
+      ],
+      "grams": 300
+    },
+    {
+      "name": "Boneless & Fries (450gr) $185",
+      "description": "Boneless bañados en salsa favorita acompañado de papas a la francesa. ¡Elige tu salsa y aderezo! Agrega queso (+$10). (2oz)",
+      "price": 185,
+      "category": "food",
+      "section_title": "Crispy Chicken",
+      "options": [],
+      "grams": 450
+    },
+    {
+      "name": "Alitas",
+      "description": "Alitas de pollo empanizadas bañadas en la salsa de tu elección acompañadas con apio y zanahoria. ¡Elije tu aderezo! Pídelas sin empanizar.",
+      "price": 129,
+      "category": "food",
+      "section_title": "Crispy Chicken",
+      "options": [
+        {
+          "name": "6 PZ",
+          "price": 129,
+          "grams": null
+        },
+        {
+          "name": "12PZ",
+          "price": 169,
+          "grams": null
+        },
+        {
+          "name": "20PZ",
+          "price": 269,
+          "grams": null
+        }
+      ],
+      "grams": null
+    },
+    {
+      "name": "PapaBoneless (600gr)",
+      "description": "Papas sazonadas bañadas en Buffalo Cheese coronadas con una orden de boneless(300gr) bañadas en tu salsa favorita y aderezo de tu elección. ¡PRUÉBALAS!",
+      "price": 192,
+      "category": "food",
+      "section_title": "Crispy Chicken",
+      "options": [],
+      "grams": 600
+    },
+    {
+      "name": "Tender (350gr)",
+      "description": "4 pzas de tender de pechuga de pollo empanizado acompañadas de papas fritas. ¡Elige tu salsa y aderezo!",
+      "price": 165,
+      "category": "food",
+      "section_title": "Crispy Chicken",
+      "options": [],
+      "grams": 350
+    },
+    {
+      "name": "Gyro (300gr) $168",
+      "description": "Tiras de pechuga de pollo a la plancha, lechuga, tomate, pepino, cebolla morada y queso feta sobre una pan pita con salsa griega \"tzatziki\" y aderezo de cilantro. Elige entre papas fritas o ensalada verde.",
+      "price": 168,
+      "category": "food",
+      "section_title": "Especialidades",
+      "options": [
+        {
+          "name": "papas fritas",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "ensalada verde",
+          "price": null,
+          "grams": null
+        }
+      ],
+      "grams": 300
+    },
+    {
+      "name": "Tender Cordon Bleu (350gr) $185",
+      "description": "Tender de pechuga de pollo empanizado, cubiertos de jamón, queso mozzarella y tocino. Elige entre papas fritas o ensalada verde.",
+      "price": 185,
+      "category": "food",
+      "section_title": "Especialidades",
+      "options": [
+        {
+          "name": "papas fritas",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "ensalada verde",
+          "price": null,
+          "grams": null
+        }
+      ],
+      "grams": 350
+    },
+    {
+      "name": "Boneless - FIT (300gr) $160",
+      "description": "Trozos de coliflor empanizados y bañados en la salsa de tu elección, acompañados con apio y zanahoria. Elige tu adarezo!",
+      "price": 160,
+      "category": "food",
+      "section_title": "Especialidades",
+      "options": [],
+      "grams": 300
+    },
+    {
+      "name": "Boneless de Coliflor / Vegetarianas (300gr) $139",
+      "description": "Trozos de coliflor empanizados y bañados en la salsa de tu elección, acompañados con apio y zanahoria. Elige tu aderezo!",
+      "price": 139,
+      "category": "food",
+      "section_title": "Especialidades",
+      "options": [],
+      "grams": 300
+    },
+    {
+      "name": "Pollo a la Naranja (300gr) $178",
+      "description": "Trozos de pechuga de pollo empanizados y bañados en salsa oriental de naranja servidos con cebollín. Acompañado con apio y zanahoria. Elige tu aderezo!",
+      "price": 178,
+      "category": "food",
+      "section_title": "Especialidades",
+      "options": [],
+      "grams": 300
+    },
+    {
+      "name": "Boneless Barbecue (300gr) $150",
+      "description": "Pan brioche, boneless bañados en bbq, ensalada de col y aderezo ranch. Agrega queso a tus papas por S10.",
+      "price": 150,
+      "category": "food",
+      "section_title": "Sandwiches & Hamburguesas",
+      "options": [],
+      "grams": 300
+    },
+    {
+      "name": "Boneless Buffalo (300gr) $150",
+      "description": "Pan brioche, boneless bañados en buffalo, lechuga romana, queso cheddar y aderezo ranch. Agrega queso a tus papas por S10.",
+      "price": 150,
+      "category": "food",
+      "section_title": "Sandwiches & Hamburguesas",
+      "options": [],
+      "grams": 300
+    },
+    {
+      "name": "Clásico (300gr) $145",
+      "description": "Pan brioche, tender de pechuga de pollo empanizado, queso suizo, lechuga romana, tomate y aderezo de cilantro. Agrega queso a tus papas por S10.",
+      "price": 145,
+      "category": "food",
+      "section_title": "Sandwiches & Hamburguesas",
+      "options": [],
+      "grams": 300
+    },
+    {
+      "name": "Fresh (300gr) $150",
+      "description": "Pan brioche, pechuga de pollo a la plancha, aguacate, pepino, tomate y lechuga romana con aderezo de cilantro. Agrega queso a tus papas por S10.",
+      "price": 150,
+      "category": "food",
+      "section_title": "Sandwiches & Hamburguesas",
+      "options": [],
+      "grams": 300
+    },
+    {
+      "name": "Dallas (350gr) $159",
+      "description": "Pan brioche, tender de pechuga de pollo empanizado, cebolla caramelizada, queso cheddar, tocino, salsa bbq y aderezo de chipotle. Agrega queso a tus papas por S10.",
+      "price": 159,
+      "category": "food",
+      "section_title": "Sandwiches & Hamburguesas",
+      "options": [],
+      "grams": 350
+    },
+    {
+      "name": "Cheesey Bacon (300gr) $155",
+      "description": "Pan brioche dorado con mantequilla, fajitas de pollo a la plancha, tocino, queso cheddar y suizo acompañado de aderezo chipotle. Agrega queso a tus papas por $10",
+      "price": 155,
+      "category": "food",
+      "section_title": "Sandwiches & Hamburguesas",
+      "options": [],
+      "grams": 300
+    },
+    {
+      "name": "Nashville (300gr) $155",
+      "description": "Pan brioche, tender de pechuga de pollo empanizado, sobre una cama de pepinillos, bañado en nuestra picosita salsa Nashville (mezcla de aceites y chiles), y una ensalada de repollo con cebolla morada y pepinillos. Agrega queso a tus papas por S10.",
+      "price": 155,
+      "category": "food",
+      "section_title": "Sandwiches & Hamburguesas",
+      "options": [],
+      "grams": 300
+    },
+    {
+      "name": "Waffle Cheese Sandwich (350gr) $185",
+      "description": "Dos piezas de waffle, tender de pechuga de pollo empanizado, queso mozzaerlla y tocino. Acompañado de Buffalo Cheese. Agrega queso a tus papas por S10.",
+      "price": 185,
+      "category": "food",
+      "section_title": "Sandwiches & Hamburguesas",
+      "options": [],
+      "grams": 350
+    },
+    {
+      "name": "Chicken & Waffles Sandwich (350gr) $185",
+      "description": "Dos piezas de waffle, tender de pechuga de pollo empanizado, mantequilla y miel de maple. +$15 tocino. Agrega queso a tus papas por S10.",
+      "price": 185,
+      "category": "food",
+      "section_title": "Sandwiches & Hamburguesas",
+      "options": [],
+      "grams": 350
+    },
+    {
+      "name": "Sampler (3pz) $205",
+      "description": "Tres mini hamburguesas (Boneless Buffalo, Dallas y Fresh), acompañadas de papas fritas y aderezo ranch. Agrega queso a tus papas por S10.",
+      "price": 205,
+      "category": "food",
+      "section_title": "Sandwiches & Hamburguesas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Papas Sazonadas (300gr) $70",
+      "description": "Gajos de papas sazonadas.",
+      "price": 70,
+      "category": "side",
+      "section_title": "Sides",
+      "options": [],
+      "grams": 300
+    },
+    {
+      "name": "French Fries (300gr) $60",
+      "description": "Papas a la francesa con un toque de perejil.",
+      "price": 60,
+      "category": "side",
+      "section_title": "Sides",
+      "options": [],
+      "grams": 300
+    },
+    {
+      "name": "Ensalada Verde (150gr) $52",
+      "description": "Mezcla de lechugas, col morada, zanahoria, crotones y tu aderezo favorito.",
+      "price": 52,
+      "category": "side",
+      "section_title": "Sides",
+      "options": [],
+      "grams": 150
+    },
+    {
+      "name": "Coleslaw (150gr) $52",
+      "description": "Ensalada de col morada, repollo y zanahoria con un delicioso aderezo cremoso.",
+      "price": 52,
+      "category": "side",
+      "section_title": "Sides",
+      "options": [],
+      "grams": 150
+    },
+    {
+      "name": "Boneless Jr(200gr) $132",
+      "description": "Trozos de pechuga de pollo empanizados y bañados en la salsa de tu elección acompañados con apio y zanahoria. Elige tu aderezo!",
+      "price": 132,
+      "category": "food",
+      "section_title": "Pollo Kids",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "Nuggets (200gr) $89",
+      "description": "Nuggets de pechuga y papas fritas acompañadas de catsúp.",
+      "price": 89,
+      "category": "food",
+      "section_title": "Pollo Kids",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "Chicken-Little (200gr) $89",
+      "description": "Pan brioche 'kids' con pechuga de pollo empanizada, un toque de happy sauce (mayonesa y cátsup) y papas fritas",
+      "price": 89,
+      "category": "food",
+      "section_title": "Pollo Kids",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "Nuggets & Waffles (200gr) $92",
+      "description": "Nuggets de pollo y 4 mini waffles acompañados con miel de maple",
+      "price": 92,
+      "category": "food",
+      "section_title": "Pollo Kids",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "Limonada (400ml)",
+      "description": "",
+      "price": 35,
+      "category": "drink",
+      "section_title": "Bebidas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Limonada Mineral (400ml)",
+      "description": "",
+      "price": 40,
+      "category": "drink",
+      "section_title": "Bebidas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Limonada de Fresa (400ml)",
+      "description": "",
+      "price": 45,
+      "category": "drink",
+      "section_title": "Bebidas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Limonada de Pepino (400ml)",
+      "description": "",
+      "price": 45,
+      "category": "drink",
+      "section_title": "Bebidas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Limonada Splenda (400ml)",
+      "description": "",
+      "price": 40,
+      "category": "drink",
+      "section_title": "Bebidas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Uvola (400ml)",
+      "description": "",
+      "price": 45,
+      "category": "drink",
+      "section_title": "Bebidas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Chile-Uvola (400ml)",
+      "description": "",
+      "price": 50,
+      "category": "drink",
+      "section_title": "Bebidas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Jamaica (400ml)",
+      "description": "",
+      "price": 35,
+      "category": "drink",
+      "section_title": "Bebidas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Horchata (400ml)",
+      "description": "",
+      "price": 35,
+      "category": "drink",
+      "section_title": "Bebidas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Te Helado (455ml)",
+      "description": "",
+      "price": 35,
+      "category": "drink",
+      "section_title": "Bebidas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Bebida de litro natural (1lt) $6",
+      "description": "",
+      "price": 6,
+      "category": "drink",
+      "section_title": "Bebidas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Bebida de litro mineral (1lt) $7",
+      "description": "",
+      "price": 7,
+      "category": "drink",
+      "section_title": "Bebidas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Refresco (355ml) $35",
+      "description": "",
+      "price": 35,
+      "category": "drink",
+      "section_title": "Bebidas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Agua Embotellada (500ml) $2",
+      "description": "",
+      "price": 2,
+      "category": "drink",
+      "section_title": "Bebidas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Malteadas",
+      "description": "",
+      "price": 89,
+      "category": "drink",
+      "section_title": "Bebidas",
+      "options": [
+        {
+          "name": "Vainilla",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "Fresa",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "Chocolate",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "Mazapan",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "Gansito",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "Oreo",
+          "price": null,
+          "grams": null
+        }
+      ],
+      "grams": null
+    }
+  ]
+}

@@ -1290,3 +1290,25 @@ Rules:
 - **Cost ~$0.30 estimated, not invoice-verified** (30 structuring + 30 OCR calls; C1's measured $0.091 per 9-menu structuring pass ×3). Running session spend ~**$0.33**; running total ~**$0.63**.
 - **STALE DOC CORRECTED:** the brief said the OpenAI key is Tier-1 at **30k TPM / 90k TPD**, which would have made this 30-call campaign impossible. Measured from the live rate-limit headers before spending: **450,000 TPM / 5,000 RPM, no daily cap in the headers.** No throttling risk; the warning was months out of date.
 - **NEXT — Santiago's call, options in the writeup.** The cheap decisive probe is ~$0.01: OCR `brasero-two` BOTH ways (2048/q95 like the cache, and passthrough like production) and diff the two markdowns against the cached one. That single diff separates "our offline baseline is measuring the wrong input" from "the model varies", and it must happen before any rule is touched. **Do NOT tune a fold to make brasero-two pass live until the input question is settled** — that would be fitting rules to a moving target.
+
+## Eval 116 — the eval-115 input hypothesis is **REFUTED** (~$0.004): the OCR text is identical; the STRUCTURING model is the whole story
+
+- **⚠️ THIS OVERTURNS THE CENTRAL HYPOTHESIS I RECORDED IN EVAL 115 ONE HOUR EARLIER.** That entry named "the 40/45 was measured on an input production no longer sends" as the likely cause of the live-vs-cached gap, and flagged it as a hypothesis with a decisive test. **The test says no.** Probe: `scripts/probe-ocr-input-fidelity.ts` (4 Mistral OCR calls on brasero-two).
+- **MEASURED — all three OCR texts are the same size and carry the same heading:**
+
+| markdown source | chars | `churrasqu` heading | fold fires? |
+|---|---|---|---|
+| cached July `b1` (2048/q95 re-encode) | 3967 | `# CHURRASQUERÍA` | **FIRES** |
+| fresh OCR of the 2048/q95 re-encode | 3967 | `# CHURRASQUERÍA` | **FIRES** |
+| fresh OCR of the passthrough ORIGINAL (what production sends) | 3967 | `# CHURRASQUERÍA` | **FIRES** |
+
+  ⇒ **the input image does NOT change the OCR text, and the OCR model has NOT drifted since July.** Ruling 35's pin is doing its job. The compression-fidelity difference between the archive and production, which looked like an obvious culprit, is a non-issue at the OCR layer.
+- **THE BISECT THAT LOCATES IT INSTEAD — same markdown, different items:**
+  - cached items + cached markdown ⇒ **fold FIRES**
+  - live items + cached markdown ⇒ **fold does NOT fire**
+  - cached items + live markdown ⇒ **fold FIRES**
+  ⇒ **the ITEM LIST is the variable, not the text.** brasero-two's live runs return 47 items where the archived response gave 43, and the CHURRASQUERÍA children are byte-identical in both — so a difference ELSEWHERE in the list is what stops `foldUnpricedCardSections` from firing. (Note `foldPricedHeadingCards` was never the relevant rule: `# CHURRASQUERÍA` carries no price. Eval 115 named the wrong fold as well as the wrong cause.)
+- **🔑 THE REAL FINDING, AND IT SUBSUMES BOTH EVAL-115 HEADLINES INTO ONE CAUSE: `gpt-4.1` returns a different — also valid — item list run to run, and our deterministic folds are BRITTLE to that variation.** Every C2 rule was designed and tuned against exactly ONE archived response per menu. The rules are not wrong; they are fitted to one sample of a distribution we had never sampled twice. That single cause explains BOTH the 7-9 dim live-vs-cached gap AND the run-to-run instability (guest-house 48→36→48). **It also means the offline 40/45 is not a measurement of the extractor — it is a measurement of the extractor on one frozen draw.**
+- **CONSEQUENCE FOR METHOD, not just for a fix:** the whole C2 loop optimised against a single cached response per menu, which is a design set of size one per fixture. This is the eval-106 held-out-menu gap in a second dimension — we lack held-out MENUS *and* held-out DRAWS. Any rule whose firing depends on incidental structure of one response will keep doing this.
+- **PLANNER ERRORS DISCLOSED (both mine, both this session):** (1) the eval-115 input hypothesis, stated with a named mechanism and refuted within the hour — master-roadmap lesson 24 was written by me earlier TODAY about exactly this failure mode and I repeated it; the saving grace is that it was labelled a hypothesis with a decisive test attached, and the test was cheap and ran first. (2) The probe archived both pages to ONE filename (no page index), so page 1 overwrote page 0; a follow-up read then analysed half the menu and reported a bogus "markdown differs, 3967 vs 1810 chars". **The in-memory comparison in the table above was unaffected** (it never round-tripped through the archive), but the bug is fixed and called out in the code — lesson 23's "if a probe surprises you, suspect the probe" caught it within one command.
+- **NOT CHANGED, deliberately:** no rule was touched. Eval 115's standing instruction holds — do not tune a fold to make brasero-two pass live until the variation question has a policy. Cost ~$0.004; running total ~**$0.64**.

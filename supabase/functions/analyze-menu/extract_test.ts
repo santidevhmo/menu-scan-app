@@ -11,15 +11,13 @@ import {
   runExtraction,
   runGroupedExtraction,
   runPagedExtraction,
+  structureMenuTextWithRetry,
   TILE_PROMPT_SUFFIX,
   verifyTileItems,
   verifyTileItemsBatched,
 } from "./extract.ts";
 import type { ExtractionResult } from "./extract.ts";
-import {
-  extractMistralWithRetry,
-  type MistralExtraction,
-} from "./mistral-extract.ts";
+import { ocrMistralWithRetry } from "./mistral-extract.ts";
 
 Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async () => {
   const originalFetch = globalThis.fetch;
@@ -465,181 +463,208 @@ Deno.test("runGroupedExtraction batches an overloaded tile before verification",
   );
 });
 
-Deno.test("runPagedExtraction: one photo means exactly one call, default detail, passthrough", async () => {
-  const seen: string[] = [];
-  const stub = ((photo: string) => {
-    seen.push(photo);
-    return Promise.resolve({
-      items: [{
-        name: "Tacos",
-        description: "",
-        price: 100,
-        category: "food",
-        section_title: null,
-        options: [],
-      }],
-      page: undefined,
-      raw_response: "single",
-    });
-  }) as typeof extractMistralWithRetry;
-  const result = await runPagedExtraction(["a"], "key", stub);
-  if ("needs_crops" in result) throw new Error("unexpected needs_crops");
-  assertEquals(seen, ["a"]);
-  assertEquals(result.items, [menuItem("Tacos", 100)]);
-  assertEquals(result.raw_response, "single");
+// ─── C3: the (c) text path (ruling 30) ───────────────────────────────────────
+// Stage-1a Mistral OCR returns TEXT; Stage-1b a pinned model structures it.
+// The chain order below is copied from scripts/score-c-dumps.ts, the harness
+// that measured 40/45: postprocessItems PER PAGE -> mergeItemSources -> ONE
+// textStructureCleanup over the "\n"-joined markdown of ALL pages.
+
+type Structured = { items: unknown[]; raw_response: string };
+
+const rawItem = (over: Record<string, unknown> = {}) => ({
+  name: "Tacos",
+  description: "",
+  price: 100,
+  category: "food",
+  section_title: null,
+  options: [],
+  ...over,
 });
 
-Deno.test("runPagedExtraction: N photos means one parallel call per photo and a cross-page merge", async () => {
+Deno.test("runPagedExtraction: one photo means one OCR call, then one structuring call on its text", async () => {
+  const ocrSeen: string[] = [];
+  const structureSeen: string[] = [];
+  const ocr = ((photo: string) => {
+    ocrSeen.push(photo);
+    return Promise.resolve({ markdown: "# TACOS\nTacos 100", raw_response: "o" });
+  }) as typeof ocrMistralWithRetry;
+  const structure = ((markdown: string) => {
+    structureSeen.push(markdown);
+    return Promise.resolve({ items: [rawItem()], raw_response: "s" });
+  }) as typeof structureMenuTextWithRetry;
+
+  const result = await runPagedExtraction(["a"], "mkey", "okey", ocr, structure);
+  if ("needs_crops" in result) throw new Error("unexpected needs_crops");
+  assertEquals(ocrSeen, ["a"]);
+  assertEquals(structureSeen, ["# TACOS\nTacos 100"]);
+  assertEquals(result.items, [menuItem("Tacos", 100)]);
+  assertEquals(result.image_quality, { usable: true, issues: [] });
+  assertEquals(result.image_layout, { dense: false, crop_direction: "none" });
+  // Both stages are archived so a later session can diff raw model output
+  // against our postprocessed output (master-roadmap lesson 21).
+  assertEquals(JSON.parse(result.raw_response), [{ ocr: "o", structure: "s" }]);
+});
+
+Deno.test("runPagedExtraction: N photos run in parallel and cross-page merge", async () => {
   const seen: string[] = [];
-  const pages: MistralExtraction[] = [
+  const structured: Structured[] = [
+    { items: [rawItem()], raw_response: "s1" },
     {
-      items: [menuItem("Tacos", 100)],
-      page: undefined,
-      raw_response: "r1",
-    },
-    {
-      items: [menuItem("Tacos", 100, "de pastor"), menuItem("Sopa", 80)],
-      page: undefined,
-      raw_response: "r2",
+      items: [rawItem({ description: "de pastor" }), rawItem({ name: "Sopa", price: 80 })],
+      raw_response: "s2",
     },
   ];
-  const resolvePages: (() => void)[] = [];
-  const stub = ((photo: string) => {
+  const release: (() => void)[] = [];
+  const ocr = ((photo: string) => {
     const index = seen.length;
     seen.push(photo);
-    return new Promise<MistralExtraction>((resolve) =>
-      resolvePages.push(() => resolve(pages[index]))
+    return new Promise<{ markdown: string; raw_response: string }>((resolve) =>
+      release.push(() => resolve({ markdown: `md${index}`, raw_response: `o${index}` }))
     );
-  }) as typeof extractMistralWithRetry;
+  }) as typeof ocrMistralWithRetry;
+  const structure = ((markdown: string) =>
+    Promise.resolve(
+      structured[Number(markdown.replace("md", ""))],
+    )) as typeof structureMenuTextWithRetry;
 
-  const pending = runPagedExtraction(["a", "b"], "key", stub);
-  assertEquals(seen, ["a", "b"]);
-  resolvePages.forEach((resolve) => resolve());
+  const pending = runPagedExtraction(["a", "b"], "mkey", "okey", ocr, structure);
+  assertEquals(seen, ["a", "b"]); // both OCR calls issued before either resolves
+  release.forEach((resolve) => resolve());
   const result = await pending;
   if ("needs_crops" in result) throw new Error("unexpected needs_crops");
   assertEquals(result.items, [
     menuItem("Tacos", 100, "de pastor"),
     menuItem("Sopa", 80),
   ]);
-  assertEquals(result.image_quality, {
-    usable: true,
-    issues: [],
-  });
-  assertEquals(result.image_layout, { dense: false, crop_direction: "none" });
-  assertEquals(JSON.parse(result.raw_response), ["r1", "r2"]);
+  assertEquals(JSON.parse(result.raw_response), [
+    { ocr: "o0", structure: "s1" },
+    { ocr: "o1", structure: "s2" },
+  ]);
 });
 
-Deno.test("runPagedExtraction: per-page blocks clean only their own page", async () => {
-  const pages: MistralExtraction[] = [
+Deno.test("runPagedExtraction: cleanup runs AFTER the merge over ALL pages' markdown joined by newline", async () => {
+  // The priced-heading card fold (C2-3) needs the heading `# TORTAS $20`, which
+  // is printed on page 0, to reach an item that arrived on page 1. It can only
+  // fire if the cleanup runs once, post-merge, on the joined text. A per-page
+  // cleanup — the order the OLD Mistral-annotation path used — cannot see it.
+  const markdowns = ["# TORTAS $20", "nothing here"];
+  const structured: Structured[] = [
+    { items: [rawItem()], raw_response: "s0" },
     {
-      items: [{
-        name: "Pizza Uno",
-        description: "",
-        price: null,
-        category: "food",
-        section_title: null,
-        options: [{ name: "Pollo", price: 20, grams: null }],
-      }],
-      page: {
-        blocks: [
-          {
-            top_left_x: 10,
-            top_left_y: 20,
-            bottom_right_x: 30,
-            bottom_right_y: 25,
-            content: "Pizza Uno",
-          },
-          {
-            top_left_x: 70,
-            top_left_y: 70,
-            bottom_right_x: 80,
-            bottom_right_y: 75,
-            content: "Pollo",
-          },
-        ],
-        width: 100,
-        height: 100,
-      },
-      raw_response: "p1",
-    },
-    {
-      items: [{
-        name: "Pizza Dos",
-        description: "",
-        price: null,
-        category: "food",
-        section_title: null,
-        options: [{ name: "Pollo", price: 20, grams: null }],
-      }],
-      page: {
-        blocks: [{
-          top_left_x: 10,
-          top_left_y: 20,
-          bottom_right_x: 30,
-          bottom_right_y: 25,
-          content: "Pizza Dos",
-        }],
-        width: 100,
-        height: 100,
-      },
-      raw_response: "p2",
+      items: [rawItem({ name: "De Fresa", price: 15, section_title: "TORTAS" })],
+      raw_response: "s1",
     },
   ];
-  let call = 0;
-  const stub =
-    (() => Promise.resolve(pages[call++])) as typeof extractMistralWithRetry;
-  const result = await runPagedExtraction(["a", "b"], "key", stub);
+  const ocr = ((photo: string) => {
+    const index = photo === "a" ? 0 : 1;
+    return Promise.resolve({
+      markdown: markdowns[index],
+      raw_response: `o${index}`,
+    });
+  }) as typeof ocrMistralWithRetry;
+  const structure = ((markdown: string) =>
+    Promise.resolve(
+      structured[markdowns.indexOf(markdown)],
+    )) as typeof structureMenuTextWithRetry;
+
+  const result = await runPagedExtraction(["a", "b"], "mkey", "okey", ocr, structure);
   if ("needs_crops" in result) throw new Error("unexpected needs_crops");
-  assertEquals(result.items.map((item) => item.options.length), [0, 1]);
+  assertEquals(result.items.map((item) => item.name), ["Tacos", "TORTAS"]);
+  assertEquals(result.items[1].price, 20);
+  assertEquals(result.items[1].options, [
+    { name: "De Fresa", price: 15, grams: null },
+  ]);
 });
 
-Deno.test("runPagedExtraction: cleanup folds a generic weight option", async () => {
-  const stub = (() =>
+Deno.test("runPagedExtraction: postprocessItems runs on each page's items", async () => {
+  const ocr = (() =>
     Promise.resolve({
-      items: [{
-        name: "New York",
-        description: "",
-        price: null,
-        category: "food",
-        section_title: null,
-        options: [{ name: "Peso", price: null, grams: 400 }],
-      }],
-      page: undefined,
-      raw_response: "weight",
-    })) as typeof extractMistralWithRetry;
-  const result = await runPagedExtraction(["a"], "key", stub);
+      markdown: "md",
+      raw_response: "o",
+    })) as typeof ocrMistralWithRetry;
+  const structure = (() =>
+    Promise.resolve({
+      items: [rawItem({ name: "Boneless (300gr)" })],
+      raw_response: "s",
+    })) as typeof structureMenuTextWithRetry;
+
+  const result = await runPagedExtraction(["a"], "mkey", "okey", ocr, structure);
   if ("needs_crops" in result) throw new Error("unexpected needs_crops");
-  assertEquals(result.items[0].options, []);
-  assertEquals(result.items[0].grams, 400);
+  assertEquals(result.items[0].grams, 300); // parseItemGrams, postprocess only
 });
 
 Deno.test("runPagedExtraction: never returns needs_crops for a landscape-shaped photo", async () => {
-  const stub = (() =>
+  const ocr = (() =>
     Promise.resolve({
-      items: [],
-      page: undefined,
-      raw_response: "landscape",
-    })) as typeof extractMistralWithRetry;
+      markdown: "",
+      raw_response: "o",
+    })) as typeof ocrMistralWithRetry;
+  const structure = (() =>
+    Promise.resolve({ items: [], raw_response: "s" })) as
+      typeof structureMenuTextWithRetry;
   const result = await runPagedExtraction(
     ["data:image/jpeg;base64,wide"],
-    "key",
-    stub,
+    "mkey",
+    "okey",
+    ocr,
+    structure,
   );
   assertEquals("needs_crops" in result, false);
 });
 
-Deno.test("extractMistralWithRetry retries a timeout once then propagates", async () => {
+Deno.test("ocrMistralWithRetry retries a timeout once then propagates", async () => {
   let calls = 0;
   const stub = (() => {
     calls++;
     return Promise.reject(new Error("Model request timed out after 120s"));
-  }) as typeof extractMistralWithRetry;
+  }) as typeof ocrMistralWithRetry;
   await assertRejects(
-    () => extractMistralWithRetry("a", "key", stub),
+    () => ocrMistralWithRetry("a", "key", stub),
     Error,
     "timed out",
   );
   assertEquals(calls, 2);
+});
+
+Deno.test("structureMenuTextWithRetry retries a timeout once then succeeds", async () => {
+  let calls = 0;
+  const stub = (() => {
+    calls++;
+    return calls === 1
+      ? Promise.reject(new Error("Model request timed out after 120s"))
+      : Promise.resolve({ items: [], raw_response: "second" });
+  }) as typeof structureMenuTextWithRetry;
+  const result = await structureMenuTextWithRetry("md", "key", stub);
+  assertEquals(calls, 2);
+  assertEquals(result.raw_response, "second");
+});
+
+Deno.test("structureMenuTextWithRetry retries a truncated completion once", async () => {
+  let calls = 0;
+  const stub = (() => {
+    calls++;
+    return calls === 1
+      ? Promise.reject(
+        new Error("OpenAI extraction stopped with finish_reason=length"),
+      )
+      : Promise.resolve({ items: [], raw_response: "second" });
+  }) as typeof structureMenuTextWithRetry;
+  await structureMenuTextWithRetry("md", "key", stub);
+  assertEquals(calls, 2);
+});
+
+Deno.test("structureMenuTextWithRetry does not retry non-transient errors", async () => {
+  let calls = 0;
+  const stub = (() => {
+    calls++;
+    return Promise.reject(new Error("OpenAI API error"));
+  }) as typeof structureMenuTextWithRetry;
+  await assertRejects(
+    () => structureMenuTextWithRetry("md", "key", stub),
+    Error,
+    "OpenAI API error",
+  );
+  assertEquals(calls, 1);
 });
 
 Deno.test("runGroupedExtraction: 1-photo and 4-tile groups merge to one menu", async () => {

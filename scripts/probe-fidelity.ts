@@ -14,6 +14,8 @@ import { compressedPhotoData, MENU_DIR } from "./photo-input.ts";
 type Fixture = Parameters<typeof scoreMenu>[0];
 const FIXTURE_DIR = new URL("./fixtures/", import.meta.url);
 const apiKey = Deno.env.get("OPENAI_API_KEY")!;
+// C3: Stage-1a is a Mistral OCR call, Stage-1b the pinned OpenAI structuring.
+const mistralKey = Deno.env.get("MISTRAL_API_KEY")!;
 const tmp = await Deno.makeTempDir({ prefix: "fidelity-" });
 
 function mime(name: string): string {
@@ -74,7 +76,7 @@ for (const mode of modes) {
     );
     let line: string;
     try {
-      const result = await runPagedExtraction(photos, apiKey);
+      const result = await runPagedExtraction(photos, mistralKey, apiKey);
       const denseSignaled = "needs_crops" in result;
       const detectorOk = denseSignaled === Boolean(fixture.dense);
       if (denseSignaled) {

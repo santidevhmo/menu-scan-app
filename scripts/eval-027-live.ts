@@ -119,7 +119,7 @@ async function extractMenu(
 ): Promise<Actual & { denseSignaled: boolean }> {
   // Phase-1 input: production-mirror compressed (see photoData above).
   const photos = await Promise.all(fixture.photos.map(photoData));
-  const phase1 = await runPagedExtraction(photos, mistralApiKey);
+  const phase1 = await runPagedExtraction(photos, mistralApiKey, apiKey);
   if (!("needs_crops" in phase1)) {
     return {
       image_quality: phase1.image_quality,

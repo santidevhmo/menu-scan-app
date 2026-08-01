@@ -360,7 +360,7 @@ serve(async (req) => {
       }
       // Per-page multi-photo recipe (iter-036): N photos ⇒ N parallel calls
       // merged into ONE menu; 1 photo ⇒ one call. Same path the eval gate proves.
-      const result = await runPagedExtraction(photos, MISTRAL_API_KEY);
+      const result = await runPagedExtraction(photos, MISTRAL_API_KEY, OPENAI_API_KEY);
       if ("needs_crops" in result) {
         // Dense page(s) detected: client must cut originals into 2x2 tiles
         // and re-submit everything via stage:"extract-pages".
@@ -368,7 +368,7 @@ serve(async (req) => {
           JSON.stringify({
             needs_crops: result.needs_crops,
             latency_ms: Date.now() - start,
-            model_id: "mistral-ocr-latest",
+            model_id: "mistral-ocr-4-0+gpt-4.1-2025-04-14",
           }),
           { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
         );
@@ -381,7 +381,7 @@ serve(async (req) => {
           items: result.items,
           raw_response: result.raw_response,
           latency_ms: Date.now() - start,
-          model_id: "mistral-ocr-latest",
+          model_id: "mistral-ocr-4-0+gpt-4.1-2025-04-14",
         }),
         { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
       );

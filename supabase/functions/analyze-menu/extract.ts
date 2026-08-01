@@ -8,8 +8,8 @@ import {
 } from "./postprocess.ts";
 import { mergeItemSources } from "./merge.ts";
 import { colocationStage } from "./colocation.ts";
-import { extractMistralWithRetry } from "./mistral-extract.ts";
-import { mistralCleanup, toExtractedItems } from "./mistral-cleanup.ts";
+import { ocrMistralWithRetry } from "./mistral-extract.ts";
+import { textStructureCleanup } from "./mistral-cleanup.ts";
 
 export const MODEL_TIMEOUT_MS = 120000;
 const EXTRACT_SEED = 17;
@@ -471,6 +471,142 @@ export async function verifyTileItemsBatched(
   ).flat();
 }
 
+// ─── STAGE-1b: structure the OCR text with a PINNED model (ruling 30) ────────
+// Mistral reads the photo; this call turns that text into our schema. The model
+// is a dated snapshot because vendor SUBSTITUTION — not sampling variance — is
+// what broke the previous architecture (evals 101/102). EXTRACT_PROMPT and
+// EXTRACT_SCHEMA are reused VERBATIM: the conventions already live in them.
+export const STRUCTURE_MODEL = "gpt-4.1-2025-04-14";
+
+export const TEXT_PROMPT_SUFFIX =
+  `\nThe menu is provided below as a verbatim OCR transcription of the photo, in
+reading order; printed headings appear as markdown headings. Work only from
+this text — there is no image, so set image_quality.usable=true with an empty
+issues list and image_layout dense=false, crop_direction="none".
+
+MENU TRANSCRIPTION:
+
+`;
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return typeof value === "object" && value !== null
+    ? value as Record<string, unknown>
+    : undefined;
+}
+
+/** The fixed request. temperature/seed/max_tokens are part of the measurement:
+ *  every score from eval 103 onward was taken with exactly these. */
+export function buildStructureRequest(
+  markdown: string,
+  model = STRUCTURE_MODEL,
+): unknown {
+  return {
+    model,
+    messages: [{
+      role: "user",
+      content: [{
+        type: "text",
+        text: EXTRACT_PROMPT + TEXT_PROMPT_SUFFIX + markdown,
+      }],
+    }],
+    response_format: {
+      type: "json_schema",
+      json_schema: { name: "menu_items", strict: true, schema: EXTRACT_SCHEMA },
+    },
+    temperature: 0,
+    seed: EXTRACT_SEED,
+    max_tokens: 16384,
+  };
+}
+
+export function parseStructureResponse(
+  json: unknown,
+): { image_quality: unknown; image_layout: unknown; items: unknown[] } {
+  const choices = asRecord(json)?.choices;
+  const choice = Array.isArray(choices) ? asRecord(choices[0]) : undefined;
+  if (!choice) throw new Error("OpenAI returned no extraction choice");
+  if (choice.finish_reason !== "stop") {
+    throw new Error(
+      `OpenAI extraction stopped with finish_reason=${
+        String(choice.finish_reason)
+      }`,
+    );
+  }
+  const content = asRecord(choice.message)?.content;
+  if (!content) throw new Error("OpenAI returned no extraction content");
+  if (typeof content !== "string") {
+    throw new Error("OpenAI extraction content must be a string");
+  }
+  const parsed = asRecord(JSON.parse(content));
+  if (!parsed || !Array.isArray(parsed.items)) {
+    throw new Error("OpenAI extraction content must contain an items array");
+  }
+  return {
+    image_quality: parsed.image_quality,
+    image_layout: parsed.image_layout,
+    items: parsed.items,
+  };
+}
+
+export async function structureMenuText(
+  markdown: string,
+  apiKey: string,
+): Promise<{ items: unknown[]; raw_response: string }> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), MODEL_TIMEOUT_MS);
+  try {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(buildStructureRequest(markdown)),
+      signal: controller.signal,
+    });
+    const raw_response = await res.text();
+    if (!res.ok) {
+      const message = asRecord(
+        asRecord(JSON.parse(raw_response))?.error,
+      )?.message;
+      throw new Error(
+        typeof message === "string" ? message : "OpenAI API error",
+      );
+    }
+    return {
+      items: parseStructureResponse(JSON.parse(raw_response)).items,
+      raw_response,
+    };
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error(
+        `Model request timed out after ${MODEL_TIMEOUT_MS / 1000}s`,
+      );
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function structureMenuTextWithRetry(
+  markdown: string,
+  apiKey: string,
+  structure = structureMenuText,
+): Promise<{ items: unknown[]; raw_response: string }> {
+  try {
+    return await structure(markdown, apiKey);
+  } catch (error) {
+    const message = String(error);
+    if (
+      !message.includes("timed out") &&
+      !message.includes("finish_reason=length")
+    ) throw error;
+    console.log("[extract] transient model failure — retrying call once");
+    return await structure(markdown, apiKey);
+  }
+}
+
 export type PagedExtraction = ExtractionResult | { needs_crops: number[] };
 
 function foldResults(
@@ -488,22 +624,49 @@ function foldResults(
   };
 }
 
+// Phase 1 under ruling 30: per photo, Mistral OCRs it to text and a pinned
+// model structures that text; then the deterministic chain.
+//
+// THE CHAIN ORDER IS LOAD-BEARING. It is copied from scripts/score-c-dumps.ts,
+// the harness that measured 40/45: postprocessItems PER PAGE -> mergeItemSources
+// -> ONE textStructureCleanup over ALL pages' markdown joined by "\n". The C2
+// folds read that markdown to decide whether a heading is a real section or a
+// dish card, so cleaning per page would hide headings printed on another page.
+// (The OLD annotation path cleaned per page because its guard keyed on that
+// photo's own layout `blocks`; the text path uses no blocks at all.)
 export async function runPagedExtraction(
   photos: string[],
-  apiKey: string,
-  extract = extractMistralWithRetry,
+  mistralKey: string,
+  openaiKey: string,
+  ocr = ocrMistralWithRetry,
+  structure = structureMenuTextWithRetry,
 ): Promise<PagedExtraction> {
-  const results = await Promise.all(photos.map(async (photo) => {
-    const raw = await extract(photo, apiKey);
+  const pages = await Promise.all(photos.map(async (photo) => {
+    const read = await ocr(photo, mistralKey);
+    const structured = await structure(read.markdown, openaiKey);
     return {
-      image_quality: { usable: true, issues: [] },
-      image_layout: { dense: false, crop_direction: "none" as const },
-      items: mistralCleanup(toExtractedItems(raw.items), raw.page),
-      raw_response: raw.raw_response,
+      markdown: read.markdown,
+      items: postprocessItems(structured.items as ExtractedMenuItem[]),
+      raw_response: JSON.stringify({
+        ocr: read.raw_response,
+        structure: structured.raw_response,
+      }),
     };
   }));
-  if (results.length === 1) return results[0];
-  return foldResults(results, mergeItemSources(results.map((r) => r.items)));
+  const merged = pages.length > 1
+    ? mergeItemSources(pages.map((page) => page.items))
+    : pages[0].items;
+  return {
+    image_quality: { usable: true, issues: [] },
+    image_layout: { dense: false, crop_direction: "none" as const },
+    items: textStructureCleanup(
+      merged,
+      pages.map((page) => page.markdown).join("\n"),
+    ),
+    raw_response: JSON.stringify(
+      pages.map((page) => JSON.parse(page.raw_response)),
+    ),
+  };
 }
 
 // Phase 2: stateless grouped extraction. A group is one page — either its

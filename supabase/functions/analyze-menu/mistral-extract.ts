@@ -1,95 +1,52 @@
 import { MODEL_TIMEOUT_MS } from "./extract.ts";
-import type { Page } from "./mistral-cleanup.ts";
 
-export const MENU_ANNOTATION_SCHEMA = {
-  type: "object",
-  properties: {
-    items: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          name: { type: "string" },
-          description: { type: "string" },
-          price: { type: ["number", "null"] },
-          category: {
-            type: "string",
-            enum: ["food", "side", "dessert", "drink", "other"],
-          },
-          section_title: { type: ["string", "null"] },
-          options: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                name: { type: "string" },
-                price: { type: ["number", "null"] },
-                grams: { type: ["number", "null"] },
-              },
-              required: ["name", "price", "grams"],
-              additionalProperties: false,
-            },
-          },
-        },
-        required: [
-          "name",
-          "description",
-          "price",
-          "category",
-          "section_title",
-          "options",
-        ],
-        additionalProperties: false,
-      },
-    },
-  },
-  required: ["items"],
-  additionalProperties: false,
-};
+// Ruling 35 (2026-08-01): name the version, never the `mistral-ocr-latest`
+// alias. `latest` moved under us once already — eval 101 saw results change
+// overnight with no code change and eval 102 spent two experiments proving the
+// drift was the vendor's. v4 is the exact model every measurement we own was
+// taken on (eval 102: same alias 07-22 vs 07-29, OCR text char-sim 0.9999).
+export const MISTRAL_OCR_MODEL = "mistral-ocr-4-0";
 
-export interface MistralExtraction {
-  items: unknown[];
-  page?: Page;
+export interface MistralOcr {
+  markdown: string;
   raw_response: string;
 }
 
-export function reshapeMistral(raw: unknown): unknown[] {
-  const response = (raw ?? {}) as Record<string, unknown>;
-  let annotation: unknown = response.document_annotation;
-  if (typeof annotation === "string") {
-    try {
-      annotation = JSON.parse(annotation);
-    } catch {
-      annotation = undefined;
-    }
-  }
-  return annotation && typeof annotation === "object" &&
-      Array.isArray((annotation as Record<string, unknown>).items)
-    ? (annotation as Record<string, unknown>).items as unknown[]
-    : [];
-}
-
-export function mistralPage(raw: unknown): Page | undefined {
-  const response = raw as {
-    pages?: {
-      blocks?: Page["blocks"];
-      dimensions: { width: number; height: number };
-    }[];
-  };
-  const page = response.pages?.[0];
-  return page
-    ? {
-      blocks: page.blocks ?? [],
-      width: page.dimensions.width,
-      height: page.dimensions.height,
-    }
+function record(value: unknown): Record<string, unknown> | undefined {
+  return typeof value === "object" && value !== null
+    ? value as Record<string, unknown>
     : undefined;
 }
 
-export async function extractMistral(
+function pagesMarkdown(value: unknown): string[] {
+  const pages = record(value)?.pages;
+  if (!Array.isArray(pages)) return [];
+  return pages.flatMap((page) => {
+    const markdown = record(page)?.markdown;
+    return typeof markdown === "string" ? [markdown] : [];
+  });
+}
+
+/** Reads either cached Mistral OCR response shape and joins its page markdown.
+ *  Lives here, not in the harness, so the $0 gate and production read a cached
+ *  or live response through the SAME function (master-roadmap lesson 23). */
+export function ocrMarkdown(cached: unknown): string {
+  const root = record(cached);
+  const responses = root?.responses;
+  const markdown = Array.isArray(responses)
+    ? pagesMarkdown(responses[0])
+    : pagesMarkdown(root);
+  if (markdown.length === 0) throw new Error("OCR cache has no markdown");
+  return markdown.join("\n\n");
+}
+
+/** Stage-1a: OCR the photo to text. No `document_annotation_format` — the
+ *  vendor's own structuring is what ruling 30 replaced (its LLM is unpinnable;
+ *  eval 101/102). We want the transcription, nothing else. */
+export async function ocrMistral(
   photo: string,
   apiKey: string,
-): Promise<MistralExtraction> {
+): Promise<MistralOcr> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), MODEL_TIMEOUT_MS);
   try {
@@ -100,20 +57,12 @@ export async function extractMistral(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "mistral-ocr-latest",
+        model: MISTRAL_OCR_MODEL,
         document: {
           type: "image_url",
           image_url: photo.startsWith("data:")
             ? photo
             : `data:image/jpeg;base64,${photo}`,
-        },
-        document_annotation_format: {
-          type: "json_schema",
-          json_schema: {
-            schema: MENU_ANNOTATION_SCHEMA,
-            name: "menu_extraction",
-            strict: true,
-          },
         },
       }),
       signal: controller.signal,
@@ -122,12 +71,7 @@ export async function extractMistral(
     if (!res.ok) {
       throw new Error(`Mistral OCR HTTP ${res.status}: ${raw_response}`);
     }
-    const response = JSON.parse(raw_response);
-    return {
-      items: reshapeMistral(response),
-      page: mistralPage(response),
-      raw_response,
-    };
+    return { markdown: ocrMarkdown(JSON.parse(raw_response)), raw_response };
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
       throw new Error(
@@ -140,16 +84,16 @@ export async function extractMistral(
   }
 }
 
-export async function extractMistralWithRetry(
+export async function ocrMistralWithRetry(
   photo: string,
   apiKey: string,
-  extract = extractMistral,
-): Promise<MistralExtraction> {
+  ocr = ocrMistral,
+): Promise<MistralOcr> {
   try {
-    return await extract(photo, apiKey);
+    return await ocr(photo, apiKey);
   } catch (error) {
     if (!String(error).includes("timed out")) throw error;
-    console.log("[extract] transient model failure — retrying call once");
-    return await extract(photo, apiKey);
+    console.log("[extract] transient OCR failure — retrying call once");
+    return await ocr(photo, apiKey);
   }
 }

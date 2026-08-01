@@ -80,8 +80,18 @@
     },
     {
       "name_contains": "Crispy Chicken",
-      "unchecked": true,
-      "options": []
+      "options": [
+        {
+          "name": "Grandes",
+          "price": 162,
+          "grams": 300
+        },
+        {
+          "name": "Jumbo",
+          "price": 235,
+          "grams": 600
+        }
+      ]
     },
     {
       "name_contains": "Cabeza",
@@ -95,23 +105,65 @@
     },
     {
       "name_contains": "Alitas",
-      "unchecked": true,
-      "options": []
+      "options": [
+        {
+          "name": "6 PZ",
+          "price": 129
+        },
+        {
+          "name": "12PZ",
+          "price": 169
+        },
+        {
+          "name": "20PZ",
+          "price": 269
+        }
+      ]
     },
     {
       "name_contains": "Ensalada Boneless",
-      "unchecked": true,
-      "options": []
+      "options": [
+        {
+          "name": "M (150gr)",
+          "price": 158,
+          "grams": 150
+        },
+        {
+          "name": "G (300gr)",
+          "price": 179,
+          "grams": 300
+        }
+      ]
     },
     {
       "name_contains": "Aguacate Chicken",
-      "unchecked": true,
-      "options": []
+      "options": [
+        {
+          "name": "M (150gr)",
+          "price": 178,
+          "grams": 150
+        },
+        {
+          "name": "G (300gr)",
+          "price": 199,
+          "grams": 300
+        }
+      ]
     },
     {
       "name_contains": "Ensalada Pollotera",
-      "unchecked": true,
-      "options": []
+      "options": [
+        {
+          "name": "M (150gr)",
+          "price": 168,
+          "grams": 150
+        },
+        {
+          "name": "G (300gr)",
+          "price": 189,
+          "grams": 300
+        }
+      ]
     },
     {
       "name_contains": "Gyro",

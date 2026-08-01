@@ -1,6 +1,7 @@
 # Spec / EXECUTOR TASK BLOCK — C3: port the (c) text path into the edge function
 
-**Date:** 2026-08-01 · **Status:** DESIGNED (planner), Santiago approved scope + the OCR pin
+**Date:** 2026-08-01 · **Status:** ✅ IMPLEMENTED 2026-08-01 (eval 114, commits `3946c6e` + `22239f7`)
+**Correction after implementation:** §4's claim that keeping the old per-page cleanup order would move dims is FALSE — measured, it is a strict no-op on today's fixtures (8 single-page menus; brasero-two has no cross-page fold). The order is pinned by the synthetic unit test only, not by the gate. See ledger eval 114.
 **Predecessor pattern:** `docs/superpowers/specs/2026-07-29-m3-1-mistral-edge-port-design.md`
 **Scope:** production edge code `supabase/functions/analyze-menu/` + the harness scripts that mirror it.
 **Cost:** checkpoints 1–2 are **$0**. Checkpoint 3 is ONE live menu, **under $0.05**, already approved.

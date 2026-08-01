@@ -2,7 +2,9 @@ import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
   dropOptionEchoItems,
   filterServingFormatOptions,
+  foldPerUnitPrice,
   foldSectionTitlePunctuation,
+  promoteSections,
   remapTruncatedSectionTitles,
   stripMenuNumbers,
 } from "./postprocess.ts";
@@ -256,4 +258,85 @@ Deno.test("remapTruncatedSectionTitles ignores null and unrelated titles", () =>
     null,
     "Sides",
   ]);
+});
+
+// eval 110 — promoteSections was exploding real dish CARDS, not just folded
+// sections. A folded section is a bare name + children; a dish card carries its
+// own description (brasero-two TACO LOIRO, guest-house PRIME TOMAHAWK*).
+Deno.test("promoteSections still explodes a description-less folded section", () => {
+  const cerdo = item("Cerdo", {
+    price: null,
+    section_title: "ESPECIALIDADES",
+    options: [
+      { name: "Bandiola Adobada (150gr)", price: null, grams: null },
+      { name: "Chistorra (150gr)", price: null, grams: null },
+    ],
+  });
+  const out = promoteSections([cerdo]);
+  assertEquals(out.map((i: ExtractedMenuItem) => i.name), [
+    "Bandiola Adobada (150gr)",
+    "Chistorra (150gr)",
+  ]);
+  assertEquals(out.map((i: ExtractedMenuItem) => i.section_title), [
+    "Cerdo",
+    "Cerdo",
+  ]);
+});
+
+Deno.test("promoteSections leaves a dish card that carries a description", () => {
+  const taco = item("TACO LOIRO (sirloin)", {
+    price: null,
+    description: "Taco de chile caribe relleno de panela marinada.",
+    section_title: "ESPECIALIDADES BRASERO",
+    options: [
+      { name: "picaña", price: 165, grams: null },
+      { name: "pollo", price: 150, grams: null },
+    ],
+  });
+  assertEquals(promoteSections([taco]), [taco]);
+});
+
+// A spared per-unit card must keep its printed rate as the item price
+// (ruling 31): the per-unit option is dropped later by
+// filterServingFormatOptions, which would otherwise take the price with it.
+Deno.test("foldPerUnitPrice takes the rate from a single per-unit option", () => {
+  const tomahawk = item("PRIME TOMAHAWK*", {
+    price: null,
+    options: [{ name: "per oz", price: 6.5, grams: null }],
+  });
+  assertEquals(foldPerUnitPrice([tomahawk])[0].price, 6.5);
+});
+
+Deno.test("foldPerUnitPrice leaves an already-priced item alone", () => {
+  const priced = item("STEAK", {
+    price: 40,
+    options: [{ name: "per oz", price: 6.5, grams: null }],
+  });
+  assertEquals(foldPerUnitPrice([priced])[0].price, 40);
+});
+
+Deno.test("foldPerUnitPrice ignores two per-unit options and priceless ones", () => {
+  const two = item("A", {
+    price: null,
+    options: [
+      { name: "per oz", price: 6.5, grams: null },
+      { name: "per lb", price: 90, grams: null },
+    ],
+  });
+  const bare = item("B", {
+    price: null,
+    options: [{ name: "per oz", price: null, grams: null }],
+  });
+  assertEquals(
+    foldPerUnitPrice([two, bare]).map((i: ExtractedMenuItem) => i.price),
+    [null, null],
+  );
+});
+
+Deno.test("foldPerUnitPrice ignores a real choice option", () => {
+  const dish = item("Tacos", {
+    price: null,
+    options: [{ name: "picaña", price: 165, grams: null }],
+  });
+  assertEquals(foldPerUnitPrice([dish])[0].price, null);
 });

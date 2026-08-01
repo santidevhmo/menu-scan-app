@@ -128,11 +128,17 @@ export function foldVariantCards(
 // section GPT-4o folded into one line. Un-fold it: each option becomes its own
 // item under section_title = the folded name; drop the placeholder. Format-priced
 // items (wines: null price, options are copa/botella/mxn) are left untouched.
+// A DESCRIPTION means it is a dish CARD, not a folded section (eval 110): a
+// folded section is a bare heading name plus its children, while a card prints
+// its own prose (brasero-two "TACO LOIRO (sirloin)" + its picaña/pollo choices,
+// guest-house "PRIME TOMAHAWK*" + "per oz"). Exploding those deleted a correct
+// extraction and turned the card into a spurious section.
 export function promoteSections(
   items: ExtractedMenuItem[],
 ): ExtractedMenuItem[] {
   return items.flatMap((item) => {
     const isFoldedSection = item.price === null &&
+      item.description.trim() === "" &&
       item.options.length > 0 &&
       !item.options.some((option) => hasServingFormatToken(option.name));
     if (!isFoldedSection) return [item];
@@ -304,6 +310,23 @@ const UNENUMERATED_CHOICE =
 // handles at item level).
 export const PER_UNIT_NOTE =
   /^\s*(?:c\/[a-z]\.?|(?:por|per)\s+\p{L}+\.?)\s*$/iu;
+
+// A card priced only by a printed rate ("PRIME TOMAHAWK* 6.50 PER OZ") carries
+// that rate as an option. filterServingFormatOptions drops per-unit notes, which
+// would take the price with it and leave the item priceless — so lift the rate
+// onto the item first. Ruling 31: show the printed rate, never compute a total.
+// Exactly one such option, or we cannot tell which rate is the item's.
+export function foldPerUnitPrice(
+  items: ExtractedMenuItem[],
+): ExtractedMenuItem[] {
+  return items.map((item) => {
+    if (item.price !== null) return item;
+    const rates = item.options.filter((option) =>
+      PER_UNIT_NOTE.test(option.name) && typeof option.price === "number"
+    );
+    return rates.length === 1 ? { ...item, price: rates[0].price } : item;
+  });
+}
 
 // A pure weight/volume token is a weight note, not a choice (grams live in the
 // grams field). "650gr", "80 gr.", "300ml".
@@ -522,8 +545,8 @@ export function postprocessItems(
   // ("Bandiola Adobada (150gr)") also get their printed weight parsed.
   return parseItemGrams(dropSiblingEchoOptions(filterServingFormatOptions(
     extractInlineChoices(
-      dropHeaderEchoes(nullPriceNoteSections(promoteSections(foldVariantCards(
-        dropPriceNoteItems(stripMenuNumbers(items)),
+      dropHeaderEchoes(nullPriceNoteSections(foldPerUnitPrice(promoteSections(
+        foldVariantCards(dropPriceNoteItems(stripMenuNumbers(items))),
       )))),
     ),
   )));

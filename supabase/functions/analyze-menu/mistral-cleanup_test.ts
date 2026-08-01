@@ -222,3 +222,165 @@ Deno.test("textStructureCleanup folds a section matched by a trailing bare headi
     ],
   })]);
 });
+
+// ─── MULTI-VERSION CARD FOLD (eval 111) ──────────────────────────────────────
+// A card prints its dish name once and each version on its own short line:
+//
+//     WAFFLES
+//       Con plátano, canela y miel balsámica   70
+//       Con Frutos rojos                       78
+//
+// The model emits that as two dishes with the card name welded on. Folding it
+// is easy; folding it WITHOUT destroying menus that merely repeat a first word
+// is the whole problem. THE REFUSALS BELOW ARE THE POINT — each is a real group
+// from a real fixture menu that the rule must decline. They were measured: the
+// unguarded rule fires 51 times across the 9 menus, the guarded one 6.
+
+Deno.test("folds a welded multi-version card (el-marcos WAFFLES)", () => {
+  const md = [
+    "# DE LA PANADERÍA",
+    "WAFFLES",
+    "Con plátano, canela y miel balsámica 70",
+    "Con Frutos rojos 78",
+  ].join("\n");
+  const out = cleanWithMarkdown([
+    item({
+      name: "WAFFLES Con plátano, canela y miel balsámica",
+      price: 70,
+      section_title: "DE LA PANADERÍA",
+    }),
+    item({
+      name: "WAFFLES Con Frutos rojos",
+      price: 78,
+      section_title: "DE LA PANADERÍA",
+    }),
+  ], md);
+  assertEquals(out.length, 1);
+  assertEquals(out[0].name, "WAFFLES");
+  assertEquals(out[0].price, 70);
+  assertEquals(out[0].options.map((o) => [o.name, o.price]), [
+    ["Con Frutos rojos", 78],
+  ]);
+});
+
+Deno.test("REFUSES two different dishes sharing a first word (casa-nostra Gnocchi)", () => {
+  const md = [
+    "# Pasta",
+    "Gnocchi alla sorrentina 250",
+    "Gnocchi toscano 265",
+  ].join("\n");
+  const source = [
+    item({
+      name: "Gnocchi alla sorrentina",
+      price: 250,
+      section_title: "Pasta",
+    }),
+    item({ name: "Gnocchi toscano", price: 265, section_title: "Pasta" }),
+  ];
+  assertEquals(cleanWithMarkdown(source, md), source);
+});
+
+Deno.test("REFUSES a dish whose full name extends another's (mochomos Tostadas de Atún)", () => {
+  const md = [
+    "# TACOS Y TOSTADAS",
+    "TOSTADAS DE ATÚN 340",
+    "TOSTADAS DE ATÚN AL AJONJOLÍ 335",
+  ].join("\n");
+  const source = [
+    item({
+      name: "TOSTADAS DE ATÚN",
+      price: 340,
+      section_title: "TACOS Y TOSTADAS",
+    }),
+    item({
+      name: "TOSTADAS DE ATÚN AL AJONJOLÍ",
+      price: 335,
+      section_title: "TACOS Y TOSTADAS",
+    }),
+  ];
+  assertEquals(cleanWithMarkdown(source, md), source);
+});
+
+Deno.test("REFUSES sibling cards whose versions are their own headings (polloteria Paletas)", () => {
+  const md = ["# Paletas Heladas", "# AGUA $20", "# CREMA $30"].join("\n");
+  const source = [
+    item({ name: "Paletas Heladas AGUA", price: 20 }),
+    item({ name: "Paletas Heladas CREMA", price: 30 }),
+  ];
+  assertEquals(cleanWithMarkdown(source, md), source);
+});
+
+Deno.test("REFUSES same-named dishes that sit in different sections (el-marcos Machaca)", () => {
+  const md = [
+    "# MEXICANOS",
+    "MACHACA",
+    "Con huevo o verdura (Machaca 30gr.) 98",
+    "# DE LA PLAYA",
+    "Machaca de Marlín c/huevo o verdura",
+    "98",
+  ].join("\n");
+  const source = [
+    item({ name: "MACHACA", price: 98, section_title: "MEXICANOS" }),
+    item({
+      name: "Machaca de Marlín c/huevo o verdura",
+      price: 98,
+      section_title: "DE LA PLAYA",
+    }),
+  ];
+  assertEquals(cleanWithMarkdown(source, md), source);
+});
+
+Deno.test("folds a card the model mistook for a section (el-marcos REVUELTOS)", () => {
+  const md = [
+    "# HUEVOS",
+    "REVUELTOS",
+    "Dos huevos naturales 78",
+    "Dos huevos a la mexicana 84",
+  ].join("\n");
+  const out = cleanWithMarkdown([
+    item({
+      name: "Dos huevos naturales",
+      price: 78,
+      section_title: "REVUELTOS",
+    }),
+    item({
+      name: "Dos huevos a la mexicana",
+      price: 84,
+      section_title: "REVUELTOS",
+    }),
+  ], md);
+  assertEquals(out.length, 1);
+  assertEquals(out[0].name, "REVUELTOS");
+  assertEquals(out[0].price, 78);
+  assertEquals(out[0].section_title, "HUEVOS");
+  assertEquals(out[0].options.map((o) => [o.name, o.price]), [
+    ["Dos huevos a la mexicana", 84],
+  ]);
+});
+
+Deno.test("REFUSES to fold a real section that IS a markdown heading", () => {
+  const md = ["# ENSALADAS", "ENSALADA GRIEGA 185", "ENSALADA BISTRO 225"].join(
+    "\n",
+  );
+  const source = [
+    item({ name: "ENSALADA GRIEGA", price: 185, section_title: "ENSALADAS" }),
+    item({ name: "ENSALADA BISTRO", price: 225, section_title: "ENSALADAS" }),
+  ];
+  assertEquals(cleanWithMarkdown(source, md), source);
+});
+
+Deno.test("omitting the markdown stays byte-identical (both fold rules are inert)", () => {
+  const source = [
+    item({
+      name: "WAFFLES Con plátano",
+      price: 70,
+      section_title: "DE LA PANADERÍA",
+    }),
+    item({
+      name: "WAFFLES Con Frutos rojos",
+      price: 78,
+      section_title: "DE LA PANADERÍA",
+    }),
+  ];
+  assertEquals(textStructureCleanup(source), source);
+});

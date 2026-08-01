@@ -228,6 +228,180 @@ function foldPricedHeadingCards(
   });
 }
 
+// ─── MULTI-VERSION CARD FOLD (eval 111) ──────────────────────────────────────
+// A card prints its dish name once and each version on its own short line:
+//
+//     WAFFLES
+//       Con plátano, canela y miel balsámica   70
+//       Con Frutos rojos                       78
+//
+// The model returns that as two dishes, either with the card name welded onto
+// each version ("WAFFLES Con Frutos rojos") or with the card name promoted to a
+// section. Both are one printed dish with two priced choices (ruling 1).
+//
+// THE HARD PART IS NOT FOLDING — IT IS REFUSING. Menus constantly list distinct
+// dishes sharing a first word (Gnocchi alla sorrentina / Gnocchi toscano; PASTA
+// AL PESTO / PASTA ALFREDO; TOSTADAS DE ATÚN / TOSTADAS DE ATÚN AL AJONJOLÍ).
+// Measured across the 9 fixture menus: an unguarded prefix rule fires 51 times
+// and would merge real dishes on 7 of them; the guards below cut that to 6, all
+// genuine. The discriminator is LAYOUT, not vocabulary, so it carries no
+// language assumption: a version is a line the menu prints on its own, while a
+// distinct dish prints its FULL name on every line.
+const PRICE_TAIL = /\$?\s*\d+(?:[.,]\d+)?\s*(?:mxn)?\s*$/i;
+
+/** Comparison key shared by names, section titles and OCR lines (lesson 12: one
+ *  matcher, used on both sides of every comparison). */
+function textKey(value: string): string {
+  const bare = headingText(value).replace(PRICE_TAIL, "").trim();
+  return norm(normalizeSectionTitle(bare) ?? bare).join(" ");
+}
+
+/** True when `text` opens a line the menu prints WITHOUT a `#` — i.e. the menu
+ *  gives it a line of its own, which is what makes it a version rather than
+ *  part of a longer dish name. */
+function opensPlainLine(lines: string[], text: string): boolean {
+  const want = norm(text);
+  if (want.length === 0) return false;
+  return lines.some((line) => {
+    if (line.startsWith("#")) return false;
+    const tokens = norm(line.replace(PRICE_TAIL, ""));
+    return tokens.length >= want.length &&
+      tokens.slice(0, want.length).join(" ") === want.join(" ");
+  });
+}
+
+function cardFrom(
+  name: string,
+  members: ExtractedMenuItem[],
+  section: string | null,
+  optionName: (member: ExtractedMenuItem) => string,
+): ExtractedMenuItem {
+  const [base, ...rest] = [...members].sort((a, b) =>
+    (a.price ?? Number.MAX_SAFE_INTEGER) - (b.price ?? Number.MAX_SAFE_INTEGER)
+  );
+  return {
+    name,
+    // Keep the base version's printed prose — the scorer ignores description,
+    // but it is what the diner reads, and dropping it silently loses real menu
+    // text (CHILAQUILES' "Tradicionales. Con pollo, crema y queso gratinado…").
+    description: base.description,
+    price: base.price,
+    category: base.category,
+    section_title: section,
+    options: [
+      ...members.flatMap((member) => member.options),
+      ...rest.map((member) => ({
+        name: optionName(member),
+        price: member.price,
+        grams: member.grams,
+      })),
+    ],
+    grams: base.grams,
+  };
+}
+
+/** The card title was mistaken for a SECTION (el-marcos REVUELTOS / FRITOS).
+ *  A real section is a `#` heading in the OCR; a card title is plain text. */
+function foldUnpricedCardSections(
+  items: ExtractedMenuItem[],
+  markdown?: string,
+): ExtractedMenuItem[] {
+  if (!markdown) return items;
+  const lines = markdown.split("\n").map((l) => l.trim()).filter(Boolean);
+  const headings = new Set(
+    lines.filter((line) => line.startsWith("#")).map(textKey),
+  );
+  const sections = new Map<string, ExtractedMenuItem[]>();
+  for (const it of items) {
+    if (!it.section_title) continue;
+    sections.set(it.section_title, [
+      ...(sections.get(it.section_title) ?? []),
+      it,
+    ]);
+  }
+  const cards = new Map<string, ExtractedMenuItem>();
+  for (const [title, members] of sections) {
+    if (members.length < 2 || headings.has(textKey(title))) continue;
+    const at = lines.findIndex((line) =>
+      !line.startsWith("#") && textKey(line) === textKey(title)
+    );
+    if (at < 0) continue;
+    const parent = lines.slice(0, at).reverse()
+      .find((line) => line.startsWith("#"));
+    cards.set(
+      title,
+      cardFrom(
+        title,
+        members,
+        parent ? headingText(parent).replace(PRICE_TAIL, "").trim() : null,
+        (member) => member.name,
+      ),
+    );
+  }
+  const seen = new Set<string>();
+  return items.flatMap((it) => {
+    if (!it.section_title || !cards.has(it.section_title)) return [it];
+    if (seen.has(it.section_title)) return [];
+    seen.add(it.section_title);
+    return [cards.get(it.section_title)!];
+  });
+}
+
+/** The card title was WELDED onto every version's name (el-marcos WAFFLES,
+ *  HOT CAKES, CHILAQUILES, PLATO SURTIDO). */
+function foldWeldedPrefixCards(
+  items: ExtractedMenuItem[],
+  markdown?: string,
+): ExtractedMenuItem[] {
+  if (!markdown) return items;
+  const lines = markdown.split("\n").map((l) => l.trim()).filter(Boolean);
+  const printed = new Set(lines.map(textKey));
+  const folds = new Map<string, ExtractedMenuItem>();
+  const tried = new Set<string>();
+  for (const candidate of items) {
+    const words = candidate.name.split(/\s+/);
+    for (let take = words.length; take >= 1; take--) {
+      const prefix = words.slice(0, take).join(" ");
+      const key = norm(prefix).join(" ");
+      if (key.length === 0 || tried.has(key)) continue;
+      const members = items.filter((it) => {
+        const name = norm(it.name).join(" ");
+        return name === key || name.startsWith(`${key} `);
+      });
+      if (members.length < 2) continue;
+      tried.add(key);
+      // The card title must be a line the menu actually prints...
+      if (!printed.has(key)) break;
+      // ...and every version must be printed on a line of its own. A distinct
+      // dish prints its whole name, so its "suffix" never opens a line.
+      const versions = members.filter((it) => norm(it.name).join(" ") !== key);
+      const suffix = (it: ExtractedMenuItem) =>
+        it.name.slice(prefix.length).trim();
+      if (
+        versions.length === 0 ||
+        !versions.every((it) => opensPlainLine(lines, suffix(it)))
+      ) break;
+      folds.set(
+        key,
+        cardFrom(prefix, members, members[0].section_title, suffix),
+      );
+      break;
+    }
+  }
+  if (folds.size === 0) return items;
+  const seen = new Set<string>();
+  return items.flatMap((it) => {
+    const name = norm(it.name).join(" ");
+    const key = [...folds.keys()].find((k) =>
+      name === k || name.startsWith(`${k} `)
+    );
+    if (!key) return [it];
+    if (seen.has(key)) return [];
+    seen.add(key);
+    return [folds.get(key)!];
+  });
+}
+
 /** Deterministic cleanup for the (c) text-structuring path (ruling 30).
  *  Model-agnostic only — acts on the model's own labels/titles, never on
  *  Mistral-annotation artifacts. C3 renames this module. */
@@ -240,9 +414,18 @@ export function textStructureCleanup(
     section_title: normalizeSectionTitle(it.section_title),
   }));
   const filtered = dropDrinkSections(dropOtherCategoryItems(normalized));
-  return foldPricedHeadingCards(
-    foldPerUnitNoteSections(
-      foldSmallestOptionGrams(dropSelfNamedSectionTitles(filtered)),
+  // Order is load-bearing and test-pinned: foldUnpricedCardSections collapses
+  // REVUELTOS/FRITOS into single items FIRST, which is what stops
+  // foldWeldedPrefixCards from seeing their duplicate child names as one card.
+  return foldWeldedPrefixCards(
+    foldUnpricedCardSections(
+      foldPricedHeadingCards(
+        foldPerUnitNoteSections(
+          foldSmallestOptionGrams(dropSelfNamedSectionTitles(filtered)),
+        ),
+        markdown,
+      ),
+      markdown,
     ),
     markdown,
   );

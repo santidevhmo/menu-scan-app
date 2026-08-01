@@ -112,6 +112,10 @@ if (import.meta.main) {
   );
   const model = Deno.env.get("MODEL") ?? "gpt-4o-2024-11-20";
   const tag = Deno.env.get("TAG") ?? "eval103c";
+  // RUN=N keeps draws apart. The structuring model returns a different but
+  // valid item list per call (eval 116), so one draw is a sample, not a
+  // measurement — every draw must be archived separately.
+  const run = Number(Deno.env.get("RUN") ?? "1");
   const outDir = Deno.env.get("OUT_DIR") ?? MENU_DIR;
   const bodies = markdowns.map((markdown) => buildRequest(markdown, model));
 
@@ -140,22 +144,22 @@ if (import.meta.main) {
       merged,
     );
     await Deno.writeTextFile(
-      `${outDir}/${menu}.${tag}-r1.raw.json`,
+      `${outDir}/${menu}.${tag}-r${run}.raw.json`,
       JSON.stringify(payloads.raw, null, 2),
     );
     for (const [page, { raw }] of responses.entries()) {
       if (page === 0) continue;
       await Deno.writeTextFile(
-        `${outDir}/${menu}.${tag}-r1.p${page}.raw.json`,
+        `${outDir}/${menu}.${tag}-r${run}.p${page}.raw.json`,
         JSON.stringify(raw, null, 2),
       );
     }
     await Deno.writeTextFile(
-      `${outDir}/${menu}.${tag}-r1.nopost.dump.json`,
+      `${outDir}/${menu}.${tag}-r${run}.nopost.dump.json`,
       JSON.stringify(payloads.nopost, null, 2),
     );
     await Deno.writeTextFile(
-      `${outDir}/${menu}.${tag}-r1.dump.json`,
+      `${outDir}/${menu}.${tag}-r${run}.dump.json`,
       JSON.stringify(payloads.post, null, 2),
     );
     const choices = record(responses[0].raw)?.choices;

@@ -85,12 +85,13 @@ export async function itemsFromRaw(
   tag: string,
   transform: (items: ExtractedMenuItem[]) => ExtractedMenuItem[] =
     postprocessItems,
+  run = 1,
 ): Promise<ExtractedMenuItem[]> {
   const pages = await Promise.all(
     ocrSourcePaths(menu).map(async (_, page) => {
       const path = page === 0
-        ? `${MENU_DIR}/${menu}.${tag}-r1.raw.json`
-        : `${MENU_DIR}/${menu}.${tag}-r1.p${page}.raw.json`;
+        ? `${MENU_DIR}/${menu}.${tag}-r${run}.raw.json`
+        : `${MENU_DIR}/${menu}.${tag}-r${run}.p${page}.raw.json`;
       return parseResponse(JSON.parse(await Deno.readTextFile(path)))
         .items as ExtractedMenuItem[];
     }),

@@ -1,5 +1,9 @@
 # CLAUDE.md
 
+## ⛔ OCR extraction / eval / pipeline work — MANDATORY entry point
+
+Touching extraction, the menu pipeline, `scripts/fixtures/`, `supabase/functions/analyze-menu/`, or any eval/scoring code? **STOP and read `docs/superpowers/horizontal-menus/DELEGATION-PROMPT.txt` FIRST** (in the eval worktree `.worktrees/extraction-eval-harness`, branch `feat/extraction-eval-harness`). It holds the current state, your role, and 27 lessons from real mistakes previous LLMs made here. Hard rules that hold even if you read nothing else: `scripts/fixtures/*.expected.json` and `scripts/fixtures/drafts/*` are ORACLE files — never edit without an explicit Santiago ruling from the photo; never `deno fmt` a glob reaching `scripts/fixtures/`; never quote a single-draw score as quality (report the range); every paid run archives its raw responses; ledger every experiment before the session ends.
+
 Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.

@@ -1419,3 +1419,12 @@ Rules:
 - **THE ONE OPEN DIM — deliberately NOT covered by the ruling:** el-marcos `options` fails r1/r3 on the Chilaquiles multi-version card: the model splits `Regionales` into a standalone item 2 draws in 3 (r2 emits the full card natively). It was not in the seven-item table, so no tolerance was fabricated for it. Paths: tolerate (Chilaquiles pin unchecked + tolerated names) / extend the eval-111 fold to this shape (a rule — brainstorm + firing-list discipline) / accept as brasero-two-class variance. SANTIAGO'S CALL.
 - **What "tolerated" means in production, recorded honestly:** users may occasionally see FOIE GRAS labelled a side, truffle/caviar portions blank, a `MATERIALES` section name, and printed add-ons/choices as options. Every one is printed text or an input limit — zero inventions.
 - Running total ~**$2.57** (this eval $0).
+
+## Eval 126 — 🚀 DEPLOYED TO PRODUCTION + smoke PASS (~$0.03). The (c) pipeline is live
+
+- Date: 2026-08-01 (evening) | Santiago approved deploy; el-marcos tolerance encoded first (eval 125b: Chilaquiles pin unchecked + queso-panela/mezcla tolerated names + Hot-Cakes jamón price dropped) ⇒ **the eval-124 live runs re-grade 45/45/45**, offline 44-45.
+- **Deploy:** first attempt failed — project `uonuiadueykynbetxxrw` was INACTIVE (free-tier auto-pause; no production traffic since mid-July). Santiago restored it from the dashboard; `supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw` from the WORKTREE then succeeded (bundle 90kB). Pre-checks: prod secrets MISTRAL_API_KEY + OPENAI_API_KEY sha256-match `.env.local` exactly; rollback snapshot exists (`supabase/backups/deployed-fn-2026-07-12`, primary folder).
+- **Smoke (production endpoint, passthrough data-URL exactly as the client sends):** HTTP 200 in 9.8s, `model_id: mistral-ocr-4-0+gpt-4.1-2025-04-14`, **24 food items = bistro's gated 24/24**, sections correct (PIZZAS BISTRO...), zero drinks/inventions in the sample audit.
+- **Pipeline diagram banner updated** (primary folder) — records the deploy; the full diagram rewrite below the banner is STILL OWED.
+- **PHASE STATUS after this:** extraction close pending 3 checks — (1) one real DEVICE scan end-to-end, (2) the HELD-OUT new-menu test (score BEFORE tuning — Santiago's stated next step), (3) a cheap rotation re-probe under (c) (ruling 27 launch scope; eval 094 predates the migration). Stage-2 enrichment benchmark remains its own phase (never gated).
+- Cost ~$0.03. Running total ~**$2.60**.

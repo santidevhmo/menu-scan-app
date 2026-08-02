@@ -2,12 +2,14 @@
 
 > # ⛔ STALE AS OF 2026-07-29, STILL STALE AT 2026-08-01 — DO NOT TREAT THIS FILE AS TRUTH
 >
-> **2026-08-01 update — the rewrite is now DUE and deliberately not done yet.** The earlier note said this
-> file would be rewritten once C3 landed. C3 HAS landed: the edge function now runs Stage-1a Mistral OCR
-> (`mistral-ocr-4-0`, pinned) → Stage-1b `gpt-4.1-2025-04-14` (pinned) → `postprocessItems` per page →
-> `mergeItemSources` → one `textStructureCleanup`. **But the DEPLOYED function still runs the OLD path**, so a
-> correct diagram has to show BOTH until the deploy step happens, and the deploy is blocked by C4 (the first
-> 9-menu ×3 live gate failed 0/3). Rewriting now would document a third state that is about to change again.
+> **2026-08-01 (evening) — THE NEW PIPELINE IS DEPLOYED TO PRODUCTION.** `supabase functions deploy
+> analyze-menu` succeeded (project restored from pause first) and the live smoke test returned
+> `model_id: mistral-ocr-4-0+gpt-4.1-2025-04-14` with bistro's exact gated 24/24 items in 8.7s.
+> Production NOW runs: Stage-1a Mistral OCR (`mistral-ocr-4-0`, pinned) → Stage-1b `gpt-4.1-2025-04-14`
+> (pinned, `EXTRACT_PROMPT`/`EXTRACT_SCHEMA`) → `postprocessItems` per page → `mergeItemSources` → one
+> `textStructureCleanup`. C4 closed on the range verdict after Santiago's tolerance rulings (evals 122-125b:
+> live 45/45/45 re-graded, offline 44-45/45; ledger). Rollback: `supabase/backups/deployed-fn-2026-07-12`.
+> **The full diagram rewrite is still owed** — everything below the banner still draws the OLD path.
 > Authoritative until then: `docs/superpowers/horizontal-menus/DELEGATION-BRIEF.md` progress log (newest first).
 >
 > Everything below describes the pipeline as of **2026-07-12** and is now wrong in its most important

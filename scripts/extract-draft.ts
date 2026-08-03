@@ -2,7 +2,7 @@
 // runs the full production path (passthrough input; dense → 2x2 tiles from the
 // ORIGINAL) and writes scripts/fixtures/drafts/<photo>.draft.json (oracle files
 // live in the repo — see fixtures/drafts/README.md).
-// Usage: OPENAI_API_KEY=... deno run --allow-read --allow-write --allow-env \
+// Usage: OPENAI_API_KEY=... MISTRAL_API_KEY=... deno run --allow-read --allow-write --allow-env \
 //   --allow-net --allow-run scripts/extract-draft.ts BistroMenu.png PolloteriaMenu.png
 // Multi-page menus: comma-join pages into one arg ("PageOne.png,PageTwo.png").
 import {
@@ -14,6 +14,9 @@ import { photoPath, productionPhotoData } from "./photo-input.ts";
 import { cutTile } from "./tile-cut.ts";
 
 const apiKey = Deno.env.get("OPENAI_API_KEY")!;
+// C3 split the extractor: Stage-1a is a Mistral OCR call, Stage-1b the pinned
+// OpenAI structuring. Both keys are required for the paged (non-tile) path.
+const mistralKey = Deno.env.get("MISTRAL_API_KEY")!;
 const tmp = await Deno.makeTempDir({ prefix: "draft-" });
 
 async function dims(path: string): Promise<{ w: number; h: number }> {
@@ -49,7 +52,7 @@ for (const arg of Deno.args) {
   );
   let result;
   let dense: number[] = [];
-  const phase1 = await runPagedExtraction(photos, apiKey);
+  const phase1 = await runPagedExtraction(photos, mistralKey, apiKey);
   if ("needs_crops" in phase1) {
     dense = phase1.needs_crops;
     const denseSet = new Set(dense);

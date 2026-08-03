@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-E8B7r5chf4FdCj338EWaHC6Ci8ZbC",
+  "object": "chat.completion",
+  "created": 1785618099,
+  "model": "gpt-4.1-2025-04-14",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"image_quality\":{\"usable\":true,\"issues\":[]},\"image_layout\":{\"dense\":false,\"crop_direction\":\"none\"},\"items\":[{\"name\":\"TACO DE LEITE\",\"description\":\"Taco de deliciosa tripa de leche sobre cama de sirloin en trozos.\",\"price\":null,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES BRASERO\",\"options\":[]},{\"name\":\"TACO FRANGO\",\"description\":\"Taco de pechuga de pollo relleno de queso envuelta en tocino, mezcla criolla de frijol negro y elote tostado.\",\"price\":null,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES BRASERO\",\"options\":[]},{\"name\":\"TACO LOIRO (sirloin)\",\"description\":\"Taco de chile caribe relleno de panela marinada envuelta en tocino.\",\"price\":null,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES BRASERO\",\"options\":[{\"name\":\"picaña\",\"price\":165,\"grams\":null},{\"name\":\"pollo\",\"price\":150,\"grams\":null}]},{\"name\":\"TACO SAMBA\",\"description\":\"Diezmillo en tortilla de su elección, cubierta de guiso de feijoada.\",\"price\":null,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES BRASERO\",\"options\":[]},{\"name\":\"TACO RANCHERO\",\"description\":\"Arrachera asada, tortilla de harina en base de frijol.\",\"price\":null,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES BRASERO\",\"options\":[]},{\"name\":\"TACO SONORA\",\"description\":\"Diezmillo en tortilla de su elección con queso y chile verde a las brasas.\",\"price\":165,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES BRASERO\",\"options\":[]},{\"name\":\"TACO PORCO\",\"description\":\"Taco de bandiola adobada, betabel, cacahuate, piña y cilantro.\",\"price\":null,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES BRASERO\",\"options\":[]},{\"name\":\"TOSTA BRASIL (picaña)\",\"description\":\"Tostada de picaña en una cama de feijoada y mix de pimiento encima.\",\"price\":null,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES BRASERO\",\"options\":[]},{\"name\":\"TOSTA ATUM\",\"description\":\"Tostada de atún sellado con rub de chiles, portobello y elote asado, pepino, jicama, salseado con ponzu y ajonjolí.\",\"price\":null,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES BRASERO\",\"options\":[]},{\"name\":\"TACO BRASERO\",\"description\":\"Taco de carne asada de diezmillo en tortilla de su elección.\",\"price\":null,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES BRASERO\",\"options\":[]},{\"name\":\"TACO TRADICIONAL\",\"description\":\"Taco de arrachera en tortilla de su elección.\",\"price\":null,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES BRASERO\",\"options\":[]},{\"name\":\"TACO EL CAPRICHO\",\"description\":\"Taco de arrachera en base de lechuga fresca y costra de queso.\",\"price\":100,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES BRASERO\",\"options\":[]},{\"name\":\"BANDIOLA ADOBADA (60gr)\",\"description\":\"\",\"price\":110,\"category\":\"food\",\"section_title\":\"CERDO\",\"options\":[]},{\"name\":\"CHISTORRA (60gr)\",\"description\":\"\",\"price\":100,\"category\":\"food\",\"section_title\":\"CERDO\",\"options\":[]},{\"name\":\"SIRLOIN (60gr)\",\"description\":\"\",\"price\":135,\"category\":\"food\",\"section_title\":\"RES\",\"options\":[]},{\"name\":\"PICAÑA (60gr)\",\"description\":\"\",\"price\":140,\"category\":\"food\",\"section_title\":\"RES\",\"options\":[]},{\"name\":\"CHICHARRÓN (80gr)\",\"description\":\"\",\"price\":90,\"category\":\"food\",\"section_title\":\"RES\",\"options\":[]},{\"name\":\"PECHUGA AL LIMÓN RELLENA DE QUESO ENVUELTA EN TOCINO (60gr)\",\"description\":\"\",\"price\":110,\"category\":\"food\",\"section_title\":\"POLLO\",\"options\":[]},{\"name\":\"FILETE DE ATÚN SELLADO CON RUB ROJO A LA PARRILLA (60gr)\",\"description\":\"\",\"price\":110,\"category\":\"food\",\"section_title\":\"ATÚN\",\"options\":[]},{\"name\":\"PAPAS CAMBRAY\",\"description\":\"\",\"price\":60,\"category\":\"side\",\"section_title\":\"GUARNICIONES\",\"options\":[]},{\"name\":\"CHILE RELLENO\",\"description\":\"\",\"price\":50,\"category\":\"side\",\"section_title\":\"GUARNICIONES\",\"options\":[]},{\"name\":\"CEBOLLAS CAMBRAY\",\"description\":\"\",\"price\":40,\"category\":\"side\",\"section_title\":\"GUARNICIONES\",\"options\":[]},{\"name\":\"ORDEN DE TORTILLAS\",\"description\":\"\",\"price\":35,\"category\":\"side\",\"section_title\":\"GUARNICIONES\",\"options\":[]},{\"name\":\"BROWNIE\",\"description\":\"Brownie de la casa con nieve de vainilla y fresas.\",\"price\":130,\"category\":\"dessert\",\"section_title\":\"P O S T R E S\",\"options\":[]},{\"name\":\"ROLLOS DE CREPA\",\"description\":\"Crepa crujiente y azucarada acompañada de dulce de leche, chocolate y helado de vainilla.\",\"price\":140,\"category\":\"dessert\",\"section_title\":\"P O S T R E S\",\"options\":[]}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1634,
+    "completion_tokens": 1144,
+    "total_tokens": 2778,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_c935aef436"
+}

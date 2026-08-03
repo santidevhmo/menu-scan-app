@@ -1,0 +1,810 @@
+{
+  "pages": [
+    {
+      "index": 0,
+      "markdown": "Photo - Jan 2026\n\n# RAW BAR\n\nCOASTAL OYSTERS (6) DF, GF 28\n\nchilled with cocktail sauce | mignonette\n\nSHRIMP COCKTAIL DF, GF 25\n\nchili cocktail sauce | lemon\n\nHAMACHI CRUDO* DF, GF 29\n\njalapeño | coconut | lime\n\nCAVIAR SERVICE & TOASTED BRIOCHE MP\n\ntraditional accoutrements\n\nHALF MAINE LOBSTER TAIL 35\n\nchilled or grilled\n\nTAYLOR BAY SCALLOP CEVICHE 28\n\nyuzu | lychee | lavender | lime\n\n# STARTERS\n\nSTEAK TARTARE 27\n\ntruffle toast\n\nCHICKEN TENDERS 24\n\nranchi | sweet bbq aciel\n\nCRAB CAKE 39\n\nmasa cracker | corn relish | smoked tomato butter\n\nCHARRED MOROCCAN BEET v 24\n\ncucumber yogurt | pistachio dukkah | burnt citrus\n\n# SALADS\n\nLITTLE GEM CAESAR 19\n\nrustic house-made croutons | parmigiano reggiano\n\nPEARS & GORGONZOLA 20\n\nhoney vinaigrette | pickled shallots | walnuts\n\nSHAVED BRUSSEL SPROUTS 21\n\ntoasted hazelnuts | crushed red grapes | aged gouda\n\nWARM BURRATA\n\ncocoon tomatoes | jesper toasted focacia | fresh basil\n\n# GUEST HOUSE\n\nSOCIAL DINING & WINE GARDEN\n\n# SEAFOOD PLATEAU*\n\nchilled or warm / shrimp | maine lobster | king crab\n\nroasted bay scallops | oysters | clams\n\nFOR TWO • 150 - FOR THREE OR MORE • 280\n\n# BUTCHER'S BEST\n\nPRIME TOMAHAWK* GF, DF 6.50 PER OZ\n\nthyme | peppercorn | brown sugar\n\n40-DAY DRY AGED BONE-IN RIBEYE* 20 OZ GF 145\n\nroasted carrot\n\nPARMESAN-CRUSTED FILET* 7 OZ / 10 OZ 65 / 85\n\nroasted allium | veal reduction\n\nBUTCHER'S CUT* GF 63\n\nblack pepper | black garlic | charred broccolini\n\nMISHIMA RESERVE WAGYU NEW YORK* GF 155\n\nshishito peppers | smoked butter | sea salt\n\n# ENHANCEMENTS\n\nFOIE GRAS 26 KING CRAB 48\n\nFRESH SHAVED TRUFFLES (5c) 30 BUTTERED LUMP CRAB 28\n\nBLACK TRUFFLE BUTTER 9 MEXICAN WHITE SHRIMP 7 EA\n\nHALF LOBSTER TAIL 35 OSETRA CAVIAR (3c) 20\n\nCHIMICHURRI 5 BEARNAISE 5\n\nHORSERADISH CRÈME 5 GH STEAK SAUCE 5\n\nThis menu is a testament to the creativity and passion of our culinary team. Led By:\n\nTODD MARK MILLER\n\nCORPORATE CHIEF\n\nCHRIS GILLESPIE\n\nEXECUTIVE CHIEF\n\nMICHELLE RODRIGUEZ\n\nMAINE DIRECTOR\n\n# ENTREES\n\nCACIO E PEPE v 32\n\nblack pepper | parmesan | + add fresh truffle MP\n\nSPICY RIGATONI 34\n\npancetta | calabrian chili | house-made pomodoro\n\nBRAISED SHORT-RIB GF 48\n\ncarrots | onion roast | pea shoots\n\nORGANIC CHICKEN A LA RAJ 38\n\nlaconato kale | parmesan | toasted pistachio pesto\n\nFAROE ISLAND SALMON GF 42\n\nbeech mushrooms | ponzu brown butter\n\nNEEV'S CAULIFLOWER 32\n\ngolden sultanas | pea tendrils | meyer lemon yogurt\n\nFREE RANGE DUROC PORK CHOP GF 48\n\nheirloom apple butter | braised kale | bbq lentils\n\nAUSTRALIAN LAMB CHOPS 65\n\neggplant caponata | natural jus\n\n# SIDES\n\nCHARRED BRUSSELS V, GF 14 GH MAC | N | CHEESE\n\nMISO MUSHROOMS 15 PARMESAN TRUFFLE FRIES 16\n\nSWEET CORN PLODING V 15 GRILLED BROCCOLINI 19\n\nYUKON POTATO PUREE V 14 ROASTED ASPARAGUS 18\n\nConsuming raw or undercooked meats, poultry, seafood, shellfish, or eggs may increase your risk of foodborne illness, especially if you have certain medical conditions.\n\nV=vegetarian • GF=gluten free • DF=dairy free",
+      "images": [],
+      "tables": [],
+      "hyperlinks": [],
+      "header": null,
+      "footer": null,
+      "dimensions": {
+        "dpi": 200,
+        "height": 1241,
+        "width": 2048
+      },
+      "confidence_scores": null,
+      "blocks": [
+        {
+          "top_left_x": 64,
+          "top_left_y": 6,
+          "bottom_right_x": 174,
+          "bottom_right_y": 24,
+          "content": "Photo - Jan 2026",
+          "confidence_scores": null,
+          "type": "header"
+        },
+        {
+          "top_left_x": 158,
+          "top_left_y": 123,
+          "bottom_right_x": 305,
+          "bottom_right_y": 157,
+          "content": "# RAW BAR",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 154,
+          "top_left_y": 185,
+          "bottom_right_x": 726,
+          "bottom_right_y": 207,
+          "content": "COASTAL OYSTERS (6) DF, GF 28",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 156,
+          "top_left_y": 209,
+          "bottom_right_x": 447,
+          "bottom_right_y": 227,
+          "content": "chilled with cocktail sauce | mignonette",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 154,
+          "top_left_y": 241,
+          "bottom_right_x": 726,
+          "bottom_right_y": 262,
+          "content": "SHRIMP COCKTAIL DF, GF 25",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 156,
+          "top_left_y": 267,
+          "bottom_right_x": 353,
+          "bottom_right_y": 284,
+          "content": "chili cocktail sauce | lemon",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 154,
+          "top_left_y": 299,
+          "bottom_right_x": 726,
+          "bottom_right_y": 320,
+          "content": "HAMACHI CRUDO* DF, GF 29",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 154,
+          "top_left_y": 325,
+          "bottom_right_x": 334,
+          "bottom_right_y": 345,
+          "content": "jalapeño | coconut | lime",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 154,
+          "top_left_y": 357,
+          "bottom_right_x": 726,
+          "bottom_right_y": 378,
+          "content": "CAVIAR SERVICE & TOASTED BRIOCHE MP",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 154,
+          "top_left_y": 385,
+          "bottom_right_x": 349,
+          "bottom_right_y": 404,
+          "content": "traditional accoutrements",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 154,
+          "top_left_y": 416,
+          "bottom_right_x": 726,
+          "bottom_right_y": 437,
+          "content": "HALF MAINE LOBSTER TAIL 35",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 154,
+          "top_left_y": 446,
+          "bottom_right_x": 273,
+          "bottom_right_y": 465,
+          "content": "chilled or grilled",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 154,
+          "top_left_y": 476,
+          "bottom_right_x": 726,
+          "bottom_right_y": 498,
+          "content": "TAYLOR BAY SCALLOP CEVICHE 28",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 154,
+          "top_left_y": 504,
+          "bottom_right_x": 369,
+          "bottom_right_y": 524,
+          "content": "yuzu | lychee | lavender | lime",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 555,
+          "bottom_right_x": 308,
+          "bottom_right_y": 590,
+          "content": "# STARTERS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 630,
+          "bottom_right_x": 736,
+          "bottom_right_y": 652,
+          "content": "STEAK TARTARE 27",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 660,
+          "bottom_right_x": 242,
+          "bottom_right_y": 678,
+          "content": "truffle toast",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 692,
+          "bottom_right_x": 736,
+          "bottom_right_y": 713,
+          "content": "CHICKEN TENDERS 24",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 721,
+          "bottom_right_x": 320,
+          "bottom_right_y": 739,
+          "content": "ranchi | sweet bbq aciel",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 755,
+          "bottom_right_x": 736,
+          "bottom_right_y": 776,
+          "content": "CRAB CAKE 39",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 778,
+          "bottom_right_x": 525,
+          "bottom_right_y": 798,
+          "content": "masa cracker | corn relish | smoked tomato butter",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 812,
+          "bottom_right_x": 736,
+          "bottom_right_y": 835,
+          "content": "CHARRED MOROCCAN BEET v 24",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 837,
+          "bottom_right_x": 523,
+          "bottom_right_y": 863,
+          "content": "cucumber yogurt | pistachio dukkah | burnt citrus",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 888,
+          "bottom_right_x": 281,
+          "bottom_right_y": 924,
+          "content": "# SALADS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 963,
+          "bottom_right_x": 740,
+          "bottom_right_y": 985,
+          "content": "LITTLE GEM CAESAR 19",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 986,
+          "bottom_right_x": 537,
+          "bottom_right_y": 1006,
+          "content": "rustic house-made croutons | parmigiano reggiano",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 1022,
+          "bottom_right_x": 740,
+          "bottom_right_y": 1045,
+          "content": "PEARS & GORGONZOLA 20",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 1047,
+          "bottom_right_x": 486,
+          "bottom_right_y": 1070,
+          "content": "honey vinaigrette | pickled shallots | walnuts",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 1083,
+          "bottom_right_x": 740,
+          "bottom_right_y": 1106,
+          "content": "SHAVED BRUSSEL SPROUTS 21",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 1107,
+          "bottom_right_x": 554,
+          "bottom_right_y": 1130,
+          "content": "toasted hazelnuts | crushed red grapes | aged gouda",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 1149,
+          "bottom_right_x": 334,
+          "bottom_right_y": 1170,
+          "content": "WARM BURRATA",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 1171,
+          "bottom_right_x": 572,
+          "bottom_right_y": 1196,
+          "content": "cocoon tomatoes | jesper toasted focacia | fresh basil",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 865,
+          "top_left_y": 123,
+          "bottom_right_x": 1261,
+          "bottom_right_y": 184,
+          "content": "# GUEST HOUSE",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 904,
+          "top_left_y": 193,
+          "bottom_right_x": 1226,
+          "bottom_right_y": 210,
+          "content": "SOCIAL DINING & WINE GARDEN",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 945,
+          "top_left_y": 262,
+          "bottom_right_x": 1189,
+          "bottom_right_y": 284,
+          "content": "# SEAFOOD PLATEAU*",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 898,
+          "top_left_y": 297,
+          "bottom_right_x": 1238,
+          "bottom_right_y": 316,
+          "content": "chilled or warm / shrimp | maine lobster | king crab",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 943,
+          "top_left_y": 320,
+          "bottom_right_x": 1197,
+          "bottom_right_y": 339,
+          "content": "roasted bay scallops | oysters | clams",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 884,
+          "top_left_y": 353,
+          "bottom_right_x": 1257,
+          "bottom_right_y": 371,
+          "content": "FOR TWO • 150 - FOR THREE OR MORE • 280",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 806,
+          "top_left_y": 441,
+          "bottom_right_x": 1052,
+          "bottom_right_y": 476,
+          "content": "# BUTCHER'S BEST",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 808,
+          "top_left_y": 517,
+          "bottom_right_x": 1345,
+          "bottom_right_y": 539,
+          "content": "PRIME TOMAHAWK* GF, DF 6.50 PER OZ",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 808,
+          "top_left_y": 543,
+          "bottom_right_x": 1043,
+          "bottom_right_y": 561,
+          "content": "thyme | peppercorn | brown sugar",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 808,
+          "top_left_y": 578,
+          "bottom_right_x": 1345,
+          "bottom_right_y": 600,
+          "content": "40-DAY DRY AGED BONE-IN RIBEYE* 20 OZ GF 145",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 808,
+          "top_left_y": 611,
+          "bottom_right_x": 912,
+          "bottom_right_y": 629,
+          "content": "roasted carrot",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 808,
+          "top_left_y": 645,
+          "bottom_right_x": 1349,
+          "bottom_right_y": 667,
+          "content": "PARMESAN-CRUSTED FILET* 7 OZ / 10 OZ 65 / 85",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 808,
+          "top_left_y": 676,
+          "bottom_right_x": 1023,
+          "bottom_right_y": 694,
+          "content": "roasted allium | veal reduction",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 808,
+          "top_left_y": 717,
+          "bottom_right_x": 1353,
+          "bottom_right_y": 738,
+          "content": "BUTCHER'S CUT* GF 63",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 808,
+          "top_left_y": 740,
+          "bottom_right_x": 1134,
+          "bottom_right_y": 761,
+          "content": "black pepper | black garlic | charred broccolini",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 808,
+          "top_left_y": 778,
+          "bottom_right_x": 1355,
+          "bottom_right_y": 800,
+          "content": "MISHIMA RESERVE WAGYU NEW YORK* GF 155",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 808,
+          "top_left_y": 807,
+          "bottom_right_x": 1113,
+          "bottom_right_y": 829,
+          "content": "shishito peppers | smoked butter | sea salt",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 816,
+          "top_left_y": 856,
+          "bottom_right_x": 1093,
+          "bottom_right_y": 896,
+          "content": "# ENHANCEMENTS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 816,
+          "top_left_y": 927,
+          "bottom_right_x": 1367,
+          "bottom_right_y": 945,
+          "content": "FOIE GRAS 26 KING CRAB 48",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 816,
+          "top_left_y": 948,
+          "bottom_right_x": 1365,
+          "bottom_right_y": 966,
+          "content": "FRESH SHAVED TRUFFLES (5c) 30 BUTTERED LUMP CRAB 28",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 816,
+          "top_left_y": 970,
+          "bottom_right_x": 1365,
+          "bottom_right_y": 989,
+          "content": "BLACK TRUFFLE BUTTER 9 MEXICAN WHITE SHRIMP 7 EA",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 816,
+          "top_left_y": 994,
+          "bottom_right_x": 1365,
+          "bottom_right_y": 1011,
+          "content": "HALF LOBSTER TAIL 35 OSETRA CAVIAR (3c) 20",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 816,
+          "top_left_y": 1036,
+          "bottom_right_x": 1367,
+          "bottom_right_y": 1053,
+          "content": "CHIMICHURRI 5 BEARNAISE 5",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 816,
+          "top_left_y": 1056,
+          "bottom_right_x": 1367,
+          "bottom_right_y": 1075,
+          "content": "HORSERADISH CRÈME 5 GH STEAK SAUCE 5",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 843,
+          "top_left_y": 1078,
+          "bottom_right_x": 1341,
+          "bottom_right_y": 1117,
+          "content": "This menu is a testament to the creativity and passion of our culinary team. Led By:",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 822,
+          "top_left_y": 1129,
+          "bottom_right_x": 959,
+          "bottom_right_y": 1144,
+          "content": "TODD MARK MILLER",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 822,
+          "top_left_y": 1145,
+          "bottom_right_x": 920,
+          "bottom_right_y": 1160,
+          "content": "CORPORATE CHIEF",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1035,
+          "top_left_y": 1118,
+          "bottom_right_x": 1148,
+          "bottom_right_y": 1133,
+          "content": "CHRIS GILLESPIE",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1035,
+          "top_left_y": 1134,
+          "bottom_right_x": 1125,
+          "bottom_right_y": 1148,
+          "content": "EXECUTIVE CHIEF",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1224,
+          "top_left_y": 1104,
+          "bottom_right_x": 1371,
+          "bottom_right_y": 1119,
+          "content": "MICHELLE RODRIGUEZ",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1224,
+          "top_left_y": 1121,
+          "bottom_right_x": 1326,
+          "bottom_right_y": 1135,
+          "content": "MAINE DIRECTOR",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1394,
+          "top_left_y": 119,
+          "bottom_right_x": 1521,
+          "bottom_right_y": 150,
+          "content": "# ENTREES",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1398,
+          "top_left_y": 206,
+          "bottom_right_x": 1892,
+          "bottom_right_y": 225,
+          "content": "CACIO E PEPE v 32",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1398,
+          "top_left_y": 227,
+          "bottom_right_x": 1712,
+          "bottom_right_y": 245,
+          "content": "black pepper | parmesan | + add fresh truffle MP",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1400,
+          "top_left_y": 275,
+          "bottom_right_x": 1896,
+          "bottom_right_y": 293,
+          "content": "SPICY RIGATONI 34",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1402,
+          "top_left_y": 299,
+          "bottom_right_x": 1724,
+          "bottom_right_y": 316,
+          "content": "pancetta | calabrian chili | house-made pomodoro",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1404,
+          "top_left_y": 345,
+          "bottom_right_x": 1902,
+          "bottom_right_y": 364,
+          "content": "BRAISED SHORT-RIB GF 48",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1404,
+          "top_left_y": 370,
+          "bottom_right_x": 1626,
+          "bottom_right_y": 388,
+          "content": "carrots | onion roast | pea shoots",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1408,
+          "top_left_y": 416,
+          "bottom_right_x": 1909,
+          "bottom_right_y": 436,
+          "content": "ORGANIC CHICKEN A LA RAJ 38",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1408,
+          "top_left_y": 441,
+          "bottom_right_x": 1734,
+          "bottom_right_y": 460,
+          "content": "laconato kale | parmesan | toasted pistachio pesto",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1412,
+          "top_left_y": 489,
+          "bottom_right_x": 1915,
+          "bottom_right_y": 509,
+          "content": "FAROE ISLAND SALMON GF 42",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1412,
+          "top_left_y": 514,
+          "bottom_right_x": 1681,
+          "bottom_right_y": 533,
+          "content": "beech mushrooms | ponzu brown butter",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1417,
+          "top_left_y": 563,
+          "bottom_right_x": 1921,
+          "bottom_right_y": 583,
+          "content": "NEEV'S CAULIFLOWER 32",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1419,
+          "top_left_y": 586,
+          "bottom_right_x": 1755,
+          "bottom_right_y": 606,
+          "content": "golden sultanas | pea tendrils | meyer lemon yogurt",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1421,
+          "top_left_y": 634,
+          "bottom_right_x": 1927,
+          "bottom_right_y": 653,
+          "content": "FREE RANGE DUROC PORK CHOP GF 48",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1421,
+          "top_left_y": 660,
+          "bottom_right_x": 1736,
+          "bottom_right_y": 680,
+          "content": "heirloom apple butter | braised kale | bbq lentils",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1425,
+          "top_left_y": 709,
+          "bottom_right_x": 1931,
+          "bottom_right_y": 730,
+          "content": "AUSTRALIAN LAMB CHOPS 65",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1427,
+          "top_left_y": 738,
+          "bottom_right_x": 1636,
+          "bottom_right_y": 758,
+          "content": "eggplant caponata | natural jus",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1433,
+          "top_left_y": 837,
+          "bottom_right_x": 1521,
+          "bottom_right_y": 870,
+          "content": "# SIDES",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1437,
+          "top_left_y": 903,
+          "bottom_right_x": 1948,
+          "bottom_right_y": 921,
+          "content": "CHARRED BRUSSELS V, GF 14 GH MAC | N | CHEESE",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1439,
+          "top_left_y": 925,
+          "bottom_right_x": 1948,
+          "bottom_right_y": 943,
+          "content": "MISO MUSHROOMS 15 PARMESAN TRUFFLE FRIES 16",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1439,
+          "top_left_y": 947,
+          "bottom_right_x": 1948,
+          "bottom_right_y": 964,
+          "content": "SWEET CORN PLODING V 15 GRILLED BROCCOLINI 19",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1439,
+          "top_left_y": 969,
+          "bottom_right_x": 1948,
+          "bottom_right_y": 986,
+          "content": "YUKON POTATO PUREE V 14 ROASTED ASPARAGUS 18",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1443,
+          "top_left_y": 1037,
+          "bottom_right_x": 1941,
+          "bottom_right_y": 1093,
+          "content": "Consuming raw or undercooked meats, poultry, seafood, shellfish, or eggs may increase your risk of foodborne illness, especially if you have certain medical conditions.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1445,
+          "top_left_y": 1096,
+          "bottom_right_x": 1716,
+          "bottom_right_y": 1119,
+          "content": "V=vegetarian • GF=gluten free • DF=dairy free",
+          "confidence_scores": null,
+          "type": "text"
+        }
+      ]
+    }
+  ],
+  "model": "mistral-ocr-latest",
+  "document_annotation": "{\"items\": [{\"name\": \"COASTAL OYSTERS\", \"description\": \"chilled with cocktail sauce | mignonette\", \"price\": 28, \"category\": \"food\", \"section_title\": \"RAW BAR\", \"options\": [{\"name\": \"6 oysters\", \"price\": null, \"grams\": null}]}, {\"name\": \"SHRIMP COCKTAIL\", \"description\": \"chili cocktail sauce | lemon\", \"price\": 25, \"category\": \"food\", \"section_title\": \"RAW BAR\", \"options\": [{\"name\": \"Shrimp cocktail\", \"price\": null, \"grams\": null}]}, {\"name\": \"HAMACHI CRUDO\", \"description\": \"jalapeño | coconut | lime\", \"price\": 29, \"category\": \"food\", \"section_title\": \"RAW BAR\", \"options\": [{\"name\": \"Hamachi crudo\", \"price\": null, \"grams\": null}]}, {\"name\": \"CAVIAR SERVICE & TOASTED BRIOCHE\", \"description\": \"traditional accoutrements\", \"price\": null, \"category\": \"food\", \"section_title\": \"RAW BAR\", \"options\": [{\"name\": \"Caviar service with toasted brioche\", \"price\": null, \"grams\": null}]}, {\"name\": \"HALF MAINE LOBSTER TAIL\", \"description\": \"chilled or grilled\", \"price\": 35, \"category\": \"food\", \"section_title\": \"RAW BAR\", \"options\": [{\"name\": \"Half Maine lobster tail\", \"price\": null, \"grams\": null}]}, {\"name\": \"TAYLOR BAY SCALLOP CEVICHE\", \"description\": \"yuzu | lychee | lavender | lime\", \"price\": 28, \"category\": \"food\", \"section_title\": \"RAW BAR\", \"options\": [{\"name\": \"Taylor Bay scallop ceviche\", \"price\": null, \"grams\": null}]}, {\"name\": \"STEAK TARTARE\", \"description\": \"truffle toast\", \"price\": 27, \"category\": \"food\", \"section_title\": \"STARTERS\", \"options\": [{\"name\": \"Steak tartare\", \"price\": null, \"grams\": null}]}, {\"name\": \"CHICKEN TENDERS\", \"description\": \"ranch | sweet bbq aioli\", \"price\": 24, \"category\": \"food\", \"section_title\": \"STARTERS\", \"options\": [{\"name\": \"Chicken tenders\", \"price\": null, \"grams\": null}]}, {\"name\": \"CRAB CAKE\", \"description\": \"masa cracker | corn relish | smoked tomato butter\", \"price\": 39, \"category\": \"food\", \"section_title\": \"STARTERS\", \"options\": [{\"name\": \"Crab cake\", \"price\": null, \"grams\": null}]}, {\"name\": \"CHARRED MOROCCAN BEET\", \"description\": \"cucumber yogurt | pistachio dukkah | burnt citrus\", \"price\": 24, \"category\": \"food\", \"section_title\": \"STARTERS\", \"options\": [{\"name\": \"Charred Moroccan beet\", \"price\": null, \"grams\": null}]}, {\"name\": \"LITTLE GEM CAESAR\", \"description\": \"rustic house-made croutons | parmigiano reggiano\", \"price\": 19, \"category\": \"food\", \"section_title\": \"SALADS\", \"options\": [{\"name\": \"Little Gem Caesar salad\", \"price\": null, \"grams\": null}]}, {\"name\": \"PEARS & GORGONZOLA\", \"description\": \"honey vinaigrette | pickled shallots | walnuts\", \"price\": 20, \"category\": \"food\", \"section_title\": \"SALADS\", \"options\": [{\"name\": \"Pears & Gorgonzola salad\", \"price\": null, \"grams\": null}]}, {\"name\": \"SHAVED BRUSSEL SPROUTS\", \"description\": \"toasted hazelnuts | crushed red grapes | aged gouda\", \"price\": 21, \"category\": \"food\", \"section_title\": \"SALADS\", \"options\": [{\"name\": \"Shaved Brussels sprouts salad\", \"price\": null, \"grams\": null}]}, {\"name\": \"WARM BURRATA\", \"description\": \"cocoon tomatoes | jasper toasted focaccia | fresh basil\", \"price\": null, \"category\": \"food\", \"section_title\": \"SALADS\", \"options\": [{\"name\": \"Warm burrata\", \"price\": null, \"grams\": null}]}, {\"name\": \"SEAFOOD PLATEAU\", \"description\": \"chilled or warm / shrimp | maine lobster | king crab | roasted bay scallops | oysters | clams\", \"price\": null, \"category\": \"food\", \"section_title\": \"GUEST HOUSE\", \"options\": [{\"name\": \"For two\", \"price\": 150, \"grams\": null}, {\"name\": \"For three or more\", \"price\": 280, \"grams\": null}]}, {\"name\": \"PRIME TOMAHAWK\", \"description\": \"thyme | peppercorn | brown sugar\", \"price\": null, \"category\": \"food\", \"section_title\": \"BUTCHER'S BEST\", \"options\": [{\"name\": \"Per ounce\", \"price\": 6.5, \"grams\": null}]}, {\"name\": \"40-DAY DRY AGED BONE-IN RIBEYE\", \"description\": \"roasted carrot\", \"price\": 145, \"category\": \"food\", \"section_title\": \"BUTCHER'S BEST\", \"options\": [{\"name\": \"20 oz ribeye\", \"price\": null, \"grams\": null}]}, {\"name\": \"PARMESAN-CRUSTED FILET\", \"description\": \"roasted allium | veal reduction\", \"price\": null, \"category\": \"food\", \"section_title\": \"BUTCHER'S BEST\", \"options\": [{\"name\": \"7 oz filet\", \"price\": 65, \"grams\": null}, {\"name\": \"10 oz filet\", \"price\": 85, \"grams\": null}]}, {\"name\": \"BUTCHER'S CUT\", \"description\": \"black pepper | black garlic | charred broccolini\", \"price\": 63, \"category\": \"food\", \"section_title\": \"BUTCHER'S BEST\", \"options\": [{\"name\": \"Butcher's cut\", \"price\": null, \"grams\": null}]}, {\"name\": \"MISHIMA RESERVE WAGYU NEW YORK\", \"description\": \"shishito peppers | smoked butter | sea salt\", \"price\": 155, \"category\": \"food\", \"section_title\": \"BUTCHER'S BEST\", \"options\": [{\"name\": \"Wagyu New York steak\", \"price\": null, \"grams\": null}]}, {\"name\": \"FOIE GRAS\", \"description\": \"\", \"price\": 26, \"category\": \"food\", \"section_title\": \"ENHANCEMENTS\", \"options\": [{\"name\": \"Foie gras\", \"price\": null, \"grams\": null}]}, {\"name\": \"FRESH SHAVED TRUFFLES\", \"description\": \"(5c)\", \"price\": 30, \"category\": \"food\", \"section_title\": \"ENHANCEMENTS\", \"options\": [{\"name\": \"Fresh shaved truffles (5c)\", \"price\": null, \"grams\": null}]}, {\"name\": \"BLACK TRUFFLE BUTTER\", \"description\": \"\", \"price\": 9, \"category\": \"food\", \"section_title\": \"ENHANCEMENTS\", \"options\": [{\"name\": \"Black truffle butter\", \"price\": null, \"grams\": null}]}, {\"name\": \"KING CRAB\", \"description\": \"\", \"price\": 48, \"category\": \"food\", \"section_title\": \"ENHANCEMENTS\", \"options\": [{\"name\": \"King crab\", \"price\": null, \"grams\": null}]}, {\"name\": \"BUTTERED LUMP CRAB\", \"description\": \"\", \"price\": 28, \"category\": \"food\", \"section_title\": \"ENHANCEMENTS\", \"options\": [{\"name\": \"Buttered lump crab\", \"price\": null, \"grams\": null}]}, {\"name\": \"MEXICAN WHITE SHRIMP\", \"description\": \"\", \"price\": 7, \"category\": \"food\", \"section_title\": \"ENHANCEMENTS\", \"options\": [{\"name\": \"Per shrimp\", \"price\": null, \"grams\": null}]}, {\"name\": \"HALF LOBSTER TAIL\", \"description\": \"\", \"price\": 35, \"category\": \"food\", \"section_title\": \"ENHANCEMENTS\", \"options\": [{\"name\": \"Half lobster tail\", \"price\": null, \"grams\": null}]}, {\"name\": \"OSETRA CAVIAR\", \"description\": \"(3c)\", \"price\": 20, \"category\": \"food\", \"section_title\": \"ENHANCEMENTS\", \"options\": [{\"name\": \"Osetra caviar (3c)\", \"price\": null, \"grams\": null}]}, {\"name\": \"CHIMICHURRI\", \"description\": \"\", \"price\": 5, \"category\": \"food\", \"section_title\": \"ENHANCEMENTS\", \"options\": [{\"name\": \"Chimichurri\", \"price\": null, \"grams\": null}]}, {\"name\": \"BEARNAISE\", \"description\": \"\", \"price\": 5, \"category\": \"food\", \"section_title\": \"ENHANCEMENTS\", \"options\": [{\"name\": \"Béarnaise sauce\", \"price\": null, \"grams\": null}]}, {\"name\": \"HORSERADISH CRÈME\", \"description\": \"\", \"price\": 5, \"category\": \"food\", \"section_title\": \"ENHANCEMENTS\", \"options\": [{\"name\": \"Horseradish crème\", \"price\": null, \"grams\": null}]}, {\"name\": \"GH STEAK SAUCE\", \"description\": \"\", \"price\": 5, \"category\": \"food\", \"section_title\": \"ENHANCEMENTS\", \"options\": [{\"name\": \"Greenhouse steak sauce\", \"price\": null, \"grams\": null}]}, {\"name\": \"CACIO E PEPE\", \"description\": \"black pepper | parmesan | + add fresh truffle MP\", \"price\": 32, \"category\": \"food\", \"section_title\": \"ENTREES\", \"options\": [{\"name\": \"Cacio e pepe\", \"price\": null, \"grams\": null}]}, {\"name\": \"SPICY RIGATONI\", \"description\": \"pancetta | calabrian chili | house-made pomodoro\", \"price\": 34, \"category\": \"food\", \"section_title\": \"ENTREES\", \"options\": [{\"name\": \"Spicy rigatoni\", \"price\": null, \"grams\": null}]}, {\"name\": \"BRAISED SHORT-RIB\", \"description\": \"carrots | onion roast | pea shoots\", \"price\": 48, \"category\": \"food\", \"section_title\": \"ENTREES\", \"options\": [{\"name\": \"Braised short-rib\", \"price\": null, \"grams\": null}]}, {\"name\": \"ORGANIC CHICKEN A LA RAJ\", \"description\": \"laconato kale | parmesan | toasted pistachio pesto\", \"price\": 38, \"category\": \"food\", \"section_title\": \"ENTREES\", \"options\": [{\"name\": \"Organic chicken a la Raj\", \"price\": null, \"grams\": null}]}, {\"name\": \"FAROE ISLAND SALMON\", \"description\": \"beech mushrooms | ponzu brown butter\", \"price\": 42, \"category\": \"food\", \"section_title\": \"ENTREES\", \"options\": [{\"name\": \"Faroe Island salmon\", \"price\": null, \"grams\": null}]}, {\"name\": \"NEEV'S CAULIFLOWER\", \"description\": \"golden sultanas | pea tendrils | meyer lemon yogurt\", \"price\": 32, \"category\": \"food\", \"section_title\": \"ENTREES\", \"options\": [{\"name\": \"Neev's cauliflower\", \"price\": null, \"grams\": null}]}, {\"name\": \"FREE RANGE DUROC PORK CHOP\", \"description\": \"heirloom apple butter | braised kale | bbq lentils\", \"price\": 48, \"category\": \"food\", \"section_title\": \"ENTREES\", \"options\": [{\"name\": \"Free range Duroc pork chop\", \"price\": null, \"grams\": null}]}, {\"name\": \"AUSTRALIAN LAMB CHOPS\", \"description\": \"eggplant caponata | natural jus\", \"price\": 65, \"category\": \"food\", \"section_title\": \"ENTREES\", \"options\": [{\"name\": \"Australian lamb chops\", \"price\": null, \"grams\": null}]}, {\"name\": \"CHARRED BRUSSELS\", \"description\": \"\", \"price\": 14, \"category\": \"side\", \"section_title\": \"SIDES\", \"options\": [{\"name\": \"Charred Brussels\", \"price\": null, \"grams\": null}]}, {\"name\": \"MISO MUSHROOMS\", \"description\": \"\", \"price\": 15, \"category\": \"side\", \"section_title\": \"SIDES\", \"options\": [{\"name\": \"Miso mushrooms\", \"price\": null, \"grams\": null}]}, {\"name\": \"SWEET CORN PUDDING\", \"description\": \"\", \"price\": 15, \"category\": \"side\", \"section_title\": \"SIDES\", \"options\": [{\"name\": \"Sweet corn pudding\", \"price\": null, \"grams\": null}]}, {\"name\": \"YUKON POTATO PUREE\", \"description\": \"\", \"price\": 14, \"category\": \"side\", \"section_title\": \"SIDES\", \"options\": [{\"name\": \"Yukon potato puree\", \"price\": null, \"grams\": null}]}, {\"name\": \"GH MAC & CHEESE\", \"description\": \"\", \"price\": null, \"category\": \"side\", \"section_title\": \"SIDES\", \"options\": [{\"name\": \"Greenhouse mac & cheese\", \"price\": null, \"grams\": null}]}, {\"name\": \"PARMESAN TRUFFLE FRIES\", \"description\": \"\", \"price\": 16, \"category\": \"side\", \"section_title\": \"SIDES\", \"options\": [{\"name\": \"Parmesan truffle fries\", \"price\": null, \"grams\": null}]}, {\"name\": \"GRILLED BROCCOLINI\", \"description\": \"\", \"price\": 19, \"category\": \"side\", \"section_title\": \"SIDES\", \"options\": [{\"name\": \"Grilled broccolini\", \"price\": null, \"grams\": null}]}, {\"name\": \"ROASTED ASPARAGUS\", \"description\": \"\", \"price\": 18, \"category\": \"side\", \"section_title\": \"SIDES\", \"options\": [{\"name\": \"Roasted asparagus\", \"price\": null, \"grams\": null}]}]}",
+  "usage_info": {
+    "pages_processed": 1,
+    "doc_size_bytes": 527644
+  }
+}

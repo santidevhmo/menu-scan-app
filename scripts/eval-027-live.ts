@@ -30,6 +30,7 @@ import {
 } from "./eval-extraction.ts";
 import {
   compressedPhotoData,
+  photoPath,
   PROD_JPEG_QUALITY,
   PROD_MAX_DIMENSION,
   productionPhotoData,
@@ -101,7 +102,7 @@ async function cutTiles(name: string): Promise<string[]> {
   // client tiles are PNG too (prepareTile).
   const ext = "png";
   const mimeType = "image/png";
-  const src = `${MENU_DIR}/${name}`;
+  const src = photoPath(name);
   const { w, h } = await dims(src);
   const tiles: string[] = [];
   for (const [i, rect] of gridCropRects(w, h).entries()) {

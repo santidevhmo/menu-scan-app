@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-E8B7rdZZZcHKZlEKMTKh1RcA9XknA",
+  "object": "chat.completion",
+  "created": 1785618099,
+  "model": "gpt-4.1-2025-04-14",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"image_quality\":{\"usable\":true,\"issues\":[]},\"image_layout\":{\"dense\":false,\"crop_direction\":\"none\"},\"items\":[{\"name\":\"PANELA A LAS BRASAS\",\"description\":\"Panela marinada en aceite de oliva, rub de chiles y tomate cherry, acompañado de tostadas mixtas.\",\"price\":200,\"category\":\"food\",\"section_title\":\"ENTRADAS\",\"options\":[]},{\"name\":\"COLIFLOR AL CHURRASCO\",\"description\":\"Asada, rub rojo, parmesano y limón asado, acompañada de aderezo parmesano.\",\"price\":270,\"category\":\"food\",\"section_title\":\"ENTRADAS\",\"options\":[]},{\"name\":\"COSTILLAS HORMIGUERAS\",\"description\":\"Baby back rib en salsa de café acompañadas de aderezo de chipotle y cebollas cambray asadas (300 gr).\",\"price\":250,\"category\":\"food\",\"section_title\":\"ENTRADAS\",\"options\":[]},{\"name\":\"AGUACHILE DE PAPADA\",\"description\":\"Láminas de papada bañadas en aguachile verde, cebolla, cilantro y chile serrano.\",\"price\":200,\"category\":\"food\",\"section_title\":\"ENTRADAS\",\"options\":[]},{\"name\":\"SALCHI-RIBS\",\"description\":\"Con topping de BBQ y aderezo chipotle.\",\"price\":190,\"category\":\"food\",\"section_title\":\"ENTRADAS\",\"options\":[]},{\"name\":\"QUESO FUNDIDO\",\"description\":\"Chistorra salseada, cebolla cambray, mix de pimientos, flameado al tequila con aceite de romero.\",\"price\":195,\"category\":\"food\",\"section_title\":\"ENTRADAS\",\"options\":[]},{\"name\":\"INFLADITA EMILIANA\",\"description\":\"Rica infladita de maíz recién hecha, rellena de mix de quesos y encima aguacate (70gr).\",\"price\":100,\"category\":\"food\",\"section_title\":\"ENTRADAS\",\"options\":[]},{\"name\":\"GUACAMOLE BRASERO\",\"description\":\"Mezcla rústica de aguacate, salsa bandera, rub de chiles y panela.\",\"price\":170,\"category\":\"food\",\"section_title\":\"ENTRADAS\",\"options\":[]},{\"name\":\"CHICHARRÓN BRASERO\",\"description\":\"Tostadas de su elección con mezcla criolla de frijol negro y chicharrón de res decorado con cilantro y cebolla morada.\",\"price\":220,\"category\":\"food\",\"section_title\":\"ENTRADAS\",\"options\":[]},{\"name\":\"AGUACHILE DE ARRACHERA\",\"description\":\"En salsa verde picante.\",\"price\":290,\"category\":\"food\",\"section_title\":\"ENTRADAS\",\"options\":[]},{\"name\":\"CHICHARRÓN A LA CAZUELA\",\"description\":\"Chicharrón de rib eye bañado en salsa de chile morita de la casa, cubierto de mix de quesos, acompañado de tortillas de su elección.\",\"price\":200,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES\",\"options\":[]},{\"name\":\"HAMBURGUESA BRASERO\",\"description\":\"Carne preparada de sirloin estilo brasero rellena de mix de quesos, acompañada de papas cambray y un delicioso aderezo de la casa.\",\"price\":280,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES\",\"options\":[]},{\"name\":\"CHURRASQUERÍA\",\"description\":\"\",\"price\":495,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES\",\"options\":[{\"name\":\"SENCILLA (300gr)\",\"price\":495,\"grams\":300},{\"name\":\"DOBLE (600gr)\",\"price\":950,\"grams\":600},{\"name\":\"EN TACO: Tortilla de maíz o harina recién hecha.\",\"price\":null,\"grams\":null},{\"name\":\"EN TOSTADA: Tortilla de maíz o harina tostada a las brasas.\",\"price\":null,\"grams\":null},{\"name\":\"PÍDELO CON QUESO: Añade queso a tu taco o tostada\",\"price\":10,\"grams\":null}]},{\"name\":\"TACO JR SIRLOIN (50gr)\",\"description\":\"\",\"price\":90,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES\",\"options\":[]},{\"name\":\"QUESADILLA (30gr)\",\"description\":\"\",\"price\":60,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES\",\"options\":[]},{\"name\":\"BRASERO\",\"description\":\"Cama de lechuga y germen de alfalfa con toppings de betabel asado, fresa, durazno y fritura de maíz con pechuga a la plancha, acompañado de una vinagreta de miel.\",\"price\":180,\"category\":\"food\",\"section_title\":\"ENSALADAS\",\"options\":[]},{\"name\":\"FEIJOADA\",\"description\":\"Clásico caldo brasileño de frijol negro, cerdo y chorizo.\\n(Tortillas a elegir)\",\"price\":130,\"category\":\"food\",\"section_title\":\"CALDOS\",\"options\":[]},{\"name\":\"SOPA DE TORTILLA\",\"description\":\"Sopa de tortilla acompañada de aguacate, queso panela, crema y limones.\",\"price\":170,\"category\":\"food\",\"section_title\":\"CALDOS\",\"options\":[]}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1696,
+    "completion_tokens": 1072,
+    "total_tokens": 2768,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_c935aef436"
+}

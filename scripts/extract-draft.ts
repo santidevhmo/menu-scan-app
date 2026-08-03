@@ -10,7 +10,7 @@ import {
   runPagedExtraction,
 } from "../supabase/functions/analyze-menu/extract.ts";
 import { gridCropRects } from "../src/lib/adaptiveExtraction.ts";
-import { MENU_DIR, productionPhotoData } from "./photo-input.ts";
+import { photoPath, productionPhotoData } from "./photo-input.ts";
 import { cutTile } from "./tile-cut.ts";
 
 const apiKey = Deno.env.get("OPENAI_API_KEY")!;
@@ -29,7 +29,7 @@ async function dims(path: string): Promise<{ w: number; h: number }> {
 
 // Same recipe as eval-027-live cutTiles: PNG tiles from the ORIGINAL photo.
 async function cutTiles(name: string): Promise<string[]> {
-  const src = `${MENU_DIR}/${name}`;
+  const src = photoPath(name);
   const { w, h } = await dims(src);
   const tiles: string[] = [];
   for (const [i, rect] of gridCropRects(w, h).entries()) {
@@ -65,7 +65,7 @@ for (const arg of Deno.args) {
     result = phase1;
   }
   // Drafts are ORACLE files: they live in the repo so they get history and are
-  // guarded by drafts_test.ts. MENU_DIR holds the photos only (eval 109).
+  // guarded by drafts_test.ts. Photos live in the repo (scripts/fixtures/photos/, 2026-08-01).
   const outPath =
     new URL(`./fixtures/drafts/${pages[0]}.draft.json`, import.meta.url)
       .pathname;

@@ -1,0 +1,477 @@
+{
+  "pages": [
+    {
+      "index": 0,
+      "markdown": "# TACOS Y TOSTADAS\n\n# TACOS DE CAMARÓN AL CHIPOTLE $290\n\nOrden de tres tacos de camarón bañados con nuestra salsa especial de chipotle servidos en tortilla de maíz.\n\n*También disponibles en versión cilantro.\n\n# TACOS DE FILETE DE PUERCO $285\n\nOrden de tres tacos de filete de puerco asado, acompañados de una deliciosa salsa brava y repollo marinado\n\n# NUEVO TACOS SONORENSES $315\n\nGaoneras de New York sobre tortilla de harina, coronado con chile verde talemado, queso gratinado y láminas de aguacate.\n\n# TACOS LECHUGA DE FILETE $295\nDE PUERCO\n\nLomo de puerco asado al punto y servido en hoja de lechuga, aderezado con una reducción dulce de pimientos, almendra tostada, coronados con fritura de jícama. (4 pzas.)\n\n# TACOS DE COLA $355\n\nOrden de tres tacos de maíz semidorados de cola de res y sazonada con cebolla, cilantro y una rebanada de aguacate.\n\n# TACOS DE MARLIN CON PULPO $335\n\nTacos semidorados de maíz rellenos de marlin y pulpo, aderezados con salsa de semillas de pepitas.\n\n# TOSTADAS PUESTAS DE ATÚN $340\n\nOrden de tres tostadas de atún marinado en salsa de cítricos y salsas negras, coronada con finas rebanadas de aguacate y poro.\n\n*Disponible también en salmón.\n\n# TOSTADAS DE ATÚN $340\n\nAtún natural acompañado con cebolla morada y piña, sobre una tostada de arroz, acompañado con una salsa de chipotle.\n\n# NUEVO TOSTADAS DE MARISCOS $335\n\nMezcla de pulpo y camarón cocido, con jícama, pepino y cebolla morada, montado sobre tostada de maíz y bañado en una salsa marisquera de la casa.\n\n# NUEVO TOSTADAS DE ATÚN AL AJONJOLÍ $335\n\nAtún bañado en una crema especial de la casa, montado sobre tostadas de Wontong con mayonesa de aguacate y coronado con poro frito.\n\n# ENSALADAS\n\n# ENSALADA MOCHOMOS $255\n\nDeliciosa ensalada de espinaca, aderezada con vinagreta balsámica y coronada con almendras, queso de cabra, arándanos y suprema de mandarina.\n\n# NUEVO ENSALADA DE PERA $255\n\nMezcla de lechuga, pepita caramelizada, pera, queso de cabra; bañada con una vinagreta balsámica dulce.\n\n# ENSALADA ALFREDO $255\n\nMezcla de lechuga, tomate, aguacate, pepino, cebolla morada, aderezado con vinagreta cítrica de la casa.\n\n# ENSALADA DE PULPO $460\n\nPulpo adobado y asado sobre ensalada de lechuga, pepino, tomate cherry, cebolla morada y aderezo de aceite de olivo con un toque de limón.\n\n# VEGETARIANO\n\n# TORRE DE BETABEL $235\n\nLáminas de betabel intercaladas con queso de cabra, aderezadas con una vinagreta de arándanos, escarchada con trozos de almendra tostadas.\n\n# COLIFLOR ALMENDRADA $230\n\nColiflor salteada en jugo especial de la casa, espolvoreada con almendra tostada y acompañada con calabaza asada.\n\n# CARPACCIO DE BETABEL $235\n\nFinas láminas de betabel, acompañadas de frutos rojos, arúguía, queso de cabra y pepitas garapiñadas, bañada con un toque de vinagreta.\n\n# CEVICHE VEGANO\n\nCeviche a base de calabaza con el único sabor Mochomos.\n\n# COLIFLOR CHIGUILI $215\n\nTrozos de coliflor salteada con nuestra salsa Mochomos de cerveza y chile, acompañada con aderezo a base de queso de cabra.\n\n# HONGO VEGETARIANO $285\n\nHongo portobello relleno de tomate, queso panela, calabaza asada y gratinado con queso de cabra.\n\n# CARPACCIO DE CALABAZA $230\n\nFinas láminas de calabaza previamente cocidas, bañadas con una vinagreta a base de tomate deshidratado, acompañado con arúguía y pepitas confitadas.\n\n# NUEVO CARPACCIO DE PORTOBELLO $240\n\nLáminas de portobello, bañadas en una deliciosa vinagreta cítrica.\n\nTODOS NU Google Maps\nTODOS LOS ALIMENTOS SON PASTARADOS AL MOMENTO\nImagín de CUVEN BAJO CONSIDERACIÓN DEL COMENSAL\nImage capture: Aug 2024 Images may be subject",
+      "images": [],
+      "tables": [],
+      "hyperlinks": [],
+      "header": null,
+      "footer": null,
+      "dimensions": {
+        "dpi": 200,
+        "height": 2048,
+        "width": 1428
+      },
+      "confidence_scores": null,
+      "blocks": [
+        {
+          "top_left_x": 439,
+          "top_left_y": 14,
+          "bottom_right_x": 845,
+          "bottom_right_y": 64,
+          "content": "# TACOS Y TOSTADAS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 147,
+          "top_left_y": 111,
+          "bottom_right_x": 619,
+          "bottom_right_y": 137,
+          "content": "# TACOS DE CAMARÓN AL CHIPOTLE $290",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 147,
+          "top_left_y": 141,
+          "bottom_right_x": 543,
+          "bottom_right_y": 217,
+          "content": "Orden de tres tacos de camarón bañados con nuestra salsa especial de chipotle servidos en tortilla de maíz.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 219,
+          "bottom_right_x": 539,
+          "bottom_right_y": 244,
+          "content": "*También disponibles en versión cilantro.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 150,
+          "top_left_y": 258,
+          "bottom_right_x": 623,
+          "bottom_right_y": 285,
+          "content": "# TACOS DE FILETE DE PUERCO $285",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 150,
+          "top_left_y": 289,
+          "bottom_right_x": 547,
+          "bottom_right_y": 367,
+          "content": "Orden de tres tacos de filete de puerco asado, acompañados de una deliciosa salsa brava y repollo marinado",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 100,
+          "top_left_y": 379,
+          "bottom_right_x": 625,
+          "bottom_right_y": 404,
+          "content": "# NUEVO TACOS SONORENSES $315",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 154,
+          "top_left_y": 406,
+          "bottom_right_x": 543,
+          "bottom_right_y": 484,
+          "content": "Gaoneras de New York sobre tortilla de harina, coronado con chile verde talemado, queso gratinado y láminas de aguacate.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 122,
+          "top_left_y": 492,
+          "bottom_right_x": 632,
+          "bottom_right_y": 549,
+          "content": "# TACOS LECHUGA DE FILETE $295\nDE PUERCO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 159,
+          "top_left_y": 554,
+          "bottom_right_x": 563,
+          "bottom_right_y": 687,
+          "content": "Lomo de puerco asado al punto y servido en hoja de lechuga, aderezado con una reducción dulce de pimientos, almendra tostada, coronados con fritura de jícama. (4 pzas.)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 124,
+          "top_left_y": 689,
+          "bottom_right_x": 633,
+          "bottom_right_y": 718,
+          "content": "# TACOS DE COLA $355",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 163,
+          "top_left_y": 720,
+          "bottom_right_x": 555,
+          "bottom_right_y": 800,
+          "content": "Orden de tres tacos de maíz semidorados de cola de res y sazonada con cebolla, cilantro y una rebanada de aguacate.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 678,
+          "top_left_y": 105,
+          "bottom_right_x": 1164,
+          "bottom_right_y": 131,
+          "content": "# TACOS DE MARLIN CON PULPO $335",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 713,
+          "top_left_y": 135,
+          "bottom_right_x": 1094,
+          "bottom_right_y": 209,
+          "content": "Tacos semidorados de maíz rellenos de marlin y pulpo, aderezados con salsa de semillas de pepitas.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 716,
+          "top_left_y": 213,
+          "bottom_right_x": 1169,
+          "bottom_right_y": 238,
+          "content": "# TOSTADAS PUESTAS DE ATÚN $340",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 718,
+          "top_left_y": 242,
+          "bottom_right_x": 1099,
+          "bottom_right_y": 318,
+          "content": "Orden de tres tostadas de atún marinado en salsa de cítricos y salsas negras, coronada con finas rebanadas de aguacate y poro.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 722,
+          "top_left_y": 320,
+          "bottom_right_x": 1008,
+          "bottom_right_y": 342,
+          "content": "*Disponible también en salmón.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 723,
+          "top_left_y": 346,
+          "bottom_right_x": 1175,
+          "bottom_right_y": 373,
+          "content": "# TOSTADAS DE ATÚN $340",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 725,
+          "top_left_y": 375,
+          "bottom_right_x": 1125,
+          "bottom_right_y": 451,
+          "content": "Atún natural acompañado con cebolla morada y piña, sobre una tostada de arroz, acompañado con una salsa de chipotle.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 675,
+          "top_left_y": 455,
+          "bottom_right_x": 1179,
+          "bottom_right_y": 480,
+          "content": "# NUEVO TOSTADAS DE MARISCOS $335",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 729,
+          "top_left_y": 484,
+          "bottom_right_x": 1145,
+          "bottom_right_y": 584,
+          "content": "Mezcla de pulpo y camarón cocido, con jícama, pepino y cebolla morada, montado sobre tostada de maíz y bañado en una salsa marisquera de la casa.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 679,
+          "top_left_y": 588,
+          "bottom_right_x": 1182,
+          "bottom_right_y": 615,
+          "content": "# NUEVO TOSTADAS DE ATÚN AL AJONJOLÍ $335",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 730,
+          "top_left_y": 619,
+          "bottom_right_x": 1129,
+          "bottom_right_y": 728,
+          "content": "Atún bañado en una crema especial de la casa, montado sobre tostadas de Wontong con mayonesa de aguacate y coronado con poro frito.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 599,
+          "top_left_y": 843,
+          "bottom_right_x": 812,
+          "bottom_right_y": 879,
+          "content": "# ENSALADAS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 137,
+          "top_left_y": 935,
+          "bottom_right_x": 645,
+          "bottom_right_y": 964,
+          "content": "# ENSALADA MOCHOMOS $255",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 173,
+          "top_left_y": 966,
+          "bottom_right_x": 579,
+          "bottom_right_y": 1072,
+          "content": "Deliciosa ensalada de espinaca, aderezada con vinagreta balsámica y coronada con almendras, queso de cabra, arándanos y suprema de mandarina.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 120,
+          "top_left_y": 1095,
+          "bottom_right_x": 650,
+          "bottom_right_y": 1121,
+          "content": "# NUEVO ENSALADA DE PERA $255",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 173,
+          "top_left_y": 1123,
+          "bottom_right_x": 582,
+          "bottom_right_y": 1210,
+          "content": "Mezcla de lechuga, pepita caramelizada, pera, queso de cabra; bañada con una vinagreta balsámica dulce.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 738,
+          "top_left_y": 918,
+          "bottom_right_x": 1194,
+          "bottom_right_y": 945,
+          "content": "# ENSALADA ALFREDO $255",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 739,
+          "top_left_y": 953,
+          "bottom_right_x": 1106,
+          "bottom_right_y": 1031,
+          "content": "Mezcla de lechuga, tomate, aguacate, pepino, cebolla morada, aderezado con vinagreta cítrica de la casa.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 743,
+          "top_left_y": 1046,
+          "bottom_right_x": 1199,
+          "bottom_right_y": 1074,
+          "content": "# ENSALADA DE PULPO $460",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 743,
+          "top_left_y": 1078,
+          "bottom_right_x": 1145,
+          "bottom_right_y": 1187,
+          "content": "Pulpo adobado y asado sobre ensalada de lechuga, pepino, tomate cherry, cebolla morada y aderezo de aceite de olivo con un toque de limón.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 592,
+          "top_left_y": 1269,
+          "bottom_right_x": 846,
+          "bottom_right_y": 1308,
+          "content": "# VEGETARIANO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 149,
+          "top_left_y": 1378,
+          "bottom_right_x": 662,
+          "bottom_right_y": 1406,
+          "content": "# TORRE DE BETABEL $235",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 186,
+          "top_left_y": 1408,
+          "bottom_right_x": 595,
+          "bottom_right_y": 1517,
+          "content": "Láminas de betabel intercaladas con queso de cabra, aderezadas con una vinagreta de arándanos, escarchada con trozos de almendra tostadas.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 153,
+          "top_left_y": 1521,
+          "bottom_right_x": 668,
+          "bottom_right_y": 1552,
+          "content": "# COLIFLOR ALMENDRADA $230",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 189,
+          "top_left_y": 1554,
+          "bottom_right_x": 603,
+          "bottom_right_y": 1640,
+          "content": "Coliflor salteada en jugo especial de la casa, espolvoreada con almendra tostada y acompañada con calabaza asada.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 190,
+          "top_left_y": 1644,
+          "bottom_right_x": 670,
+          "bottom_right_y": 1671,
+          "content": "# CARPACCIO DE BETABEL $235",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 192,
+          "top_left_y": 1673,
+          "bottom_right_x": 603,
+          "bottom_right_y": 1788,
+          "content": "Finas láminas de betabel, acompañadas de frutos rojos, arúguía, queso de cabra y pepitas garapiñadas, bañada con un toque de vinagreta.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 194,
+          "top_left_y": 1790,
+          "bottom_right_x": 415,
+          "bottom_right_y": 1816,
+          "content": "# CEVICHE VEGANO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 194,
+          "top_left_y": 1816,
+          "bottom_right_x": 576,
+          "bottom_right_y": 1876,
+          "content": "Ceviche a base de calabaza con el único sabor Mochomos.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 752,
+          "top_left_y": 1353,
+          "bottom_right_x": 1218,
+          "bottom_right_y": 1380,
+          "content": "# COLIFLOR CHIGUILI $215",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 753,
+          "top_left_y": 1384,
+          "bottom_right_x": 1132,
+          "bottom_right_y": 1494,
+          "content": "Trozos de coliflor salteada con nuestra salsa Mochomos de cerveza y chile, acompañada con aderezo a base de queso de cabra.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 759,
+          "top_left_y": 1499,
+          "bottom_right_x": 1222,
+          "bottom_right_y": 1525,
+          "content": "# HONGO VEGETARIANO $285",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 760,
+          "top_left_y": 1525,
+          "bottom_right_x": 1149,
+          "bottom_right_y": 1609,
+          "content": "Hongo portobello relleno de tomate, queso panela, calabaza asada y gratinado con queso de cabra.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 725,
+          "top_left_y": 1609,
+          "bottom_right_x": 1228,
+          "bottom_right_y": 1640,
+          "content": "# CARPACCIO DE CALABAZA $230",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 765,
+          "top_left_y": 1640,
+          "bottom_right_x": 1156,
+          "bottom_right_y": 1751,
+          "content": "Finas láminas de calabaza previamente cocidas, bañadas con una vinagreta a base de tomate deshidratado, acompañado con arúguía y pepitas confitadas.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 718,
+          "top_left_y": 1755,
+          "bottom_right_x": 1238,
+          "bottom_right_y": 1784,
+          "content": "# NUEVO CARPACCIO DE PORTOBELLO $240",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 770,
+          "top_left_y": 1786,
+          "bottom_right_x": 1135,
+          "bottom_right_y": 1841,
+          "content": "Láminas de portobello, bañadas en una deliciosa vinagreta cítrica.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 410,
+          "top_left_y": 1970,
+          "bottom_right_x": 1427,
+          "bottom_right_y": 2046,
+          "content": "TODOS NU Google Maps\nTODOS LOS ALIMENTOS SON PASTARADOS AL MOMENTO\nImagín de CUVEN BAJO CONSIDERACIÓN DEL COMENSAL\nImage capture: Aug 2024 Images may be subject",
+          "confidence_scores": null,
+          "type": "footer"
+        }
+      ]
+    }
+  ],
+  "model": "mistral-ocr-latest",
+  "document_annotation": "{\"items\": [{\"name\": \"Tacos de Camarón al Chipotle\", \"description\": \"Orden de tres tacos de camarón bañados con nuestra salsa especial de chipotle servidos en tortilla de maíz.\", \"price\": 290, \"category\": \"food\", \"section_title\": \"TACOS Y TOSTADAS\", \"options\": [{\"name\": \"Versión cilantro\", \"price\": 0, \"grams\": null}]}, {\"name\": \"Tacos de Filete de Puerco\", \"description\": \"Orden de tres tacos de filete de puerco asado, acompañados de una deliciosa salsa brava y repollo marinado.\", \"price\": 285, \"category\": \"food\", \"section_title\": \"TACOS Y TOSTADAS\", \"options\": []}, {\"name\": \"Nuevos Tacos Sonorenses\", \"description\": \"Gaoneras de New York sobre tortilla de harina, coronado con chile verde talemado, queso gratinado y láminas de aguacate.\", \"price\": 315, \"category\": \"food\", \"section_title\": \"TACOS Y TOSTADAS\", \"options\": []}, {\"name\": \"Tacos Lechuga de Filete de Puerco\", \"description\": \"Lomo de puerco asado al punto y servido en hoja de lechuga, aderezado con una reducción dulce de pimientos, almendra tostada, coronados con fritura de jícama. (4 pzas.)\", \"price\": 295, \"category\": \"food\", \"section_title\": \"TACOS Y TOSTADAS\", \"options\": []}, {\"name\": \"Tacos de Cola\", \"description\": \"Orden de tres tacos de maíz semidorados de cola de res y sazonada con cebolla, cilantro y una rebanada de aguacate.\", \"price\": 355, \"category\": \"food\", \"section_title\": \"TACOS Y TOSTADAS\", \"options\": []}, {\"name\": \"Tacos de Marlin con Pulpo\", \"description\": \"Tacos semidorados de maíz rellenos de marlin y pulpo, aderezados con salsa de semillas de pepitas.\", \"price\": 335, \"category\": \"food\", \"section_title\": \"TACOS Y TOSTADAS\", \"options\": []}, {\"name\": \"Tostadas Puestas de Atún\", \"description\": \"Orden de tres tostadas de atún marinado en salsa de cítricos y salsas negras, coronada con finas rebanadas de aguacate y poro.\", \"price\": 340, \"category\": \"food\", \"section_title\": \"TACOS Y TOSTADAS\", \"options\": [{\"name\": \"Disponible también en salmón\", \"price\": 0, \"grams\": null}]}, {\"name\": \"Tostadas de Atún\", \"description\": \"Atún natural acompañado con cebolla morada y piña, sobre una tostada de arroz, acompañado con una salsa de chipotle.\", \"price\": 340, \"category\": \"food\", \"section_title\": \"TACOS Y TOSTADAS\", \"options\": []}, {\"name\": \"Nuevas Tostadas de Mariscos\", \"description\": \"Mezcla de pulpo y camarón cocido, con jícama, pepino y cebolla morada, montado sobre tostada de maíz y bañado en una salsa marisquera de la casa.\", \"price\": 335, \"category\": \"food\", \"section_title\": \"TACOS Y TOSTADAS\", \"options\": []}, {\"name\": \"Nuevas Tostadas de Atún al Ajonjolí\", \"description\": \"Atún bañado en una crema especial de la casa, montado sobre tostadas de Wontong con mayonesa de aguacate y coronado con poro frito.\", \"price\": 335, \"category\": \"food\", \"section_title\": \"TACOS Y TOSTADAS\", \"options\": []}, {\"name\": \"Ensalada Mochomos\", \"description\": \"Deliciosa ensalada de espinaca, aderezada con vinagreta balsámica y coronada con almendras, queso de cabra, arándanos y suprema de mandarina.\", \"price\": 255, \"category\": \"food\", \"section_title\": \"ENSALADAS\", \"options\": []}, {\"name\": \"Nueva Ensalada de Pera\", \"description\": \"Mezcla de lechuga, pepita caramelizada, pera, queso de cabra; bañada con una vinagreta balsámica dulce.\", \"price\": 255, \"category\": \"food\", \"section_title\": \"ENSALADAS\", \"options\": []}, {\"name\": \"Ensalada Alfredo\", \"description\": \"Mezcla de lechuga, tomate, aguacate, pepino, cebolla morada, aderezado con vinagreta cítrica de la casa.\", \"price\": 255, \"category\": \"food\", \"section_title\": \"ENSALADAS\", \"options\": []}, {\"name\": \"Ensalada de Pulpo\", \"description\": \"Pulpo adobado y asado sobre ensalada de lechuga, pepino, tomate cherry, cebolla morada y aderezo de aceite de olivo con un toque de limón.\", \"price\": 460, \"category\": \"food\", \"section_title\": \"ENSALADAS\", \"options\": []}, {\"name\": \"Torre de Betabel\", \"description\": \"Láminas de betabel intercaladas con queso de cabra, aderezadas con una vinagreta de arándanos, escarchada con trozos de almendra tostadas.\", \"price\": 235, \"category\": \"food\", \"section_title\": \"VEGETARIANO\", \"options\": []}, {\"name\": \"Coliflor Almendrada\", \"description\": \"Coliflor salteada en jugo especial de la casa, espolvoreada con almendra tostada y acompañada con calabaza asada.\", \"price\": 230, \"category\": \"food\", \"section_title\": \"VEGETARIANO\", \"options\": []}, {\"name\": \"Carpaccio de Betabel\", \"description\": \"Finas láminas de betabel, acompañadas de frutos rojos, arúguía, queso de cabra y pepitas garapiñadas, bañada con un toque de vinagreta.\", \"price\": 235, \"category\": \"food\", \"section_title\": \"VEGETARIANO\", \"options\": []}, {\"name\": \"Ceviche Vegano\", \"description\": \"Ceviche a base de calabaza con el único sabor Mochomos.\", \"price\": null, \"category\": \"food\", \"section_title\": \"VEGETARIANO\", \"options\": []}, {\"name\": \"Coliflor Chigüili\", \"description\": \"Trozos de coliflor salteada con nuestra salsa Mochomos de cerveza y chile, acompañada con aderezo a base de queso de cabra.\", \"price\": 215, \"category\": \"food\", \"section_title\": \"VEGETARIANO\", \"options\": []}, {\"name\": \"Hongo Vegetariano\", \"description\": \"Hongo portobello relleno de tomate, queso panela, calabaza asada y gratinado con queso de cabra.\", \"price\": 285, \"category\": \"food\", \"section_title\": \"VEGETARIANO\", \"options\": []}, {\"name\": \"Carpaccio de Calabaza\", \"description\": \"Finas láminas de calabaza previamente cocidas, bañadas con una vinagreta a base de tomate deshidratado, acompañado con arúguía y pepitas confitadas.\", \"price\": 230, \"category\": \"food\", \"section_title\": \"VEGETARIANO\", \"options\": []}, {\"name\": \"Nuevo Carpaccio de Portobello\", \"description\": \"Láminas de portobello, bañadas en una deliciosa vinagreta cítrica.\", \"price\": 240, \"category\": \"food\", \"section_title\": \"VEGETARIANO\", \"options\": []}]}",
+  "usage_info": {
+    "pages_processed": 1,
+    "doc_size_bytes": 794044
+  }
+}

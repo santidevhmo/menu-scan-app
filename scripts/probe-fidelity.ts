@@ -9,7 +9,7 @@
 //     --allow-run scripts/probe-fidelity.ts > /tmp/probe-ladder.log 2>&1 &
 import { runPagedExtraction } from "../supabase/functions/analyze-menu/extract.ts";
 import { scoreMenu } from "./eval-extraction.ts";
-import { compressedPhotoData, MENU_DIR } from "./photo-input.ts";
+import { compressedPhotoData, MENU_DIR, photoPath } from "./photo-input.ts";
 
 type Fixture = Parameters<typeof scoreMenu>[0];
 const FIXTURE_DIR = new URL("./fixtures/", import.meta.url);
@@ -23,7 +23,7 @@ function mime(name: string): string {
 }
 
 async function originalData(name: string): Promise<string> {
-  const bytes = await Deno.readFile(`${MENU_DIR}/${name}`);
+  const bytes = await Deno.readFile(photoPath(name));
   return `data:${mime(name)};base64,${bytes.toBase64()}`;
 }
 

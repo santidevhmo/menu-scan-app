@@ -765,6 +765,7 @@ function printReport(reports: MenuReport[], aggregate: AggregateReport): void {
 }
 
 const FIXTURE_DIR = new URL("./fixtures/", import.meta.url);
+import { photoPath } from "./photo-input.ts";
 const MENU_DIR = "/Users/santiagoaguirre/Downloads/MenusTesting";
 
 function imageMimeType(filename: string): "image/png" | "image/jpeg" {
@@ -809,7 +810,7 @@ async function main(): Promise<void> {
   for (const fixture of fixtures) {
     const photos = await Promise.all(
       fixture.photos.map(async (photo) => {
-        const base64 = (await Deno.readFile(`${MENU_DIR}/${photo}`)).toBase64();
+        const base64 = (await Deno.readFile(photoPath(photo))).toBase64();
         return `data:${imageMimeType(photo)};base64,${base64}`;
       }),
     );

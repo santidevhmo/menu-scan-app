@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-E8B4VpnqIUsAwC6jqBIQmZavIIe2F",
+  "object": "chat.completion",
+  "created": 1785617891,
+  "model": "gpt-4.1-2025-04-14",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"image_quality\":{\"usable\":true,\"issues\":[]},\"image_layout\":{\"dense\":false,\"crop_direction\":\"none\"},\"items\":[{\"name\":\"NEW YORK\",\"description\":\"Calidad choice acompañado de chimichurri de la casa. (400gr)\",\"price\":690,\"category\":\"food\",\"section_title\":\"CARNE\",\"options\":[]},{\"name\":\"RIB EYE\",\"description\":\"Calidad choice acompañado de chimichurri de la casa. (400gr)\",\"price\":690,\"category\":\"food\",\"section_title\":\"CARNE\",\"options\":[]},{\"name\":\"FILETE DISCORDIA\",\"description\":\"Filete de res asado acompañado de puré de papa, salteado de espinacas con cebolla, con una corona de camarones envueltos en tocino y bañado en salsa chemita. (230gr)\",\"price\":680,\"category\":\"food\",\"section_title\":\"CARNE\",\"options\":[]},{\"name\":\"MEDALLÓN DE RES AL LIMÓN\",\"description\":\"Medallones de filete salseados con mantequilla de limón, vino blanco y alcaparras. (230gr)\",\"price\":750,\"category\":\"food\",\"section_title\":\"CARNE\",\"options\":[]},{\"name\":\"HAMBURGUESA CALAFATE\",\"description\":\"Pan de ajonjolí, recorte fino, queso cheddar, pimiento rojo asado, chorizo argentino, chimichurri, arúgula, cebolla morada y dijonesa. (200gr)\",\"price\":380,\"category\":\"food\",\"section_title\":\"CARNE\",\"options\":[]},{\"name\":\"BACON CHEESE BURGER\",\"description\":\"Pan de ajonjolí, recorte fino, queso cheddar, tocino, tomate, cebolla morada, hojas verdes y dijonesa. (200gr)\",\"price\":380,\"category\":\"food\",\"section_title\":\"CARNE\",\"options\":[]},{\"name\":\"PULPO A LAS BRASAS\",\"description\":\"Pulpo a las brasas con un adobo de chiles secos, con espárragos y champiñones. (280gr)\",\"price\":530,\"category\":\"food\",\"section_title\":\"MARISCOS\",\"options\":[]},{\"name\":\"SALMÓN MEDITERRÁNEO\",\"description\":\"Filete de salmón en cama de pasta al burro, bañado en salsa mediterránea y albahaca. (350gr)\",\"price\":530,\"category\":\"food\",\"section_title\":\"MARISCOS\",\"options\":[]},{\"name\":\"PESCADO AL AJILLO\",\"description\":\"Pescado del día en una cama de calabaza y espárraga. Bañado en salsa al ajillo, con camarón. (200gr)\",\"price\":420,\"category\":\"food\",\"section_title\":\"MARISCOS\",\"options\":[]},{\"name\":\"TOMAHAWK DE PUERCO\",\"description\":\"A las brasas, con salsa oriental, cebollas y chiles asados. (380gr)\",\"price\":530,\"category\":\"food\",\"section_title\":\"POLLO Y PUERCO\",\"options\":[]},{\"name\":\"POLLO EN SALSA BICOLORE\",\"description\":\"Pechuga rellena de prosciutto, mis de queso, acompañado con un cremoso verde y marrón rojo. (280gr)\",\"price\":370,\"category\":\"food\",\"section_title\":\"POLLO Y PUERCO\",\"options\":[]},{\"name\":\"ESPÁRRAGOS ASADOS 200gr\",\"description\":\"\",\"price\":260,\"category\":\"side\",\"section_title\":\"ACOMPAÑAMIENTOS\",\"options\":[]},{\"name\":\"COLES DE BRUSELAS 200gr\",\"description\":\"\",\"price\":150,\"category\":\"side\",\"section_title\":\"ACOMPAÑAMIENTOS\",\"options\":[]},{\"name\":\"MAC AND CHEESE 250gr\",\"description\":\"\",\"price\":150,\"category\":\"side\",\"section_title\":\"ACOMPAÑAMIENTOS\",\"options\":[]},{\"name\":\"PURÉ DE PAPA 350gr\",\"description\":\"\",\"price\":150,\"category\":\"side\",\"section_title\":\"ACOMPAÑAMIENTOS\",\"options\":[]},{\"name\":\"ESPINACAS A LA CREMA 250gr\",\"description\":\"\",\"price\":130,\"category\":\"side\",\"section_title\":\"ACOMPAÑAMIENTOS\",\"options\":[]},{\"name\":\"VEGETALES A LAS BRASAS 200gr\",\"description\":\"\",\"price\":110,\"category\":\"side\",\"section_title\":\"ACOMPAÑAMIENTOS\",\"options\":[]},{\"name\":\"PAPAS CON PARMESANO 200gr\",\"description\":\"\",\"price\":120,\"category\":\"side\",\"section_title\":\"ACOMPAÑAMIENTOS\",\"options\":[]},{\"name\":\"TARTAR DE ATÚN\",\"description\":\"Atún rojo cortado en pequeñas cubas, mezclado con cebolla morada, manzana verde, chile serrano y salsa panzu, servido sobre una base de aguacate.\",\"price\":290,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES\",\"options\":[]},{\"name\":\"CAMARONES ZARANDEADOS\",\"description\":\"Camarones a la parrilla bañados en salsa de chiles secos acompañados de ensalada verde con un toque de vinagreta San Enrique. (165gr)\",\"price\":340,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES\",\"options\":[]},{\"name\":\"CHAMORRO CALAFATE\",\"description\":\"Chamorro de cerdo braseado, chile serrano ahumado, tomate cherry confitado y papa cambray bañado en salsa cremoso de patobello. (650gr)\",\"price\":490,\"category\":\"food\",\"section_title\":\"ESPECIALIDADES\",\"options\":[]},{\"name\":\"SPAGHETTI A LA BOLOGNESA\",\"description\":\"Spaghetti servido con una deliciosa salsa bolognesa de la casa. (380gr)\",\"price\":290,\"category\":\"food\",\"section_title\":\"PASTAS\",\"options\":[]},{\"name\":\"PASTA AL PESTO\",\"description\":\"Spaghetti con tomate deshidratado, bañado en pesta, queso burrito y un toque de hierbabuena. (350gr)\",\"price\":320,\"category\":\"food\",\"section_title\":\"PASTAS\",\"options\":[]},{\"name\":\"PASTA ALFREDO\",\"description\":\"Sobre cremoso salsa a base de queso Grana Padano. (400gr)\",\"price\":380,\"category\":\"food\",\"section_title\":\"PASTAS\",\"options\":[{\"name\":\"camarón\",\"price\":null,\"grams\":null},{\"name\":\"pollo\",\"price\":null,\"grams\":null}]},{\"name\":\"PASTA PARMESANO\",\"description\":\"Preparada en su mesa dentro del queso Grana Padano. (400gr)\",\"price\":330,\"category\":\"food\",\"section_title\":\"PASTAS\",\"options\":[{\"name\":\"Chorizo\",\"price\":25,\"grams\":null},{\"name\":\"Pollo\",\"price\":45,\"grams\":null},{\"name\":\"Camarón\",\"price\":70,\"grams\":null}]},{\"name\":\"AI FRUTTI DI MARE\",\"description\":\"Salsa de tomate, pulpo, mejillón y camarón. (235gr)\",\"price\":380,\"category\":\"food\",\"section_title\":\"PASTAS\",\"options\":[]},{\"name\":\"LASAGNA RÚSTICA\",\"description\":\"Clásica lasagna italiana bañado en crema de queso y salsa de tomate. (400gr)\",\"price\":290,\"category\":\"food\",\"section_title\":\"PASTAS\",\"options\":[]},{\"name\":\"PASTA ALLA LIGURE\",\"description\":\"Pasta servido con tocino, camarones, tomate cherry y pesta de albahaca. (350gr)\",\"price\":330,\"category\":\"food\",\"section_title\":\"PASTAS\",\"options\":[]}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1980,
+    "completion_tokens": 1599,
+    "total_tokens": 3579,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_c935aef436"
+}

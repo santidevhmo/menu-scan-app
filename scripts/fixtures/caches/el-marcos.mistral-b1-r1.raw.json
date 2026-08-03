@@ -1,0 +1,882 @@
+{
+  "pages": [
+    {
+      "index": 0,
+      "markdown": "A las cumpleaños les invitamos el desayuno!!! (No preguntamos edad)\n\n# BUENOS DÍAS\n\nHorario\n\nLunes a Sábado desde las 7:45AM.\n\nDomingos a partir de las 8:45AM\n\n# EL MARCOS\n\n# HUEVOS\n\nDIVORCIADOS 84\n\nDos huevos fritos montados sobre tortillas y bañados con salsa verde y roja.\n\nREVUELTOS\n\nDos huevos naturales 78\n\nDos huevos a la mexicana 84\n\nCon jamón, chorizo o tocino 90\n\nFRITOS\n\nDos huevos naturales 78\n\nCon jamón, chorizo o tocino 90\n\nDE LA SIERRA\n\nDos huevos revueltos con nopal, carne deshebrada y chile colorado. 94\n\nA LA YOLANDA\n\nDos huevos fritos, servidos sobre una tortilla con frijoles, queso gratinado y bañado en salsa chipotle. 94\n\nNORTEÑOS\n\nDos huevos revueltos con machaca y salsa norteña picosita. 98\n\nRANCHEROS\n\nDos huevos fritos montados sobre tortillas y bañados con salsa roja. 84\n\nOMELETTE LAMERA\n\nDos huevos con cebolla, champiñones, tocino y chile verde. 94\n\nOMELETTE TOMASA\n\nDos huevos con cebolla, cebollín, cilantro, champiñones y queso. 94\n\nOMELETTE CUBANA\n\nDos huevos con chorizo, jamón, tocino, queso, cebolla y pimiento verde. 98\n\nDE INDIO\n\nDos huevos fritos montados sobre un huarache de maíz con frijoles refritos y bañados con salsa verde, crema, cebolla y cilantro. 94\n\n# MEXICANOS\n\nCHILAQUILES (70gr.) 138\n\nTradicionales. Con pollo, crema y queso gratinado, con su elección de salsa suiza o verde.\n\nRegionales. Con pollo, crema en salsa de chile colorado, con su elección de queso panela o mezcla de quesos.\n\nDivorciados\n\nMitad rojos, mitad verdes.\n\nMACHACA\n\nCon huevo o verdura (Machaca 30gr.) 98\n\nENFRIJOLADAS (135gr.) 94\n\nTres tortillas de maíz rellenas de pollo y bañadas con salsa de frijol, crema y queso cotija.\n\nPASTEL AZTECA (300gr.) 94\n\nCon pollo, salsa de tomate, chile verde, cebolla, elote y mezcla de quesos, servido con frijoles.\n\nENCHILADAS (135gr.) 148\n\nVerdes, Rojas o Suizas (verdes o rojas) 3 enchiladas rellenas de pollo, bañadas con salsa a elegir, con crema y queso gratinado.\n\n# DE LA PLAYA\n\nMachaca de Marlín c/huevo o verdura\n\nCazuela de Marlín\n\nOmelette de Camarón y Marlín\n\nDoblada de Camarón y Marlín\n\n98\n\nC/U\n\n# DE LA PANADERÍA\n\nBISQUETS DEL CENTRO 84\n\n(Orden de dos)\n\nBISQUETS C/ FRUTOS ROJOS 94\n\n(Orden de dos)\n\nPAN TOSTADO 32\n\nBlanco o Integral (3 rebanadas)\n\nHOT CAKES (3 piezas)\n\nNaturales 68\n\nCon jamón, tocino o huevo 78\n\nWAFFLES\n\nCon plátano, canela y miel balsámica 70\n\nCon Frutos rojos 78\n\n# CEREALES\n\nAVENA CON LECHE (350ml.) 54\n\n(Manzana o Plátano)\n\n# DE LA CAFETERÍA\n\nCAFÉ AMERICANO (200ml.) 32\n\nCAFÉ CON LECHE (200ml.) 38\n\nCAFÉ CAPUCHINO (200ml.) 52\n\nTÉ (200ml.) 32\n\nManzanilla o Negro\n\nCHOCOLATE (200ml.) 48\n\nFrío o caliente\n\nLECHE (200ml.) 30\n\n# JUGOS Y FRUTAS\n\nPLATO SURTIDO (350gr.) 72\n\nCon queso cottage o yogurth (50gr.) 82\n\nYOGURTH CON FRUTA\n\nPICADA SURTIDA,\n\nGRANOLA Y MIEL 82\n\nJUGO (300ml.) 44\n\nNaranja, zanahoria, papaya, toronja, etc.\n\nJUGO VERDE (300ml.) 50\n\nNopal, piña, toronja y apio.\n\n# PA' LOS BUKIS\n\nHot cakes o huevo revuelto con su elección de jamón o tocino\n\nLeche con chocolate o jugo de naranja\n\n$94 POR NIÑO\n\n16% de IVA incluido en los precios\n\nEl gramaje se refiere a los ingredientes principales\n\nEl consumo de productos crudos es bajo responsabilidad de quién lo solicita.",
+      "images": [],
+      "tables": [],
+      "hyperlinks": [],
+      "header": null,
+      "footer": null,
+      "dimensions": {
+        "dpi": 200,
+        "height": 1325,
+        "width": 2048
+      },
+      "confidence_scores": null,
+      "blocks": [
+        {
+          "top_left_x": 72,
+          "top_left_y": 212,
+          "bottom_right_x": 133,
+          "bottom_right_y": 1199,
+          "content": "A las cumpleaños les invitamos el desayuno!!! (No preguntamos edad)",
+          "confidence_scores": null,
+          "type": "aside_text"
+        },
+        {
+          "top_left_x": 156,
+          "top_left_y": 65,
+          "bottom_right_x": 744,
+          "bottom_right_y": 153,
+          "content": "# BUENOS DÍAS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 781,
+          "top_left_y": 92,
+          "bottom_right_x": 910,
+          "bottom_right_y": 126,
+          "content": "Horario",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 941,
+          "top_left_y": 85,
+          "bottom_right_x": 1302,
+          "bottom_right_y": 107,
+          "content": "Lunes a Sábado desde las 7:45AM.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 947,
+          "top_left_y": 109,
+          "bottom_right_x": 1296,
+          "bottom_right_y": 131,
+          "content": "Domingos a partir de las 8:45AM",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1460,
+          "top_left_y": 64,
+          "bottom_right_x": 1753,
+          "bottom_right_y": 138,
+          "content": "# EL MARCOS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 267,
+          "top_left_y": 215,
+          "bottom_right_x": 431,
+          "bottom_right_y": 251,
+          "content": "# HUEVOS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 162,
+          "top_left_y": 285,
+          "bottom_right_x": 533,
+          "bottom_right_y": 309,
+          "content": "DIVORCIADOS 84",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 162,
+          "top_left_y": 310,
+          "bottom_right_x": 531,
+          "bottom_right_y": 382,
+          "content": "Dos huevos fritos montados sobre tortillas y bañados con salsa verde y roja.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 160,
+          "top_left_y": 393,
+          "bottom_right_x": 312,
+          "bottom_right_y": 415,
+          "content": "REVUELTOS",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 160,
+          "top_left_y": 416,
+          "bottom_right_x": 531,
+          "bottom_right_y": 438,
+          "content": "Dos huevos naturales 78",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 160,
+          "top_left_y": 444,
+          "bottom_right_x": 531,
+          "bottom_right_y": 464,
+          "content": "Dos huevos a la mexicana 84",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 160,
+          "top_left_y": 470,
+          "bottom_right_x": 531,
+          "bottom_right_y": 492,
+          "content": "Con jamón, chorizo o tocino 90",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 158,
+          "top_left_y": 508,
+          "bottom_right_x": 248,
+          "bottom_right_y": 529,
+          "content": "FRITOS",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 158,
+          "top_left_y": 532,
+          "bottom_right_x": 531,
+          "bottom_right_y": 552,
+          "content": "Dos huevos naturales 78",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 158,
+          "top_left_y": 558,
+          "bottom_right_x": 531,
+          "bottom_right_y": 581,
+          "content": "Con jamón, chorizo o tocino 90",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 154,
+          "top_left_y": 598,
+          "bottom_right_x": 328,
+          "bottom_right_y": 621,
+          "content": "DE LA SIERRA",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 154,
+          "top_left_y": 622,
+          "bottom_right_x": 529,
+          "bottom_right_y": 668,
+          "content": "Dos huevos revueltos con nopal, carne deshebrada y chile colorado. 94",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 678,
+          "bottom_right_x": 344,
+          "bottom_right_y": 700,
+          "content": "A LA YOLANDA",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 152,
+          "top_left_y": 702,
+          "bottom_right_x": 531,
+          "bottom_right_y": 776,
+          "content": "Dos huevos fritos, servidos sobre una tortilla con frijoles, queso gratinado y bañado en salsa chipotle. 94",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 208,
+          "bottom_right_x": 744,
+          "bottom_right_y": 232,
+          "content": "NORTEÑOS",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 233,
+          "bottom_right_x": 964,
+          "bottom_right_y": 277,
+          "content": "Dos huevos revueltos con machaca y salsa norteña picosita. 98",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 293,
+          "bottom_right_x": 763,
+          "bottom_right_y": 316,
+          "content": "RANCHEROS",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 317,
+          "bottom_right_x": 964,
+          "bottom_right_y": 362,
+          "content": "Dos huevos fritos montados sobre tortillas y bañados con salsa roja. 84",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 378,
+          "bottom_right_x": 847,
+          "bottom_right_y": 401,
+          "content": "OMELETTE LAMERA",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 402,
+          "bottom_right_x": 966,
+          "bottom_right_y": 448,
+          "content": "Dos huevos con cebolla, champiñones, tocino y chile verde. 94",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 463,
+          "bottom_right_x": 851,
+          "bottom_right_y": 485,
+          "content": "OMELETTE TOMASA",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 487,
+          "bottom_right_x": 968,
+          "bottom_right_y": 533,
+          "content": "Dos huevos con cebolla, cebollín, cilantro, champiñones y queso. 94",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 549,
+          "bottom_right_x": 851,
+          "bottom_right_y": 572,
+          "content": "OMELETTE CUBANA",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 573,
+          "bottom_right_x": 972,
+          "bottom_right_y": 622,
+          "content": "Dos huevos con chorizo, jamón, tocino, queso, cebolla y pimiento verde. 98",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 641,
+          "bottom_right_x": 720,
+          "bottom_right_y": 663,
+          "content": "DE INDIO",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 663,
+          "bottom_right_x": 976,
+          "bottom_right_y": 764,
+          "content": "Dos huevos fritos montados sobre un huarache de maíz con frijoles refritos y bañados con salsa verde, crema, cebolla y cilantro. 94",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 209,
+          "top_left_y": 830,
+          "bottom_right_x": 463,
+          "bottom_right_y": 870,
+          "content": "# MEXICANOS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 144,
+          "top_left_y": 895,
+          "bottom_right_x": 531,
+          "bottom_right_y": 926,
+          "content": "CHILAQUILES (70gr.) 138",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 144,
+          "top_left_y": 926,
+          "bottom_right_x": 531,
+          "bottom_right_y": 1003,
+          "content": "Tradicionales. Con pollo, crema y queso gratinado, con su elección de salsa suiza o verde.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 144,
+          "top_left_y": 1003,
+          "bottom_right_x": 531,
+          "bottom_right_y": 1084,
+          "content": "Regionales. Con pollo, crema en salsa de chile colorado, con su elección de queso panela o mezcla de quesos.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 141,
+          "top_left_y": 1094,
+          "bottom_right_x": 260,
+          "bottom_right_y": 1114,
+          "content": "Divorciados",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 141,
+          "top_left_y": 1114,
+          "bottom_right_x": 390,
+          "bottom_right_y": 1134,
+          "content": "Mitad rojos, mitad verdes.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 139,
+          "top_left_y": 1151,
+          "bottom_right_x": 277,
+          "bottom_right_y": 1174,
+          "content": "MACHACA",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 139,
+          "top_left_y": 1174,
+          "bottom_right_x": 500,
+          "bottom_right_y": 1198,
+          "content": "Con huevo o verdura (Machaca 30gr.) 98",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 836,
+          "bottom_right_x": 980,
+          "bottom_right_y": 862,
+          "content": "ENFRIJOLADAS (135gr.) 94",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 862,
+          "bottom_right_x": 982,
+          "bottom_right_y": 942,
+          "content": "Tres tortillas de maíz rellenas de pollo y bañadas con salsa de frijol, crema y queso cotija.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 947,
+          "bottom_right_x": 982,
+          "bottom_right_y": 975,
+          "content": "PASTEL AZTECA (300gr.) 94",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 975,
+          "bottom_right_x": 982,
+          "bottom_right_y": 1054,
+          "content": "Con pollo, salsa de tomate, chile verde, cebolla, elote y mezcla de quesos, servido con frijoles.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 1061,
+          "bottom_right_x": 984,
+          "bottom_right_y": 1089,
+          "content": "ENCHILADAS (135gr.) 148",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 603,
+          "top_left_y": 1089,
+          "bottom_right_x": 986,
+          "bottom_right_y": 1191,
+          "content": "Verdes, Rojas o Suizas (verdes o rojas) 3 enchiladas rellenas de pollo, bañadas con salsa a elegir, con crema y queso gratinado.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1078,
+          "top_left_y": 190,
+          "bottom_right_x": 1324,
+          "bottom_right_y": 224,
+          "content": "# DE LA PLAYA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1035,
+          "top_left_y": 239,
+          "bottom_right_x": 1253,
+          "bottom_right_y": 289,
+          "content": "Machaca de Marlín c/huevo o verdura",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1037,
+          "top_left_y": 302,
+          "bottom_right_x": 1244,
+          "bottom_right_y": 328,
+          "content": "Cazuela de Marlín",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1037,
+          "top_left_y": 341,
+          "bottom_right_x": 1296,
+          "bottom_right_y": 394,
+          "content": "Omelette de Camarón y Marlín",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1039,
+          "top_left_y": 405,
+          "bottom_right_x": 1287,
+          "bottom_right_y": 459,
+          "content": "Doblada de Camarón y Marlín",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1333,
+          "top_left_y": 306,
+          "bottom_right_x": 1367,
+          "bottom_right_y": 328,
+          "content": "98",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1330,
+          "top_left_y": 332,
+          "bottom_right_x": 1374,
+          "bottom_right_y": 354,
+          "content": "C/U",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1039,
+          "top_left_y": 528,
+          "bottom_right_x": 1390,
+          "bottom_right_y": 572,
+          "content": "# DE LA PANADERÍA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1037,
+          "top_left_y": 593,
+          "bottom_right_x": 1396,
+          "bottom_right_y": 618,
+          "content": "BISQUETS DEL CENTRO 84",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1039,
+          "top_left_y": 621,
+          "bottom_right_x": 1175,
+          "bottom_right_y": 642,
+          "content": "(Orden de dos)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1039,
+          "top_left_y": 655,
+          "bottom_right_x": 1398,
+          "bottom_right_y": 679,
+          "content": "BISQUETS C/ FRUTOS ROJOS 94",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1039,
+          "top_left_y": 682,
+          "bottom_right_x": 1175,
+          "bottom_right_y": 703,
+          "content": "(Orden de dos)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1039,
+          "top_left_y": 718,
+          "bottom_right_x": 1400,
+          "bottom_right_y": 741,
+          "content": "PAN TOSTADO 32",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1041,
+          "top_left_y": 743,
+          "bottom_right_x": 1322,
+          "bottom_right_y": 764,
+          "content": "Blanco o Integral (3 rebanadas)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1041,
+          "top_left_y": 781,
+          "bottom_right_x": 1275,
+          "bottom_right_y": 804,
+          "content": "HOT CAKES (3 piezas)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1043,
+          "top_left_y": 806,
+          "bottom_right_x": 1408,
+          "bottom_right_y": 829,
+          "content": "Naturales 68",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1046,
+          "top_left_y": 834,
+          "bottom_right_x": 1410,
+          "bottom_right_y": 858,
+          "content": "Con jamón, tocino o huevo 78",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1048,
+          "top_left_y": 882,
+          "bottom_right_x": 1169,
+          "bottom_right_y": 906,
+          "content": "WAFFLES",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1048,
+          "top_left_y": 910,
+          "bottom_right_x": 1417,
+          "bottom_right_y": 935,
+          "content": "Con plátano, canela y miel balsámica 70",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1050,
+          "top_left_y": 942,
+          "bottom_right_x": 1417,
+          "bottom_right_y": 967,
+          "content": "Con Frutos rojos 78",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1136,
+          "top_left_y": 1053,
+          "bottom_right_x": 1337,
+          "bottom_right_y": 1092,
+          "content": "# CEREALES",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1054,
+          "top_left_y": 1109,
+          "bottom_right_x": 1429,
+          "bottom_right_y": 1138,
+          "content": "AVENA CON LECHE (350ml.) 54",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1056,
+          "top_left_y": 1142,
+          "bottom_right_x": 1251,
+          "bottom_right_y": 1166,
+          "content": "(Manzana o Plátano)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1464,
+          "top_left_y": 182,
+          "bottom_right_x": 1753,
+          "bottom_right_y": 218,
+          "content": "# DE LA CAFETERÍA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1443,
+          "top_left_y": 231,
+          "bottom_right_x": 1784,
+          "bottom_right_y": 255,
+          "content": "CAFÉ AMERICANO (200ml.) 32",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1445,
+          "top_left_y": 263,
+          "bottom_right_x": 1786,
+          "bottom_right_y": 285,
+          "content": "CAFÉ CON LECHE (200ml.) 38",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1445,
+          "top_left_y": 294,
+          "bottom_right_x": 1788,
+          "bottom_right_y": 317,
+          "content": "CAFÉ CAPUCHINO (200ml.) 52",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1447,
+          "top_left_y": 333,
+          "bottom_right_x": 1792,
+          "bottom_right_y": 355,
+          "content": "TÉ (200ml.) 32",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1449,
+          "top_left_y": 358,
+          "bottom_right_x": 1620,
+          "bottom_right_y": 378,
+          "content": "Manzanilla o Negro",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1449,
+          "top_left_y": 379,
+          "bottom_right_x": 1794,
+          "bottom_right_y": 399,
+          "content": "CHOCOLATE (200ml.) 48",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1451,
+          "top_left_y": 403,
+          "bottom_right_x": 1579,
+          "bottom_right_y": 422,
+          "content": "Frío o caliente",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1453,
+          "top_left_y": 431,
+          "bottom_right_x": 1800,
+          "bottom_right_y": 454,
+          "content": "LECHE (200ml.) 30",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1480,
+          "top_left_y": 508,
+          "bottom_right_x": 1790,
+          "bottom_right_y": 544,
+          "content": "# JUGOS Y FRUTAS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1464,
+          "top_left_y": 560,
+          "bottom_right_x": 1812,
+          "bottom_right_y": 584,
+          "content": "PLATO SURTIDO (350gr.) 72",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1466,
+          "top_left_y": 586,
+          "bottom_right_x": 1814,
+          "bottom_right_y": 607,
+          "content": "Con queso cottage o yogurth (50gr.) 82",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1466,
+          "top_left_y": 621,
+          "bottom_right_x": 1726,
+          "bottom_right_y": 643,
+          "content": "YOGURTH CON FRUTA",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1468,
+          "top_left_y": 646,
+          "bottom_right_x": 1677,
+          "bottom_right_y": 667,
+          "content": "PICADA SURTIDA,",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1470,
+          "top_left_y": 670,
+          "bottom_right_x": 1675,
+          "bottom_right_y": 692,
+          "content": "GRANOLA Y MIEL 82",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1472,
+          "top_left_y": 703,
+          "bottom_right_x": 1825,
+          "bottom_right_y": 727,
+          "content": "JUGO (300ml.) 44",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1474,
+          "top_left_y": 728,
+          "bottom_right_x": 1825,
+          "bottom_right_y": 749,
+          "content": "Naranja, zanahoria, papaya, toronja, etc.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1474,
+          "top_left_y": 759,
+          "bottom_right_x": 1831,
+          "bottom_right_y": 783,
+          "content": "JUGO VERDE (300ml.) 50",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1478,
+          "top_left_y": 785,
+          "bottom_right_x": 1714,
+          "bottom_right_y": 808,
+          "content": "Nopal, piña, toronja y apio.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1527,
+          "top_left_y": 871,
+          "bottom_right_x": 1800,
+          "bottom_right_y": 913,
+          "content": "# PA' LOS BUKIS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1484,
+          "top_left_y": 934,
+          "bottom_right_x": 1827,
+          "bottom_right_y": 1015,
+          "content": "Hot cakes o huevo revuelto con su elección de jamón o tocino",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1486,
+          "top_left_y": 1021,
+          "bottom_right_x": 1833,
+          "bottom_right_y": 1081,
+          "content": "Leche con chocolate o jugo de naranja",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1570,
+          "top_left_y": 1097,
+          "bottom_right_x": 1788,
+          "bottom_right_y": 1138,
+          "content": "$94 POR NIÑO",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 105,
+          "top_left_y": 1252,
+          "bottom_right_x": 467,
+          "bottom_right_y": 1280,
+          "content": "16% de IVA incluido en los precios",
+          "confidence_scores": null,
+          "type": "footer"
+        },
+        {
+          "top_left_x": 537,
+          "top_left_y": 1218,
+          "bottom_right_x": 1058,
+          "bottom_right_y": 1261,
+          "content": "El gramaje se refiere a los ingredientes principales",
+          "confidence_scores": null,
+          "type": "footer"
+        },
+        {
+          "top_left_x": 1123,
+          "top_left_y": 1184,
+          "bottom_right_x": 1896,
+          "bottom_right_y": 1227,
+          "content": "El consumo de productos crudos es bajo responsabilidad de quién lo solicita.",
+          "confidence_scores": null,
+          "type": "footer"
+        }
+      ]
+    }
+  ],
+  "model": "mistral-ocr-latest",
+  "document_annotation": "{\"items\": [{\"name\": \"Buenos Días\", \"description\": \"Horario de atención: Lunes a Sábado desde las 7:45AM. Domingos a partir de las 8:45AM.\", \"price\": null, \"category\": \"other\", \"section_title\": null, \"options\": []}, {\"name\": \"El Marcos\", \"description\": \"Menú de desayunos tradicionales mexicanos.\", \"price\": null, \"category\": \"other\", \"section_title\": null, \"options\": []}, {\"name\": \"Huevos Divorciados\", \"description\": \"Dos huevos fritos montados sobre tortillas y bañados con salsa verde y roja.\", \"price\": 84, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Huevos Revueltos\", \"description\": \"Dos huevos naturales.\", \"price\": 78, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Huevos Revueltos a la Mexicana\", \"description\": \"Dos huevos revueltos con tomate, cebolla y chile.\", \"price\": 84, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Huevos Revueltos con Jamón\", \"description\": \"Dos huevos revueltos con jamón.\", \"price\": 90, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Huevos Revueltos con Chorizo\", \"description\": \"Dos huevos revueltos con chorizo.\", \"price\": 90, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Huevos Revueltos con Tocino\", \"description\": \"Dos huevos revueltos con tocino.\", \"price\": 90, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Huevos Fritos\", \"description\": \"Dos huevos fritos naturales.\", \"price\": 78, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Huevos Fritos con Jamón\", \"description\": \"Dos huevos fritos con jamón.\", \"price\": 90, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Huevos Fritos con Chorizo\", \"description\": \"Dos huevos fritos con chorizo.\", \"price\": 90, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Huevos Fritos con Tocino\", \"description\": \"Dos huevos fritos con tocino.\", \"price\": 90, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Huevos de la Sierra\", \"description\": \"Dos huevos revueltos con nopal, carne deshebrada y chile colorado.\", \"price\": 94, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Huevos a la Yolanda\", \"description\": \"Dos huevos fritos, servidos sobre una tortilla con frijoles, queso gratinado y bañado en salsa chipotle.\", \"price\": 94, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Huevos Norteños\", \"description\": \"Dos huevos revueltos con machaca y salsa norteña picosita.\", \"price\": 98, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Huevos Rancheros\", \"description\": \"Dos huevos fritos montados sobre tortillas y bañados con salsa roja.\", \"price\": 84, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Omelette Lamera\", \"description\": \"Dos huevos con cebolla, champiñones, tocino y chile verde.\", \"price\": 94, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Omelette Tomasa\", \"description\": \"Dos huevos con cebolla, cebollín, cilantro, champiñones y queso.\", \"price\": 94, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Omelette Cubana\", \"description\": \"Dos huevos con chorizo, jamón, tocino, queso, cebolla y pimiento verde.\", \"price\": 98, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Huevos de Indio\", \"description\": \"Dos huevos fritos montados sobre un huarache de maíz con frijoles refritos y bañados con salsa verde, crema, cebolla y cilantro.\", \"price\": 94, \"category\": \"food\", \"section_title\": \"HUEVOS\", \"options\": []}, {\"name\": \"Chilaquiles Tradicionales\", \"description\": \"Con pollo, crema y queso gratinado, con su elección de salsa suiza o verde.\", \"price\": 138, \"category\": \"food\", \"section_title\": \"MEXICANOS\", \"options\": [{\"name\": \"Salsa Suiza\", \"price\": 0, \"grams\": null}, {\"name\": \"Salsa Verde\", \"price\": 0, \"grams\": null}]}, {\"name\": \"Chilaquiles Regionales\", \"description\": \"Con pollo, crema en salsa de chile colorado, con su elección de queso panela o mezcla de quesos.\", \"price\": 138, \"category\": \"food\", \"section_title\": \"MEXICANOS\", \"options\": [{\"name\": \"Queso Panela\", \"price\": 0, \"grams\": null}, {\"name\": \"Mezcla de Quesos\", \"price\": 0, \"grams\": null}]}, {\"name\": \"Chilaquiles Divorciados\", \"description\": \"Mitad rojos, mitad verdes.\", \"price\": 138, \"category\": \"food\", \"section_title\": \"MEXICANOS\", \"options\": []}, {\"name\": \"Machaca con Huevo\", \"description\": \"Con huevo (Machaca 30gr.).\", \"price\": 98, \"category\": \"food\", \"section_title\": \"MEXICANOS\", \"options\": []}, {\"name\": \"Machaca con Verdura\", \"description\": \"Con verdura (Machaca 30gr.).\", \"price\": 98, \"category\": \"food\", \"section_title\": \"MEXICANOS\", \"options\": []}, {\"name\": \"Enfrijoladas\", \"description\": \"Tres tortillas de maíz rellenas de pollo y bañadas con salsa de frijol, crema y queso cotija.\", \"price\": 94, \"category\": \"food\", \"section_title\": \"MEXICANOS\", \"options\": []}, {\"name\": \"Pastel Azteca\", \"description\": \"Con pollo, salsa de tomate, chile verde, cebolla, elote y mezcla de quesos, servido con frijoles.\", \"price\": 94, \"category\": \"food\", \"section_title\": \"MEXICANOS\", \"options\": []}, {\"name\": \"Enchiladas Verdes\", \"description\": \"Tres enchiladas rellenas de pollo, bañadas con salsa verde, con crema y queso gratinado.\", \"price\": 148, \"category\": \"food\", \"section_title\": \"MEXICANOS\", \"options\": []}, {\"name\": \"Enchiladas Rojas\", \"description\": \"Tres enchiladas rellenas de pollo, bañadas con salsa roja, con crema y queso gratinado.\", \"price\": 148, \"category\": \"food\", \"section_title\": \"MEXICANOS\", \"options\": []}, {\"name\": \"Enchiladas Suizas\", \"description\": \"Tres enchiladas rellenas de pollo, bañadas con salsa suiza, con crema y queso gratinado.\", \"price\": 148, \"category\": \"food\", \"section_title\": \"MEXICANOS\", \"options\": []}, {\"name\": \"Machaca de Marlín con Huevo\", \"description\": \"Machaca de marlín con huevo.\", \"price\": 98, \"category\": \"food\", \"section_title\": \"DE LA PLAYA\", \"options\": []}, {\"name\": \"Machaca de Marlín con Verdura\", \"description\": \"Machaca de marlín con verdura.\", \"price\": 98, \"category\": \"food\", \"section_title\": \"DE LA PLAYA\", \"options\": []}, {\"name\": \"Cazuela de Marlín\", \"description\": \"Cazuela de marlín.\", \"price\": 98, \"category\": \"food\", \"section_title\": \"DE LA PLAYA\", \"options\": []}, {\"name\": \"Omelette de Camarón y Marlín\", \"description\": \"Omelette de camarón y marlín.\", \"price\": 98, \"category\": \"food\", \"section_title\": \"DE LA PLAYA\", \"options\": []}, {\"name\": \"Doblada de Camarón y Marlín\", \"description\": \"Doblada de camarón y marlín.\", \"price\": 98, \"category\": \"food\", \"section_title\": \"DE LA PLAYA\", \"options\": []}, {\"name\": \"Bisquets del Centro\", \"description\": \"Orden de dos bisquets.\", \"price\": 84, \"category\": \"food\", \"section_title\": \"DE LA PANADERÍA\", \"options\": []}, {\"name\": \"Bisquets con Frutos Rojos\", \"description\": \"Orden de dos bisquets con frutos rojos.\", \"price\": 94, \"category\": \"food\", \"section_title\": \"DE LA PANADERÍA\", \"options\": []}, {\"name\": \"Pan Tostado\", \"description\": \"Blanco o integral (3 rebanadas).\", \"price\": 32, \"category\": \"food\", \"section_title\": \"DE LA PANADERÍA\", \"options\": [{\"name\": \"Blanco\", \"price\": 0, \"grams\": null}, {\"name\": \"Integral\", \"price\": 0, \"grams\": null}]}, {\"name\": \"Hot Cakes Naturales\", \"description\": \"Tres piezas.\", \"price\": 68, \"category\": \"food\", \"section_title\": \"DE LA PANADERÍA\", \"options\": []}, {\"name\": \"Hot Cakes con Jamón\", \"description\": \"Tres piezas con jamón.\", \"price\": 78, \"category\": \"food\", \"section_title\": \"DE LA PANADERÍA\", \"options\": []}, {\"name\": \"Hot Cakes con Tocino\", \"description\": \"Tres piezas con tocino.\", \"price\": 78, \"category\": \"food\", \"section_title\": \"DE LA PANADERÍA\", \"options\": []}, {\"name\": \"Hot Cakes con Huevo\", \"description\": \"Tres piezas con huevo.\", \"price\": 78, \"category\": \"food\", \"section_title\": \"DE LA PANADERÍA\", \"options\": []}, {\"name\": \"Waffles con Plátano, Canela y Miel Balsámica\", \"description\": \"Waffles con plátano, canela y miel balsámica.\", \"price\": 70, \"category\": \"food\", \"section_title\": \"DE LA PANADERÍA\", \"options\": []}, {\"name\": \"Waffles con Frutos Rojos\", \"description\": \"Waffles con frutos rojos.\", \"price\": 78, \"category\": \"food\", \"section_title\": \"DE LA PANADERÍA\", \"options\": []}, {\"name\": \"Avena con Leche\", \"description\": \"Con manzana o plátano (350ml.).\", \"price\": 54, \"category\": \"drink\", \"section_title\": \"CEREALES\", \"options\": [{\"name\": \"Manzana\", \"price\": 0, \"grams\": null}, {\"name\": \"Plátano\", \"price\": 0, \"grams\": null}]}, {\"name\": \"Café Americano\", \"description\": \"(200ml.).\", \"price\": 32, \"category\": \"drink\", \"section_title\": \"DE LA CAFETERÍA\", \"options\": []}, {\"name\": \"Café con Leche\", \"description\": \"(200ml.).\", \"price\": 38, \"category\": \"drink\", \"section_title\": \"DE LA CAFETERÍA\", \"options\": []}, {\"name\": \"Café Capuchino\", \"description\": \"(200ml.).\", \"price\": 52, \"category\": \"drink\", \"section_title\": \"DE LA CAFETERÍA\", \"options\": []}, {\"name\": \"Té\", \"description\": \"Manzanilla o negro (200ml.).\", \"price\": 32, \"category\": \"drink\", \"section_title\": \"DE LA CAFETERÍA\", \"options\": [{\"name\": \"Manzanilla\", \"price\": 0, \"grams\": null}, {\"name\": \"Negro\", \"price\": 0, \"grams\": null}]}, {\"name\": \"Chocolate\", \"description\": \"Frío o caliente (200ml.).\", \"price\": 48, \"category\": \"drink\", \"section_title\": \"DE LA CAFETERÍA\", \"options\": [{\"name\": \"Frío\", \"price\": 0, \"grams\": null}, {\"name\": \"Caliente\", \"price\": 0, \"grams\": null}]}, {\"name\": \"Leche\", \"description\": \"(200ml.).\", \"price\": 30, \"category\": \"drink\", \"section_title\": \"DE LA CAFETERÍA\", \"options\": []}, {\"name\": \"Plato Surtido\", \"description\": \"Con queso cottage o yogurth (50gr.) (350gr.).\", \"price\": 72, \"category\": \"food\", \"section_title\": \"JUGOS Y FRUTAS\", \"options\": [{\"name\": \"Queso Cottage\", \"price\": 0, \"grams\": 50}, {\"name\": \"Yogurth\", \"price\": 0, \"grams\": 50}]}, {\"name\": \"Yogurth con Fruta Picada Surtida, Granola y Miel\", \"description\": \"\", \"price\": 82, \"category\": \"food\", \"section_title\": \"JUGOS Y FRUTAS\", \"options\": []}, {\"name\": \"Jugo de Naranja\", \"description\": \"(300ml.).\", \"price\": 44, \"category\": \"drink\", \"section_title\": \"JUGOS Y FRUTAS\", \"options\": []}, {\"name\": \"Jugo de Zanahoria\", \"description\": \"(300ml.).\", \"price\": 44, \"category\": \"drink\", \"section_title\": \"JUGOS Y FRUTAS\", \"options\": []}, {\"name\": \"Jugo de Papaya\", \"description\": \"(300ml.).\", \"price\": 44, \"category\": \"drink\", \"section_title\": \"JUGOS Y FRUTAS\", \"options\": []}, {\"name\": \"Jugo de Toronja\", \"description\": \"(300ml.).\", \"price\": 44, \"category\": \"drink\", \"section_title\": \"JUGOS Y FRUTAS\", \"options\": []}, {\"name\": \"Jugo Verde\", \"description\": \"Nopal, piña, toronja y apio (300ml.).\", \"price\": 50, \"category\": \"drink\", \"section_title\": \"JUGOS Y FRUTAS\", \"options\": []}, {\"name\": \"Pa' los Bukis\", \"description\": \"Hot cakes o huevo revuelto con su elección de jamón o tocino. Leche con chocolate o jugo de naranja.\", \"price\": 94, \"category\": \"food\", \"section_title\": \"PA' LOS BUKIS\", \"options\": [{\"name\": \"Hot Cakes\", \"price\": 0, \"grams\": null}, {\"name\": \"Huevo Revuelto con Jamón\", \"price\": 0, \"grams\": null}, {\"name\": \"Huevo Revuelto con Tocino\", \"price\": 0, \"grams\": null}, {\"name\": \"Leche con Chocolate\", \"price\": 0, \"grams\": null}, {\"name\": \"Jugo de Naranja\", \"price\": 0, \"grams\": null}]}]}",
+  "usage_info": {
+    "pages_processed": 1,
+    "doc_size_bytes": 956602
+  }
+}

@@ -1,0 +1,515 @@
+{
+  "pages": [
+    {
+      "index": 0,
+      "markdown": "![img-0.jpeg](img-0.jpeg)\n\n# A LAS BRASAS En nuestro horno de carbón\n\n## CARNE\n\nNEW YORK $690\n\nCalidad choice acompañado de chimichurri de la casa. (400gr)\n\nRIB EYE $690\n\nCalidad choice acompañado de chimichurri de la casa. (400gr)\n\nFILETE DISCORDIA $680\n\nFilete de res asado acompañado de puré de papa, salteado de espinacas con cebolla, con una corona de camarones envueltos en tocino y bañado en salsa chemita. (230gr)\n\nMEDALLÓN DE RES AL LIMÓN $750\n\nMedallones de filete salseados con mantequilla de limón, vino blanco y alcaparras. (230gr)\n\nHAMBURGUESA CALAFATE $380\n\nPan de ajonjolí, recorte fino, queso cheddar, pimiento rojo asado, chorizo argentino, chimichurri, arúgula, cebolla morada y dijonesa. (200gr)\n\nBACON CHEESE BURGER $380\n\nPan de ajonjolí, recorte fino, queso cheddar, tocino, tomate, cebolla morada, hojas verdes y dijonesa. (200gr)\n\n## MARISCOS\n\nPULPO A LAS BRASAS $530\n\nPulpo a las brasas con un adobo de chiles secos, con espárragos y champiñones. (280gr)\n\nSALMÓN MEDITERRÁNEO $530\n\nFilete de salmón en cama de pasta al burro, bañado en salsa mediterránea y albahaca. (350gr)\n\nPESCADO AL AJILLO $420\n\nPescado del día en una cama de calabaza y espárraga. Bañado en salsa al ajillo, con camarón. (200gr)\n\n## POLLO Y PUERCO\n\nTOMAHAWK DE PUERCO $530\n\nA las brasas, con salsa oriental, cebollas y chiles asados. (380gr)\n\nPOLLO EN SALSA BICOLORE $370\n\nPechuga rellena de prosciutto, mis de queso, acompañado con un cremoso verde y marrón rojo. (280gr)\n\n## ACOMPAÑAMIENTOS\n\nESPÁRRAGOS ASADOS 200gr $260\nCOLES DE BRUSELAS 200gr $150\nMAC AND CHEESE 250gr $150\nPURÉ DE PAPA 350gr $150\n\nESPINACAS A LA CREMA 250gr $130\nVEGETALES A LAS BRASAS 200gr $110\nPAPAS CON PARMESANO 200gr $120\n\n## ESPECIALIDADES\n\nTARTAR DE ATÚN $290\n\nAtún rojo cortado en pequeñas cubas, mezclado con cebolla morada, manzana verde, chile serrano y salsa panzu, servido sobre una base de aguacate.\n\nCAMARONES ZARANDEADOS $340\n\nCamarones a la parrilla bañados en salsa de chiles secos acompañados de ensalada verde con un toque de vinagreta San Enrique. (165gr)\n\nCHAMORRO CALAFATE $490\n\nChamorro de cerdo braseado, chile serrano ahumado, tomate cherry confitado y papa cambray bañado en salsa cremoso de patobello. (650gr)\n\n## PASTAS\n\nSPAGHETTI A LA BOLOGNESA $290\n\nSpaghetti servido con una deliciosa salsa bolognesa de la casa. (380gr)\n\nPASTA AL PESTO $320\n\nSpaghetti con tomate deshidratado, bañado en pesta, queso burrito y un toque de hierbabuena. (350gr)\n\nPASTA ALFREDO $380\n\nA elegir: camarón o pollo. Sobre cremoso salsa a base de queso Grana Padano. (400gr)\n\nPASTA PARMESANO $330\n\nPreparada en su mesa dentro del queso Grana Padano. (400gr)\nExtras: Chorizo $25 | Pollo $45 | Camarón $70\n\nAI FRUTTI DI MARE $380\n\nSalsa de tomate, pulpo, mejillón y camarón. (235gr)\n\nLASAGNA RÚSTICA $290\n\nClásica lasagna italiana bañado en crema de queso y salsa de tomate. (400gr)\n\nPASTA ALLA LIGURE $330\n\nPasta servido con tocino, camarones, tomate cherry y pesta de albahaca. (350gr)\n\nGoogle Maps",
+      "images": [
+        {
+          "id": "img-0.jpeg",
+          "top_left_x": 526,
+          "top_left_y": 49,
+          "bottom_right_x": 877,
+          "bottom_right_y": 236,
+          "image_base64": null,
+          "image_annotation": null
+        }
+      ],
+      "tables": [],
+      "hyperlinks": [],
+      "header": null,
+      "footer": null,
+      "dimensions": {
+        "dpi": 200,
+        "height": 2048,
+        "width": 1404
+      },
+      "confidence_scores": null,
+      "blocks": [
+        {
+          "top_left_x": 526,
+          "top_left_y": 49,
+          "bottom_right_x": 877,
+          "bottom_right_y": 236,
+          "content": "![img-0.jpeg](img-0.jpeg)",
+          "confidence_scores": null,
+          "type": "image",
+          "image_id": "img-0.jpeg"
+        },
+        {
+          "top_left_x": 364,
+          "top_left_y": 277,
+          "bottom_right_x": 1026,
+          "bottom_right_y": 322,
+          "content": "# A LAS BRASAS En nuestro horno de carbón",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 367,
+          "bottom_right_x": 238,
+          "bottom_right_y": 398,
+          "content": "## CARNE",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 94,
+          "top_left_y": 414,
+          "bottom_right_x": 623,
+          "bottom_right_y": 439,
+          "content": "NEW YORK $690",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 445,
+          "bottom_right_x": 554,
+          "bottom_right_y": 469,
+          "content": "Calidad choice acompañado de chimichurri de la casa. (400gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 94,
+          "top_left_y": 488,
+          "bottom_right_x": 623,
+          "bottom_right_y": 513,
+          "content": "RIB EYE $690",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 519,
+          "bottom_right_x": 554,
+          "bottom_right_y": 543,
+          "content": "Calidad choice acompañado de chimichurri de la casa. (400gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 558,
+          "bottom_right_x": 623,
+          "bottom_right_y": 582,
+          "content": "FILETE DISCORDIA $680",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 588,
+          "bottom_right_x": 573,
+          "bottom_right_y": 652,
+          "content": "Filete de res asado acompañado de puré de papa, salteado de espinacas con cebolla, con una corona de camarones envueltos en tocino y bañado en salsa chemita. (230gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 668,
+          "bottom_right_x": 623,
+          "bottom_right_y": 693,
+          "content": "MEDALLÓN DE RES AL LIMÓN $750",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 699,
+          "bottom_right_x": 545,
+          "bottom_right_y": 744,
+          "content": "Medallones de filete salseados con mantequilla de limón, vino blanco y alcaparras. (230gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 761,
+          "bottom_right_x": 623,
+          "bottom_right_y": 785,
+          "content": "HAMBURGUESA CALAFATE $380",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 791,
+          "bottom_right_x": 575,
+          "bottom_right_y": 855,
+          "content": "Pan de ajonjolí, recorte fino, queso cheddar, pimiento rojo asado, chorizo argentino, chimichurri, arúgula, cebolla morada y dijonesa. (200gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 871,
+          "bottom_right_x": 623,
+          "bottom_right_y": 896,
+          "content": "BACON CHEESE BURGER $380",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 902,
+          "bottom_right_x": 528,
+          "bottom_right_y": 945,
+          "content": "Pan de ajonjolí, recorte fino, queso cheddar, tocino, tomate, cebolla morada, hojas verdes y dijonesa. (200gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 369,
+          "bottom_right_x": 936,
+          "bottom_right_y": 400,
+          "content": "## MARISCOS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 752,
+          "top_left_y": 418,
+          "bottom_right_x": 1270,
+          "bottom_right_y": 443,
+          "content": "PULPO A LAS BRASAS $530",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 451,
+          "bottom_right_x": 1224,
+          "bottom_right_y": 494,
+          "content": "Pulpo a las brasas con un adobo de chiles secos, con espárragos y champiñones. (280gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 513,
+          "bottom_right_x": 1270,
+          "bottom_right_y": 537,
+          "content": "SALMÓN MEDITERRÁNEO $530",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 543,
+          "bottom_right_x": 1193,
+          "bottom_right_y": 588,
+          "content": "Filete de salmón en cama de pasta al burro, bañado en salsa mediterránea y albahaca. (350gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 607,
+          "bottom_right_x": 1270,
+          "bottom_right_y": 631,
+          "content": "PESCADO AL AJILLO $420",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 638,
+          "bottom_right_x": 1231,
+          "bottom_right_y": 681,
+          "content": "Pescado del día en una cama de calabaza y espárraga. Bañado en salsa al ajillo, con camarón. (200gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 711,
+          "bottom_right_x": 1041,
+          "bottom_right_y": 744,
+          "content": "## POLLO Y PUERCO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 752,
+          "top_left_y": 767,
+          "bottom_right_x": 1270,
+          "bottom_right_y": 791,
+          "content": "TOMAHAWK DE PUERCO $530",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 800,
+          "bottom_right_x": 1213,
+          "bottom_right_y": 822,
+          "content": "A las brasas, con salsa oriental, cebollas y chiles asados. (380gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 847,
+          "bottom_right_x": 1270,
+          "bottom_right_y": 871,
+          "content": "POLLO EN SALSA BICOLORE $370",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 879,
+          "bottom_right_x": 1220,
+          "bottom_right_y": 923,
+          "content": "Pechuga rellena de prosciutto, mis de queso, acompañado con un cremoso verde y marrón rojo. (280gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 542,
+          "top_left_y": 996,
+          "bottom_right_x": 818,
+          "bottom_right_y": 1027,
+          "content": "## ACOMPAÑAMIENTOS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 379,
+          "top_left_y": 1037,
+          "bottom_right_x": 607,
+          "bottom_right_y": 1111,
+          "content": "ESPÁRRAGOS ASADOS 200gr $260\nCOLES DE BRUSELAS 200gr $150\nMAC AND CHEESE 250gr $150\nPURÉ DE PAPA 350gr $150",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 738,
+          "top_left_y": 1048,
+          "bottom_right_x": 987,
+          "bottom_right_y": 1103,
+          "content": "ESPINACAS A LA CREMA 250gr $130\nVEGETALES A LAS BRASAS 200gr $110\nPAPAS CON PARMESANO 200gr $120",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 516,
+          "top_left_y": 1181,
+          "bottom_right_x": 895,
+          "bottom_right_y": 1226,
+          "content": "## ESPECIALIDADES",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 101,
+          "top_left_y": 1267,
+          "bottom_right_x": 623,
+          "bottom_right_y": 1294,
+          "content": "TARTAR DE ATÚN $290",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 1302,
+          "bottom_right_x": 576,
+          "bottom_right_y": 1363,
+          "content": "Atún rojo cortado en pequeñas cubas, mezclado con cebolla morada, manzana verde, chile serrano y salsa panzu, servido sobre una base de aguacate.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 1390,
+          "bottom_right_x": 623,
+          "bottom_right_y": 1412,
+          "content": "CAMARONES ZARANDEADOS $340",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 1421,
+          "bottom_right_x": 535,
+          "bottom_right_y": 1484,
+          "content": "Camarones a la parrilla bañados en salsa de chiles secos acompañados de ensalada verde con un toque de vinagreta San Enrique. (165gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 752,
+          "top_left_y": 1275,
+          "bottom_right_x": 1270,
+          "bottom_right_y": 1300,
+          "content": "CHAMORRO CALAFATE $490",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 1308,
+          "bottom_right_x": 1202,
+          "bottom_right_y": 1369,
+          "content": "Chamorro de cerdo braseado, chile serrano ahumado, tomate cherry confitado y papa cambray bañado en salsa cremoso de patobello. (650gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 621,
+          "top_left_y": 1519,
+          "bottom_right_x": 790,
+          "bottom_right_y": 1564,
+          "content": "## PASTAS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 101,
+          "top_left_y": 1622,
+          "bottom_right_x": 623,
+          "bottom_right_y": 1648,
+          "content": "SPAGHETTI A LA BOLOGNESA $290",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 1654,
+          "bottom_right_x": 557,
+          "bottom_right_y": 1697,
+          "content": "Spaghetti servido con una deliciosa salsa bolognesa de la casa. (380gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 1724,
+          "bottom_right_x": 623,
+          "bottom_right_y": 1747,
+          "content": "PASTA AL PESTO $320",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 1755,
+          "bottom_right_x": 538,
+          "bottom_right_y": 1798,
+          "content": "Spaghetti con tomate deshidratado, bañado en pesta, queso burrito y un toque de hierbabuena. (350gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 1822,
+          "bottom_right_x": 623,
+          "bottom_right_y": 1847,
+          "content": "PASTA ALFREDO $380",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 129,
+          "top_left_y": 1853,
+          "bottom_right_x": 557,
+          "bottom_right_y": 1896,
+          "content": "A elegir: camarón o pollo. Sobre cremoso salsa a base de queso Grana Padano. (400gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 752,
+          "top_left_y": 1622,
+          "bottom_right_x": 1270,
+          "bottom_right_y": 1646,
+          "content": "PASTA PARMESANO $330",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 1654,
+          "bottom_right_x": 1213,
+          "bottom_right_y": 1693,
+          "content": "Preparada en su mesa dentro del queso Grana Padano. (400gr)\nExtras: Chorizo $25 | Pollo $45 | Camarón $70",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 1720,
+          "bottom_right_x": 1270,
+          "bottom_right_y": 1743,
+          "content": "AI FRUTTI DI MARE $380",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 1751,
+          "bottom_right_x": 1127,
+          "bottom_right_y": 1773,
+          "content": "Salsa de tomate, pulpo, mejillón y camarón. (235gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 1796,
+          "bottom_right_x": 1270,
+          "bottom_right_y": 1818,
+          "content": "LASAGNA RÚSTICA $290",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 1827,
+          "bottom_right_x": 1203,
+          "bottom_right_y": 1868,
+          "content": "Clásica lasagna italiana bañado en crema de queso y salsa de tomate. (400gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 1892,
+          "bottom_right_x": 1270,
+          "bottom_right_y": 1917,
+          "content": "PASTA ALLA LIGURE $330",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 780,
+          "top_left_y": 1925,
+          "bottom_right_x": 1202,
+          "bottom_right_y": 1968,
+          "content": "Pasta servido con tocino, camarones, tomate cherry y pesta de albahaca. (350gr)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 613,
+          "top_left_y": 1986,
+          "bottom_right_x": 801,
+          "bottom_right_y": 2027,
+          "content": "Google Maps",
+          "confidence_scores": null,
+          "type": "footer"
+        }
+      ]
+    }
+  ],
+  "model": "mistral-ocr-latest",
+  "document_annotation": "{\"items\": [{\"name\": \"New York\", \"description\": \"Calidad choice acompañado de chimichurri de la casa.\", \"price\": 690, \"category\": \"food\", \"section_title\": \"Carne\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 400}]}, {\"name\": \"Rib Eye\", \"description\": \"Calidad choice acompañado de chimichurri de la casa.\", \"price\": 690, \"category\": \"food\", \"section_title\": \"Carne\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 400}]}, {\"name\": \"Filete Discordia\", \"description\": \"Filete de res asado acompañado de puré de papa, salteado de espinacas con cebolla, con una corona de camarones envueltos en tocino y bañado en salsa chemita.\", \"price\": 680, \"category\": \"food\", \"section_title\": \"Carne\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 230}]}, {\"name\": \"Medallón de Res al Limón\", \"description\": \"Medallones de filete salseados con mantequilla de limón, vino blanco y alcaparras.\", \"price\": 750, \"category\": \"food\", \"section_title\": \"Carne\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 230}]}, {\"name\": \"Hamburguesa Calafate\", \"description\": \"Pan de ajonjolí, recorte fino, queso cheddar, pimiento rojo asado, chorizo argentino, chimichurri, arúgula, cebolla morada y dijonesa.\", \"price\": 380, \"category\": \"food\", \"section_title\": \"Carne\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 200}]}, {\"name\": \"Bacon Cheese Burger\", \"description\": \"Pan de ajonjolí, recorte fino, queso cheddar, tocino, tomate, cebolla morada, hojas verdes y dijonesa.\", \"price\": 380, \"category\": \"food\", \"section_title\": \"Carne\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 200}]}, {\"name\": \"Pulpo a las Brasas\", \"description\": \"Pulpo a las brasas con un adobo de chiles secos, con espárragos y champiñones.\", \"price\": 530, \"category\": \"food\", \"section_title\": \"Mariscos\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 280}]}, {\"name\": \"Salmón Mediterráneo\", \"description\": \"Filete de salmón en cama de pasta al burro, bañado en salsa mediterránea y albahaca.\", \"price\": 530, \"category\": \"food\", \"section_title\": \"Mariscos\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 350}]}, {\"name\": \"Pescado al Ajillo\", \"description\": \"Pescado del día en una cama de calabaza y espárraga. Bañado en salsa al ajillo, con camarón.\", \"price\": 420, \"category\": \"food\", \"section_title\": \"Mariscos\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 200}]}, {\"name\": \"Tomahawk de Puerco\", \"description\": \"A las brasas, con salsa oriental, cebollas y chiles asados.\", \"price\": 530, \"category\": \"food\", \"section_title\": \"Pollo y Puerco\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 380}]}, {\"name\": \"Pollo en Salsa Bicolore\", \"description\": \"Pechuga rellena de prosciutto, mis de queso, acompañado con un cremoso verde y marrón rojo.\", \"price\": 370, \"category\": \"food\", \"section_title\": \"Pollo y Puerco\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 280}]}, {\"name\": \"Espárragos Asados\", \"description\": \"\", \"price\": 260, \"category\": \"side\", \"section_title\": \"Acompañamientos\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 200}]}, {\"name\": \"Coles de Bruselas\", \"description\": \"\", \"price\": 150, \"category\": \"side\", \"section_title\": \"Acompañamientos\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 200}]}, {\"name\": \"Mac and Cheese\", \"description\": \"\", \"price\": 150, \"category\": \"side\", \"section_title\": \"Acompañamientos\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 250}]}, {\"name\": \"Puré de Papa\", \"description\": \"\", \"price\": 150, \"category\": \"side\", \"section_title\": \"Acompañamientos\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 350}]}, {\"name\": \"Espinacas a la Crema\", \"description\": \"\", \"price\": 130, \"category\": \"side\", \"section_title\": \"Acompañamientos\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 250}]}, {\"name\": \"Vegetales a las Brasas\", \"description\": \"\", \"price\": 110, \"category\": \"side\", \"section_title\": \"Acompañamientos\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 200}]}, {\"name\": \"Papas con Parmesano\", \"description\": \"\", \"price\": 120, \"category\": \"side\", \"section_title\": \"Acompañamientos\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 200}]}, {\"name\": \"Tartar de Atún\", \"description\": \"Atún rojo cortado en pequeñas cubas, mezclado con cebolla morada, manzana verde, chile serrano y salsa panzu, servido sobre una base de aguacate.\", \"price\": 290, \"category\": \"food\", \"section_title\": \"Especialidades\", \"options\": []}, {\"name\": \"Camarones Zarandeados\", \"description\": \"Camarones a la parrilla bañados en salsa de chiles secos acompañados de ensalada verde con un toque de vinagreta San Enrique.\", \"price\": 340, \"category\": \"food\", \"section_title\": \"Especialidades\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 165}]}, {\"name\": \"Chamorro Calafate\", \"description\": \"Chamorro de cerdo braseado, chile serrano ahumado, tomate cherry confitado y papa cambray bañado en salsa cremoso de patobello.\", \"price\": 490, \"category\": \"food\", \"section_title\": \"Especialidades\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 650}]}, {\"name\": \"Spaghetti a la Bolognesa\", \"description\": \"Spaghetti servido con una deliciosa salsa bolognesa de la casa.\", \"price\": 290, \"category\": \"food\", \"section_title\": \"Pastas\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 380}]}, {\"name\": \"Pasta al Pesto\", \"description\": \"Spaghetti con tomate deshidratado, bañado en pesta, queso burrito y un toque de hierbabuena.\", \"price\": 320, \"category\": \"food\", \"section_title\": \"Pastas\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 350}]}, {\"name\": \"Pasta Alfredo\", \"description\": \"A elegir: camarón o pollo. Sobre cremoso salsa a base de queso Grana Padano.\", \"price\": 380, \"category\": \"food\", \"section_title\": \"Pastas\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 400}]}, {\"name\": \"Pasta Parmesano\", \"description\": \"Preparada en su mesa dentro del queso Grana Padano.\", \"price\": 330, \"category\": \"food\", \"section_title\": \"Pastas\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 400}, {\"name\": \"Extras: Chorizo\", \"price\": 25, \"grams\": null}, {\"name\": \"Extras: Pollo\", \"price\": 45, \"grams\": null}, {\"name\": \"Extras: Camarón\", \"price\": 70, \"grams\": null}]}, {\"name\": \"Ai Frutti di Mare\", \"description\": \"Salsa de tomate, pulpo, mejillón y camarón.\", \"price\": 380, \"category\": \"food\", \"section_title\": \"Pastas\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 235}]}, {\"name\": \"Lasagna Rústica\", \"description\": \"Clásica lasagna italiana bañado en crema de queso y salsa de tomate.\", \"price\": 290, \"category\": \"food\", \"section_title\": \"Pastas\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 400}]}, {\"name\": \"Pasta alla Ligure\", \"description\": \"Pasta servido con tocino, camarones, tomate cherry y pesta de albahaca.\", \"price\": 330, \"category\": \"food\", \"section_title\": \"Pastas\", \"options\": [{\"name\": \"Peso\", \"price\": null, \"grams\": 350}]}]}",
+  "usage_info": {
+    "pages_processed": 1,
+    "doc_size_bytes": 460873
+  }
+}

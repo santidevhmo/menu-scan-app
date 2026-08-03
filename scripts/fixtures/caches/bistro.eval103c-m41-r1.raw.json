@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-E7ADUKdX04L2fUgO2SGcnz22Ra6EI",
+  "object": "chat.completion",
+  "created": 1785376276,
+  "model": "gpt-4.1-2025-04-14",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"image_quality\":{\"usable\":true,\"issues\":[]},\"image_layout\":{\"dense\":false,\"crop_direction\":\"none\"},\"items\":[{\"name\":\"5 FORMAGGI\",\"description\":\"Queso mozzarella, chihuahua, azul, feta y cabra.\",\"price\":240,\"category\":\"food\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"CAPRICCIOSA\",\"description\":\"Jamón serrano, alcachofa, aceituna negra y champiñón.\",\"price\":262,\"category\":\"food\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"FLAMENKUCHEN\",\"description\":\"Base de crema, tocino y cebolla caramelizada.\",\"price\":240,\"category\":\"food\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"QUESO AZUL\",\"description\":\"Base de crema, queso azul, espinaca, jamón serrano y laminas de manzana verde.\",\"price\":272,\"category\":\"food\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"4 STAGIONI\",\"description\":\"Pepperoni, jamón, tocino y chistorra.\",\"price\":262,\"category\":\"food\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"ITALIANA\",\"description\":\"Pepperoni, cebolla morada, pimiento verde, aceituna negra y campiñones.\",\"price\":240,\"category\":\"food\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"HAWAIANA\",\"description\":\"Jamón y piña.\",\"price\":208,\"category\":\"food\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"CAPRESE\",\"description\":\"Espinacas, jamón serrano y tomate deshidratado.\",\"price\":262,\"category\":\"food\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"ALFREDO PORTOBELLO\",\"description\":\"Base de crema, laminas de portobello y pollo marinado.\",\"price\":262,\"category\":\"food\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"MEXICANA\",\"description\":\"Cebolla morada, pimiento verde y chistorra.\",\"price\":252,\"category\":\"food\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"VEGETARIANA\",\"description\":\"Espinaca, calabaza, campiñón, cebolla morada, pimiento verde y aceituna negra.\",\"price\":230,\"category\":\"food\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"OSTRICA\",\"description\":\"Ostión ahumado, tocino y mostaza dijón.\",\"price\":252,\"category\":\"food\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"MARGARITA\",\"description\":\"Rebanadas de tomate fresco y albahaca deshidratada.\",\"price\":225,\"category\":\"food\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"JAMÓN CON CHAMPIÑONES\",\"description\":\"\",\"price\":205,\"category\":\"food\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"PEPPERONI\",\"description\":\"\",\"price\":198,\"category\":\"food\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"Pollo.\",\"description\":\"\",\"price\":null,\"category\":\"other\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"Camarón\",\"description\":\"\",\"price\":null,\"category\":\"other\",\"section_title\":\"PIZZAS BISTRO\",\"options\":[]},{\"name\":\"ENSALADA GRIEGA\",\"description\":\"Lechuga, pepino, tomate, cebolla morada, aceituna negra, queso feta y vinagreta balsamico.\",\"price\":185,\"category\":\"food\",\"section_title\":\"ENSALADAS\",\"options\":[]},{\"name\":\"ENSALADA BISTRO\",\"description\":\"Tomate, campiñones, pimiento verde, cebolla morada, pera, manzana, calabaza, queso brie y chistorra.\",\"price\":225,\"category\":\"food\",\"section_title\":\"ENSALADAS\",\"options\":[]},{\"name\":\"ENSALADA BALI\",\"description\":\"Espinaca, mandarina, arándanos, tomate cherry, coco rallado, cacahuate y vinagreta de la casa.\",\"price\":185,\"category\":\"food\",\"section_title\":\"ENSALADAS\",\"options\":[]},{\"name\":\"ENSALADA DE LA SEMANA\",\"description\":\"Combinación de lechuga y espinaca, arándanos, tomate cherry, campiñón, calabaza, pera, manzana, almendras y queso de cabra.\",\"price\":185,\"category\":\"food\",\"section_title\":\"ENSALADAS\",\"options\":[]},{\"name\":\"CARBONARA\",\"description\":\"Salsa blanca a base de crema y queso parmesano, con un toque de tocino y nuez moscada.\",\"price\":235,\"category\":\"food\",\"section_title\":\"PASTAS\",\"options\":[]},{\"name\":\"LINGUINNI PARISIENNE\",\"description\":\"Pimientos, campiñones, jamón en salsa cremosa a base de quesos.\",\"price\":225,\"category\":\"food\",\"section_title\":\"PASTAS\",\"options\":[]},{\"name\":\"PASTA ESPECIAL\",\"description\":\"Salsa de tomate de la casa, campiñones, chistorra y queso de cabra.\",\"price\":235,\"category\":\"food\",\"section_title\":\"PASTAS\",\"options\":[]},{\"name\":\"FRADIAVIOLA\",\"description\":\"Crema de tomate con un toque de chile de árbol, espinacas y queso feta.\",\"price\":225,\"category\":\"food\",\"section_title\":\"PASTAS\",\"options\":[]},{\"name\":\"FETUCCINI ALFREDO\",\"description\":\"Salsa Alfredo a base de queso parmesano\",\"price\":235,\"category\":\"food\",\"section_title\":\"PASTAS\",\"options\":[]}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1762,
+    "completion_tokens": 1236,
+    "total_tokens": 2998,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_c935aef436"
+}

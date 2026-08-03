@@ -1,0 +1,576 @@
+{
+  "pages": [
+    {
+      "index": 0,
+      "markdown": "# BRASERO\n\n# LOS LAGOS\n\n# ENTRADAS\n\n# PANELA A LAS BRASAS\n\nPanela marinada en aceite de oliva, rub de chiles y tomate cherry, acompañado de tostadas mixtas.\n\n# COLIFLOR AL CHURRASCO\n\nAsada, rub rojo, parmesano y limón asado, acompañada de aderezo parmesano.\n\n# COSTILLAS HORMIGUERAS\n\nBaby back rib en salsa de café acompañadas de aderezo de chipotle y cebollas cambray asadas (300 gr).\n\n# AGUACHILE DE PAPADA\n\nLáminas de papada bañadas en aguachile verde, cebolla, cilantro y chile serrano.\n\n# SALCHI-RIBS\n\nCon topping de BBQ y aderezo chipotle.\n\n$200\n\n$270\n\n$250\n\n$200\n\n$190\n\n# QUESO FUNDIDO\n\nChistorra salseada, cebolla cambray, mix de pimientos, flameado al tequila con aceite de romero.\n\n# INFLADITA EMILIANA\n\nRica infladita de maíz recién hecha, rellena de mix de quesos y encima aguacate (70gr).\n\n# GUACAMOLE BRASERO\n\nMezcla rústica de aguacate, salsa bandera, rub de chiles y panela.\n\n# CHICHARRÓN BRASERO\n\nTostadas de su elección con mezcla criolla de frijol negro y chicharrón de res decorado con cilantro y cebolla morada.\n\n# AGUACHILE DE ARRACHERA\n\nEn salsa verde picante.\n\n$195\n\n$100\n\n$170\n\n$220\n\n$290\n\n# ESPECIALIDADES\n\n# CHICHARRÓN A LA CAZUELA\n\nChicharrón de rib eye bañado en salsa de chile morita de la casa, cubierto de mix de quesos, acompañado de tortillas de su elección.\n\n$200\n\n# HAMBURGUESA BRASERO\n\nCarne preparada de sirloin estilo brasero rellena de mix de quesos, acompañada de papas cambray y un delicioso aderezo de la casa.\n\n$280\n\n# CHURRASQUERÍA\n\nSENCILLA (300gr) $495\n\nDOBLE (600gr) $950\n\nEN TACO: Tortilla de maíz o harina recién hecha.\n\nEN TOSTADA: Tortilla de maíz o harina tostada a las brasas.\n\nPÍDELO CON QUESO: Añade queso a tu taco o tostada por $10.\n\nTACO JR SIRLOIN (50gr) $90\n\nQUESADILLA (30gr) $60\n\n# ENSALADAS\n\n# BRASERO\n\nCama de lechuga y germen de alfalfa con toppings de betabel asado, fresa, durazno y fritura de maíz con pechuga a la plancha, acompañado de una vinagreta de miel.\n\n$180\n\n# CALDOS\n\n# FEIJOADA\n\nClásico caldo brasileño de frijol negro, cerdo y chorizo.\n\n(Tortillas a elegir)\n\n# SOPA DE TORTILLA\n\nSopa de tortilla acompañada de aguacate, queso panela, crema y limones.\n\n$130\n\n$170\n\nGoogle Maps",
+      "images": [],
+      "tables": [],
+      "hyperlinks": [],
+      "header": null,
+      "footer": null,
+      "dimensions": {
+        "dpi": 200,
+        "height": 2048,
+        "width": 1538
+      },
+      "confidence_scores": null,
+      "blocks": [
+        {
+          "top_left_x": 494,
+          "top_left_y": 72,
+          "bottom_right_x": 985,
+          "bottom_right_y": 148,
+          "content": "# BRASERO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 628,
+          "top_left_y": 174,
+          "bottom_right_x": 864,
+          "bottom_right_y": 213,
+          "content": "# LOS LAGOS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 624,
+          "top_left_y": 273,
+          "bottom_right_x": 864,
+          "bottom_right_y": 314,
+          "content": "# ENTRADAS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 117,
+          "top_left_y": 365,
+          "bottom_right_x": 442,
+          "bottom_right_y": 394,
+          "content": "# PANELA A LAS BRASAS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 114,
+          "top_left_y": 396,
+          "bottom_right_x": 562,
+          "bottom_right_y": 461,
+          "content": "Panela marinada en aceite de oliva, rub de chiles y tomate cherry, acompañado de tostadas mixtas.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 111,
+          "top_left_y": 474,
+          "bottom_right_x": 494,
+          "bottom_right_y": 502,
+          "content": "# COLIFLOR AL CHURRASCO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 108,
+          "top_left_y": 506,
+          "bottom_right_x": 567,
+          "bottom_right_y": 551,
+          "content": "Asada, rub rojo, parmesano y limón asado, acompañada de aderezo parmesano.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 106,
+          "top_left_y": 566,
+          "bottom_right_x": 502,
+          "bottom_right_y": 595,
+          "content": "# COSTILLAS HORMIGUERAS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 103,
+          "top_left_y": 599,
+          "bottom_right_x": 585,
+          "bottom_right_y": 668,
+          "content": "Baby back rib en salsa de café acompañadas de aderezo de chipotle y cebollas cambray asadas (300 gr).",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 100,
+          "top_left_y": 685,
+          "bottom_right_x": 463,
+          "bottom_right_y": 713,
+          "content": "# AGUACHILE DE PAPADA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 99,
+          "top_left_y": 720,
+          "bottom_right_x": 557,
+          "bottom_right_y": 767,
+          "content": "Láminas de papada bañadas en aguachile verde, cebolla, cilantro y chile serrano.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 99,
+          "top_left_y": 785,
+          "bottom_right_x": 291,
+          "bottom_right_y": 814,
+          "content": "# SALCHI-RIBS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 99,
+          "top_left_y": 818,
+          "bottom_right_x": 531,
+          "bottom_right_y": 845,
+          "content": "Con topping de BBQ y aderezo chipotle.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 616,
+          "top_left_y": 355,
+          "bottom_right_x": 673,
+          "bottom_right_y": 377,
+          "content": "$200",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 616,
+          "top_left_y": 467,
+          "bottom_right_x": 674,
+          "bottom_right_y": 490,
+          "content": "$270",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 616,
+          "top_left_y": 560,
+          "bottom_right_x": 674,
+          "bottom_right_y": 584,
+          "content": "$250",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 619,
+          "top_left_y": 681,
+          "bottom_right_x": 677,
+          "bottom_right_y": 705,
+          "content": "$200",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 619,
+          "top_left_y": 779,
+          "bottom_right_x": 679,
+          "bottom_right_y": 804,
+          "content": "$190",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 824,
+          "top_left_y": 351,
+          "bottom_right_x": 1079,
+          "bottom_right_y": 379,
+          "content": "# QUESO FUNDIDO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 824,
+          "top_left_y": 381,
+          "bottom_right_x": 1293,
+          "bottom_right_y": 451,
+          "content": "Chistorra salseada, cebolla cambray, mix de pimientos, flameado al tequila con aceite de romero.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 828,
+          "top_left_y": 478,
+          "bottom_right_x": 1142,
+          "bottom_right_y": 506,
+          "content": "# INFLADITA EMILIANA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 828,
+          "top_left_y": 508,
+          "bottom_right_x": 1290,
+          "bottom_right_y": 558,
+          "content": "Rica infladita de maíz recién hecha, rellena de mix de quesos y encima aguacate (70gr).",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 830,
+          "top_left_y": 574,
+          "bottom_right_x": 1175,
+          "bottom_right_y": 603,
+          "content": "# GUACAMOLE BRASERO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 830,
+          "top_left_y": 607,
+          "bottom_right_x": 1289,
+          "bottom_right_y": 658,
+          "content": "Mezcla rústica de aguacate, salsa bandera, rub de chiles y panela.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 831,
+          "top_left_y": 674,
+          "bottom_right_x": 1190,
+          "bottom_right_y": 705,
+          "content": "# CHICHARRÓN BRASERO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 831,
+          "top_left_y": 707,
+          "bottom_right_x": 1306,
+          "bottom_right_y": 783,
+          "content": "Tostadas de su elección con mezcla criolla de frijol negro y chicharrón de res decorado con cilantro y cebolla morada.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 833,
+          "top_left_y": 797,
+          "bottom_right_x": 1258,
+          "bottom_right_y": 828,
+          "content": "# AGUACHILE DE ARRACHERA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 833,
+          "top_left_y": 836,
+          "bottom_right_x": 1081,
+          "bottom_right_y": 863,
+          "content": "En salsa verde picante.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1324,
+          "top_left_y": 344,
+          "bottom_right_x": 1381,
+          "bottom_right_y": 369,
+          "content": "$195",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1335,
+          "top_left_y": 469,
+          "bottom_right_x": 1392,
+          "bottom_right_y": 492,
+          "content": "$100",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1341,
+          "top_left_y": 566,
+          "bottom_right_x": 1399,
+          "bottom_right_y": 590,
+          "content": "$170",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1349,
+          "top_left_y": 666,
+          "bottom_right_x": 1406,
+          "bottom_right_y": 689,
+          "content": "$220",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1356,
+          "top_left_y": 789,
+          "bottom_right_x": 1415,
+          "bottom_right_y": 814,
+          "content": "$290",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 216,
+          "top_left_y": 972,
+          "bottom_right_x": 1266,
+          "bottom_right_y": 1037,
+          "content": "# ESPECIALIDADES",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 95,
+          "top_left_y": 1169,
+          "bottom_right_x": 537,
+          "bottom_right_y": 1199,
+          "content": "# CHICHARRÓN A LA CAZUELA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 94,
+          "top_left_y": 1203,
+          "bottom_right_x": 565,
+          "bottom_right_y": 1304,
+          "content": "Chicharrón de rib eye bañado en salsa de chile morita de la casa, cubierto de mix de quesos, acompañado de tortillas de su elección.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 624,
+          "top_left_y": 1160,
+          "bottom_right_x": 684,
+          "bottom_right_y": 1185,
+          "content": "$200",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 856,
+          "top_left_y": 1156,
+          "bottom_right_x": 1258,
+          "bottom_right_y": 1187,
+          "content": "# HAMBURGUESA BRASERO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 858,
+          "top_left_y": 1193,
+          "bottom_right_x": 1347,
+          "bottom_right_y": 1289,
+          "content": "Carne preparada de sirloin estilo brasero rellena de mix de quesos, acompañada de papas cambray y un delicioso aderezo de la casa.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1373,
+          "top_left_y": 1158,
+          "bottom_right_x": 1430,
+          "bottom_right_y": 1181,
+          "content": "$280",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 168,
+          "top_left_y": 1394,
+          "bottom_right_x": 377,
+          "bottom_right_y": 1421,
+          "content": "# CHURRASQUERÍA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 159,
+          "top_left_y": 1425,
+          "bottom_right_x": 388,
+          "bottom_right_y": 1449,
+          "content": "SENCILLA (300gr) $495",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 171,
+          "top_left_y": 1453,
+          "bottom_right_x": 376,
+          "bottom_right_y": 1478,
+          "content": "DOBLE (600gr) $950",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 446,
+          "top_left_y": 1382,
+          "bottom_right_x": 935,
+          "bottom_right_y": 1406,
+          "content": "EN TACO: Tortilla de maíz o harina recién hecha.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 446,
+          "top_left_y": 1410,
+          "bottom_right_x": 1059,
+          "bottom_right_y": 1435,
+          "content": "EN TOSTADA: Tortilla de maíz o harina tostada a las brasas.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 446,
+          "top_left_y": 1439,
+          "bottom_right_x": 1084,
+          "bottom_right_y": 1466,
+          "content": "PÍDELO CON QUESO: Añade queso a tu taco o tostada por $10.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1125,
+          "top_left_y": 1392,
+          "bottom_right_x": 1404,
+          "bottom_right_y": 1419,
+          "content": "TACO JR SIRLOIN (50gr) $90",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1148,
+          "top_left_y": 1423,
+          "bottom_right_x": 1386,
+          "bottom_right_y": 1447,
+          "content": "QUESADILLA (30gr) $60",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 293,
+          "top_left_y": 1583,
+          "bottom_right_x": 480,
+          "bottom_right_y": 1615,
+          "content": "# ENSALADAS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 95,
+          "top_left_y": 1648,
+          "bottom_right_x": 243,
+          "bottom_right_y": 1679,
+          "content": "# BRASERO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 94,
+          "top_left_y": 1685,
+          "bottom_right_x": 583,
+          "bottom_right_y": 1790,
+          "content": "Cama de lechuga y germen de alfalfa con toppings de betabel asado, fresa, durazno y fritura de maíz con pechuga a la plancha, acompañado de una vinagreta de miel.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 627,
+          "top_left_y": 1648,
+          "bottom_right_x": 690,
+          "bottom_right_y": 1673,
+          "content": "$180",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1085,
+          "top_left_y": 1576,
+          "bottom_right_x": 1218,
+          "bottom_right_y": 1609,
+          "content": "# CALDOS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 848,
+          "top_left_y": 1640,
+          "bottom_right_x": 1010,
+          "bottom_right_y": 1671,
+          "content": "# FEIJOADA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 848,
+          "top_left_y": 1673,
+          "bottom_right_x": 1350,
+          "bottom_right_y": 1730,
+          "content": "Clásico caldo brasileño de frijol negro, cerdo y chorizo.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 850,
+          "top_left_y": 1734,
+          "bottom_right_x": 1055,
+          "bottom_right_y": 1765,
+          "content": "(Tortillas a elegir)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 850,
+          "top_left_y": 1792,
+          "bottom_right_x": 1155,
+          "bottom_right_y": 1825,
+          "content": "# SOPA DE TORTILLA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 850,
+          "top_left_y": 1829,
+          "bottom_right_x": 1336,
+          "bottom_right_y": 1886,
+          "content": "Sopa de tortilla acompañada de aguacate, queso panela, crema y limones.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1387,
+          "top_left_y": 1626,
+          "bottom_right_x": 1446,
+          "bottom_right_y": 1650,
+          "content": "$130",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1393,
+          "top_left_y": 1777,
+          "bottom_right_x": 1450,
+          "bottom_right_y": 1802,
+          "content": "$170",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 653,
+          "top_left_y": 1986,
+          "bottom_right_x": 834,
+          "bottom_right_y": 2027,
+          "content": "Google Maps",
+          "confidence_scores": null,
+          "type": "footer"
+        }
+      ]
+    }
+  ],
+  "model": "mistral-ocr-latest",
+  "document_annotation": "{\"items\": [{\"name\": \"Panela a las brasas\", \"description\": \"Panela marinada en aceite de oliva, rub de chiles y tomate cherry, acompañado de tostadas mixtas.\", \"price\": 200, \"category\": \"food\", \"section_title\": \"Entradas\", \"options\": [{\"name\": \"Porción individual\", \"price\": null, \"grams\": 150}]}, {\"name\": \"Coliflor al churrasco\", \"description\": \"Asada, rub rojo, parmesano y limón asado, acompañada de aderezo parmesano.\", \"price\": 270, \"category\": \"food\", \"section_title\": \"Entradas\", \"options\": [{\"name\": \"Porción individual\", \"price\": null, \"grams\": 200}]}, {\"name\": \"Costillas hormigueras\", \"description\": \"Baby back rib en salsa de café acompañadas de aderezo de chipotle y cebollas cambray asadas (300 gr).\", \"price\": 250, \"category\": \"food\", \"section_title\": \"Entradas\", \"options\": [{\"name\": \"Porción individual\", \"price\": null, \"grams\": 300}]}, {\"name\": \"Aguachile de papada\", \"description\": \"Láminas de papada bañadas en aguachile verde, cebolla, cilantro y chile serrano.\", \"price\": 200, \"category\": \"food\", \"section_title\": \"Entradas\", \"options\": [{\"name\": \"Porción individual\", \"price\": null, \"grams\": 150}]}, {\"name\": \"Salchi-ribs\", \"description\": \"Con topping de BBQ y aderezo chipotle.\", \"price\": 190, \"category\": \"food\", \"section_title\": \"Entradas\", \"options\": [{\"name\": \"Porción individual\", \"price\": null, \"grams\": 120}]}, {\"name\": \"Queso fundido\", \"description\": \"Chistorra salseada, cebolla cambray, mix de pimientos, flameado al tequila con aceite de romero.\", \"price\": 195, \"category\": \"food\", \"section_title\": \"Entradas\", \"options\": [{\"name\": \"Porción individual\", \"price\": null, \"grams\": 200}]}, {\"name\": \"Infladita Emiliana\", \"description\": \"Rica infladita de maíz recién hecha, rellena de mix de quesos y encima aguacate (70gr).\", \"price\": 100, \"category\": \"food\", \"section_title\": \"Entradas\", \"options\": [{\"name\": \"Porción individual\", \"price\": null, \"grams\": 70}]}, {\"name\": \"Guacamole Brasero\", \"description\": \"Mezcla rústica de aguacate, salsa bandera, rub de chiles y panela.\", \"price\": 170, \"category\": \"food\", \"section_title\": \"Entradas\", \"options\": [{\"name\": \"Porción individual\", \"price\": null, \"grams\": 150}]}, {\"name\": \"Chicharrón Brasero\", \"description\": \"Tostadas de su elección con mezcla criolla de frijol negro y chicharrón de res decorado con cilantro y cebolla morada.\", \"price\": 220, \"category\": \"food\", \"section_title\": \"Entradas\", \"options\": [{\"name\": \"Porción individual\", \"price\": null, \"grams\": 180}]}, {\"name\": \"Aguachile de arrachera\", \"description\": \"En salsa verde picante.\", \"price\": 290, \"category\": \"food\", \"section_title\": \"Entradas\", \"options\": [{\"name\": \"Porción individual\", \"price\": null, \"grams\": 150}]}, {\"name\": \"Chicharrón a la cazuela\", \"description\": \"Chicharrón de rib eye bañado en salsa de chile morita de la casa, cubierto de mix de quesos, acompañado de tortillas de su elección.\", \"price\": 200, \"category\": \"food\", \"section_title\": \"Especialidades\", \"options\": [{\"name\": \"Porción individual\", \"price\": null, \"grams\": 250}]}, {\"name\": \"Hamburguesa Brasero\", \"description\": \"Carne preparada de sirloin estilo brasero rellena de mix de quesos, acompañada de papas cambray y un delicioso aderezo de la casa.\", \"price\": 280, \"category\": \"food\", \"section_title\": \"Especialidades\", \"options\": [{\"name\": \"Porción individual\", \"price\": null, \"grams\": 250}]}, {\"name\": \"Churrasquería sencilla\", \"description\": \"Carne estilo brasero (300gr).\", \"price\": 495, \"category\": \"food\", \"section_title\": \"Churrasquería\", \"options\": [{\"name\": \"En taco\", \"price\": null, \"grams\": 300}, {\"name\": \"En tostada\", \"price\": null, \"grams\": 300}, {\"name\": \"Pídelo con queso\", \"price\": 10, \"grams\": null}]}, {\"name\": \"Churrasquería doble\", \"description\": \"Carne estilo brasero (600gr).\", \"price\": 950, \"category\": \"food\", \"section_title\": \"Churrasquería\", \"options\": [{\"name\": \"En taco\", \"price\": null, \"grams\": 600}, {\"name\": \"En tostada\", \"price\": null, \"grams\": 600}, {\"name\": \"Pídelo con queso\", \"price\": 10, \"grams\": null}]}, {\"name\": \"Taco Jr Sirloin\", \"description\": \"Sirloin estilo brasero (50gr).\", \"price\": 90, \"category\": \"food\", \"section_title\": \"Churrasquería\", \"options\": [{\"name\": \"En taco\", \"price\": null, \"grams\": 50}, {\"name\": \"En tostada\", \"price\": null, \"grams\": 50}, {\"name\": \"Pídelo con queso\", \"price\": 10, \"grams\": null}]}, {\"name\": \"Quesadilla\", \"description\": \"Quesadilla de queso (30gr).\", \"price\": 60, \"category\": \"food\", \"section_title\": \"Churrasquería\", \"options\": [{\"name\": \"En taco\", \"price\": null, \"grams\": 30}, {\"name\": \"En tostada\", \"price\": null, \"grams\": 30}, {\"name\": \"Pídelo con queso\", \"price\": 10, \"grams\": null}]}, {\"name\": \"Brasero\", \"description\": \"Cama de lechuga y germen de alfalfa con toppings de betabel asado, fresa, durazno y fritura de maíz con pechuga a la plancha, acompañado de una vinagreta de miel.\", \"price\": 180, \"category\": \"food\", \"section_title\": \"Ensaladas\", \"options\": [{\"name\": \"Porción individual\", \"price\": null, \"grams\": 300}]}, {\"name\": \"Feijoada\", \"description\": \"Clásico caldo brasileño de frijol negro, cerdo y chorizo. (Tortillas a elegir)\", \"price\": 130, \"category\": \"food\", \"section_title\": \"Caldos\", \"options\": [{\"name\": \"Porción individual\", \"price\": null, \"grams\": 400}]}, {\"name\": \"Sopa de tortilla\", \"description\": \"Sopa de tortilla acompañada de aguacate, queso panela, crema y limones.\", \"price\": 170, \"category\": \"food\", \"section_title\": \"Caldos\", \"options\": [{\"name\": \"Porción individual\", \"price\": null, \"grams\": 350}]}]}",
+  "usage_info": {
+    "pages_processed": 1,
+    "doc_size_bytes": 624719
+  }
+}

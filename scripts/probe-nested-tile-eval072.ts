@@ -22,7 +22,7 @@ import { postprocessItems } from "../supabase/functions/analyze-menu/postprocess
 import { mergeItemSources } from "../supabase/functions/analyze-menu/merge.ts";
 import { type CropRect, gridCropRects } from "../src/lib/adaptiveExtraction.ts";
 import { scoreMenu } from "./eval-extraction.ts";
-import { MENU_DIR } from "./photo-input.ts";
+import { MENU_DIR, photoPath } from "./photo-input.ts";
 import { buildProbeDump } from "./probe-output.ts";
 import { cutTile } from "./tile-cut.ts";
 
@@ -131,7 +131,7 @@ async function cutTiles(
   tag: string,
   tmp: string,
 ): Promise<string[]> {
-  const src = `${MENU_DIR}/${PHOTO}`;
+  const src = photoPath(PHOTO);
   const tiles: string[] = [];
   for (const [i, rect] of rects.entries()) {
     const out = `${tmp}/${tag}-tile-${i}.png`;
@@ -152,7 +152,7 @@ if (import.meta.main) {
 
   const tmp = await Deno.makeTempDir({ prefix: "eval072-" });
   try {
-    const { w, h } = await dims(`${MENU_DIR}/${PHOTO}`);
+    const { w, h } = await dims(photoPath(PHOTO));
     const parentRects = gridCropRects(w, h);
     const parentImgs = await cutTiles(parentRects, "parent", tmp);
     const nestedImgs = await cutTiles(

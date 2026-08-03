@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-E8B6CQU5edbr647vWdcJVuGBZmSti",
+  "object": "chat.completion",
+  "created": 1785617996,
+  "model": "gpt-4.1-2025-04-14",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"image_quality\":{\"usable\":true,\"issues\":[]},\"image_layout\":{\"dense\":false,\"crop_direction\":\"none\"},\"items\":[{\"name\":\"TACOS DE CAMARÓN AL CHIPOTLE\",\"description\":\"Orden de tres tacos de camarón bañados con nuestra salsa especial de chipotle servidos en tortilla de maíz.\",\"price\":290,\"category\":\"food\",\"section_title\":\"TACOS Y TOSTADAS\",\"options\":[{\"name\":\"versión cilantro\",\"price\":290,\"grams\":null}]},{\"name\":\"TACOS DE FILETE DE PUERCO\",\"description\":\"Orden de tres tacos de filete de puerco asado, acompañados de una deliciosa salsa brava y repollo marinado\",\"price\":285,\"category\":\"food\",\"section_title\":\"TACOS Y TOSTADAS\",\"options\":[]},{\"name\":\"TACOS SONORENSES\",\"description\":\"Gaoneras de New York sobre tortilla de harina, coronado con chile verde talemado, queso gratinado y láminas de aguacate.\",\"price\":315,\"category\":\"food\",\"section_title\":\"TACOS Y TOSTADAS\",\"options\":[]},{\"name\":\"TACOS LECHUGA DE FILETE DE PUERCO\",\"description\":\"Lomo de puerco asado al punto y servido en hoja de lechuga, aderezado con una reducción dulce de pimientos, almendra tostada, coronados con fritura de jícama. (4 pzas.)\",\"price\":295,\"category\":\"food\",\"section_title\":\"TACOS Y TOSTADAS\",\"options\":[]},{\"name\":\"TACOS DE COLA\",\"description\":\"Orden de tres tacos de maíz semidorados de cola de res y sazonada con cebolla, cilantro y una rebanada de aguacate.\",\"price\":355,\"category\":\"food\",\"section_title\":\"TACOS Y TOSTADAS\",\"options\":[]},{\"name\":\"TACOS DE MARLIN CON PULPO\",\"description\":\"Tacos semidorados de maíz rellenos de marlin y pulpo, aderezados con salsa de semillas de pepitas.\",\"price\":335,\"category\":\"food\",\"section_title\":\"TACOS Y TOSTADAS\",\"options\":[]},{\"name\":\"TOSTADAS PUESTAS DE ATÚN\",\"description\":\"Orden de tres tostadas de atún marinado en salsa de cítricos y salsas negras, coronada con finas rebanadas de aguacate y poro.\",\"price\":340,\"category\":\"food\",\"section_title\":\"TACOS Y TOSTADAS\",\"options\":[{\"name\":\"salmón\",\"price\":340,\"grams\":null}]},{\"name\":\"TOSTADAS DE ATÚN\",\"description\":\"Atún natural acompañado con cebolla morada y piña, sobre una tostada de arroz, acompañado con una salsa de chipotle.\",\"price\":340,\"category\":\"food\",\"section_title\":\"TACOS Y TOSTADAS\",\"options\":[]},{\"name\":\"TOSTADAS DE MARISCOS\",\"description\":\"Mezcla de pulpo y camarón cocido, con jícama, pepino y cebolla morada, montado sobre tostada de maíz y bañado en una salsa marisquera de la casa.\",\"price\":335,\"category\":\"food\",\"section_title\":\"TACOS Y TOSTADAS\",\"options\":[]},{\"name\":\"TOSTADAS DE ATÚN AL AJONJOLÍ\",\"description\":\"Atún bañado en una crema especial de la casa, montado sobre tostadas de Wontong con mayonesa de aguacate y coronado con poro frito.\",\"price\":335,\"category\":\"food\",\"section_title\":\"TACOS Y TOSTADAS\",\"options\":[]},{\"name\":\"ENSALADA MOCHOMOS\",\"description\":\"Deliciosa ensalada de espinaca, aderezada con vinagreta balsámica y coronada con almendras, queso de cabra, arándanos y suprema de mandarina.\",\"price\":255,\"category\":\"food\",\"section_title\":\"ENSALADAS\",\"options\":[]},{\"name\":\"ENSALADA DE PERA\",\"description\":\"Mezcla de lechuga, pepita caramelizada, pera, queso de cabra; bañada con una vinagreta balsámica dulce.\",\"price\":255,\"category\":\"food\",\"section_title\":\"ENSALADAS\",\"options\":[]},{\"name\":\"ENSALADA ALFREDO\",\"description\":\"Mezcla de lechuga, tomate, aguacate, pepino, cebolla morada, aderezado con vinagreta cítrica de la casa.\",\"price\":255,\"category\":\"food\",\"section_title\":\"ENSALADAS\",\"options\":[]},{\"name\":\"ENSALADA DE PULPO\",\"description\":\"Pulpo adobado y asado sobre ensalada de lechuga, pepino, tomate cherry, cebolla morada y aderezo de aceite de olivo con un toque de limón.\",\"price\":460,\"category\":\"food\",\"section_title\":\"ENSALADAS\",\"options\":[]},{\"name\":\"TORRE DE BETABEL\",\"description\":\"Láminas de betabel intercaladas con queso de cabra, aderezadas con una vinagreta de arándanos, escarchada con trozos de almendra tostadas.\",\"price\":235,\"category\":\"food\",\"section_title\":\"VEGETARIANO\",\"options\":[]},{\"name\":\"COLIFLOR ALMENDRADA\",\"description\":\"Coliflor salteada en jugo especial de la casa, espolvoreada con almendra tostada y acompañada con calabaza asada.\",\"price\":230,\"category\":\"food\",\"section_title\":\"VEGETARIANO\",\"options\":[]},{\"name\":\"CARPACCIO DE BETABEL\",\"description\":\"Finas láminas de betabel, acompañadas de frutos rojos, arúguía, queso de cabra y pepitas garapiñadas, bañada con un toque de vinagreta.\",\"price\":235,\"category\":\"food\",\"section_title\":\"VEGETARIANO\",\"options\":[]},{\"name\":\"CEVICHE VEGANO\",\"description\":\"Ceviche a base de calabaza con el único sabor Mochomos.\",\"price\":null,\"category\":\"food\",\"section_title\":\"VEGETARIANO\",\"options\":[]},{\"name\":\"COLIFLOR CHIGUILI\",\"description\":\"Trozos de coliflor salteada con nuestra salsa Mochomos de cerveza y chile, acompañada con aderezo a base de queso de cabra.\",\"price\":215,\"category\":\"food\",\"section_title\":\"VEGETARIANO\",\"options\":[]},{\"name\":\"HONGO VEGETARIANO\",\"description\":\"Hongo portobello relleno de tomate, queso panela, calabaza asada y gratinado con queso de cabra.\",\"price\":285,\"category\":\"food\",\"section_title\":\"VEGETARIANO\",\"options\":[]},{\"name\":\"CARPACCIO DE CALABAZA\",\"description\":\"Finas láminas de calabaza previamente cocidas, bañadas con una vinagreta a base de tomate deshidratado, acompañado con arúguía y pepitas confitadas.\",\"price\":230,\"category\":\"food\",\"section_title\":\"VEGETARIANO\",\"options\":[]},{\"name\":\"CARPACCIO DE PORTOBELLO\",\"description\":\"Láminas de portobello, bañadas en una deliciosa vinagreta cítrica.\",\"price\":240,\"category\":\"food\",\"section_title\":\"VEGETARIANO\",\"options\":[]}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 2098,
+    "completion_tokens": 1539,
+    "total_tokens": 3637,
+    "prompt_tokens_details": {
+      "cached_tokens": 1920,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_c935aef436"
+}

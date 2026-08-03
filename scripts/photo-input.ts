@@ -5,14 +5,26 @@
 export const PROD_MAX_DIMENSION = 2048;
 export const PROD_JPEG_QUALITY = 95;
 
+// Run dumps and OCR/response caches live here (disposable scratch; the
+// load-bearing caches are backed up in scripts/fixtures/caches/).
 export const MENU_DIR = "/Users/santiagoaguirre/Downloads/MenusTesting";
+// The ORIGINAL menu photos moved INTO the repo 2026-08-01 (they are oracle
+// inputs: fixtures + drafts + photos now version together). Every photo READ
+// goes here; MENU_DIR keeps only dumps/caches.
+export const PHOTO_DIR = new URL("./fixtures/photos/", import.meta.url)
+  .pathname;
+
+/** Absolute path of an original fixture photo (repo-resident). */
+export function photoPath(name: string): string {
+  return `${PHOTO_DIR}${name}`;
+}
 export const MAX_BASE64_LEN = 10_000_000;
 // Passthrough budget (ticket #3 checkpoint A ruling): originals upload untouched
 // when their base64 fits this; only oversized photos take the q95 fallback.
 // 9M leaves headroom under the edge fn's 10M per-photo cap.
 export const PASSTHROUGH_MAX_B64 = 9_000_000;
 
-/** Original pixel dimensions of a MenusTesting photo. */
+/** Original pixel dimensions of a fixture photo. */
 export async function photoDims(
   name: string,
 ): Promise<{ width: number; height: number }> {
@@ -22,7 +34,7 @@ export async function photoDims(
       "pixelWidth",
       "-g",
       "pixelHeight",
-      `${MENU_DIR}/${name}`,
+      photoPath(name),
     ],
   }).output();
   const text = new TextDecoder().decode(out.stdout);
@@ -66,7 +78,7 @@ export async function compressedPhotoData(
     "-s",
     "formatOptions",
     String(quality),
-    `${MENU_DIR}/${name}`,
+    photoPath(name),
     "--out",
     out,
   ]);
@@ -90,7 +102,7 @@ export async function productionPhotoData(
   name: string,
   tmpDir: string,
 ): Promise<string> {
-  const b64 = (await Deno.readFile(`${MENU_DIR}/${name}`)).toBase64();
+  const b64 = (await Deno.readFile(photoPath(name))).toBase64();
   if (b64.length <= PASSTHROUGH_MAX_B64) {
     return `data:${mimeOf(name)};base64,${b64}`;
   }
@@ -105,7 +117,7 @@ export async function productionPhotoData(
 if (import.meta.main && Deno.args.includes("--self-check")) {
   const tmp = await Deno.makeTempDir({ prefix: "photo-input-check-" });
   const url = await compressedPhotoData("NikkoriMenu.png", 1024, 70, tmp);
-  const original = await Deno.readFile(`${MENU_DIR}/NikkoriMenu.png`);
+  const original = await Deno.readFile(photoPath("NikkoriMenu.png"));
   let failed = 0;
   const check = (label: string, ok: boolean) => {
     console.log(`${ok ? "✓" : "✗"} ${label}`);
@@ -118,7 +130,7 @@ if (import.meta.main && Deno.args.includes("--self-check")) {
   );
   check("under edge base64 cap", url.length < MAX_BASE64_LEN);
   const prod = await productionPhotoData("ElMarcosMenu.png", tmp);
-  const rawElMarcos = await Deno.readFile(`${MENU_DIR}/ElMarcosMenu.png`);
+  const rawElMarcos = await Deno.readFile(photoPath("ElMarcosMenu.png"));
   check(
     "large fixture passthroughs as png",
     prod.startsWith("data:image/png;base64,"),

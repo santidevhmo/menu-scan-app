@@ -1,4 +1,5 @@
 import { MODEL_TIMEOUT_MS } from "./extract.ts";
+import type { OcrBlock } from "./orientation.ts";
 
 // Ruling 35 (2026-08-01): name the version, never the `mistral-ocr-latest`
 // alias. `latest` moved under us once already — eval 101 saw results change
@@ -10,6 +11,11 @@ export const MISTRAL_OCR_MODEL = "mistral-ocr-4-0";
 export interface MistralOcr {
   markdown: string;
   raw_response: string;
+  /** Pixel box of every text block. Mistral has always returned these and
+   *  production has always received them — C3 stopped USING them, not
+   *  receiving them (verified: bistro.mistral-pt-r1.raw.json carries 83,
+   *  written by this function). Reading them costs nothing. */
+  blocks: OcrBlock[];
 }
 
 function record(value: unknown): Record<string, unknown> | undefined {
@@ -38,6 +44,14 @@ export function ocrMarkdown(cached: unknown): string {
     : pagesMarkdown(root);
   if (markdown.length === 0) throw new Error("OCR cache has no markdown");
   return markdown.join("\n\n");
+}
+
+/** Text-block boxes from a raw OCR response; `[]` when the model returns none,
+ *  so the orientation detector degrades to "cannot tell" instead of throwing. */
+export function pageBlocks(raw: unknown): OcrBlock[] {
+  const pages = record(raw)?.pages;
+  const first = Array.isArray(pages) ? record(pages[0]) : undefined;
+  return Array.isArray(first?.blocks) ? first.blocks as OcrBlock[] : [];
 }
 
 /** Stage-1a: OCR the photo to text. No `document_annotation_format` — the
@@ -71,7 +85,12 @@ export async function ocrMistral(
     if (!res.ok) {
       throw new Error(`Mistral OCR HTTP ${res.status}: ${raw_response}`);
     }
-    return { markdown: ocrMarkdown(JSON.parse(raw_response)), raw_response };
+    const parsed = JSON.parse(raw_response);
+    return {
+      markdown: ocrMarkdown(parsed),
+      raw_response,
+      blocks: pageBlocks(parsed),
+    };
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
       throw new Error(

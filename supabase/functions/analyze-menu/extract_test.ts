@@ -486,7 +486,7 @@ Deno.test("runPagedExtraction: one photo means one OCR call, then one structurin
   const structureSeen: string[] = [];
   const ocr = ((photo: string) => {
     ocrSeen.push(photo);
-    return Promise.resolve({ markdown: "# TACOS\nTacos 100", raw_response: "o" });
+    return Promise.resolve({ markdown: "# TACOS\nTacos 100", raw_response: "o", blocks: [] });
   }) as typeof ocrMistralWithRetry;
   const structure = ((markdown: string) => {
     structureSeen.push(markdown);
@@ -518,8 +518,8 @@ Deno.test("runPagedExtraction: N photos run in parallel and cross-page merge", a
   const ocr = ((photo: string) => {
     const index = seen.length;
     seen.push(photo);
-    return new Promise<{ markdown: string; raw_response: string }>((resolve) =>
-      release.push(() => resolve({ markdown: `md${index}`, raw_response: `o${index}` }))
+    return new Promise<{ markdown: string; raw_response: string; blocks: never[] }>((resolve) =>
+      release.push(() => resolve({ markdown: `md${index}`, raw_response: `o${index}`, blocks: [] }))
     );
   }) as typeof ocrMistralWithRetry;
   const structure = ((markdown: string) =>
@@ -565,6 +565,7 @@ Deno.test("runPagedExtraction: cleanup runs AFTER the merge over ALL pages' mark
     return Promise.resolve({
       markdown: markdowns[index],
       raw_response: `o${index}`,
+      blocks: [],
     });
   }) as typeof ocrMistralWithRetry;
   const structure = ((markdown: string) =>
@@ -586,6 +587,7 @@ Deno.test("runPagedExtraction: postprocessItems runs on each page's items", asyn
     Promise.resolve({
       markdown: "md",
       raw_response: "o",
+      blocks: [],
     })) as typeof ocrMistralWithRetry;
   const structure = (() =>
     Promise.resolve({
@@ -603,6 +605,7 @@ Deno.test("runPagedExtraction: never returns needs_crops for a landscape-shaped 
     Promise.resolve({
       markdown: "",
       raw_response: "o",
+      blocks: [],
     })) as typeof ocrMistralWithRetry;
   const structure = (() =>
     Promise.resolve({ items: [], raw_response: "s" })) as

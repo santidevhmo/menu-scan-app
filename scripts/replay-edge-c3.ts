@@ -14,7 +14,10 @@ import {
   parseStructureResponse,
   runPagedExtraction,
 } from "../supabase/functions/analyze-menu/extract.ts";
-import { ocrMarkdown } from "../supabase/functions/analyze-menu/mistral-extract.ts";
+import {
+  ocrMarkdown,
+  pageBlocks,
+} from "../supabase/functions/analyze-menu/mistral-extract.ts";
 import { scoreMenu } from "./eval-extraction.ts";
 import { MENU_DIR } from "./photo-input.ts";
 import { menuArchive, ocrSourcePaths } from "./probe-c-textstructure.ts";
@@ -49,14 +52,19 @@ function structurePath(menu: string, tag: string, page: number): string {
 /** Runs one menu through the edge with both stages served from cache. */
 export async function replayMenu(menu: string, tag: string) {
   const ocrPaths = ocrSourcePaths(menu);
-  const reads = await Promise.all(ocrPaths.map(async (path, page) => ({
-    // A synthetic photo id per page: the stubs are keyed by identity, never by
-    // call order, so the gate cannot depend on how Promise.all resolves.
-    photo: `${menu}#${page}`,
-    markdown: ocrMarkdown(JSON.parse(await Deno.readTextFile(path))),
-    ocrRaw: await Deno.readTextFile(path),
-    structureRaw: await Deno.readTextFile(structurePath(menu, tag, page)),
-  })));
+  const reads = await Promise.all(ocrPaths.map(async (path, page) => {
+    const ocrRaw = await Deno.readTextFile(path);
+    const parsed = JSON.parse(ocrRaw);
+    return {
+      // A synthetic photo id per page: the stubs are keyed by identity, never
+      // by call order, so the gate cannot depend on how Promise.all resolves.
+      photo: `${menu}#${page}`,
+      markdown: ocrMarkdown(parsed),
+      blocks: pageBlocks(parsed),
+      ocrRaw,
+      structureRaw: await Deno.readTextFile(structurePath(menu, tag, page)),
+    };
+  }));
   const byPhoto = new Map(reads.map((read) => [read.photo, read]));
   const byMarkdown = new Map(reads.map((read) => [read.markdown, read]));
   if (byMarkdown.size !== reads.length) {
@@ -73,6 +81,7 @@ export async function replayMenu(menu: string, tag: string) {
       return Promise.resolve({
         markdown: hit.markdown,
         raw_response: hit.ocrRaw,
+        blocks: hit.blocks,
       });
     }) as Parameters<typeof runPagedExtraction>[3],
     ((markdown: string) => {

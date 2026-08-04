@@ -79,3 +79,20 @@ export async function prepareTile(
   const result = await rendered.saveAsync({ format: SaveFormat.PNG });
   return { uri: result.uri, width: result.width, height: result.height };
 }
+
+/** Rotate an image CLOCKWISE by `degrees` and return the new file's URI.
+ *
+ *  expo-image-manipulator's `rotate` is clockwise for positive values, which is
+ *  the same convention `correctionDegrees` uses on the server — so the number
+ *  the edge function sends is passed straight through, with no sign flip. Eval
+ *  094 recorded a session getting exactly that sign wrong. */
+export async function rotateImage(
+  uri: string,
+  degrees: number,
+): Promise<string> {
+  const context = ImageManipulator.manipulate(uri);
+  context.rotate(degrees);
+  const rendered = await context.renderAsync();
+  const result = await rendered.saveAsync({ format: SaveFormat.JPEG });
+  return result.uri;
+}

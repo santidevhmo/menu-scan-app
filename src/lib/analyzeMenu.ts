@@ -4,7 +4,7 @@ import {
   FunctionsHttpError,
   FunctionsRelayError,
 } from "@supabase/supabase-js";
-import { compressImage, prepareTile } from "./compressImage";
+import { compressImage, prepareTile, rotateImage } from "./compressImage";
 import { gridCropRects } from "./adaptiveExtraction";
 import { supabase } from "./supabase";
 import { scoreAndSort, type GoalVector } from "./zScoreSort";
@@ -219,6 +219,46 @@ export async function extractMenu(
   }
 
   let payload = data;
+  if (Array.isArray(data?.needs_rotation) && data.needs_rotation.length > 0) {
+    // The page(s) are sideways. Straighten them here — the phone already has
+    // the image and the library — and re-submit with `prior` returned verbatim
+    // so the server can compare its two reads without a third OCR call.
+    console.log("[extractMenu] sideways pages detected", data.needs_rotation);
+    const byPage = new Map<number, number>(
+      data.needs_rotation.map((r: { page: number; degrees: number }) => [
+        r.page,
+        r.degrees,
+      ]),
+    );
+    const straightened = await Promise.all(
+      photos.map(async (photo, index) => {
+        const degrees = byPage.get(index);
+        if (degrees === undefined) return base64Photos[index];
+        const rotatedUri = await rotateImage(photo.uri, degrees);
+        const b64 = await FileSystem.readAsStringAsync(rotatedUri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        return `data:image/jpeg;base64,${b64}`;
+      }),
+    );
+    const second = await supabase.functions.invoke(FUNCTION_NAME, {
+      body: {
+        photos: straightened,
+        goals: [],
+        provider,
+        stage: "extract",
+        rotated: true,
+        prior: data.prior,
+      },
+    });
+    if (second.error) {
+      // Keep the first pass's result rather than failing the scan: the server
+      // already holds `prior` and would have produced items from it.
+      console.log("[extractMenu] rotation re-submit failed, keeping first read");
+    } else {
+      payload = second.data;
+    }
+  }
   if (Array.isArray(data?.needs_crops)) {
     // Dense page(s): cut 2x2 tiles from the ORIGINAL photos (never the
     // compressed copies — compression is what breaks dense extraction) and

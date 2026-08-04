@@ -18,7 +18,11 @@
 import type { ExtractedMenuItem } from "../supabase/functions/analyze-menu/extract.ts";
 import { scoreMenu } from "./eval-extraction.ts";
 import { cleanForScore, itemsFromRaw } from "./score-c-dumps.ts";
-import { ocrMarkdown, ocrSourcePaths } from "./probe-c-textstructure.ts";
+import {
+  menuArchive,
+  ocrMarkdown,
+  ocrSourcePaths,
+} from "./probe-c-textstructure.ts";
 
 const DEFAULT_MENUS = [
   "polloteria",
@@ -30,6 +34,7 @@ const DEFAULT_MENUS = [
   "casa-nostra",
   "mochomos",
   "brasero-two",
+  "andaluz",
 ];
 const DIMS = [
   "items",
@@ -41,13 +46,13 @@ const DIMS = [
 
 const menus = (Deno.env.get("MENUS") ?? DEFAULT_MENUS.join(","))
   .split(",").map((menu) => menu.trim()).filter(Boolean);
-const tag = Deno.env.get("TAG") ?? "eval117";
 const draws = Number(Deno.env.get("DRAWS") ?? "3");
 
 type Row = { scores: number[]; counts: number[]; flips: string[] };
 const rows = new Map<string, Row>();
 
 for (const menu of menus) {
+  const tag = Deno.env.get("TAG") ?? menuArchive(menu).draws;
   const fixture = JSON.parse(
     await Deno.readTextFile(
       new URL(`./fixtures/${menu}.expected.json`, import.meta.url),

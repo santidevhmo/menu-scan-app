@@ -33,19 +33,47 @@ export function buildRequest(markdown: string, model: string): unknown {
 /** Parses the completed OpenAI extraction response. */
 export const parseResponse = parseStructureResponse;
 
-/** Stage-1a source = raw OCR responses, one cached response per photo.
+/** Which archived responses belong to a menu.
  *
- * Default tag stays `b1` so every existing gate keeps replaying the exact
- * artifacts it was pinned against. `OCR_TAG=pt` selects the PRODUCTION-MIRROR
- * caches (eval 123: OCR of the passthrough original, what the app actually
- * uploads) — required for menus onboarded after 2026-08-01, which have no b1
- * read at all because b1 OCR'd a 2048/q95 re-encode that production stopped
- * sending. */
+ *  WHICH CACHE IS A PER-MENU FACT, NOT A GLOBAL SETTING. The nine original
+ *  fixtures are pinned to the `b1` OCR read and to the eval-103c/eval-117
+ *  structuring draws. A menu onboarded after the 2026-08-01 passthrough switch
+ *  has no `b1` read AT ALL — `b1` OCR'd a 2048/q95 re-encode that production
+ *  stopped sending (eval 123) — and its draws carry their own tag.
+ *
+ *  Registering that here is what lets ONE command run the whole suite. When
+ *  this was an env var, `deno run score-c-draws.ts` silently covered 9 of 10
+ *  menus and read as a full regression. */
+export interface MenuArchive {
+  /** Stage-1a OCR cache tag. */
+  ocr: string;
+  /** Stage-1b tag the single-draw gates replay (`-r1`). */
+  single: string;
+  /** Stage-1b tag the 3-draw range harness replays. */
+  draws: string;
+}
+const DEFAULT_ARCHIVE: MenuArchive = {
+  ocr: "b1",
+  single: "eval103c-m41",
+  draws: "eval117",
+};
+const ARCHIVES: Record<string, MenuArchive> = {
+  andaluz: { ocr: "pt", single: "eval128", draws: "eval128" },
+};
+
+/** Archive tags for `menu`; env vars still override globally for probes. */
+export function menuArchive(menu: string): MenuArchive {
+  const archive = ARCHIVES[menu] ?? DEFAULT_ARCHIVE;
+  return { ...archive, ocr: Deno.env.get("OCR_TAG") ?? archive.ocr };
+}
+
+/** Stage-1a source = raw OCR responses, one cached response per photo. */
 export function ocrSourcePaths(menu: string): string[] {
   const photos = MENU_PHOTOS[menu];
   if (!photos) throw new Error(`unknown menu: ${menu}`);
-  const tag = Deno.env.get("OCR_TAG") ?? "b1";
-  return photos.map((_, page) => rawPath(MENU_DIR, menu, tag, 1, page));
+  return photos.map((_, page) =>
+    rawPath(MENU_DIR, menu, menuArchive(menu).ocr, 1, page)
+  );
 }
 
 type ParsedResponse = ReturnType<typeof parseResponse>;

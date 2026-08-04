@@ -11,6 +11,7 @@ import { postprocessItems } from "../supabase/functions/analyze-menu/postprocess
 import { scoreMenu } from "./eval-extraction.ts";
 import { MENU_DIR } from "./photo-input.ts";
 import {
+  menuArchive,
   ocrMarkdown,
   ocrSourcePaths,
   parseResponse,
@@ -26,6 +27,7 @@ const DEFAULT_MENUS = [
   "casa-nostra",
   "mochomos",
   "brasero-two",
+  "andaluz",
 ];
 const DIMS = [
   "items",
@@ -103,10 +105,10 @@ export async function itemsFromRaw(
 if (import.meta.main) {
   const menus = (Deno.env.get("MENUS") ?? DEFAULT_MENUS.join(","))
     .split(",").map((menu) => menu.trim()).filter(Boolean);
-  const tag = Deno.env.get("TAG") ?? "eval103c-m41";
   let total = 0;
 
   for (const menu of menus) {
+    const tag = Deno.env.get("TAG") ?? menuArchive(menu).single;
     const fixture = JSON.parse(
       await Deno.readTextFile(
         new URL(`./fixtures/${menu}.expected.json`, import.meta.url),

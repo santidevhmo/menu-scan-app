@@ -11,31 +11,42 @@
 //
 //   deno run --allow-read --allow-env scripts/firing-list.ts > after.txt
 import { cleanForScore, itemsFromRaw } from "./score-c-dumps.ts";
-import { ocrMarkdown, ocrSourcePaths } from "./probe-c-textstructure.ts";
+import {
+  menuArchive,
+  ocrMarkdown,
+  ocrSourcePaths,
+} from "./probe-c-textstructure.ts";
 
-const CORPUS: { menu: string; tag: string; draws: number; ocr: string }[] = [
-  ...[
-    "polloteria",
-    "nikkori",
-    "el-marcos",
-    "bistro",
-    "guest-house",
-    "brasero",
-    "casa-nostra",
-    "mochomos",
-    "brasero-two",
-  ].flatMap((menu) => [
-    { menu, tag: "eval117", draws: 3, ocr: "b1" },
-    { menu, tag: "eval103c-m41", draws: 1, ocr: "b1" },
-  ]),
-  { menu: "guest-house", tag: "eval121pt", draws: 10, ocr: "b1" },
-  { menu: "andaluz", tag: "eval128", draws: 3, ocr: "pt" },
+const MENUS = [
+  "polloteria",
+  "nikkori",
+  "el-marcos",
+  "bistro",
+  "guest-house",
+  "brasero",
+  "casa-nostra",
+  "mochomos",
+  "brasero-two",
+  "andaluz",
 ];
+const CORPUS: { menu: string; tag: string; draws: number }[] = [
+  ...MENUS.flatMap((menu) => [
+    { menu, tag: menuArchive(menu).draws, draws: 3 },
+    { menu, tag: menuArchive(menu).single, draws: 1 },
+  ]),
+  // The 10-draw guest-house hunt (eval 121) — the largest single-menu sample
+  // in the corpus, and the only place a rare shape would show up at all.
+  { menu: "guest-house", tag: "eval121pt", draws: 10 },
+].filter((entry, index, all) =>
+  // andaluz's single-draw and 3-draw tags are the same archive; don't count it twice.
+  all.findIndex((other) =>
+    other.menu === entry.menu && other.tag === entry.tag
+  ) === index
+);
 
 let options = 0;
 let draws = 0;
-for (const { menu, tag, draws: count, ocr } of CORPUS) {
-  Deno.env.set("OCR_TAG", ocr);
+for (const { menu, tag, draws: count } of CORPUS) {
   const markdown = (await Promise.all(
     ocrSourcePaths(menu).map(async (path) =>
       ocrMarkdown(JSON.parse(await Deno.readTextFile(path)))

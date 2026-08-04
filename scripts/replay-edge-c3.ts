@@ -17,7 +17,7 @@ import {
 import { ocrMarkdown } from "../supabase/functions/analyze-menu/mistral-extract.ts";
 import { scoreMenu } from "./eval-extraction.ts";
 import { MENU_DIR } from "./photo-input.ts";
-import { ocrSourcePaths } from "./probe-c-textstructure.ts";
+import { menuArchive, ocrSourcePaths } from "./probe-c-textstructure.ts";
 
 const DEFAULT_MENUS = [
   "polloteria",
@@ -29,6 +29,7 @@ const DEFAULT_MENUS = [
   "casa-nostra",
   "mochomos",
   "brasero-two",
+  "andaluz",
 ];
 const DIMS = [
   "items",
@@ -89,10 +90,10 @@ export async function replayMenu(menu: string, tag: string) {
 if (import.meta.main) {
   const menus = (Deno.env.get("MENUS") ?? DEFAULT_MENUS.join(","))
     .split(",").map((menu) => menu.trim()).filter(Boolean);
-  const tag = Deno.env.get("TAG") ?? "eval103c-m41";
   let total = 0;
 
   for (const menu of menus) {
+    const tag = Deno.env.get("TAG") ?? menuArchive(menu).single;
     const fixture = JSON.parse(
       await Deno.readTextFile(
         new URL(`./fixtures/${menu}.expected.json`, import.meta.url),

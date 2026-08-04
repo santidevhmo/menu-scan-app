@@ -11,6 +11,25 @@ from the menu photo** — not from model output, not from a previous dump.
 | `photos/*.png` | The **original menu photographs** — the oracle INPUT. Moved in-repo 2026-08-01 for the same reason. `photoPath()` in `scripts/photo-input.ts` is the only way code should reach them. |
 | `caches/*.raw.json` | Versioned **backup** of the archived model responses the $0 gates replay (Stage-1a OCR `mistral-b1`/`mistral-pt`, structuring draws `eval103c-m41`, `eval117-r1..3`). The scripts currently read the working copies in `~/Downloads/MenusTesting`; restore from here if that scratch folder is ever lost. |
 
+## The all-menus regression ($0, no API keys)
+
+Every one of these covers **all 10 menus** with no env vars — that is the point
+of `menuArchive()` in `scripts/probe-c-textstructure.ts`. Which OCR cache and
+which draws a menu owns is a per-menu FACT registered there, not a setting you
+have to remember: while it was an env var, `score-c-draws` silently covered 9
+of 10 and still read like a full regression.
+
+```
+deno run --allow-read --allow-env scripts/score-c-dumps.ts    # pinned draw   -> 50/50
+deno run --allow-read --allow-env scripts/score-c-draws.ts    # 3-draw RANGE  -> 49-50
+deno run --allow-read --allow-env scripts/replay-edge-c3.ts   # through the real edge -> 50/50
+deno test --allow-read --allow-write --allow-env --allow-run scripts/ supabase/functions/analyze-menu/
+```
+
+**Report the RANGE from `score-c-draws`, never a single number.** Before and
+after ANY rule change also run `scripts/firing-list.ts` on both trees and diff
+them — that diff is the complete list of what your rule did to the corpus.
+
 ## Two oracles, not one (master-roadmap lesson 18)
 
 A pin must hold against **both** the extraction dumps **and** the corrected

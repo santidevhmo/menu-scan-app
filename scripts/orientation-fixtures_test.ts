@@ -35,10 +35,19 @@ const UPRIGHT = [
 
 const TURNED: [string, Orientation][] = [
   ["bistro.mistral-rot90-r1.raw.json", "turned_clockwise"],
+  ["bistro.mistral-rot180-r1.raw.json", "upside_down"],
+  ["bistro.mistral-rot270-r1.raw.json", "turned_counter_clockwise"],
   ["guest-house.mistral-rot90-r1.raw.json", "turned_clockwise"],
+  ["guest-house.mistral-rot180-r1.raw.json", "upside_down"],
+  ["guest-house.mistral-rot270-r1.raw.json", "turned_counter_clockwise"],
   ["polloteria.mistral-rot90-r1.raw.json", "turned_clockwise"],
   ["polloteria.mistral-rot180-r1.raw.json", "upside_down"],
   ["polloteria.mistral-rot270-r1.raw.json", "turned_counter_clockwise"],
+  ["el-marcos.mistral-rot90-r1.raw.json", "turned_clockwise"],
+  ["el-marcos.mistral-rot180-r1.raw.json", "upside_down"],
+  ["el-marcos.mistral-rot270-r1.raw.json", "turned_counter_clockwise"],
+  ["nikkori.mistral-rot90-r1.raw.json", "turned_clockwise"],
+  ["brasero.mistral-rot270-r1.raw.json", "turned_counter_clockwise"],
 ];
 
 Deno.test("no upright fixture page is ever rotated", async () => {

@@ -17,21 +17,33 @@ import { ocrMistral } from "../supabase/functions/analyze-menu/mistral-extract.t
 import { MENU_DIR, photoPath, productionPhotoData } from "./photo-input.ts";
 import { MENU_PHOTOS, rawPath } from "./probe-bakeoff-mistral-b1.ts";
 
-// The four landscape fixtures are the ones a diner turns the phone for.
-// polloteria = dense + release-critical, guest-house = the 48-dish recall case,
-// bistro = the small clean control. 180 degrees (upside down) and the opposite
-// turn are checked on one menu each: same class, no need to pay for all four.
+// H2.2 Task 7: close the thin direction. The counter-clockwise verdict rested
+// on ONE observation (polloteria @270°). This covers all 4 landscape menus in
+// BOTH directions plus 2 portrait menus turned sideways — a diner can hold
+// the phone wrong on any menu, not just wide ones.
 const CASES: [string, number][] = [
   ["polloteria", 90],
-  ["guest-house", 90],
-  ["bistro", 90],
-  ["polloteria", 270],
   ["polloteria", 180],
+  ["polloteria", 270],
+  ["bistro", 90],
+  ["bistro", 180],
+  ["bistro", 270],
+  ["guest-house", 90],
+  ["guest-house", 180],
+  ["guest-house", 270],
+  ["el-marcos", 90],
+  ["el-marcos", 180],
+  ["el-marcos", 270],
+  ["nikkori", 90],
+  ["brasero", 270],
 ];
 
 const apiKey = Deno.env.get("MISTRAL_API_KEY");
 if (!apiKey) throw new Error("MISTRAL_API_KEY is required");
 const tmp = await Deno.makeTempDir({ prefix: "rotation-c-" });
+// The permanent, versioned pt-r1 archive (all 10 menus) — not MENU_DIR, which
+// only has the 3 landscape menus from the original H2 re-probe (eval 094-era).
+const CACHES = new URL("./fixtures/caches/", import.meta.url).pathname;
 
 /** Character-level similarity, the same measure eval 102 used for OCR drift. */
 function similarity(a: string, b: string): number {
@@ -57,6 +69,14 @@ function wordRecall(upright: string, rotated: string): number {
 }
 
 for (const [menu, degrees] of CASES) {
+  const archivePath = rawPath(MENU_DIR, menu, `rot${degrees}`, 1, 0);
+  try {
+    await Deno.stat(archivePath);
+    console.log(`${menu} @${degrees}°: already archived, skipping (guard the spend)`);
+    continue;
+  } catch {
+    // not archived yet — fetch it
+  }
   const photos = MENU_PHOTOS[menu];
   if (photos.length !== 1) throw new Error(`${menu}: probe assumes one page`);
   const source = photoPath(photos[0]);
@@ -81,7 +101,7 @@ for (const [menu, degrees] of CASES) {
     read.raw_response,
   );
   const upright = JSON.parse(
-    await Deno.readTextFile(rawPath(MENU_DIR, menu, "pt", 1, 0)),
+    await Deno.readTextFile(`${CACHES}${menu}.mistral-pt-r1.raw.json`),
   ).pages[0].markdown as string;
 
   console.log(

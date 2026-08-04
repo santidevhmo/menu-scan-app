@@ -10,6 +10,7 @@ import { mergeItemSources } from "./merge.ts";
 import { colocationStage } from "./colocation.ts";
 import { ocrMistralWithRetry } from "./mistral-extract.ts";
 import { textStructureCleanup } from "./mistral-cleanup.ts";
+import { correctionDegrees, detectOrientation } from "./orientation.ts";
 
 export const MODEL_TIMEOUT_MS = 120000;
 const EXTRACT_SEED = 17;
@@ -607,7 +608,22 @@ export async function structureMenuTextWithRetry(
   }
 }
 
-export type PagedExtraction = ExtractionResult | { needs_crops: number[] };
+export type RotationRequest = {
+  needs_rotation: { page: number; degrees: number }[];
+  prior: string[];
+};
+export interface RotationPass {
+  rotated?: boolean;
+  /** The first pass's per-page OCR text, echoed back by the client. The edge
+   *  function is stateless, so this is the only way the second pass can compare
+   *  against the first — and it doubles as the fallback data, which is why a
+   *  rejected rotation costs no third API call. */
+  prior?: string[];
+}
+export type PagedExtraction =
+  | ExtractionResult
+  | { needs_crops: number[] }
+  | RotationRequest;
 
 function foldResults(
   results: ExtractionResult[],
@@ -650,9 +666,24 @@ export async function runPagedExtraction(
   openaiKey: string,
   ocr = ocrMistralWithRetry,
   structure = structureMenuTextWithRetry,
+  pass: RotationPass = {},
 ): Promise<PagedExtraction> {
-  const pages = await Promise.all(photos.map(async (photo) => {
-    const read = await ocr(photo, mistralKey);
+  // Stage-1a for every page FIRST. The old code structured each page as soon as
+  // it was read; orientation has to be settled before any Stage-1b call is paid
+  // for, and a crooked page's structuring would be thrown away anyway.
+  const reads = await Promise.all(photos.map((photo) => ocr(photo, mistralKey)));
+
+  if (!pass.rotated) {
+    const needs_rotation = reads.flatMap((read, page) => {
+      const degrees = correctionDegrees(detectOrientation(read.blocks));
+      return degrees === 0 ? [] : [{ page, degrees }];
+    });
+    if (needs_rotation.length > 0) {
+      return { needs_rotation, prior: reads.map((read) => read.markdown) };
+    }
+  }
+
+  const pages = await Promise.all(reads.map(async (read) => {
     const structured = await structure(read.markdown, openaiKey);
     return {
       markdown: read.markdown,

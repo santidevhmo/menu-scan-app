@@ -18,6 +18,7 @@ import {
 } from "./extract.ts";
 import type { ExtractionResult } from "./extract.ts";
 import { ocrMistralWithRetry } from "./mistral-extract.ts";
+import type { OcrBlock } from "./orientation.ts";
 
 Deno.test("runExtraction sends photos to GPT-4o and returns parsed items", async () => {
   const originalFetch = globalThis.fetch;
@@ -494,7 +495,7 @@ Deno.test("runPagedExtraction: one photo means one OCR call, then one structurin
   }) as typeof structureMenuTextWithRetry;
 
   const result = await runPagedExtraction(["a"], "mkey", "okey", ocr, structure);
-  if ("needs_crops" in result) throw new Error("unexpected needs_crops");
+  if ("needs_crops" in result || "needs_rotation" in result) throw new Error("unexpected needs_crops/needs_rotation");
   assertEquals(ocrSeen, ["a"]);
   assertEquals(structureSeen, ["# TACOS\nTacos 100"]);
   assertEquals(result.items, [menuItem("Tacos", 100)]);
@@ -531,7 +532,7 @@ Deno.test("runPagedExtraction: N photos run in parallel and cross-page merge", a
   assertEquals(seen, ["a", "b"]); // both OCR calls issued before either resolves
   release.forEach((resolve) => resolve());
   const result = await pending;
-  if ("needs_crops" in result) throw new Error("unexpected needs_crops");
+  if ("needs_crops" in result || "needs_rotation" in result) throw new Error("unexpected needs_crops/needs_rotation");
   assertEquals(result.items, [
     menuItem("Tacos", 100, "de pastor"),
     menuItem("Sopa", 80),
@@ -574,7 +575,7 @@ Deno.test("runPagedExtraction: cleanup runs AFTER the merge over ALL pages' mark
     )) as typeof structureMenuTextWithRetry;
 
   const result = await runPagedExtraction(["a", "b"], "mkey", "okey", ocr, structure);
-  if ("needs_crops" in result) throw new Error("unexpected needs_crops");
+  if ("needs_crops" in result || "needs_rotation" in result) throw new Error("unexpected needs_crops/needs_rotation");
   assertEquals(result.items.map((item) => item.name), ["Tacos", "TORTAS"]);
   assertEquals(result.items[1].price, 20);
   assertEquals(result.items[1].options, [
@@ -596,7 +597,7 @@ Deno.test("runPagedExtraction: postprocessItems runs on each page's items", asyn
     })) as typeof structureMenuTextWithRetry;
 
   const result = await runPagedExtraction(["a"], "mkey", "okey", ocr, structure);
-  if ("needs_crops" in result) throw new Error("unexpected needs_crops");
+  if ("needs_crops" in result || "needs_rotation" in result) throw new Error("unexpected needs_crops/needs_rotation");
   assertEquals(result.items[0].grams, 300); // parseItemGrams, postprocess only
 });
 
@@ -947,4 +948,71 @@ Deno.test("runGroupedExtraction sends OCR photos only for dense groups", async (
     else Deno.env.set("MISTRAL_API_KEY", originalKey);
   }
   assertEquals(ocrPhotos, ["full-photo-ocr"]);
+});
+
+/** `count` blocks, wide (lines lying down) or tall (lines on their side). */
+function fakeBlocks(count: number, wide: boolean): OcrBlock[] {
+  return Array.from({ length: count }, (_, i) => ({
+    top_left_x: wide ? 0 : i * 10,
+    top_left_y: wide ? i * 10 : 0,
+    bottom_right_x: wide ? 100 : i * 10 + 5,
+    bottom_right_y: wide ? i * 10 + 5 : 100,
+    content: `line ${i}`,
+  }));
+}
+const sidewaysRead = {
+  markdown: "MENU\nDISH",
+  raw_response: "{}",
+  // tall boxes, reading order advancing down (y) and leftwards (x) = turned
+  // clockwise. Both axes must actually vary with index — fakeBlocks(40, false)
+  // alone leaves y constant across every block, which is no signal at all
+  // (readingOrderDrift correlates against a constant and returns 0, which
+  // detectOrientation correctly refuses as "upright"; that is not a rotation
+  // bug, it is an unrealistic fixture).
+  blocks: fakeBlocks(40, false).map((b, i, all) => ({
+    ...b,
+    top_left_x: (all.length - 1 - i) * 10,
+    bottom_right_x: (all.length - 1 - i) * 10 + 5,
+    top_left_y: i * 10,
+    bottom_right_y: i * 10 + 100,
+  })),
+};
+const neverStructure = () => {
+  throw new Error("Stage-1b must not run when the page needs rotating");
+};
+
+Deno.test("a sideways first pass asks for rotation and does NOT pay for structuring", async () => {
+  const result = await runPagedExtraction(
+    ["photo0"],
+    "k",
+    "k",
+    () => Promise.resolve(sidewaysRead),
+    neverStructure as never,
+  );
+  if (!("needs_rotation" in result)) throw new Error("expected needs_rotation");
+  assertEquals(result.needs_rotation, [{ page: 0, degrees: 270 }]);
+  assertEquals(result.prior, ["MENU\nDISH"]);
+});
+
+Deno.test("an upright first pass behaves exactly as before", async () => {
+  const result = await runPagedExtraction(
+    ["photo0"],
+    "k",
+    "k",
+    () => Promise.resolve({ markdown: "MENU", raw_response: "{}", blocks: fakeBlocks(40, true) }),
+    () => Promise.resolve({ items: [], raw_response: "{}" }),
+  );
+  assertEquals("needs_rotation" in result, false);
+});
+
+Deno.test("the server never asks twice", async () => {
+  const result = await runPagedExtraction(
+    ["photo0"],
+    "k",
+    "k",
+    () => Promise.resolve(sidewaysRead),
+    () => Promise.resolve({ items: [], raw_response: "{}" }),
+    { rotated: true, prior: ["MENU\nDISH"] },
+  );
+  assertEquals("needs_rotation" in result, false);
 });

@@ -93,6 +93,9 @@ export async function replayMenu(menu: string, tag: string) {
     }) as Parameters<typeof runPagedExtraction>[4],
   );
   if ("needs_crops" in result) throw new Error(`${menu} returned needs_crops`);
+  if ("needs_rotation" in result) {
+    throw new Error(`${menu} returned needs_rotation — fixture is not upright`);
+  }
   return result;
 }
 

@@ -143,7 +143,100 @@
       "category": "food"
     }
   ],
-  "grams_expectations": [],
+  "grams_expectations": [
+    {
+      "name_contains": "Costra de Chamorro",
+      "grams": 80
+    },
+    {
+      "name_contains": "Costra de Chamorro y Pulpo",
+      "grams": 80
+    },
+    {
+      "name_contains": "Espárragos con Jamón Serrano",
+      "grams": 30
+    },
+    {
+      "name_contains": "Panela Plus Asada",
+      "grams": 30
+    },
+    {
+      "name_contains": "Queso Fundido",
+      "grams": 50
+    },
+    {
+      "name_contains": "Brocheta de Pollo Abierta con Verduras",
+      "grams": 200
+    },
+    {
+      "name_contains": "Boneless de Pollo",
+      "grams": 200
+    },
+    {
+      "name_contains": "Boneless de Camarón",
+      "grams": 200
+    },
+    {
+      "name_contains": "Alitas de Pollo",
+      "grams": 400
+    },
+    {
+      "name_contains": "Cesar",
+      "grams": 200
+    },
+    {
+      "name_contains": "Pulpo a la Gallega",
+      "grams": 200
+    },
+    {
+      "name_contains": "Camarones Empanizados",
+      "grams": 230
+    },
+    {
+      "name_contains": "Camarón Roka",
+      "grams": 200
+    },
+    {
+      "name_contains": "Atún Sellado",
+      "grams": 200
+    },
+    {
+      "name_contains": "Camarón Andaluz",
+      "grams": 230
+    },
+    {
+      "name_contains": "Camarones al Ajillo",
+      "grams": 200
+    },
+    {
+      "name_contains": "Tacos o Fajitas de Diezmillo",
+      "grams": 200
+    },
+    {
+      "name_contains": "Fajitas de Arrachera",
+      "grams": 200
+    },
+    {
+      "name_contains": "Arrachera de la Casa",
+      "grams": 200
+    },
+    {
+      "name_contains": "Arrachera Wagyu Cross",
+      "grams": 200
+    },
+    {
+      "name_contains": "Cabrería",
+      "grams": 250
+    },
+    {
+      "name_contains": "Cabrería Wagyu Cross",
+      "grams": 250
+    },
+    {
+      "name_contains": "Papada de Puerco",
+      "grams": 200
+    }
+  ],
   "image_quality": {
     "usable": true,
     "issues": []

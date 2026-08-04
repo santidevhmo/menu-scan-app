@@ -385,6 +385,23 @@ export function formatOptionBreakdown(breakdown: OptionBreakdown): string[] {
   return lines;
 }
 
+/** Grams are graded on RELATIVE error |actual - expected| / expected
+ *  (Santiago, 2026-08-03). The weight scales the macro estimate proportionally,
+ *  so one absolute band cannot serve both a 30 g garnish and a 1.8 kg platter.
+ *  A weight the pipeline never read is ALWAYS a miss: "no reading" is not a
+ *  near-miss of a printed number, and silently passing it would hide exactly
+ *  the failure this pin exists to catch. */
+export const GRAMS_RELATIVE_TOLERANCE = 0.10;
+
+export function gramsRelativeError(
+  actual: number | null | undefined,
+  expected: number,
+): number {
+  if (actual == null || !Number.isFinite(actual)) return Infinity;
+  if (expected === 0) return actual === 0 ? 0 : Infinity;
+  return Math.abs(actual - expected) / expected;
+}
+
 export function scoreMenu(
   fixture: ExpectedFixture,
   actual: ActualExtraction,
@@ -583,7 +600,9 @@ export function scoreMenu(
 
   // F4: printed-weight pins — any-match over food items (impostor same-name
   // cards must not steal the check), grams filled by parseItemGrams.
-  const wrongGrams = (fixture.grams_expectations ?? []).flatMap((expected) => {
+  const gramsPins = fixture.grams_expectations ?? [];
+  let gramsWithin = 0;
+  const wrongGrams = gramsPins.flatMap((expected) => {
     const exact = foodItems.filter((candidate) =>
       normalize(candidate.name).includes(normalize(expected.name_contains))
     );
@@ -598,16 +617,32 @@ export function scoreMenu(
     if (matches.length === 0) {
       return [`${expected.name_contains}→(item not found)`];
     }
-    if (matches.some((item) => item.grams === expected.grams)) return [];
+    // Any-match, as for the category/section pins: the best-reading candidate
+    // decides, so a same-name impostor card cannot steal the check.
+    const errors = matches.map((item) =>
+      gramsRelativeError(item.grams, expected.grams)
+    );
+    const best = Math.min(...errors);
+    if (best <= GRAMS_RELATIVE_TOLERANCE) {
+      gramsWithin++;
+      return [];
+    }
+    const item = matches[errors.indexOf(best)];
+    const why = item.grams == null
+      ? "not read"
+      : `off by ${Math.round(best * 100)}%`;
     return [
-      `${matches[0].name}→${
-        matches[0].grams ?? "null"
-      } (expected ${expected.grams})`,
+      `${item.name}→${item.grams ?? "null"} (expected ${expected.grams}, ${why})`,
     ];
   });
   const grams = {
     pass: wrongGrams.length === 0,
-    detail: `wrong: ${wrongGrams.join("; ") || "none"}`,
+    detail: `wrong: ${wrongGrams.join("; ") || "none"}` +
+      (gramsPins.length > 0
+        ? `; ${gramsWithin}/${gramsPins.length} within ${
+          Math.round(GRAMS_RELATIVE_TOLERANCE * 100)
+        }%`
+        : ""),
   };
 
   const expectedQuality = fixture.image_quality;
@@ -1684,7 +1719,7 @@ function runSelfCheck(): void {
   );
   assert(
     papaGrams.grams.detail.includes(
-      "Papa Sazonada (350gr)→350 (expected 300)",
+      "Papa Sazonada (350gr)→350 (expected 300,",
     ) && !papaGrams.grams.detail.includes("(item not found)"),
     "ruling 14 grams lookup: name tolerance preserves strict value mismatch",
   );
@@ -1844,7 +1879,7 @@ function runSelfCheck(): void {
   );
   assert(
     !gramsWrong.grams.pass &&
-      gramsWrong.grams.detail.includes("(expected 70)"),
+      gramsWrong.grams.detail.includes("(expected 70,"),
     "grams pin: digit-misread weight must fail with named diagnostic",
   );
   const gramsGuardFixture: ExpectedFixture = {
@@ -1864,6 +1899,40 @@ function runSelfCheck(): void {
   assert(
     scoreMenu(fixture, catItems([{ name: "X" }])).grams.pass,
     "no grams_expectations: dimension passes vacuously",
+  );
+
+  // Grams are graded on RELATIVE error (Santiago, 2026-08-03) — the value
+  // scales the macro estimate, so the same 30 g slip is trivial on a platter
+  // and disqualifying on a garnish.
+  const relFixture: ExpectedFixture = {
+    ...fixture,
+    grams_expectations: [{ name_contains: "Arrachera", grams: 200 }],
+  };
+  assert(
+    scoreMenu(relFixture, catItems([{ name: "Arrachera", grams: 190 }]))
+      .grams.pass,
+    "grams: 5% under the printed weight is within tolerance",
+  );
+  const relOff = scoreMenu(
+    relFixture,
+    catItems([{ name: "Arrachera", grams: 230 }]),
+  );
+  assert(
+    !relOff.grams.pass && relOff.grams.detail.includes("15%"),
+    "grams: 15% off must fail AND report the relative error",
+  );
+  const relNull = scoreMenu(
+    relFixture,
+    catItems([{ name: "Arrachera", grams: null }]),
+  );
+  assert(
+    !relNull.grams.pass && relNull.grams.detail.includes("not read"),
+    "grams: an unread printed weight is always a miss, never within tolerance",
+  );
+  assert(
+    scoreMenu(relFixture, catItems([{ name: "Arrachera", grams: 200 }]))
+      .grams.detail.includes("1/1 within"),
+    "grams: detail reports how many pinned weights landed in tolerance",
   );
 
   printReport([passing], aggregateReports([passing]));

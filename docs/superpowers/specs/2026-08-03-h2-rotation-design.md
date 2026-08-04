@@ -107,9 +107,19 @@ export function detectOrientation(blocks: OcrBlock[]): Orientation;
 /** Clockwise degrees that bring `orientation` back upright; 0 for "upright". */
 export function correctionDegrees(orientation: Orientation): number;
 
-/** Printed money/weight tokens in an OCR text — the acceptance measure, because
+/** Every standalone number in an OCR text — an acceptance measure, because
  *  eval 131 proved sideways loses NUMBERS while keeping names. */
 export function printedNumbers(markdown: string): number;
+
+/** Decisive geometry, as opposed to `detectOrientation`'s "upright" which also
+ *  means "I cannot read this page". Only this may accept a rotation. */
+export function isPositivelyUpright(blocks: OcrBlock[]): boolean;
+
+/** Keep the corrected read? Both guards must pass — see the safety section. */
+export function acceptRotation(
+  corrected: { blocks: OcrBlock[]; markdown: string },
+  original: { markdown: string },
+): boolean;
 ```
 
 No I/O, no dependencies. Every threshold is a named exported constant carrying its
@@ -157,7 +167,7 @@ app                              edge
  |<-- needs_rotation + prior ------|    otherwise
  |  rotate locally                |
  |-- rotated photo(s), prior ----->|  Stage-1a OCR  (1 call)
- |                                |  keep whichever read has more printedNumbers
+ |                                |  acceptRotation(corrected, original)
  |<-- items -----------------------|  then Stage-1b as usual
 ```
 
@@ -166,15 +176,38 @@ cost, no extra latency, no behaviour change.**
 
 ## Why a false positive cannot ship a wrong menu
 
-| detector says | truth | second read | outcome |
+`acceptRotation` keeps the corrected read only when **both** guards pass:
+
+1. **`isPositivelyUpright(correctedBlocks)`** — decisive geometry, not merely the
+   absence of a verdict. `detectOrientation` answers `upright` both for "I can see
+   it is the right way up" and for "I cannot read this page"; that conflation is
+   safe when DECIDING to rotate (both mean do nothing) and unsafe when ACCEPTING
+   one, where "I cannot tell" must never pass as "it worked".
+2. **The corrected read keeps ≥ 95% of the numbers** the captured read had.
+
+| detector says | truth | corrected read | outcome |
 |---|---|---|---|
-| sideways | sideways | upright, prices recovered | rotated read wins ✅ |
-| sideways | **upright (wrong)** | now genuinely sideways, **fewer** numbers | **rotated read discarded, original kept** ✅ |
+| sideways | sideways | positively upright, numbers held | **accepted** ✅ |
+| sideways | **upright (wrong)** | now genuinely sideways — geometry fails guard 1 | **discarded, original kept** ✅ |
 
 The verification is the detector's own failure mode turned against it: wrongly
-rotating an upright page produces a sideways page, which reads worse by the exact
-measure the defect is made of. A false positive costs ~$0.001 and one round trip
-and changes nothing the diner sees.
+rotating an upright page *produces* a sideways page, which then fails the same
+test that started this. A false positive costs ~$0.001 and one round trip and
+changes nothing the diner sees.
+
+**Both guards are needed, and each covers the other's blind spot.** Verified on
+all 5 archived rotations, in both directions — 5/5 real fixes accepted, 5/5
+false positives rejected:
+
+- Geometry alone would be enough for bistro, whose numbers crash 32 → 17 when
+  turned; it is *required* for guest-house, whose count barely moves (53 ↔ 54).
+- The number guard is the backstop for any page whose geometry we misread.
+
+**A first draft of this design compared numbers only, and `printedNumbers`
+required a `$` or a unit.** Guest-house prints bare `150`/`280`, so it scored 3
+numbers upright, every comparison tied, and the rule would have silently refused
+every correction on that menu. Rendering the detector's decisions as pictures
+(Santiago's suggestion) is what caught it — the table alone looked fine.
 
 **`rotated: true` is a hard stop — the server may request rotation at most once per
 scan** (Santiago's standing "≤2 tries, never 4"). No loop is reachable.
@@ -218,8 +251,9 @@ the original when the rotated read is worse.
   H2.3 gate, not after.
 - Only the four right-angle orientations are handled. A menu photographed at 45°
   falls in the refusal band and is left alone — correct behaviour, not a fix.
-- `printedNumbers` counts money and weight tokens; a menu that prints no numbers
-  at all makes the comparison a tie, and a tie keeps the ORIGINAL read.
+- `printedNumbers` counts every standalone number; a menu that prints none at all
+  makes the comparison vacuous, and acceptance then rests on the geometry guard
+  alone. No fixture is in that state (lowest is bistro at 32).
 - The detector reads Mistral's block geometry. If a future OCR model stops
   returning `blocks`, `detectOrientation` refuses everything and the pipeline
   degrades to today's behaviour rather than breaking.

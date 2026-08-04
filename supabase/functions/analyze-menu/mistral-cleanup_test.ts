@@ -491,3 +491,134 @@ Deno.test("an ambiguously printed line is refused, not guessed", () => {
   // Uva is unambiguous and folds; Fresa is printed twice and stays standalone.
   assertEquals(out.some((i) => i.name === "Fresa" && i.options.length === 0), true);
 });
+
+// ─── SECTION-LEVEL CHOICE LINE (eval 129) ────────────────────────────────────
+// El Andaluz prints "empanizados o naturales" once, under `# sushi`, for all
+// three rolls. Firing list across 49 archived draws: this is the ONLY place it
+// fires — the refusals below are what keep it that way.
+const roll = (name: string, price: number): ExtractedMenuItem => ({
+  name,
+  description: "",
+  price,
+  category: "food",
+  section_title: "sushi",
+  options: [],
+  grams: null,
+});
+const SUSHI = [
+  "# sushi",
+  "empanizados o naturales",
+  "DE CAMARÓN ROKA $275",
+  "DE ATÚN $275",
+].join("\n");
+
+Deno.test("attaches a section's printed choice line to every dish in it", () => {
+  const out = textStructureCleanup(
+    [roll("DE CAMARÓN ROKA", 275), roll("DE ATÚN", 275)],
+    SUSHI,
+  );
+  assertEquals(out.length, 2);
+  for (const item of out) {
+    assertEquals(item.options.map((o) => o.name), [
+      "empanizados",
+      "naturales",
+    ]);
+  }
+});
+
+Deno.test("REFUSES a PRICED line under a heading — that is a dish", () => {
+  const markdown = [
+    "# entradas",
+    "Papas fritas o bravas $190",
+    "CHAMPIÑONES AL AJILLO $225",
+  ].join("\n");
+  const out = textStructureCleanup(
+    [{ ...roll("CHAMPIÑONES AL AJILLO", 225), section_title: "entradas" }],
+    markdown,
+  );
+  assertEquals(out[0].options, []);
+});
+
+Deno.test("REFUSES a line the model returned as a dish", () => {
+  const markdown = ["# tacos", "Pastor o suadero", "TACOS DE PAPADA $205"].join(
+    "\n",
+  );
+  const out = textStructureCleanup(
+    [
+      { ...roll("Pastor o suadero", 90), section_title: "tacos" },
+      { ...roll("TACOS DE PAPADA", 205), section_title: "tacos" },
+    ],
+    markdown,
+  );
+  for (const item of out) assertEquals(item.options, []);
+});
+
+Deno.test("REFUSES prose under a heading (alternatives too long to be a list)", () => {
+  const markdown = [
+    "# carnes",
+    "Todos nuestros cortes se sirven a la plancha o al carbón de encino",
+    "ARRACHERA DE LA CASA $455",
+  ].join("\n");
+  const out = textStructureCleanup(
+    [{ ...roll("ARRACHERA DE LA CASA", 455), section_title: "carnes" }],
+    markdown,
+  );
+  assertEquals(out[0].options, []);
+});
+
+// ─── BASE VARIANT LEFT IN THE DESCRIPTION (eval 129) ─────────────────────────
+const QUESO = [
+  "# entradas",
+  "QUESO FUNDIDO",
+  "Con chistorra y champis (50 g) $235",
+  "Con chile verde + diezmillo (100 g) $290",
+].join("\n");
+const fundido = (
+  overrides: Partial<ExtractedMenuItem> = {},
+): ExtractedMenuItem => ({
+  name: "QUESO FUNDIDO",
+  description: "Con chistorra y champis (50 g)",
+  price: 235,
+  category: "food",
+  section_title: "entradas",
+  options: [{ name: "Con chile verde + diezmillo (100 g)", price: 290, grams: 100 }],
+  grams: 50,
+  ...overrides,
+});
+
+Deno.test("restores the base variant the model left in the description", () => {
+  const [out] = textStructureCleanup([fundido()], QUESO);
+  assertEquals(out.options.map((o) => o.name), [
+    "Con chistorra y champis (50 g)",
+    "Con chile verde + diezmillo (100 g)",
+  ]);
+  assertEquals(out.options[0].price, 235);
+  assertEquals(out.options[0].grams, 50);
+});
+
+Deno.test("REFUSES a normal dish: its NAME line carries the price", () => {
+  const markdown = [
+    "# entradas",
+    "PAPAS FRITAS $190",
+    "Sazonadas con trufa, parmesano y virutas de bacon",
+  ].join("\n");
+  const [out] = textStructureCleanup([
+    fundido({
+      name: "PAPAS FRITAS",
+      description: "Sazonadas con trufa, parmesano y virutas de bacon",
+      price: 190,
+      grams: null,
+      options: [{ name: "extra tocino", price: 15, grams: null }],
+    }),
+  ], markdown);
+  assertEquals(out.options.length, 1);
+});
+
+Deno.test("REFUSES a card with no PRICED option — nothing says it is a variant", () => {
+  const [out] = textStructureCleanup([
+    fundido({
+      options: [{ name: "con chile verde", price: null, grams: null }],
+    }),
+  ], QUESO);
+  assertEquals(out.options.length, 1);
+});

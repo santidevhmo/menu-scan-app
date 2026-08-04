@@ -54,6 +54,12 @@ interface ExpectedFixture {
     name_contains: string;
     grams: number;
   }[];
+  // Weight pins Santiago has ruled tolerable because the OCR misreads the
+  // PRINTED digits on that photo (ruling 39). Matched against the pin's own
+  // `name_contains`, exactly — tolerating a weight is a per-dish decision, so
+  // it must name the dish. Still reported in the detail line: a tolerated miss
+  // that stops being reported is a miss that stops being auditable.
+  tolerated_grams?: string[];
   items_with_options: {
     name_contains: string;
     description_contains?: string;
@@ -601,8 +607,11 @@ export function scoreMenu(
   // F4: printed-weight pins — any-match over food items (impostor same-name
   // cards must not steal the check), grams filled by parseItemGrams.
   const gramsPins = fixture.grams_expectations ?? [];
+  const gramsRulings = new Set(
+    (fixture.tolerated_grams ?? []).map((name) => normalize(name)),
+  );
   let gramsWithin = 0;
-  const wrongGrams = gramsPins.flatMap((expected) => {
+  const gramsMisses = gramsPins.flatMap((expected) => {
     const exact = foodItems.filter((candidate) =>
       normalize(candidate.name).includes(normalize(expected.name_contains))
     );
@@ -614,8 +623,9 @@ export function scoreMenu(
           normalize(expected.name_contains),
         )
       );
+    const tolerated = gramsRulings.has(normalize(expected.name_contains));
     if (matches.length === 0) {
-      return [`${expected.name_contains}→(item not found)`];
+      return [{ tolerated, miss: `${expected.name_contains}→(item not found)` }];
     }
     // Any-match, as for the category/section pins: the best-reading candidate
     // decides, so a same-name impostor card cannot steal the check.
@@ -631,13 +641,18 @@ export function scoreMenu(
     const why = item.grams == null
       ? "not read"
       : `off by ${Math.round(best * 100)}%`;
-    return [
-      `${item.name}→${item.grams ?? "null"} (expected ${expected.grams}, ${why})`,
-    ];
+    return [{
+      tolerated,
+      miss:
+        `${item.name}→${item.grams ?? "null"} (expected ${expected.grams}, ${why})`,
+    }];
   });
+  const wrongGrams = gramsMisses.filter((m) => !m.tolerated).map((m) => m.miss);
+  const ruledGrams = gramsMisses.filter((m) => m.tolerated).map((m) => m.miss);
   const grams = {
     pass: wrongGrams.length === 0,
     detail: `wrong: ${wrongGrams.join("; ") || "none"}` +
+      (ruledGrams.length > 0 ? `; TOLERATED: ${ruledGrams.join("; ")}` : "") +
       (gramsPins.length > 0
         ? `; ${gramsWithin}/${gramsPins.length} within ${
           Math.round(GRAMS_RELATIVE_TOLERANCE * 100)
@@ -1899,6 +1914,25 @@ function runSelfCheck(): void {
   assert(
     scoreMenu(fixture, catItems([{ name: "X" }])).grams.pass,
     "no grams_expectations: dimension passes vacuously",
+  );
+  // Ruling 39: a weight the OCR misreads off the PRINTED photo may be tolerated
+  // per dish — but it stays in the detail line, because a tolerated miss that
+  // stops being reported is a miss that stops being auditable.
+  const ruledGrams = scoreMenu(
+    { ...gramsFixture, tolerated_grams: ["Chilaquiles"] },
+    catItems([{ name: "CHILAQUILES (650gr.)", grams: 650 }]),
+  );
+  assert(
+    ruledGrams.grams.pass &&
+      ruledGrams.grams.detail.includes("TOLERATED: CHILAQUILES"),
+    "tolerated_grams: a ruled dish must pass and still be reported",
+  );
+  assert(
+    !scoreMenu(
+      { ...gramsFixture, tolerated_grams: ["Boneless Buffalo"] },
+      catItems([{ name: "CHILAQUILES (650gr.)", grams: 650 }]),
+    ).grams.pass,
+    "tolerated_grams: a ruling names ONE dish and must not cover another",
   );
 
   // Grams are graded on RELATIVE error (Santiago, 2026-08-03) — the value

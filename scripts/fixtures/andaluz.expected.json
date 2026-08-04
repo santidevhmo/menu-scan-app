@@ -244,5 +244,8 @@
   "tolerated_option_names": [
     "Empanizados",
     "Naturales"
+  ],
+  "tolerated_grams": [
+    "Queso Fundido"
   ]
 }

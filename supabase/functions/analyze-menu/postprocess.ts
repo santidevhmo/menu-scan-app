@@ -210,7 +210,7 @@ const MAX_CHOICE_WORDS = 3;
 // deterministically. Returns null (no choices) unless every alternative is a
 // short noun phrase; long alternatives mean a sentence-level "o", not a list.
 // ponytail: disjunction tokens are es/en (o/u/or); extend per language from data.
-function parseInlineChoices(description: string): string[] | null {
+export function parseInlineChoices(description: string): string[] | null {
   const match = INLINE_DISJUNCTION.exec(description);
   if (!match) return null;
   const before = description.slice(0, match.index);

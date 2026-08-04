@@ -1,5 +1,9 @@
 import type { ExtractedMenuItem } from "./extract.ts";
-import { parseItemGrams, PER_UNIT_NOTE } from "./postprocess.ts";
+import {
+  parseInlineChoices,
+  parseItemGrams,
+  PER_UNIT_NOTE,
+} from "./postprocess.ts";
 
 const WEIGHT_PAREN = /\(\s*\d[\d.,]*\s*(gr|g|kg|oz|ml|lt|l)\b[^)]*\)/i;
 // A section dies only when it is OVERWHELMINGLY drinks. Measured plateau
@@ -489,6 +493,112 @@ function foldWeldedPrefixCards(
   });
 }
 
+/** Trailing printed price of a line, as a number. */
+function linePrice(line: string): number | null {
+  const number = line.match(PRICE_TAIL)?.[0].match(/\d+(?:[.,]\d+)?/);
+  return number ? Number(number[0].replace(",", ".")) : null;
+}
+
+// ─── SECTION-LEVEL CHOICE LINE (eval 129) ────────────────────────────────────
+// A menu prints the choice ONCE, under the heading, for every dish below it:
+//
+//     # sushi
+//     empanizados o naturales      <- applies to all three rolls
+//     DE CAMARÓN ROKA        $275
+//     DE POLLO               $265
+//     DE ATÚN                $275
+//
+// The model transcribes the line and attaches it to nothing, so the choice is
+// lost for the whole section (El Andaluz, eval 128 — 2 of its 3 option misses).
+//
+// The discriminator is LAYOUT, not vocabulary (ruling 7): the line must sit
+// IMMEDIATELY under a heading, carry no printed price, and not be a dish the
+// model returned. What it means is then read by the SAME `parseInlineChoices`
+// that already reads item-level "con X o Y" — one matcher on both sides
+// (lessons 12/23), so a line this rule accepts is exactly a line the item-level
+// rule would have accepted had the menu printed it inside a description.
+function foldSectionChoiceLines(
+  items: ExtractedMenuItem[],
+  markdown?: string,
+): ExtractedMenuItem[] {
+  if (!markdown) return items;
+  const lines = markdown.split("\n").map((line) => line.trim()).filter(Boolean);
+  const dishes = new Set(items.map((it) => textKey(it.name)));
+  const bySection = new Map<string, string[]>();
+  for (const [index, line] of lines.entries()) {
+    if (!line.startsWith("#")) continue;
+    const next = lines[index + 1];
+    // A priced line is a dish, and a dish the model missed is a completeness
+    // problem — never silently demote one to an option.
+    if (!next || next.startsWith("#") || linePrice(next) != null) continue;
+    if (dishes.has(textKey(next))) continue;
+    const choices = parseInlineChoices(next);
+    if (choices) bySection.set(textKey(line), choices);
+  }
+  if (bySection.size === 0) return items;
+  const owner = headingOwners(markdown);
+  return items.map((it) => {
+    // Same group resolution foldPricedHeadingCards uses: the model's own title
+    // when it set one, otherwise the heading the page prints the dish under.
+    const section = it.section_title ?? owner.get(textKey(it.name));
+    const choices = section ? bySection.get(textKey(section)) : undefined;
+    if (!choices) return it;
+    const known = new Set(it.options.map((option) => textKey(option.name)));
+    const added = choices.filter((choice) => !known.has(textKey(choice)));
+    if (added.length === 0) return it;
+    return {
+      ...it,
+      options: [
+        ...it.options,
+        ...added.map((name) => ({ name, price: null, grams: null })),
+      ],
+    };
+  });
+}
+
+// ─── BASE VARIANT LEFT IN THE DESCRIPTION (eval 129) ─────────────────────────
+//
+//     QUESO FUNDIDO                              <- own line, NO price
+//     Con chistorra y champis (50 g)   $235      <- version 1
+//     Con chile verde + diezmillo (100 g) $290   <- version 2
+//
+// The model returns ONE card at $235 whose description is version 1 and whose
+// only option is version 2 — so the diner cannot select the $235 version at
+// all. Every other variant card in the corpus lists ALL its versions as options
+// (polloteria M/G, Alitas 6/12/20 PZ; `foldPricedHeadingCards` keeps every
+// child), so this restores the one the model swallowed.
+//
+// LAYOUT discriminator: the card name is printed WITHOUT a price and the
+// description is printed as its OWN line carrying the card's OWN price. Prose
+// descriptions never satisfy either half — the priced line is the dish name.
+function promoteDescriptionVariant(
+  items: ExtractedMenuItem[],
+  markdown?: string,
+): ExtractedMenuItem[] {
+  if (!markdown) return items;
+  const lines = markdown.split("\n").map((line) => line.trim()).filter(Boolean);
+  return items.map((it) => {
+    if (it.price == null || !it.description) return it;
+    if (!it.options.some((option) => option.price != null)) return it;
+    const unpricedName = lines.some((line) =>
+      linePrice(line) == null && textKey(line) === textKey(it.name)
+    );
+    const pricedDescription = lines.some((line) =>
+      linePrice(line) === it.price && textKey(line) === textKey(it.description)
+    );
+    if (!unpricedName || !pricedDescription) return it;
+    const known = new Set(it.options.map((option) => textKey(option.name)));
+    if (known.has(textKey(it.description))) return it;
+    return {
+      ...it,
+      options: [
+        { name: it.description, price: it.price, grams: it.grams },
+        ...it.options,
+      ],
+    };
+  });
+}
+
 /** Deterministic cleanup for the (c) text-structuring path (ruling 30).
  *  Model-agnostic only — acts on the model's own labels/titles, never on
  *  Mistral-annotation artifacts. C3 renames this module. */
@@ -504,16 +614,24 @@ export function textStructureCleanup(
   // Order is load-bearing and test-pinned: foldUnpricedCardSections collapses
   // REVUELTOS/FRITOS into single items FIRST, which is what stops
   // foldWeldedPrefixCards from seeing their duplicate child names as one card.
-  return foldWeldedPrefixCards(
-    foldUnpricedCardSections(
-      foldPricedHeadingCards(
-        foldPerUnitNoteSections(
-          foldSmallestOptionGrams(dropSelfNamedSectionTitles(filtered)),
+  // The two option-recovery rules run LAST, on the final card list: both read
+  // the printed page against names the folds have already settled.
+  return promoteDescriptionVariant(
+    foldSectionChoiceLines(
+      foldWeldedPrefixCards(
+        foldUnpricedCardSections(
+          foldPricedHeadingCards(
+            foldPerUnitNoteSections(
+              foldSmallestOptionGrams(dropSelfNamedSectionTitles(filtered)),
+            ),
+            markdown,
+            // The pre-dropDrinkSections list: the drink-block guard reads the
+            // neighbourhood evidence that filter deletes (eval 122).
+            normalized,
+          ),
+          markdown,
         ),
         markdown,
-        // The pre-dropDrinkSections list: the drink-block guard reads the
-        // neighbourhood evidence that filter deletes (eval 122).
-        normalized,
       ),
       markdown,
     ),

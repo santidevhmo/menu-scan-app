@@ -1,0 +1,20 @@
+OCR cache hit: /Users/santiagoaguirre/Downloads/MenusTesting/polloteria.mistral-ocr-eval071.json ($0)
+[colocation] flag: "Tender (150gr)" conflicts with printed block 39
+[colocation] flag: "Gyro (350gr)" conflicts with printed block 42
+[colocation] flag: "Boneless Jr(200gr)" conflicts with printed block 114
+[colocation] flag: "Dedos de Queso (200gr)" conflicts with printed block 9
+[colocation] drop: "Boneless de Coliflor Vegetarianos (350gr)" contradicted by printed block 48 which verifies a sibling
+[colocation] drop: "Buffalo (350gr)" contradicted by printed block 71 which verifies a sibling
+[colocation] drop: "Ensalada Verde (350gr)" contradicted by printed block 109 which verifies a sibling
+[colocation] drop: "Nuggets de Coliflor (200gr)" contradicted by printed block 48 which verifies a sibling
+[colocation] unmatched priced lines: 41 — tostiboneless 450gr 182 | bacon cheese fries 300gr 139 | cubeta pollotera 468 | una orden de boneless 300gr 12 piezas de alitas una orden de papas fritas 300gr 5 piezas de dedos de queso apio y zanahoria elige hasta 3 aderezos 15 haz tus papas sazonadas | el tendedero 468
+[colocation] drop-invented: "Sour Cream Cheese Fries (300gr)" bestSim=0.50
+[colocation] drop-invented: "Ensalada de Pollo a la Plancha (300gr)" bestSim=0.33
+
+blocks=162 before=46 after=40 dropped=6
+DROPPED: Sour Cream Cheese Fries (300gr) $139 [Entradas]
+DROPPED: Ensalada de Pollo a la Plancha (300gr) $159 [Ensaladas]
+DROPPED: Boneless de Coliflor Vegetarianos (350gr) $150 [Especialidades]
+DROPPED: Buffalo (350gr) $150 [Sandwiches & Hamburguesas]
+DROPPED: Ensalada Verde (350gr) $70 [Sides]
+DROPPED: Nuggets de Coliflor (200gr) $132 [Pollo Kids]

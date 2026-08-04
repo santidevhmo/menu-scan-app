@@ -1,0 +1,32 @@
+
+===== GEOMETRY: 2x2 rects=[{"originX":0,"originY":0,"width":1564,"height":948},{"originX":1042,"originY":0,"width":1564,"height":948},{"originX":0,"originY":632,"width":1564,"height":948},{"originX":1042,"originY":632,"width":1564,"height":948}] =====
+[openai] finish_reason: stop fingerprint: fp_9c49562904
+[openai] finish_reason: stop fingerprint: fp_9c49562904
+[openai] finish_reason: stop fingerprint: fp_9c49562904
+[openai] finish_reason: stop fingerprint: fp_9c49562904
+[verify] { kept: 8, dropped: 0, total: 8, name_rejected: 0, dropped_names: [] }
+[verify] { kept: 8, dropped: 0, total: 8, name_rejected: 0, dropped_names: [] }
+[verify] {
+  kept: 14,
+  dropped: 0,
+  total: 14,
+  name_rejected: 0,
+  dropped_names: []
+}
+[verify] {
+  kept: 17,
+  dropped: 0,
+  total: 17,
+  name_rejected: 0,
+  dropped_names: []
+}
+[colocation] drop-invented: "MISO MUSHROOMS" bestSim=0.40
+[colocation] drop-invented: "GRILLED BROCCOLINI" bestSim=0.50
+[colocation] drop-invented: "ROASTED ASPARAGUS" bestSim=0.50
+2x2 run 1: items=F options=F section_context=F categories=F grams=F; FAIL items,options,section_context,categories,grams; dump=/Users/santiagoaguirre/Downloads/MenusTesting/guest-house.tiles-2x2-eval091-r1.actual.json
+  items: 34/48 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  options: missed targets: 0; false-positive items: 1; value mismatches: none
+  section_context: missing: Enhancements; spurious: SEAFOOD PLATEAU*; wrong mappings: none
+  categories: missing: other; spurious: none; wrong: FOIE GRAS→(item not found)
+  grams: wrong: FRESH SHAVED TRUFFLES→(item not found); OSETRA CAVIAR→(item not found)
+stopping after first scored failure; diagnostic trace captured

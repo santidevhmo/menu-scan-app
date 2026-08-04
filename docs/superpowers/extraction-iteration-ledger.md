@@ -1483,3 +1483,43 @@ Rules:
 - **The categories miss is an ORACLE error, not a pipeline error.** `PAPAS FRITAS`/`PAPAS BRAVAS` → `side` matches the ruled convention exactly: polloteria's Santiago-corrected draft labels `Papas Sazonadas` and `French Fries` `side`, and 4 of the 9 fixtures legitimately contain `side`. Nothing drops `side` items (only `drink`/`other` are filtered), so the app is unaffected. **The grading sheet I wrote is wrong — it declares `categories: ["food"]` and pins `Papas Fritas → food`. NEEDS A SANTIAGO RULING before any edit (oracle files are never edited without one).**
 - **Cost:** 1 OCR call (~$0.001) + 3 structuring calls (in 2050 / out 1915 each ⇒ $0.0194/draw) = **~$0.06**. Running total ~**$2.66**.
 - **⛔ NEXT (nothing may be tuned before these are decided):** (1) Santiago rules on the `side` grading sheet. (2) Decide whether the two option gaps get fixed now — both are layout-general shapes, both must be re-validated across ALL 10 menus with a firing list (lessons 11-13, 22). (3) The Queso Fundido 80% weight miss is an OCR-fidelity question, and the first candidate for a Stage-1a improvement rather than a rule.
+
+## Eval 129 — the two option gaps FIXED ($0): section-level choice lines and the swallowed base variant. 25 options recovered across 49 draws, 0 lost; Andaluz 2/5 → 4/5
+
+- Date: 2026-08-03 | Santiago: *"Lets fix the two options now."* Both are LAYOUT discriminators (ruling 7); neither reads a word of any language's menu vocabulary.
+- **Rule 1 — `foldSectionChoiceLines`.** A bare choice line printed directly under a section heading belongs to every dish in that section (`# sushi` / `empanizados o naturales`). Accepted only when the line sits IMMEDIATELY under a heading, carries NO printed price (a priced line is a dish, and demoting a dish to an option would be silent data loss), and is not a dish the model returned. What the line MEANS is then read by the **same `parseInlineChoices`** the item-level "con X o Y" rule already uses — one matcher on both sides (lessons 12/23), so this rule can never accept a line the item-level rule would have rejected.
+- **Rule 2 — `promoteDescriptionVariant`.** A card whose NAME is printed WITHOUT a price and whose DESCRIPTION is printed as its own line carrying the CARD's own price is a variant card that lost its base version. Restores it as the first option at the card's price and grams. Prose descriptions satisfy neither half — on a normal dish the priced line IS the name line.
+- **FIRING LIST — 49 archived draws (`scripts/firing-list.ts`, now a reusable corpus dump): 25 options ADDED, 0 REMOVED.**
+
+  | where | count | evidence |
+  |---|---|---|
+  | andaluz sushi — 3 rolls × 2 choices × 3 draws | 18 | printed `empanizados o naturales` under `# sushi` |
+  | andaluz `QUESO FUNDIDO` × 3 draws | 3 | printed `Con chistorra y champis (50 g) $235` |
+  | **el-marcos `WAFFLES` + `HOT CAKES`, r2 and r3** | 4 | printed `WAFFLES / Con plátano, canela y miel balsámica 70 / Con Frutos rojos 78` |
+
+  The el-marcos four were UNPLANNED and are the interesting result: the same defect, on a menu that has been in the suite since the beginning, on 2 of 3 draws (r1 already folded correctly through `foldWeldedPrefixCards`). So the rule also makes el-marcos more consistent across draws. Verified against the printed markdown before acceptance — el-marcos has no corrected draft, so the PRINT is the oracle.
+- **Seven refusal tests pinned** (`mistral-cleanup_test.ts`): a priced line under a heading, a line the model returned as a dish, prose too long to be a choice list, a normal dish whose name line carries the price, a card with no priced option.
+- Gates: `score-c-dumps` 45/45 · range 44–45 · `replay-edge-c3` 45/45 · suite 235 passed / 1 pre-existing (`tile-cut_test.ts`) — **all identical before and after, measured both ways.** Andaluz **2/5 → 4/5 ×3**.
+- Also landed: `tolerated_grams` (ruling 39) and the `OCR_TAG` override. $0. Running total ~**$2.66**.
+
+## Eval 130 — 🧭 A SIDE IS A SECTION, NOT A DISH ($0). Ruling 40 encoded as neighbourhood evidence; Andaluz 4/5 → **5/5 ×3**; the held-out menu is now PERFECT
+
+- Date: 2026-08-03 | **This entry exists because the planner got it backwards first.** Eval 128 reported Andaluz's `PAPAS FRITAS`→`side` as an ORACLE error and cited polloteria's fries as precedent. Santiago rejected it: fries under `entradas` are an appetizer, and *"its too specific to say that papas fritas is always a side and could break on menus that have them as a plate in itself and not a side."* **The citation compared DISH VOCABULARY — precisely what ruling 7 forbids.** The grading sheet was right; the pipeline was wrong. Both oracle files were reverted to `food`.
+- **What is actually written down** (`extract.ts`, the production extraction prompt): *"Use category `food` for appetizers, entrees, main dishes… Use `side`, `dessert` or `drink` only when that role is clear."* **`entradas` = appetizers = food.** The rule was never ambiguous; nobody had checked it against the corpus.
+- **THE MEASUREMENT (`scripts/probe-side-sections.ts`, $0, 31 draws) — what makes the role "clear" is ALWAYS the printed heading, never the dish:**
+
+  | menu | printed heading | items labelled `side` |
+  |---|---|---|
+  | polloteria | `Sides` | 4/4 — **100%** |
+  | guest-house | `SIDES` | 8/8 — **100%** |
+  | guest-house | `ENHANCEMENTS` | 12/12 — **100%** |
+  | brasero | `ACOMPAÑAMIENTOS` | 7/7 — **100%** |
+  | brasero-two | `GUARNICIONES` | 4/4 — **100%** |
+  | **andaluz** | **`entradas`** | **2/17 — 12%** ⬅ the only counter-example in the corpus |
+
+- **`demoteOutvotedSides`:** a `side` survives only when at least half its section is `side`; a dish outvoted by its own section is `food`. Neighbourhood evidence, the same shape as the drink-block guard — and it carries NO language assumption, which a list of heading words never could: it reads `Sides`, `ACOMPAÑAMIENTOS` and `GUARNICIONES` without knowing any of those words. **Bar is a MAJORITY, not the drink guard's 0.8, because the costs differ: dropping a drink section DELETES dishes, this only relabels a dish that stays.** Measured margin is 100% vs 12%, so every threshold in between separates the corpus identically. **REFUSAL: a `side` with no section has no neighbours and therefore no evidence — left alone rather than guessed (the Paletas-class refusal, eval 122).**
+- **FIRING LIST — 49 draws, whole-corpus item dump diffed line by line: exactly 6 lines changed, ALL of them Andaluz's two potato dishes × 3 draws.** Zero items added, zero removed, zero option changes, and all 31 real side items in the corpus untouched. Four tests pin both halves (fires on `entradas`; refuses `Sides`, `GUARNICIONES`, and the section-less case).
+- **RESULT: `score-c-draws` MENUS=andaluz → 5/5 · 5/5 · 5/5, zero flipping dims.** The held-out menu is perfect on every dimension. Gates unmoved: `score-c-dumps` 45/45 · range 44–45 · `replay-edge-c3` 45/45 · suite **246 passed / 1 pre-existing**.
+- **What this run is and is NOT.** The three draws are the ORIGINAL held-out responses re-scored offline — no model call was repeated, and the two option rules plus this one were written AFTER seeing them. So 5/5 is an honest measure of the fixes on this menu, and NOT a second held-out measurement. **Andaluz has now spent its one held-out shot** (`scripts/fixtures/README.md`); it joins the permanent suite, and the next generalization evidence must come from a menu none of these rules has seen.
+- ⛔ **NEXT: register andaluz in the default menu lists so all 10 run by default** (it still needs `MENUS=andaluz OCR_TAG=pt` today), then the remaining phase-close items: one real DEVICE scan against the deployed function, the cheap rotation re-probe under (c), suite consolidation, and the Stage-2 macro benchmark.
+- $0. Running total ~**$2.66**.

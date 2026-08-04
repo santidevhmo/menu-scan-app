@@ -1,0 +1,300 @@
+
+===== RUN 1/3 =====
+  PASS bistro routing: single Mistral read
+  PASS bistro items: 24/24 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  PASS bistro options: missed targets: 0; false-positive items: 0; value mismatches: none; recall 0/0
+  PASS bistro section_context: missing: none; spurious: none; wrong mappings: none
+  PASS bistro categories: missing: none; spurious: none; wrong: none
+  PASS bistro grams: wrong: none
+  PASS brasero-two routing: single Mistral read
+  PASS brasero-two items: 47/44 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  FAIL brasero-two options: missed targets: 1; false-positive items: 0; value mismatches: none; recall 1/2
+    ✓ "Taco Loiro" wants [pollo] → "TACO LOIRO (sirloin)" has [picaña, pollo]
+    ✗ "Churrasquería" wants [Doble] → no matching item extracted
+  FAIL brasero-two section_context: missing: none; spurious: CHURRASQUERÍA; wrong mappings: Churrasquería→(item not found)
+  PASS brasero-two categories: missing: none; spurious: none; wrong: none
+  FAIL brasero-two grams: wrong: Churrasquería→(item not found)
+  PASS brasero routing: single Mistral read
+  PASS brasero items: 28/28 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  PASS brasero options: missed targets: 0; false-positive items: 0; value mismatches: none; recall 5/5
+    ✓ "Pasta Alfredo" wants [Camarón, Pollo] → "PASTA ALFREDO" has [camarón, pollo]
+    ✓ "Pasta Parmesan" wants [Chorizo, Pollo, Camarón] → "PASTA PARMESANO" has [Chorizo, Pollo, Camarón]
+  PASS brasero section_context: missing: none; spurious: none; wrong mappings: none
+  PASS brasero categories: missing: none; spurious: none; wrong: none
+  PASS brasero grams: wrong: none
+  PASS casa-nostra routing: single Mistral read
+  PASS casa-nostra items: 23/23 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  FAIL casa-nostra options: missed targets: 0; false-positive items: 1; value mismatches: none; recall 3/3
+    ✓ "Fettuccine CasaNostra" wants [Gluten free] → "Fettuccine CasaNostra" has [Spaghetti Gluten free]
+    ✓ "Pasta alla romana" wants [Gluten free] → "Pasta alla romana" has [Gluten free]
+    ✓ "frutti di mare" wants [Gluten free] → "Spaghetti ai frutti di mare ubriaca" has [Gluten free]
+    ⚠ FALSE POSITIVE "Cesar" has [lechuga entera, en trozos]
+  PASS casa-nostra section_context: missing: none; spurious: none; wrong mappings: none
+  PASS casa-nostra categories: missing: none; spurious: none; wrong: none
+  PASS casa-nostra grams: wrong: none
+  PASS el-marcos routing: single Mistral read
+  PASS el-marcos items: 30/28 distinct food dishes; 0 duplicates; 1 section-headers (→Feature 3)
+  FAIL el-marcos options: missed targets: 1; false-positive items: 1; value mismatches: none; recall 15/17
+    ✓ "Machaca de Marlín" wants [huevo, verdura] → "Machaca de Marlín c/huevo o verdura" has [huevo, verdura]
+    ✓ "Machaca" wants [huevo, verdura] → "MACHACA" has [huevo, verdura]
+    ✓ "Revueltos" wants [jamón] → "REVUELTOS" has [jamón, chorizo, tocino, Dos huevos a la mexicana, Con jamón, chorizo o tocino]
+    ✓ "Fritos" wants [jamón] → "FRITOS" has [jamón, chorizo, tocino, Con jamón, chorizo o tocino]
+    ~ "Chilaquiles" wants [Regionales, Divorciados] → "CHILAQUILES (70gr.)" has [salsa suiza, salsa verde]; missing [Regionales, Divorciados]
+    ✓ "Enchiladas" wants [Verdes, Rojas, Suizas] → "ENCHILADAS (135gr.)" has [verdes, rojas, suizas]
+    ✓ "Pan Tostado" wants [Blanco, Integral] → "PAN TOSTADO" has [Blanco, Integral]
+    ✓ "Hot Cakes" wants [jamón] → "HOT CAKES (3 piezas)" has [jamón, tocino, huevo, Con jamón, tocino o huevo]
+    ✓ "Waffles" wants [frutos rojos] → "WAFFLES" has [Con Frutos rojos]
+    · "Plato Surtido" UNCHECKED (tolerated) → "PLATO SURTIDO (350gr.)" has [queso cottage, yogurth, Con queso cottage o yogurth (50gr.)]
+    ✓ "Avena" wants [Manzana, Plátano] → "AVENA CON LECHE (350ml.)" has [Manzana, Plátano]
+    · "huevo revuelto" UNCHECKED (tolerated) → "Hot cakes o huevo revuelto con su elección de jamón o tocino
+Leche con chocolate o jugo de naranja" has [jamón, tocino, Leche con chocolate, jugo de naranja]
+    ⚠ FALSE POSITIVE "Regionales" has [queso panela, mezcla de quesos]
+  PASS el-marcos section_context: missing: none; spurious: none; wrong mappings: none
+  PASS el-marcos categories: missing: none; spurious: none; wrong: none
+  PASS el-marcos grams: wrong: none
+  PASS guest-house routing: single Mistral read
+  PASS guest-house items: 48/48 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  FAIL guest-house options: missed targets: 0; false-positive items: 1; value mismatches: none; recall 4/4
+    ✓ "SEAFOOD PLATEAU*" wants [FOR TWO, FOR THREE OR MORE] → "SEAFOOD PLATEAU*" has [FOR TWO, FOR THREE OR MORE, chilled, warm]
+    · "HALF MAINE LOBSTER TAIL" UNCHECKED (tolerated) → "HALF MAINE LOBSTER TAIL" has [chilled, grilled]
+    ⚠ FALSE POSITIVE "CACIO E PEPE v" has [add fresh truffle]
+  PASS guest-house section_context: missing: none; spurious: none; wrong mappings: none
+  FAIL guest-house categories: missing: none; spurious: none; wrong: FOIE GRAS→side (expected food)
+  FAIL guest-house grams: wrong: FRESH SHAVED TRUFFLES (5c)→null (expected 5); OSETRA CAVIAR (3c)→null (expected 3)
+  PASS mochomos routing: single Mistral read
+  PASS mochomos items: 22/22 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  FAIL mochomos options: missed targets: 0; false-positive items: 2; value mismatches: none; recall 0/0
+    ⚠ FALSE POSITIVE "TACOS DE CAMARÓN AL CHIPOTLE" has [versión cilantro]
+    ⚠ FALSE POSITIVE "TOSTADAS PUESTAS DE ATÚN" has [salmón]
+  PASS mochomos section_context: missing: none; spurious: none; wrong mappings: none
+  PASS mochomos categories: missing: none; spurious: none; wrong: none
+  PASS mochomos grams: wrong: none
+  PASS nikkori routing: single Mistral read
+  PASS nikkori items: 48/48 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  PASS nikkori options: missed targets: 0; false-positive items: 0; value mismatches: none; recall 0/0
+    · "Nico" UNCHECKED (tolerated) → "Nico" has []
+  FAIL nikkori section_context: missing: Naturales; spurious: MATERIALES, BOLOS; wrong mappings: Salmón Roll→MATERIALES (expected Naturales)
+  PASS nikkori categories: missing: none; spurious: none; wrong: none
+  PASS nikkori grams: wrong: none
+  PASS polloteria routing: single Mistral read
+  PASS polloteria items: 43/40 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  FAIL polloteria options: missed targets: 1; false-positive items: 0; value mismatches: none; recall 9/11
+    · "Cubeta Pollotera" UNCHECKED (tolerated) → "Cubeta Pollotera" has []
+    · "Megacharola" UNCHECKED (tolerated) → "Megacharola Boneless" has []
+    · "Paletas Heladas" UNCHECKED (tolerated) → "Paletas Heladas AGUA" has [Uva, Piña, Melón, Limón, Tamarindo]
+    · "Paletas Heladas" UNCHECKED (tolerated) → "Paletas Heladas CREMA" has [Yoghurt con Cajeta, Combinada Fresa-Vainilla/Yogurt, Nuez, Sandwich de nieve, Cubiertas]
+    · "Grande" UNCHECKED (tolerated) → "Grandes" has [Jumbo(600gr)]
+    ✗ "Crispy Chicken" wants [Grandes, Jumbo] → no matching item extracted
+    · "Cabeza" UNCHECKED (tolerated) → not matched
+    · "El Tender" UNCHECKED (tolerated) → not matched
+    ✓ "Alitas" wants [6 PZ, 12PZ, 20PZ] → "Alitas" has [6 PZ, 12PZ, 20PZ]
+    ✓ "Ensalada Boneless" wants [M (150gr), G (300gr)] → "Ensalada Boneless" has [M (150gr), G (300gr)]
+    ✓ "Aguacate Chicken" wants [M (150gr), G (300gr)] → "Aguacate Chicken" has [M (150gr), G (300gr)]
+    ✓ "Ensalada Pollotera" wants [M (150gr), G (300gr)] → "Ensalada Pollotera" has [M (150gr), G (300gr)]
+    · "Gyro" UNCHECKED (tolerated) → "Gyro (300gr)" has [papas fritas, ensalada verde]
+    · "Tender Cordon Bleu" UNCHECKED (tolerated) → "Tender Cordon Bleu (350gr)" has [papas fritas, ensalada verde]
+  PASS polloteria section_context: missing: none; spurious: none; wrong mappings: none
+  PASS polloteria categories: missing: none; spurious: none; wrong: none
+  FAIL polloteria grams: wrong: Megacharola Boneless→1200 (expected 1800)
+  GATE FAIL: options: brasero-two, casa-nostra, el-marcos, guest-house, mochomos, polloteria; section_context: brasero-two, nikkori; categories: guest-house; grams: brasero-two, guest-house, polloteria
+
+===== RUN 2/3 =====
+  PASS bistro routing: single Mistral read
+  PASS bistro items: 24/24 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  PASS bistro options: missed targets: 0; false-positive items: 0; value mismatches: none; recall 0/0
+  PASS bistro section_context: missing: none; spurious: none; wrong mappings: none
+  PASS bistro categories: missing: none; spurious: none; wrong: none
+  PASS bistro grams: wrong: none
+  PASS brasero-two routing: single Mistral read
+  PASS brasero-two items: 47/44 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  FAIL brasero-two options: missed targets: 1; false-positive items: 0; value mismatches: none; recall 1/2
+    ✓ "Taco Loiro" wants [pollo] → "TACO LOIRO (sirloin)" has [picaña, pollo]
+    ✗ "Churrasquería" wants [Doble] → no matching item extracted
+  FAIL brasero-two section_context: missing: none; spurious: CHURRASQUERÍA; wrong mappings: Churrasquería→(item not found)
+  PASS brasero-two categories: missing: none; spurious: none; wrong: none
+  FAIL brasero-two grams: wrong: Churrasquería→(item not found)
+  PASS brasero routing: single Mistral read
+  PASS brasero items: 28/28 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  PASS brasero options: missed targets: 0; false-positive items: 0; value mismatches: none; recall 5/5
+    ✓ "Pasta Alfredo" wants [Camarón, Pollo] → "PASTA ALFREDO" has [camarón, pollo]
+    ✓ "Pasta Parmesan" wants [Chorizo, Pollo, Camarón] → "PASTA PARMESANO" has [Chorizo, Pollo, Camarón]
+  PASS brasero section_context: missing: none; spurious: none; wrong mappings: none
+  PASS brasero categories: missing: none; spurious: none; wrong: none
+  PASS brasero grams: wrong: none
+  PASS casa-nostra routing: single Mistral read
+  PASS casa-nostra items: 23/23 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  PASS casa-nostra options: missed targets: 0; false-positive items: 0; value mismatches: none; recall 3/3
+    ✓ "Fettuccine CasaNostra" wants [Gluten free] → "Fettuccine CasaNostra" has [Spaghetti Gluten free]
+    ✓ "Pasta alla romana" wants [Gluten free] → "Pasta alla romana" has [Gluten free]
+    ✓ "frutti di mare" wants [Gluten free] → "Spaghetti ai frutti di mare ubriaca" has [Gluten free]
+  PASS casa-nostra section_context: missing: none; spurious: none; wrong mappings: none
+  PASS casa-nostra categories: missing: none; spurious: none; wrong: none
+  PASS casa-nostra grams: wrong: none
+  PASS el-marcos routing: single Mistral read
+  PASS el-marcos items: 30/28 distinct food dishes; 0 duplicates; 1 section-headers (→Feature 3)
+  FAIL el-marcos options: missed targets: 2; false-positive items: 1; value mismatches: jamón: price null (expected 78); recall 15/17
+    ✓ "Machaca de Marlín" wants [huevo, verdura] → "Machaca de Marlín c/huevo o verdura" has [huevo, verdura]
+    ✓ "Machaca" wants [huevo, verdura] → "MACHACA" has [huevo, verdura]
+    ✓ "Revueltos" wants [jamón] → "REVUELTOS" has [jamón, chorizo, tocino, Dos huevos a la mexicana, Con jamón, chorizo o tocino]
+    ✓ "Fritos" wants [jamón] → "FRITOS" has [jamón, chorizo, tocino, Con jamón, chorizo o tocino]
+    ~ "Chilaquiles" wants [Regionales, Divorciados] → "CHILAQUILES (70gr.)" has [salsa suiza, salsa verde]; missing [Regionales, Divorciados]
+    ✓ "Enchiladas" wants [Verdes, Rojas, Suizas] → "ENCHILADAS (135gr.)" has [verdes, rojas, suizas]
+    ✓ "Pan Tostado" wants [Blanco, Integral] → "PAN TOSTADO" has [blanco, integral]
+    ✓ "Hot Cakes" wants [jamón] → "HOT CAKES (3 piezas)" has [jamón, tocino, huevo, Con jamón, tocino o huevo]
+    $ VALUE MISMATCH jamón: price null (expected 78)
+    ✓ "Waffles" wants [frutos rojos] → "WAFFLES" has [Con Frutos rojos]
+    · "Plato Surtido" UNCHECKED (tolerated) → "PLATO SURTIDO (350gr.)" has [queso cottage, Con queso cottage o yogurth (50gr.)]
+    ✓ "Avena" wants [Manzana, Plátano] → "AVENA CON LECHE (350ml.)" has [manzana, plátano]
+    · "huevo revuelto" UNCHECKED (tolerated) → "Hot cakes o huevo revuelto con su elección de jamón o tocino
+Leche con chocolate o jugo de naranja" has [hot cakes, huevo revuelto, jamón, tocino, leche con chocolate, jugo de naranja]
+    ⚠ FALSE POSITIVE "Regionales" has [queso panela, mezcla de quesos]
+  PASS el-marcos section_context: missing: none; spurious: none; wrong mappings: none
+  PASS el-marcos categories: missing: none; spurious: none; wrong: none
+  PASS el-marcos grams: wrong: none
+  PASS guest-house routing: single Mistral read
+  PASS guest-house items: 48/48 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  FAIL guest-house options: missed targets: 0; false-positive items: 1; value mismatches: none; recall 4/4
+    ✓ "SEAFOOD PLATEAU*" wants [FOR TWO, FOR THREE OR MORE] → "SEAFOOD PLATEAU*" has [FOR TWO, FOR THREE OR MORE, chilled, warm]
+    · "HALF MAINE LOBSTER TAIL" UNCHECKED (tolerated) → "HALF MAINE LOBSTER TAIL" has [chilled, grilled]
+    ⚠ FALSE POSITIVE "CACIO E PEPE v" has [add fresh truffle]
+  PASS guest-house section_context: missing: none; spurious: none; wrong mappings: none
+  FAIL guest-house categories: missing: none; spurious: none; wrong: FOIE GRAS→side (expected food)
+  FAIL guest-house grams: wrong: FRESH SHAVED TRUFFLES (5c)→null (expected 5); OSETRA CAVIAR (3c)→null (expected 3)
+  PASS mochomos routing: single Mistral read
+  PASS mochomos items: 22/22 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  FAIL mochomos options: missed targets: 0; false-positive items: 2; value mismatches: none; recall 0/0
+    ⚠ FALSE POSITIVE "TACOS DE CAMARÓN AL CHIPOTLE" has [versión cilantro]
+    ⚠ FALSE POSITIVE "TOSTADAS PUESTAS DE ATÚN" has [salmón]
+  PASS mochomos section_context: missing: none; spurious: none; wrong mappings: none
+  PASS mochomos categories: missing: none; spurious: none; wrong: none
+  PASS mochomos grams: wrong: none
+  PASS nikkori routing: single Mistral read
+  PASS nikkori items: 48/48 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  PASS nikkori options: missed targets: 0; false-positive items: 0; value mismatches: none; recall 0/0
+    · "Nico" UNCHECKED (tolerated) → "Nico" has []
+  FAIL nikkori section_context: missing: Naturales; spurious: MATERIALES, BOLOS; wrong mappings: Salmón Roll→MATERIALES (expected Naturales)
+  PASS nikkori categories: missing: none; spurious: none; wrong: none
+  PASS nikkori grams: wrong: none
+  PASS polloteria routing: single Mistral read
+  PASS polloteria items: 43/40 distinct food dishes; 0 duplicates; 1 section-headers (→Feature 3)
+  FAIL polloteria options: missed targets: 0; false-positive items: 1; value mismatches: none; recall 11/11
+    · "Cubeta Pollotera" UNCHECKED (tolerated) → "Cubeta Pollotera" has []
+    · "Megacharola" UNCHECKED (tolerated) → "Megacharola Boneless" has []
+    · "Paletas Heladas" UNCHECKED (tolerated) → "Paletas Heladas AGUA" has [Uva, Piña, Melón, Limón, Tamarindo, Fresa]
+    · "Paletas Heladas" UNCHECKED (tolerated) → "Paletas Heladas CREMA" has [Yoghurt con Cajeta, Combinada Fresa-Vainilla/Yogurt, Fresa, Nuez, Sandwich de nieve, Cubiertas]
+    · "Grande" UNCHECKED (tolerated) → not matched
+    ✓ "Crispy Chicken" wants [Grandes, Jumbo] → "Crispy Chicken" has [Grandes (300gr), Jumbo (600gr)]
+    · "Cabeza" UNCHECKED (tolerated) → not matched
+    · "El Tender" UNCHECKED (tolerated) → not matched
+    ✓ "Alitas" wants [6 PZ, 12PZ, 20PZ] → "Alitas" has [6 PZ, 12PZ, 20PZ]
+    ✓ "Ensalada Boneless" wants [M (150gr), G (300gr)] → "Ensalada Boneless" has [M (150gr), G (300gr)]
+    ✓ "Aguacate Chicken" wants [M (150gr), G (300gr)] → "Aguacate Chicken" has [M (150gr), G (300gr)]
+    ✓ "Ensalada Pollotera" wants [M (150gr), G (300gr)] → "Ensalada Pollotera" has [M (150gr), G (300gr)]
+    · "Gyro" UNCHECKED (tolerated) → "Gyro (300gr)" has [Papas fritas, Ensalada verde]
+    · "Tender Cordon Bleu" UNCHECKED (tolerated) → "Tender Cordon Bleu (350gr)" has [Papas fritas, Ensalada verde]
+    ⚠ FALSE POSITIVE "Bebidas MALTEADAS" has [Vainilla, Fresa, Chocolate, Maxapan, Ganzito, Oreo]
+  PASS polloteria section_context: missing: none; spurious: none; wrong mappings: none
+  PASS polloteria categories: missing: none; spurious: none; wrong: none
+  FAIL polloteria grams: wrong: Megacharola Boneless→1200 (expected 1800)
+  GATE FAIL: options: brasero-two, el-marcos, guest-house, mochomos, polloteria; section_context: brasero-two, nikkori; categories: guest-house; grams: brasero-two, guest-house, polloteria
+
+===== RUN 3/3 =====
+  PASS bistro routing: single Mistral read
+  PASS bistro items: 24/24 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  PASS bistro options: missed targets: 0; false-positive items: 0; value mismatches: none; recall 0/0
+  PASS bistro section_context: missing: none; spurious: none; wrong mappings: none
+  PASS bistro categories: missing: none; spurious: none; wrong: none
+  PASS bistro grams: wrong: none
+  PASS brasero-two routing: single Mistral read
+  PASS brasero-two items: 47/44 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  FAIL brasero-two options: missed targets: 1; false-positive items: 0; value mismatches: none; recall 1/2
+    ✓ "Taco Loiro" wants [pollo] → "TACO LOIRO (sirloin)" has [picaña, pollo]
+    ✗ "Churrasquería" wants [Doble] → no matching item extracted
+  FAIL brasero-two section_context: missing: none; spurious: CHURRASQUERÍA; wrong mappings: Churrasquería→(item not found)
+  PASS brasero-two categories: missing: none; spurious: none; wrong: none
+  FAIL brasero-two grams: wrong: Churrasquería→(item not found)
+  PASS brasero routing: single Mistral read
+  PASS brasero items: 28/28 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  PASS brasero options: missed targets: 0; false-positive items: 0; value mismatches: none; recall 5/5
+    ✓ "Pasta Alfredo" wants [Camarón, Pollo] → "PASTA ALFREDO" has [camarón, pollo]
+    ✓ "Pasta Parmesan" wants [Chorizo, Pollo, Camarón] → "PASTA PARMESANO" has [Chorizo, Pollo, Camarón]
+  PASS brasero section_context: missing: none; spurious: none; wrong mappings: none
+  PASS brasero categories: missing: none; spurious: none; wrong: none
+  PASS brasero grams: wrong: none
+  PASS casa-nostra routing: single Mistral read
+  PASS casa-nostra items: 23/23 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  FAIL casa-nostra options: missed targets: 0; false-positive items: 1; value mismatches: none; recall 3/3
+    ✓ "Fettuccine CasaNostra" wants [Gluten free] → "Fettuccine CasaNostra" has [Spaghetti Gluten free]
+    ✓ "Pasta alla romana" wants [Gluten free] → "Pasta alla romana" has [Gluten free]
+    ✓ "frutti di mare" wants [Gluten free] → "Spaghetti ai frutti di mare ubriaca" has [Gluten free]
+    ⚠ FALSE POSITIVE "Cesar" has [lechuga entera, en trozos]
+  PASS casa-nostra section_context: missing: none; spurious: none; wrong mappings: none
+  PASS casa-nostra categories: missing: none; spurious: none; wrong: none
+  PASS casa-nostra grams: wrong: none
+  PASS el-marcos routing: single Mistral read
+  PASS el-marcos items: 30/28 distinct food dishes; 0 duplicates; 1 section-headers (→Feature 3)
+  FAIL el-marcos options: missed targets: 1; false-positive items: 1; value mismatches: none; recall 15/17
+    ✓ "Machaca de Marlín" wants [huevo, verdura] → "Machaca de Marlín c/huevo o verdura" has [huevo, verdura]
+    ✓ "Machaca" wants [huevo, verdura] → "MACHACA" has [huevo, verdura]
+    ✓ "Revueltos" wants [jamón] → "REVUELTOS" has [jamón, chorizo, tocino, Dos huevos a la mexicana, Con jamón, chorizo o tocino]
+    ✓ "Fritos" wants [jamón] → "FRITOS" has [jamón, chorizo, tocino, Con jamón, chorizo o tocino]
+    ~ "Chilaquiles" wants [Regionales, Divorciados] → "CHILAQUILES (70gr.)" has [salsa suiza, salsa verde]; missing [Regionales, Divorciados]
+    ✓ "Enchiladas" wants [Verdes, Rojas, Suizas] → "ENCHILADAS (135gr.)" has [verdes, rojas, suizas]
+    ✓ "Pan Tostado" wants [Blanco, Integral] → "PAN TOSTADO" has [Blanco, Integral]
+    ✓ "Hot Cakes" wants [jamón] → "HOT CAKES (3 piezas)" has [jamón, tocino, huevo, Con jamón, tocino o huevo]
+    ✓ "Waffles" wants [frutos rojos] → "WAFFLES" has [Con Frutos rojos]
+    · "Plato Surtido" UNCHECKED (tolerated) → "PLATO SURTIDO (350gr.)" has [queso cottage (50gr.), yogurth (50gr.), Con queso cottage o yogurth (50gr.)]
+    ✓ "Avena" wants [Manzana, Plátano] → "AVENA CON LECHE (350ml.)" has [Manzana, Plátano]
+    · "huevo revuelto" UNCHECKED (tolerated) → "Hot cakes o huevo revuelto con su elección de jamón o tocino
+Leche con chocolate o jugo de naranja" has [Hot cakes, huevo revuelto, jamón, tocino, Leche con chocolate, jugo de naranja]
+    ⚠ FALSE POSITIVE "Regionales" has [queso panela, mezcla de quesos]
+  PASS el-marcos section_context: missing: none; spurious: none; wrong mappings: none
+  PASS el-marcos categories: missing: none; spurious: none; wrong: none
+  PASS el-marcos grams: wrong: none
+  PASS guest-house routing: single Mistral read
+  PASS guest-house items: 48/48 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  PASS guest-house options: missed targets: 0; false-positive items: 0; value mismatches: none; recall 4/4
+    ✓ "SEAFOOD PLATEAU*" wants [FOR TWO, FOR THREE OR MORE] → "SEAFOOD PLATEAU*" has [FOR TWO, FOR THREE OR MORE]
+    · "HALF MAINE LOBSTER TAIL" UNCHECKED (tolerated) → "HALF MAINE LOBSTER TAIL" has [chilled, grilled]
+  PASS guest-house section_context: missing: none; spurious: none; wrong mappings: none
+  FAIL guest-house categories: missing: none; spurious: none; wrong: FOIE GRAS→side (expected food)
+  FAIL guest-house grams: wrong: FRESH SHAVED TRUFFLES (5c)→null (expected 5); OSETRA CAVIAR (3c)→null (expected 3)
+  PASS mochomos routing: single Mistral read
+  PASS mochomos items: 22/22 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  FAIL mochomos options: missed targets: 0; false-positive items: 2; value mismatches: none; recall 0/0
+    ⚠ FALSE POSITIVE "TACOS DE CAMARÓN AL CHIPOTLE" has [versión cilantro]
+    ⚠ FALSE POSITIVE "TOSTADAS PUESTAS DE ATÚN" has [salmón]
+  PASS mochomos section_context: missing: none; spurious: none; wrong mappings: none
+  PASS mochomos categories: missing: none; spurious: none; wrong: none
+  PASS mochomos grams: wrong: none
+  PASS nikkori routing: single Mistral read
+  PASS nikkori items: 48/48 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  PASS nikkori options: missed targets: 0; false-positive items: 0; value mismatches: none; recall 0/0
+    · "Nico" UNCHECKED (tolerated) → "Nico" has []
+  FAIL nikkori section_context: missing: Naturales; spurious: MATERIALES, BOLOS; wrong mappings: Salmón Roll→MATERIALES (expected Naturales)
+  PASS nikkori categories: missing: none; spurious: none; wrong: none
+  PASS nikkori grams: wrong: none
+  PASS polloteria routing: single Mistral read
+  PASS polloteria items: 43/40 distinct food dishes; 0 duplicates; 0 section-headers (→Feature 3)
+  FAIL polloteria options: missed targets: 1; false-positive items: 0; value mismatches: none; recall 9/11
+    · "Cubeta Pollotera" UNCHECKED (tolerated) → "Cubeta Pollotera" has []
+    · "Megacharola" UNCHECKED (tolerated) → "Megacharola Boneless" has []
+    · "Paletas Heladas" UNCHECKED (tolerated) → "Paletas Heladas AGUA" has [Uva, Piña, Melón, Limón, Tamarindo]
+    · "Paletas Heladas" UNCHECKED (tolerated) → "Paletas Heladas CREMA" has [Yoghurt con Cajeta, Combinada Fresa-Vainilla/Yogurt, Nuez, Sandwich de nieve, Cubiertas]
+    · "Grande" UNCHECKED (tolerated) → "Grandes" has [Grandes (300gr), Jumbo (600gr)]
+    ✗ "Crispy Chicken" wants [Grandes, Jumbo] → no matching item extracted
+    · "Cabeza" UNCHECKED (tolerated) → not matched
+    · "El Tender" UNCHECKED (tolerated) → not matched
+    ✓ "Alitas" wants [6 PZ, 12PZ, 20PZ] → "Alitas" has [6 PZ, 12PZ, 20PZ]
+    ✓ "Ensalada Boneless" wants [M (150gr), G (300gr)] → "Ensalada Boneless" has [M (150gr), G (300gr)]
+    ✓ "Aguacate Chicken" wants [M (150gr), G (300gr)] → "Aguacate Chicken" has [M (150gr), G (300gr)]
+    ✓ "Ensalada Pollotera" wants [M (150gr), G (300gr)] → "Ensalada Pollotera" has [M (150gr), G (300gr)]
+    · "Gyro" UNCHECKED (tolerated) → "Gyro (300gr)" has [Papas fritas, Ensalada verde]
+    · "Tender Cordon Bleu" UNCHECKED (tolerated) → "Tender Cordon Bleu (350gr)" has [Papas fritas, Ensalada verde]
+  PASS polloteria section_context: missing: none; spurious: none; wrong mappings: none
+  PASS polloteria categories: missing: none; spurious: none; wrong: none
+  FAIL polloteria grams: wrong: Megacharola Boneless→1200 (expected 1800)
+  GATE FAIL: options: brasero-two, casa-nostra, el-marcos, mochomos, polloteria; section_context: brasero-two, nikkori; categories: guest-house; grams: brasero-two, guest-house, polloteria
+
+===== 0/3 consecutive all-menu passing runs =====
+EXIT=1

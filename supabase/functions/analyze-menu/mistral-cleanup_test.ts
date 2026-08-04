@@ -622,3 +622,58 @@ Deno.test("REFUSES a card with no PRICED option — nothing says it is a variant
   ], QUESO);
   assertEquals(out.options.length, 1);
 });
+
+// ─── A SIDE IS A SECTION, NOT A DISH (eval 130) ──────────────────────────────
+// Firing list across 49 archived draws: 6 relabels, all of them El Andaluz's
+// two potato dishes under `entradas`. Every real side section (100% side in the
+// corpus) is untouched. These pin both halves.
+const dish = (
+  name: string,
+  category: ExtractedMenuItem["category"],
+  section: string | null,
+): ExtractedMenuItem => ({
+  name,
+  description: "",
+  price: 100,
+  category,
+  section_title: section,
+  options: [],
+  grams: null,
+});
+
+Deno.test("a side outvoted by its own section is food (entradas)", () => {
+  const out = textStructureCleanup([
+    dish("PAPAS FRITAS", "side", "entradas"),
+    dish("PAPAS BRAVAS", "side", "entradas"),
+    ...["A", "B", "C", "D", "E", "F"].map((n) =>
+      dish(`DISH ${n}`, "food", "entradas")
+    ),
+  ]);
+  assertEquals(out.filter((it) => it.category === "side"), []);
+});
+
+Deno.test("KEEPS a section the menu really prints as sides", () => {
+  const out = textStructureCleanup(
+    ["Papas Sazonadas", "French Fries", "Ensalada Verde", "Coleslaw"].map((n) =>
+      dish(n, "side", "Sides")
+    ),
+  );
+  assertEquals(out.every((it) => it.category === "side"), true);
+});
+
+Deno.test("KEEPS sides under a heading in any language (GUARNICIONES)", () => {
+  const out = textStructureCleanup(
+    ["PAPAS CAMBRAY", "CHILE RELLENO", "CEBOLLAS CAMBRAY"].map((n) =>
+      dish(n, "side", "GUARNICIONES")
+    ),
+  );
+  assertEquals(out.every((it) => it.category === "side"), true);
+});
+
+Deno.test("REFUSES to relabel a side with no section — no neighbours, no evidence", () => {
+  const out = textStructureCleanup([
+    dish("PAPAS FRITAS", "side", null),
+    ...["A", "B", "C"].map((n) => dish(`DISH ${n}`, "food", "entradas")),
+  ]);
+  assertEquals(out.find((it) => it.name === "PAPAS FRITAS")?.category, "side");
+});

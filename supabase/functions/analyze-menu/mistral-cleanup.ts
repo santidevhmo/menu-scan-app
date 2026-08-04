@@ -599,6 +599,61 @@ function promoteDescriptionVariant(
   });
 }
 
+// ─── A SIDE IS A SECTION, NOT A DISH (eval 130) ──────────────────────────────
+// The extraction prompt says: category "food" for appetizers, entrees and main
+// dishes; "side" only when THAT ROLE IS CLEAR. Measured across 31 archived
+// draws, what makes the role clear is never the dish — it is the heading the
+// menu prints it under, and every side that has ever survived adjudication sits
+// in a section that is 100% side (polloteria `Sides` 4/4, guest-house `SIDES`
+// 8/8 and `ENHANCEMENTS` 12/12, brasero `ACOMPAÑAMIENTOS` 7/7, brasero-two
+// `GUARNICIONES` 4/4). The one counter-example in the whole corpus is El
+// Andaluz, where the model labelled 2 of the 17 dishes under `entradas` side on
+// dish vocabulary alone — fries are a side SOMEWHERE, so it called them a side
+// HERE (eval 128).
+//
+// So a dish outvoted by its own section is food. The discriminator is the
+// neighbourhood, exactly as for the drink-block guard — and it carries no
+// language assumption, which a list of heading words could never manage
+// (ruling 7): it reads `Sides`, `ACOMPAÑAMIENTOS` and `GUARNICIONES` without
+// knowing any of those words.
+//
+// The bar is a MAJORITY, not the drink guard's 0.8, because the two rules cost
+// different things when wrong: dropping a drink section DELETES dishes, while
+// this only changes one label on a dish that stays. Measured margin is 100% vs
+// 12%, so every threshold in between separates the corpus identically.
+const SIDE_SECTION_FRAC = 0.5;
+
+function demoteOutvotedSides(
+  items: ExtractedMenuItem[],
+  markdown?: string,
+): ExtractedMenuItem[] {
+  if (!items.some((it) => it.category === "side")) return items;
+  const owner = markdown ? headingOwners(markdown) : new Map<string, string>();
+  const sectionOf = (it: ExtractedMenuItem) =>
+    it.section_title ?? owner.get(textKey(it.name)) ?? null;
+  const groups = new Map<string, { total: number; sides: number }>();
+  for (const it of items) {
+    const section = sectionOf(it);
+    if (!section) continue;
+    const key = textKey(section);
+    const group = groups.get(key) ?? { total: 0, sides: 0 };
+    group.total++;
+    if (it.category === "side") group.sides++;
+    groups.set(key, group);
+  }
+  return items.map((it) => {
+    if (it.category !== "side") return it;
+    const section = sectionOf(it);
+    // No section means no neighbours, and no neighbours means no evidence —
+    // refuse rather than guess (the Paletas-class refusal, eval 122).
+    if (!section) return it;
+    const group = groups.get(textKey(section))!;
+    return group.sides / group.total >= SIDE_SECTION_FRAC
+      ? it
+      : { ...it, category: "food" };
+  });
+}
+
 /** Deterministic cleanup for the (c) text-structuring path (ruling 30).
  *  Model-agnostic only — acts on the model's own labels/titles, never on
  *  Mistral-annotation artifacts. C3 renames this module. */
@@ -614,20 +669,23 @@ export function textStructureCleanup(
   // Order is load-bearing and test-pinned: foldUnpricedCardSections collapses
   // REVUELTOS/FRITOS into single items FIRST, which is what stops
   // foldWeldedPrefixCards from seeing their duplicate child names as one card.
-  // The two option-recovery rules run LAST, on the final card list: both read
-  // the printed page against names the folds have already settled.
-  return promoteDescriptionVariant(
-    foldSectionChoiceLines(
-      foldWeldedPrefixCards(
-        foldUnpricedCardSections(
-          foldPricedHeadingCards(
-            foldPerUnitNoteSections(
-              foldSmallestOptionGrams(dropSelfNamedSectionTitles(filtered)),
+  // The recovery rules run LAST, on the final card list: all three read the
+  // printed page against names and sections the folds have already settled.
+  return demoteOutvotedSides(
+    promoteDescriptionVariant(
+      foldSectionChoiceLines(
+        foldWeldedPrefixCards(
+          foldUnpricedCardSections(
+            foldPricedHeadingCards(
+              foldPerUnitNoteSections(
+                foldSmallestOptionGrams(dropSelfNamedSectionTitles(filtered)),
+              ),
+              markdown,
+              // The pre-dropDrinkSections list: the drink-block guard reads the
+              // neighbourhood evidence that filter deletes (eval 122).
+              normalized,
             ),
             markdown,
-            // The pre-dropDrinkSections list: the drink-block guard reads the
-            // neighbourhood evidence that filter deletes (eval 122).
-            normalized,
           ),
           markdown,
         ),

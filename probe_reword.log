@@ -1,0 +1,6 @@
+[openai] finish_reason: stop fingerprint: fp_9c49562904
+PolloteriaMenu.png run 1: normal; layout={"dense":false,"crop_direction":"none"}; items=44; dims=2274x1572
+[openai] finish_reason: stop fingerprint: fp_9c49562904
+BistroMenu.png run 1: normal; layout={"dense":false,"crop_direction":"none"}; items=26; dims=2384x1844
+[openai] finish_reason: stop fingerprint: fp_9c49562904
+GuestHouseMenu.png run 1: normal; layout={"dense":false,"crop_direction":"none"}; items=49; dims=2606x1580

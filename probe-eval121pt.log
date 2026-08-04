@@ -1,0 +1,21 @@
+=== RUN 1 15:24:56 ===
+guest-house: pages=1 items=[48] merged=48 post=48 finish=stop fp=fp_c935aef436 in=2005 out=1949 model_quality={"usable":true,"issues":[]} model_layout={"dense":false,"crop_direction":"none"}
+=== RUN 2 15:25:05 ===
+guest-house: pages=1 items=[48] merged=48 post=48 finish=stop fp=fp_c935aef436 in=2005 out=1932 model_quality={"usable":true,"issues":[]} model_layout={"dense":false,"crop_direction":"none"}
+=== RUN 3 15:25:15 ===
+guest-house: pages=1 items=[48] merged=48 post=48 finish=stop fp=fp_c935aef436 in=2005 out=1932 model_quality={"usable":true,"issues":[]} model_layout={"dense":false,"crop_direction":"none"}
+=== RUN 4 15:25:25 ===
+guest-house: pages=1 items=[48] merged=48 post=48 finish=stop fp=fp_c935aef436 in=2005 out=1957 model_quality={"usable":true,"issues":[]} model_layout={"dense":false,"crop_direction":"none"}
+=== RUN 5 15:25:35 ===
+guest-house: pages=1 items=[48] merged=48 post=48 finish=stop fp=fp_c935aef436 in=2005 out=1957 model_quality={"usable":true,"issues":[]} model_layout={"dense":false,"crop_direction":"none"}
+=== RUN 6 15:25:44 ===
+guest-house: pages=1 items=[48] merged=48 post=48 finish=stop fp=fp_c935aef436 in=2005 out=1914 model_quality={"usable":true,"issues":[]} model_layout={"dense":false,"crop_direction":"none"}
+=== RUN 7 15:25:52 ===
+guest-house: pages=1 items=[48] merged=48 post=48 finish=stop fp=fp_c935aef436 in=2005 out=1957 model_quality={"usable":true,"issues":[]} model_layout={"dense":false,"crop_direction":"none"}
+=== RUN 8 15:26:00 ===
+guest-house: pages=1 items=[48] merged=48 post=48 finish=stop fp=fp_c935aef436 in=2005 out=1970 model_quality={"usable":true,"issues":[]} model_layout={"dense":false,"crop_direction":"none"}
+=== RUN 9 15:26:09 ===
+guest-house: pages=1 items=[48] merged=48 post=48 finish=stop fp=fp_c935aef436 in=2005 out=1980 model_quality={"usable":true,"issues":[]} model_layout={"dense":false,"crop_direction":"none"}
+=== RUN 10 15:26:17 ===
+guest-house: pages=1 items=[48] merged=48 post=48 finish=stop fp=fp_c935aef436 in=2005 out=1964 model_quality={"usable":true,"issues":[]} model_layout={"dense":false,"crop_direction":"none"}
+ALL DONE

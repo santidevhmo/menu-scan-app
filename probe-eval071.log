@@ -1,0 +1,21 @@
+PAID CALL: Mistral OCR, 1 page ≈ $0.004 …
+OCR response cached to /Users/santiagoaguirre/Downloads/MenusTesting/polloteria.mistral-ocr-eval071.json — all further runs are $0
+OCR parsed: 0 units in 0 blocks
+WARNING: fewer than 5 blocks — block granularity too coarse for co-location; needs line-clustering v2 before verdicts count.
+PASS coliflor-fake              expect=false got=false | name not found in any block
+FAIL coliflor-real              expect=true got=false | name not found in any block
+FAIL alitas-phase2-a            expect=true got=false | name not found in any block
+FAIL alitas-phase2-b            expect=true got=false | name not found in any block
+FAIL distinct-sandwiches-a      expect=true got=false | name not found in any block
+FAIL distinct-sandwiches-b      expect=true got=false | name not found in any block
+PASS boneless-jr-fake           expect=false got=false | name not found in any block
+FAIL boneless-jr-real           expect=true got=false | name not found in any block
+PASS buffalo-fake               expect=false got=false | name not found in any block
+PASS ensalada-verde-fake        expect=false got=false | name not found in any block
+FAIL ensalada-verde-real        expect=true got=false | name not found in any block
+PASS nuggets-coliflor-fake      expect=false got=false | name not found in any block
+FAIL nuggets-coliflor-real      expect=true got=false | name not found in any block
+FAIL distinct-kids-b            expect=true got=false | name not found in any block
+GATE: fakes rejected 5/5; keeps held 0/9
+GATE RESULT: FAIL — tighten or reject per ruling 8
+Verdicts dumped to /Users/santiagoaguirre/Downloads/MenusTesting/polloteria.colocation-eval071-r1.actual.json

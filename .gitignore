@@ -42,7 +42,12 @@ example
 # generated native folders
 /ios
 /android
+<<<<<<< Updated upstream
 
 # Supabase CLI / detached runs
 supabase/.temp/
 nohup.out
+=======
+# Added by code-review-graph
+.code-review-graph/
+>>>>>>> Stashed changes

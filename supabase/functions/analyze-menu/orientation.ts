@@ -213,6 +213,8 @@ export function correctionDegrees(orientation: Orientation): number {
  *  what caught it. Over-counting (years, quantities) is harmless here: the same
  *  measure is applied to both reads and only the DIFFERENCE decides. */
 export function printedNumbers(markdown: string): number {
-  return (markdown.match(/(?<![\p{L}\d])\d+(?:[.,]\d+)?(?![\p{L}\d])/gu) ?? [])
+  // No trailing-letter guard: menus print weights unit-glued to the number
+  // ("300gr", "18oz"), and those are standalone numbers too.
+  return (markdown.match(/(?<![\p{L}\d])\d+(?:[.,]\d+)?(?!\d)/gu) ?? [])
     .length;
 }

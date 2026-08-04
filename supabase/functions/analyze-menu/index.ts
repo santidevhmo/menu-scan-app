@@ -232,8 +232,16 @@ serve(async (req) => {
   }
 
   try {
-    const { photos, pages, ocr_photos, provider, stage, items: inputItems } =
-      await req.json();
+    const {
+      photos,
+      pages,
+      ocr_photos,
+      provider,
+      stage,
+      items: inputItems,
+      rotated,
+      prior,
+    } = await req.json();
     if (typeof provider !== "string") {
       return badRequest("Invalid 'provider'");
     }
@@ -360,7 +368,28 @@ serve(async (req) => {
       }
       // Per-page multi-photo recipe (iter-036): N photos ⇒ N parallel calls
       // merged into ONE menu; 1 photo ⇒ one call. Same path the eval gate proves.
-      const result = await runPagedExtraction(photos, MISTRAL_API_KEY, OPENAI_API_KEY);
+      const result = await runPagedExtraction(
+        photos,
+        MISTRAL_API_KEY,
+        OPENAI_API_KEY,
+        undefined,
+        undefined,
+        { rotated: rotated === true, prior: Array.isArray(prior) ? prior : undefined },
+      );
+      if ("needs_rotation" in result) {
+        // The page is sideways: the client rotates it and re-submits with
+        // rotated:true and `prior` returned verbatim. `rotated:true` is a hard
+        // stop — we never ask twice (Santiago: at most 2 tries, never 4).
+        return new Response(
+          JSON.stringify({
+            needs_rotation: result.needs_rotation,
+            prior: result.prior,
+            latency_ms: Date.now() - start,
+            model_id: "mistral-ocr-4-0+gpt-4.1-2025-04-14",
+          }),
+          { headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
+        );
+      }
       if ("needs_crops" in result) {
         // Dense page(s) detected: client must cut originals into 2x2 tiles
         // and re-submit everything via stage:"extract-pages".

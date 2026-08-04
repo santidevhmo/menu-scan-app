@@ -1,0 +1,155 @@
+{
+  "menu": "andaluz",
+  "photos": [
+    "AndaluzMenu.jpg"
+  ],
+  "total_items": 36,
+  "food_items": 36,
+  "drink_items": 0,
+  "categories": [
+    "food"
+  ],
+  "sections": [
+    "Entradas",
+    "Ensaladas",
+    "Sushi",
+    "Del Mar",
+    "Carnes"
+  ],
+  "section_expectations": [
+    {
+      "name_contains": "Papas Fritas",
+      "section_title": "Entradas"
+    },
+    {
+      "name_contains": "Mediterránea",
+      "section_title": "Ensaladas"
+    },
+    {
+      "name_contains": "De Atún",
+      "section_title": "Sushi"
+    },
+    {
+      "name_contains": "Pulpo a la Gallega",
+      "section_title": "Del Mar"
+    },
+    {
+      "name_contains": "Papada de Puerco",
+      "section_title": "Carnes"
+    }
+  ],
+  "items_with_options": [
+    {
+      "name_contains": "Queso Fundido",
+      "options": [
+        {
+          "name": "chistorra"
+        },
+        {
+          "name": "diezmillo"
+        }
+      ]
+    },
+    {
+      "name_contains": "Boneless de Pollo",
+      "options": [
+        {
+          "name": "Buffalo"
+        },
+        {
+          "name": "BBQ"
+        },
+        {
+          "name": "habanero"
+        },
+        {
+          "name": "ookies"
+        }
+      ]
+    },
+    {
+      "name_contains": "Alitas de Pollo",
+      "options": [
+        {
+          "name": "BBQ"
+        },
+        {
+          "name": "ango"
+        },
+        {
+          "name": "uffalo"
+        },
+        {
+          "name": "ookies"
+        }
+      ]
+    },
+    {
+      "name_contains": "De Camarón Roka",
+      "options": [
+        {
+          "name": "mpanizado"
+        },
+        {
+          "name": "atural"
+        }
+      ]
+    },
+    {
+      "name_contains": "De Atún",
+      "options": [
+        {
+          "name": "mpanizado"
+        },
+        {
+          "name": "atural"
+        }
+      ]
+    },
+    {
+      "name_contains": "Camarones al Ajillo",
+      "options": [
+        {
+          "name": "Pan"
+        },
+        {
+          "name": "ortilla"
+        }
+      ]
+    },
+    {
+      "name_contains": "Tacos de Papada",
+      "options": [
+        {
+          "name": "aíz"
+        },
+        {
+          "name": "arina"
+        }
+      ]
+    }
+  ],
+  "category_expectations": [
+    {
+      "name_contains": "Papas Fritas",
+      "category": "food"
+    },
+    {
+      "name_contains": "De Atún",
+      "category": "food"
+    },
+    {
+      "name_contains": "Cabrería Wagyu Cross",
+      "category": "food"
+    }
+  ],
+  "grams_expectations": [],
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  },
+  "tolerated_option_names": [
+    "Empanizados",
+    "Naturales"
+  ]
+}

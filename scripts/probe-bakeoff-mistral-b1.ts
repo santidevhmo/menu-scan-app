@@ -11,6 +11,9 @@ export const MENU_PHOTOS: Record<string, string[]> = {
   "el-marcos": ["ElMarcosMenu.png"],
   mochomos: ["MochomosMenu.png"],
   nikkori: ["NikkoriMenu.png"],
+  // Held-out menu added 2026-08-02; JPEG because the source was an iPhone HEIC
+  // and production never sends HEIC (camera returns JPEG, the picker converts).
+  andaluz: ["AndaluzMenu.jpg"],
 };
 export const WIDE_MENUS = ["polloteria", "bistro", "guest-house"];
 /** Raw-response path for one menu/run/page; page 0 keeps the historical name. */

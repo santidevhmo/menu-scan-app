@@ -15,6 +15,7 @@ const DRAFTS: Record<string, string> = {
   polloteria: "PolloteriaMenu.png.draft.json",
   bistro: "BistroMenu.png.draft.json",
   "guest-house": "GuestHouseMenu.png.draft.json",
+  andaluz: "AndaluzMenu.jpg.draft.json",
 };
 const DIMS = [
   "items",

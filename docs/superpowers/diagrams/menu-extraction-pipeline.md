@@ -12,6 +12,11 @@
 > **The full diagram rewrite is still owed** — everything below the banner still draws the OLD path.
 > Authoritative until then: `docs/superpowers/horizontal-menus/DELEGATION-BRIEF.md` progress log (newest first).
 >
+> **2026-08-04 — H2 ROTATION ALSO DEPLOYED** (evals 132-136, function v22): a sideways wide-menu capture
+> is now detected, corrected, and re-submitted server-side, with a live production smoke test confirming
+> the corrected result is byte-identical (names and prices) to the upright twin. The React Native APP has
+> NOT been rebuilt with the matching client code, so no installed build exercises this yet.
+>
 > Everything below describes the pipeline as of **2026-07-12** and is now wrong in its most important
 > respect: the Stage-1 extractor. Since then the extraction stack has changed twice —
 > a **production colocation stage** (container ruling 15), and then the **Stage-1 extractor migration**

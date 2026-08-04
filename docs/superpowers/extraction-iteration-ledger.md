@@ -1441,3 +1441,45 @@ Rules:
 - ⚠️ **PRE-EXISTING, NOT CAUSED HERE: `scripts/extract-draft.ts` fails `deno check`** — it calls `runPagedExtraction(photos, apiKey)` with 2 args where the C3 signature needs `(photos, mistralKey, openaiKey)`. Proven pre-existing by stashing the photo change and re-checking (same failure). It is the draft-generation tool, so **it must be fixed before the held-out new-menu intake** — that is the first thing the next session will need it for. Same class as `probe-detector.ts` (dead detector-era debt, left alone).
 - 📌 STILL IN `~/Downloads/MenusTesting`: run dumps, `.actual.json`s, working caches, and the now-empty-ish `OG_MENUS/` (originals left in place — copied, not deleted, so nothing Santiago has is destroyed). That folder is now officially disposable scratch.
 - $0. Running total ~**$2.60**.
+
+## Eval 127b — grams graded on RELATIVE error, tolerance 50% ($0); all 23 Andaluz printed weights pinned
+
+- Date: 2026-08-03 | **Santiago ruling 38, revising ruling 37.** Ruling 37 had tolerated the Andaluz weight misreads. He reversed it: *"It is important for me to get the weights that are already in the menu for nutritional accuracy in the estimates, so lets modify it so that it does consider it important to read it"*, and supplied the formula himself — `relative error = |estimated − true| / true`. He then set the dial to **50%**, not the 10% recommended.
+- **Why relative and not absolute:** the weight scales the macro estimate proportionally, so one absolute band cannot serve both a 30 g garnish and a 1.8 kg platter. `GRAMS_RELATIVE_TOLERANCE` + `gramsRelativeError()` in `scripts/eval-extraction.ts`; every menu's grams detail now also reports accuracy (`22/23 within 50%`), so the band is auditable instead of invisible.
+- **A weight the pipeline never read is ALWAYS a miss** (`Infinity` error), at any tolerance. "No reading" is not a near-miss of a printed number, and silently passing it would hide exactly the failure this pin exists to catch.
+- **What 50% means concretely and what it costs:** a dish printed 200 g passes anywhere in **100–300 g**, i.e. up to a 2× macro error reaches the ranking. Recorded here so the number is never mistaken for a measurement of accuracy — it is a dial Santiago set, and the per-dish error percentages the report prints are the evidence for where it eventually belongs.
+- **The 9 existing menus did not move**: `score-c-dumps` 45/45 · `score-c-draws` 44–45 · `replay-edge-c3` 45/45 · suite 235 passed / 1 pre-existing (`tile-cut_test.ts`). Unchanged because every existing weight pin is read exactly — widening the band had nothing to loosen.
+- All 23 Andaluz printed weights pinned in `andaluz.expected.json` (generated from the corrected draft, **not selected** — selecting the pins after seeing the output is how a held-out test stops being one).
+- $0. Running total ~**$2.60**.
+
+## Eval 128 — 🎯 THE HELD-OUT MENU: Andaluz scores **2/5, identical on all three draws**. Completeness and sections PERFECT first try on a menu the pipeline has never seen; all four weight errors are Stage-1a OCR, not the model
+
+- Date: 2026-08-03 | The intake recipe's step 4, run **before touching any rule** (`scripts/fixtures/README.md`). El Andaluz is a single-page, non-dense, 36-dish Spanish menu photographed by Santiago; the truth draft came from his hand-written MD, the grading sheet from the draft.
+- **Method.** Stage-1a: one live passthrough OCR of the repo photo (`ocr-passthrough-cache.ts`, new `MENUS=` filter so onboarding one menu cannot re-pay for or overwrite the nine load-bearing caches) → `andaluz.mistral-pt-r1.raw.json`, 2983 chars. **Byte-identical to the independent probe read taken on 2026-08-02 — a 10th menu confirming OCR is deterministic per image (eval 123).** Stage-1b: `probe-c-textstructure.ts andaluz`, pinned `gpt-4.1-2025-04-14`, `TAG=eval128 RUN=1..3`, every draw archived raw and backed up to `scripts/fixtures/caches/`. New `OCR_TAG` env override selects the production-mirror `pt` caches; default stays `b1` so no existing gate moved (`score-c-dumps` re-verified 45/45 after the change).
+- **RESULT — `score-c-draws` MENUS=andaluz: 2/5 · 2/5 · 2/5, 36/36/36 items, ZERO flipping dims.** Fully stable; no sampling variance on this menu at all.
+
+  | dim | verdict | detail |
+  |---|---|---|
+  | items | ✅ | 36/36 distinct dishes, 0 duplicates, 0 section-headers-as-items |
+  | section_context | ✅ | all 5 sections (Entradas/Ensaladas/Sushi/Del Mar/Carnes), none missing, none spurious |
+  | options | ❌ | 3 items missing options, **0 false positives** |
+  | categories | ❌ | `PAPAS FRITAS` → `side` (sheet expects `food`) |
+  | grams | ❌ | **22/23 within 50%**; only `QUESO FUNDIDO` 90 vs printed 50 (80% off) |
+
+- **RULING-6 AUDIT (raw dumps vs the photo/MD): ZERO invented items, ZERO missing items, ZERO false-positive options.** Every one of the 36 names, all 36 prices, and both real option groups (Boneless de Pollo, Alitas) are printed on the menu. `Tacos de Papada` correctly took `maíz`/`harina` as options and correctly did NOT take "más cebolla morada y aguacate".
+- **⚠️ THE DECISIVE FINDING — every weight error originates in Stage-1a OCR, verified against the raw markdown. The structuring model copied faithfully in all four cases. No prompt, schema or postprocess change can fix any of them.**
+
+  | dish | printed | OCR markdown said | extracted | rel. error | at 50% |
+  |---|---|---|---|---|---|
+  | Espárragos con jamón serrano | 30 g | `(20 g)` | 20 | 33% | pass |
+  | Camarones Empanizados | 230 g | `(200 g)` | 200 | 13% | pass |
+  | Camarón Andaluz | 230 g | `(200 g)` | 200 | 13% | pass |
+  | Queso Fundido · chistorra | 50 g | `(90 g)` | 90 | 80% | **FAIL** |
+
+  Same class, ungraded: `6 pzas.` → `8 pints.`, `panko` → `panela`, plus ~8 accent/spelling slips in descriptions (`Sazonidas`, `elate`, `champía`, `banado`, `parrilleda`, `jagó`). None reached structure. **This is the first eval where the extractor's remaining error is measurably an OCR-fidelity problem rather than a structuring problem.**
+- **The 3 option misses decompose into TWO real generalization gaps and nothing else:**
+  1. **Section-level option modifier (2 of the 3).** The menu prints `empanizados o naturales` on its own line under the `# sushi` heading, applying to all three rolls. **Stage-1a captured the line**; Stage-1b attached it to nothing. Same family as eval 124's bistro `Agrega a tu pasta` shape — a printed block that modifies a whole section, not one card. First time it has appeared as a MISS rather than a false positive.
+  2. **Folded heading card loses its base variant.** `QUESO FUNDIDO` prints two priced variants (`Con chistorra y champis (50 g) $235`, `Con chile verde + diezmillo (100 g) $290`). The model folded them into one card at $235 but kept the FIRST variant only in the `description`, making the second the sole selectable option. The corrected draft has both as options. **The user cannot select the $235 variant** — a real selectable-options defect, not a scoring artifact.
+- **The categories miss is an ORACLE error, not a pipeline error.** `PAPAS FRITAS`/`PAPAS BRAVAS` → `side` matches the ruled convention exactly: polloteria's Santiago-corrected draft labels `Papas Sazonadas` and `French Fries` `side`, and 4 of the 9 fixtures legitimately contain `side`. Nothing drops `side` items (only `drink`/`other` are filtered), so the app is unaffected. **The grading sheet I wrote is wrong — it declares `categories: ["food"]` and pins `Papas Fritas → food`. NEEDS A SANTIAGO RULING before any edit (oracle files are never edited without one).**
+- **Cost:** 1 OCR call (~$0.001) + 3 structuring calls (in 2050 / out 1915 each ⇒ $0.0194/draw) = **~$0.06**. Running total ~**$2.66**.
+- **⛔ NEXT (nothing may be tuned before these are decided):** (1) Santiago rules on the `side` grading sheet. (2) Decide whether the two option gaps get fixed now — both are layout-general shapes, both must be re-validated across ALL 10 menus with a firing list (lessons 11-13, 22). (3) The Queso Fundido 80% weight miss is an OCR-fidelity question, and the first candidate for a Stage-1a improvement rather than a rule.

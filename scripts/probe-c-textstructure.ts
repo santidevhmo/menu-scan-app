@@ -33,11 +33,19 @@ export function buildRequest(markdown: string, model: string): unknown {
 /** Parses the completed OpenAI extraction response. */
 export const parseResponse = parseStructureResponse;
 
-/** Stage-1a source = b1 raw OCR responses, one cached response per photo. */
+/** Stage-1a source = raw OCR responses, one cached response per photo.
+ *
+ * Default tag stays `b1` so every existing gate keeps replaying the exact
+ * artifacts it was pinned against. `OCR_TAG=pt` selects the PRODUCTION-MIRROR
+ * caches (eval 123: OCR of the passthrough original, what the app actually
+ * uploads) — required for menus onboarded after 2026-08-01, which have no b1
+ * read at all because b1 OCR'd a 2048/q95 re-encode that production stopped
+ * sending. */
 export function ocrSourcePaths(menu: string): string[] {
   const photos = MENU_PHOTOS[menu];
   if (!photos) throw new Error(`unknown menu: ${menu}`);
-  return photos.map((_, page) => rawPath(MENU_DIR, menu, "b1", 1, page));
+  const tag = Deno.env.get("OCR_TAG") ?? "b1";
+  return photos.map((_, page) => rawPath(MENU_DIR, menu, tag, 1, page));
 }
 
 type ParsedResponse = ReturnType<typeof parseResponse>;

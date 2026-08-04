@@ -17,7 +17,21 @@ const apiKey = Deno.env.get("MISTRAL_API_KEY");
 if (!apiKey) throw new Error("MISTRAL_API_KEY is required");
 const tmp = await Deno.makeTempDir({ prefix: "pt-cache-" });
 
-for (const [menu, photos] of Object.entries(MENU_PHOTOS)) {
+// MENUS=<a,b> restricts the rebuild. Without it this re-OCRs (and re-pays for)
+// every fixture and OVERWRITES caches nine gates replay — onboarding one new
+// menu must not touch them.
+const only = Deno.env.get("MENUS")?.split(",").map((m) => m.trim()).filter(
+  Boolean,
+);
+const targets = Object.entries(MENU_PHOTOS).filter(([menu]) =>
+  !only || only.includes(menu)
+);
+if (only) {
+  const unknown = only.filter((menu) => !(menu in MENU_PHOTOS));
+  if (unknown.length) throw new Error(`unknown menu(s): ${unknown.join(",")}`);
+}
+
+for (const [menu, photos] of targets) {
   for (const [page, photo] of photos.entries()) {
     const data = await productionPhotoData(photo, tmp);
     const read = await ocrMistral(data, apiKey);

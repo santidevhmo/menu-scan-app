@@ -950,13 +950,16 @@ Deno.test("runGroupedExtraction sends OCR photos only for dense groups", async (
   assertEquals(ocrPhotos, ["full-photo-ocr"]);
 });
 
-/** `count` blocks, wide (lines lying down) or tall (lines on their side). */
+/** `count` blocks, wide (lines lying down) or tall (lines on their side).
+ *  Drifts the cross axis too (a real left margin is never pixel-exact), so
+ *  isPositivelyUpright — which demands a real correlation on BOTH axes, not
+ *  just the absence of a verdict — has genuine evidence to confirm. */
 function fakeBlocks(count: number, wide: boolean): OcrBlock[] {
   return Array.from({ length: count }, (_, i) => ({
-    top_left_x: wide ? 0 : i * 10,
-    top_left_y: wide ? i * 10 : 0,
-    bottom_right_x: wide ? 100 : i * 10 + 5,
-    bottom_right_y: wide ? i * 10 + 5 : 100,
+    top_left_x: wide ? i * 2 : i * 10,
+    top_left_y: wide ? i * 10 : i * 2,
+    bottom_right_x: wide ? i * 2 + 100 : i * 10 + 5,
+    bottom_right_y: wide ? i * 10 + 5 : i * 2 + 100,
     content: `line ${i}`,
   }));
 }
@@ -1015,4 +1018,42 @@ Deno.test("the server never asks twice", async () => {
     { rotated: true, prior: ["MENU\nDISH"] },
   );
   assertEquals("needs_rotation" in result, false);
+});
+
+Deno.test("a rotation that made things worse is discarded for the original text", async () => {
+  const seen: string[] = [];
+  await runPagedExtraction(
+    ["photo0"],
+    "k",
+    "k",
+    // What came back after rotating: still sideways, and the prices are gone.
+    () => Promise.resolve(sidewaysRead),
+    (markdown: string) => {
+      seen.push(markdown);
+      return Promise.resolve({ items: [], raw_response: "{}" });
+    },
+    { rotated: true, prior: ["UPRIGHT MENU 100 200 300"] },
+  );
+  assertEquals(seen, ["UPRIGHT MENU 100 200 300"]);
+});
+
+Deno.test("a rotation that worked is kept", async () => {
+  const seen: string[] = [];
+  await runPagedExtraction(
+    ["photo0"],
+    "k",
+    "k",
+    () =>
+      Promise.resolve({
+        markdown: "STRAIGHT MENU 100 200 300",
+        raw_response: "{}",
+        blocks: fakeBlocks(40, true),
+      }),
+    (markdown: string) => {
+      seen.push(markdown);
+      return Promise.resolve({ items: [], raw_response: "{}" });
+    },
+    { rotated: true, prior: ["SIDEWAYS MENU"] },
+  );
+  assertEquals(seen, ["STRAIGHT MENU 100 200 300"]);
 });

@@ -10,7 +10,11 @@ import { mergeItemSources } from "./merge.ts";
 import { colocationStage } from "./colocation.ts";
 import { ocrMistralWithRetry } from "./mistral-extract.ts";
 import { textStructureCleanup } from "./mistral-cleanup.ts";
-import { correctionDegrees, detectOrientation } from "./orientation.ts";
+import {
+  acceptRotation,
+  correctionDegrees,
+  detectOrientation,
+} from "./orientation.ts";
 
 export const MODEL_TIMEOUT_MS = 120000;
 const EXTRACT_SEED = 17;
@@ -683,10 +687,23 @@ export async function runPagedExtraction(
     }
   }
 
-  const pages = await Promise.all(reads.map(async (read) => {
-    const structured = await structure(read.markdown, openaiKey);
+  // A rotation must EARN its place. If the corrected read is not positively
+  // upright, or it lost numbers, we fall back to the text the first pass
+  // already produced — which the client handed back to us, so the rejection
+  // costs no third API call. This is what makes a false positive harmless:
+  // wrongly rotating an upright page produces a sideways page, which fails
+  // here and changes nothing the diner sees.
+  const texts = reads.map((read, page) => {
+    const before = pass.prior?.[page];
+    if (before === undefined) return read.markdown;
+    return acceptRotation(read, { markdown: before }) ? read.markdown : before;
+  });
+
+  const pages = await Promise.all(reads.map(async (read, index) => {
+    const markdown = texts[index];
+    const structured = await structure(markdown, openaiKey);
     return {
-      markdown: read.markdown,
+      markdown,
       items: postprocessItems(structured.items as ExtractedMenuItem[]),
       raw_response: JSON.stringify({
         ocr: read.raw_response,

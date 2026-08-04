@@ -225,12 +225,38 @@ function badRequest(message: string): Response {
   );
 }
 
+/**
+ * Records one row per scan so a device in the field can be debugged without
+ * being tethered to a laptop. Menu text only — never the photo. Never throws:
+ * a logging failure must not fail a scan.
+ */
+async function recordScan(row: Record<string, unknown>) {
+  const url = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !serviceKey) return;
+  try {
+    const res = await fetch(`${url}/rest/v1/scan_log`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
+      },
+      body: JSON.stringify(row),
+    });
+    if (!res.ok) console.error("[scan_log]", res.status, await res.text());
+  } catch (err) {
+    console.error("[scan_log] insert failed", err);
+  }
+}
+
 /** Deno HTTP handler for validating requests and routing menu analysis stages. */
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: CORS_HEADERS });
   }
 
+  const scanId = crypto.randomUUID().slice(0, 8);
   try {
     const {
       photos,
@@ -366,6 +392,9 @@ serve(async (req) => {
       if (provider !== "gpt-vision") {
         throw new Error(`Unknown extraction provider: ${provider}`);
       }
+      console.log(
+        `[scan ${scanId}] extract pages=${photos.length} rotated=${rotated === true}`,
+      );
       // Per-page multi-photo recipe (iter-036): N photos ⇒ N parallel calls
       // merged into ONE menu; 1 photo ⇒ one call. Same path the eval gate proves.
       const result = await runPagedExtraction(
@@ -377,6 +406,17 @@ serve(async (req) => {
         { rotated: rotated === true, prior: Array.isArray(prior) ? prior : undefined },
       );
       if ("needs_rotation" in result) {
+        console.log(
+          `[scan ${scanId}] needs_rotation ${JSON.stringify(result.needs_rotation)} ocr_chars=${result.prior.map((p) => p.length).join(",")}`,
+        );
+        await recordScan({
+          scan_id: scanId,
+          pages: photos.length,
+          rotated: rotated === true,
+          outcome: "needs_rotation",
+          ocr_chars: result.prior.reduce((n, p) => n + p.length, 0),
+          detail: { needs_rotation: result.needs_rotation },
+        });
         // The page is sideways: the client rotates it and re-submits with
         // rotated:true and `prior` returned verbatim. `rotated:true` is a hard
         // stop — we never ask twice (Santiago: at most 2 tries, never 4).
@@ -391,6 +431,14 @@ serve(async (req) => {
         );
       }
       if ("needs_crops" in result) {
+        console.log(`[scan ${scanId}] needs_crops ${JSON.stringify(result.needs_crops)}`);
+        await recordScan({
+          scan_id: scanId,
+          pages: photos.length,
+          rotated: rotated === true,
+          outcome: "needs_crops",
+          detail: { needs_crops: result.needs_crops },
+        });
         // Dense page(s) detected: client must cut originals into 2x2 tiles
         // and re-submit everything via stage:"extract-pages".
         return new Response(
@@ -403,6 +451,23 @@ serve(async (req) => {
         );
       }
 
+      console.log(
+        `[scan ${scanId}] items=${result.items.length} ${JSON.stringify(result.items.map((i) => `${i.name}|${i.price ?? ""}`))}`,
+      );
+      await recordScan({
+        scan_id: scanId,
+        pages: photos.length,
+        rotated: rotated === true,
+        outcome: "items",
+        item_count: result.items.length,
+        detail: {
+          dishes: result.items.map((i) => ({
+            name: i.name,
+            price: i.price ?? null,
+            section: i.section_title ?? null,
+          })),
+        },
+      });
       return new Response(
         JSON.stringify({
           image_quality: result.image_quality,
@@ -418,6 +483,15 @@ serve(async (req) => {
 
     return badRequest("Invalid 'stage'");
   } catch (err) {
+    // Was silent: a failed device scan left no trace anywhere.
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("[scan] FAILED", err instanceof Error ? err.stack : err);
+    await recordScan({
+      scan_id: scanId,
+      pages: 0,
+      outcome: "error",
+      detail: { message },
+    });
     return new Response(
       JSON.stringify({
         items: [],

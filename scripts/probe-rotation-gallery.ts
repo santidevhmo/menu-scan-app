@@ -5,9 +5,14 @@
 // REAL detector's verdict as pictures: for every archived OCR response, the
 // photo as the detector saw it, and the photo after the correction it chose.
 //
-// He judges one thing per pair: is the OUTPUT upright? For the upright fixtures
-// the output must be byte-identical to the input — that is the false-positive
-// check, and it is the one that matters most.
+// He opens ONE folder — `2-what-the-system-will-use` — and asks one question of
+// every picture in it: does this read left to right? The crooked "before"
+// pictures live in a separate folder, because the first version mixed both into
+// one and half of it was deliberately-wrong images he had no way to tell apart.
+//
+// UPRIGHT FOR A HUMAN IS UPRIGHT FOR THE SYSTEM. There is no trade-off to
+// balance: eval 131 measured that a sideways read keeps the dish names and drops
+// the prices, so his eye is a valid oracle for this, not a proxy for one.
 //
 //   deno run --allow-read --allow-write --allow-env --allow-run \
 //     scripts/probe-rotation-gallery.ts
@@ -27,7 +32,7 @@ const OUT = `${MENU_DIR}/RotationCheck`;
 
 /** Every archived OCR response, as (menu, page, how the photo was turned). */
 async function archived(): Promise<
-  { menu: string; photo: string; turn: number; raw: string }[]
+  { menu: string; page: number; photo: string; turn: number; raw: string }[]
 > {
   const found = [];
   for await (const entry of Deno.readDir(MENU_DIR)) {
@@ -41,13 +46,14 @@ async function archived(): Promise<
     if (!photo) continue;
     found.push({
       menu,
+      page,
       photo,
       turn: turned ? Number(turned[2]) : 0,
       raw: `${MENU_DIR}/${entry.name}`,
     });
   }
   return found.sort((a, b) =>
-    a.menu.localeCompare(b.menu) || a.turn - b.turn
+    a.menu.localeCompare(b.menu) || a.page - b.page || a.turn - b.turn
   );
 }
 
@@ -64,33 +70,61 @@ async function turned(photo: string, degrees: number, dest: string) {
   if (degrees % 360 !== 0) await sips(["-r", String(degrees % 360), dest]);
 }
 
-await Deno.mkdir(OUT, { recursive: true });
-for await (const old of Deno.readDir(OUT)) {
-  await Deno.remove(`${OUT}/${old.name}`);
+const pixelDir = await Deno.makeTempDir({ prefix: "rot-pixels-" });
+let pixelSeq = 0;
+/** Fingerprint of an image's PIXELS, via uncompressed BMP so re-encoding cannot
+ *  masquerade as a difference. */
+async function pixels(path: string): Promise<string> {
+  const bmp = `${pixelDir}/${pixelSeq++}.bmp`;
+  await sips(["-s", "format", "bmp", path, "--out", bmp]);
+  return (await Deno.readFile(bmp)).toBase64();
 }
+
+// TWO FOLDERS, NOT ONE. The first version put the crooked "before" image and
+// the corrected "after" image side by side in one folder, distinguished only by
+// a suffix inside a long filename — so the folder was half deliberately-wrong
+// pictures and Santiago could not tell which was which. The check he needs is
+// "open one folder, is everything in it readable", so give him exactly that.
+const BEFORE = `${OUT}/1-what-the-camera-saw`;
+const AFTER = `${OUT}/2-what-the-system-will-use`;
+try {
+  await Deno.remove(OUT, { recursive: true });
+} catch { /* first run */ }
+await Deno.mkdir(BEFORE, { recursive: true });
+await Deno.mkdir(AFTER, { recursive: true });
 
 const rows: string[] = [];
 let wrong = 0;
-for (const { menu, photo, turn, raw } of await archived()) {
+for (const { menu, page: pageIndex, photo, turn, raw } of await archived()) {
   const page = JSON.parse(await Deno.readTextFile(raw)).pages[0];
   const blocks = (page.blocks ?? []) as OcrBlock[];
   const verdict = detectOrientation(blocks);
   const fix = correctionDegrees(verdict);
   const label = turn === 0 ? "upright" : `turned${turn}`;
-  const stem = `${menu}__${label}`;
+  const stem = `${menu}${pageIndex > 0 ? `-page${pageIndex + 1}` : ""}__${label}`;
   const ext = photo.slice(photo.lastIndexOf("."));
 
-  // INPUT = the photo exactly as the detector saw it.
-  await turned(photo, turn, `${OUT}/${stem}__1-input${ext}`);
-  // OUTPUT = the same photo after the correction the detector chose.
-  await turned(photo, turn + fix, `${OUT}/${stem}__2-output__${verdict}__+${fix}deg${ext}`);
+  // BEFORE = the photo exactly as the detector saw it.
+  const before = `${BEFORE}/${stem}${ext}`;
+  await turned(photo, turn, before);
+  // AFTER = that same FILE turned by the correction the detector chose. Rotating
+  // the crooked file is the operation the app will really perform; computing
+  // `turn + fix` in one step would have quietly tested arithmetic instead.
+  const after = `${AFTER}/${stem}__${verdict}__turn${fix}${ext}`;
+  await Deno.copyFile(before, after);
+  if (fix !== 0) await sips(["-r", String(fix), after]);
 
-  // The photo is upright iff the total turn is a multiple of 360.
-  const ok = (turn + fix) % 360 === 0;
+  // Proof, not arithmetic: an exactly-corrected photo must come back
+  // PIXEL-identical to the original upright fixture.
+  //
+  // Compared as uncompressed BMP, NOT as file bytes. Rotating a PNG twice
+  // re-encodes it, so the bytes differ while every pixel matches — a byte
+  // comparison called all 5 real corrections failures on the first run.
+  const ok = await pixels(after) === await pixels(photoPath(photo));
   if (!ok) wrong++;
   const drift = readingOrderDrift(blocks);
   rows.push(
-    `${ok ? "OK  " : "MISS"} ${stem.padEnd(30)} blocks=${
+    `${ok ? "UPRIGHT " : "** NOT UPRIGHT **"} ${stem.padEnd(30)} blocks=${
       String(blocks.length).padStart(3)
     } wide=${wideFraction(blocks).toFixed(3)} ` +
       `x=${drift.x >= 0 ? "+" : "-"}${Math.abs(drift.x).toFixed(2)} ` +
@@ -99,5 +133,10 @@ for (const { menu, photo, turn, raw } of await archived()) {
   );
 }
 for (const row of rows) console.log(row);
-console.log(`\n${rows.length} cases, ${wrong} not upright after correction`);
-console.log(`open ${OUT}`);
+console.log(
+  `\n${rows.length} cases, ${wrong} NOT pixel-identical to the upright original`,
+);
+console.log(
+  `\nLOOK AT THIS ONE — every picture in it must read left to right:\n  open ${AFTER}`,
+);
+console.log(`the crooked "before" pictures are separate: ${BEFORE}`);

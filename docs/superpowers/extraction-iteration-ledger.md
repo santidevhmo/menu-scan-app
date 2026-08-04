@@ -1523,3 +1523,23 @@ Rules:
 - **What this run is and is NOT.** The three draws are the ORIGINAL held-out responses re-scored offline — no model call was repeated, and the two option rules plus this one were written AFTER seeing them. So 5/5 is an honest measure of the fixes on this menu, and NOT a second held-out measurement. **Andaluz has now spent its one held-out shot** (`scripts/fixtures/README.md`); it joins the permanent suite, and the next generalization evidence must come from a menu none of these rules has seen.
 - ⛔ **NEXT: register andaluz in the default menu lists so all 10 run by default** (it still needs `MENUS=andaluz OCR_TAG=pt` today), then the remaining phase-close items: one real DEVICE scan against the deployed function, the cheap rotation re-probe under (c), suite consolidation, and the Stage-2 macro benchmark.
 - $0. Running total ~**$2.66**.
+
+## Eval 131 — 🔻 ROTATION IS NOT FREE UNDER (c): a sideways photo reads every DISH NAME and LOSES THE PRICES. H2.2 must be built (~$0.005)
+
+- Date: 2026-08-03 | Santiago re-ordered the plan to put rotation before the device scan and asked whether it was already handled. **It is not: `grep -rln "rotate|rotation|Orientation"` over `src/` and `supabase/functions/` returns NOTHING**, and the launch plan's own diagram says `H2 (rotation) — NOT built`. H2.1 (the detector, eval 094) is done; H2.2 (do the rotation) and H2.3 (the gate) were never started, and eval 094 predates the Mistral migration.
+- **CHEAP-FIRST DESIGN, and it paid.** Stage-1b only ever sees Stage-1a's TEXT, so if the OCR of a rotated photo matched the OCR of the upright one, no rotation code could possibly be needed and the question would be closed at ~$0.001 a call. So Stage-1a alone was probed first (`scripts/probe-rotation-c.ts`): the four landscape fixtures are the ones a diner turns the phone for; `sips -r` reproduces exactly what the camera then captures — a portrait frame with the text on its side.
+- **FIRST READING (misleading on its own): the OCR DOES read rotated text.** Character counts are near-identical and word recall is 84–94%, so nothing looks broken.
+
+  | case | chars (rot vs upright) | word recall | **printed numbers lost** |
+  |---|---|---|---|
+  | polloteria @90° | 7294 / 7507 | 84.4% | **9 of 93** |
+  | guest-house @90° | 2945 / 2939 | 94.4% | 2 of 31 |
+  | **bistro @90°** | 2082 / 2173 | 92.1% | **17 of 28** |
+  | polloteria @270° | 7473 / 7507 | 92.7% | 6 of 93 |
+  | polloteria @180° | 7486 / 7507 | 91.7% | 2 of 93 |
+
+- **⚠ THE FREE $0 ANALYSIS IS WHAT FOUND THE DEFECT — a word-recall percentage would have shipped this.** Diffing WHICH tokens went missing shows the loss is not noise: **bistro @90° reads all 8 pizza names and all 8 descriptions perfectly and returns ZERO prices** (`$240 $262 $240 $272 $262 $240 $208 $262` — every one gone; verified by eye against both markdowns, not by regex alone). polloteria @90° additionally drops real dish words (`bolitas`, `bomba`, `elote`, `cubeta`, `comepollito`) and `$192/$2/$4/$7`.
+- **Why this is the dangerous shape:** the names survive, so an item-COUNT check passes and the scan looks healthy — while the diner is shown a menu where nothing has a price. Same silent class as the guest-house short read, and the reason ruling 6 forbids a numeric pass from being a gate.
+- **Severity is wildly direction- and menu-dependent** (bistro 61% of prices lost at 90°, polloteria 2% at 180°), so "it mostly works" is not available as a position.
+- **VERDICT: H2.2 must be BUILT. Phase B (structuring + scoring the rotated text, ~$0.13) was NOT run — it would only measure how bad a known-broken input scores.** The rotated OCR is archived (`<menu>.mistral-rot{90,180,270}-r1.raw.json`) so the eventual H2.3 gate has its before-picture at $0.
+- Cost ~$0.005 (5 OCR calls). Running total ~**$2.67**.

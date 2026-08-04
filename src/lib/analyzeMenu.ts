@@ -215,7 +215,6 @@ export async function extractMenu(
     };
 
     logExtractionResult(result);
-    console.log("[STAGE1 extract] items returned:", result.items.length);
     return result;
   }
 
@@ -284,7 +283,6 @@ export async function extractMenu(
     };
 
     logExtractionResult(result);
-    console.log("[STAGE1 extract] items returned:", result.items.length);
     return result;
   }
 
@@ -299,7 +297,6 @@ export async function extractMenu(
   };
 
   logExtractionResult(result);
-  console.log("[STAGE1 extract] items returned:", result.items.length);
   return result;
 }
 
@@ -308,38 +305,32 @@ export async function enrichMenu(
   items: ExtractedItem[],
   provider: EnrichmentProvider,
 ): Promise<EnrichmentResult> {
-  console.log("[STAGE2 enrich] items received as input:", items.length);
-
   const { data, error } = await supabase.functions.invoke(FUNCTION_NAME, {
     body: { items, provider, stage: "enrich" },
   });
 
   if (error) {
     const errMsg = await getFunctionErrorMessage(error);
-    const result: EnrichmentResult = {
+    return {
       provider,
       items: [],
       latency_ms: 0,
       model_id: provider,
       error: errMsg,
     };
-    console.log("[STAGE2 enrich] items returned:", result.items.length);
-    return result;
   }
 
   if (!data || !Array.isArray(data.items)) {
-    const result: EnrichmentResult = {
+    return {
       provider,
       items: [],
       latency_ms: 0,
       model_id: provider,
       error: "Malformed enrichment response (missing items array)",
     };
-    console.log("[STAGE2 enrich] items returned:", result.items.length);
-    return result;
   }
 
-  const result: EnrichmentResult = {
+  return {
     provider,
     items: data.items,
     latency_ms: data.latency_ms,
@@ -347,6 +338,4 @@ export async function enrichMenu(
     error: data.error ?? null,
     raw_response: data.raw_response,
   };
-  console.log("[STAGE2 enrich] items returned:", result.items.length);
-  return result;
 }

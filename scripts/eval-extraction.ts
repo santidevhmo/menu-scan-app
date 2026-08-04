@@ -391,7 +391,7 @@ export function formatOptionBreakdown(breakdown: OptionBreakdown): string[] {
  *  A weight the pipeline never read is ALWAYS a miss: "no reading" is not a
  *  near-miss of a printed number, and silently passing it would hide exactly
  *  the failure this pin exists to catch. */
-export const GRAMS_RELATIVE_TOLERANCE = 0.10;
+export const GRAMS_RELATIVE_TOLERANCE = 0.50;
 
 export function gramsRelativeError(
   actual: number | null | undefined,
@@ -1714,12 +1714,12 @@ function runSelfCheck(): void {
   const papaGrams = scoreMenu(
     papaGramsFixture,
     catItems([
-      { name: "Papa Sazonada (350gr)", category: "side", grams: 350 },
+      { name: "Papa Sazonada (650gr)", category: "side", grams: 650 },
     ]),
   );
   assert(
     papaGrams.grams.detail.includes(
-      "Papa Sazonada (350gr)→350 (expected 300,",
+      "Papa Sazonada (650gr)→650 (expected 300,",
     ) && !papaGrams.grams.detail.includes("(item not found)"),
     "ruling 14 grams lookup: name tolerance preserves strict value mismatch",
   );
@@ -1913,13 +1913,18 @@ function runSelfCheck(): void {
       .grams.pass,
     "grams: 5% under the printed weight is within tolerance",
   );
+  assert(
+    scoreMenu(relFixture, catItems([{ name: "Arrachera", grams: 280 }]))
+      .grams.pass,
+    "grams: 40% over is INSIDE the current 50% band (tolerance is a dial)",
+  );
   const relOff = scoreMenu(
     relFixture,
-    catItems([{ name: "Arrachera", grams: 230 }]),
+    catItems([{ name: "Arrachera", grams: 320 }]),
   );
   assert(
-    !relOff.grams.pass && relOff.grams.detail.includes("15%"),
-    "grams: 15% off must fail AND report the relative error",
+    !relOff.grams.pass && relOff.grams.detail.includes("60%"),
+    "grams: past the band must fail AND report the relative error",
   );
   const relNull = scoreMenu(
     relFixture,

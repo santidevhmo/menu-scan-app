@@ -124,7 +124,10 @@ export function sortItemsByGoals<T extends EnrichedItem>(
   items: T[],
   goals: string[],
 ): (T & Pick<ScoredItem, "alignment_score" | "goal_scores">)[] {
-  const vectors: GoalVector[] = goals.flatMap((goal, index) => {
+  const orderedGoals = GOAL_PAIRS.flatMap((pair) =>
+    [pair.high, pair.low].filter((goal) => goals.includes(goal)),
+  );
+  const vectors: GoalVector[] = orderedGoals.flatMap((goal, index) => {
     const cfg = GOALS_SORT_MAP[goal];
     if (!cfg) return [];
 
@@ -133,7 +136,7 @@ export function sortItemsByGoals<T extends EnrichedItem>(
         name: goal,
         field: cfg.field,
         direction: cfg.order === "desc" ? 1 : -1,
-        weight: goals.length - index,
+        weight: orderedGoals.length - index,
       },
     ];
   });

@@ -1678,3 +1678,25 @@ Rules:
 - ⚠ **Known gap in the reporter:** one insert raced against a 3s timeout, so **a crash while offline is lost.** Marked `ponytail:` in the source. Add persistence only if a real crash is ever missed that way.
 - Gates untouched; no oracle, fixture, prompt or pipeline changes. `tsc` clean, eslint clean on both changed files. Cost ~$0.10 (two live device scans, 48 items each). Running total ~**$3.21**.
 - **⛔ NEXT: ship a TestFlight build carrying the crash reporter, then run the restaurant field test.** The next crash writes its own diagnosis into `scan_log`. **Do NOT change client code before that row exists** — there is still no measurement of the actual error. Unchecked cheap lead: the raw `.ips` on the device (Xcode → Devices and Simulators → View Device Logs) may carry the *Application Specific Information* section that TestFlight's copy lacks.
+
+## Eval 141 — ✅ THE CRASH IS SOLVED: the TestFlight bundle shipped with NO Supabase credentials ($0)
+
+- Date: 2026-08-05 | Closes the defect opened in eval 139. **Root cause PROVEN from the shipped binary, not inferred.** Handoff doc rewritten as a solved-bug writeup.
+- **🔑 THE ANSWER: `.env` is excluded from EAS uploads (gitignored AND in `.easignore`), and NO EAS environment variables existed** — `eas env:list` returned empty for `production`, `preview` and `development`, with no legacy secrets. So the EAS bundle had no `EXPO_PUBLIC_SUPABASE_URL` / `_ANON_KEY`, and `src/lib/supabase.ts` **throws at module scope** when they are missing. **`review.tsx` is the FIRST route that imports it** (`review.tsx` → `analyzeMenu` → `supabase`); nothing on the launch or camera path does. Route modules load lazily ⇒ the app started fine, camera and gallery worked, and it died the instant Review opened — which is exactly the button Santiago identified.
+- **🔑 PROVED BY INSPECTING THE SHIPPED `.ipa`, which was one `curl` away the whole time.** Downloaded build 3's archive from `eas build:list` and diffed its Hermes bundle against the locally-built Release bundle that works:
+
+  | string in `main.jsbundle` | TestFlight build 3 (crashed) | local Release (worked) |
+  |---|---|---|
+  | project ref `uonuiadueykynbetxxrw` | **0** | 1 |
+  | anon key prefix `eyJhbGciOi` | **0** | 1 |
+  | `"Missing Supabase env vars"` | **1** | **0** |
+
+  The last row is self-confirming: the minifier constant-folds the guard, so with real credentials the throw is **stripped** (0) and without them the throw is **all that survives** (1). The shipped app contained the error message and not the credentials.
+- **EVERY EARLIER HYPOTHESIS WAS WRONG** — HEIC mime guessing, EXIF orientation, Debug-vs-Release, simulator-vs-device, and eval 140's "it's rare". All of them were theories about a binary nobody had opened.
+- **🔑 EVAL 140's CORRECTION WAS ITSELF WRONG, THE SAME WAY EVAL 139 WAS.** Eval 139 saw ONE crash and wrote "reproduces reliably". Eval 140 then *disproved* that using two `scan_log` rows — without establishing which machine produced them. **Both were simulator runs**: eval 139's own ledger line records "one simulator scan, 26 items", which is row id 3. **The shared error is a frequency claim with no denominator.** Record the count AND the machine, or record neither.
+- **🔑 A USER'S NAME FOR A CONTROL IS NOT A LOCATION.** "Bottom-right submit button" was read by eval 139 as the upload button. Shown an ASCII sketch of both candidates, Santiago picked the **thumbnail**. That single answer killed the HEIC hypothesis outright — the upload code is unreachable from that tap — and pointed at the real import chain.
+- **FIX (applied):** `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` created as EAS environment variables in `production`, `preview` and `development`, visibility `plaintext` (correct for `EXPO_PUBLIC_*` — they are compiled into the client bundle and are not secrets).
+- **HARDENING:** `crashReporter.ts` now imports `supabase` **lazily, on the crash path only**. Eval 140's version imported it eagerly, which put `supabase.ts`'s module-scope throw on the **app-launch** path — that would have turned this same defect into a launch crash that could not report its own cause. Regression introduced and removed in the same session; re-verified after the change (rows 15-17, `lazy-import self-test`).
+- **VERIFY ANY FUTURE BUILD RATHER THAN TRUSTING IT:** `strings main.jsbundle | grep -c uonuiadueykynbetxxrw` must be ≥1 and `grep -c "Missing Supabase env"` must be 0. Recipe in the handoff doc.
+- Gates untouched; no oracle, fixture, prompt or pipeline changes. `tsc` clean, eslint clean. Cost **$0** (no model calls). Running total ~**$3.21**.
+- **⛔ NEXT: TestFlight build 5 with the credentials, verify the bundle contains them, then the restaurant field test** — the thing this defect has blocked since eval 137.

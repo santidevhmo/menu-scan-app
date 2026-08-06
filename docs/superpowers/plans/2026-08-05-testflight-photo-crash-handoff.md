@@ -1,177 +1,144 @@
-# HANDOFF — iPhone crash when opening the Review screen (OPEN, but INSTRUMENTED)
+# SOLVED — TestFlight crash on opening the Review screen
 
-**Status: OPEN — root cause NOT found. A crash reporter is now installed so the next
-occurrence names the error.** Updated 2026-08-05 (eval 140) after a session that disproved most
-of the first writeup. **Read the "CORRECTIONS" section before anything else** — the original
-version of this file asserted three things that are now measured to be false, and each of them
-will waste your session if you believe it.
+**Status: ROOT CAUSE FOUND AND PROVEN (2026-08-05, eval 141).**
+**The TestFlight build shipped without the Supabase credentials.** `src/lib/supabase.ts` throws at
+module scope when they are missing, and the Review screen is the first route that loads it — so
+tapping the bottom-right photo thumbnail killed the app, every time, on TestFlight only.
 
----
-
-## The symptom
-
-On Santiago's physical iPhone: pick a photo from the library, tap the **small photo thumbnail at
-the bottom-right of the camera screen**, and the app dies instantly. His report note:
-*"Nikkori menu crash"*. Crash at 2026-08-05 19:55:30 local, TestFlight build 3 (`bd124d6`).
+Earlier versions of this document proposed HEIC photo formats, EXIF orientation, Debug-vs-Release
+and simulator-vs-device. **All of those were wrong.** Keep reading only if you want the evidence or
+the lessons; the fix is at the top.
 
 ---
 
-## ⚠ CORRECTIONS to the first writeup (all measured this session)
+## The proof
 
-| Original claim | Reality |
-|---|---|
-| "Reproduces reliably" | **FALSE. It is RARE — one failure in six-plus runs of the same flow.** The same Nikkori photo scanned fine on the same phone 12 minutes later (`scan_log` id 4, 48 dishes) and repeatedly since |
-| The crash is on the submit/"Analyze Menu" button | **FALSE.** Santiago confirmed it was the **thumbnail** that opens Review. `extractMenu` never runs on that tap |
-| Leading hypothesis: HEIC mime-type guess in `analyzeMenu.ts` | **DEAD.** That code is only reached from "Analyze Menu". The crashing tap never touches it |
-| The simulator can't reproduce it ⇒ device is the difference | **DEAD.** A Debug build on the physical iPhone ran the identical flow clean, 48 dishes |
-| `results.tsx` ruled out because "the crash precedes the server call, so results never render" | **Faulty reasoning** (`router.push("/results")` fires *before* `extractMenu`, so it does render pre-network). Moot now — the crash is earlier still |
+I pulled the JS bundle out of the actual `.ipa` Santiago installed (build 3,
+`19ee091f-a2d1-4b12-99e0-c8f892a951ec`) and compared it against the locally-built Release bundle
+that works:
 
-**What survived:** it is a JavaScript error (`RCTFatal`), it is pre-network, and it is not a build
-mismatch. See below.
-
----
-
-## What is ESTABLISHED (evidence, not inference)
-
-### 1. It is a JavaScript error, not a native module bug
-Crash report's Last Exception Backtrace:
-
-```
-RCTExceptionsManager reportFatal:  →  RCTFatal  →  objc_exception_throw  →  abort (SIGABRT)
-```
-
-`RCTFatal` is React Native's handler for an **unhandled JS error**. In a Debug build the same
-error draws a red screen; in Release it aborts the process.
-
-### 2. It happens BEFORE any server call
-`public.scan_log` gets a row for **every** edge-function outcome, errors included. Re-verified
-this session: **no row at the crash timestamp**, rows present for every surrounding scan.
-
-### 3. It is a RENDER crash on the Review screen
-Santiago confirmed the tap was the bottom-right **thumbnail** (`ThumbStack`), whose only action is
-`router.push("/review")`. So the failure is in **drawing the Review screen** — `src/app/review.tsx`
-and `src/components/review/PhotoThumb.tsx` — not in reading, compressing or uploading the photo.
-
-### 4. Two further facts from the crash file the first writeup missed
-- **The app lived 9.8 seconds** (launch 19:55:20.9 → crash 19:55:30.7). Independently confirms no
-  OCR wait happened, without relying on `scan_log`.
-- **Thread 6 (JS) was inside `String.split` in `Runtime::drainJobs`** — a promise microtask. That
-  `split` is React Native's own `parseErrorStack` chopping up the stack as it reports the error, so
-  it tells you the error arrived through an async continuation, not that a `split` was to blame.
-  (`src/` contains only two `.split()` calls, both on short strings.)
-
-### 5. It is NOT a build mismatch
-Builds 3 and 4 differ only by `.gitignore`/`.easignore`.
-
----
-
-## Reproduction attempts — ALL of them (2026-08-05)
-
-| Build | Where | Result |
+| String in `main.jsbundle` | TestFlight build 3 (**crashed**) | Local Release (**worked**) |
 |---|---|---|
-| TestFlight Release build 3 | iPhone, 19:55 | **CRASHED** |
-| TestFlight Release build 3 | iPhone, 20:04 + 20:07 | Worked — 26 dishes, then Nikkori 48 dishes |
-| Debug, built locally | iPhone | Worked — Nikkori 48 dishes |
-| Release, built locally | iPhone | Worked |
-| Debug | simulator | Worked |
+| project ref `uonuiadueykynbetxxrw` | **0** | 1 |
+| anon key prefix `eyJhbGciOi` | **0** | 1 |
+| `"Missing Supabase env vars"` | **1** | **0** |
 
-**One crash in six-plus runs. Do not plan around reproducing it on demand — that is what burned
-this session.**
+That last row is self-confirming rather than incidental. The minifier constant-folds the guard:
+with real credentials inlined, `if (!supabaseUrl || !supabaseAnonKey)` becomes `if (false)` and the
+throw is **stripped** — hence 0 in the working bundle. With them `undefined` it becomes `if (true)`
+and the throw is **all that survives** — hence 1 in the crashing bundle, alongside no credentials.
 
----
+**The shipped app contained the error message and not the credentials.**
 
-## THE INSTRUMENTATION (new this session — use it)
+## Why it only ever hit TestFlight
 
-`src/lib/crashReporter.ts`, installed at the top of `src/app/_layout.tsx`. On any uncaught JS
-error it writes a row to `public.scan_log` with `outcome = 'client_error'` and a `detail` JSONB
-holding **message, stack, name, is_fatal, app_version, native_build, debug_build** — then calls
-RN's original handler so the crash still happens exactly as before. Nothing is swallowed.
+`.env` is gitignored *and* listed in `.easignore`, so it is never uploaded to EAS. The supported
+replacement is EAS environment variables — and `eas env:list` returned **no variables in any
+environment**, with no legacy secrets either. Every build that worked (simulator, local Debug,
+local Release) bundles `.env` straight off the Mac. Only the EAS build lacked it.
 
-Read them with:
+## Why the thumbnail, and not launch
 
-```sql
-select id, created_at, detail from public.scan_log
-where outcome = 'client_error' order by id desc;
-```
+Nothing on the launch or camera path imports `supabase`. `review.tsx` is the first route that does
+(`review.tsx` → `@/lib/analyzeMenu` → `./supabase`). Route modules are required lazily, so the app
+started fine, the camera worked, the gallery worked, and the module was evaluated — and threw —
+the instant Review was opened. An uncaught error at module scope is fatal in Release: `RCTFatal`.
 
-**Verified end-to-end** (eval 140): a deliberate uncaught error produced a row carrying its message
-and stack, and the redbox still appeared. The RLS policy
-`scan_log_insert_client_error` (migration `supabase/migrations/20260805_scan_log_client_error_insert.sql`)
-permits INSERT of `client_error` rows only — the public anon key cannot forge extraction results
-and still cannot read the table.
-
-⚠ **Two probe rows are already in that table** (`scan_id = 'policy-probe'` and the row whose message
-is `crash-reporter self-test`). They are this session's verification artifacts, not real crashes —
-the MCP connection is read-only so they could not be deleted.
-
-⚠ **Known gap:** the report is a single insert raced against a 3s timeout. **A crash while offline
-is lost.** Add persistence only if a real crash is ever missed that way.
+This is why `scan_log` had no row: the throw happens before any network call can be made.
+It also explains the 9.8-second lifetime and the `drainJobs` (promise microtask) frame in the
+crash report — lazy route loading resolves through a promise.
 
 ---
 
-## THE NEXT STEP
+## The fix (applied)
 
-**Ship a TestFlight build containing the crash reporter, then use the app normally — including the
-restaurant field test.** The next crash writes its own diagnosis. Do NOT change client code before
-that row exists: there is no measurement of the actual error yet, and this project's rules are
-explicit that a predicted cause is a hypothesis until measured.
+1. **`EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` created as EAS environment
+   variables** in `production`, `preview` and `development`, visibility `plaintext` (correct for
+   `EXPO_PUBLIC_*` — they are compiled into the client bundle and are not secrets).
+2. **`src/lib/crashReporter.ts`** reports any uncaught JS error to `scan_log` before RN kills the
+   app, so this class of failure can never again be invisible. It imports `supabase` **lazily, on
+   the crash path only** — an eager import would drag `supabase.ts`'s module-scope throw onto app
+   launch and produce a crash that cannot report its own cause.
 
-If you want to hunt it cold in the meantime, the haystack is small and bounded:
-`src/app/review.tsx`, `src/components/review/PhotoThumb.tsx`, and what feeds them
-(`src/store/scan.store.ts`, the `ScanPhoto` that `GalleryButton` builds from an `ImagePicker`
-asset). Note `nativewind@5.0.0-preview.4` is a **preview** release and React Compiler is enabled —
-both are Debug/Release-sensitive in principle, neither is evidence.
+**Verifying a future build actually carries the credentials** — do this rather than trusting it:
+
+```bash
+curl -sL -o b.ipa "<Application Archive URL from `eas build:list`>"
+unzip -q b.ipa -d x
+strings x/Payload/menuscanapp.app/main.jsbundle | grep -c uonuiadueykynbetxxrw   # must be >= 1
+strings x/Payload/menuscanapp.app/main.jsbundle | grep -c "Missing Supabase env" # must be 0
+```
 
 ---
 
-## Gotchas that will waste your time if you don't know them
+## Lessons (the expensive ones)
 
-**1. `xattr -cr node_modules/expo-modules-jsi` before any local iOS build.** The repo lives on
-`~/Desktop` with iCloud syncing ON; iCloud stamps `com.apple.FinderInfo` on build artifacts and
-`codesign` refuses them:
+1. **A build artifact is inspectable — inspect it.** Three sessions theorised about a binary that
+   was one `curl` and one `unzip` away. The `.ipa` is linked from `eas build:list`.
+2. **"Reproduces reliably" is a claim about a COUNT.** Eval 139 saw one crash and wrote "reliably";
+   eval 140 then *disproved* it using two `scan_log` rows whose machine was never established — and
+   was wrong, because both were simulator runs (eval 139's own ledger records "one simulator scan,
+   26 items", which is row id 3). **Both errors are the same error: a claim about frequency with no
+   denominator.** Write the count and the machine, or write neither.
+3. **When a user's word for a control could name two buttons, show them both and make them pick.**
+   "Bottom-right submit button" was read as the upload. It was the thumbnail. That one answer
+   killed the HEIC hypothesis instantly — the upload code is unreachable from that tap.
+4. **A config check that throws at module scope relocates the crash to whoever imports it first.**
+   The failure surfaced three screens away from its cause, which is what made it look photo-related.
+5. **Environments that bundle differently will fail differently.** `.easignore` excluding `.env` is
+   correct; the bug was having no replacement. Anything read via `process.env` at bundle time must
+   exist in *every* place a bundle is built.
 
-```
-ExpoModulesJSI.framework: resource fork, Finder information, or similar detritus not allowed
-```
+---
 
-The `hermes/hermes.h` lines above it are an `in file included from` note trail, not the error.
-**Read the LAST line of the failure block.** Still required — it was live again this session.
+## Environment traps (still true, still expensive)
 
-**2. Metro's port is compiled in (8081).** `--port N` moves the server, not the app. If another
-project holds 8081 the app reports `No script URL provided … (null)`, which means "found something
-that isn't Metro", not "Metro is down". A stale Metro from a previous session was holding it this
-session. The Mac's IP is also **baked at build time**, so you must rebuild after changing networks.
+**1. `xattr -cr node_modules/expo-modules-jsi` before any local iOS build.** The repo lives on an
+iCloud-synced `~/Desktop`; iCloud stamps `com.apple.FinderInfo` on build artifacts and `codesign`
+refuses them (`resource fork, Finder information, or similar detritus not allowed`). The
+`hermes/hermes.h` lines above it are an `in file included from` note trail — **read the LAST line of
+the failure block.**
 
-**3. The simulator has no camera** and its library holds whatever you drag in.
+**2. Metro's port is compiled in (8081).** `No script URL provided … (null)` means "the phone cannot
+reach Metro", never "Metro is down". Causes seen: another project holding 8081, a stale Metro from a
+previous session, and a public WiFi with client isolation. **The Mac's IP is baked at build time —
+rebuild after changing networks.**
 
-**4. Verifying the phone can reach the Mac, without touching the phone:** `ping iPhone-<name>.local`
-from the Mac. A sub-millisecond reply means client isolation is off. (2026-08-05: 0.7 ms on the
-home network — the public-network isolation that blocked the previous session is gone.)
+**3. Check the phone can reach the Mac without touching the phone:** `ping iPhone-<name>.local`.
+Sub-millisecond means no client isolation.
 
-**5. Capturing a Release build's output over the cable — no Metro, no red screen needed:**
+**4. Capturing a Release build's output over the cable** (no Metro, no red screen needed):
 
 ```bash
 xcrun devicectl device process launch --console --terminate-existing \
   --device "iPhone de Brad Pitt" com.santiagdc.menu-scan-app
 ```
 
-This streams the app's stdout/stderr, which is where the `*** Terminating app due to uncaught
-exception …` line goes. It attaches to **one** launch — if the user reopens the app from the home
-screen you are no longer capturing. Wrap it in a relaunch loop if you need repeated cold starts.
+Attaches to **one** launch — if the user reopens the app from the home screen you are no longer
+capturing.
+
+**5. The simulator has no camera** and its library holds whatever you drag in.
 
 ---
 
-## What is NOT implicated
+## Reading crash reports
 
-Extraction, the edge function, rotation, and the oracle/gate layer — all independently verified on
-2026-08-04 (3 device scans, 15/15 dims, zero inventions; offline gates 50/50 · 50/50; suite 272
-passed / 1 pre-existing). **Do not go looking in the pipeline.** The crash is client-side,
-pre-network, and now known to be a Review-screen render.
+`select id, created_at, detail from public.scan_log where outcome='client_error' order by id desc;`
 
-## Artifacts
+⚠ **Five rows in that table are verification artifacts, not real crashes** — `scan_id='policy-probe'`
+and four whose message is `crash-reporter self-test` / `lazy-import self-test`. The MCP connection is
+read-only so they could not be deleted.
 
-- Crash report + feedback: `~/Downloads/testflight_feedback/` (`crashlog.crash`, `feedback.json`)
-- The JS error message is **not** in the crash file — TestFlight's copy carries no
-  *Application Specific Information* section. The raw `.ips` still on the device
-  (Xcode → Window → Devices and Simulators → View Device Logs) may carry it; **unchecked.**
-- Scan + crash history: `select * from public.scan_log order by id desc;`
+⚠ **Known gap:** the report is one insert raced against a 3s timeout. **A crash while offline is
+lost.** Marked `ponytail:` in the source. Add persistence only if a real crash is ever missed.
+
+The RLS policy `scan_log_insert_client_error`
+(`supabase/migrations/20260805_scan_log_client_error_insert.sql`) permits INSERT of `client_error`
+rows only — probed both ways: a crash row inserts, a forged `outcome='items'` row is rejected, and
+anon SELECT still returns empty.
+
+## What was never implicated
+
+Extraction, the edge function, rotation, and the oracle/gate layer. All verified 2026-08-04
+(3 device scans, 15/15 dims, zero inventions; offline gates 50/50 · 50/50; suite 272 passed /
+1 pre-existing). The pipeline was healthy the whole time.

@@ -14,7 +14,9 @@ import {
   Inter_600SemiBold,
   Inter_700Bold,
 } from "@expo-google-fonts/inter";
+import { installCrashReporter } from "@/lib/crashReporter";
 
+installCrashReporter();
 SplashScreen.preventAutoHideAsync();
 
 /** Root Expo Router layout that loads fonts before showing app routes. */

@@ -1,164 +1,177 @@
-# HANDOFF — TestFlight crash when submitting a photo (OPEN)
+# HANDOFF — iPhone crash when opening the Review screen (OPEN, but INSTRUMENTED)
 
-**Status: OPEN.** Reproduces reliably on Santiago's physical iPhone (TestFlight Release build).
-Does NOT reproduce in the iOS simulator. Written 2026-08-05 so the next session starts from a
-diagnosis instead of from zero.
+**Status: OPEN — root cause NOT found. A crash reporter is now installed so the next
+occurrence names the error.** Updated 2026-08-05 (eval 140) after a session that disproved most
+of the first writeup. **Read the "CORRECTIONS" section before anything else** — the original
+version of this file asserted three things that are now measured to be false, and each of them
+will waste your session if you believe it.
 
 ---
 
 ## The symptom
 
-On the **physical iPhone**, TestFlight build 3 (v1.0.0, commit `bd124d6`):
-pick a photo from the library → tap the bottom-right submit button → **the app dies instantly.**
-Santiago's own note on the report: *"Nikkori menu crash"*.
+On Santiago's physical iPhone: pick a photo from the library, tap the **small photo thumbnail at
+the bottom-right of the camera screen**, and the app dies instantly. His report note:
+*"Nikkori menu crash"*. Crash at 2026-08-05 19:55:30 local, TestFlight build 3 (`bd124d6`).
 
-In the **iOS simulator** (Debug, same source): the identical flow completes normally, all the way
-through extraction to results. **The simulator cannot reproduce this.**
+---
+
+## ⚠ CORRECTIONS to the first writeup (all measured this session)
+
+| Original claim | Reality |
+|---|---|
+| "Reproduces reliably" | **FALSE. It is RARE — one failure in six-plus runs of the same flow.** The same Nikkori photo scanned fine on the same phone 12 minutes later (`scan_log` id 4, 48 dishes) and repeatedly since |
+| The crash is on the submit/"Analyze Menu" button | **FALSE.** Santiago confirmed it was the **thumbnail** that opens Review. `extractMenu` never runs on that tap |
+| Leading hypothesis: HEIC mime-type guess in `analyzeMenu.ts` | **DEAD.** That code is only reached from "Analyze Menu". The crashing tap never touches it |
+| The simulator can't reproduce it ⇒ device is the difference | **DEAD.** A Debug build on the physical iPhone ran the identical flow clean, 48 dishes |
+| `results.tsx` ruled out because "the crash precedes the server call, so results never render" | **Faulty reasoning** (`router.push("/results")` fires *before* `extractMenu`, so it does render pre-network). Moot now — the crash is earlier still |
+
+**What survived:** it is a JavaScript error (`RCTFatal`), it is pre-network, and it is not a build
+mismatch. See below.
 
 ---
 
 ## What is ESTABLISHED (evidence, not inference)
 
 ### 1. It is a JavaScript error, not a native module bug
-The crash report's Last Exception Backtrace:
+Crash report's Last Exception Backtrace:
 
 ```
 RCTExceptionsManager reportFatal:  →  RCTFatal  →  objc_exception_throw  →  abort (SIGABRT)
 ```
 
-`RCTFatal` is React Native's handler for an **unhandled JS error**. This is the single most
-important fact in this document, because it explains the simulator gap:
-
-| build | same JS error causes |
-|---|---|
-| **Debug** (simulator, `expo run:ios`) | a red error screen; app keeps running |
-| **Release** (TestFlight, `--profile production`) | **process abort** |
-
-So a Debug build will SHOW this error rather than crash on it.
+`RCTFatal` is React Native's handler for an **unhandled JS error**. In a Debug build the same
+error draws a red screen; in Release it aborts the process.
 
 ### 2. It happens BEFORE any server call
-The edge function writes a `public.scan_log` row for **every** outcome — success, `needs_rotation`,
-`needs_crops`, and errors. Querying around the crash:
+`public.scan_log` gets a row for **every** edge-function outcome, errors included. Re-verified
+this session: **no row at the crash timestamp**, rows present for every surrounding scan.
 
-| time (UTC) | event | scan_log row |
+### 3. It is a RENDER crash on the Review screen
+Santiago confirmed the tap was the bottom-right **thumbnail** (`ThumbStack`), whose only action is
+`router.push("/review")`. So the failure is in **drawing the Review screen** — `src/app/review.tsx`
+and `src/components/review/PhotoThumb.tsx` — not in reading, compressing or uploading the photo.
+
+### 4. Two further facts from the crash file the first writeup missed
+- **The app lived 9.8 seconds** (launch 19:55:20.9 → crash 19:55:30.7). Independently confirms no
+  OCR wait happened, without relying on `scan_log`.
+- **Thread 6 (JS) was inside `String.split` in `Runtime::drainJobs`** — a promise microtask. That
+  `split` is React Native's own `parseErrorStack` chopping up the stack as it reports the error, so
+  it tells you the error arrived through an async continuation, not that a `split` was to blame.
+  (`src/` contains only two `.split()` calls, both on short strings.)
+
+### 5. It is NOT a build mismatch
+Builds 3 and 4 differ only by `.gitignore`/`.easignore`.
+
+---
+
+## Reproduction attempts — ALL of them (2026-08-05)
+
+| Build | Where | Result |
 |---|---|---|
-| 2026-08-06 02:55:43 | the crash (per `feedback.json`) | **none** |
-| 2026-08-06 03:04:57 | a later scan, 26 items | present |
+| TestFlight Release build 3 | iPhone, 19:55 | **CRASHED** |
+| TestFlight Release build 3 | iPhone, 20:04 + 20:07 | Worked — 26 dishes, then Nikkori 48 dishes |
+| Debug, built locally | iPhone | Worked — Nikkori 48 dishes |
+| Release, built locally | iPhone | Worked |
+| Debug | simulator | Worked |
 
-**No row at crash time ⇒ the app died before the request reached the server.** The defect is in the
-CLIENT photo-handling path (`src/lib/analyzeMenu.ts` `extractMenu`, `src/lib/compressImage.ts`, the
-gallery/review screens), not in extraction, not in the edge function.
-
-### 3. It is NOT a build mismatch
-TestFlight build 3 = commit `bd124d6`; the simulator ran `1ff9686`. Those two commits differ by
-**`.gitignore` and `.easignore` only** — 0 files under `src/`, `app.json`, `package.json`, `assets/`.
-Same app code. The differences that remain are **Debug vs Release** and **simulator vs real device**.
+**One crash in six-plus runs. Do not plan around reproducing it on demand — that is what burned
+this session.**
 
 ---
 
-## Leading hypothesis (UNVERIFIED — do not fix before confirming)
+## THE INSTRUMENTATION (new this session — use it)
 
-**Real camera photos are HEIC; the simulator's library held PNGs I dragged in.**
+`src/lib/crashReporter.ts`, installed at the top of `src/app/_layout.tsx`. On any uncaught JS
+error it writes a row to `public.scan_log` with `outcome = 'client_error'` and a `detail` JSONB
+holding **message, stack, name, is_fatal, app_version, native_build, debug_build** — then calls
+RN's original handler so the crash still happens exactly as before. Nothing is swallowed.
 
-`src/lib/analyzeMenu.ts` picks the upload mime type from the file extension:
+Read them with:
 
-```ts
-const ext = src.uri.split(".").pop()?.toLowerCase();
-const mime = ext === "png" ? "image/png" : "image/jpeg";
+```sql
+select id, created_at, detail from public.scan_log
+where outcome = 'client_error' order by id desc;
 ```
 
-A `.heic` file is therefore labelled `image/jpeg`. Real camera photos also carry EXIF orientation
-that gallery PNGs do not.
+**Verified end-to-end** (eval 140): a deliberate uncaught error produced a row carrying its message
+and stack, and the redbox still appeared. The RLS policy
+`scan_log_insert_client_error` (migration `supabase/migrations/20260805_scan_log_client_error_insert.sql`)
+permits INSERT of `client_error` rows only — the public anon key cannot forge extraction results
+and still cannot read the table.
 
-**Why this is only a hypothesis:** a wrong mime type would most likely produce a SERVER-side
-rejection — and that would have written a `scan_log` error row, which did not happen. So either the
-throw happens earlier (during `getInfoAsync` / `compressImage` / `readAsStringAsync`), or the mime
-issue is a red herring. **Confirm before changing code.** Note this project's own rule: a predicted
-cause is a hypothesis until measured.
+⚠ **Two probe rows are already in that table** (`scan_id = 'policy-probe'` and the row whose message
+is `crash-reporter self-test`). They are this session's verification artifacts, not real crashes —
+the MCP connection is read-only so they could not be deleted.
+
+⚠ **Known gap:** the report is a single insert raced against a 3s timeout. **A crash while offline
+is lost.** Add persistence only if a real crash is ever missed that way.
 
 ---
 
-## THE NEXT STEP (cheap, decisive) — ⚠ REQUIRES A PRIVATE NETWORK
+## THE NEXT STEP
 
-**Install a Debug build on the physical iPhone over USB and reproduce with a real camera photo.**
-Debug turns the fatal abort into a red screen naming the exact error and `file:line`.
+**Ship a TestFlight build containing the crash reporter, then use the app normally — including the
+restaurant field test.** The next crash writes its own diagnosis. Do NOT change client code before
+that row exists: there is no measurement of the actual error yet, and this project's rules are
+explicit that a predicted cause is a hypothesis until measured.
 
-**This was ATTEMPTED on 2026-08-05 and blocked by the network, not by anything technical.** The
-build succeeded and installed, but the app showed `No script URL provided … (null)`: a Debug build
-fetches its JavaScript from Metro on the Mac over WiFi, and Santiago was on a **public network with
-client isolation** (Mac `172.16.17.48`, router `172.16.16.1`). Verified from the Mac side —
-Metro bound to `*:8081`, firewall off, baked `ip.txt` matching the live IP — and then confirmed from
-the phone: Safari could not open `http://172.16.17.48:8081/status`. Phone→laptop traffic was blocked
-by the access point. **Nothing was wrong with the app or the build.**
-
-**So: do this from a private network** (home WiFi, or the Mac joined to the phone's Personal Hotspot —
-hotspots never isolate clients). Then:
-
-```bash
-xattr -cr node_modules/expo-modules-jsi          # see the gotcha below — required
-pnpm ios --device "iPhone de Brad Pitt"          # re-bakes the current IP; must rebuild after a network change
-```
-
-Sanity check BEFORE touching the app: open `http://<mac-ip>:8081/status` in Safari **on the phone**.
-It must return `packager-status:running`. If it doesn't, fix the network first — every other symptom
-downstream is a red herring.
-
-Then on the phone: pick a **real camera photo** (not an imported PNG) and submit. Capture the red
-screen text verbatim. That should reduce this to a one-line fix.
-
-If the red screen does NOT appear in Debug on the device, the next discriminator is Debug-vs-Release
-rather than simulator-vs-device; build Release locally with
-`pnpm ios --device "iPhone de Brad Pitt" --configuration Release` and reproduce there.
+If you want to hunt it cold in the meantime, the haystack is small and bounded:
+`src/app/review.tsx`, `src/components/review/PhotoThumb.tsx`, and what feeds them
+(`src/store/scan.store.ts`, the `ScanPhoto` that `GalleryButton` builds from an `ImagePicker`
+asset). Note `nativewind@5.0.0-preview.4` is a **preview** release and React Compiler is enabled —
+both are Debug/Release-sensitive in principle, neither is evidence.
 
 ---
 
 ## Gotchas that will waste your time if you don't know them
 
-**1. `xattr -cr node_modules/expo-modules-jsi` before any local iOS build.**
-The repo lives on `~/Desktop`, which has **iCloud Desktop & Documents syncing ON**. iCloud stamps
-build artifacts with `com.apple.FinderInfo`, and `codesign` refuses to sign a bundle carrying it.
-The build fails with:
+**1. `xattr -cr node_modules/expo-modules-jsi` before any local iOS build.** The repo lives on
+`~/Desktop` with iCloud syncing ON; iCloud stamps `com.apple.FinderInfo` on build artifacts and
+`codesign` refuses them:
 
 ```
 ExpoModulesJSI.framework: resource fork, Finder information, or similar detritus not allowed
-❌ Script '[CP-User] Build ExpoModulesJSI xcframework' failed
 ```
 
-This is NOT a missing-header problem — the `hermes/hermes.h` lines above it in the log are an
-`in file included from` note trail, not the error. **A previous session misread exactly that and
-wrongly concluded the simulator was unusable.** Read the LAST line of the failure block. Permanent
-fix: move the repo off the iCloud-synced Desktop.
+The `hermes/hermes.h` lines above it are an `in file included from` note trail, not the error.
+**Read the LAST line of the failure block.** Still required — it was live again this session.
 
-**2. Metro's port is compiled in.** `expo run:ios --port N` moves the SERVER but not the app, which
-is hardwired to 8081 (`RCTDefines.h`). If another project holds 8081, the app asks it "are you
-Metro?", gets HTML, and reports `No script URL provided … (null)` — which reads like Metro is down
-but means "found something that isn't Metro". Free 8081 rather than moving the port.
+**2. Metro's port is compiled in (8081).** `--port N` moves the server, not the app. If another
+project holds 8081 the app reports `No script URL provided … (null)`, which means "found something
+that isn't Metro", not "Metro is down". A stale Metro from a previous session was holding it this
+session. The Mac's IP is also **baked at build time**, so you must rebuild after changing networks.
 
-**3. The simulator is not a substitute here.** It has no camera and its photo library holds whatever
-you drag in. For anything involving real photos — HEIC, EXIF, size, orientation — it will pass while
-the device fails.
+**3. The simulator has no camera** and its library holds whatever you drag in.
+
+**4. Verifying the phone can reach the Mac, without touching the phone:** `ping iPhone-<name>.local`
+from the Mac. A sub-millisecond reply means client isolation is off. (2026-08-05: 0.7 ms on the
+home network — the public-network isolation that blocked the previous session is gone.)
+
+**5. Capturing a Release build's output over the cable — no Metro, no red screen needed:**
+
+```bash
+xcrun devicectl device process launch --console --terminate-existing \
+  --device "iPhone de Brad Pitt" com.santiagdc.menu-scan-app
+```
+
+This streams the app's stdout/stderr, which is where the `*** Terminating app due to uncaught
+exception …` line goes. It attaches to **one** launch — if the user reopens the app from the home
+screen you are no longer capturing. Wrap it in a relaunch loop if you need repeated cold starts.
 
 ---
 
-## Where to look first in the code
-
-- `src/lib/analyzeMenu.ts` — `extractMenu`: `getInfoAsync` → passthrough-or-compress → base64 →
-  mime guess → invoke. **Everything before the `supabase.functions.invoke` call is in scope.**
-- `src/lib/compressImage.ts` — `compressImage`, `rotateImage`, `prepareTile`.
-- `src/components/scan/GalleryButton.tsx`, `src/app/review.tsx` — the pick-and-submit path.
-- ⚠️ `src/app/results.tsx` gained 139 lines in the 2026-08-04 allergen merge. Ruled less likely
-  (the crash precedes the server call, so results never render) but worth a look if the above is clean.
-
 ## What is NOT implicated
 
-Extraction, the edge function, rotation, and the oracle/gate layer are all fine and independently
-verified on 2026-08-04: 3 device scans scored 15/15 dims with zero invented dishes, and the offline
-gates sit at 50/50 · 50/50 with the suite at 272 passed / 1 pre-existing. **Do not go looking in the
-pipeline.** The crash is client-side and pre-network.
+Extraction, the edge function, rotation, and the oracle/gate layer — all independently verified on
+2026-08-04 (3 device scans, 15/15 dims, zero inventions; offline gates 50/50 · 50/50; suite 272
+passed / 1 pre-existing). **Do not go looking in the pipeline.** The crash is client-side,
+pre-network, and now known to be a Review-screen render.
 
 ## Artifacts
 
 - Crash report + feedback: `~/Downloads/testflight_feedback/` (`crashlog.crash`, `feedback.json`)
-- The JS error message is **not** in the crash file — it must be captured from a Debug run.
-- Live scan history readable via the Supabase MCP:
-  `select * from public.scan_log order by id desc;`
+- The JS error message is **not** in the crash file — TestFlight's copy carries no
+  *Application Specific Information* section. The raw `.ips` still on the device
+  (Xcode → Window → Devices and Simulators → View Device Logs) may carry it; **unchecked.**
+- Scan + crash history: `select * from public.scan_log order by id desc;`

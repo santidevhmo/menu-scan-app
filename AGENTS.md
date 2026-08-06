@@ -101,6 +101,11 @@ vendor directly.
 - A numeric score is never sufficient on its own: also audit the raw output against the
   menu photo for invented or unprinted items.
 
+**Where to start:** `docs/superpowers/START-HERE.md` — the entry point for any new session. It
+contains no status (status drifts); it routes you to the one place the current phase is recorded:
+the `🎯 CURRENT PHASE` block atop the master roadmap. Do not use
+`docs/superpowers/horizontal-menus/` as an entry point — that phase is closed.
+
 **Where status lives:** `docs/superpowers/extraction-iteration-ledger.md` (every experiment,
 newest last) and `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`
 (phases, release scope, and the lessons learned from real mistakes made in this codebase).

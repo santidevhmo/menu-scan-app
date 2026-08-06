@@ -1,0 +1,81 @@
+# START HERE
+
+Entry point for any new session on Menu Scan. **This file deliberately contains no status.**
+Status drifts; routing does not. Everything below tells you *where* to look, never *what is true*.
+
+**Working directory:** `/Users/santiagoaguirre/Desktop/CODING/menu-scan-app`, branch `main`.
+One folder, one branch — app code, edge function, scripts, fixtures, oracles, docs and the ledger
+all live here. Older docs reference a `.worktrees/extraction-eval-harness` folder; **it no longer
+exists** (merged into `main`, eval 138). Read any such path as "this repo".
+
+---
+
+## 1. What am I supposed to be working on?
+
+**`docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md` → the `🎯 CURRENT PHASE`
+block at the top.** That is the single source of truth for what is active, and the only place it
+is written down. If you find a phase or priority asserted anywhere else, that other place is stale
+— fix it or ignore it, but do not believe it.
+
+Then read, in this order:
+
+1. That roadmap's **"Release scope decision"** section — the numbered critical path, and the
+   POST-RELEASE list of things deliberately *not* to work on.
+2. That roadmap's **"Lessons learned"** — lessons 1–27 are mistakes previous LLMs actually made
+   in this codebase. Lessons 11–27 are the expensive ones. Read them before designing any rule or
+   predicting any score.
+3. **`docs/superpowers/extraction-iteration-ledger.md`**, newest entries LAST — every experiment,
+   with what was measured. Read the last few for current state. Do not re-run anything marked
+   REJECTED.
+4. **`AGENTS.md`** and **`CLAUDE.md`** — product scope, stack, and behavioural rules. Both govern.
+
+## 2. Santiago's standing rules
+
+These outlive any phase.
+
+- **He personally decides** all fixture/oracle changes, extraction-convention rulings, photo
+  adjudications, and **every live-run cost approval**. Present options with a recommendation and
+  WAIT. State the dollar estimate before asking.
+- **Use the `superpowers:systematic-debugging` skill for ANY debugging**, and
+  `superpowers:brainstorming` for ANY brainstorming of new evaluations, iterations or solutions.
+- **End-of-task reports must be SIMPLE and VISUAL.** Lead with tables, plain language, and gloss
+  project jargon on first use. His approval depends on understanding — and a term that implies
+  something *false* is worse than a verbose one. Before asking him to authorise anything, spell
+  out what it is NOT.
+- **Never quote a single run as quality — report the RANGE across runs.** The model returns a
+  different but equally valid item list each call.
+- **A numeric scorer pass is never a gate by itself.** Every live run's raw dump must also pass a
+  by-hand audit against the menu photo for invented or unprinted items.
+- **A frequency claim needs a denominator.** "Reproduces reliably" / "it's rare" are claims about
+  a COUNT — record the count and the machine it ran on, or write neither. (This cost two sessions:
+  eval 139 called a crash "reliable" from one occurrence, eval 140 called it "rare" from two runs
+  whose machine was never established. Both were wrong.)
+- **Ledger every experiment** in the iteration ledger before your session ends, and commit + push
+  on `main` after every commit.
+
+## 3. Closed — do not re-enter
+
+These phases are finished. Their folders stay in place because the ledger references their paths,
+but they are history, not work:
+
+| Area | Where | State |
+|---|---|---|
+| Extraction Features 1–4 | roadmap "Feature Sequence" | CLOSED — frozen as regression gates |
+| Per-page multi-photo wiring | critical path #1 | CLOSED |
+| Dense-menu auto-cutter | critical path #2 | CLOSED |
+| Client compression fidelity | critical path #3 | CLOSED |
+| Horizontal/landscape menus + rotation | `docs/superpowers/horizontal-menus/` | CLOSED |
+| TestFlight photo crash | `plans/2026-08-05-testflight-photo-crash-handoff.md` | SOLVED |
+
+## 4. Before you build anything on a device
+
+`plans/2026-08-05-testflight-photo-crash-handoff.md` has the environment traps — iCloud
+`FinderInfo` breaking `codesign`, Metro's compiled-in port, verifying a shipped bundle actually
+carries its env vars. **Each of those cost a session.** Read that file's trap section before any
+local iOS build or EAS build.
+
+## 5. Non-extraction work
+
+The master roadmap covers **extraction only** — it says so in its own scope line. App design, UI
+and product behaviour are governed by `AGENTS.md` (features, stack, architecture, UI rules) and
+`DESIGN.md` (the design system, which is the source of truth for typography and styling).

@@ -1,5 +1,15 @@
 # DELEGATION BRIEF — Horizontal Menus (critical-path #4)
 
+> ⛔ **CLOSED PHASE — ARCHIVE. NOT AN ENTRY POINT.**
+> The horizontal/landscape-menu phase closed **2026-08-04** (ledger evals 132–137: H2 rotation
+> deployed as edge fn v22, device-verified). This file is kept because the iteration ledger
+> references its path; **its status lines below are historical and must not be believed.**
+>
+> **New sessions start at `docs/superpowers/START-HERE.md`.** The current phase is recorded in
+> exactly one place: the `🎯 CURRENT PHASE` block atop
+> `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`.
+
+
 > **Read this file in full before doing anything.** It is the entry point for zero-context LLMs continuing this work. It overrides your defaults, except the repo's `CLAUDE.md` and `AGENTS.md` (below), which also govern — read both and follow them STRICTLY.
 
 ---

@@ -1,5 +1,15 @@
 # Horizontal Menus Roadmap (critical-path #4) — dedicated plan
 
+> ⛔ **CLOSED PHASE — ARCHIVE. NOT AN ENTRY POINT.**
+> The horizontal/landscape-menu phase closed **2026-08-04** (ledger evals 132–137: H2 rotation
+> deployed as edge fn v22, device-verified). This file is kept because the iteration ledger
+> references its path; **its status lines below are historical and must not be believed.**
+>
+> **New sessions start at `docs/superpowers/START-HERE.md`.** The current phase is recorded in
+> exactly one place: the `🎯 CURRENT PHASE` block atop
+> `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`.
+
+
 > **What this is:** the working plan for critical-path #4 (horizontal/landscape menu handling), structured like the master roadmap: phases with cheap-probe-first iteration, frozen-gate discipline, and user rulings at checkpoints. Master roadmap: main repo `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md` ("Release scope decision" item 4). Read its **Strategy Rules** and **Lessons learned** before any phase.
 
 **Status:** ACTIVE 2026-07-22 · **🅿 NEW PRIORITY ZERO (ruling 29, 2026-07-22): GPT-4o→Mistral-OCR EXTRACTION MIGRATION.** Santiago redirected: make Mistral OCR (native `document_annotation_format`) the Stage-1 EXTRACTOR, matching the eval093/H1.3 GPT-4o quality on all fixtures, with GPT-4o kept for enrichment only. Evidence (eval 095, B1 probe, $0.045): one Mistral annotation call, NO tiling → full item recall ×3 all 3 wide menus, ~0 inventions, perfectly deterministic ×3, names/prices ≥ GPT; gap = Mistral's own artifact shape needs a Mistral-specific cleanup layer (the GPT-tuned postprocess doesn't clean it). **This reframes the horizontal roadmap:** if Mistral reads the whole image, H1 tiling + the colocation stage likely become MOOT; rotation (H2) is still needed. **PROGRESS: M0 (B1 feasibility) ✅ + M1 (cleanup layer) OFFLINE GATE MET 2026-07-22 (`7f8446c`): polloteria ALL-5 ×3 (ruling-6 clean), GH recall 48/48 + zero-invention ×3, bistro 4/5 (only the E misattached-add-on item, a deliberate M2 fix). M2 (scored ×3 gate) MET 2026-07-28 (eval 097, `f8a0efc`, $0): the E extraction-instruction was REJECTED (eval 096 net regression — a schema field-description is a global lever) and the bistro `5 Formaggi` misattribution fixed instead by `dropMisattachedOptions`, a deterministic colocation guard in `mistral-cleanup.ts` using Mistral's OWN `pages[].blocks` (free in the response) → polloteria ALL-5 ×3, bistro ALL-5 ×3, GH recall 48/48 ×3, ruling-6 clean, zero collateral. NEXT ACTION = M3 edge wiring: swap the Stage-1 extractor to Mistral, port the mistral-cleanup chain (incl. this guard) to the edge, RE-EVALUATE removing the standalone colocation stage + tile-all path; then M4 re-prove all 9 menus. See the "🅿 PRIORITY ZERO" section + the brief's newest PROGRESS LOG entry.**

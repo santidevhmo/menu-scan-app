@@ -1,0 +1,128 @@
+{
+  "menu": "brasero-two",
+  "photos": [
+    "BraseroMenuTwo.png",
+    "BraseroMenuTwo_TWo.png"
+  ],
+  "total_items": 44,
+  "food_items": 44,
+  "drink_items": 0,
+  "categories": [
+    "food",
+    "side",
+    "dessert"
+  ],
+  "sections": [
+    "Entradas",
+    "Especialidades",
+    "Ensaladas",
+    "Caldos",
+    "Especialidades Brasero",
+    "Cerdo",
+    "Res",
+    "Pollo",
+    "Atún",
+    "Guarniciones",
+    "Postres"
+  ],
+  "section_headers": [
+    "Los Lagos",
+    "Churrasquería"
+  ],
+  "section_expectations": [
+    {
+      "name_contains": "Chicharrón Brasero",
+      "section_title": "Entradas"
+    },
+    {
+      "name_contains": "Hamburguesa Brasero",
+      "section_title": "Especialidades"
+    },
+    {
+      "name_contains": "Sopa de Tortilla",
+      "section_title": "Caldos"
+    },
+    {
+      "name_contains": "Taco de Leite",
+      "section_title": "Especialidades Brasero"
+    },
+    {
+      "name_contains": "Taco Loiro",
+      "section_title": "Especialidades Brasero"
+    },
+    {
+      "name_contains": "Bandiola Adobada",
+      "section_title": "Cerdo"
+    },
+    {
+      "name_contains": "Chistorra",
+      "section_title": "Cerdo"
+    },
+    {
+      "name_contains": "Pechuga al Limón rellena de queso envuelta en tocino",
+      "section_title": "Pollo"
+    },
+    {
+      "name_contains": "Filete de Atún sellado con rub rojo a la parrilla",
+      "section_title": "Atún"
+    },
+    {
+      "name_contains": "Papas Cambray",
+      "section_title": "Guarniciones"
+    },
+    {
+      "name_contains": "Brownie",
+      "section_title": "Postres"
+    }
+  ],
+  "items_with_options": [
+    {
+      "name_contains": "Taco Loiro",
+      "options": [
+        {
+          "name": "pollo",
+          "price": 150
+        }
+      ]
+    },
+    {
+      "name_contains": "Churrasquería",
+      "unchecked": true,
+      "options": [
+        {
+          "name": "Doble",
+          "price": 950,
+          "grams": 600
+        }
+      ]
+    }
+  ],
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  },
+  "category_expectations": [
+    {
+      "name_contains": "Chicharrón Brasero",
+      "category": "food"
+    },
+    {
+      "name_contains": "Papas Cambray",
+      "category": "side"
+    },
+    {
+      "name_contains": "Brownie",
+      "category": "dessert"
+    }
+  ],
+  "grams_expectations": [
+    {
+      "name_contains": "Costillas Hormigueras",
+      "grams": 300
+    },
+    {
+      "name_contains": "Infladita Emiliana",
+      "grams": 70
+    }
+  ]
+}

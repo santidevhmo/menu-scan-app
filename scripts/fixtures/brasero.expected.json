@@ -1,0 +1,106 @@
+{
+  "menu": "brasero",
+  "photos": [
+    "BraseroMenu.png"
+  ],
+  "total_items": 28,
+  "food_items": 28,
+  "drink_items": 0,
+  "categories": [
+    "food",
+    "side"
+  ],
+  "sections": [
+    "Carne",
+    "Mariscos",
+    "Pollo y Puerco",
+    "Acompañamientos",
+    "Especialidades",
+    "Pastas"
+  ],
+  "section_headers": [
+    "A las brasas"
+  ],
+  "section_expectations": [
+    {
+      "name_contains": "Rib Eye",
+      "section_title": "Carne"
+    },
+    {
+      "name_contains": "Pasta Alfredo",
+      "section_title": "Pastas"
+    },
+    {
+      "name_contains": "Pasta Parmesan",
+      "section_title": "Pastas"
+    }
+  ],
+  "items_with_options": [
+    {
+      "name_contains": "Pasta Alfredo",
+      "options": [
+        {
+          "name": "Camarón",
+          "price": null
+        },
+        {
+          "name": "Pollo",
+          "price": null
+        }
+      ]
+    },
+    {
+      "name_contains": "Pasta Parmesan",
+      "options": [
+        {
+          "name": "Chorizo",
+          "price": 25
+        },
+        {
+          "name": "Pollo",
+          "price": 45
+        },
+        {
+          "name": "Camarón",
+          "price": 70
+        }
+      ]
+    }
+  ],
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  },
+  "category_expectations": [
+    {
+      "name_contains": "Rib Eye",
+      "category": "food"
+    },
+    {
+      "name_contains": "Puré de Papa",
+      "category": "side"
+    },
+    {
+      "name_contains": "Pasta Alfredo",
+      "category": "food"
+    }
+  ],
+  "grams_expectations": [
+    {
+      "name_contains": "Rib Eye",
+      "grams": 400
+    },
+    {
+      "name_contains": "Puré de Papa",
+      "grams": 350
+    },
+    {
+      "name_contains": "Pulpo a las Brasas",
+      "grams": 280
+    },
+    {
+      "name_contains": "Chamorro Calafate",
+      "grams": 650
+    }
+  ]
+}

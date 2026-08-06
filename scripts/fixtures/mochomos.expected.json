@@ -1,0 +1,50 @@
+{
+  "menu": "mochomos",
+  "photos": [
+    "MochomosMenu.png"
+  ],
+  "total_items": 22,
+  "food_items": 22,
+  "drink_items": 0,
+  "categories": [
+    "food"
+  ],
+  "tolerated_option_names": [
+    "versión cilantro",
+    "salmón"
+  ],
+  "sections": [
+    "Tacos y Tostadas",
+    "Ensaladas",
+    "Vegetariano"
+  ],
+  "section_expectations": [
+    {
+      "name_contains": "Tacos de Camarón al Chipotle",
+      "section_title": "Tacos y Tostadas"
+    },
+    {
+      "name_contains": "Ensalada Mochomos",
+      "section_title": "Ensaladas"
+    },
+    {
+      "name_contains": "Torre de Betabel",
+      "section_title": "Vegetariano"
+    }
+  ],
+  "items_with_options": [],
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  },
+  "category_expectations": [
+    {
+      "name_contains": "Ensalada Mochomos",
+      "category": "food"
+    },
+    {
+      "name_contains": "Torre de Betabel",
+      "category": "food"
+    }
+  ]
+}

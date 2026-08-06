@@ -8,13 +8,13 @@ export interface ScanPhoto {
   source: ScanPhotoSource;
 }
 
-export type MenuCategory =
-  | "appetizer"
-  | "main"
-  | "side"
-  | "dessert"
-  | "drink"
-  | "other";
+export type MenuCategory = "food" | "side" | "dessert" | "drink" | "other";
+export type CropDirection = "none" | "left_right" | "top_bottom";
+
+export interface ImageLayout {
+  dense: boolean;
+  crop_direction: CropDirection;
+}
 
 // ── Phase 2: two-stage extraction / enrichment ──────────────────────────────
 
@@ -24,6 +24,11 @@ export interface ExtractedItem {
   description: string;
   price: number | null;
   category: MenuCategory;
+  section_title: string | null;
+  options: { name: string; price: number | null; grams: number | null }[];
+  // Printed item weight in grams, parsed deterministically from name/description
+  // by postprocess (parseItemGrams) — NOT model-filled.
+  grams: number | null;
 }
 
 // Stage 2 reasoning substrate — ingredient tagged by macro category
@@ -58,12 +63,13 @@ export interface EnrichmentResult {
 }
 
 export type ExtractionProvider = "gpt-vision";
-export type EnrichmentProvider = "gemini-2.5-flash" | "gpt-4o";
+export type EnrichmentProvider = "gpt-4o";
 export type PipelineStage = "extract" | "enrich";
 
 export interface ExtractionResult {
   provider: ExtractionProvider;
   items: ExtractedItem[];
+  image_layout: ImageLayout | null;
   latency_ms: number;
   model_id: string;
   error: string | null;

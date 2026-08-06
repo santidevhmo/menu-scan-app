@@ -4,7 +4,8 @@ import {
   FunctionsHttpError,
   FunctionsRelayError,
 } from "@supabase/supabase-js";
-import { compressImage } from "./compressImage";
+import { compressImage, prepareTile, rotateImage } from "./compressImage";
+import { gridCropRects } from "./adaptiveExtraction";
 import { supabase } from "./supabase";
 import { scoreAndSort, type GoalVector } from "./zScoreSort";
 import { GOAL_PAIRS, GROUP_TO_MACRO, type MacroField } from "@/data/goals";
@@ -109,7 +110,8 @@ function logExtractionResult(result: ExtractionResult) {
     item_count: result.items.length,
     error: result.error,
     items: result.items,
-    raw_response: result.raw_response ?? null,
+    // raw_response omitted from the log: it duplicates items as the raw
+    // per-page model output and doubles/triples the console block.
   };
 
   console.log(
@@ -151,16 +153,41 @@ export function selectedMacros(goals: string[]): Set<MacroField> {
 }
 
 /** Runs the live Stage 1 GPT-4o Vision extraction path through Supabase. */
+export function buildExtractPagesBody(
+  pages: string[][],
+  ocrPhotos: (string | null)[],
+  provider: ExtractionProvider,
+) {
+  return {
+    pages,
+    ocr_photos: ocrPhotos,
+    provider,
+    stage: "extract-pages" as const,
+  };
+}
+
 export async function extractMenu(
   photos: ScanPhoto[],
   provider: ExtractionProvider,
 ): Promise<ExtractionResult> {
+  // Ticket #3 (ledger eval 056): upload ORIGINAL bytes when they fit the
+  // budget — every 2048px JPEG re-encode stably lost gated dims. Oversized
+  // photos fall back to compressImage (2048/q0.95). The edge accepts full
+  // data: URLs as-is; correct mime matters for passthrough PNGs.
+  const PASSTHROUGH_MAX_BYTES = 6_750_000; // ≈9M base64 chars; edge cap 10M
   const base64Photos = await Promise.all(
     photos.map(async (p) => {
-      const compressed = await compressImage(p.uri, p.width, p.height);
-      return FileSystem.readAsStringAsync(compressed.uri, {
+      const info = await FileSystem.getInfoAsync(p.uri);
+      const size =
+        info.exists && typeof info.size === "number" ? info.size : Infinity;
+      const passthrough = size <= PASSTHROUGH_MAX_BYTES;
+      const src = passthrough ? p : await compressImage(p.uri, p.width, p.height);
+      const b64 = await FileSystem.readAsStringAsync(src.uri, {
         encoding: FileSystem.EncodingType.Base64,
       });
+      const ext = src.uri.split(".").pop()?.toLowerCase();
+      const mime = ext === "png" ? "image/png" : "image/jpeg";
+      return `data:${mime};base64,${b64}`;
     }),
   );
   const debugContext = getSupabaseDebugContext(
@@ -181,6 +208,7 @@ export async function extractMenu(
     const result: ExtractionResult = {
       provider,
       items: [],
+      image_layout: null,
       latency_ms: 0,
       model_id: provider,
       error: errMsg,
@@ -190,10 +218,105 @@ export async function extractMenu(
     return result;
   }
 
-  if (!data || !Array.isArray(data.items)) {
+  let payload = data;
+  if (Array.isArray(data?.needs_rotation) && data.needs_rotation.length > 0) {
+    // The page(s) are sideways. Straighten them here — the phone already has
+    // the image and the library — and re-submit with `prior` returned verbatim
+    // so the server can compare its two reads without a third OCR call.
+    console.log("[extractMenu] sideways pages detected", data.needs_rotation);
+    const byPage = new Map<number, number>(
+      data.needs_rotation.map((r: { page: number; degrees: number }) => [
+        r.page,
+        r.degrees,
+      ]),
+    );
+    const straightened = await Promise.all(
+      photos.map(async (photo, index) => {
+        const degrees = byPage.get(index);
+        if (degrees === undefined) return base64Photos[index];
+        const rotatedUri = await rotateImage(photo.uri, degrees);
+        const b64 = await FileSystem.readAsStringAsync(rotatedUri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        return `data:image/jpeg;base64,${b64}`;
+      }),
+    );
+    const second = await supabase.functions.invoke(FUNCTION_NAME, {
+      body: {
+        photos: straightened,
+        goals: [],
+        provider,
+        stage: "extract",
+        rotated: true,
+        prior: data.prior,
+      },
+    });
+    if (second.error) {
+      // Keep the first pass's result rather than failing the scan: the server
+      // already holds `prior` and would have produced items from it.
+      console.log("[extractMenu] rotation re-submit failed, keeping first read");
+    } else {
+      payload = second.data;
+    }
+  }
+  if (Array.isArray(data?.needs_crops)) {
+    // Dense page(s): cut 2x2 tiles from the ORIGINAL photos (never the
+    // compressed copies — compression is what breaks dense extraction) and
+    // re-submit every page as a group for one unified menu.
+    console.log("[extractMenu] dense pages detected", data.needs_crops);
+    const dense = new Set<number>(data.needs_crops);
+    const ocrPhotos = await Promise.all(
+      photos.map(async (photo, index) => {
+        if (!dense.has(index)) return null;
+        const compressed = await compressImage(photo.uri, photo.width, photo.height);
+        const b64 = await FileSystem.readAsStringAsync(compressed.uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        return `data:image/jpeg;base64,${b64}`;
+      }),
+    );
+    const pages = await Promise.all(
+      photos.map(async (photo, index) => {
+        if (!dense.has(index)) return [base64Photos[index]];
+        const tiles = await Promise.all(
+          gridCropRects(photo.width, photo.height).map((rect) =>
+            prepareTile(photo.uri, rect),
+          ),
+        );
+        return Promise.all(
+          tiles.map((tile) =>
+            FileSystem.readAsStringAsync(tile.uri, {
+              encoding: FileSystem.EncodingType.Base64,
+            }),
+          ),
+        );
+      }),
+    );
+    const phase2 = await supabase.functions.invoke(FUNCTION_NAME, {
+      body: buildExtractPagesBody(pages, ocrPhotos, provider),
+    });
+    if (phase2.error) {
+      logFunctionInvokeError(debugContext, phase2.error);
+      const errMsg = await getFunctionErrorMessage(phase2.error);
+      const result: ExtractionResult = {
+        provider,
+        items: [],
+        image_layout: null,
+        latency_ms: 0,
+        model_id: provider,
+        error: errMsg,
+      };
+      logExtractionResult(result);
+      return result;
+    }
+    payload = phase2.data;
+  }
+
+  if (!payload || !Array.isArray(payload.items)) {
     const result: ExtractionResult = {
       provider,
       items: [],
+      image_layout: null,
       latency_ms: 0,
       model_id: provider,
       error: "Malformed response from analyze-menu (missing items array)",
@@ -205,11 +328,12 @@ export async function extractMenu(
 
   const result: ExtractionResult = {
     provider,
-    items: data.items,
-    latency_ms: data.latency_ms,
-    model_id: data.model_id,
-    error: data.error ?? null,
-    raw_response: data.raw_response,
+    items: payload.items,
+    image_layout: payload.image_layout ?? null,
+    latency_ms: payload.latency_ms,
+    model_id: payload.model_id,
+    error: payload.error ?? null,
+    raw_response: payload.raw_response,
   };
 
   logExtractionResult(result);

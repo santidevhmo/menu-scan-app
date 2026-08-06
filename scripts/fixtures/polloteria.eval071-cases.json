@@ -1,0 +1,131 @@
+{
+  "source_dump": "polloteria.paired-ambiguity-eval069-r1.actual.json",
+  "cases": [
+    {
+      "id": "coliflor-fake",
+      "role": "fake",
+      "name": "Boneless de Coliflor Vegetarianos (350gr)",
+      "price": 150,
+      "section_title": "Especialidades",
+      "source": "eval069 dump",
+      "expect": "contradicted"
+    },
+    {
+      "id": "coliflor-real",
+      "role": "real-keep",
+      "name": "Boneless de Coliflor / Vegetarianas (300gr)",
+      "price": 139,
+      "section_title": "Especialidades",
+      "source": "eval069 dump",
+      "expect": "verified"
+    },
+    {
+      "id": "alitas-phase2-a",
+      "role": "control-keep",
+      "name": "Alitas 6 Pz  $129 / 12Pz $169 / 20Pz $269",
+      "price": null,
+      "section_title": null,
+      "source": "eval069 dump",
+      "expect": "verified"
+    },
+    {
+      "id": "alitas-phase2-b",
+      "role": "control-keep",
+      "name": "Alitas (6 pz 125gr / 12pz 315gr / 20pz 525gr)",
+      "price": null,
+      "section_title": "Crispy Chicken",
+      "source": "eval069 dump",
+      "expect": "unverifiable"
+    },
+    {
+      "id": "distinct-sandwiches-a",
+      "role": "control-keep",
+      "name": "Boneless Barbecue (300gr)",
+      "price": 150,
+      "section_title": "Hazlas sazonadas por $20",
+      "source": "eval069 dump",
+      "expect": "verified"
+    },
+    {
+      "id": "distinct-sandwiches-b",
+      "role": "control-keep",
+      "name": "Boneless Buffalo (300gr)",
+      "price": 150,
+      "section_title": "Hazlas sazonadas por $20",
+      "source": "eval069 dump",
+      "expect": "verified"
+    },
+    {
+      "id": "boneless-jr-fake",
+      "role": "fake",
+      "name": "Boneless Jr(200gr)",
+      "price": 95,
+      "section_title": "Crispy Chicken",
+      "source": "eval069 dump",
+      "expect": "contradicted"
+    },
+    {
+      "id": "boneless-jr-real",
+      "role": "real-keep",
+      "name": "Boneless Jr(200gr)",
+      "price": 132,
+      "section_title": "Pollo Kids",
+      "source": "eval069 dump",
+      "expect": "verified"
+    },
+    {
+      "id": "buffalo-fake",
+      "role": "fake",
+      "name": "Buffalo (350gr)",
+      "price": 150,
+      "section_title": "Sandwiches & Hamburguesas",
+      "source": "eval069 dump",
+      "expect": "contradicted"
+    },
+    {
+      "id": "ensalada-verde-fake",
+      "role": "fake",
+      "name": "Ensalada Verde (350gr)",
+      "price": 70,
+      "section_title": "Sides",
+      "source": "eval069 dump",
+      "expect": "contradicted"
+    },
+    {
+      "id": "ensalada-verde-real",
+      "role": "real-keep",
+      "name": "Ensalada Verde (150gr)",
+      "price": 52,
+      "section_title": "Sides",
+      "source": "eval069 dump",
+      "expect": "verified"
+    },
+    {
+      "id": "nuggets-coliflor-fake",
+      "role": "fake",
+      "name": "Nuggets de Coliflor (200gr)",
+      "price": 132,
+      "section_title": "Pollo Kids",
+      "source": "eval069 dump",
+      "expect": "contradicted"
+    },
+    {
+      "id": "nuggets-coliflor-real",
+      "role": "real-keep",
+      "name": "Nuggets (200gr)",
+      "price": 89,
+      "section_title": "Pollo Kids",
+      "source": "eval069 dump",
+      "expect": "verified"
+    },
+    {
+      "id": "distinct-kids-b",
+      "role": "control-keep",
+      "name": "Chicken-Little (200gr)",
+      "price": 89,
+      "section_title": "Pollo Kids",
+      "source": "eval069 dump",
+      "expect": "verified"
+    }
+  ]
+}

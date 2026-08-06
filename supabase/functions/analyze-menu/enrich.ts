@@ -63,5 +63,7 @@ export function reassembleEnriched(
     pools.set(e.name, arr);
   }
 
-  return inputs.map((src) => pools.get(src.name)?.shift() ?? fallbackEnriched(src));
+  return inputs.map((src) =>
+    pools.get(src.name)?.shift() ?? fallbackEnriched(src)
+  );
 }

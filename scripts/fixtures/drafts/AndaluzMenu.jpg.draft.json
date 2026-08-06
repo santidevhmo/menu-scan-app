@@ -1,0 +1,441 @@
+{
+  "dense_pages": [],
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  },
+  "items": [
+    {
+      "name": "Papas Fritas",
+      "description": "Sazonadas con trufa, parmesano y virutas de bacon crujiente.",
+      "price": 190,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Costra de Chamorro",
+      "description": "Con cebolla morada y aguacate.",
+      "price": 265,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": 80
+    },
+    {
+      "name": "Costra de Chamorro y Pulpo",
+      "description": "Con cebolla morada y aguacate.",
+      "price": 275,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": 80
+    },
+    {
+      "name": "Quesaboneless",
+      "description": "Dos tortillas de harina, manchego, boneless con salsa al gusto.",
+      "price": 180,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Parrillada Verduras",
+      "description": "",
+      "price": 230,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Espárragos con Jamón Serrano",
+      "description": "",
+      "price": 240,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": 30
+    },
+    {
+      "name": "Champiñones al Ajillo",
+      "description": "",
+      "price": 225,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Papas Bravas",
+      "description": "",
+      "price": 210,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Panela Plus Asada",
+      "description": "A la plancha con champiñones, chile verde, jamón serrano y chistorra.",
+      "price": 250,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": 30
+    },
+    {
+      "name": "Queso Fundido",
+      "description": "",
+      "price": 235,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [
+        {
+          "name": "Con chistorra y champis",
+          "price": 235,
+          "grams": 50
+        },
+        {
+          "name": "Con chile verde + diezmillo",
+          "price": 290,
+          "grams": 100
+        }
+      ],
+      "grams": 50
+    },
+    {
+      "name": "Coliflor Roka",
+      "description": "",
+      "price": 250,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Brocheta de Pollo Abierta con Verduras",
+      "description": "",
+      "price": 280,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "Boneless de Pollo",
+      "description": "Buffalo, BBQ, mango habanero, cookies.",
+      "price": 220,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [
+        {
+          "name": "Buffalo",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "BBQ",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "Mango habanero",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "Cookies",
+          "price": null,
+          "grams": null
+        }
+      ],
+      "grams": 200
+    },
+    {
+      "name": "Boneless de Camarón",
+      "description": "",
+      "price": 300,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "Alitas de Pollo",
+      "description": "BBQ, mango, buffalo, cookies.",
+      "price": 245,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [
+        {
+          "name": "BBQ",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "Mango",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "Buffalo",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "Cookies",
+          "price": null,
+          "grams": null
+        }
+      ],
+      "grams": 400
+    },
+    {
+      "name": "Croquetas de Abuela",
+      "description": "Empanizadas y rellenas de jamón serrano, pollo y queso, en crema bechamel.",
+      "price": 245,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Tiras de Pollo",
+      "description": "Acompañadas de papas fritas.",
+      "price": 185,
+      "category": "food",
+      "section_title": "Entradas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Mediterránea",
+      "description": "Lechuga, pepino, elote, queso panela, aceitunas, tomate cherry, aguacate, champis, espárragos, almendras, aderezada con aceite oliva y balsámico.",
+      "price": 245,
+      "category": "food",
+      "section_title": "Ensaladas",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Cesar",
+      "description": "Lechuga, queso parmesano rallado, crutones, pollo a la plancha y aderezo cesar de la casa.",
+      "price": 275,
+      "category": "food",
+      "section_title": "Ensaladas",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "De Camarón Roka",
+      "description": "Por dentro camarón capeado, pepino, aguacate y alga, y por fuera nuestro camarón roka con cebollín y ajonjolí.",
+      "price": 275,
+      "category": "food",
+      "section_title": "Sushi",
+      "options": [
+        {
+          "name": "Empanizados",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "Naturales",
+          "price": null,
+          "grams": null
+        }
+      ],
+      "grams": null
+    },
+    {
+      "name": "De Pollo (empanizado con panko)",
+      "description": "Por dentro pollo, pepino, alga y aguacate.",
+      "price": 265,
+      "category": "food",
+      "section_title": "Sushi",
+      "options": [
+        {
+          "name": "Empanizados",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "Naturales",
+          "price": null,
+          "grams": null
+        }
+      ],
+      "grams": null
+    },
+    {
+      "name": "De Atún",
+      "description": "Por dentro queso crema, alga, pepino y aguacate y por fuera lomo de atún, masago y chipotle.",
+      "price": 275,
+      "category": "food",
+      "section_title": "Sushi",
+      "options": [
+        {
+          "name": "Empanizados",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "Naturales",
+          "price": null,
+          "grams": null
+        }
+      ],
+      "grams": null
+    },
+    {
+      "name": "Pulpo a la Gallega",
+      "description": "Pulpo salteado en AOVE sobre papa cambray, pimentón y sal gruesa.",
+      "price": 380,
+      "category": "food",
+      "section_title": "Del Mar",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "Camarones Empanizados",
+      "description": "",
+      "price": 405,
+      "category": "food",
+      "section_title": "Del Mar",
+      "options": [],
+      "grams": 230
+    },
+    {
+      "name": "Camarón Roka",
+      "description": "Camarón capeado y bañado en nuestro aderezo roka a base de chipotle.",
+      "price": 320,
+      "category": "food",
+      "section_title": "Del Mar",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "Atún Sellado",
+      "description": "Fresco atún sellado con parrillada de verduras.",
+      "price": 335,
+      "category": "food",
+      "section_title": "Del Mar",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "Camarón Andaluz",
+      "description": "Salteado en ajo, queso gratinado y jamón serrano. Acompañado de parrillada de verduras.",
+      "price": 355,
+      "category": "food",
+      "section_title": "Del Mar",
+      "options": [],
+      "grams": 230
+    },
+    {
+      "name": "Camarones al Ajillo",
+      "description": "Con vino blanco, AOVE, chile de árbol, chiltepín. Pan o tortillas.",
+      "price": 300,
+      "category": "food",
+      "section_title": "Del Mar",
+      "options": [
+        {
+          "name": "Pan",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "Tortillas",
+          "price": null,
+          "grams": null
+        }
+      ],
+      "grams": 200
+    },
+    {
+      "name": "Tacos de Papada",
+      "description": "Tortilla maíz o harina, más cebolla morada y aguacate.",
+      "price": 205,
+      "category": "food",
+      "section_title": "Carnes",
+      "options": [
+        {
+          "name": "Maíz",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "Harina",
+          "price": null,
+          "grams": null
+        }
+      ],
+      "grams": null
+    },
+    {
+      "name": "Tacos o Fajitas de Diezmillo",
+      "description": "Con salsa bandera, guacamole, chile serrano y tortillas de maíz.",
+      "price": 395,
+      "category": "food",
+      "section_title": "Carnes",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "Fajitas de Arrachera",
+      "description": "Con salsa bandera, guacamole, chile serrano y tortillas de maíz.",
+      "price": 455,
+      "category": "food",
+      "section_title": "Carnes",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "Arrachera de la Casa",
+      "description": "A la plancha, al término de su elección. Con queso fundido, vegetales y jamón serrano.",
+      "price": 455,
+      "category": "food",
+      "section_title": "Carnes",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "Arrachera Wagyu Cross",
+      "description": "A la plancha, al término de su elección. Con queso fundido, vegetales y jamón serrano.",
+      "price": 655,
+      "category": "food",
+      "section_title": "Carnes",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "Cabrería",
+      "description": "Dos medallones de cabrería a la plancha, con papa cambray, champiñones, cherrys y espárragos.",
+      "price": 655,
+      "category": "food",
+      "section_title": "Carnes",
+      "options": [],
+      "grams": 250
+    },
+    {
+      "name": "Cabrería Wagyu Cross",
+      "description": "Dos medallones de cabrería a la plancha, con papa cambray, champiñones, cherrys y espárragos.",
+      "price": 880,
+      "category": "food",
+      "section_title": "Carnes",
+      "options": [],
+      "grams": 250
+    },
+    {
+      "name": "Papada de Puerco",
+      "description": "Crujiente papada, con papa cambray, jugo de limón y chiltepín.",
+      "price": 260,
+      "category": "food",
+      "section_title": "Carnes",
+      "options": [],
+      "grams": 200
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "menu": "bistro",
+  "photos": [
+    "BistroMenu.png"
+  ],
+  "total_items": 26,
+  "food_items": 24,
+  "drink_items": 0,
+  "categories": [
+    "food"
+  ],
+  "tolerated_categories": [
+    "other"
+  ],
+  "tolerated_option_names": [
+    "pollo",
+    "camarón"
+  ],
+  "sections": [
+    "Pizzas Bistro",
+    "Ensaladas",
+    "Pastas"
+  ],
+  "section_headers": [
+    "Agrega a tu pasta o ensalada"
+  ],
+  "section_expectations": [
+    {
+      "name_contains": "5 FORMAGGI",
+      "section_title": "Pizzas Bistro"
+    },
+    {
+      "name_contains": "ENSALADA BISTRO",
+      "section_title": "Ensaladas"
+    },
+    {
+      "name_contains": "FETUCCINI ALFREDO",
+      "section_title": "Pastas"
+    }
+  ],
+  "items_with_options": [],
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  },
+  "category_expectations": [
+    {
+      "name_contains": "5 FORMAGGI",
+      "category": "food"
+    },
+    {
+      "name_contains": "ENSALADA BISTRO",
+      "category": "food"
+    }
+  ]
+}

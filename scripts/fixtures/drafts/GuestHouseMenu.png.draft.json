@@ -1,0 +1,463 @@
+{
+  "dense_pages": [],
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  },
+  "items": [
+    {
+      "name": "COASTAL OYSTERS (6)",
+      "description": "chilled with cocktail sauce | mignonette",
+      "price": 28,
+      "category": "food",
+      "section_title": "RAW BAR",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "SHRIMP COCKTAIL",
+      "description": "chili cocktail sauce | lemon",
+      "price": 25,
+      "category": "food",
+      "section_title": "RAW BAR",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "HAMACHI CRUDO*",
+      "description": "jalapeño | coconut | lime",
+      "price": 29,
+      "category": "food",
+      "section_title": "RAW BAR",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "CAVIAR SERVICE & TOASTED BRIOCHE",
+      "description": "traditional accoutrements",
+      "price": null,
+      "category": "food",
+      "section_title": "RAW BAR",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "HALF MAINE LOBSTER TAIL",
+      "description": "chilled or grilled",
+      "price": 35,
+      "category": "food",
+      "section_title": "RAW BAR",
+      "options": [
+        {
+          "name": "chilled",
+          "price": null,
+          "grams": null
+        },
+        {
+          "name": "grilled",
+          "price": null,
+          "grams": null
+        }
+      ],
+      "grams": null
+    },
+    {
+      "name": "TAYLOR BAY SCALLOP CEVICHE",
+      "description": "yuzu | lychee | lavender | lime",
+      "price": 28,
+      "category": "food",
+      "section_title": "RAW BAR",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "STEAK TARTARE",
+      "description": "truffle toast",
+      "price": 27,
+      "category": "food",
+      "section_title": "STARTERS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "CHICKEN TENDERS",
+      "description": "ranch | sweet bbq aioli",
+      "price": 24,
+      "category": "food",
+      "section_title": "STARTERS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "CRAB CAKE",
+      "description": "masa cracker | corn relish | smoked tomato butter",
+      "price": 39,
+      "category": "food",
+      "section_title": "STARTERS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "CHARRED MOROCCAN BEET V",
+      "description": "cucumber yogurt | pistachio dukkah | burnt citrus",
+      "price": 24,
+      "category": "food",
+      "section_title": "STARTERS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "LITTLE GEM CAESAR",
+      "description": "rustic house-made croutons | parmigiano reggiano",
+      "price": 19,
+      "category": "food",
+      "section_title": "SALADS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "PEARS & GORGONZOLA",
+      "description": "honey vinaigrette | pickled shallots | walnuts",
+      "price": 20,
+      "category": "food",
+      "section_title": "SALADS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "SHAVED BRUSSEL SPROUTS",
+      "description": "toasted hazelnuts | crushed red grapes | aged gouda",
+      "price": 21,
+      "category": "food",
+      "section_title": "SALADS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "WARM BURRATA",
+      "description": "eirloom tomatoes | josper toasted focaccia | fresh basil",
+      "price": 24,
+      "category": "food",
+      "section_title": "SALADS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "SEAFOOD PLATEAU*",
+      "description": "chilled or warm / shrimp | maine lobster | king crab roasted bay scallops | oysters | clams",
+      "price": null,
+      "category": "food",
+      "section_title": null,
+      "options": [
+        {
+          "name": "FOR TWO",
+          "price": 150,
+          "grams": null
+        },
+        {
+          "name": "FOR THREE OR MORE",
+          "price": 280,
+          "grams": null
+        }
+      ],
+      "grams": null
+    },
+    {
+      "name": "PRIME TOMAHAWK*",
+      "description": "thyme | peppercorn | brown sugar",
+      "price": 6.5,
+      "category": "food",
+      "section_title": "BUTCHER'S BEST",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "40-DAY DRY AGED BONE-IN RIBEYE* 20oz GF",
+      "description": "roasted carrot",
+      "price": 145,
+      "category": "food",
+      "section_title": "BUTCHER'S BEST",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "PARMESAN-CRUSTED FILET* 7oz / 10oz",
+      "description": "roasted allium | veal reduction",
+      "price": 65,
+      "category": "food",
+      "section_title": "BUTCHER'S BEST",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "BUTCHER'S CUT* GF",
+      "description": "black pepper | black garlic | charred broccolini",
+      "price": 63,
+      "category": "food",
+      "section_title": "BUTCHER'S BEST",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "MISHIMA RESERVE WAGYU NEW YORK* GF",
+      "description": "shishito peppers | smoked butter | sea salt",
+      "price": 155,
+      "category": "food",
+      "section_title": "BUTCHER'S BEST",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "CACIO E PEPE V",
+      "description": "black pepper | parmesan | + add fresh truffle MP",
+      "price": 32,
+      "category": "food",
+      "section_title": "ENTREES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "SPICY RIGATONI",
+      "description": "pancetta | calabrian chili | house-made pomodoro",
+      "price": 34,
+      "category": "food",
+      "section_title": "ENTREES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "BRAISED SHORT-RIB GF",
+      "description": "carrots | onion roast | pea shoots",
+      "price": 48,
+      "category": "food",
+      "section_title": "ENTREES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "ORGANIC CHICKEN A LA RAJ",
+      "description": "lacinato kale | parmesan | toasted pistachio pesto",
+      "price": 38,
+      "category": "food",
+      "section_title": "ENTREES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "FAROE ISLAND SALMON GF",
+      "description": "beech mushrooms | ponzu brown butter",
+      "price": 42,
+      "category": "food",
+      "section_title": "ENTREES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "NEEV'S CAULIFLOWER",
+      "description": "golden sultanas | pea tendrils | meyer lemon yogurt",
+      "price": 32,
+      "category": "food",
+      "section_title": "ENTREES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "FREE RANGE DUROC PORK CHOP GF",
+      "description": "heirloom apple butter | braised kale | bbq lentils",
+      "price": 48,
+      "category": "food",
+      "section_title": "ENTREES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "AUSTRALIAN LAMB CHOPS",
+      "description": "eggplant caponata | natural jus",
+      "price": 65,
+      "category": "food",
+      "section_title": "ENTREES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "FOIE GRAS",
+      "description": "",
+      "price": 26,
+      "category": "food",
+      "section_title": "ENHANCEMENTS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "FRESH SHAVED TRUFFLES (5g)",
+      "description": "",
+      "price": 30,
+      "category": "food",
+      "section_title": "ENHANCEMENTS",
+      "options": [],
+      "grams": 5
+    },
+    {
+      "name": "BLACK TRUFFLE BUTTER",
+      "description": "",
+      "price": 9,
+      "category": "food",
+      "section_title": "ENHANCEMENTS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "HALF LOBSTER TAIL",
+      "description": "",
+      "price": 35,
+      "category": "food",
+      "section_title": "ENHANCEMENTS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "KING CRAB",
+      "description": "",
+      "price": 48,
+      "category": "food",
+      "section_title": "ENHANCEMENTS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "BUTTERED LUMP CRAB",
+      "description": "",
+      "price": 28,
+      "category": "food",
+      "section_title": "ENHANCEMENTS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "MEXICAN WHITE SHRIMP",
+      "description": "",
+      "price": 7,
+      "category": "food",
+      "section_title": "ENHANCEMENTS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "OSETRA CAVIAR (3g)",
+      "description": "",
+      "price": 20,
+      "category": "food",
+      "section_title": "ENHANCEMENTS",
+      "options": [],
+      "grams": 3
+    },
+    {
+      "name": "CHIMICHURRI",
+      "description": "",
+      "price": 5,
+      "category": "food",
+      "section_title": "ENHANCEMENTS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "HORSERADISH CRÈME",
+      "description": "",
+      "price": 5,
+      "category": "food",
+      "section_title": "ENHANCEMENTS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "BEARNAISE",
+      "description": "",
+      "price": 5,
+      "category": "food",
+      "section_title": "ENHANCEMENTS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "GH STEAK SAUCE",
+      "description": "",
+      "price": 5,
+      "category": "food",
+      "section_title": "ENHANCEMENTS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "CHARRED BRUSSELS V, GF",
+      "description": "",
+      "price": 14,
+      "category": "side",
+      "section_title": "SIDES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "MISO MUSHROOMS",
+      "description": "",
+      "price": 15,
+      "category": "side",
+      "section_title": "SIDES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "SWEET CORN PUDDING V",
+      "description": "",
+      "price": 15,
+      "category": "side",
+      "section_title": "SIDES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "YUKON POTATO PUREE V",
+      "description": "",
+      "price": 14,
+      "category": "side",
+      "section_title": "SIDES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "GH MAC | N CHEESE",
+      "description": "",
+      "price": 16,
+      "category": "side",
+      "section_title": "SIDES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "PARMESAN TRUFFLE FRIES",
+      "description": "",
+      "price": 16,
+      "category": "side",
+      "section_title": "SIDES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "GRILLED BROCCOLINI",
+      "description": "",
+      "price": 15,
+      "category": "side",
+      "section_title": "SIDES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "ROASTED ASPARAGUS",
+      "description": "",
+      "price": 15,
+      "category": "side",
+      "section_title": "SIDES",
+      "options": [],
+      "grams": null
+    }
+  ]
+}

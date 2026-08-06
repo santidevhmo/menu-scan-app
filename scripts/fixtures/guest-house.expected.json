@@ -1,0 +1,82 @@
+{
+  "menu": "guest-house",
+  "photos": [
+    "GuestHouseMenu.png"
+  ],
+  "items_over_tolerance": 6,
+  "total_items": 48,
+  "food_items": 48,
+  "drink_items": 0,
+  "categories": [
+    "food",
+    "side"
+  ],
+  "tolerated_option_names": [
+    "add fresh truffle"
+  ],
+  "sections": [
+    "Raw Bar",
+    "Starters",
+    "Salads",
+    "Butcher's Best",
+    "Enhancements",
+    "Entrees",
+    "Sides"
+  ],
+  "section_expectations": [
+    {
+      "name_contains": "COASTAL OYSTERS",
+      "section_title": "Raw Bar"
+    },
+    {
+      "name_contains": "STEAK TARTARE",
+      "section_title": "Starters"
+    },
+    {
+      "name_contains": "CACIO E PEPE",
+      "section_title": "Entrees"
+    }
+  ],
+  "items_with_options": [
+    {
+      "name_contains": "SEAFOOD PLATEAU*",
+      "options": [
+        {
+          "name": "FOR TWO",
+          "price": 150
+        },
+        {
+          "name": "FOR THREE OR MORE",
+          "price": 280
+        }
+      ]
+    },
+    {
+      "name_contains": "HALF MAINE LOBSTER TAIL",
+      "options": [
+        {
+          "name": "chilled"
+        },
+        {
+          "name": "grilled"
+        }
+      ],
+      "unchecked": true
+    }
+  ],
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  },
+  "category_expectations": [
+    {
+      "name_contains": "SPICY RIGATONI",
+      "category": "food"
+    },
+    {
+      "name_contains": "YUKON POTATO PUREE",
+      "category": "side"
+    }
+  ],
+  "grams_expectations": []
+}

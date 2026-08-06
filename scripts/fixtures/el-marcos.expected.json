@@ -1,0 +1,233 @@
+{
+  "menu": "el-marcos",
+  "photos": [
+    "ElMarcosMenu.png"
+  ],
+  "total_items": 36,
+  "food_items": 28,
+  "drink_items": 8,
+  "categories": [
+    "food",
+    "drink"
+  ],
+  "tolerated_option_names": [
+    "queso panela",
+    "mezcla de quesos"
+  ],
+  "sections": [
+    "Huevos",
+    "Mexicanos",
+    "De la Playa",
+    "De la Panadería",
+    "Cereales",
+    "Jugos y Frutas"
+  ],
+  "section_headers": [
+    "Pa' los Bukis",
+    "Norteños"
+  ],
+  "drink_sections": [
+    "De la Cafetería"
+  ],
+  "section_expectations": [
+    {
+      "name_contains": "Revueltos",
+      "section_title": "Huevos"
+    },
+    {
+      "name_contains": "Fritos",
+      "section_title": "Huevos"
+    },
+    {
+      "name_contains": "Chilaquiles",
+      "section_title": "Mexicanos"
+    },
+    {
+      "name_contains": "Cazuela de Marlín",
+      "section_title": "De la Playa"
+    },
+    {
+      "name_contains": "Waffles",
+      "section_title": "De la Panadería"
+    },
+    {
+      "name_contains": "Avena",
+      "section_title": "Cereales"
+    },
+    {
+      "name_contains": "Plato Surtido",
+      "section_title": "Jugos y Frutas"
+    }
+  ],
+  "items_with_options": [
+    {
+      "name_contains": "Machaca de Marlín",
+      "options": [
+        {
+          "name": "huevo",
+          "price": null
+        },
+        {
+          "name": "verdura",
+          "price": null
+        }
+      ]
+    },
+    {
+      "name_contains": "Machaca",
+      "options": [
+        {
+          "name": "huevo",
+          "price": null
+        },
+        {
+          "name": "verdura",
+          "price": null
+        }
+      ]
+    },
+    {
+      "name_contains": "Revueltos",
+      "options": [
+        {
+          "name": "jamón"
+        }
+      ]
+    },
+    {
+      "name_contains": "Fritos",
+      "options": [
+        {
+          "name": "jamón",
+          "price": 90
+        }
+      ]
+    },
+    {
+      "name_contains": "Chilaquiles",
+      "unchecked": true,
+      "options": [
+        {
+          "name": "Regionales"
+        },
+        {
+          "name": "Divorciados"
+        }
+      ]
+    },
+    {
+      "name_contains": "Enchiladas",
+      "options": [
+        {
+          "name": "Verdes",
+          "price": null
+        },
+        {
+          "name": "Rojas",
+          "price": null
+        },
+        {
+          "name": "Suizas",
+          "price": null
+        }
+      ]
+    },
+    {
+      "name_contains": "Pan Tostado",
+      "options": [
+        {
+          "name": "Blanco",
+          "price": null
+        },
+        {
+          "name": "Integral",
+          "price": null
+        }
+      ]
+    },
+    {
+      "name_contains": "Hot Cakes",
+      "options": [
+        {
+          "name": "jamón"
+        }
+      ]
+    },
+    {
+      "name_contains": "Waffles",
+      "options": [
+        {
+          "name": "frutos rojos",
+          "price": 78
+        }
+      ]
+    },
+    {
+      "name_contains": "Plato Surtido",
+      "unchecked": true,
+      "options": []
+    },
+    {
+      "name_contains": "Avena",
+      "options": [
+        {
+          "name": "Manzana",
+          "price": null
+        },
+        {
+          "name": "Plátano",
+          "price": null
+        }
+      ]
+    },
+    {
+      "name_contains": "huevo revuelto",
+      "unchecked": true,
+      "options": []
+    }
+  ],
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  },
+  "category_expectations": [
+    {
+      "name_contains": "Revueltos",
+      "category": "food"
+    },
+    {
+      "name_contains": "Chilaquiles",
+      "category": "food"
+    },
+    {
+      "name_contains": "Plato Surtido",
+      "category": "food"
+    }
+  ],
+  "grams_expectations": [
+    {
+      "name_contains": "Chilaquiles",
+      "grams": 70
+    },
+    {
+      "name_contains": "Enfrijoladas",
+      "grams": 135
+    },
+    {
+      "name_contains": "Pastel Azteca",
+      "grams": 300
+    },
+    {
+      "name_contains": "Enchiladas",
+      "grams": 135
+    },
+    {
+      "name_contains": "Plato Surtido",
+      "grams": 350
+    },
+    {
+      "name_contains": "Machaca",
+      "grams": 30
+    }
+  ]
+}

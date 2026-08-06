@@ -1,0 +1,558 @@
+{
+  "pages": [
+    {
+      "index": 0,
+      "markdown": "# LOS LAGOS\n\n# ESPECIALIDADES BRASERO\n\n# TACO DE LEITE\n\nTaco de deliciosa tripa de leche sobre cama de sirloin en trozos.\n\n# TACO FRANGO\n\nTaco de pechuga de pollo relleno de queso envuelta en tocino, mezcla criolla de frijol negro y elote tostado.\n\n# TACO LOIRO (sirloin)\n\nTaco de chile caribe relleno de panela marinada envuelta en tocino.\nA elegir: (picaña $165 - pollo $150)\n\n# TACO SAMBA\n\nDiezmillo en tortilla de su elección, cubierta de guiso de feijoada.\n\n# TACO RANCHERO\n\nArrachera asada, tortilla de harina en base de frijol.\n\n# TACO SONORA\n\nDiezmillo en tortilla de su elección con queso y chile verde a las brasas.\n\n$165\n\n# TACO PORCO\n\nTaco de bandiola adobada, betabel, cacahuate, piña y cilantro.\n\n# TOSTA BRASIL (picaña)\n\nTostada de picaña en una cama de feijoada y mix de pimiento encima.\n\n# TOSTA ATUM\n\nTostada de atún sellado con rub de chiles, portobello y elote asado, pepino, jicama, salseado con ponzu y ajonjolí.\n\n# TACO BRASERO\n\nTaco de carne asada de diezmillo en tortilla de su elección.\n\n# TACO TRADICIONAL\n\nTaco de arrachera en tortilla de su elección.\n\n# TACO EL CAPRICHO\n\nTaco de arrachera en base de lechuga fresca y costra de queso.\n\n$100\n\n$150\n\n$130\n\n$120\n\n$110\n\n$125\n\n# CERDO\n\nBANDIOLA ADOBADA (60gr) $110\nCHISTORRA (60gr) $100\n\n# RES\n\nSIRLOIN (60gr) $135\nPICAÑA (60gr) $140\nCHICHARRÓN (80gr) $90\n\n# POLLO\n\nPECHUGA AL LIMÓN RELLENA\nDE QUESO ENVUELTA EN\nTOCINO (60gr) $110\n\n# ATÚN\n\nFILETE DE ATÚN SELLADO CON RUB\nROJO A LA PARRILLA (60gr) $110\n\n# GUARNICIONES\n\nPAPAS CAMBRAY\n\nCHILE RELLENO\n\n$60\n\n$50\n\n# GUARNICIONES\n\nCEBOLLAS CAMBRAY\n\nORDEN DE TORTILLAS\n\n$40\n\n$35\n\n# P O S T R E S\n\n# BROWNIE\n\nBrownie de la casa con nieve de vainilla y fresas.\n\n$130\n\n# ROLLOS DE CREPA\n\nCrepa crujiente y azucarada acompañada de dulce de leche, chocolate y helado de vainilla.\n\n$140\n\nGoogle Maps",
+      "images": [],
+      "tables": [],
+      "hyperlinks": [],
+      "header": null,
+      "footer": null,
+      "dimensions": {
+        "dpi": 200,
+        "height": 2048,
+        "width": 1561
+      },
+      "confidence_scores": null,
+      "blocks": [
+        {
+          "top_left_x": 659,
+          "top_left_y": 338,
+          "bottom_right_x": 873,
+          "bottom_right_y": 375,
+          "content": "# LOS LAGOS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 517,
+          "top_left_y": 420,
+          "bottom_right_x": 1030,
+          "bottom_right_y": 459,
+          "content": "# ESPECIALIDADES BRASERO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 222,
+          "top_left_y": 513,
+          "bottom_right_x": 413,
+          "bottom_right_y": 541,
+          "content": "# TACO DE LEITE",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 222,
+          "top_left_y": 543,
+          "bottom_right_x": 619,
+          "bottom_right_y": 586,
+          "content": "Taco de deliciosa tripa de leche sobre cama de sirloin en trozos.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 222,
+          "top_left_y": 595,
+          "bottom_right_x": 413,
+          "bottom_right_y": 621,
+          "content": "# TACO FRANGO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 220,
+          "top_left_y": 625,
+          "bottom_right_x": 614,
+          "bottom_right_y": 687,
+          "content": "Taco de pechuga de pollo relleno de queso envuelta en tocino, mezcla criolla de frijol negro y elote tostado.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 220,
+          "top_left_y": 695,
+          "bottom_right_x": 475,
+          "bottom_right_y": 724,
+          "content": "# TACO LOIRO (sirloin)",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 219,
+          "top_left_y": 726,
+          "bottom_right_x": 569,
+          "bottom_right_y": 789,
+          "content": "Taco de chile caribe relleno de panela marinada envuelta en tocino.\nA elegir: (picaña $165 - pollo $150)",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 217,
+          "top_left_y": 800,
+          "bottom_right_x": 395,
+          "bottom_right_y": 826,
+          "content": "# TACO SAMBA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 216,
+          "top_left_y": 830,
+          "bottom_right_x": 623,
+          "bottom_right_y": 873,
+          "content": "Diezmillo en tortilla de su elección, cubierta de guiso de feijoada.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 216,
+          "top_left_y": 886,
+          "bottom_right_x": 448,
+          "bottom_right_y": 912,
+          "content": "# TACO RANCHERO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 214,
+          "top_left_y": 916,
+          "bottom_right_x": 619,
+          "bottom_right_y": 959,
+          "content": "Arrachera asada, tortilla de harina en base de frijol.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 214,
+          "top_left_y": 972,
+          "bottom_right_x": 416,
+          "bottom_right_y": 998,
+          "content": "# TACO SONORA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 214,
+          "top_left_y": 1002,
+          "bottom_right_x": 577,
+          "bottom_right_y": 1046,
+          "content": "Diezmillo en tortilla de su elección con queso y chile verde a las brasas.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 659,
+          "top_left_y": 508,
+          "bottom_right_x": 713,
+          "bottom_right_y": 533,
+          "content": "$165",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 844,
+          "top_left_y": 513,
+          "bottom_right_x": 1020,
+          "bottom_right_y": 539,
+          "content": "# TACO PORCO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 844,
+          "top_left_y": 543,
+          "bottom_right_x": 1175,
+          "bottom_right_y": 586,
+          "content": "Taco de bandiola adobada, betabel, cacahuate, piña y cilantro.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 844,
+          "top_left_y": 595,
+          "bottom_right_x": 1123,
+          "bottom_right_y": 623,
+          "content": "# TOSTA BRASIL (picaña)",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 844,
+          "top_left_y": 625,
+          "bottom_right_x": 1247,
+          "bottom_right_y": 668,
+          "content": "Tostada de picaña en una cama de feijoada y mix de pimiento encima.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 844,
+          "top_left_y": 677,
+          "bottom_right_x": 1019,
+          "bottom_right_y": 703,
+          "content": "# TOSTA ATUM",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 844,
+          "top_left_y": 707,
+          "bottom_right_x": 1233,
+          "bottom_right_y": 771,
+          "content": "Tostada de atún sellado con rub de chiles, portobello y elote asado, pepino, jicama, salseado con ponzu y ajonjolí.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 844,
+          "top_left_y": 783,
+          "bottom_right_x": 1047,
+          "bottom_right_y": 810,
+          "content": "# TACO BRASERO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 844,
+          "top_left_y": 812,
+          "bottom_right_x": 1253,
+          "bottom_right_y": 855,
+          "content": "Taco de carne asada de diezmillo en tortilla de su elección.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 844,
+          "top_left_y": 867,
+          "bottom_right_x": 1105,
+          "bottom_right_y": 894,
+          "content": "# TACO TRADICIONAL",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 844,
+          "top_left_y": 898,
+          "bottom_right_x": 1252,
+          "bottom_right_y": 920,
+          "content": "Taco de arrachera en tortilla de su elección.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 844,
+          "top_left_y": 931,
+          "bottom_right_x": 1098,
+          "bottom_right_y": 957,
+          "content": "# TACO EL CAPRICHO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 844,
+          "top_left_y": 961,
+          "bottom_right_x": 1259,
+          "bottom_right_y": 1007,
+          "content": "Taco de arrachera en base de lechuga fresca y costra de queso.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1283,
+          "top_left_y": 515,
+          "bottom_right_x": 1333,
+          "bottom_right_y": 535,
+          "content": "$100",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1284,
+          "top_left_y": 595,
+          "bottom_right_x": 1334,
+          "bottom_right_y": 617,
+          "content": "$150",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1284,
+          "top_left_y": 674,
+          "bottom_right_x": 1338,
+          "bottom_right_y": 697,
+          "content": "$130",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1284,
+          "top_left_y": 779,
+          "bottom_right_x": 1341,
+          "bottom_right_y": 800,
+          "content": "$120",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1284,
+          "top_left_y": 863,
+          "bottom_right_x": 1344,
+          "bottom_right_y": 886,
+          "content": "$110",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1284,
+          "top_left_y": 927,
+          "bottom_right_x": 1344,
+          "bottom_right_y": 949,
+          "content": "$125",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 280,
+          "top_left_y": 1171,
+          "bottom_right_x": 381,
+          "bottom_right_y": 1199,
+          "content": "# CERDO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 206,
+          "top_left_y": 1214,
+          "bottom_right_x": 455,
+          "bottom_right_y": 1257,
+          "content": "BANDIOLA ADOBADA (60gr) $110\nCHISTORRA (60gr) $100",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 597,
+          "top_left_y": 1169,
+          "bottom_right_x": 652,
+          "bottom_right_y": 1197,
+          "content": "# RES",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 533,
+          "top_left_y": 1218,
+          "bottom_right_x": 714,
+          "bottom_right_y": 1281,
+          "content": "SIRLOIN (60gr) $135\nPICAÑA (60gr) $140\nCHICHARRÓN (80gr) $90",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 852,
+          "top_left_y": 1169,
+          "bottom_right_x": 947,
+          "bottom_right_y": 1197,
+          "content": "# POLLO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 792,
+          "top_left_y": 1210,
+          "bottom_right_x": 1008,
+          "bottom_right_y": 1273,
+          "content": "PECHUGA AL LIMÓN RELLENA\nDE QUESO ENVUELTA EN\nTOCINO (60gr) $110",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1177,
+          "top_left_y": 1169,
+          "bottom_right_x": 1263,
+          "bottom_right_y": 1197,
+          "content": "# ATÚN",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1089,
+          "top_left_y": 1212,
+          "bottom_right_x": 1352,
+          "bottom_right_y": 1255,
+          "content": "FILETE DE ATÚN SELLADO CON RUB\nROJO A LA PARRILLA (60gr) $110",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 336,
+          "top_left_y": 1378,
+          "bottom_right_x": 542,
+          "bottom_right_y": 1404,
+          "content": "# GUARNICIONES",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 181,
+          "top_left_y": 1425,
+          "bottom_right_x": 413,
+          "bottom_right_y": 1453,
+          "content": "PAPAS CAMBRAY",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 181,
+          "top_left_y": 1466,
+          "bottom_right_x": 384,
+          "bottom_right_y": 1494,
+          "content": "CHILE RELLENO",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 638,
+          "top_left_y": 1423,
+          "bottom_right_x": 678,
+          "bottom_right_y": 1445,
+          "content": "$60",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 638,
+          "top_left_y": 1464,
+          "bottom_right_x": 678,
+          "bottom_right_y": 1486,
+          "content": "$50",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 973,
+          "top_left_y": 1376,
+          "bottom_right_x": 1180,
+          "bottom_right_y": 1404,
+          "content": "# GUARNICIONES",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 828,
+          "top_left_y": 1423,
+          "bottom_right_x": 1108,
+          "bottom_right_y": 1453,
+          "content": "CEBOLLAS CAMBRAY",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 828,
+          "top_left_y": 1464,
+          "bottom_right_x": 1119,
+          "bottom_right_y": 1494,
+          "content": "ORDEN DE TORTILLAS",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1288,
+          "top_left_y": 1423,
+          "bottom_right_x": 1328,
+          "bottom_right_y": 1445,
+          "content": "$40",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1288,
+          "top_left_y": 1464,
+          "bottom_right_x": 1328,
+          "bottom_right_y": 1486,
+          "content": "$35",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 478,
+          "top_left_y": 1601,
+          "bottom_right_x": 1031,
+          "bottom_right_y": 1661,
+          "content": "# P O S T R E S",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 198,
+          "top_left_y": 1738,
+          "bottom_right_x": 331,
+          "bottom_right_y": 1765,
+          "content": "# BROWNIE",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 195,
+          "top_left_y": 1771,
+          "bottom_right_x": 589,
+          "bottom_right_y": 1814,
+          "content": "Brownie de la casa con nieve de vainilla y fresas.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 650,
+          "top_left_y": 1740,
+          "bottom_right_x": 703,
+          "bottom_right_y": 1763,
+          "content": "$130",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 841,
+          "top_left_y": 1745,
+          "bottom_right_x": 1086,
+          "bottom_right_y": 1773,
+          "content": "# ROLLOS DE CREPA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 839,
+          "top_left_y": 1775,
+          "bottom_right_x": 1264,
+          "bottom_right_y": 1843,
+          "content": "Crepa crujiente y azucarada acompañada de dulce de leche, chocolate y helado de vainilla.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1295,
+          "top_left_y": 1738,
+          "bottom_right_x": 1347,
+          "bottom_right_y": 1761,
+          "content": "$140",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 691,
+          "top_left_y": 2001,
+          "bottom_right_x": 872,
+          "bottom_right_y": 2040,
+          "content": "Google Maps",
+          "confidence_scores": null,
+          "type": "footer"
+        }
+      ]
+    }
+  ],
+  "model": "mistral-ocr-latest",
+  "document_annotation": "{\"items\": [{\"name\": \"Taco de Leite\", \"description\": \"Taco de deliciosa tripa de leche sobre cama de sirloin en trozos.\", \"price\": 120, \"category\": \"food\", \"section_title\": \"ESPECIALIDADES BRASERO\", \"options\": [{\"name\": \"Sirloin en trozos\", \"price\": null, \"grams\": null}]}, {\"name\": \"Taco Frango\", \"description\": \"Taco de pechuga de pollo relleno de queso envuelta en tocino, mezcla criolla de frijol negro y elote tostado.\", \"price\": 130, \"category\": \"food\", \"section_title\": \"ESPECIALIDADES BRASERO\", \"options\": [{\"name\": \"Pechuga de pollo\", \"price\": null, \"grams\": null}]}, {\"name\": \"Taco Loiro\", \"description\": \"Taco de chile caribe relleno de panela marinada envuelta en tocino. A elegir: (picaña $165 - pollo $150)\", \"price\": 150, \"category\": \"food\", \"section_title\": \"ESPECIALIDADES BRASERO\", \"options\": [{\"name\": \"Picaña\", \"price\": 165, \"grams\": 60}, {\"name\": \"Pollo\", \"price\": 150, \"grams\": 60}]}, {\"name\": \"Taco Samba\", \"description\": \"Diezmillo en tortilla de su elección, cubierta de guiso de feijoada.\", \"price\": 140, \"category\": \"food\", \"section_title\": \"ESPECIALIDADES BRASERO\", \"options\": [{\"name\": \"Diezmillo\", \"price\": null, \"grams\": null}]}, {\"name\": \"Taco Ranchero\", \"description\": \"Arrachera asada, tortilla de harina en base de frijol.\", \"price\": 150, \"category\": \"food\", \"section_title\": \"ESPECIALIDADES BRASERO\", \"options\": [{\"name\": \"Arrachera\", \"price\": null, \"grams\": null}]}, {\"name\": \"Taco Sonora\", \"description\": \"Diezmillo en tortilla de su elección con queso y chile verde a las brasas.\", \"price\": 165, \"category\": \"food\", \"section_title\": \"ESPECIALIDADES BRASERO\", \"options\": [{\"name\": \"Diezmillo\", \"price\": null, \"grams\": null}]}, {\"name\": \"Taco Porco\", \"description\": \"Taco de bandiola adobada, betabel, cacahuate, piña y cilantro.\", \"price\": 145, \"category\": \"food\", \"section_title\": \"ESPECIALIDADES BRASERO\", \"options\": [{\"name\": \"Bandiola adobada\", \"price\": null, \"grams\": null}]}, {\"name\": \"Tosta Brasil\", \"description\": \"Tostada de picaña en una cama de feijoada y mix de pimiento encima.\", \"price\": 180, \"category\": \"food\", \"section_title\": \"ESPECIALIDADES BRASERO\", \"options\": [{\"name\": \"Picaña\", \"price\": null, \"grams\": null}]}, {\"name\": \"Tosta Atún\", \"description\": \"Tostada de atún sellado con rub de chiles, portobello y elote asado, pepino, jicama, salseado con ponzu y ajonjolí.\", \"price\": 170, \"category\": \"food\", \"section_title\": \"ESPECIALIDADES BRASERO\", \"options\": [{\"name\": \"Atún sellado\", \"price\": null, \"grams\": null}]}, {\"name\": \"Taco Brasero\", \"description\": \"Taco de carne asada de diezmillo en tortilla de su elección.\", \"price\": 130, \"category\": \"food\", \"section_title\": \"ESPECIALIDADES BRASERO\", \"options\": [{\"name\": \"Diezmillo\", \"price\": null, \"grams\": null}]}, {\"name\": \"Taco Tradicional\", \"description\": \"Taco de arrachera en tortilla de su elección.\", \"price\": 120, \"category\": \"food\", \"section_title\": \"ESPECIALIDADES BRASERO\", \"options\": [{\"name\": \"Arrachera\", \"price\": null, \"grams\": null}]}, {\"name\": \"Taco El Capricho\", \"description\": \"Taco de arrachera en base de lechuga fresca y costra de queso.\", \"price\": 130, \"category\": \"food\", \"section_title\": \"ESPECIALIDADES BRASERO\", \"options\": [{\"name\": \"Arrachera\", \"price\": null, \"grams\": null}]}, {\"name\": \"Bandiola Adobada\", \"description\": \"Bandiola adobada (60gr).\", \"price\": 110, \"category\": \"food\", \"section_title\": \"CERDO\", \"options\": [{\"name\": \"Bandiola adobada\", \"price\": null, \"grams\": 60}]}, {\"name\": \"Chistorra\", \"description\": \"Chistorra (60gr).\", \"price\": 100, \"category\": \"food\", \"section_title\": \"CERDO\", \"options\": [{\"name\": \"Chistorra\", \"price\": null, \"grams\": 60}]}, {\"name\": \"Sirloin\", \"description\": \"Sirloin (60gr).\", \"price\": 135, \"category\": \"food\", \"section_title\": \"RES\", \"options\": [{\"name\": \"Sirloin\", \"price\": null, \"grams\": 60}]}, {\"name\": \"Picaña\", \"description\": \"Picaña (60gr).\", \"price\": 140, \"category\": \"food\", \"section_title\": \"RES\", \"options\": [{\"name\": \"Picaña\", \"price\": null, \"grams\": 60}]}, {\"name\": \"Chicharrón\", \"description\": \"Chicharrón (80gr).\", \"price\": 90, \"category\": \"food\", \"section_title\": \"RES\", \"options\": [{\"name\": \"Chicharrón\", \"price\": null, \"grams\": 80}]}, {\"name\": \"Pechuga al Limón Rellena de Queso Envuelta en Tocino\", \"description\": \"Pechuga de pollo rellena de queso envuelta en tocino (60gr).\", \"price\": 110, \"category\": \"food\", \"section_title\": \"POLLO\", \"options\": [{\"name\": \"Pechuga de pollo\", \"price\": null, \"grams\": 60}]}, {\"name\": \"Filete de Atún Sellado con Rub Rojo a la Parrilla\", \"description\": \"Filete de atún sellado con rub rojo a la parrilla (60gr).\", \"price\": 110, \"category\": \"food\", \"section_title\": \"ATÚN\", \"options\": [{\"name\": \"Atún sellado\", \"price\": null, \"grams\": 60}]}, {\"name\": \"Papas Cambray\", \"description\": \"Papas cambray.\", \"price\": 60, \"category\": \"side\", \"section_title\": \"GUARNICIONES\", \"options\": []}, {\"name\": \"Chile Relleno\", \"description\": \"Chile relleno.\", \"price\": 50, \"category\": \"side\", \"section_title\": \"GUARNICIONES\", \"options\": []}, {\"name\": \"Cebollas Cambray\", \"description\": \"Cebollas cambray.\", \"price\": 40, \"category\": \"side\", \"section_title\": \"GUARNICIONES\", \"options\": []}, {\"name\": \"Orden de Tortillas\", \"description\": \"Orden de tortillas.\", \"price\": 35, \"category\": \"side\", \"section_title\": \"GUARNICIONES\", \"options\": []}, {\"name\": \"Brownie\", \"description\": \"Brownie de la casa con nieve de vainilla y fresas.\", \"price\": 130, \"category\": \"dessert\", \"section_title\": \"POSTRES\", \"options\": []}, {\"name\": \"Rollos de Crepa\", \"description\": \"Crepa crujiente y azucarada acompañada de dulce de leche, chocolate y helado de vainilla.\", \"price\": 140, \"category\": \"dessert\", \"section_title\": \"POSTRES\", \"options\": []}]}",
+  "usage_info": {
+    "pages_processed": 1,
+    "doc_size_bytes": 516755
+  }
+}

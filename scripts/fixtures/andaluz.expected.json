@@ -1,0 +1,251 @@
+{
+  "menu": "andaluz",
+  "photos": [
+    "AndaluzMenu.jpg"
+  ],
+  "total_items": 36,
+  "food_items": 36,
+  "drink_items": 0,
+  "categories": [
+    "food"
+  ],
+  "sections": [
+    "Entradas",
+    "Ensaladas",
+    "Sushi",
+    "Del Mar",
+    "Carnes"
+  ],
+  "section_expectations": [
+    {
+      "name_contains": "Papas Fritas",
+      "section_title": "Entradas"
+    },
+    {
+      "name_contains": "Mediterránea",
+      "section_title": "Ensaladas"
+    },
+    {
+      "name_contains": "De Atún",
+      "section_title": "Sushi"
+    },
+    {
+      "name_contains": "Pulpo a la Gallega",
+      "section_title": "Del Mar"
+    },
+    {
+      "name_contains": "Papada de Puerco",
+      "section_title": "Carnes"
+    }
+  ],
+  "items_with_options": [
+    {
+      "name_contains": "Queso Fundido",
+      "options": [
+        {
+          "name": "chistorra"
+        },
+        {
+          "name": "diezmillo"
+        }
+      ]
+    },
+    {
+      "name_contains": "Boneless de Pollo",
+      "options": [
+        {
+          "name": "Buffalo"
+        },
+        {
+          "name": "BBQ"
+        },
+        {
+          "name": "habanero"
+        },
+        {
+          "name": "ookies"
+        }
+      ]
+    },
+    {
+      "name_contains": "Alitas de Pollo",
+      "options": [
+        {
+          "name": "BBQ"
+        },
+        {
+          "name": "ango"
+        },
+        {
+          "name": "uffalo"
+        },
+        {
+          "name": "ookies"
+        }
+      ]
+    },
+    {
+      "name_contains": "De Camarón Roka",
+      "options": [
+        {
+          "name": "mpanizado"
+        },
+        {
+          "name": "atural"
+        }
+      ]
+    },
+    {
+      "name_contains": "De Atún",
+      "options": [
+        {
+          "name": "mpanizado"
+        },
+        {
+          "name": "atural"
+        }
+      ]
+    },
+    {
+      "name_contains": "Camarones al Ajillo",
+      "options": [
+        {
+          "name": "Pan"
+        },
+        {
+          "name": "ortilla"
+        }
+      ]
+    },
+    {
+      "name_contains": "Tacos de Papada",
+      "options": [
+        {
+          "name": "aíz"
+        },
+        {
+          "name": "arina"
+        }
+      ]
+    }
+  ],
+  "category_expectations": [
+    {
+      "name_contains": "Papas Fritas",
+      "category": "food"
+    },
+    {
+      "name_contains": "De Atún",
+      "category": "food"
+    },
+    {
+      "name_contains": "Cabrería Wagyu Cross",
+      "category": "food"
+    }
+  ],
+  "grams_expectations": [
+    {
+      "name_contains": "Costra de Chamorro",
+      "grams": 80
+    },
+    {
+      "name_contains": "Costra de Chamorro y Pulpo",
+      "grams": 80
+    },
+    {
+      "name_contains": "Espárragos con Jamón Serrano",
+      "grams": 30
+    },
+    {
+      "name_contains": "Panela Plus Asada",
+      "grams": 30
+    },
+    {
+      "name_contains": "Queso Fundido",
+      "grams": 50
+    },
+    {
+      "name_contains": "Brocheta de Pollo Abierta con Verduras",
+      "grams": 200
+    },
+    {
+      "name_contains": "Boneless de Pollo",
+      "grams": 200
+    },
+    {
+      "name_contains": "Boneless de Camarón",
+      "grams": 200
+    },
+    {
+      "name_contains": "Alitas de Pollo",
+      "grams": 400
+    },
+    {
+      "name_contains": "Cesar",
+      "grams": 200
+    },
+    {
+      "name_contains": "Pulpo a la Gallega",
+      "grams": 200
+    },
+    {
+      "name_contains": "Camarones Empanizados",
+      "grams": 230
+    },
+    {
+      "name_contains": "Camarón Roka",
+      "grams": 200
+    },
+    {
+      "name_contains": "Atún Sellado",
+      "grams": 200
+    },
+    {
+      "name_contains": "Camarón Andaluz",
+      "grams": 230
+    },
+    {
+      "name_contains": "Camarones al Ajillo",
+      "grams": 200
+    },
+    {
+      "name_contains": "Tacos o Fajitas de Diezmillo",
+      "grams": 200
+    },
+    {
+      "name_contains": "Fajitas de Arrachera",
+      "grams": 200
+    },
+    {
+      "name_contains": "Arrachera de la Casa",
+      "grams": 200
+    },
+    {
+      "name_contains": "Arrachera Wagyu Cross",
+      "grams": 200
+    },
+    {
+      "name_contains": "Cabrería",
+      "grams": 250
+    },
+    {
+      "name_contains": "Cabrería Wagyu Cross",
+      "grams": 250
+    },
+    {
+      "name_contains": "Papada de Puerco",
+      "grams": 200
+    }
+  ],
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  },
+  "tolerated_option_names": [
+    "Empanizados",
+    "Naturales"
+  ],
+  "tolerated_grams": [
+    "Queso Fundido"
+  ]
+}

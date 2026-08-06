@@ -53,6 +53,7 @@ export default function ReviewScreen() {
       setExtraction({
         provider: "gpt-vision",
         items: [],
+        image_layout: null,
         latency_ms: 0,
         model_id: "gpt-vision",
         error: err instanceof Error ? err.message : "Unknown error",

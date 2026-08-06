@@ -1,0 +1,97 @@
+{
+  "menu": "casa-nostra",
+  "photos": [
+    "CasaNostraMenu.png"
+  ],
+  "total_items": 23,
+  "food_items": 23,
+  "drink_items": 0,
+  "categories": [
+    "food"
+  ],
+  "tolerated_option_names": [
+    "lechuga entera",
+    "trozos"
+  ],
+  "sections": [
+    "Pasta",
+    "Pizze",
+    "Frutti di mare",
+    "Insalate"
+  ],
+  "section_expectations": [
+    {
+      "name_contains": "Fettuccine CasaNostra",
+      "section_title": "Pasta"
+    },
+    {
+      "name_contains": "Margherita",
+      "section_title": "Pizze"
+    },
+    {
+      "name_contains": "Salmone padella",
+      "section_title": "Frutti di mare"
+    },
+    {
+      "name_contains": "Insalata CasaNostra",
+      "section_title": "Insalate"
+    }
+  ],
+  "items_with_options": [
+    {
+      "name_contains": "Fettuccine CasaNostra",
+      "options": [
+        {
+          "name": "Gluten free",
+          "price": 330
+        }
+      ]
+    },
+    {
+      "name_contains": "Pasta alla romana",
+      "options": [
+        {
+          "name": "Gluten free",
+          "price": 305
+        }
+      ]
+    },
+    {
+      "name_contains": "frutti di mare",
+      "options": [
+        {
+          "name": "Gluten free",
+          "price": 355
+        }
+      ]
+    }
+  ],
+  "image_quality": {
+    "usable": true,
+    "issues": []
+  },
+  "category_expectations": [
+    {
+      "name_contains": "Margherita",
+      "category": "food"
+    },
+    {
+      "name_contains": "Insalata CasaNostra",
+      "category": "food"
+    }
+  ],
+  "grams_expectations": [
+    {
+      "name_contains": "Lasagne al forno",
+      "grams": 250
+    },
+    {
+      "name_contains": "Risotto Caprese",
+      "grams": 200
+    },
+    {
+      "name_contains": "Salmone padella",
+      "grams": 200
+    }
+  ]
+}

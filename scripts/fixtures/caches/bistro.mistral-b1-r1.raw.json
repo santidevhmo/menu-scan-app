@@ -1,0 +1,830 @@
+{
+  "pages": [
+    {
+      "index": 0,
+      "markdown": "Bistro Restaurante\n\nB\n\nBruno Lopez\n\nPhoto - Dec 2024\n\nShare\n\n×\n\n# PIZZAS BISTRO\n\n28 CM\n\n# 5 FORMAGGI\n\nQueso mozzarella, chihuahua, azul, feta y cabra.\n\n# CAPRICCIOSA\n\nJamón serrano, alcachofa, aceituna negra y champiñón.\n\n# FLAMENKUCHEN\n\nBase de crema, tocino y cebolla caramelizada.\n\n# QUESO AZUL\n\n*Nuestra Especialidad\n\nBase de crema, queso azul, espinaca, jamón serrano y laminas de manzana verde.\n\n# 4 STAGIONI\n\nPepperoni, jamón, tocino y chistorra.\n\n# ITALIANA\n\nPepperoni, cebolla morada, pimiento verde, aceituna negra y campiñones.\n\n# HAWAIANA\n\nJamón y piña.\n\n# CAPRESE\n\nEspinacas, jamón serrano y tomate deshidratado.\n\n$240\n\n$262\n\n$240\n\n$272\n\n$262\n\n$240\n\n$208\n\n$262\n\n![img-0.jpeg](img-0.jpeg)\n\n# ALFREDO PORTOBELLO\n\nBase de crema, laminas de portobello y pollo marinado.\n\n# MEXICANA\n\nCebolla morada, pimiento verde y chistorra.\n\n# VEGETARIANA\n\nEspinaca, calabaza, campiñón, cebolla morada, pimiento verde y aceituna negra.\n\n# OSTRICA\n\nOstión ahumado, tocino y mostaza dijón.\n\n# MARGARITA\n\nRebanadas de tomate fresco y albahaca deshidratada.\n\n# JAMÓN CON CHAMPIÑONES\n\n# PEPPERONI\n\n*Agrega a tu pasta o ensalada\n\nPollo.\n\nCamarón\n\n$262\n\n$252\n\n$230\n\n$252\n\n$225\n\n$205\n\n$198\n\n# ENSALADAS\n\n# ENSALADA GRIEGA\n\nLechuga, pepino, tomate, cebolla morada, aceituna negra, queso feta y vinagreta balsamico.\n\n# ENSALADA BISTRO\n\n*Al horno\n\nTomate, campiñones, pimiento verde, cebolla morada, pera, manzana, calabaza, queso brie y chistorra.\n\n# ENSALADA BALI\n\nEspinaca, mandarina, arándanos, tomate cherry, coco rallado, cacahuate y vinagreta de la casa.\n\n# ENSALADA DE LA SEMANA\n\nCombinación de lechuga y espinaca, arándanos, tomate cherry, campiñón, calabaza, pera, manzana, almendras y queso de cabra.\n\n# PASTAS\n\n# CARBONARA\n\n*Extracto de huevo\n\nSalsa blanca a base de crema y queso parmesano, con un toque de tocino y nuez moscada.\n\n# LINGUINNI PARISIENNE\n\nPimientos, campiñones, jamón en salsa cremosa a base de quesos.\n\n# PASTA ESPECIAL\n\nSalsa de tomate de la casa, campiñones, chistorra y queso de cabra.\n\n# FRADIAVIOLA\n\nCrema de tomate con un toque de chile de árbol, espinacas y queso feta.\n\n# FETUCCINI ALFREDO\n\nSalsa Alfredo a base de queso parmesano\n\n$185\n\n$225\n\n$185\n\n$185\n\n$235\n\n$225\n\n$235\n\n$225\n\n$235\n\nGoogle Maps",
+      "images": [
+        {
+          "id": "img-0.jpeg",
+          "top_left_x": 849,
+          "top_left_y": 198,
+          "bottom_right_x": 1181,
+          "bottom_right_y": 358,
+          "image_base64": null,
+          "image_annotation": null
+        }
+      ],
+      "tables": [],
+      "hyperlinks": [],
+      "header": null,
+      "footer": null,
+      "dimensions": {
+        "dpi": 200,
+        "height": 1584,
+        "width": 2048
+      },
+      "confidence_scores": null,
+      "blocks": [
+        {
+          "top_left_x": 72,
+          "top_left_y": 29,
+          "bottom_right_x": 246,
+          "bottom_right_y": 51,
+          "content": "Bistro Restaurante",
+          "confidence_scores": null,
+          "type": "header"
+        },
+        {
+          "top_left_x": 76,
+          "top_left_y": 59,
+          "bottom_right_x": 113,
+          "bottom_right_y": 92,
+          "content": "B",
+          "confidence_scores": null,
+          "type": "header"
+        },
+        {
+          "top_left_x": 117,
+          "top_left_y": 63,
+          "bottom_right_x": 217,
+          "bottom_right_y": 84,
+          "content": "Bruno Lopez",
+          "confidence_scores": null,
+          "type": "header"
+        },
+        {
+          "top_left_x": 72,
+          "top_left_y": 114,
+          "bottom_right_x": 193,
+          "bottom_right_y": 132,
+          "content": "Photo - Dec 2024",
+          "confidence_scores": null,
+          "type": "header"
+        },
+        {
+          "top_left_x": 1886,
+          "top_left_y": 19,
+          "bottom_right_x": 1941,
+          "bottom_right_y": 41,
+          "content": "Share",
+          "confidence_scores": null,
+          "type": "header"
+        },
+        {
+          "top_left_x": 1991,
+          "top_left_y": 19,
+          "bottom_right_x": 2015,
+          "bottom_right_y": 41,
+          "content": "×",
+          "confidence_scores": null,
+          "type": "header"
+        },
+        {
+          "top_left_x": 414,
+          "top_left_y": 276,
+          "bottom_right_x": 619,
+          "bottom_right_y": 306,
+          "content": "# PIZZAS BISTRO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 492,
+          "top_left_y": 311,
+          "bottom_right_x": 547,
+          "bottom_right_y": 330,
+          "content": "28 CM",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 362,
+          "bottom_right_x": 408,
+          "bottom_right_y": 384,
+          "content": "# 5 FORMAGGI",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 384,
+          "bottom_right_x": 646,
+          "bottom_right_y": 436,
+          "content": "Queso mozzarella, chihuahua, azul, feta y cabra.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 460,
+          "bottom_right_x": 418,
+          "bottom_right_y": 480,
+          "content": "# CAPRICCIOSA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 482,
+          "bottom_right_x": 652,
+          "bottom_right_y": 534,
+          "content": "Jamón serrano, alcachofa, aceituna negra y champiñón.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 557,
+          "bottom_right_x": 451,
+          "bottom_right_y": 577,
+          "content": "# FLAMENKUCHEN",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 579,
+          "bottom_right_x": 648,
+          "bottom_right_y": 628,
+          "content": "Base de crema, tocino y cebolla caramelizada.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 653,
+          "bottom_right_x": 412,
+          "bottom_right_y": 674,
+          "content": "# QUESO AZUL",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 677,
+          "bottom_right_x": 484,
+          "bottom_right_y": 699,
+          "content": "*Nuestra Especialidad",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 701,
+          "bottom_right_x": 615,
+          "bottom_right_y": 772,
+          "content": "Base de crema, queso azul, espinaca, jamón serrano y laminas de manzana verde.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 796,
+          "bottom_right_x": 400,
+          "bottom_right_y": 818,
+          "content": "# 4 STAGIONI",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 821,
+          "bottom_right_x": 613,
+          "bottom_right_y": 845,
+          "content": "Pepperoni, jamón, tocino y chistorra.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 869,
+          "bottom_right_x": 381,
+          "bottom_right_y": 890,
+          "content": "# ITALIANA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 893,
+          "bottom_right_x": 621,
+          "bottom_right_y": 942,
+          "content": "Pepperoni, cebolla morada, pimiento verde, aceituna negra y campiñones.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 966,
+          "bottom_right_x": 404,
+          "bottom_right_y": 986,
+          "content": "# HAWAIANA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 991,
+          "bottom_right_x": 412,
+          "bottom_right_y": 1015,
+          "content": "Jamón y piña.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 1039,
+          "bottom_right_x": 381,
+          "bottom_right_y": 1061,
+          "content": "# CAPRESE",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 283,
+          "top_left_y": 1064,
+          "bottom_right_x": 650,
+          "bottom_right_y": 1111,
+          "content": "Espinacas, jamón serrano y tomate deshidratado.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 672,
+          "top_left_y": 352,
+          "bottom_right_x": 722,
+          "bottom_right_y": 376,
+          "content": "$240",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 672,
+          "top_left_y": 441,
+          "bottom_right_x": 724,
+          "bottom_right_y": 465,
+          "content": "$262",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 672,
+          "top_left_y": 552,
+          "bottom_right_x": 724,
+          "bottom_right_y": 576,
+          "content": "$240",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 672,
+          "top_left_y": 641,
+          "bottom_right_x": 726,
+          "bottom_right_y": 664,
+          "content": "$272",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 672,
+          "top_left_y": 796,
+          "bottom_right_x": 728,
+          "bottom_right_y": 818,
+          "content": "$262",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 672,
+          "top_left_y": 863,
+          "bottom_right_x": 728,
+          "bottom_right_y": 885,
+          "content": "$240",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 672,
+          "top_left_y": 951,
+          "bottom_right_x": 730,
+          "bottom_right_y": 974,
+          "content": "$208",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 672,
+          "top_left_y": 1040,
+          "bottom_right_x": 732,
+          "bottom_right_y": 1064,
+          "content": "$262",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 849,
+          "top_left_y": 198,
+          "bottom_right_x": 1181,
+          "bottom_right_y": 358,
+          "content": "![img-0.jpeg](img-0.jpeg)",
+          "confidence_scores": null,
+          "type": "image",
+          "image_id": "img-0.jpeg"
+        },
+        {
+          "top_left_x": 779,
+          "top_left_y": 425,
+          "bottom_right_x": 1015,
+          "bottom_right_y": 449,
+          "content": "# ALFREDO PORTOBELLO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 779,
+          "top_left_y": 452,
+          "bottom_right_x": 1136,
+          "bottom_right_y": 499,
+          "content": "Base de crema, laminas de portobello y pollo marinado.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 779,
+          "top_left_y": 523,
+          "bottom_right_x": 892,
+          "bottom_right_y": 545,
+          "content": "# MEXICANA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 779,
+          "top_left_y": 550,
+          "bottom_right_x": 1091,
+          "bottom_right_y": 596,
+          "content": "Cebolla morada, pimiento verde y chistorra.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 779,
+          "top_left_y": 622,
+          "bottom_right_x": 925,
+          "bottom_right_y": 644,
+          "content": "# VEGETARIANA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 779,
+          "top_left_y": 647,
+          "bottom_right_x": 1121,
+          "bottom_right_y": 721,
+          "content": "Espinaca, calabaza, campiñón, cebolla morada, pimiento verde y aceituna negra.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 779,
+          "top_left_y": 744,
+          "bottom_right_x": 873,
+          "bottom_right_y": 766,
+          "content": "# OSTRICA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 779,
+          "top_left_y": 769,
+          "bottom_right_x": 1099,
+          "bottom_right_y": 818,
+          "content": "Ostión ahumado, tocino y mostaza dijón.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 779,
+          "top_left_y": 840,
+          "bottom_right_x": 906,
+          "bottom_right_y": 861,
+          "content": "# MARGARITA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 779,
+          "top_left_y": 864,
+          "bottom_right_x": 1130,
+          "bottom_right_y": 912,
+          "content": "Rebanadas de tomate fresco y albahaca deshidratada.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 779,
+          "top_left_y": 934,
+          "bottom_right_x": 1076,
+          "bottom_right_y": 958,
+          "content": "# JAMÓN CON CHAMPIÑONES",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 779,
+          "top_left_y": 986,
+          "bottom_right_x": 904,
+          "bottom_right_y": 1008,
+          "content": "# PEPPERONI",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 859,
+          "top_left_y": 1104,
+          "bottom_right_x": 1119,
+          "bottom_right_y": 1127,
+          "content": "*Agrega a tu pasta o ensalada",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 892,
+          "top_left_y": 1129,
+          "bottom_right_x": 943,
+          "bottom_right_y": 1146,
+          "content": "Pollo.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 892,
+          "top_left_y": 1151,
+          "bottom_right_x": 976,
+          "bottom_right_y": 1170,
+          "content": "Camarón",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1171,
+          "top_left_y": 425,
+          "bottom_right_x": 1218,
+          "bottom_right_y": 449,
+          "content": "$262",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1171,
+          "top_left_y": 514,
+          "bottom_right_x": 1220,
+          "bottom_right_y": 536,
+          "content": "$252",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1171,
+          "top_left_y": 622,
+          "bottom_right_x": 1220,
+          "bottom_right_y": 645,
+          "content": "$230",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1171,
+          "top_left_y": 731,
+          "bottom_right_x": 1222,
+          "bottom_right_y": 755,
+          "content": "$252",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1171,
+          "top_left_y": 840,
+          "bottom_right_x": 1224,
+          "bottom_right_y": 863,
+          "content": "$225",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1171,
+          "top_left_y": 928,
+          "bottom_right_x": 1226,
+          "bottom_right_y": 951,
+          "content": "$205",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1171,
+          "top_left_y": 972,
+          "bottom_right_x": 1228,
+          "bottom_right_y": 996,
+          "content": "$198",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 241,
+          "bottom_right_x": 1519,
+          "bottom_right_y": 268,
+          "content": "# ENSALADAS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 284,
+          "bottom_right_x": 1538,
+          "bottom_right_y": 304,
+          "content": "# ENSALADA GRIEGA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 308,
+          "bottom_right_x": 1667,
+          "bottom_right_y": 373,
+          "content": "Lechuga, pepino, tomate, cebolla morada, aceituna negra, queso feta y vinagreta balsamico.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 385,
+          "bottom_right_x": 1535,
+          "bottom_right_y": 406,
+          "content": "# ENSALADA BISTRO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 409,
+          "bottom_right_x": 1449,
+          "bottom_right_y": 428,
+          "content": "*Al horno",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 430,
+          "bottom_right_x": 1708,
+          "bottom_right_y": 495,
+          "content": "Tomate, campiñones, pimiento verde, cebolla morada, pera, manzana, calabaza, queso brie y chistorra.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 512,
+          "bottom_right_x": 1501,
+          "bottom_right_y": 531,
+          "content": "# ENSALADA BALI",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 533,
+          "bottom_right_x": 1720,
+          "bottom_right_y": 572,
+          "content": "Espinaca, mandarina, arándanos, tomate cherry, coco rallado, cacahuate y vinagreta de la casa.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 590,
+          "bottom_right_x": 1589,
+          "bottom_right_y": 609,
+          "content": "# ENSALADA DE LA SEMANA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 610,
+          "bottom_right_x": 1726,
+          "bottom_right_y": 671,
+          "content": "Combinación de lechuga y espinaca, arándanos, tomate cherry, campiñón, calabaza, pera, manzana, almendras y queso de cabra.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 685,
+          "bottom_right_x": 1494,
+          "bottom_right_y": 715,
+          "content": "# PASTAS",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 734,
+          "bottom_right_x": 1494,
+          "bottom_right_y": 755,
+          "content": "# CARBONARA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 758,
+          "bottom_right_x": 1538,
+          "bottom_right_y": 777,
+          "content": "*Extracto de huevo",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 779,
+          "bottom_right_x": 1753,
+          "bottom_right_y": 844,
+          "content": "Salsa blanca a base de crema y queso parmesano, con un toque de tocino y nuez moscada.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 864,
+          "bottom_right_x": 1591,
+          "bottom_right_y": 885,
+          "content": "# LINGUINNI PARISIENNE",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 886,
+          "bottom_right_x": 1712,
+          "bottom_right_y": 931,
+          "content": "Pimientos, campiñones, jamón en salsa cremosa a base de quesos.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 953,
+          "bottom_right_x": 1531,
+          "bottom_right_y": 972,
+          "content": "# PASTA ESPECIAL",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 975,
+          "bottom_right_x": 1720,
+          "bottom_right_y": 1020,
+          "content": "Salsa de tomate de la casa, campiñones, chistorra y queso de cabra.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 1042,
+          "bottom_right_x": 1509,
+          "bottom_right_y": 1062,
+          "content": "# FRADIAVIOLA",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 1064,
+          "bottom_right_x": 1747,
+          "bottom_right_y": 1110,
+          "content": "Crema de tomate con un toque de chile de árbol, espinacas y queso feta.",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 1153,
+          "bottom_right_x": 1583,
+          "bottom_right_y": 1173,
+          "content": "# FETUCCINI ALFREDO",
+          "confidence_scores": null,
+          "type": "title"
+        },
+        {
+          "top_left_x": 1363,
+          "top_left_y": 1177,
+          "bottom_right_x": 1743,
+          "bottom_right_y": 1199,
+          "content": "Salsa Alfredo a base de queso parmesano",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1753,
+          "top_left_y": 284,
+          "bottom_right_x": 1802,
+          "bottom_right_y": 306,
+          "content": "$185",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1753,
+          "top_left_y": 393,
+          "bottom_right_x": 1802,
+          "bottom_right_y": 415,
+          "content": "$225",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1753,
+          "top_left_y": 488,
+          "bottom_right_x": 1802,
+          "bottom_right_y": 512,
+          "content": "$185",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1753,
+          "top_left_y": 593,
+          "bottom_right_x": 1802,
+          "bottom_right_y": 617,
+          "content": "$185",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1753,
+          "top_left_y": 739,
+          "bottom_right_x": 1802,
+          "bottom_right_y": 761,
+          "content": "$235",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1753,
+          "top_left_y": 872,
+          "bottom_right_x": 1802,
+          "bottom_right_y": 893,
+          "content": "$225",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1753,
+          "top_left_y": 959,
+          "bottom_right_x": 1802,
+          "bottom_right_y": 981,
+          "content": "$235",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1753,
+          "top_left_y": 1048,
+          "bottom_right_x": 1802,
+          "bottom_right_y": 1070,
+          "content": "$225",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 1753,
+          "top_left_y": 1137,
+          "bottom_right_x": 1802,
+          "bottom_right_y": 1159,
+          "content": "$235",
+          "confidence_scores": null,
+          "type": "text"
+        },
+        {
+          "top_left_x": 947,
+          "top_left_y": 1557,
+          "bottom_right_x": 1093,
+          "bottom_right_y": 1584,
+          "content": "Google Maps",
+          "confidence_scores": null,
+          "type": "footer"
+        }
+      ]
+    }
+  ],
+  "model": "mistral-ocr-latest",
+  "document_annotation": "{\"items\": [{\"name\": \"5 Formaggi\", \"description\": \"Queso mozzarella, chihuahua, azul, feta y cabra.\", \"price\": 240, \"category\": \"food\", \"section_title\": \"Pizzas Bistro (28 cm)\", \"options\": [{\"name\": \"Pollo\", \"price\": 20, \"grams\": null}, {\"name\": \"Camarón\", \"price\": 25, \"grams\": null}]}, {\"name\": \"Capricciosa\", \"description\": \"Jamón serrano, alcachofa, aceituna negra y champiñón.\", \"price\": 262, \"category\": \"food\", \"section_title\": \"Pizzas Bistro (28 cm)\", \"options\": []}, {\"name\": \"Flamenkuchen\", \"description\": \"Base de crema, tocino y cebolla caramelizada.\", \"price\": 240, \"category\": \"food\", \"section_title\": \"Pizzas Bistro (28 cm)\", \"options\": []}, {\"name\": \"Queso Azul\", \"description\": \"*Nuestra Especialidad. Base de crema, queso azul, espinaca, jamón serrano y láminas de manzana verde.\", \"price\": 272, \"category\": \"food\", \"section_title\": \"Pizzas Bistro (28 cm)\", \"options\": []}, {\"name\": \"4 Stagioni\", \"description\": \"Pepperoni, jamón, tocino y chistorra.\", \"price\": 262, \"category\": \"food\", \"section_title\": \"Pizzas Bistro (28 cm)\", \"options\": []}, {\"name\": \"Italiana\", \"description\": \"Pepperoni, cebolla morada, pimiento verde, aceituna negra y champiñones.\", \"price\": 240, \"category\": \"food\", \"section_title\": \"Pizzas Bistro (28 cm)\", \"options\": []}, {\"name\": \"Hawaiana\", \"description\": \"Jamón y piña.\", \"price\": 208, \"category\": \"food\", \"section_title\": \"Pizzas Bistro (28 cm)\", \"options\": []}, {\"name\": \"Caprese\", \"description\": \"Espinacas, jamón serrano y tomate deshidratado.\", \"price\": 262, \"category\": \"food\", \"section_title\": \"Pizzas Bistro (28 cm)\", \"options\": []}, {\"name\": \"Alfredo Portobello\", \"description\": \"Base de crema, láminas de portobello y pollo marinado.\", \"price\": 262, \"category\": \"food\", \"section_title\": \"Pizzas Bistro (28 cm)\", \"options\": []}, {\"name\": \"Mexicana\", \"description\": \"Cebolla morada, pimiento verde y chistorra.\", \"price\": 252, \"category\": \"food\", \"section_title\": \"Pizzas Bistro (28 cm)\", \"options\": []}, {\"name\": \"Vegetariana\", \"description\": \"Espinaca, calabaza, champiñón, cebolla morada, pimiento verde y aceituna negra.\", \"price\": 230, \"category\": \"food\", \"section_title\": \"Pizzas Bistro (28 cm)\", \"options\": []}, {\"name\": \"Ostrica\", \"description\": \"Ostión ahumado, tocino y mostaza dijón.\", \"price\": 252, \"category\": \"food\", \"section_title\": \"Pizzas Bistro (28 cm)\", \"options\": []}, {\"name\": \"Margarita\", \"description\": \"Rebanadas de tomate fresco y albahaca deshidratada.\", \"price\": 225, \"category\": \"food\", \"section_title\": \"Pizzas Bistro (28 cm)\", \"options\": []}, {\"name\": \"Jamón con Champiñones\", \"description\": \"\", \"price\": 198, \"category\": \"food\", \"section_title\": \"Pizzas Bistro (28 cm)\", \"options\": []}, {\"name\": \"Pepperoni\", \"description\": \"*Agrega a tu pasta o ensalada\", \"price\": 205, \"category\": \"food\", \"section_title\": \"Pizzas Bistro (28 cm)\", \"options\": []}, {\"name\": \"Ensalada Griega\", \"description\": \"Lechuga, pepino, tomate, cebolla morada, aceituna negra, queso feta y vinagreta balsámico.\", \"price\": 185, \"category\": \"food\", \"section_title\": \"Ensaladas\", \"options\": []}, {\"name\": \"Ensalada Bistro\", \"description\": \"*Al horno. Tomate, champiñones, pimiento verde, cebolla morada, pera, manzana, calabaza, queso brie y chistorra.\", \"price\": 235, \"category\": \"food\", \"section_title\": \"Ensaladas\", \"options\": []}, {\"name\": \"Ensalada Bali\", \"description\": \"Espinaca, mandarina, arándanos, tomate cherry, coco rallado, cacahuate y vinagreta de la casa.\", \"price\": 225, \"category\": \"food\", \"section_title\": \"Ensaladas\", \"options\": []}, {\"name\": \"Ensalada de la Semana\", \"description\": \"Combinación de lechuga y espinaca, arándanos, tomate cherry, champiñón, calabaza, pera, manzana, almendras y queso de cabra.\", \"price\": 235, \"category\": \"food\", \"section_title\": \"Ensaladas\", \"options\": []}, {\"name\": \"Carbonara\", \"description\": \"*Extracto de huevo. Salsa blanca a base de crema y queso parmesano, con un toque de tocino y nuez moscada.\", \"price\": 225, \"category\": \"food\", \"section_title\": \"Pastas\", \"options\": []}, {\"name\": \"Linguinni Parisienne\", \"description\": \"Pimientos, champiñones, jamón en salsa cremosa a base de quesos.\", \"price\": 235, \"category\": \"food\", \"section_title\": \"Pastas\", \"options\": []}, {\"name\": \"Pasta Especial\", \"description\": \"Salsa de tomate de la casa, champiñones, chistorra y queso de cabra.\", \"price\": 235, \"category\": \"food\", \"section_title\": \"Pastas\", \"options\": []}, {\"name\": \"FradiaViola\", \"description\": \"Crema de tomate con un toque de chile de árbol, espinacas y queso feta.\", \"price\": 225, \"category\": \"food\", \"section_title\": \"Pastas\", \"options\": []}, {\"name\": \"Fettuccini Alfredo\", \"description\": \"Salsa Alfredo a base de queso parmesano.\", \"price\": 235, \"category\": \"food\", \"section_title\": \"Pastas\", \"options\": []}]}",
+  "usage_info": {
+    "pages_processed": 1,
+    "doc_size_bytes": 836434
+  }
+}

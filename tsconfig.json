@@ -19,6 +19,8 @@
     "nativewind-env.d.ts"
   ],
   "exclude": [
-    "supabase"
+    "supabase",
+    "scripts/**/*.ts",
+    "**/*_test.ts"
   ]
 }

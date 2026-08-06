@@ -1,0 +1,441 @@
+{
+  "provider": "gpt-vision",
+  "model_id": "mistral-ocr-4-0+gpt-4.1-2025-04-14",
+  "latency_ms": 75149,
+  "item_count": 48,
+  "error": null,
+  "items": [
+    {
+      "name": "Salmón Roll",
+      "description": "Por dentro: Queso crema, pepino, aguacate y surimi. Por fuera: Salmón.",
+      "price": 169,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Duplex",
+      "description": "Por dentro: Tampico, aguacate, queso crema y pepino. Por fuera: Camarón y salmón.",
+      "price": 159,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Ipanema Roll",
+      "description": "Por dentro: Atún spicy. Por fuera: Camarón y aguacate, bañado en salsa anguila.",
+      "price": 209,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Fildefini",
+      "description": "Por dentro: Salmón, queso crema y pepino. Por fuera: Ajonjoli.",
+      "price": 159,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Vegan Roll",
+      "description": "Tofu, aguacate, pepino y zanahoria, cubierto de arroz.",
+      "price": 129,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Spicy Tuna Roll",
+      "description": "Por dentro: Tampico. Por fuera: Atún picado con salsa spicy y masago.",
+      "price": 159,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Avocado",
+      "description": "Por dentro: Camarón, queso crema y pepino. Por fuera: Aguacate.",
+      "price": 159,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Tuna Especial",
+      "description": "Por dentro: Queso crema y aguacate. Por fuera: Atún con topping de masago y mayonesa.",
+      "price": 169,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Nikkori Maki",
+      "description": "Por dentro: Queso crema, aguacate, pepino y camarón. Por fuera: Surimi.",
+      "price": 159,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Salmón Samba",
+      "description": "Por dentro: Atún spicy y aguacate. Por fuera: Salmón bañado con salsa spicy ponzu.",
+      "price": 219,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Rainbow",
+      "description": "Por dentro: Surimi, pepino, queso crema y aguacate. Por fuera: Sés tipos de mariscos.",
+      "price": 189,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Boga",
+      "description": "Por dentro: Kanikama, aguacate, pepino y queso crema. Por fuera: Salmón y serrano, con una gota de spicy sambal.",
+      "price": 179,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Roca Roll",
+      "description": "Por dentro: Camarón capeado y aguacate. Por fuera: Camarones roca, bañados con salsa de anguila, salsa spicy sambal, cebollín y ajonjoli.",
+      "price": 159,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Ko Ebi Roll",
+      "description": "Por dentro: Tampico, aguacate y camarón tempura. Por fuera: Camarón, spicy sambal, salsa de anguila, sriracha y cebollín.",
+      "price": 169,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Van Hallen",
+      "description": "Por dentro: Camarón, queso crema y aguacate. Por fuera: Salmón y kanikama.",
+      "price": 169,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Nevada",
+      "description": "Por dentro: Salmón, pepino y aguacate. Por fuera: Queso crema.",
+      "price": 159,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Dinamita",
+      "description": "Por dentro: Camarón tempura, aguacate y queso crema. Por fuera: Masago con topping de tampico.",
+      "price": 159,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Kani Krunch",
+      "description": "Por dentro: Tampico y queso crema. Por fuera: Aguacate, kanikama frito, bañado en spicy sambal y salsa de anguila.",
+      "price": 159,
+      "category": "food",
+      "section_title": "MATERIALES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Lomo Salteado",
+      "description": "Por dentro: Filate de red, aguacate y queso crema. Por fuera: Aderezo spicy, toganachi y cebolla frita.",
+      "price": 169,
+      "category": "food",
+      "section_title": "BOLOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Roiz",
+      "description": "Por dentro: Camarón empanizado, tampico y queso crema. Por fuera: Aguacate.",
+      "price": 159,
+      "category": "food",
+      "section_title": "BOLOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Manguelo",
+      "description": "Por dentro: Camarón, aguacate y queso crema. Por fuera: Cubierto con mango y ajonjoli crema.",
+      "price": 159,
+      "category": "food",
+      "section_title": "BOLOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Pico Roll",
+      "description": "Por dentro: Tampico y aguacate. Por fuera: Masago, queso crema y salmón. Acompañado de aderezo de mango con toganachi.",
+      "price": 209,
+      "category": "food",
+      "section_title": "BOLOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Unagui Masago",
+      "description": "Por dentro: Camarón empanizado, queso crema y aguacate. Por fuera: Anguila, cebollín y masago.",
+      "price": 209,
+      "category": "food",
+      "section_title": "BOLOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Amazonas Top",
+      "description": "Por dentro: Kanikama y zanahoria capeada con aguacate. Por fuera: Spicy tuna y masago bañados con salsa spicy ponzu.",
+      "price": 229,
+      "category": "food",
+      "section_title": "BOLOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "California",
+      "description": "Por dentro: Pasta de surimi, pepino y aguacate. Por fuera: Ajonjoli.",
+      "price": 139,
+      "category": "food",
+      "section_title": "BOLOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Orange Roll",
+      "description": "Por dentro: Surimi, camarón, aguacate y queso crema. Por fuera: Salmón con topping de lkura.",
+      "price": 229,
+      "category": "food",
+      "section_title": "BOLOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Kurimu Roll",
+      "description": "Por dentro: Salmón empanizado, tampico y aguacate. Por fuera: Queso crema, bañado con aderezo de fresa.",
+      "price": 169,
+      "category": "food",
+      "section_title": "BOLOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Salmón Crunch",
+      "description": "Por dentro: Salmón horneado con cebollín, mayonesa y crunch especial. Por fuera: Aguacate con topping de salmón horneado con cebollín, mayonesa crunch especial.",
+      "price": 159,
+      "category": "food",
+      "section_title": "BOLOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Cosmo Roll",
+      "description": "Por dentro: Pulpo, camarón, queso crema y anguila. Por fuera: Empanizado",
+      "price": 159,
+      "category": "food",
+      "section_title": "EMPANIZADOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Cosmo de Pollo",
+      "description": "Por dentro: Pollo frito y queso manchego. Por fuera: Empanizado",
+      "price": 159,
+      "category": "food",
+      "section_title": "EMPANIZADOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Cosmo Camarón",
+      "description": "Por dentro: Camarón, queso crema y aguacate. Por fuera: Empanizado",
+      "price": 169,
+      "category": "food",
+      "section_title": "EMPANIZADOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Matz Roll",
+      "description": "Por dentro: Surimi, aguacate, queso crema. Por fuera: Empanizado con surimi y tampico.",
+      "price": 159,
+      "category": "food",
+      "section_title": "EMPANIZADOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Tricolor",
+      "description": "Por dentro: Camarón empanizado y queso crema. Por fuera: Aguacate empanizado y tampico.",
+      "price": 159,
+      "category": "food",
+      "section_title": "EMPANIZADOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Nico",
+      "description": "Por dentro: Arroz frito, tampico y aguacate. Por fuera: Queso crema, camarón y empanizado.",
+      "price": 159,
+      "category": "food",
+      "section_title": "EMPANIZADOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Fire Dragon",
+      "description": "Por dentro: Queso crema y kanikama. Por fuera: Aguacate, gratinado, queso crema y cebollín, con una combinación de camarón y sambal.",
+      "price": 179,
+      "category": "food",
+      "section_title": "HORNEADOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Spicy Salmón",
+      "description": "Por dentro: Kanikama, aguacate y pepino. Por fuera: Salmón sellado, bañado con salsa de anguila, spicy sambal y ajonjoli negra.",
+      "price": 209,
+      "category": "food",
+      "section_title": "HORNEADOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Salmón Especial",
+      "description": "Por dentro: Anguila, queso crema y aguacate. Por fuera: Salmón horneado con un toque de aderezo.",
+      "price": 229,
+      "category": "food",
+      "section_title": "HORNEADOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Nikkori Dynamite",
+      "description": "Por dentro: Queso crema, aguacate y kanikama frito. Por fuera: Camarón con una combinación de kanikama cruyente, chipotle y mayonesa, bañado con salsa de anguila.",
+      "price": 179,
+      "category": "food",
+      "section_title": "HORNEADOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Sama Roll",
+      "description": "Por dentro: Surimi y aguacate. Por fuera: Salmón horneado con mezcla de queso manchego, pulpo y camarón, bañado con salsa de anguila.",
+      "price": 189,
+      "category": "food",
+      "section_title": "HORNEADOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Chipo",
+      "description": "Por dentro: Surimi, aguacate y queso crema. Por fuera: Capeado con tampico, bañado en chipotle.",
+      "price": 159,
+      "category": "food",
+      "section_title": "CAPEADOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Isla Roll",
+      "description": "Por dentro: Surimi, aguacate, queso crema y camarón. Por fuera: Capeado con topping de tampico.",
+      "price": 159,
+      "category": "food",
+      "section_title": "CAPEADOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Marco Roll",
+      "description": "Por dentro: Arroz frito con aguacate, queso crema y camarón capeado. Por fuera: Capeado.",
+      "price": 159,
+      "category": "food",
+      "section_title": "CAPEADOS",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Pastel de zanahoria",
+      "description": "",
+      "price": 105,
+      "category": "dessert",
+      "section_title": "POSTRES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Red velvet",
+      "description": "",
+      "price": 105,
+      "category": "dessert",
+      "section_title": "POSTRES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Banana Tempura",
+      "description": "",
+      "price": 85,
+      "category": "dessert",
+      "section_title": "POSTRES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Pastel chocolate alemán",
+      "description": "",
+      "price": 105,
+      "category": "dessert",
+      "section_title": "POSTRES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Cheesecake fresa",
+      "description": "",
+      "price": 105,
+      "category": "dessert",
+      "section_title": "POSTRES",
+      "options": [],
+      "grams": null
+    },
+    {
+      "name": "Copa de nieve",
+      "description": "",
+      "price": 49,
+      "category": "dessert",
+      "section_title": "POSTRES",
+      "options": [],
+      "grams": null
+    }
+  ]
+}

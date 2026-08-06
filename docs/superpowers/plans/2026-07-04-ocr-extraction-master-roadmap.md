@@ -2,6 +2,11 @@
 
 ## 🎯 CURRENT PHASE — the ONLY place this is written down
 
+> **Scope: EXTRACTION QUALITY ONLY.** This roadmap is one workstream, not the product plan. The
+> product-level roadmap — 16 phases, bootstrap to launch — is
+> **`docs/sunny-lemon-development-plan.md`**, and this work sits inside its Phase 9. For anything
+> about profiles, history, feedback, paywall, onboarding, auth or UI, go there instead.
+>
 > **Update this block when a phase closes. Do not restate it anywhere else** — this project has
 > repeatedly lost sessions to status copied into a second file and then left to rot.
 > Entry point for new sessions: `docs/superpowers/START-HERE.md` (routing only, no status).

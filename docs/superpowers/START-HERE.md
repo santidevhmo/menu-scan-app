@@ -12,22 +12,37 @@ exists** (merged into `main`, eval 138). Read any such path as "this repo".
 
 ## 1. What am I supposed to be working on?
 
-**`docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md` → the `🎯 CURRENT PHASE`
-block at the top.** That is the single source of truth for what is active, and the only place it
-is written down. If you find a phase or priority asserted anywhere else, that other place is stale
-— fix it or ignore it, but do not believe it.
+There are **two roadmaps, nested** — the product one, and an extraction sub-roadmap inside it.
+Read them in this order and the ambiguity disappears:
 
-Then read, in this order:
+**① `docs/sunny-lemon-development-plan.md` — THE PRODUCT ROADMAP.** 16 phases, bootstrap →
+launch. Its §0 convention: find the lowest-numbered unchecked sub-phase and **confirm with
+Santiago before starting**. Its statuses were reconciled against the real codebase on 2026-08-06
+— read its PROVENANCE header first, because the file predates this repo and its original commit
+hashes belong to an archived project.
 
-1. That roadmap's **"Release scope decision"** section — the numbered critical path, and the
-   POST-RELEASE list of things deliberately *not* to work on.
-2. That roadmap's **"Lessons learned"** — lessons 1–27 are mistakes previous LLMs actually made
-   in this codebase. Lessons 11–27 are the expensive ones. Read them before designing any rule or
+**② `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md` → the `🎯 CURRENT PHASE`
+block.** This is **extraction quality only** — one workstream, sitting inside Phase 9 of ①. It is
+the single source of truth for what is active *within extraction*, and the only place that is
+written down.
+
+Which one applies: **product/UI/feature work → ①. Extraction accuracy, prompts, evals, oracles,
+the edge function → ②.** If a phase or priority is asserted anywhere other than these two blocks,
+it is stale — fix it or ignore it, never believe it.
+
+Then read:
+
+1. ②'s **"Release scope decision"** — the numbered critical path and the POST-RELEASE list of
+   things deliberately *not* to work on.
+2. ②'s **"Lessons learned"** — lessons 1–27 are mistakes previous LLMs actually made in this
+   codebase. Lessons 11–27 are the expensive ones. Read them before designing any rule or
    predicting any score.
-3. **`docs/superpowers/extraction-iteration-ledger.md`**, newest entries LAST — every experiment,
-   with what was measured. Read the last few for current state. Do not re-run anything marked
-   REJECTED.
+3. **`docs/superpowers/extraction-iteration-ledger.md`**, newest entries LAST — every experiment
+   and what was measured. Read the last few for current state; do not re-run anything REJECTED.
 4. **`AGENTS.md`** and **`CLAUDE.md`** — product scope, stack, and behavioural rules. Both govern.
+
+⚠️ **Known contradiction, unresolved:** ① specifies Supabase auth; `AGENTS.md` says "Use Clerk.
+Do not build custom auth." Neither is installed. Ask Santiago before any auth work.
 
 ## 2. Santiago's standing rules
 

@@ -102,8 +102,9 @@ vendor directly.
   menu photo for invented or unprinted items.
 
 **Where to start:** `docs/superpowers/START-HERE.md` — the entry point for any new session. It
-contains no status (status drifts); it routes you to the one place the current phase is recorded:
-the `🎯 CURRENT PHASE` block atop the master roadmap. Do not use
+contains no status (status drifts); it routes you to the two roadmaps, which are nested:
+**`docs/sunny-lemon-development-plan.md`** is the PRODUCT roadmap (16 phases, bootstrap → launch),
+and the OCR extraction roadmap below is **one workstream inside its Phase 9**. Do not use
 `docs/superpowers/horizontal-menus/` as an entry point — that phase is closed.
 
 **Where status lives:** `docs/superpowers/extraction-iteration-ledger.md` (every experiment,
@@ -341,7 +342,7 @@ Before every feature:
 - Read this file.
 - Follow it strictly.
 - Build clean, simple code.
-- This file was developed after the plan file named sunny-lemon-development-plan.md. When you find any inconsistencies that affect your development in any task, ask the user first before moving on and return him update suggestions for either or both MD files (AGENTS and the plan file) to have both cohesive.
+- This file was developed after the plan file named `docs/sunny-lemon-development-plan.md` (recovered into the repo 2026-08-06; it is the PRODUCT roadmap). When you find any inconsistencies that affect your development in any task, ask the user first before moving on and return him update suggestions for either or both MD files (AGENTS and the plan file) to have both cohesive.
 
 ---
 

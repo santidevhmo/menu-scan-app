@@ -1,0 +1,52 @@
+# EAS Build upload exclusions.
+#
+# ⚠ When this file exists, EAS uses it INSTEAD of .gitignore — so everything
+# .gitignore excludes must be repeated here, or node_modules/ and ios/ get
+# uploaded. Keep the first block in sync with .gitignore.
+
+# ── mirrored from .gitignore ────────────────────────────────────────────────
+node_modules/
+.pnpm-store/
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+.metro-health-check*
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.DS_Store
+*.pem
+.env
+.env*.local
+*.tsbuildinfo
+example
+/ios
+/android
+.worktrees/
+supabase/.temp/
+nohup.out
+
+# ── not needed to BUILD THE APP (added 2026-08-04, eval 138) ────────────────
+# The repo was consolidated: the OCR eval harness now lives alongside the app.
+# None of it is imported by src/, so none of it belongs in a build upload.
+# scripts/fixtures/photos/ alone is ~30MB of menu photographs.
+scripts/
+docs/
+supabase/
+device-scans/
+.code-review-graph/
+.claude/
+.codex/
+.cursor/
+.kiro/
+.nautex/
+.serena/
+*.log

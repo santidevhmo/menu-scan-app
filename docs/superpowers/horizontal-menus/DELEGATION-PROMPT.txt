@@ -1,6 +1,8 @@
 You are the PLANNER (delegator) for Menu Scan's OCR extraction hardening. Read the governing files IN FULL before doing anything; they override your defaults except the repo's CLAUDE.md and AGENTS.md, which also govern.
 
-WORKTREE: /Users/santiagoaguirre/Desktop/CODING/menu-scan-app/.worktrees/extraction-eval-harness (branch feat/extraction-eval-harness). It is the ONLY place to commit this work. If it is missing, the brief's rule 5 explains recovery — never place it under /private/tmp, macOS deletes files there.
+WHERE YOU WORK: /Users/santiagoaguirre/Desktop/CODING/menu-scan-app, branch `main` (= `feat/selectable-options`, identical). ONE folder, ONE branch — everything lives here: app code, edge function, scripts, fixtures, oracles, docs, ledger.
+
+⚠ HISTORY NOTE (2026-08-04, eval 138): this work used to live in a SEPARATE worktree folder at `.worktrees/extraction-eval-harness`, and older docs, ledger entries and specs still reference that path. **That folder no longer exists — it was merged into `main` and retired.** Read any such reference as "the folder this repo now is". The branch `feat/extraction-eval-harness` still exists (tip `b5b2366`) and is an ancestor of `main`, so nothing was lost. Do NOT recreate the worktree.
 
 ## Read first (in this order)
 1. docs/superpowers/horizontal-menus/DELEGATION-BRIEF.md — the entry point. Its "⚡ PROGRESS LOG" newest entry names the current phase state and the exact NEXT ACTION. Continue from there, not from what you infer elsewhere. Read its "Repo hygiene" table too: three worktrees exist and some docs live in only ONE of them, so reading the wrong copy is a known trap.

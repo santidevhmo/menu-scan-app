@@ -64,22 +64,51 @@ Keep the implementation simple and readable
 
 ## OCR / Extraction Model Decision
 
-**SUPERSEDED 2026-07-29 by container rulings 29 + 30 — the Stage-1 extractor is being SPLIT.** Historical decision (still describes what is DEPLOYED today): **GPT-4o Vision** was selected as the OCR/extraction model after the Stage 1 extraction benchmark (`provider: "gpt-vision"`, `model_id: "gpt-4o"`).
+**The pipeline (deployed).** A scan runs three model calls:
 
-**Current architecture decision (ruling 30) — ✅ PORTED INTO THE EDGE 2026-08-01 (C3) AND DEPLOYED 2026-08-01 (eval 126):** the edge function runs this split (`ocrMistral` → `structureMenuText` in `supabase/functions/analyze-menu/`), OCR model PINNED to `mistral-ocr-4-0` (ruling 35), structuring model pinned to `gpt-4.1-2025-04-14`. C4 (the 9-menu ×3 live gate) closed under Santiago's tolerance rulings (evals 122-125b: live 45/45/45, offline 44-45/45); the prior guest-house silent-loss defect closed as rare model sampling. **H2 rotation (detect a sideways wide-menu capture, straighten it, resubmit) is ALSO deployed (eval 136, 2026-08-04, function v22) — live smoke confirmed a corrected scan is byte-identical to its upright twin. The React Native APP has NOT been rebuilt with the matching client code, so this is dormant for real devices until a rebuild ships.** See the horizontal-menus DELEGATION-BRIEF progress log before touching extraction.
+| Stage | Model | Job |
+|---|---|---|
+| 1a | `mistral-ocr-4-0` | photo → page `markdown` (transcription only) |
+| 1b | `gpt-4.1-2025-04-14` | markdown → menu schema, via `EXTRACT_PROMPT`/`EXTRACT_SCHEMA` |
+| 2 | GPT-4o | items → per-macro grams, calories, allergens |
 
-**Original decision text:** Stage-1 splits into **Stage-1a = Mistral OCR** returning page `markdown` (the layer measured as stable week-over-week) and **Stage-1b = a PINNED dated model snapshot** that converts that text into the menu schema using the existing `EXTRACT_PROMPT`/`EXTRACT_SCHEMA` verbatim. Rationale: Mistral's own structuring LLM proved unpinnable and changed shape without notice, while a dated snapshot can be pinned and re-run. GPT-4o is retained for **Stage-2 enrichment only**. Migration status and NEXT ACTION live in the container brief (see the extraction-quality section below) — do not restate them here.
+Stage 1 is deliberately split: transcription and structuring fail in different ways, and
+separating them lets each be pinned and measured on its own. Both live in
+`supabase/functions/analyze-menu/`.
 
-Current project cost assumption: **$0.03 USD per GPT-4o Vision extraction call**. Stage 2 adds a **second** GPT-4o call (enrichment), so a full scan costs extraction **+** enrichment: ~**$0.06/scan**. Enrichment is GPT-4o (same model as extraction); Gemini 2.5 Flash was discarded 2026-07-10. Finalize the per-scan number after the Stage 2 accuracy benchmark gate.
+**Always pin models to a dated snapshot, never an alias.** `mistral-ocr-latest` silently
+became a different model mid-project and invalidated a week of measurements — an alias can
+be substituted under you with no changelog, which makes every gate you ran meaningless.
+A pin removes vendor substitution; it does NOT remove sampling variance, so a passing
+single run still proves nothing.
 
-> ⚠️ **The extraction half of that estimate is SUPERSEDED by ruling 30** (2026-07-29). Stage 1 is being split into **Stage-1a** (a Mistral OCR call returning `markdown`) + **Stage-1b** (a PINNED `gpt-4.1-2025-04-14` call structuring that text), which lands at ~**$0.015–0.05 per scan** for extraction — versus ~$0.05–0.24 for the GPT-4o-Vision tiling path it replaces. Enrichment is unchanged. The migration is not deployed yet (C3/C4 pending); re-baseline the per-scan number at the C4 gate. Status lives in the container brief, not here.
+**Cost per scan:** ~$0.015–0.05 extraction + ~$0.03 enrichment. Re-baseline after any
+model or prompt change rather than quoting these figures forward.
 
-Keep OCR/model API calls inside the Supabase Edge Function. Do not expose provider API keys in client code.
+**Keep every model API call inside the Supabase Edge Function.** Never expose provider
+keys in client code. The client sends photos and receives items; it never talks to a model
+vendor directly.
 
-Broader planning source: `docs/superpowers/plans/2026-05-25-multi-model-menu-analysis.md`. That plan records the two-stage pipeline: Stage 1 OCR/extraction is complete with GPT-4o Vision selected, while Stage 2 nutritional enrichment/model comparison remains in scope. **(Stage-1's extractor choice is SUPERSEDED by rulings 29 + 30 — see the note above; that plan predates the Mistral migration.)**
+**Extraction quality is eval-gated, and the gate has rules:**
+- `scripts/fixtures/*.expected.json` and `scripts/fixtures/drafts/*` are **ORACLE files** —
+  the recorded truth of what each menu actually prints. Never edit one without an explicit
+  ruling from Santiago made from the photo. Never run `deno fmt` over a glob that can reach
+  `scripts/fixtures/`.
+- **Never quote a single run as quality — report the range across runs.** The structuring
+  model returns a different but equally valid item list each call.
+- **Archive raw model responses on every paid run, including passing ones.** A run you
+  cannot re-read is a run you have to pay for twice.
+- A numeric score is never sufficient on its own: also audit the raw output against the
+  menu photo for invented or unprinted items.
 
-**Extraction-quality hardening (active):** Stage-1 extraction quality is being hardened one dimension at a time per `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md` (the source of truth for status, rules, and the DoorDash prior-art research). Closed so far: Feature 1 food-item completeness (2026-07-06), Feature 2 food-item options (2026-07-09, fold convention: item owns options, base variant on the card), Feature 3 sections & sub-sections (2026-07-10, food-scoped section_context), and Feature 4 categories + option-price/grams accuracy (2026-07-10 — extraction output now includes `items[].grams`, parsed by postprocess from printed weights; the model-facing schema is unchanged). Current pipeline diagram: `docs/superpowers/diagrams/menu-extraction-pipeline.md`. **Release scope (user decision 2026-07-10, full list in the roadmap's "Release scope decision" section):** pre-release critical path = production wiring of per-page multi-photo calls (✅ DONE 2026-07-10, 3/3 gate — shared `runPagedExtraction`; P1 gained verbatim-printed-weights + y/and-joins rules) → dense-menu auto-cutter (✅ DONE 2026-07-12, 3/3 gate + device-verified — two-phase `needs_crops`/`extract-pages`, client cuts 2×2 PNG tiles from originals; P1 v7 page-scoped completeness suffix; test project runs this code since 2026-07-12) → client compression fidelity (✅ DONE 2026-07-12 — passthrough uploads; eval gate now runs production-mirror input) → horizontal/landscape menus (ACTIVE, **LAUNCH SCOPE incl. rotation** [container ruling 27] — **SINGLE SOURCE OF TRUTH for status + NEXT ACTION is the container brief `docs/superpowers/horizontal-menus/DELEGATION-BRIEF.md`, newest PROGRESS LOG entry, on branch `feat/extraction-eval-harness`; do not restate status here**) → Stage-2 enrichment benchmark (then the model bake-off — roadmap "Model bake-off track"). DEFERRED post-release — do not work on these now: Feature 5 (drinks), option-price perfection beyond the F4 gate, combo suggestions, the image-quality retake prompt, consistency-confidence flags. Stage 2 enrichment estimates **gram values per macro** (`protein_g`, `carb_g`, `fat_g`, `estimated_calories`) via chain-of-thought reasoning over listed ingredients and ranks items by those values. It also **retains per-item `allergens`** so the mandatory allergen disclaimer above keeps working. See the plan's "Stage 2 Design Refinement" and Phase 4.
+**Where status lives:** `docs/superpowers/extraction-iteration-ledger.md` (every experiment,
+newest last) and `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`
+(phases, release scope, and the lessons learned from real mistakes made in this codebase).
+Read those for current state — do not restate status in this file, it drifts.
 
+**Stage 2 enrichment** estimates `protein_g`, `carb_g`, `fat_g` and `estimated_calories` by
+reasoning over listed ingredients, preferring any weight printed on the menu over a guessed
+portion. It retains per-item `allergens` so the mandatory allergen disclaimer keeps working.
 
 Do not introduce new major libraries unless there is a strong reason.
 Ask before installing anything new.

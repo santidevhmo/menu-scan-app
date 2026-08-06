@@ -1,33 +1,77 @@
-You are the PLANNER (delegator) for Menu Scan's OCR extraction hardening. Read the governing files IN FULL before doing anything; they override your defaults except the repo's CLAUDE.md and AGENTS.md, which also govern.
+You are taking over Menu Scan's OCR extraction work. Read the governing files IN FULL before doing anything; they override your defaults except the repo's CLAUDE.md and AGENTS.md, which also govern.
 
 WHERE YOU WORK: /Users/santiagoaguirre/Desktop/CODING/menu-scan-app, branch `main` (= `feat/selectable-options`, identical). ONE folder, ONE branch — everything lives here: app code, edge function, scripts, fixtures, oracles, docs, ledger.
 
 ⚠ HISTORY NOTE (2026-08-04, eval 138): this work used to live in a SEPARATE worktree folder at `.worktrees/extraction-eval-harness`, and older docs, ledger entries and specs still reference that path. **That folder no longer exists — it was merged into `main` and retired.** Read any such reference as "the folder this repo now is". The branch `feat/extraction-eval-harness` still exists (tip `b5b2366`) and is an ancestor of `main`, so nothing was lost. Do NOT recreate the worktree.
 
+## ⛔ THE ACTIVE TASK IS A CRASH, NOT EXTRACTION (as of 2026-08-05)
+
+**Read `docs/superpowers/plans/2026-08-05-testflight-photo-crash-handoff.md` FIRST.** The extraction
+pipeline is healthy and device-verified; what blocks progress is that **the app aborts on the
+physical iPhone when a photo is submitted**. Until that is fixed, no restaurant field test can run,
+and Stage-2 work is parked behind it.
+
+Do NOT go looking in the extraction pipeline for this. It is proven client-side and pre-network:
+the `scan_log` table records every server outcome including errors, and there is no row at the
+crash timestamp.
+
 ## Read first (in this order)
-1. docs/superpowers/horizontal-menus/DELEGATION-BRIEF.md — the entry point. Its "⚡ PROGRESS LOG" newest entry names the current phase state and the exact NEXT ACTION. Continue from there, not from what you infer elsewhere. Read its "Repo hygiene" table too: three worktrees exist and some docs live in only ONE of them, so reading the wrong copy is a known trap.
-2. docs/superpowers/horizontal-menus/ROADMAP.md — phases, exit gates, and all owner rulings.
-3. The MASTER ROADMAP's "Lessons learned" — docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md, which exists ONLY in the primary folder (`feat/selectable-options`) (/Users/santiagoaguirre/Desktop/CODING/menu-scan-app). Lessons 1-27 are mistakes previous LLMs actually made here. Lessons 11-27 are the expensive ones; read them before designing any rule or predicting any score. **Lessons 24-27 (2026-08-01) are the newest and the most consequential: they are why quality is quoted as a RANGE at all. (That range was 33-37/45 when they were written; after Santiago's tolerance rulings it is 44-45/45 — the LESSON is the durable part, not the number.)**
-4. docs/superpowers/extraction-iteration-ledger.md — every experiment (read at least evals 059 onward). Do NOT re-run anything the brief's "DO NOT REPEAT" table or the ledger marks REJECTED.
-5. The relevant spec(s) in docs/superpowers/specs/ for the active step.
+1. **`docs/superpowers/plans/2026-08-05-testflight-photo-crash-handoff.md`** — the open bug, what is
+   established vs hypothesised, the decisive next step, and the environment traps that will
+   otherwise eat your session.
+2. `docs/superpowers/horizontal-menus/DELEGATION-BRIEF.md` — the entry point for the extraction work.
+   Its "⚡ PROGRESS LOG" newest entry names the current state. Its "Repo hygiene" section explains the
+   one-folder layout and how to read older worktree references.
+3. `docs/superpowers/horizontal-menus/ROADMAP.md` — phases, exit gates, and all 40 owner rulings.
+4. The MASTER ROADMAP's "Lessons learned" — `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`.
+   Lessons 1-27 are mistakes previous LLMs actually made here. Lessons 11-27 are the expensive ones;
+   read them before designing any rule or predicting any score. **Lessons 24-27 are why quality is
+   quoted as a RANGE at all.** (The range in that text was 33-37/45; after Santiago's tolerance
+   rulings it is 44-45/45 — the LESSON is the durable part, not the number.)
+5. `docs/superpowers/extraction-iteration-ledger.md` — every experiment, 139 entries, newest LAST.
+   Read at least evals 126 onward for current state. Do NOT re-run anything marked REJECTED.
 6. Repo CLAUDE.md + AGENTS.md — follow strictly.
 
-## ⚡ SITUATION AS OF 2026-08-04 — read this before the files, then verify it against them
-- **🚀 H2 ROTATION IS DEPLOYED TO PRODUCTION (eval 136, 2026-08-04, function v22).** Live smoke PASS: an upright scan is unchanged (24/24, no false trigger); a sideways scan gets `needs_rotation` back in 982ms with NO Stage-1b cost paid; the corrected resubmit returns 24 items **byte-identical in name AND price** to the direct upright scan. **⚠ The app itself is NOT rebuilt — no installed build has the client-side rotate/resubmit code yet, so this is dormant for real devices until an app rebuild ships.** Backup of the pre-deploy function (v21) at `supabase/backups/deployed-fn-2026-08-04/` (primary folder).
-- **✅ H2 ROTATION (H2.2 + H2.3) IS CLOSED (evals 133-135, 2026-08-03/04).** `runPagedExtraction` now splits Stage-1a/1b: every page's OCR runs first, `detectOrientation`+`correctionDegrees` (already-existing `orientation.ts`, eval 132) decide `needs_rotation` BEFORE any Stage-1b call is paid for, the client rotates (`rotateImage`, expo-image-manipulator) and resubmits with `rotated:true` (a hard stop — never asks twice), and the server keeps the corrected read only if `acceptRotation` (positively upright AND numbers ≥95%) — otherwise it falls back to `prior`, the first pass's text, at no extra API cost. The thin counter-clockwise direction (eval 132's one-observation gap) is closed: 9 more OCR reads, all 25 gallery images confirmed left-to-right by Santiago. **THE LIVE H2.3 GATE PASSED 15/15**: all 3 wide menus (bistro, guest-house, polloteria), simulated sideways then corrected then run live end-to-end (real OCR of the corrected image, real `acceptRotation`, real Stage-1b structuring, real postprocess chain), matched or exceeded their upright twins — bistro 24/24 exact, guest-house 48/48 exact (the documented recall case), polloteria within its own already-known brittle tolerance band. Zero fixture edits; the 10-menu suite unaffected throughout (50/50 · 49-50 · 50/50). **Now DEPLOYED (eval 136) — see the line above.** Along the way, 3 real bugs were found and fixed, ALL in the implementation plan's own synthetic test fixtures, never in production code (each confirmed against real archived data before touching anything): a `printedNumbers` regex that didn't count weight-suffixed numbers like `300gr`, and two synthetic block-geometry fixtures that varied only one axis where the real archived data varies both.
-- **THE (c) PIPELINE IS DEPLOYED TO PRODUCTION (eval 126).** Stage-1a Mistral OCR text (`mistral-ocr-4-0`, PINNED, ruling 35) -> Stage-1b `gpt-4.1-2025-04-14` (PINNED) -> `postprocessItems` per page -> `mergeItemSources` -> one `textStructureCleanup`. Production smoke PASS (`model_id: mistral-ocr-4-0+gpt-4.1-2025-04-14`, bistro 24/24 in 9.8s). Rollback: primary folder `supabase/backups/deployed-fn-2026-07-12`. **GOTCHA: the free-tier Supabase project AUTO-PAUSES after ~a week idle** — an INACTIVE project blocks deploys and fails every scan; check the dashboard for a paused project BEFORE debugging anything else.
-- **THE GATE IS GREEN UNDER SANTIAGO'S TOLERANCE RULINGS (evals 122-125b).** He ruled "all tolerated" on every remaining non-code failure (printed-text option FPs on 5 menus, 3 OCR-misread pins, ruling-36 both-shapes for brasero-two, Crispy-Chicken + Chilaquiles pin strictness per ruling 34). The eval-124 live x3 runs re-grade **45/45/45**; offline range **44-45/45**. ZERO deterministic code items remain open.
-- **QUOTE THE RANGE, NEVER A SINGLE DRAW.** `scripts/score-c-draws.ts` is the measurement of record. The offline Stage-1a caches are PRODUCTION-MIRROR text (`<menu>.mistral-pt-r1*.raw.json`, eval 123) — byte-identical to live OCR, which is fully DETERMINISTIC per image (4 independent reads matched on all 9 menus).
-- **The guest-house silent short read is CLOSED as rare model sampling:** 1 event in 32 draws on identical input (evals 120/121/123 refuted the text-difference and OCR-variance hypotheses in turn). Every live gate run archives RAW for both stages, so any recurrence self-diagnoses at $0.
-- **DO NOT chase brasero-two's CHURRASQUERIA card (ruling 36), and DO NOT re-tighten any tolerance without a fresh Santiago ruling.** Recorded exposure: bistro's pollo/camarón option tolerance would also mask a future pizza-misattachment draw (the 5-Formaggi class) — ruling-6 photo audits are the net for that.
-- **THE ORACLE LAYER IS NOW COMPLETE AND IN THE REPO (eval 127):** `scripts/fixtures/` holds the grading sheets (`*.expected.json`), the name-level truth (`drafts/`), the ORIGINAL PHOTOS (`photos/`, moved 2026-08-01) and a versioned backup of the replayed model responses (`caches/`). **Read `scripts/fixtures/README.md` before touching any of it** — it carries the two-oracles rule and the new-menu intake recipe. Reach photos ONLY via `photoPath()` from `scripts/photo-input.ts`; `MENU_DIR` (`~/Downloads/MenusTesting`) is now disposable scratch for run dumps.
-- **`scripts/extract-draft.ts` (the new-menu draft generator) was FIXED 2026-08-01** — it had been calling the pre-C3 2-arg `runPagedExtraction`; it now passes `(photos, mistralKey, openaiKey)` and needs **both** `MISTRAL_API_KEY` and `OPENAI_API_KEY` in the environment. Type-checks clean; not yet run live (its first live run IS the new-menu intake).
-- **✅ THE HELD-OUT TEST IS DONE — `AndaluzMenu` scored 2/5, then 5/5 after three fixes (evals 128-130). ITS ONE HELD-OUT SHOT IS SPENT; it is now a permanent suite member and can never again be evidence of generalization.** Method: one live passthrough OCR (`andaluz.mistral-pt-r1.raw.json`, production-mirror) + 3 pinned structuring draws (`eval128-r1..3`), scored BEFORE any rule was touched. **First-try result on a menu the pipeline had never seen: 36/36 dishes, 5/5 sections, ZERO inventions, ZERO false-positive options, all prices correct** — completeness and sections were never the problem. The three real gaps it exposed are all fixed and all layout-general (evals 129/130). **What it tests that the other 9 cannot:** WHITE TEXT ON DARK BLUE (all 9 incumbents are dark-on-light), real glare + a diagonal shadow, 23 printed weights, a two-priced-version card (`QUESO FUNDIDO`), inline choices (`Pan o tortillas`), a dish NAME containing 'o' (`TACOS O FAJITAS DE DIEZMILLO`), and two pairs of sibling dishes SHARING one printed description (the DoorDash item-attribute-linkage class). **⚠ It does NOT run by default yet** — it needs `MENUS=andaluz OCR_TAG=pt` because `ocrSourcePaths` still defaults to the legacy `b1` caches. Registering it in the default menu lists is the next $0 chore.
-- **RULINGS 38/39/40 (2026-08-03) supersede parts of ruling 37 — read them in ROADMAP.md.** 38: weights ARE graded, on RELATIVE error `|actual-expected|/expected`, tolerance **50%** (a 200 g dish passes at 100-300 g — a 2x macro error at the edge, recorded deliberately). 39: a specific dish's weight misread may be tolerated by name (`tolerated_grams`), and stays printed in the detail line. 40: **A SIDE IS A SECTION, NOT A DISH** — `entradas` means appetizers and appetizers are `food`; a `side` survives only when its printed section is predominantly side. **Ruling 40 exists because the planner got it backwards first and cited polloteria's fries as precedent — that compared DISH VOCABULARY, which ruling 7 forbids. When the extractor and a grading sheet disagree, check what the PROMPT already says before assuming the sheet is wrong.**
-- **NEXT ACTIONS (Santiago-agreed, in order; (3) is DONE, renumbered from the 2026-08-03 list):** (1) **$0 chore — register `andaluz` in the default menu lists** (`score-c-dumps.ts`, `score-c-draws.ts`, `firing-list.ts`) and settle the `b1`→`pt` default so all 10 menus run on one command with no env vars. (2) One real DEVICE scan end-to-end against the deployed function — the ONLY release gate never yet run under the deployed (c) pipeline. **The edge function now includes H2 rotation (deployed eval 136, v22), but no app build has the matching CLIENT code — a device scan today would not exercise the rotation feature; rebuilding the app with the current worktree's client slice is a prerequisite for that half of this check.** (3) ✅ DONE 2026-08-04 — cheap rotation re-probe under (c) AND its deploy (evals 133-136); H2 is code-complete, gate-passed, AND deployed server-side; the app itself is not yet rebuilt. (4) **SUITE CONSOLIDATION** — merge `feat/extraction-eval-harness` into the app branch, retire the three worktrees, document the one all-menus regression command. (5) Stage-2 enrichment benchmark (its own phase — macro accuracy has NEVER been gated, and it is the half of the product the extraction work has never touched).
+## ⚡ SITUATION AS OF 2026-08-05 — read this, then verify it against the files
+- **⛔ OPEN BUG, TOP PRIORITY: the app aborts when a photo is submitted on a REAL DEVICE** (TestFlight
+  Release build 3/4). It is an unhandled **JavaScript** error (`RCTFatal` in the crash stack), which is
+  why **Debug redboxes where Release aborts** — the iOS simulator runs the same flow fine and cannot
+  reproduce it. It happens **before any network call**. Leading hypothesis (UNVERIFIED, and recorded
+  as not fully fitting): real camera photos are HEIC while the simulator's were PNG. **Next step:
+  Debug build on the device, on a PRIVATE network, to capture the redbox.** Full detail in the
+  handoff doc above.
+- **✅ EXTRACTION IS HEALTHY AND DEVICE-VERIFIED (eval 137).** Three real-camera scans scored **15/15
+  dims with zero invented dishes**, including a wide menu photographed SIDEWAYS that the phone
+  detected, straightened, resubmitted and recovered 24/24 — 23 of 24 items byte-identical to its
+  upright twin. Offline gates 50/50 · 50/50, suite 272 passed / 1 pre-existing (`tile-cut_test.ts`).
+- **✅ THE REPO IS CONSOLIDATED (eval 138).** One folder, one branch. The old
+  "never commit the client slice in the primary folder" rule is RETIRED.
+- **✅ REMOTE SCAN VISIBILITY EXISTS — USE IT.** Every scan writes a row to `public.scan_log`
+  (outcome, item count, OCR chars, and a `detail` JSONB with the dish list / rotation angle / error).
+  Read it through the Supabase MCP: `select * from public.scan_log order by id desc;`. This is how the
+  crash was localised to the client without a cable, and it works from anywhere.
+- **Deployed edge function: v24** on project `uonuiadueykynbetxxrw`. **TestFlight: build 3/4**, the
+  first builds carrying BOTH the rotation client and the allergen UI.
+
+## ⚠ ENVIRONMENT TRAPS — each of these has already cost a session
+1. **`xattr -cr node_modules/expo-modules-jsi` before ANY local iOS build.** The repo sits on an
+   iCloud-synced `~/Desktop`; iCloud stamps `com.apple.FinderInfo` on build artifacts and `codesign`
+   refuses them. The failure reads `resource fork, Finder information, or similar detritus not
+   allowed`. **Read the LAST line of a failed build block — a previous session grepped for `error:`,
+   hit an `in file included from` note trail about `hermes.h`, and wrongly declared the simulator
+   unusable.**
+2. **`No script URL provided … (null)` means "the phone cannot reach Metro", never "Metro is down".**
+   The port is compiled into the app (default 8081) and the Mac's IP is baked at build time. Causes
+   seen so far: another project holding 8081, and a public WiFi with client isolation. **Test from
+   the phone's Safari: `http://<mac-ip>:8081/status` must return `packager-status:running`.**
+3. **The simulator has no camera** and its photo library holds only what you drag in. It cannot
+   reproduce anything involving HEIC, EXIF orientation, or real photo quality.
+4. **`.easignore` REPLACES `.gitignore` for EAS uploads** — it must repeat every entry or
+   `node_modules/` and `ios/` (2.9GB) get uploaded.
+
 
 ## Your role
-SINGLE AGENT, by default: you analyze, design cheap probes, AND implement — TDD-first, committing and pushing on the worktree branch yourself. (The old planner/executor split was collapsed by Santiago in practice on every recent session and is retired; if he explicitly re-instates it, honor it.) What never changes: Santiago decides all oracle/fixture changes and every live-run cost approval, and you measure both halves of every before/after yourself. STANDING SANTIAGO RULES (2026-08-01): use the `superpowers:systematic-debugging` skill for ANY debugging task and `superpowers:brainstorming` for ANY brainstorming of new evaluations/iterations/solutions; end-of-task reports must be SIMPLE and VISUAL — lead with tables (truth-source vs OCR vs model output per dish; menu × run score grids; before/after columns), plain language, project jargon glossed on first use (his approval depends on understanding — a misleading term in an approval request is worse than verbosity).
+SINGLE AGENT, by default: you analyze, design cheap probes, AND implement — TDD-first, committing and pushing on `main` yourself (push after EVERY commit). (The old planner/executor split was collapsed by Santiago in practice on every recent session and is retired; if he explicitly re-instates it, honor it.) What never changes: Santiago decides all oracle/fixture changes and every live-run cost approval, and you measure both halves of every before/after yourself. STANDING SANTIAGO RULES (2026-08-01): use the `superpowers:systematic-debugging` skill for ANY debugging task and `superpowers:brainstorming` for ANY brainstorming of new evaluations/iterations/solutions; end-of-task reports must be SIMPLE and VISUAL — lead with tables (truth-source vs OCR vs model output per dish; menu × run score grids; before/after columns), plain language, project jargon glossed on first use (his approval depends on understanding — a misleading term in an approval request is worse than verbosity).
 
 ## Operating rules
 - Santiago personally decides ALL fixture/oracle changes, extraction-convention rulings, photo adjudications, and every live-run cost approval. Present options with a recommendation and WAIT. State the $ estimate before asking.

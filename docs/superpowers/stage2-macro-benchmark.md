@@ -398,8 +398,9 @@ free lever before anything with a runtime cost is considered.
 > than described below (the negative, not the inclusive form, because step 2 *already* said "as
 > served" and "fat absorbed or added in cooking counts" during iter-b12-001). It moved **zero** fat
 > composition values, so the **fat prediction below failed outright**; the other two held (corn stayed
-> at 19 g/100 g, CESAR carb still failed on 2 of 3 draws). **Do not re-run any
-> variant of this** — B11 and B13 have now independently falsified step-2 prose as a lever.
+> at 19 g/100 g, CESAR carb still failed on 2 of 3 draws). Re-running a *rephrasing* of this would
+> repeat a measurement we already have — but that is a prior, not a prohibition (see Rulings, "How
+> to read the track record").
 
 **The one-variable follow-up that resolves B12's confound.**
 
@@ -1158,9 +1159,10 @@ figure as the wrong answer. Recording this because the backlog entry describes t
 | Grated parmesan | 28.8 | 25.8 | **25.8** |
 
 CESAR's fat error is **−35.5% in all three draws of both runs** — the same number to one decimal.
-Telling the model that the raw figure is wrong did not change a single figure. **Do not spend another
-iteration on preparation wording.** Two runs (B11, B13) have now falsified the same class of fix:
-step-2 prose does not move a number the model has already decided.
+Telling the model that the raw figure is wrong did not change a single figure. Two runs (B11, B13)
+have now falsified the same class of fix — **step-2 prose does not move a number the model has
+already decided**. Treat that as a measured prior on where to look next (see Rulings, "How to read
+the track record"), not as a ban on ever touching the prompt again.
 
 **FINDING 2 — the model is not quoting *raw*. It is quoting a leaner real product.** This corrects
 iter-b12-001's stated cause. Raw chicken breast is ~1.2 g fat/100 g and the model says 3.6; plain
@@ -1229,14 +1231,42 @@ draws**. No ingredient's three per-100 g values sum above 100. Atwater exact by 
 Cost from the archived `usage` blocks: 2,604 input + 3,552 output tokens = **$0.0420**. Phase total
 **$0.177**.
 
-**Verdict: keep the sentence, do not deploy, stop tuning step 2.** The clause is harmless and the
+**Verdict: keep the sentence, do not deploy, go to portioning next.** The clause is harmless and the
 run's headline is the best of the iteration series, but B13's own mechanism is falsified and the
 improvement is not attributable to it. Two independent lines of evidence — carbohydrate (B12) and now
-fat (Finding 4) — both terminate at portioning. **B4 is the next iteration.**
+fat (Finding 4) — both terminate at portioning. **B4 is the next iteration**, chosen because that is
+where the evidence points, not because any other avenue is closed.
 
 ---
 
 ## Rulings
+
+### How to read the track record — insights, not prohibitions *(Santiago, 2026-08-08)*
+
+**These iterations exist to break and confirm hypotheses against grounded data.** A run that
+falsifies something is a *result*, not a closed door. When writing up a run, record what the
+evidence supports and what it argues against — and frame it as a **prior to weigh in the next
+brainstorm**, never as a rule that forbids a class of experiment. Hard rules narrow the search
+before the search is finished.
+
+Two things are genuine rules, and only two, because both are Santiago's own and one is
+mechanically enforced:
+- **No food, dish or cuisine name in the nutrition step of `ENRICH_PROMPT`** — the test set must not
+  leak into a prompt that ships to every menu on earth. `enrich_test.ts` fails the build.
+- **The frozen oracle and the fixtures change only by Santiago's decision.**
+
+Everything else measured so far is a **scoreboard by kind of change**, to be brought *into* a
+brainstorm rather than used to end one:
+
+| kind of change | record | runs |
+|---|---|---|
+| Prompt wording in step 2 | **0 for 2** — targeted number moved by zero, twice | B11, B13 |
+| Mechanism: take arithmetic away from the model, leave it knowledge | **2 for 2** | B10, B12 |
+| Schema field added without a mechanism behind it | 0 for 1 (regressed the tally) | B1 |
+
+A wording hypothesis with a **new mechanism** behind it and a **stated falsifier** is still a
+legitimate run. What the record argues against is *rephrasing an idea already measured* — that
+re-buys a measurement we own.
 
 - **2026-08-07 — Tolerance bands. CONFIRMED by research, no longer provisional.** Calories ±20%,
   each macro ±30%, all four must pass for an item to pass a draw. Evidence: the FDA's own

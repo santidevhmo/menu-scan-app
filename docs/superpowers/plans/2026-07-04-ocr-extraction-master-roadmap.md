@@ -103,11 +103,15 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > against the oracle's 20 g, and Salmone's baguette collapsed 50 g → 10 g between draws in B12. Fat:
 > #8 above. **Portioning is the entire remaining error surface.**
 >
-> **Do NOT write another step-2 sentence.** B11 and B13 have independently falsified prompt prose as
-> a lever — twice measured, ~$0.076 spent, zero target numbers moved. The two changes that ever
-> worked (B10, B12) both worked by **taking arithmetic away from the model and leaving it knowledge.**
-> B4 should be designed the same way. Design it with `superpowers:brainstorming` and get Santiago's
-> approval on the shape before spending anything.
+> 📊 **Prior to weigh, not a prohibition (Santiago, 2026-08-08).** The scoreboard on *kinds of change*
+> so far: **prompt wording 0 for 2** (B11, B13 — ~$0.076, zero target numbers moved), **mechanism
+> changes 2 for 2** (B10, B12 — both worked by taking arithmetic away from the model and leaving it
+> knowledge). That is evidence about where to look first, not a closed door: these iterations exist
+> to break and confirm hypotheses, so a wording idea with a *new* mechanism behind it and a stated
+> falsifier is still a legitimate run. Bring the prior into the brainstorm; don't let it end one.
+>
+> Design B4 with `superpowers:brainstorming` and get Santiago's approval on the shape before
+> spending anything.
 >
 > ⚠️ **Open question for Santiago before more money goes on fat (his call alone, no change proposed):**
 > on all six fats the oracle picks the richer as-prepared FDC entry and the model picks a leaner real
@@ -117,10 +121,9 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >
 > **Do NOT do any of these without a new ruling:** deploy B1, B10, B11, B12 or B13 (none has beaten
 > baseline); re-run a baseline (two exist); re-open the printed-weight scope question (ruled,
-> applied blind); change the frozen oracle (Santiago's alone); put any food, dish or cuisine name
-> into the nutrition step of the prompt (measured harmful, and now unit-tested); **write another
-> step-2 sentence of any kind** (falsified twice, B11 and B13); or start B2/B5/B6/B9 (none has run
-> data behind it, unlike B4).
+> applied blind); change the frozen oracle (Santiago's alone); or put any food, dish or cuisine name
+> into the nutrition step of the prompt (measured harmful, and now unit-tested). **Deprioritise**
+> B2/B5/B6/B9 — no run data stands behind them, unlike B4 — but that is sequencing, not a ban.
 >
 > **Read in this order — these files are the whole phase:**
 > 1. `stage2-macro-benchmark.md` — Backlog (B1–B11), Runs, Rulings. **This is the living

@@ -83,9 +83,11 @@ mostly a portion call**. **Next action is B4 — portioning.** See the iter-b13-
 a roll-call of the three fixtures' own ingredients and measurably worsened sweet corn.
 `enrich_test.ts` guards this now.
 
-⚠️ **Do not spend another run on step-2 wording.** B11 and B13 both did; both moved the targeted
-number by zero. The only two changes that ever worked (B10, B12) removed arithmetic from the model
-rather than adding instructions to it.
+📊 **Track record by *kind* of change — a prior for the next brainstorm, not a rule.** Prompt
+wording: **0 for 2** (B11, B13 — both moved their targeted number by zero). Mechanism changes that
+remove arithmetic from the model and leave it knowledge: **2 for 2** (B10, B12). Weigh this when
+choosing what to try next; a wording hypothesis with a new mechanism and a stated falsifier is
+still worth running.
 
 **Standing rules for any iteration that reuses this file's Task 5 procedure:**
 - **Skip the mirror call** unless the change under test has been deployed. Comparing a changed

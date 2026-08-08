@@ -53,9 +53,12 @@ that fat decomposes to portioning too, so **portioning is the entire remaining e
 (its "high carb" list was a roll-call of our own three fixtures) and it measurably made sweet corn
 worse. `enrich_test.ts` now fails the build if one reappears.
 
-⚠️ **Do not write another step-2 sentence at all.** B11 and B13 each spent a paid run on prompt
-wording and each moved the targeted number by **zero**. The only two changes that ever worked (B10,
-B12) worked by taking arithmetic *away* from the model and leaving it knowledge. Design that way.
+📊 **Measured insight, not a rule — prompt wording has a poor track record here.** B11 and B13 each
+spent a paid run on step-2 wording and each moved its targeted number by **zero**; the two changes
+that did work (B10, B12) both took arithmetic *away* from the model and left it knowledge. That is
+**two data points against wording and two for mechanism**, which is a prior to weigh in the next
+brainstorm — not a closed door. If a hypothesis says wording is the lever *for a different reason*,
+say what would falsify it and run it.
 
 ℹ️ **The suite's `1 failed` is noise.** `304 passed | 1 failed` with only `scripts/tile-cut_test.ts`
 red is a CLEAN run — Santiago has ruled it unimportant and it cannot affect macros (it tests the

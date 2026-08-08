@@ -1,46 +1,34 @@
 # Menu Extraction Pipeline — Current Status
 
-> # ⛔ STALE AS OF 2026-07-29, STILL STALE AT 2026-08-01 — DO NOT TREAT THIS FILE AS TRUTH
->
-> **2026-08-01 (evening) — THE NEW PIPELINE IS DEPLOYED TO PRODUCTION.** `supabase functions deploy
-> analyze-menu` succeeded (project restored from pause first) and the live smoke test returned
-> `model_id: mistral-ocr-4-0+gpt-4.1-2025-04-14` with bistro's exact gated 24/24 items in 8.7s.
-> Production NOW runs: Stage-1a Mistral OCR (`mistral-ocr-4-0`, pinned) → Stage-1b `gpt-4.1-2025-04-14`
-> (pinned, `EXTRACT_PROMPT`/`EXTRACT_SCHEMA`) → `postprocessItems` per page → `mergeItemSources` → one
-> `textStructureCleanup`. C4 closed on the range verdict after Santiago's tolerance rulings (evals 122-125b:
-> live 45/45/45 re-graded, offline 44-45/45; ledger). Rollback: `supabase/backups/deployed-fn-2026-07-12`.
-> **The full diagram rewrite is still owed** — everything below the banner still draws the OLD path.
-> Authoritative until then: `docs/superpowers/horizontal-menus/DELEGATION-BRIEF.md` progress log (newest first).
->
-> **2026-08-04 — H2 ROTATION ALSO DEPLOYED** (evals 132-136, function v22): a sideways wide-menu capture
-> is now detected, corrected, and re-submitted server-side, with a live production smoke test confirming
-> the corrected result is byte-identical (names and prices) to the upright twin. The React Native APP has
-> NOT been rebuilt with the matching client code, so no installed build exercises this yet.
->
-> Everything below describes the pipeline as of **2026-07-12** and is now wrong in its most important
-> respect: the Stage-1 extractor. Since then the extraction stack has changed twice —
-> a **production colocation stage** (container ruling 15), and then the **Stage-1 extractor migration**
-> away from GPT-4o Vision (container rulings 29 and **30**: Stage-1a = Mistral OCR `markdown`,
-> Stage-1b = a PINNED model snapshot using the existing `EXTRACT_PROMPT`/`EXTRACT_SCHEMA`; GPT-4o kept
-> for Stage-2 enrichment only). The tile/auto-cutter machinery described below is being made unreachable
-> rather than deleted, and the whole-image read makes tiling moot on every fixture measured so far.
->
-> **Authoritative sources instead of this file:**
-> - status + NEXT ACTION → `docs/superpowers/horizontal-menus/DELEGATION-BRIEF.md` (newest PROGRESS LOG
->   entry) on branch `feat/extraction-eval-harness`
-> - rulings + phase plan → `docs/superpowers/horizontal-menus/ROADMAP.md` (same branch)
-> - every experiment → `docs/superpowers/extraction-iteration-ledger.md` (same branch)
->
-> This file gets rewritten when the migration closes (master-roadmap "Diagram discipline" requires it at
-> that point, not before — writing a diagram for a half-built architecture would just create a second
-> stale artifact). Kept as-is meanwhile because it accurately documents what is still DEPLOYED.
-
-
-> **Canonical file** (roadmap links here; keep it updated as Features 2–5 close).
+> **Canonical file** (the master roadmap links here as the source-of-truth for the flow + prompts).
 > A snapshot copy also lives at `~/Downloads/menu-extraction-pipeline.md`.
 >
-> **Last updated:** 2026-07-12 (night) — **client compression fidelity CLOSED 🟢 (critical-path #3, ledger evals 056-058 + device 3/3).** Phase-1 uploads now PASSTHROUGH original bytes (file ≤6.75MB ⇒ base64 ≤9M chars, correct-mime `data:` URL; oversized ⇒ 2048px JPEG q0.95 fallback — q0.85/q0.90 stably misread small price digits, q95 still lost el-marcos/mochomos dims 4/4). The old 1024px/q0.7 intake compression is GONE (it measurably lost options/grams/sections on 3 of 6 menus); intake stores ORIGINAL uri/dims, compression happens only at upload, tiles still cut from originals. Eval gate phase-1 input = the same production mirror (`scripts/photo-input.ts`), permanently. ImagePicker re-encode suspicion DISPROVEN (gallery PNGs byte-identical at quality:1). New: `scripts/score-dump.ts` scores any device/console dump offline; el-marcos "Norteños" = tolerated header (oracle, printed as a DISH). Prior (same day): dense-menu auto-cutter CLOSED 🟢 (critical-path #2, 3/3 gate eval 055, device-verified). Two-phase stateless flow: phase-1 `stage:"extract"` returns `{needs_crops:[pageIdx]}` when a page dense-signals (`image_layout.dense` OR terminal timeout/length after retry — failure-as-signal); the client cuts that page into 4 proven 2×2 PNG tiles (60%×60%, origins 0/40%, `gridCropRects`) from the ORIGINAL photo (`prepareTile`, ≤2048px, PNG) and re-submits ALL pages via new `stage:"extract-pages"` (groups of 1 photo or 4 tiles) → `runGroupedExtraction`: tiles run parallel `detail:"high"` + per-tile drink filter + `TILE_PROMPT_SUFFIX` (skip cut-off items) + sectionLenient tile merge; cross-page merge + post-merge `dropHeaderEchoes`. Old `stage:"extract-crops"`/pre-cut-tile routing deleted. **P1 CHANGED (v5 + v7, see appendix):** v5 never-invent-options rule (choice word or printed price/weight required); v7 `PAGE_PROMPT_SUFFIX` (card completeness: trailing "a elegir" lines + boxed inserts) applied ONLY to multi-photo page calls — the global variant regressed single-photo menus (v6, reverted). New deterministic postprocess: `dropSiblingEchoOptions` (price-null option echoing a same-section sibling name = re-attached dish). Scorer: `containsWithOneIndel` one-letter tolerance in the section-check lookup (Chipo→Chiplo, user ruling); per-fixture `items_over_tolerance` (nikkori +6). Prior (2026-07-10): per-page wiring CLOSED (critical-path #1, eval 048); P1 v3 weights-verbatim + y/and rules; F4 CLOSED; Stage-2 locked to GPT-4o.
-> **Legend:** 🟢 done · 🟡 built but not gated/benched · 🔴 not built yet.
+> **Last updated:** 2026-08-06 — **full rewrite for the deployed OCR pipeline.** The 2026-07-12
+> diagram (GPT-4o Vision as Stage 1, with a dense auto-cutter) is gone; it no longer describes what
+> runs. Production is **edge function v24** (`supabase functions list` → ACTIVE, 2026-08-04 19:49 UTC)
+> and `main` (`563f3d5`, clean, == `origin/main`). The pipeline logic below is what both carry.
+>
+> **What changed since the last diagram (all deployed):**
+> - **Stage 1 extractor migrated off GPT-4o Vision** (container rulings 29/30, deployed eval 126).
+>   It is now two pinned calls: **Stage 1a `mistral-ocr-4-0`** transcribes the photo to markdown, and
+>   **Stage 1b `gpt-4.1-2025-04-14`** structures that *text* into `EXTRACT_SCHEMA`. Both are dated
+>   snapshots — an alias silently substituting a model is exactly what broke a week of measurements
+>   (evals 101/102). GPT-4o is kept for **Stage 2 enrichment only.**
+> - **H2 rotation added** (evals 132–137, function v22→v24; device-verified): a sideways wide-menu
+>   capture is detected from OCR block geometry, straightened client-side, and re-submitted once.
+> - **The dense auto-cutter / tile path is now DORMANT.** `runPagedExtraction` never returns
+>   `needs_crops` — the whole-image OCR read makes tiling moot on every fixture measured. The tile
+>   machinery (`stage:"extract-pages"` → `runGroupedExtraction`, per-tile verify, `colocationStage`)
+>   and the legacy `stage:"extract-crops"` remain in the code but nothing triggers them. They are drawn
+>   below the diagram as a dormant appendix, not on the live path.
+> - **Enrichment is batched** (10 items/batch, parallel, one-retry-on-short, then `reassembleEnriched`
+>   backfills any item the model dropped — one enriched row per input, order preserved).
+> - **Deterministic cleanup rewritten**: after per-page `postprocessItems` + `mergeItemSources`, one
+>   `textStructureCleanup` runs over the merged items + the joined OCR markdown (C3).
+> - **Observability**: the edge writes one `scan_log` row per scan (menu text only, never the photo;
+>   never throws). Side-channel — not a pipeline stage.
+>
+> **Legend:** 🟢 deployed & gated · 🟡 deployed but not benchmarked/gated · 🔴 not built · 💤 present in code but not triggered (dormant).
 
 ```mermaid
 sequenceDiagram
@@ -48,87 +36,139 @@ sequenceDiagram
     actor U as 👤 User
     participant C as 📱 Client (Expo/RN)
     participant EF as ☁️ Edge Fn analyze-menu (Deno)
-    participant V as 🌐 GPT-4o Vision
+    participant M as 🌐 Mistral OCR (mistral-ocr-4-0)
+    participant S as 🌐 GPT-4.1 (gpt-4.1-2025-04-14)
     participant EN as 🌐 GPT-4o (enrichment)
 
     U->>C: capture / pick menu photos
-    Note over C: expo-camera / expo-image-picker<br/>intake stores ORIGINAL uri/dims (no compression)<br/>upload: passthrough original bytes ≤6.75MB<br/>else 2048px JPEG q0.95 fallback (ticket #3)
+    Note over C: expo-camera / expo-image-picker<br/>intake stores ORIGINAL uri/dims (no compression)<br/>upload: passthrough original bytes if file ≤6.75MB<br/>else 2048px JPEG q0.95 fallback (ticket #3)
 
     rect rgb(20,60,30)
-    Note over C,V: STAGE 1 — extraction (keys stay server-side)
-    alt Normal menu — runPagedExtraction 🟢 (wired + 3/3 gate 2026-07-10, eval 048)
-        C->>EF: POST stage=extract {photos}
-        alt 1 photo
-            EF->>V: ONE call · P1 EXTRACT_PROMPT<br/>strict json_schema · temp 0 · seed 17 · ~$0.03<br/>(extractWithRetry: 1 retry on timeout/length)
-            V-->>EF: items[] + image_layout + image_quality
-        else N photos (multi-page menu = ONE menu)
-            par one call PER page, concurrent
-                EF->>V: P1 · detail:"high" · extractWithRetry
-                V-->>EF: page items[]
-            end
-            EF->>EF: mergeItemSources() (merge.ts) — ONE unified items list;<br/>usable=AND, issues deduped, layout=first dense page's
-        end
-    else 🟢 Dense menu — auto-cutter (critical-path #2, 3/3 gate eval 055 + device-verified 2026-07-12)
-        EF-->>C: {needs_crops:[pageIdx]} — page dense-signaled<br/>(image_layout.dense OR terminal timeout/length after retry)
-        C->>C: gridCropRects(w,h) → 4 tiles 60%×60% (origins 0/40%)<br/>prepareTile: crop from ORIGINAL photo, PNG, ≤2048px
-        C->>EF: POST stage=extract-pages {pages: [[photo] | [t1..t4], …]}
-        par each dense page: 4 tile calls, concurrent
-            EF->>V: P1+TILE_PROMPT_SUFFIX · detail:"high" · extractWithRetry
-            V-->>EF: tile items[] (drinks filtered per tile)
-        end
-        EF->>EF: tile merge (sectionLenient) → cross-page mergeItemSources()<br/>→ post-merge dropHeaderEchoes()
+    Note over C,S: STAGE 1 — extraction (all provider keys stay server-side)
+    C->>EF: POST stage=extract {photos, provider:"gpt-vision"}
+
+    par Stage 1a — OCR each page (concurrent)
+        EF->>M: ocrMistral(photo) 🟢
+        M-->>EF: markdown (reading order) + text-block geometry (blocks[])
     end
-    EF->>EF: postprocessItems()<br/>stripMenuNumbers → dropPriceNoteItems → foldVariantCards<br/>(incl. 3+-card variant families) → promoteSections → dropHeaderEchoes<br/>→ extractInlineChoices (price-null guard) → filterServingFormatOptions<br/>(+ unenumerated / C-U-per-unit / per-person / weight / self-echo filters)<br/>→ dropSiblingEchoOptions (same-section sibling echo, price-null only)<br/>→ parseItemGrams (fills items[].grams — NOT model-filled)
-    EF-->>C: items[] (+ grams + image_layout, image_quality)
+
+    opt 🟢 H2 rotation — sideways page detected (evals 132–137)
+        Note over EF: detectOrientation(blocks): wide-fraction of<br/>text boxes + reading-order drift, refuses unless decisive<br/>(≥20 blocks, correlations past MIN_CORRELATION)
+        EF-->>C: {needs_rotation:[{page,degrees}], prior:[markdown]}
+        C->>C: rotateImage(page, degrees) from the ORIGINAL
+        C->>EF: POST stage=extract {photos:straightened, rotated:true, prior}
+        EF->>M: re-OCR the straightened page(s)
+        M-->>EF: corrected markdown + blocks
+        Note over EF: acceptRotation: keep corrected read ONLY if positively<br/>upright AND ≥95% of printed numbers retained,<br/>else fall back to prior text (no third API call). rotated:true is a hard stop.
     end
-    Note over EF,C: 🟢 Feature 1 CLOSED — scoreMenu items dimension:<br/>distinct food dish-names ±3, no true dups<br/>(section-headers → Feature 3)
-    Note over EF,C: 🟢 Feature 2 CLOSED 2026-07-09 — options dimension (food only):<br/>base variant on card, alternatives/choices/add-ons in options[]<br/>🟢 per-page recipe WIRED into production extract + 3/3 gate 2026-07-10
-    Note over EF,C: 🟢 Feature 3 CLOSED 2026-07-10 — section_context (food-scoped):<br/>all printed food sections as section_titles, no spurious,<br/>expectations any-match; section_headers tolerated-not-required;<br/>drink sections parked in fixtures for Feature 5
-    Note over EF,C: 🟢 Feature 4 CLOSED 2026-07-10 — categories (food-scoped set + pins),<br/>option price/grams verified vs user-read photos,<br/>items[].grams postprocess-parsed from printed weights (350gr / 250g / 1kg)
+
+    par Stage 1b — structure each page's text (concurrent)
+        EF->>S: structureMenuText · EXTRACT_PROMPT + TEXT_PROMPT_SUFFIX + markdown<br/>strict json_schema · temp 0 · seed 17 · max_tokens 16384
+        S-->>EF: page items[] (from text only, no image)
+    end
+    EF->>EF: postprocessItems() PER PAGE<br/>stripMenuNumbers → dropPriceNoteItems → foldVariantCards → promoteSections<br/>→ foldPerUnitPrice → nullPriceNoteSections → dropHeaderEchoes → extractInlineChoices<br/>→ filterServingFormatOptions → dropSiblingEchoOptions → parseItemGrams (fills items[].grams)
+    EF->>EF: mergeItemSources() over pages (if >1) → ONE items list
+    EF->>EF: textStructureCleanup(items, joinedMarkdown) — C3 deterministic:<br/>drop drink/other sections + self-named titles, fold unpriced/priced/welded-prefix cards<br/>+ section-choice lines, promote description-variants, demote outvoted sides
+    EF->>EF: recordScan → scan_log (menu text only · observability · never throws)
+    EF-->>C: items[] (+ grams) + image_quality{usable:true,issues:[]} + image_layout{dense:false}
+    Note over EF,C: model_id: "mistral-ocr-4-0+gpt-4.1-2025-04-14"
+    end
+
+    Note over EF,C: 🟢 Feature 1 CLOSED — items dimension: distinct food dish-names ±3, no true dups
+    Note over EF,C: 🟢 Feature 2 CLOSED — options (food): base variant on card, choices/add-ons in options[]
+    Note over EF,C: 🟢 Feature 3 CLOSED — section_context (food-scoped): printed food sections, no spurious
+    Note over EF,C: 🟢 Feature 4 CLOSED — categories + option price/grams, items[].grams postprocess-parsed
+    Note over EF,C: ↑ gates re-graded live 45/45/45 on the OCR path (C4 close, evals 122–125b)
 
     rect rgb(70,50,20)
-    Note over C,EN: STAGE 2 — enrichment 🟡 (macro-accuracy benchmark not finalized; model = GPT-4o)
-    C->>EF: POST stage=enrich {items[]}
-    EF->>EN: callGptEnrich · P2 ENRICH_PROMPT
-    EN-->>EF: items[] + protein_g/carb_g/fat_g/kcal + allergens
-    EF-->>C: enriched items[]
+    Note over C,EN: STAGE 2 — enrichment 🟡 (macro accuracy NOT yet benchmarked — CURRENT PHASE #5, model = GPT-4o)
+    C->>EF: POST stage=enrich {items, provider:"gpt-4o"}
+    par batches of 10 items, concurrent
+        EF->>EN: enrichBatch · P2 ENRICH_PROMPT · temp 0 · seed 17<br/>(enrichBatchWithRetry: 1 retry if the batch comes back short)
+        EN-->>EF: per-item protein_g/carb_g/fat_g/estimated_calories + confidence + allergens
+    end
+    EF->>EF: reassembleEnriched — one enriched row per input, in order,<br/>any dropped item backfilled with fallbackEnriched (confidence low, zeros)
+    EF-->>C: enriched items[] (model_id: "gpt-4o")
     end
 
-    C->>C: re-rank by goals — soft-clamped z-scores 🟢
+    C->>C: re-rank by goals — soft-clamped z-scores 🟢 (reuses saved parsed_items, no re-scan)
     C-->>U: sorted menu items (most goal-aligned first)
 
-    Note over U,EN: Prompts P1 (EXTRACT_PROMPT) & P2 (ENRICH_PROMPT)<br/>full verbatim text below this diagram
+    Note over U,EN: Prompts P1 (EXTRACT_PROMPT) & P2 (ENRICH_PROMPT) — full verbatim text below this diagram
 ```
 
 ## Call order (happy path)
 
-1. **Client** captures/picks (originals stored) → uploads passthrough original bytes when the file is ≤6.75MB (data-URL with correct mime; 2048px JPEG q0.95 fallback for oversized) → `POST analyze-menu {stage:"extract"}` (all photos in ONE request; the edge splits per page).
-   *Dense menus:* response is `{needs_crops:[pageIdx]}` → client cuts each flagged page into 4 PNG tiles from the ORIGINAL (`gridCropRects` + `prepareTile`) → `POST {stage:"extract-pages", pages:[[photo]|[t1..t4],…]}` → one unified menu (stateless full re-submit).
-2. **Edge `runPagedExtraction`** (wired 2026-07-10): 1 photo ⇒ one `runExtraction` call (P1 + strict `EXTRACT_SCHEMA`, temp 0, seed 17, default detail); N photos ⇒ one `detail:"high"` call **per page in parallel** → `mergeItemSources()` (`merge.ts`) → ONE unified menu. Every call goes through `extractWithRetry` (1 retry on timeout / `finish_reason=length`). Each call postprocesses (`postprocessItems`); returns `items[]` + `image_layout` (first dense page's, else page 1's) + `image_quality` (AND/dedup).
-   *Grouped path (`stage:"extract-pages"`, dense re-submit):* `runGroupedExtraction` — 1-photo group ⇒ page call (P1+`PAGE_PROMPT_SUFFIX`); 4-tile group ⇒ parallel `detail:"high"` calls (P1+`TILE_PROMPT_SUFFIX`) + per-tile drink filter + sectionLenient tile merge; then cross-page merge + post-merge `dropHeaderEchoes`. (`stage:"extract-crops"` and pre-cut tiles are deleted.)
-3. **Client** sends the items back → `POST {stage:"enrich"}` → `callGptEnrich` (GPT-4o) with **P2** (`ENRICH_PROMPT`) → returns per-item `protein_g / carb_g / fat_g / estimated_calories / allergens`.
-4. **Client** re-ranks items by the user's goals (soft-clamped z-scores — already in `main`). Re-ranking reuses saved `parsed_items`; no re-scan.
+1. **Client** (`src/lib/analyzeMenu.ts` → `extractMenu`) captures/picks (originals stored) → uploads
+   passthrough original bytes when the file is ≤6.75MB (data-URL, correct mime; 2048px JPEG q0.95
+   fallback for oversized) → `POST analyze-menu {stage:"extract", provider:"gpt-vision"}` (all photos
+   in one request).
+2. **Edge `runPagedExtraction`** (`extract.ts`):
+   - **Stage 1a** — `ocrMistralWithRetry` OCRs every page **first** (`mistral-ocr-4-0`,
+     `api.mistral.ai/v1/ocr`, transcription only) → `{markdown, blocks}`.
+   - **Orientation** — on the first pass (`rotated` unset), `detectOrientation(blocks)` per page. If any
+     page is turned/upside-down it returns `{needs_rotation, prior}` and stops; the client straightens
+     those pages and re-submits with `rotated:true` + `prior` (the echoed first-pass text). On the second
+     pass `acceptRotation` keeps the corrected read only if it is positively upright **and** kept ≥95% of
+     its printed numbers, else it uses `prior`. `rotated:true` is a hard stop — at most two tries.
+   - **Stage 1b** — `structureMenuTextWithRetry` per page: `gpt-4.1-2025-04-14` (**PINNED**, ruling 30)
+     turns the markdown into `EXTRACT_SCHEMA` using `EXTRACT_PROMPT + TEXT_PROMPT_SUFFIX + markdown`
+     (temp 0, seed 17, max_tokens 16384). Retries once on timeout / `finish_reason=length`.
+   - `postprocessItems` per page → `mergeItemSources` across pages → one `textStructureCleanup` over the
+     merged items + all pages' markdown joined by `\n`. Returns `items[]` (+ `grams`), a synthetic
+     `image_quality{usable:true}` and `image_layout{dense:false}` (Stage 1b works from text, so it cannot
+     assess the photo), plus `raw_response` (the OCR + structuring payloads per page).
+   - `recordScan` writes one `scan_log` row (menu text only; failures are swallowed).
+3. **Client** sends the items back → `POST {stage:"enrich", provider:"gpt-4o"}` → `callGptEnrich`
+   (`index.ts`): items are split into batches of 10 and enriched in parallel with **P2**
+   (`ENRICH_PROMPT`, GPT-4o, temp 0, seed 17); `reassembleEnriched` guarantees one enriched item per
+   input, backfilling any drop. Returns per-item `protein_g / carb_g / fat_g / estimated_calories /
+   confidence / allergens`.
+4. **Client** re-ranks items by the user's goals (soft-clamped z-scores — in `main`). Re-ranking reuses
+   saved `parsed_items`; no re-scan.
+
+## 💤 Dormant path — dense auto-cutter & tiles (present in code, NOT triggered)
+
+Built and gated on the old GPT-4o-Vision architecture (critical-path #2, eval 055), then left unreachable
+when Stage 1 became OCR-based. Kept in the repo — not deleted — but nothing on the live path invokes it:
+
+- `runPagedExtraction` has **no `needs_crops` branch** anymore, so the edge never asks the client to cut
+  tiles. The client (`extractMenu`) still contains the `needs_crops` handler (cut 2×2 tiles from
+  originals → `stage:"extract-pages"`), but it is dead because the signal never arrives.
+- `stage:"extract-pages"` → `runGroupedExtraction` (still uses **GPT-4o Vision** on tiles: parallel
+  `detail:"high"` calls + `TILE_PROMPT_SUFFIX`, a per-tile `verifyTileItems` name-check pass, per-tile
+  drink/other filter, `sectionLenient` merge, then `colocationStage` — a full-photo Mistral OCR
+  co-location cleanup, fail-open). Reachable only if a client posts `extract-pages` directly.
+- `stage:"extract-crops"` → `runCropExtractions` — legacy GPT-4o-Vision crop path; no client caller.
+
+If dense-menu recall becomes a problem again on the OCR path, this is where the machinery lives — but it
+would need re-validation against the OCR pipeline before being re-armed.
 
 ## Status by stage
 
 | Stage | State | Note |
 |---|---|---|
-| Food-item extraction (Feature 1) | 🟢 CLOSED | completeness gate: distinct dish-names ±3, no true dups |
-| Food-item options (Feature 2) | 🟢 CLOSED 2026-07-09 | fold convention (item owns options; base on card); deterministic postprocess: foldVariantCards + extractInlineChoices + option filters; 3/3 live gate (eval 038) |
-| Per-page multi-photo wiring (critical-path #1) | 🟢 CLOSED 2026-07-10 | `runPagedExtraction` shared by edge `stage:"extract"` + eval runner (gate proves the real code); `extractWithRetry` now production; `mergeItemSources` → `analyze-menu/merge.ts`; multi-page detail locked `high` (`auto` A/B deferred to cost pass); N pages merge into ONE menu (enrichment runs once/scan). 3/3 gate eval 048 after P1 v3 hardening (weights-verbatim + y/and rules) + Plato Surtido options ORACLE-CHANGE (`unchecked: true`). Watch item: nikkori crop-count 52/48 edge (2× on 2026-07-10, in-band in the closing gate) |
-| Sections & sub-sections (Feature 3) | 🟢 CLOSED 2026-07-10 | food-scoped `section_context`: sections list + any-match item pins; rulings — Churrasquería = section with entries, Pa' los Bukis = tolerated header; postprocess adds variant-family fold + dropHeaderEchoes + price-null parser guard; 3/3 live gate (eval 044) |
-| Categories + option-price/grams (Feature 4) | 🟢 CLOSED 2026-07-10 | food-scoped categories set + per-item pins; option prices/grams verified (user-read oracle); `items[].grams` parsed by postprocess `parseItemGrams` (EXTRACT_SCHEMA unchanged); `dropPriceNoteItems` kills $-amount pseudo-items; 3/3 live gate (eval 047). Known tolerated misreads: Mac and Cheese 250gr→"150g", Revueltos jamón 84/90 migration, Plato Surtido 82 never transcribed |
-| Drinks (Feature 5) | ⏸ DEFERRED POST-RELEASE | user decision 2026-07-10 (roadmap "Release scope decision"). Schema captures drinks already; gate not run. Inherits `drink_sections` fixtures + must unfilter drinks in the crop path. Pre-release critical path instead: per-page wiring → auto-cutter → Stage-2 benchmark |
-| Stage 2 enrichment (macros + allergens) | 🟡 | `enrich` stage wired (GPT-4o only; Gemini 2.5 Flash discarded 2026-07-10); macro-accuracy benchmark not finalized (AGENTS.md) |
-| Dense-menu auto-cutter (critical-path #2) | 🟢 CLOSED 2026-07-12 | two-phase stateless: detector (dense flag OR terminal timeout/length = failure-as-signal) → client cuts proven 2×2 PNG tiles from originals → `stage:"extract-pages"` `runGroupedExtraction`. 3/3 gate (eval 055) after: `dropSiblingEchoOptions`, Chipo one-indel scorer tolerance (user ruling), P1 v7 page-scoped completeness suffix (global v6 regressed → reverted; v7.1 box-label refuted 0/8 by probe). Detector 100% correct across the campaign (5 normal menus never trigger). Device-verified same day (3-scan iPhone checklist; transient first-call 500 disproven by byte-identical curl repro). Known limits: Churrasquería box recall ~25% on brasero-two (post-release union-of-2), device tile fidelity below eval baseline (ImagePicker re-encode suspect — client-fidelity follow-up) |
-| Client compression fidelity (critical-path #3) | 🟢 CLOSED 2026-07-12 | phase-1 passthrough uploads (originals ≤6.75MB; 2048/q95 fallback — every lower JPEG setting stably lost gated dims, ledger eval 056); intake compression removed; gate input = production mirror permanently; device 3/3 dims-green (nikkori + brasero-two scan 2); ImagePicker re-encode DISPROVEN; known limit: the q95 fallback's el-marcos/mochomos misreads (rare, oversized photos only) |
-| Goal re-ranking | 🟢 | soft-clamped z-scores merged to `main` |
+| Stage 1a — Mistral OCR transcription | 🟢 DEPLOYED | `mistral-ocr-4-0` (pinned, ruling 35); photo → markdown + block geometry; transcription only, no vendor structuring |
+| Stage 1b — text structuring | 🟢 DEPLOYED | `gpt-4.1-2025-04-14` (pinned, ruling 30); `EXTRACT_PROMPT`+`TEXT_PROMPT_SUFFIX`; reuses `EXTRACT_SCHEMA` verbatim |
+| H2 rotation | 🟢 DEPLOYED | evals 132–137, function v22→v24, device-verified; geometry-only detector tuned to never rotate an upright menu; one retry max, falls back to `prior` |
+| Food-item extraction (Feature 1) | 🟢 CLOSED | completeness gate: distinct dish-names ±3, no true dups (re-graded on OCR path, C4) |
+| Food-item options (Feature 2) | 🟢 CLOSED | fold convention (item owns options; base on card); deterministic postprocess chain |
+| Sections & sub-sections (Feature 3) | 🟢 CLOSED | food-scoped `section_context`; postprocess + `textStructureCleanup` folds |
+| Categories + option-price/grams (Feature 4) | 🟢 CLOSED | food-scoped categories + pins; `items[].grams` parsed by postprocess `parseItemGrams` (schema unchanged) |
+| C4 — OCR-path gate close | 🟢 CLOSED 2026-08-01 | live re-graded 45/45/45, offline 44–45/45 after Santiago's tolerance rulings (evals 122–125b) |
+| Stage 2 enrichment (macros + allergens) | 🟡 CURRENT PHASE | GPT-4o, batched(10)+backfill; **macro-accuracy benchmark not yet run** — critical-path #5, the active phase |
+| Goal re-ranking | 🟢 | soft-clamped z-scores in `main` |
+| Dense auto-cutter + tile path | 💤 DORMANT | built & gated on the old Vision path (eval 055); unreachable now — `needs_crops` is never emitted |
+| `stage:"extract-crops"` (`runCropExtractions`) | 💤 LEGACY | GPT-4o Vision crops; no client caller |
 
 ---
 
 ## 📝 Prompt Appendix — full verbatim text (its own box)
 
 ### P1 · `EXTRACT_PROMPT` — `supabase/functions/analyze-menu/extract.ts`
+
+Used on **both** the live Stage-1b text path (with `TEXT_PROMPT_SUFFIX`) and the dormant Vision tile path
+(with `TILE`/`PAGE` suffixes). The base text is model-agnostic — the conventions live here.
 
 ```text
 Read this restaurant menu. Return every item exactly as printed, in menu order:
@@ -179,11 +219,28 @@ Assess image quality across all photos. Report blur, low_light, glare, or anothe
 Set usable to false only when the menu cannot be read reliably.
 ```
 
-Response is `json_schema` **strict** (`EXTRACT_SCHEMA`): `image_quality {usable, issues[]}`, `image_layout {dense, crop_direction}`, `items[] {name, description, price, category(food|side|dessert|drink|other), section_title, options[] {name, price, grams}}`. `temperature: 0`, `seed: 17`. **Note (F4):** the returned items additionally carry `grams: number|null` — added by postprocess `parseItemGrams` from printed weight text, NOT part of the schema the model fills.
+Response is `json_schema` **strict** (`EXTRACT_SCHEMA`): `image_quality {usable, issues[]}`,
+`image_layout {dense, crop_direction}`, `items[] {name, description, price, category(food|side|dessert|drink|other),
+section_title, options[] {name, price, grams}}`. `temperature: 0`, `seed: 17`. **Note (F4):** returned
+items additionally carry `grams: number|null` — added by postprocess `parseItemGrams` from printed weight
+text, NOT part of the schema the model fills.
 
-**Mode-scoped suffixes (auto-cutter, 2026-07-12 — appended to P1, never sent together):**
+**`TEXT_PROMPT_SUFFIX` (Stage 1b, ruling 30) — appended to P1 on the LIVE text path.** This is what turns
+P1 from a vision instruction into a text-structuring one; it is present on every live extraction today:
 
-`TILE_PROMPT_SUFFIX` — ONLY on cropped-tile calls (dense flow):
+```text
+The menu is provided below as a verbatim OCR transcription of the photo, in
+reading order; printed headings appear as markdown headings. Work only from
+this text — there is no image, so set image_quality.usable=true with an empty
+issues list and image_layout dense=false, crop_direction="none".
+
+MENU TRANSCRIPTION:
+
+```
+
+**Dormant-path suffixes (💤 — only on the GPT-4o-Vision tile machinery, which nothing triggers now):**
+
+`TILE_PROMPT_SUFFIX` — cropped-tile calls only:
 
 ```text
 This image is one cropped tile of a larger menu photo; items at the edges
@@ -192,7 +249,7 @@ in this tile. Skip any partially visible or cut-off item entirely — do not
 guess or reconstruct its name; a neighboring tile shows it in full.
 ```
 
-`PAGE_PROMPT_SUFFIX` (P1 v7) — ONLY on per-page calls of a multi-photo scan (and 1-photo groups of `extract-pages`); the global variant (v6) regressed single-photo menus and was reverted:
+`PAGE_PROMPT_SUFFIX` — per-page calls of a multi-photo `extract-pages` scan only:
 
 ```text
 This photo is one page of a multi-page menu. Transcribe each item's card
@@ -201,6 +258,21 @@ completely: include its final printed line even when it is smaller or italic
 options). Menus also print items inside boxed or bordered insert blocks and
 sidebars; extract the items in every box exactly like items in the main
 columns.
+```
+
+`VERIFY_PROMPT` — the dormant per-tile name-verification pass (`verifyTileItems`), GPT-4o Vision:
+
+```text
+You are verifying a menu transcription against a photo. The photo is one
+cropped tile of a larger menu page; every candidate in the JSON list was
+transcribed from THIS image. For each candidate answer ONE question from the
+image only:
+name_printed: does a printed menu item in this image correspond to this name?
+Answer true when one does, ignoring small spelling differences, accents,
+capitalization, and size or weight annotations like "(300gr)". Answer false
+only when no printed dish corresponds to it — for example a name that combines
+words from two different printed dishes is NOT printed.
+When unsure, answer true.
 ```
 
 ### P2 · `ENRICH_PROMPT` — `supabase/functions/analyze-menu/index.ts`
@@ -213,10 +285,18 @@ You estimate the nutrition profile of restaurant menu items. For each item, work
 List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, shellfish, egg, soy). Use an empty allergens array when none are inferred; do not include "none". Preserve each item's name, description, price, and category exactly as given. Do NOT sort the items. Return one object per input item, in the same order.
 ```
 
-Enrichment runs via GPT-4o (`callGptEnrich`); output adds `protein_g / carb_g / fat_g / estimated_calories / confidence / allergens[]` per item, order preserved.
+Enrichment runs via **GPT-4o** (`callGptEnrich`), in parallel batches of 10 (`ENRICH_BATCH_SIZE`), temp 0,
+seed 17. Output adds `protein_g / carb_g / fat_g / estimated_calories / confidence / allergens[]` +
+`ingredients[]` per item; `reassembleEnriched` guarantees one enriched object per input, order preserved,
+backfilling any item the model dropped.
 
 ---
 
 ## How to keep this file current
 
-As each feature closes, update the sequence-diagram notes/`rect` status colors + the Status table, and note any prompt/schema change here (P1/P2 are the source of truth other LLMs read). This file is linked from `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`.
+Update this diagram the moment a feature closes, the flow changes, or P1/P2 (`EXTRACT_PROMPT` /
+`ENRICH_PROMPT`), `TEXT_PROMPT_SUFFIX`, or the schema changes: flip the affected status flag, edit the
+sequence-diagram notes and the Status table, sync the verbatim prompt appendix, then **re-copy the file to
+`~/Downloads/menu-extraction-pipeline.md`** (Diagram discipline). This is the fresh-context source of truth
+other LLMs read for "what does the pipeline look like right now"; a stale diagram misleads the next session.
+It is linked from `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`.

@@ -269,3 +269,10 @@ Keep the `confidence` label as a coarse UI hint at most; do not gate on it.
      restaurant items* to their published nutrition, with the LLM as fallback for independents.
      That is a different problem from estimation — matching, not inferring. **Parked as a
      post-release option, not scheduled, not part of this phase.**
+
+- **2026-08-07 — USDA oracle ingredient convention (Santiago).** Ingredient basis is raw,
+  cooked, or prepared; use prepared for ready-to-eat dressing, cheese, bread, and canned foods.
+  Prefer Foundation/FNDDS generic records, but use USDA SR Legacy only when neither represents
+  the printed ingredient's stated form. For Salmone Toscano, printed 200g is the cooked salmon
+  portion; estimate its sauce and baguette separately. For Pastel Azteca, include only
+  ingredients printed on the menu: do not infer tortilla, oil, or cream.

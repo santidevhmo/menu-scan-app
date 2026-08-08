@@ -8,7 +8,77 @@
     "section_title": "ensaladas",
     "options": [],
     "printed_weight": "200 g",
-    "oracle": null
+    "oracle": {
+      "calories": 462,
+      "protein_g": 30.084,
+      "carb_g": 17.38,
+      "fat_g": 29.4495,
+      "assumed": "USDA FDC recipe",
+      "source": "USDA FoodData Central",
+      "retrieved_at": "2026-08-08",
+      "ingredients": [
+        {
+          "name": "Romaine lettuce, raw",
+          "fdc_id": 2709590,
+          "grams": 60,
+          "basis": "raw",
+          "per_100g": {
+            "calories": 21,
+            "protein_g": 0.98,
+            "carb_g": 4.06,
+            "fat_g": 0.07
+          }
+        },
+        {
+          "name": "Parmesan cheese, grated",
+          "fdc_id": 2705728,
+          "grams": 15,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 412,
+            "protein_g": 29.9,
+            "carb_g": 8.36,
+            "fat_g": 28.8
+          }
+        },
+        {
+          "name": "Croutons",
+          "fdc_id": 2707697,
+          "grams": 20,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 465,
+            "protein_g": 10.8,
+            "carb_g": 63.5,
+            "fat_g": 18.3
+          }
+        },
+        {
+          "name": "Chicken breast, grilled, skin not eaten",
+          "fdc_id": 2705968,
+          "grams": 75,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 176,
+            "protein_g": 29.6,
+            "carb_g": 0,
+            "fat_g": 5.45
+          }
+        },
+        {
+          "name": "Caesar dressing",
+          "fdc_id": 2710199,
+          "grams": 30,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 542,
+            "protein_g": 2.17,
+            "carb_g": 3.3,
+            "fat_g": 57.8
+          }
+        }
+      ]
+    }
   },
   {
     "menu": "casa-nostra",
@@ -19,7 +89,113 @@
     "section_title": "Frutti di mare",
     "options": [],
     "printed_weight": "200g",
-    "oracle": null
+    "oracle": {
+      "calories": 843.1599999999999,
+      "protein_g": 59.667399999999994,
+      "carb_g": 35.132,
+      "fat_g": 50.96039999999999,
+      "assumed": "USDA FDC recipe",
+      "source": "USDA FoodData Central",
+      "retrieved_at": "2026-08-08",
+      "ingredients": [
+        {
+          "name": "Salmon, baked or broiled",
+          "fdc_id": 2706286,
+          "grams": 200,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 274,
+            "protein_g": 25.4,
+            "carb_g": 0.01,
+            "fat_g": 18.4
+          }
+        },
+        {
+          "name": "Heavy cream",
+          "fdc_id": 2705597,
+          "grams": 35,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 343,
+            "protein_g": 2.02,
+            "carb_g": 3.8,
+            "fat_g": 35.6
+          }
+        },
+        {
+          "name": "Garlic, cooked",
+          "fdc_id": 2709932,
+          "grams": 3,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 142,
+            "protein_g": 6.58,
+            "carb_g": 28,
+            "fat_g": 0.38
+          }
+        },
+        {
+          "name": "Spinach, fresh, cooked without fat",
+          "fdc_id": 2709615,
+          "grams": 25,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 33,
+            "protein_g": 3.41,
+            "carb_g": 3.1,
+            "fat_g": 0.7
+          }
+        },
+        {
+          "name": "Artichokes, cooked without salt",
+          "fdc_id": 168386,
+          "grams": 25,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 53,
+            "protein_g": 2.89,
+            "carb_g": 11.95,
+            "fat_g": 0.34
+          }
+        },
+        {
+          "name": "Sun-dried tomatoes",
+          "fdc_id": 2709727,
+          "grams": 10,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 258,
+            "protein_g": 14.1,
+            "carb_g": 55.8,
+            "fat_g": 2.97
+          }
+        },
+        {
+          "name": "Capers, canned",
+          "fdc_id": 172238,
+          "grams": 5,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 23,
+            "protein_g": 2.36,
+            "carb_g": 4.89,
+            "fat_g": 0.86
+          }
+        },
+        {
+          "name": "French or Vienna bread",
+          "fdc_id": 2707610,
+          "grams": 45,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 272,
+            "protein_g": 10.8,
+            "carb_g": 51.9,
+            "fat_g": 2.42
+          }
+        }
+      ]
+    }
   },
   {
     "menu": "el-marcos",
@@ -30,6 +206,100 @@
     "section_title": "MEXICANOS",
     "options": [],
     "printed_weight": "300gr.",
-    "oracle": null
+    "oracle": {
+      "calories": 452.05000000000007,
+      "protein_g": 39.2155,
+      "carb_g": 31.445999999999998,
+      "fat_g": 19.866,
+      "assumed": "USDA FDC recipe",
+      "source": "USDA FoodData Central",
+      "retrieved_at": "2026-08-08",
+      "ingredients": [
+        {
+          "name": "Chicken, unspecified cut/method, skin not eaten",
+          "fdc_id": 2705931,
+          "grams": 80,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 164,
+            "protein_g": 26.8,
+            "carb_g": 0,
+            "fat_g": 6.36
+          }
+        },
+        {
+          "name": "Tomato sauce, canned with salt",
+          "fdc_id": 170054,
+          "grams": 40,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 24,
+            "protein_g": 1.2,
+            "carb_g": 5.31,
+            "fat_g": 0.3
+          }
+        },
+        {
+          "name": "Green chile, cooked",
+          "fdc_id": 2709978,
+          "grams": 10,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 59,
+            "protein_g": 1.41,
+            "carb_g": 7.72,
+            "fat_g": 3.06
+          }
+        },
+        {
+          "name": "Onion, cooked without fat",
+          "fdc_id": 2709950,
+          "grams": 15,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 47,
+            "protein_g": 1.29,
+            "carb_g": 11,
+            "fat_g": 0.12
+          }
+        },
+        {
+          "name": "Sweet corn, cooked without fat",
+          "fdc_id": 2709910,
+          "grams": 30,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 86,
+            "protein_g": 3.26,
+            "carb_g": 18.6,
+            "fat_g": 1.35
+          }
+        },
+        {
+          "name": "Mexican cheese blend",
+          "fdc_id": 2705741,
+          "grams": 45,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 362,
+            "protein_g": 21.9,
+            "carb_g": 2.4,
+            "fat_g": 29.3
+          }
+        },
+        {
+          "name": "Pinto beans, canned without fat",
+          "fdc_id": 2707375,
+          "grams": 80,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 137,
+            "protein_g": 7.66,
+            "carb_g": 25.3,
+            "fat_g": 0.93
+          }
+        }
+      ]
+    }
   }
 ]

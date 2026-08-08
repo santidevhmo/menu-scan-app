@@ -10,10 +10,14 @@ to the app, and does not change the production prompt or model pipeline.
 ## Source policy
 
 - Use USDA FDC only. Open Food Facts is out of scope.
-- Use Foundation Foods or FNDDS records for generic ingredients.
+- Use Foundation Foods or FNDDS records for generic ingredients. If neither
+  represents the printed ingredient in its stated form, a USDA SR Legacy record
+  is allowed as a documented fallback.
 - Use USDA Branded Foods only when the menu identifies the exact branded
   ingredient.
-- Record the selected FDC ID and whether its portion is raw or cooked.
+- Record the selected FDC ID and whether its portion is raw, cooked, or
+  prepared. Use `prepared` for ready-to-eat ingredients such as dressing,
+  cheese, bread, and canned foods.
 - An agent may list candidates, but cannot silently select a record or a
   portion. Santiago reviews those assumptions before the oracle is generated.
 
@@ -59,7 +63,8 @@ they must be replaced by FDC-derived values before an oracle is completed.
 ## Workflow
 
 1. Search FDC for each menu ingredient and present the candidate records.
-2. Santiago approves each selected FDC ID, edible grams, and raw/cooked basis.
+2. Santiago approves each selected FDC ID, edible grams, and raw/cooked/prepared
+   basis.
 3. A benchmark-only helper fetches those exact records with
    `USDA_FDC_API_KEY` from gitignored `.env.local`, projects calories, protein,
    carbs, and fat per 100 g, and writes the reviewed recipe plus calculated
@@ -74,7 +79,7 @@ they must be replaced by FDC-derived values before an oracle is completed.
 - Reject a recipe with a missing FDC ID, non-positive grams, unsupported basis,
   or a missing one of the four required nutrients.
 - Reject totals that do not equal the ingredient sum within normal rounding.
-- Unit-test nutrient projection, raw/cooked-basis preservation, summation, and
+- Unit-test nutrient projection, raw/cooked/prepared-basis preservation, summation, and
   incomplete-source rejection against canned FDC responses. Tests use neither
   the API key nor the network.
 - Keep all live FDC use in the oracle-preparation helper. It is free, but every

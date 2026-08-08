@@ -107,10 +107,19 @@ export async function fetchNutrients(
     `${baseUrl}/food/${fdcId}?api_key=${encodeURIComponent(apiKey)}`,
   );
   if (!response.ok) {
-    throw new Error(`USDA FDC request failed: ${response.status}`);
+    throw new Error(
+      `USDA FDC detail request for FDC ID ${fdcId} failed: ${response.status}`,
+    );
   }
 
-  return projectNutrients(await response.json() as FdcFoodDetail);
+  try {
+    return projectNutrients(await response.json() as FdcFoodDetail);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`${error.message} for FDC ID ${fdcId}`);
+    }
+    throw error;
+  }
 }
 
 export async function loadFdcApiKey(path = ".env.local"): Promise<string> {
@@ -148,6 +157,7 @@ export async function prepareOracle(
       retrieved_at: new Date().toISOString().slice(0, 10),
       ingredients,
     };
+    delete entry.recipe;
   }
 
   await Deno.writeTextFile(path, `${JSON.stringify(entries, null, 2)}\n`);

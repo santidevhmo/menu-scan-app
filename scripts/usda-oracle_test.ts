@@ -150,6 +150,19 @@ Deno.test("fetchNutrients projects a canned USDA detail response", async () => {
   });
 });
 
+Deno.test("fetchNutrients identifies an FDC ID when a detail lacks a required nutrient", async () => {
+  await withCannedFetch(
+    () => Response.json({ foodNutrients: [] }),
+    async () => {
+      await assertRejects(
+        () => fetchNutrients(456, "test-key"),
+        Error,
+        "FDC ID 456",
+      );
+    },
+  );
+});
+
 Deno.test("USDA client rejects non-OK responses", async () => {
   await withCannedFetch(
     () => new Response("unavailable", { status: 503 }),
@@ -159,7 +172,11 @@ Deno.test("USDA client rejects non-OK responses", async () => {
         Error,
         "503",
       );
-      await assertRejects(() => fetchNutrients(123, "test-key"), Error, "503");
+      await assertRejects(
+        () => fetchNutrients(123, "test-key"),
+        Error,
+        "FDC ID 123",
+      );
     },
   );
 });
@@ -193,6 +210,7 @@ Deno.test("prepareOracle freezes reviewed recipes from canned FDC details", asyn
     assertEquals(entry.oracle.calories, 165);
     assertEquals(entry.oracle.source, "USDA FoodData Central");
     assertEquals(entry.oracle.ingredients.length, 1);
+    assertEquals("recipe" in entry, false);
   } finally {
     await Deno.remove(path);
   }

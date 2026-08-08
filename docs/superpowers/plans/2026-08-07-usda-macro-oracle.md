@@ -48,7 +48,7 @@
 - Create: `scripts/usda-oracle_test.ts`
 
 **Interfaces:**
-- Produces `type UsdaRecipeIngredient = { name: string; fdc_id: number; grams: number; basis: "raw" | "cooked"; per_100g: MacroValues }`.
+- Produces `type UsdaRecipeIngredient = { name: string; fdc_id: number; grams: number; basis: "raw" | "cooked" | "prepared"; per_100g: MacroValues }`.
 - Produces `sumRecipe(ingredients: UsdaRecipeIngredient[]): MacroValues`.
 - Produces `validateRecipe(ingredients: UsdaRecipeIngredient[], totals: MacroValues): void`.
 
@@ -94,7 +94,7 @@ export function sumRecipe(ingredients: UsdaRecipeIngredient[]): MacroValues {
 }
 ```
 
-`validateRecipe` must require a positive integer `fdc_id`, positive finite grams, a `raw` or `cooked` basis, and finite non-negative values for all four `per_100g` fields. It compares totals with a `0.01` rounding tolerance.
+`validateRecipe` must require a positive integer `fdc_id`, positive finite grams, a `raw`, `cooked`, or `prepared` basis, and finite non-negative values for all four `per_100g` fields. It compares totals with a `0.01` rounding tolerance.
 
 - [ ] **Step 4: Run the tests to verify they pass**
 
@@ -165,7 +165,7 @@ git commit -m "feat: add USDA FDC candidate and nutrient lookup helpers"
 - Modify: `scripts/usda-oracle_test.ts`
 
 **Interfaces:**
-- Each item gains a top-level `recipe` array of `{ name, fdc_id, grams, basis }` before preparation.
+- Each item gains a temporary top-level `recipe` array of `{ name, fdc_id, grams, basis }` before preparation; preparation consumes and removes it so the completed fixture has one recipe source in `oracle.ingredients`.
 - Preparation replaces `oracle: null` with `{ calories, protein_g, carb_g, fat_g, assumed, source: "USDA FoodData Central", retrieved_at, ingredients: UsdaRecipeIngredient[] }`.
 
 - [ ] **Step 1: Query candidates, then stop for review**

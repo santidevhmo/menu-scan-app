@@ -86,7 +86,10 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > Supporting evidence: `research/2026-08-07-macro-estimation-prior-art.md` (NutriBench, FDA
 > tolerance basis, "Lost in the Middle" batching, LLM-confidence calibration). Read it before
 > proposing any change to the enrichment prompt or schema — it already rules several ideas in
-> and one (RAG over a food database) out.
+> and one (RAG over a food database) down the priority list. **Note (2026-08-08):** the earlier
+> "no database or API in the enrichment pipeline" ruling is **withdrawn**. A runtime lookup is
+> now *dispreferred, not banned* — free levers first, but a lookup arm may be proposed against a
+> real failure list with Santiago's approval. See the log's Rulings section.
 >
 > **Current gates:** the oracle is frozen — changing any FDC ID, edible grams, or raw/cooked
 > basis needs Santiago's approval, same as when it was built. Every paid run stays separately

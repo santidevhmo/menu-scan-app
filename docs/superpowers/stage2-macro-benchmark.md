@@ -48,7 +48,7 @@ status.
 |---|---|---|
 | Is ±20% cal / ±30% macro defensible? | **Yes — keep it, do not tighten.** FDA's own labelling-compliance limit is 20%; restaurants' own stated calories are off ~18% at the mean and far more per item | Ruling stands, now evidence-backed |
 | Does per-ingredient decomposition help? | **Yes, measured.** NutriBench's best result (GPT-4o + CoT, 66.82% Acc@7.5) uses exactly this; CoT beat plain prompting by +4.22 pp across 12 models | **B1 promoted** to first iteration |
-| Should we build RAG over a food database? | **No.** In the one head-to-head, RAG did not reliably beat CoT and made GPT-4o-mini *worse*; CoT-only always won on natural servings | A whole workstream avoided |
+| Should we build RAG over a food database? | **Not first.** In the one head-to-head, naive RAG did not reliably beat CoT and made GPT-4o-mini *worse*; CoT-only always won on natural servings | Deprioritised, **not forbidden** — see the 2026-08-08 ruling; a lookup needs a measured reason and Santiago's approval, not a blanket ban |
 | Is the model's `confidence` label trustworthy? | **No.** Verbalized confidence is overconfident, AUROC ~0.5–0.65 — near chance | **Suppression must not key on it**; use dispersion across draws |
 | Do Spanish/Mexican dishes degrade? | **Yes, documented.** Error rises with carb content and non-Western cuisine; translating dish names makes it worse | Keep Spanish names (we do); PASTEL AZTECA is the canary |
 | Is batching 10 items safe? | **Probably not.** "Lost in the Middle" shows >30% drop for middle positions; batch-prompting work suggests ~4 items for hard tasks | **B2 elevated** from curiosity to likely-real defect |
@@ -293,11 +293,11 @@ summing, with `estimated_calories` derived by Atwater (4/4/9). The model's `prot
 `carb_g`, `fat_g` and `estimated_calories` at item level stop being model outputs and become
 computed values.
 
-**Why this is NOT the forbidden database lookup.** The 2026-08-07 ruling forbids *a runtime
-database or API call* in the enrichment pipeline. This adds neither — no HTTP call, no key, no
-latency, nothing to be unavailable. The **model still supplies all nutrition knowledge**, exactly
-as today; only the addition moves into code. Re-read the ruling's three explicit non-prohibitions
-before objecting: it forbids retrieval, not arithmetic.
+**No external data is involved.** This adds no HTTP call, no key, no latency and nothing that can
+be unavailable at runtime. The **model still supplies every nutrition value**, exactly as today;
+only the addition moves into code. (The 2026-08-07 no-database ruling was withdrawn on 2026-08-08
+and never covered arithmetic anyway — the point is now moot, but stated so nobody re-litigates
+it.)
 
 **Why it should generalize.** No dish names, no cuisines, no wording patterns, no language
 assumptions — it asks the same four numbers per ingredient regardless of menu. And summation is
@@ -696,27 +696,44 @@ on the branch as the input to the next iteration — see B10, which this run cre
   (el-marcos). Spread deliberately rather than three from one menu — lesson 19.
 - **2026-08-07 — Baseline first, no fixes before a failure list.** The pipeline is measured
   exactly as it ships before any change is designed.
-- **2026-08-07 — NO DATABASE OR API IN THE ENRICHMENT PIPELINE (Santiago).** Stage 2 stays a
-  pure LLM step. Accuracy is pursued through **chain-of-thought, prompt wording, schema and
-  field-order design, and pipeline structure** (batch size, staged vs single call, abstain
-  path) — never a runtime lookup. Evidence: RAG against a food-composition database did not
-  reliably beat plain CoT and made GPT-4o-mini *worse*; the retrieval DB's 100 g metric entries
-  did not map onto natural servings, and the model already holds the knowledge, so retrieval
-  added noise (NutriBench §"RAG Does Not Always Improve Performance").
+- **2026-08-08 — A runtime database or API is DISPREFERRED, not banned (Santiago). REPLACES the
+  2026-08-07 "NO DATABASE OR API IN THE ENRICHMENT PIPELINE" ruling, which is withdrawn.**
 
-  **Three things this ruling does NOT forbid — read before assuming otherwise:**
+  Santiago wants to **avoid** a runtime lookup in Stage 2 and does **not** want it reached for by
+  default — but the door is explicitly open, because a lookup could improve accuracy
+  substantially and that outcome is worth more than architectural purity.
+
+  **How to treat it in practice:**
+
+  1. **Exhaust the free levers first.** Chain-of-thought, prompt wording, schema and field-order
+     design, computing in code what the model gets wrong (see B10), and pipeline structure
+     (batch size, staged vs single call, abstain path). These add no call, no key, no latency and
+     nothing that can be unavailable at runtime, so they are always the cheaper experiment.
+  2. **A lookup arm needs a measured reason, not a hunch.** Propose it against a real failure
+     list, with the accuracy gain it is predicted to buy and the cost/latency/availability it
+     adds, and get Santiago's explicit approval — the same bar as any paid run.
+  3. **The prior against it is evidential, not dogmatic.** RAG over a food-composition database
+     did not reliably beat plain CoT and made GPT-4o-mini *worse*; the retrieval DB's 100 g
+     metric entries did not map onto natural servings, and the model already holds the knowledge,
+     so retrieval added noise (NutriBench §"RAG Does Not Always Improve Performance"). That is a
+     reason to expect little from naive RAG **specifically** — it is not evidence against every
+     possible lookup design.
+
+  **Three things that were never in scope of the old ban, and remain freely available:**
 
   1. **Static portion anchors written into the prompt text** (e.g. FDA RACC category amounts,
-     FNDDS portion weights as literal reference values). This is prompting, not a lookup: no
-     call, no key, no latency, nothing to be unavailable at runtime. It is the research's
-     recommended alternative *to* RAG, and it stays available.
-  2. **USDA FoodData Central for the ORACLE.** That is Santiago's measuring instrument for
-     building ground truth by hand. It is never called by the app and never ships. Do not
-     confuse "we use USDA" with "the app uses USDA".
-  3. **A licensed chain-menu lookup layer** (Nutritionix / MenuStat) for matching *known chain
-     restaurant items* to their published nutrition, with the LLM as fallback for independents.
-     That is a different problem from estimation — matching, not inferring. **Parked as a
-     post-release option, not scheduled, not part of this phase.**
+     FNDDS portion weights as literal reference values). This is prompting, not a lookup.
+  2. **USDA FoodData Central for the ORACLE.** Santiago's measuring instrument for building
+     ground truth by hand. Never called by the app, never ships. Do not confuse "we use USDA"
+     with "the app uses USDA".
+  3. **Arithmetic in code over model-supplied numbers** (B10). No external data is fetched; the
+     model still supplies every nutrition value. The old ruling was repeatedly misread as
+     forbidding this — it never did, and the question is now moot.
+
+  **Newly unblocked by this change:** a licensed chain-menu lookup layer (Nutritionix /
+  MenuStat) matching *known chain restaurant items* to their published nutrition, with the LLM
+  as fallback for independents. That is matching, not inferring — a different problem from
+  estimation. Still **not scheduled and not part of this phase**, but no longer ruled out.
 
 - **2026-08-08 — Printed-weight scope (Santiago). SUPERSEDES the per-dish treatment below.**
   The printed weight covers the **plated dish**; an ingredient the menu marks as an

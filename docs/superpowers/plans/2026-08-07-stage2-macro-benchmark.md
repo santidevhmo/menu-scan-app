@@ -69,18 +69,23 @@ procedure** (mirror check, archiving, hand audit, what to report), which every i
 | `fda94e9` | iter-b10-001 measured ($0.036) | — |
 | `766be47` | **B11** — carb-trap sentence in `ENRICH_PROMPT`; **falsified**, reverted by B12 | ❌ branch only |
 | `692a8af` | **B12** — per-100 g composition priced in code; B11's food list deleted | ❌ branch only |
+| `06fd49a` | **B13** — step-2 clause rejecting the raw reference figure; **falsified**, kept | ❌ branch only |
 
 Failed field/draws (of 36), under the PASTEL beans tolerance: baseline-002r **6** →
-iter-b1-001 **13** → iter-b10-001 **7** → iter-b11-001 **6** → iter-b12-001 **11**. **No iteration
-has beaten the baseline, so none is deployed** — but read the count and the mechanism separately.
-B12 **solved per-ingredient composition** (the model now returns USDA per-100 g values to the
-decimal), which leaves **portioning** as the whole remaining carbohydrate error. Its regression is
-in fat, in a change that also deleted step 2's only fat signal. **Next action is B13** — restore a
-food-free preparation clause and re-measure; see the log's B13 entry and the iter-b12-001 notes.
+iter-b1-001 **13** → iter-b10-001 **7** → iter-b11-001 **6** → iter-b12-001 **11** →
+iter-b13-001 **6**. **No iteration has beaten the baseline, so none is deployed** — three have tied
+it — but read the count and the mechanism separately. B12 **solved per-ingredient composition** (the
+model now returns USDA per-100 g values to the decimal). B13 then moved **zero** fat values, proving
+the fat gap is not a wording problem either, and showed CESAR's fat gap is **91% one ingredient and
+mostly a portion call**. **Next action is B4 — portioning.** See the iter-b13-001 notes.
 
 ⚠️ **Never name a food, dish or cuisine in the prompt's nutrition step.** B11's "high carb" list was
 a roll-call of the three fixtures' own ingredients and measurably worsened sweet corn.
 `enrich_test.ts` guards this now.
+
+⚠️ **Do not spend another run on step-2 wording.** B11 and B13 both did; both moved the targeted
+number by zero. The only two changes that ever worked (B10, B12) removed arithmetic from the model
+rather than adding instructions to it.
 
 **Standing rules for any iteration that reuses this file's Task 5 procedure:**
 - **Skip the mirror call** unless the change under test has been deployed. Comparing a changed

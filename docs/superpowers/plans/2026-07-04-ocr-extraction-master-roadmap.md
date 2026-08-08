@@ -17,8 +17,8 @@ missing is a measured benchmark, including printed-weight items so P2's "prefer 
 rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope detail: item #5 of
 "Release scope decision" below.
 
-> **🚧 IN PROGRESS — benchmark built, FOUR fixes measured, composition solved, portions now the
-> problem. Nothing deployed.**
+> **🚧 IN PROGRESS — benchmark built, FIVE fixes measured, composition solved, PORTIONING is now
+> the whole remaining problem and prompt wording is exhausted as a lever. Nothing deployed.**
 >
 > **Branch `worktree-stage2-macro-benchmark`** (off `main` at `04e77ab`). All of this phase's
 > work lives there, NOT on `main`. The local worktree is `.claude/worktrees/stage2-macro-benchmark/`
@@ -28,9 +28,9 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > ### Taking over? Read this block, then the log. Everything else is history.
 >
 > **Where the phase stands (2026-08-08):** the harness, the USDA oracle and the scoring are done
-> and frozen. Four prompt/schema iterations have been measured against them. Production is
+> and frozen. Five prompt/schema iterations have been measured against them. Production is
 > **untouched** — the deployed edge function still runs the original pre-B1 prompt. Total spend on
-> this phase to date: **$0.135**.
+> this phase to date: **$0.177**.
 >
 > | Commit | What | Deployed? |
 > |---|---|---|
@@ -43,6 +43,7 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > | `1ce5139` | **B10** — per-ingredient macros, item totals summed in code | ❌ **on branch only** |
 > | `766be47` | **B11** — carb-trap sentence in the prompt (**falsified, reverted by B12**) | ❌ **on branch only** |
 > | `692a8af` | **B12** — per-100 g composition, priced in code; B11's food list deleted | ❌ **on branch only** |
+> | `06fd49a` | **B13** — step-2 clause rejecting the raw reference figure (**falsified, kept**) | ❌ **on branch only** |
 >
 > **The measured story, in one table.** Failed field/draws, scored under the PASTEL beans
 > tolerance (see Rulings) — 36 field/draws total:
@@ -53,13 +54,14 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > | iter-b1-001 (grams only) | 13 | spread over 5 item/field combinations | 25.5% |
 > | iter-b10-001 (summed) | 7 | **carbs ×6**, one Salmone calorie draw | 20.6% |
 > | iter-b11-001 (carb sentence) | **6** | **carbs ×6** — CESAR ×3, PASTEL ×3 | 19.6% |
-> | **iter-b12-001 (per-100 g)** | 11 | **fat ×5**, calories ×2, carb ×4 | 26.8% |
+> | iter-b12-001 (per-100 g) | 11 | **fat ×5**, calories ×2, carb ×4 | 26.8% |
+> | **iter-b13-001 (raw-reference clause)** | **6** | fat ×4, carb ×2 | 21.3% |
 >
-> ⚠️ **No iteration has beaten the baseline on the count, and B12 is the worst of them.** Read the
-> count and the mechanism separately — **B12 is the run that actually solved something**, and its
-> regression is in a different field from the one it fixed.
+> ⚠️ **No iteration has beaten the baseline on the count.** Three have now tied its 6 and none has
+> passed it. Read the count and the mechanism separately — **B12 is the run that actually solved
+> something**, and B13's tie is **not attributable to B13** (see #7).
 >
-> **What the four iterations established (all from archived responses, $0 to re-check):**
+> **What the five iterations established (all from archived responses, $0 to re-check):**
 >
 > 1. **B1 alone regressed things**, but proved the model **portions** well — its gram sums land
 >    exactly on the printed weight on 2 of 3 dishes, which it never did before.
@@ -80,32 +82,45 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >    PASTEL's carb now passes 3/3. CESAR still fails because its croutons are portioned 30 g against
 >    the oracle's 20 g while priced correctly at 72 g/100 g; Salmone fails two draws because its
 >    baguette portion **collapsed from 50 g to 10 g** between draws.
-> 6. **B12's bill: fat fell on all three dishes** — and the model's fat is below the oracle on all
->    six fats measured, because it quotes **plain/raw reference entries** while the oracle
->    deliberately prices *as-prepared* ones. **Confounded**: B12 also deleted step 2's only fat
->    signal (`dressing and cream are mostly fat`) because that clause named our fixtures' own
->    ingredients. Which of the two caused the fat drop is exactly what B13 separates.
+> 6. **B12's bill was fat, on all three dishes** — the model's fat is below the oracle on all six
+>    fats measured. B12 guessed the cause was a raw-vs-prepared basis error, and it also deleted step
+>    2's only fat signal in the same commit, so the run was confounded. **B13 resolved both** — see #7.
+> 7. **B13 falsified prompt wording for the second time, and this one is decisive.** Telling the model
+>    outright that the raw reference figure is the wrong answer moved **zero** fat values: Caesar
+>    dressing 40, croutons 10, chicken 3.6, parmesan 25.8 — identical to B12 to the decimal, and
+>    CESAR's fat error is **−35.5% in all three draws of both runs**. So the deleted fat signal was
+>    never the cause either. Also: **the model is not quoting *raw*.** Raw chicken breast is ~1.2 g
+>    fat/100 g and it says 3.6. It picks a **leaner but real** product where the oracle picks a richer
+>    as-prepared one. That is a product disagreement, not a basis error.
+> 8. **Fat now decomposes to PORTIONING, exactly like carbohydrate did.** CESAR's whole 10.3 g fat
+>    gap is **91% one ingredient** (Caesar dressing) — and 5.78 g of that 9.34 g is the portion call
+>    (20 g vs the oracle's 30 g) against only 3.56 g for the composition.
 >
-> ### 🎯 NEXT ACTION — B13, and nothing else
+> ### 🎯 NEXT ACTION — B4 (portioning), and nothing else
 >
-> Add one clause to step 2 stating the **basis**: the composition wanted is the ingredient *as it
-> arrives at the table*, including fat absorbed in frying or added in sauces and dressings — not the
-> plain or raw reference form. **Name no food, no cuisine, no dish** (lesson from #3; the test
-> enforces it). Change nothing else, so the run is a clean A/B against iter-b12-001.
+> Two independent lines of evidence now terminate at the same place. Carbohydrate: PASTEL passes 3/3
+> on composition alone, while CESAR's croutons are priced correctly at 72 g/100 g and portioned 30 g
+> against the oracle's 20 g, and Salmone's baguette collapsed 50 g → 10 g between draws in B12. Fat:
+> #8 above. **Portioning is the entire remaining error surface.**
 >
-> Then run `BENCH_DRAWS=3 BENCH_RUN_ID=iter-b13-001` (~$0.04, **needs his explicit approval
-> first**). Predictions: fat rises on all three dishes; **carbohydrate composition must NOT
-> regress** (corn stays near 19/100 g); CESAR's carb still fails, because it is a portion error and
-> nothing here touches portions.
+> **Do NOT write another step-2 sentence.** B11 and B13 have independently falsified prompt prose as
+> a lever — twice measured, ~$0.076 spent, zero target numbers moved. The two changes that ever
+> worked (B10, B12) both worked by **taking arithmetic away from the model and leaving it knowledge.**
+> B4 should be designed the same way. Design it with `superpowers:brainstorming` and get Santiago's
+> approval on the shape before spending anything.
 >
-> **After B13, the target is PORTIONING** — the largest untouched source of error left, addressed
-> by B4. Full detail is in the log's **B13** entry and the **iter-b12-001** notes.
+> ⚠️ **Open question for Santiago before more money goes on fat (his call alone, no change proposed):**
+> on all six fats the oracle picks the richer as-prepared FDC entry and the model picks a leaner real
+> one — both defensible foods. If the oracle is meant to represent a *typical* restaurant plate rather
+> than the richest available entry, some of what is scored as model error is an oracle choice. Raised
+> in the iter-b13-001 notes, Finding 5.
 >
-> **Do NOT do any of these without a new ruling:** deploy B1, B10, B11 or B12 (none has beaten
+> **Do NOT do any of these without a new ruling:** deploy B1, B10, B11, B12 or B13 (none has beaten
 > baseline); re-run a baseline (two exist); re-open the printed-weight scope question (ruled,
 > applied blind); change the frozen oracle (Santiago's alone); put any food, dish or cuisine name
-> into the nutrition step of the prompt (measured harmful, and now unit-tested); or start
-> B2/B5/B6/B9 (none has run data behind it, unlike B13 and B4).
+> into the nutrition step of the prompt (measured harmful, and now unit-tested); **write another
+> step-2 sentence of any kind** (falsified twice, B11 and B13); or start B2/B5/B6/B9 (none has run
+> data behind it, unlike B4).
 >
 > **Read in this order — these files are the whole phase:**
 > 1. `stage2-macro-benchmark.md` — Backlog (B1–B11), Runs, Rulings. **This is the living

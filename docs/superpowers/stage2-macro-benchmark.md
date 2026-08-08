@@ -220,7 +220,7 @@ Keep the `confidence` label as a coarse UI hint at most; do not gate on it.
 
 ## Runs
 
-*(none yet — baseline-001 is Task 5 of the plan)*
+*(baseline-001 is recorded below.)*
 
 | # | date | what changed | result (range across draws) | verdict |
 |---|---|---|---|---|
@@ -243,6 +243,11 @@ mirror operation plus one `BENCH_DRAWS=3` run (four approved operations total), 
 transport trace or command transcript was archived. Therefore the artifacts do **not**
 independently prove endpoint, HTTP status, an exhaustive paid-call count, or absence of retries.
 The manifest is post-hoc evidence mapping, not a reconstructed transport log.
+
+**Model pin limitation:** baseline-001's harness request used the mutable `gpt-4o` alias.
+The archived responses identify `gpt-4o-2024-08-06`, so the baseline remains historical and
+auditable, but it is not the reproducible pinned baseline. Do not label a baseline-002 until a
+new approved paid run has produced and archived its own responses with the pinned request.
 
 **Per-item, per-field results (range across three local draws):**
 
@@ -312,7 +317,9 @@ manifest: `scripts/fixtures/caches/macro-bench.baseline-001-execution-manifest.j
   59.72%**. An unaided human oracle would therefore be a weaker measuring stick than the thing
   it is measuring. Santiago's manual numbers must come from looking ingredients up (USDA
   FoodData Central or equivalent), and the `assumed` line should say which source was used.
-- **2026-08-07 — Three artifacts only.** Oracle JSON + runner + this log.
+- **2026-08-07 — Benchmark evidence set.** Oracle JSON, runner, this log, request/response
+  archives, an execution-evidence manifest, and three local raw draw archives. The baseline
+  evidence limitation above still applies.
 - **2026-08-07 — Three starting items,** across three menus and three macro archetypes:
   `CESAR (200 g)` (andaluz), `Salmone toscano` (casa-nostra), `PASTEL AZTECA (300gr.)`
   (el-marcos). Spread deliberately rather than three from one menu — lesson 19.

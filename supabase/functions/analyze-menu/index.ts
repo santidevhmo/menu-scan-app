@@ -1,8 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import {
   chunk,
-  ENRICH_PROMPT,
-  ENRICH_SCHEMA_OPENAI,
+  enrichBatch,
   type EnrichedItem,
   type ExtractedItem,
   reassembleEnriched,
@@ -16,91 +15,14 @@ import { isValidOcrPhotos } from "./request-validation.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
 const MISTRAL_API_KEY = Deno.env.get("MISTRAL_API_KEY")!;
-const MODEL_TIMEOUT_MS = 120000;
 const ENRICH_BATCH_SIZE = 10; // ponytail: small batches stop GPT-4o early-stopping; tune if drops persist
-const ENRICH_SEED = 17; // fixed seed + temperature 0 run-to-run stability
-
-/** Wraps fetch with an AbortController timeout for external model calls. */
-async function fetchWithTimeout(
-  url: string,
-  init: RequestInit,
-  timeoutMs = MODEL_TIMEOUT_MS,
-): Promise<Response> {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    return await fetch(url, { ...init, signal: controller.signal });
-  } catch (err) {
-    if (err instanceof Error && err.name === "AbortError") {
-      throw new Error(`Model request timed out after ${timeoutMs / 1000}s`);
-    }
-    throw err;
-  } finally {
-    clearTimeout(id);
-  }
-}
-
-/** Calls OpenAI chat completions with structured output and returns raw JSON text. */
-async function callOpenAIChat(
-  model: string,
-  content: unknown,
-  schema: unknown,
-  options?: { temperature?: number; seed?: number },
-): Promise<string> {
-  const res = await fetchWithTimeout(
-    "https://api.openai.com/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages: [{ role: "user", content }],
-        response_format: {
-          type: "json_schema",
-          json_schema: { name: "menu_items", strict: true, schema },
-        },
-        ...(options?.temperature !== undefined
-          ? { temperature: options.temperature }
-          : {}),
-        ...(options?.seed !== undefined ? { seed: options.seed } : {}),
-      }),
-    },
-  );
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.error?.message ?? "OpenAI API error");
-  console.log("[openai] finish_reason:", json.choices[0].finish_reason);
-  return json.choices[0].message.content as string;
-}
-
-/** Builds the enrichment user message: prompt + the extracted items as JSON. */
-function buildEnrichContent(items: unknown): string {
-  return `${ENRICH_PROMPT}\n\nMenu items (JSON):\n${JSON.stringify(items)}`;
-}
-
-/** Enriches one small batch of items with stabilized sampling. */
-async function enrichBatch(items: ExtractedItem[]): Promise<EnrichedItem[]> {
-  const text = await callOpenAIChat(
-    "gpt-4o",
-    buildEnrichContent(items),
-    ENRICH_SCHEMA_OPENAI,
-    {
-      temperature: 0,
-      seed: ENRICH_SEED,
-    },
-  );
-  return JSON.parse(text).items as EnrichedItem[];
-}
 
 /** Enriches a batch, retrying once if the model returns fewer items than sent. */
 async function enrichBatchWithRetry(
   batch: ExtractedItem[],
 ): Promise<EnrichedItem[]> {
   try {
-    const first = await enrichBatch(batch);
+    const first = await enrichBatch(batch, OPENAI_API_KEY);
     if (first.length >= batch.length) return first;
   } catch (err) {
     console.error(
@@ -110,7 +32,7 @@ async function enrichBatchWithRetry(
   }
 
   try {
-    return await enrichBatch(batch);
+    return await enrichBatch(batch, OPENAI_API_KEY);
   } catch (err) {
     console.error(
       "[enrich] batch failed twice, backfilling:",
@@ -184,7 +106,7 @@ async function recordScan(row: Record<string, unknown>) {
 }
 
 /** Deno HTTP handler for validating requests and routing menu analysis stages. */
-serve(async (req) => {
+export async function handleRequest(req: Request): Promise<Response> {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: CORS_HEADERS });
   }
@@ -227,7 +149,7 @@ serve(async (req) => {
 
       if (provider === "gpt-4o") {
         result = await callGptEnrich(inputItems as ExtractedItem[]);
-        modelId = "gpt-4o";
+        modelId = "gpt-4o-2024-08-06";
       } else {
         throw new Error(`Unknown enrichment provider: ${provider}`);
       }
@@ -438,4 +360,6 @@ serve(async (req) => {
       },
     );
   }
-});
+}
+
+if (import.meta.main) serve(handleRequest);

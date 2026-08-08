@@ -1,5 +1,4 @@
-// Pure, side-effect-free helpers for Stage 2 enrichment count guarantee.
-// Kept separate from index.ts, which calls serve(), so this is unit-testable.
+// Stage 2 enrichment helpers. Kept separate from index.ts, which calls serve().
 export interface ExtractedItem {
   name: string;
   description: string;
@@ -88,6 +87,63 @@ export const ENRICH_SCHEMA_OPENAI = {
   required: ["items"],
   additionalProperties: false,
 };
+
+const MODEL_TIMEOUT_MS = 120000;
+const ENRICH_SEED = 17; // fixed seed + temperature 0 run-to-run stability
+
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  timeoutMs = MODEL_TIMEOUT_MS,
+): Promise<Response> {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (err) {
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error(`Model request timed out after ${timeoutMs / 1000}s`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+/** Enriches one Stage-2 batch with the deployed OpenAI request. */
+export async function enrichBatch(
+  items: ExtractedItem[],
+  apiKey: string,
+): Promise<EnrichedItem[]> {
+  const res = await fetchWithTimeout(
+    "https://api.openai.com/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-2024-08-06",
+        messages: [{
+          role: "user",
+          content: `${ENRICH_PROMPT}\n\nMenu items (JSON):\n${JSON.stringify(items)}`,
+        }],
+        response_format: {
+          type: "json_schema",
+          json_schema: { name: "menu_items", strict: true, schema: ENRICH_SCHEMA_OPENAI },
+        },
+        temperature: 0,
+        seed: ENRICH_SEED,
+      }),
+    },
+  );
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error?.message ?? "OpenAI API error");
+  console.log("[openai] finish_reason:", json.choices[0].finish_reason);
+  return JSON.parse(json.choices[0].message.content).items as EnrichedItem[];
+}
 
 /** Splits array into consecutive batches at most `size`. */
 export function chunk<T>(arr: T[], size: number): T[][] {

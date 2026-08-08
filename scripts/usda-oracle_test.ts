@@ -191,13 +191,13 @@ Deno.test("loadFdcApiKey reads USDA_FDC_API_KEY from a supplied env file", async
   }
 });
 
-Deno.test("prepareOracle freezes reviewed recipes from canned FDC details", async () => {
+Deno.test("prepareOracle preserves a prepared recipe basis in frozen ingredients", async () => {
   const path = await Deno.makeTempFile();
   try {
     await Deno.writeTextFile(
       path,
       JSON.stringify([{
-        recipe: [{ name: "chicken", fdc_id: 123, grams: 100, basis: "cooked" }],
+        recipe: [{ name: "chicken", fdc_id: 123, grams: 100, basis: "prepared" }],
         oracle: null,
       }]),
     );
@@ -205,11 +205,16 @@ Deno.test("prepareOracle freezes reviewed recipes from canned FDC details", asyn
       await prepareOracle("test-key", path);
     });
     const [entry] = JSON.parse(await Deno.readTextFile(path)) as [{
-      oracle: { calories: number; ingredients: unknown[]; source: string };
+      oracle: {
+        calories: number;
+        ingredients: { basis: string }[];
+        source: string;
+      };
     }];
     assertEquals(entry.oracle.calories, 165);
     assertEquals(entry.oracle.source, "USDA FoodData Central");
     assertEquals(entry.oracle.ingredients.length, 1);
+    assertEquals(entry.oracle.ingredients[0].basis, "prepared");
     assertEquals("recipe" in entry, false);
   } finally {
     await Deno.remove(path);

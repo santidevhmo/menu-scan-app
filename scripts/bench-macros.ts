@@ -106,7 +106,7 @@ export function renderTable(results: ItemResult[]): string {
   }).join("\n\n");
 }
 
-async function enrich(items: ExtractedMenuItem[]): Promise<{ items: EnrichedItem[]; raw: unknown }> {
+export async function enrich(items: ExtractedMenuItem[]): Promise<{ items: EnrichedItem[]; raw: unknown }> {
   const apiKey = Deno.env.get("OPENAI_API_KEY");
   if (!apiKey) throw new Error("OPENAI_API_KEY is required");
 
@@ -117,7 +117,7 @@ async function enrich(items: ExtractedMenuItem[]): Promise<{ items: EnrichedItem
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o",
+      model: "gpt-4o-2024-08-06",
       messages: [{
         role: "user",
         content: `${ENRICH_PROMPT}\n\nMenu items (JSON):\n${JSON.stringify(items)}`,

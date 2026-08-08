@@ -4,6 +4,7 @@ import {
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
   chunk,
+  enrichBatch,
   ENRICH_PROMPT,
   ENRICH_SCHEMA_OPENAI,
   type EnrichedItem,
@@ -117,4 +118,25 @@ Deno.test("enrich schema generates ingredients BEFORE the macro numbers", () => 
 Deno.test("enrich prompt still instructs the two-step ingredient-then-estimate method", () => {
   assertEquals(ENRICH_PROMPT.includes("List the most likely ingredients"), true);
   assertEquals(ENRICH_PROMPT.includes("prefer printed weights over guesses"), true);
+});
+
+Deno.test("production enrichment serializes the pinned Stage-2 model", async () => {
+  const originalFetch = globalThis.fetch;
+  let request: Record<string, unknown> | undefined;
+  globalThis.fetch = async (_input, init) => {
+    request = JSON.parse(init?.body as string) as Record<string, unknown>;
+    return new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: { content: JSON.stringify({ items: [enriched("A")] }) },
+      }],
+    }));
+  };
+
+  try {
+    await enrichBatch([extracted("A")], "test-key");
+    assertEquals(request?.model, "gpt-4o-2024-08-06");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });

@@ -742,12 +742,14 @@ three `oracle` blocks in `scripts/fixtures/macro-oracle.json`** — Task 4's `lo
 refuse anyway, but do not try to work around it.
 
 **Files:**
-- Create: `docs/superpowers/stage2-macro-benchmark.md`
+- Modify: `docs/superpowers/stage2-macro-benchmark.md` — **already exists** (created 2026-08-07
+  with the Backlog, current-behaviour and Rulings sections). Append the Runs entry; do not
+  rewrite the file or reorder its sections.
 - Read only: everything from Tasks 1–4
 
 **Interfaces:**
 - Consumes: the full harness from Tasks 1–4.
-- Produces: the log file, and the first Runs entry.
+- Produces: the first Runs entry in the existing log.
 
 - [ ] **Step 1: Confirm the oracle is filled and get cost approval**
 
@@ -807,48 +809,41 @@ Specifically check the printed-weight ambiguity flagged in the spec: for `Salmon
 the model treat `200g` as the whole plated dish or as the salmon alone? Its ingredient list plus
 the calorie total will show which.
 
-- [ ] **Step 5: Write the log**
+- [ ] **Step 5: Append the run to the log**
 
-Create `docs/superpowers/stage2-macro-benchmark.md`:
+`docs/superpowers/stage2-macro-benchmark.md` already exists and already carries its Backlog
+(B1–B5), current-behaviour and Rulings sections. **Append only** — add a row to the Runs table
+and a notes subsection beneath it. Do not rewrite or reorder the file.
+
+Add to the Runs table:
 
 ```markdown
-# Stage-2 Macro Enrichment Benchmark — Log
-
-Single append-only log for this phase. Spec:
-`specs/2026-08-07-stage2-macro-enrichment-benchmark-design.md`.
-Newest Runs entries go at the BOTTOM.
-
-## Backlog — not started, do not start without a failure list to justify it
-
-- **B1 — per-ingredient grams.** Add `grams` to each `ingredients[]` entry so the model commits
-  to portions before totalling. Matches OpenAI's own "thinking before conclusion" guidance.
-  Untested hypothesis.
-- **B2 — batch-size sweep.** `ENRICH_BATCH_SIZE` is 10 and has never been varied. Test 5/15/20.
-  NOTE: three items is a single call at every batch size, so this needs a larger item set to be
-  observable at all.
-- **B3 — printed-weight scope.** Whole dish vs one component. Only if the baseline shows it firing.
-
-## Runs
-
-| # | date | what changed | result (range across draws) | verdict |
-|---|---|---|---|---|
-| baseline-001 | 2026-08-07 | nothing — pipeline as shipped | *fill in* | *fill in* |
-
-### baseline-001 notes
-
-*Per-item table, the failure list, and the hand-audit findings go here.*
-
-## Rulings
-
-- **2026-08-07 — tolerance bands.** calories ±20%, each macro ±30%, all four must pass.
-  Provisional: the pending research on restaurant-label accuracy and dietitian inter-rater
-  agreement may show this is too tight or too loose.
-- **2026-08-07 — three artifacts only.** oracle JSON + runner + this log. Deliberately smaller
-  than the OCR phase's six.
+| baseline-001 | 2026-08-07 | nothing — pipeline as shipped | <per-item tallies, e.g. CESAR 3/3 · Salmone 1/3 · Pastel 0/3> | <pass / fail, and what it blocks> |
 ```
 
-Replace the *fill in* placeholders with the real numbers from the run. **Do not commit the log
-with placeholders still in it.**
+Then a notes subsection directly below the table:
+
+```markdown
+### baseline-001 — notes
+
+**Per-item, per-field results:** <the table the runner printed>
+
+**Failure list:** <every field that missed, on which item, in which draws, by how much.
+This is the deliverable the backlog items get justified against — not the score.>
+
+**Hand audit (raw dumps):** <did the model's ingredients[] match the printed description?
+For Salmone toscano, did it read 200g as the whole dish or as the salmon alone?>
+
+**Self-consistency check ($0, from the archived responses):** <do the reported macros imply
+the reported calories under Atwater factors — 4 kcal/g protein, 4 kcal/g carb, 9 kcal/g fat?
+Relevant to backlog B5.>
+
+**Archived raw responses:** `scripts/fixtures/caches/macro-bench.baseline-001-d{0,1,2}.raw.json`
+```
+
+**Every angle-bracket placeholder above must be replaced with real content before you commit.**
+A log entry with a placeholder left in it is worse than no entry — the next session will read
+it as fact.
 
 - [ ] **Step 6: Commit**
 

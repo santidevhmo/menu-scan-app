@@ -9,7 +9,7 @@ export interface ExtractedItem {
 export type IngredientCategory = "protein" | "carb" | "fat" | "veg" | "other";
 
 export interface EnrichedItem extends ExtractedItem {
-  ingredients: { name: string; category: IngredientCategory }[];
+  ingredients: { name: string; category: IngredientCategory; grams: number }[];
   protein_g: number;
   carb_g: number;
   fat_g: number;
@@ -22,8 +22,8 @@ export interface EnrichedItem extends ExtractedItem {
 // Exported so offline harnesses run the real prompt rather than a copy.
 export const ENRICH_PROMPT =
   `You estimate the nutrition profile of restaurant menu items. For each item, work step by step:
-1. List the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other.
-2. From those ingredients and the likely preparation (e.g. grilled vs fried), estimate per typical single restaurant serving: protein_g, carb_g, fat_g, estimated_calories. If the item's name or description contains explicit weight or portion info — e.g. (280gr), chicken (80gr), 2 chicken breasts sliced — use it as the primary basis for gram estimates rather than a typical portion; prefer printed weights over guesses.
+1. List the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other, and give its edible weight in grams for one serving.
+2. Derive protein_g, carb_g, fat_g and estimated_calories for that serving from the per-ingredient grams you just listed — add up what each ingredient contributes, rather than estimating the totals directly. If the item's name or description contains explicit weight or portion info — e.g. (280gr), chicken (80gr), 2 chicken breasts sliced — use it as the primary basis for gram estimates rather than a typical portion; prefer printed weights over guesses.
 3. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive, leaving you with little ingredient information to go on.
 List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, shellfish, egg, soy). Use an empty allergens array when none are inferred; do not include "none". Preserve each item's name, description, price, and category exactly as given. Do NOT sort the items. Return one object per input item, in the same order.`;
 
@@ -33,6 +33,9 @@ const ENRICH_INGREDIENT_PROPS = {
     type: "string",
     enum: ["protein", "carb", "fat", "veg", "other"],
   },
+  // Makes the model commit to a portion out loud before it totals anything.
+  // Required, not optional: strict mode only emits required fields.
+  grams: { type: "number" },
 };
 
 // Property order is load-bearing: strict-mode output is emitted in schema order.
@@ -56,7 +59,7 @@ export const ENRICH_SCHEMA_OPENAI = {
             items: {
               type: "object",
               properties: ENRICH_INGREDIENT_PROPS,
-              required: ["name", "category"],
+              required: ["name", "category", "grams"],
               additionalProperties: false,
             },
           },

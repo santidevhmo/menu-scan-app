@@ -23,7 +23,7 @@ const extracted = (name: string): ExtractedItem => ({
 
 const enriched = (name: string): EnrichedItem => ({
   ...extracted(name),
-  ingredients: [{ name: "x", category: "protein" }],
+  ingredients: [{ name: "x", category: "protein", grams: 100 }],
   protein_g: 10,
   carb_g: 5,
   fat_g: 3,
@@ -119,6 +119,52 @@ Deno.test("enrich schema generates ingredients BEFORE the macro numbers", () => 
 Deno.test("enrich prompt still instructs the two-step ingredient-then-estimate method", () => {
   assertEquals(ENRICH_PROMPT.includes("List the most likely ingredients"), true);
   assertEquals(ENRICH_PROMPT.includes("prefer printed weights over guesses"), true);
+});
+
+Deno.test("every ingredient must carry a gram weight (B1)", () => {
+  // Without this the model records WHAT is in a dish and never HOW MUCH, so its
+  // portion assumption is unrecoverable from its output. baseline-002 showed
+  // every macro it emitted was a multiple of 5 and every calorie a multiple of
+  // 50 across 3 dishes x 3 draws - the signature of a guess made straight at
+  // the macro level rather than a sum over portions.
+  const schema = ENRICH_SCHEMA_OPENAI as {
+    properties: {
+      items: {
+        items: {
+          properties: {
+            ingredients: {
+              items: {
+                properties: Record<string, unknown>;
+                required: string[];
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+  const ingredient = schema.properties.items.items.properties.ingredients.items;
+
+  assertEquals(
+    Object.keys(ingredient.properties).includes("grams"),
+    true,
+    "ingredients[] must declare a grams property",
+  );
+  // Strict mode only emits a field when it is required, so declaring it is not
+  // enough - an optional grams would be silently omitted on every call.
+  assertEquals(
+    ingredient.required.includes("grams"),
+    true,
+    "grams must be required, or strict mode will omit it",
+  );
+});
+
+Deno.test("enrich prompt asks for per-ingredient grams and derived totals (B1)", () => {
+  assertEquals(ENRICH_PROMPT.includes("edible weight in grams"), true);
+  assertEquals(
+    ENRICH_PROMPT.includes("rather than estimating the totals directly"),
+    true,
+  );
 });
 
 Deno.test("production enrichment serializes the pinned Stage-2 model", async () => {

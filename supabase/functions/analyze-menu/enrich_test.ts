@@ -4,6 +4,8 @@ import {
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
   chunk,
+  ENRICH_PROMPT,
+  ENRICH_SCHEMA_OPENAI,
   type EnrichedItem,
   type ExtractedItem,
   fallbackEnriched,
@@ -85,4 +87,34 @@ Deno.test("fallbackEnriched preserves extraction identity with low-confidence ze
   assertEquals(out.estimated_calories, 0);
   assertEquals(out.confidence, "low");
   assertEquals(out.allergens, []);
+});
+
+Deno.test("enrich schema generates ingredients BEFORE the macro numbers", () => {
+  const schema = ENRICH_SCHEMA_OPENAI as {
+    properties: {
+      items: { items: { properties: Record<string, unknown> } };
+    };
+  };
+  const keys = Object.keys(schema.properties.items.items.properties);
+
+  const ingredientsAt = keys.indexOf("ingredients");
+  const proteinAt = keys.indexOf("protein_g");
+  const caloriesAt = keys.indexOf("estimated_calories");
+
+  assertEquals(ingredientsAt >= 0, true, "ingredients must exist in the schema");
+  assertEquals(
+    ingredientsAt < proteinAt,
+    true,
+    `ingredients (${ingredientsAt}) must precede protein_g (${proteinAt})`,
+  );
+  assertEquals(
+    ingredientsAt < caloriesAt,
+    true,
+    `ingredients (${ingredientsAt}) must precede estimated_calories (${caloriesAt})`,
+  );
+});
+
+Deno.test("enrich prompt still instructs the two-step ingredient-then-estimate method", () => {
+  assertEquals(ENRICH_PROMPT.includes("List the most likely ingredients"), true);
+  assertEquals(ENRICH_PROMPT.includes("prefer printed weights over guesses"), true);
 });

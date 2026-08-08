@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import {
   chunk,
+  ENRICH_PROMPT,
+  ENRICH_SCHEMA_OPENAI,
   type EnrichedItem,
   type ExtractedItem,
   reassembleEnriched,
@@ -17,75 +19,6 @@ const MISTRAL_API_KEY = Deno.env.get("MISTRAL_API_KEY")!;
 const MODEL_TIMEOUT_MS = 120000;
 const ENRICH_BATCH_SIZE = 10; // ponytail: small batches stop GPT-4o early-stopping; tune if drops persist
 const ENRICH_SEED = 17; // fixed seed + temperature 0 run-to-run stability
-
-// ── Stage 2: enrichment (gram-based CoT, goal-agnostic) ─────────────────────
-
-const ENRICH_PROMPT =
-  `You estimate the nutrition profile of restaurant menu items. For each item, work step by step:
-1. List the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other.
-2. From those ingredients and the likely preparation (e.g. grilled vs fried), estimate per typical single restaurant serving: protein_g, carb_g, fat_g, estimated_calories. If the item's name or description contains explicit weight or portion info — e.g. (280gr), chicken (80gr), 2 chicken breasts sliced — use it as the primary basis for gram estimates rather than a typical portion; prefer printed weights over guesses.
-3. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive, leaving you with little ingredient information to go on.
-List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, shellfish, egg, soy). Use an empty allergens array when none are inferred; do not include "none". Preserve each item's name, description, price, and category exactly as given. Do NOT sort the items. Return one object per input item, in the same order.`;
-
-const ENRICH_INGREDIENT_PROPS = {
-  name: { type: "string" },
-  category: {
-    type: "string",
-    enum: ["protein", "carb", "fat", "veg", "other"],
-  },
-};
-
-const ENRICH_SCHEMA_OPENAI = {
-  type: "object",
-  properties: {
-    items: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          name: { type: "string" },
-          description: { type: "string" },
-          price: { type: ["number", "null"] },
-          category: {
-            type: "string",
-            enum: ["food", "side", "dessert", "drink", "other"],
-          },
-          ingredients: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: ENRICH_INGREDIENT_PROPS,
-              required: ["name", "category"],
-              additionalProperties: false,
-            },
-          },
-          protein_g: { type: "number" },
-          carb_g: { type: "number" },
-          fat_g: { type: "number" },
-          estimated_calories: { type: "number" },
-          confidence: { type: "string", enum: ["high", "medium", "low"] },
-          allergens: { type: "array", items: { type: "string" } },
-        },
-        required: [
-          "name",
-          "description",
-          "price",
-          "category",
-          "ingredients",
-          "protein_g",
-          "carb_g",
-          "fat_g",
-          "estimated_calories",
-          "confidence",
-          "allergens",
-        ],
-        additionalProperties: false,
-      },
-    },
-  },
-  required: ["items"],
-  additionalProperties: false,
-};
 
 /** Wraps fetch with an AbortController timeout for external model calls. */
 async function fetchWithTimeout(

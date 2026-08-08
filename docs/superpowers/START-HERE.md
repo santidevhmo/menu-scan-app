@@ -37,27 +37,54 @@ built and frozen; six prompt/schema iterations have been measured against it. Pr
 untouched — the deployed edge function still runs the original pre-B1 prompt, pinned to
 `gpt-4o-2024-08-06`. Phase spend to date: **$0.374**.
 
-Read **② the roadmap's `🎯 CURRENT PHASE` block first** — it now carries the full takeover
-briefing: every commit and whether it is deployed, the runs side by side, what each proved,
-the explicit next action (**Santiago's decision — deploy, fix the last defect, or settle the
-oracle question**), and the list of things not to do without a new ruling. Then read `docs/superpowers/stage2-macro-benchmark.md`, which is the living document
-(Backlog B1–B13, Runs, Rulings). `docs/superpowers/plans/2026-08-07-stage2-macro-benchmark.md`
-holds the paid-run procedure; its Tasks 1–5 are COMPLETE. The USDA plan is the frozen
-oracle/provenance reference: `docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
+Read **② the roadmap's `🎯 CURRENT PHASE` block first** — it carries the full takeover briefing:
+every commit and whether it is deployed, the runs side by side, and what each proved. Then read
+`docs/superpowers/stage2-macro-benchmark.md`, the living document (Backlog, Runs, Rulings).
+`docs/superpowers/plans/2026-08-07-stage2-macro-benchmark.md` holds the paid-run procedure; its
+Tasks 1–5 are COMPLETE. The USDA plan is the oracle/provenance reference:
+`docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
 
-**One-line state:** B12 solved composition, B13 showed fat was a portion problem too, and **B4 beat
-the baseline and reproduced over four runs** — 2 failed field/draws out of 144, against the best
-prior result of 6 out of 36 — by asking the model for a *conventional serving* per ingredient and
-fitting those to the printed weight in code. **Quote the range 0–1, never the single zero run.**
-One defect remains: PASTEL's cheese serving drops 50 g → 30 g in 2 of 12 draws.
+**One-line state:** **B4 is the best version and the fallback checkpoint.** It asks the model for a
+*conventional serving* per ingredient plus whether the menu's printed weight covers it, and fits
+those to the weight in code. Over 4 runs × 3 draws: **0 failed field/draws of 144, mean absolute
+error 13.6–14.7%.**
 
-🏁 **There is a fallback checkpoint: the git tag `stage2-b4-checkpoint` (commit `22a1ac5`).**
-Santiago ruled it the best version yet and the state to restore from if a later evaluation regresses,
-or to publish from if the phase stops. `git show stage2-b4-checkpoint` prints the measured result;
-`git diff stage2-b4-checkpoint -- supabase/functions/analyze-menu/` shows what has drifted since.
-**Measure every new iteration against it, not against the baseline — the bar is 0–1 failed
-field/draws now, and beating it requires beating the RANGE over 4 runs × 3 draws, not one lucky run.**
-Do not move or delete the tag. Being publishable is still NOT permission to deploy.
+🏁 **Fallback checkpoint: git tag `stage2-b4-checkpoint` → commit `22a1ac5`.** Restore from it if an
+evaluation regresses; publish from it if the phase stops. `git show stage2-b4-checkpoint` prints the
+result; `git diff stage2-b4-checkpoint -- supabase/functions/analyze-menu/` shows what has drifted.
+⚠️ **That tag message quotes PRE-re-freeze numbers** — the current ones are in the log's Rulings. Do
+not move or delete the tag. Publishable is NOT permission to deploy.
+
+⚠️ **The failure count is a SATURATED gate — never quote it alone.** The 2026-08-08 oracle re-freeze
+(`a60eb2a`) corrected CESAR's Caesar dressing from 57.8 g fat/100 g to the market median 36.67, and
+that erased the baseline's only 6 failures. **baseline-002 and B4 now BOTH score 0 of 36.** Two very
+different pipelines are indistinguishable on it. **Mean absolute error is the primary number**
+(baseline 16.7%, B4 13.6–14.7%); the count is a floor that must not regress.
+
+💰 **Cost is NOT a constraint (Santiago, 2026-08-08).** These sessions exist to clear hypotheses about
+the core feature. **Never narrow scope, skip an experiment, or recommend stopping on cost grounds.**
+State the dollar estimate and get his approval before a paid run — but price is never an argument
+against running one.
+
+### 🎯 Next actions, in this order
+
+1. **Widen the fixture set.** Three dishes is *why* the gate saturated. Take new dishes from data the
+   extraction phase already produced: `deno run --allow-read scripts/find-weighted-dishes.ts` lists
+   **120 distinct printed-weight dishes** across the archived extraction dumps — CESAR itself came
+   from that corpus. A printed weight matters because it is what B4's mechanism keys off. Each new
+   dish needs a USDA-sourced oracle recipe with `fdc_id`s, and **Santiago approves every recipe
+   personally.** `scripts/usda-oracle.ts` has `searchFoods` / `fetchNutrients` (free API, key in
+   `.env.local`), and `bench-macros_test.ts` now fails the build if a dish's totals stop matching its
+   own ingredients.
+2. **B9 — the cross-model arm.** Run the unchanged benchmark against a newer OpenAI model alongside
+   the pinned `gpt-4o-2024-08-06`. It answers the one question no prompt work can: is the remaining
+   error a GPT-4o ceiling or a task ceiling? Design in the log's **B9** backlog entry — **do not
+   hardcode a guessed model ID**, and treat any parameter difference (`temperature`, `seed`) as a
+   confound, not a footnote.
+
+**B5 is designed but shelved**, not falsified — see
+`specs/2026-08-08-b5-preparation-and-oracle-dressing-design.md` and the log's "B5 premise re-derived"
+entry. The re-freeze shrank its target from three dishes to one field on one dish.
 
 ⚠️ **Never put a food, dish or cuisine name into the nutrition step of `ENRICH_PROMPT`.** B11 did
 (its "high carb" list was a roll-call of our own three fixtures) and it measurably made sweet corn

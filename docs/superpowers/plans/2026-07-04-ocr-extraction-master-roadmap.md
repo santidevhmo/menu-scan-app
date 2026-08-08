@@ -152,18 +152,56 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > **The bar is now 0–1 failed field/draws, not the baseline's 6.** A new result replaces the checkpoint
 > only if it beats that *range* over at least 4 runs × 3 draws — one better run is never enough.
 >
-> ### 🎯 NEXT ACTION — keep iterating; nothing is blocked
+> ### 💰 COST IS NOT A CONSTRAINT — ruling, Santiago 2026-08-08
 >
-> Santiago's direction: continue running evaluations until the results feel solid, with the checkpoint
-> as insurance. The open targets, in the order I would take them:
+> *"This is what this session and evaluations are for: to clear out all hypotheses we have on our core
+> feature and on ensuring it works and on making it better. Cost is not an issue in these sessions, so
+> don't limit yourself to not iterating and experimenting that much due to cost."*
 >
-> 1. **The cheese-serving instability.** PASTEL's cheese drops 50 g → 30 g in 2 of 12 draws, taking
->    that dish's fat to −44.1%. It is the *only* failing field in 144 and the sole gap between the
->    current 0–1 and a clean 0.
-> 2. **The systematic lean.** Carbs read high on all three dishes, fat low on all three — unchanged
->    since B13. It costs nothing today because the bands absorb it, but it is why 6 of the 11
->    always-passing fields sit within 5 points of their edge (PASTEL calories clears ±20% by 0.8).
-> 3. **The oracle-strictness question** (iter-b13-001 Finding 5), still open and Santiago's alone.
+> **Never narrow scope, skip an experiment, or recommend stopping on cost grounds.** State the dollar
+> estimate and get his approval before any paid run — that rule stands — but price is never an argument
+> against running one. A previous session recommended stopping at $0.374 partly on cost; he corrected
+> it.
+>
+> ### 🎯 NEXT ACTIONS, in this order
+>
+> **1. Widen the fixture set.** Three dishes is *why* the failure count saturated — baseline and B4 both
+> score 0 of 36, so the metric can no longer separate a naive pipeline from a good one. Santiago's
+> direction: take new dishes from data the extraction phase already produced.
+>
+> ```bash
+> deno run --allow-read scripts/find-weighted-dishes.ts    # $0, no model calls
+> ```
+>
+> lists **120 distinct printed-weight dishes** across the archived extraction dumps in
+> `scripts/fixtures/caches/`. CESAR itself came from that corpus (menu `andaluz`). A printed weight
+> matters because it is exactly what B4's mechanism keys off — `printed_total_g` plus
+> `within_printed_weight`.
+>
+> Adding a dish is **not** automatic. Each needs a USDA-sourced oracle recipe with real `fdc_id`s, and
+> **Santiago approves every recipe personally** — that ruling has not changed. `scripts/usda-oracle.ts`
+> provides `searchFoods` / `fetchNutrients` against the free FDC API (key in `.env.local`), and
+> `bench-macros_test.ts` now fails the build if any dish's stored totals stop matching its own
+> ingredients.
+>
+> Two traps the current three fixtures already taught:
+> - **Do not pick the richest USDA entry when several are defensible.** That is what made the Caesar
+>   dressing wrong for six runs. Check the spread first; prefer the median of real products.
+> - **Beware dishes whose defining ingredient is unprinted.** PASTEL AZTECA is a tortilla casserole
+>   whose menu never says tortilla, so its oracle inflates everything else (cheese to 20.5% of plate
+>   weight). Santiago ruled to leave it — but it is why PASTEL cannot serve as a portion target.
+>
+> **2. B9 — the cross-model arm.** Run the unchanged benchmark against a newer OpenAI model alongside
+> the pinned `gpt-4o-2024-08-06`. It answers the one question no amount of prompt or schema work can:
+> **is the remaining error a GPT-4o ceiling or a task ceiling?** Full design in the log's **B9** entry.
+> Non-negotiables recorded there: do not hardcode a guessed model ID (list the account's models and pick
+> the newest dated snapshot), and if the newer model cannot accept identical `temperature: 0` /
+> `seed: 17`, that is a **confound to record, not a footnote to ignore**.
+>
+> **Open defects, none blocking:** PASTEL's cheese serving drops 50 g → 30 g in 2 of 12 draws (the only
+> strict failure left); the PASTEL tortilla artifact above; and the oracle-strictness question, now
+> partly answered — a $0 USDA check found the model **right** about Caesar dressing and Mexican cheese,
+> and the oracle right about baked salmon, croutons and heavy cream.
 >
 > **Deployment remains unauthorised.** Being the publishable state is not permission to publish.
 >

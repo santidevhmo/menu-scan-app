@@ -87,7 +87,23 @@ zero. Both failures are one defect — PASTEL's cheese serving dropping 50 g →
 🏁 **Tagged `stage2-b4-checkpoint` (→ `22a1ac5`) as the fallback and publishable state** (Santiago,
 2026-08-08). Restore from it if a later evaluation regresses. **Every new iteration is measured
 against it, not the baseline**, and it is only superseded by a result that beats the *range* over at
-least 4 runs × 3 draws.
+least 4 runs × 3 draws. ⚠️ The tag message quotes **pre-re-freeze** numbers.
+
+⚠️ **ORACLE RE-FROZEN `a60eb2a`, and it changed the conclusion.** CESAR's Caesar dressing went from
+57.8 g fat/100 g (the top of ~40 USDA entries) to the market median 36.67. That erased the baseline's
+only six failures — they were both CESAR fields. Re-scored (`deno run --allow-read
+scripts/rescore-history.ts`, $0): **baseline-002 6 → 0**, iter-b13-001 6 → 3, **iter-b4-001…004 all
+0**. Mean absolute error: baseline 16.7%, B4 **13.6–14.7%**.
+
+**The failure count is now a saturated gate — never quote it alone.** Two very different pipelines
+both score 0 of 36. **Mean absolute error is the primary number**; the count is a floor.
+
+💰 **Cost is not a constraint** (Santiago, 2026-08-08). Never narrow scope or skip an experiment on
+cost grounds. Still state the estimate and get his approval — that is about him deciding, not price.
+
+🎯 **Next: (1) widen the fixture set** from the 120 printed-weight dishes that
+`scripts/find-weighted-dishes.ts` surfaces in the archived extraction dumps — backlog entry **B14**;
+**(2) B9**, the cross-model arm.
 
 **Nothing is deployed, including B4.** Deployment has never been authorised and is Santiago's ruling
 alone.

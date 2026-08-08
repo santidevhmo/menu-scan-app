@@ -440,7 +440,51 @@ surviving carbohydrate error is a portion error (CESAR's croutons 30 g vs 20 g; 
 collapsing 50 g → 10 g between draws). That is now the largest untouched source of error in the
 phase, and B4 (a dedicated portion/volume stage) is the backlog item that addresses it.
 
-### B9 — Cross-model comparison arm *(added 2026-08-08, Santiago)*
+### B14 — Widen the fixture set *(⬅ NEXT, Santiago 2026-08-08)*
+
+**Why now:** three dishes is why the failure count saturated. After the oracle re-freeze,
+**baseline-002 and iter-b4-001…004 all score 0 of 36** — a naive pipeline and our best one are
+indistinguishable on the headline metric. More dishes is the only thing that restores its power.
+
+**Where the dishes come from — Santiago's direction:** the data the extraction phase already
+produced. Not new photography, not invented items.
+
+```bash
+deno run --allow-read scripts/find-weighted-dishes.ts    # $0, no model calls
+```
+
+surveys every archived extraction dump in `scripts/fixtures/caches/` and lists **120 distinct
+dishes carrying a printed weight**. CESAR itself came from that corpus (menu `andaluz`, which alone
+carries a dozen `(200 g)` items). Printed weight is the selection criterion because it is what B4's
+mechanism keys off — `printed_total_g` and `within_printed_weight` — so a dish without one exercises
+less of the pipeline.
+
+**What each new dish needs**, same standard as the existing three:
+1. An oracle recipe of USDA FDC ingredients, each with a real `fdc_id`, `grams`, `basis`
+   (`raw` | `cooked` | `prepared`) and `per_100g`.
+2. Dish totals that are the exact sum of those ingredients — `bench-macros_test.ts` now fails the
+   build otherwise.
+3. An `assumed` note recording every judgment: what the printed weight covers, what sits outside it,
+   and why each entry was chosen.
+4. **Santiago's personal approval of the recipe.** Unchanged ruling.
+
+Tooling: `scripts/usda-oracle.ts` exposes `searchFoods` and `fetchNutrients` against the free FDC API
+(key `USDA_FDC_API_KEY` in `.env.local`), plus `sumRecipe` and `validateRecipe`.
+
+**Two traps the current fixtures already taught — do not repeat them:**
+- **Never take the richest USDA entry when several are defensible.** The Caesar dressing sat at 57.8 g
+  fat/100 g — the top of ~40 entries whose median was 36.7 — for six runs, and made the *model* look
+  wrong. Survey the spread first and prefer the median of real products.
+- **Beware a dish whose defining ingredient is unprinted.** PASTEL AZTECA is a tortilla casserole
+  whose menu never says tortilla; holding the printed 300 g while excluding it inflates everything
+  else (cheese to 20.5% of plate weight). Santiago ruled to leave it, and it is why PASTEL cannot be
+  used as a portion target. A new fixture with this shape would import the same defect.
+
+**Sequencing note:** widening changes the yardstick. Every archived run must be re-scored afterwards —
+`deno run --allow-read scripts/rescore-history.ts` — and the checkpoint's recorded figures updated,
+exactly as the 2026-08-08 re-freeze required.
+
+### B9 — Cross-model comparison arm *(⬅ NEXT after B14, Santiago 2026-08-08)*
 
 Run the **unchanged** benchmark against a newer OpenAI model alongside the pinned
 `gpt-4o-2024-08-06`, so the report reads **USDA oracle vs GPT-4o vs <newer model>** on the same
@@ -1381,6 +1425,20 @@ target is the cheese-serving instability in Finding 1.
 ---
 
 ## Rulings
+
+### 💰 Cost is not a constraint *(Santiago, 2026-08-08)*
+
+> *"This is what this session and evaluations are for: to clear out all hypotheses we have on our core
+> feature and on ensuring it works and on making it better. Cost is not an issue in these sessions, so
+> don't limit yourself to not iterating and experimenting that much due to cost."*
+
+**Never narrow scope, skip an experiment, or recommend stopping on cost grounds.** A session
+recommended stopping at $0.374 partly because the remaining gains looked small against the spend; he
+corrected that. Iterate until the hypotheses are cleared.
+
+**What still stands:** state the dollar estimate before a paid run and get his explicit approval. That
+rule is about *him deciding*, not about price. The two coexist — **tell him what it costs, never argue
+that it costs too much.**
 
 ### ⚠️ ORACLE RE-FROZEN 2026-08-08 — every figure above this line is pre-re-freeze
 

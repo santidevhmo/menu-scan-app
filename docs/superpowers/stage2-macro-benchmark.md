@@ -279,6 +279,44 @@ check whether high dispersion predicts "outside tolerance."
 
 Keep the `confidence` label as a coarse UI hint at most; do not gate on it.
 
+### B10 — Per-ingredient MACROS, summed in code *(created by iter-b1-001, 2026-08-08)*
+
+**This is the direct successor to B1 and the only backlog item with measured evidence behind it.**
+
+iter-b1-001 established that the model **portions well and totals badly**: its gram lists hit the
+printed weight exactly on 2 of 3 dishes, and pricing those grams scores *better* than the macros
+it reported on 2 of 3. The arithmetic step is where the accuracy is lost.
+
+**Fix shape:** extend each `ingredients[]` entry from `{name, category, grams}` to
+`{name, category, grams, protein_g, carb_g, fat_g}`, then **compute the item totals in code** by
+summing, with `estimated_calories` derived by Atwater (4/4/9). The model's `protein_g`,
+`carb_g`, `fat_g` and `estimated_calories` at item level stop being model outputs and become
+computed values.
+
+**Why this is NOT the forbidden database lookup.** The 2026-08-07 ruling forbids *a runtime
+database or API call* in the enrichment pipeline. This adds neither — no HTTP call, no key, no
+latency, nothing to be unavailable. The **model still supplies all nutrition knowledge**, exactly
+as today; only the addition moves into code. Re-read the ruling's three explicit non-prohibitions
+before objecting: it forbids retrieval, not arithmetic.
+
+**Why it should generalize.** No dish names, no cuisines, no wording patterns, no language
+assumptions — it asks the same four numbers per ingredient regardless of menu. And summation is
+the one part of the task a computer cannot get wrong.
+
+**Predictions to state before running (all unmeasured):**
+- Totals stop being multiples of 5 — **guaranteed by construction**, since they are summed, not
+  emitted. This makes P1 a non-test for this arm; find a different falsifier.
+- Atwater self-consistency becomes exact by construction (gap 0), removing the 14.6% drift seen
+  in iter-b1-001.
+- The open risk: per-ingredient macros may be *individually* wrong even when portions are right.
+  That is precisely what this arm measures, and it will be visible per ingredient for the first
+  time.
+
+**Cost:** no extra call; more output tokens (~2× the ingredient block). One benchmark run,
+3 draws, ~$0.03.
+
+**Do first:** this outranks B4, B5 and B6 — it is the only item the run data points at directly.
+
 ### B9 — Cross-model comparison arm *(added 2026-08-08, Santiago)*
 
 Run the **unchanged** benchmark against a newer OpenAI model alongside the pinned
@@ -317,6 +355,7 @@ work that a model upgrade would have closed anyway.
 | baseline-001 | 2026-08-07 | nothing — pipeline as shipped | CESAR 0/3 · Salmone 0/3 · Pastel 2/3 | FAIL — baseline establishes failures for portion/fat and calorie estimation; no pipeline change made |
 | baseline-002 | 2026-08-08 | nothing — reproducible `gpt-4o-2024-08-06` pin | CESAR 0/3 · Salmone 0/3 · Pastel 3/3 | FAIL — pinned baseline confirms CESAR and Salmone failures; no pipeline change made |
 | baseline-002r | 2026-08-08 | **oracle only** — printed-weight rule applied to all three dishes; **$0, no new model call** | CESAR 0/3 · Salmone 3/3 · Pastel 0/3 | FAIL — 9 failed field/draws (was 15). Re-score of the SAME archived baseline-002 responses against the corrected oracle |
+| iter-b1-001 | 2026-08-08 | **B1** — required per-ingredient `grams` + prompt derives totals by summing (`1768a1d`); $0.023 | CESAR 0/3 · Salmone 0/3 · Pastel 0/3 | **REGRESSION on the tally** (14 failed field/draws vs 9) — but the portions are now good and auditable. NOT deployed. See notes: this run produced the phase's most decisive diagnostic |
 
 ### baseline-001 — notes
 
@@ -538,6 +577,99 @@ the largest in-band miss at −27.5%). Both external reviewers named this indepe
 **Verification:** `deno test --allow-all scripts/ supabase/` → `298 passed | 1 failed`, the one
 failure still only `scripts/tile-cut_test.ts`. `validateRecipe` passes for all three corrected
 recipes.
+
+### iter-b1-001 — B1 per-ingredient grams (2026-08-08, $0.023, 3 draws, NOT deployed)
+
+**Change under test:** commit `1768a1d` — a required `grams` field on every `ingredients[]`
+entry, and prompt steps 1–2 rewritten to derive the macros by summing per-ingredient
+contributions instead of estimating totals directly. Seven production lines. Same model
+(`gpt-4o-2024-08-06`), same `temperature: 0`, same `seed: 17`. Mirror call deliberately skipped —
+it would compare a changed harness against an unchanged edge function and prove nothing.
+
+**Headline: the tally REGRESSED, and the run is still the most valuable of the phase.**
+14 failed field/draws vs baseline-002r's 9. But the failures moved, and *what* moved is the
+finding.
+
+**Per-field, against baseline-002r:**
+
+| item | field | baseline-002r | iter-b1-001 | verdict |
+|---|---|---|---|---|
+| CESAR | calories | −24.2% FAIL | **−13.4% / −2.6% PASS** | ✅ recovered ×3 |
+| CESAR | fat | −32.1% FAIL | **−15.1% PASS** | ✅ recovered ×3 |
+| CESAR | protein | −16.9% PASS | **−33.5% FAIL** | ❌ lost ×3 |
+| CESAR | carb | −13.7% PASS | **+43.8% FAIL** | ❌ lost ×3 |
+| Salmone | carb | −0.6% PASS | **+32.5% FAIL** | ❌ lost ×3 |
+| Salmone | calories/protein/fat | PASS | PASS | — |
+| PASTEL | carb | +12.6% PASS | +40.8% FAIL (draw 2 passed) | ❌ lost ×2 |
+| PASTEL | protein | −41.5% FAIL | −51.2% FAIL | ❌ worse |
+| PASTEL | calories | −13.3% PASS | −13.3% / −4.6% PASS | — |
+
+**Calories improved on every single item and now pass everywhere. Carbs blew out everywhere.**
+
+**THE FINDING — the model can portion, but it does not total.**
+
+The grams are real, not decorative, and they are good:
+
+| item | model's gram sum | printed weight | oracle's sum |
+|---|---:|---:|---:|
+| CESAR | **200** | 200 g | 200 |
+| PASTEL | **300** | 300 gr. | 380 (beans outside) |
+| Salmone | 265 | 200 g | 245 |
+
+CESAR and PASTEL land **exactly** on the printed weight — the model now treats it as a budget,
+which it never did before. Salmone gave the salmon 150 g, close to the oracle's approved 140 g
+main-course portion. Individual portions are sane throughout (CESAR chicken 80 g vs oracle 75 g;
+Salmone baguette 50 g vs 45 g).
+
+**But the macros it reports do not follow from the grams it just wrote.** Pricing the model's
+*own* ingredient list at its *own* grams with the oracle's USDA per-100 g values (draw 1):
+
+| item | field | oracle | **model's own grams imply** | **model reported** |
+|---|---|---:|---:|---:|
+| CESAR | protein_g | 30.1 | **33.8** | **20** |
+| CESAR | calories | 462 | **481.6** | **400** |
+| Salmone | fat_g | 34.5 | **39.8** | **25** |
+| Salmone | calories | 606.6 | **679.6** | **550** |
+| PASTEL | carb_g | 35.5 | **30.4** | **50** |
+
+**Scoring the model's own grams beats scoring its own answer on two of three dishes:**
+Salmone's grams score **PASS 4/4** while its reported macros fail on carbs; CESAR's grams fail on
+one field where its reported macros fail on two. Only PASTEL is worse under its own grams, and
+that is the scope convention again — it put the beans inside the printed 300 g while the
+corrected oracle prices 380 g.
+
+**P1 (the decisive prediction) FAILED.** Every reported total is still a multiple of 5 and every
+calorie figure a multiple of 50: 400, 450, 550, 600, 500, 550. Writing the portions down did not
+make the model compute from them.
+
+**Stated honestly:** this is *consistent with* the model guessing the totals rather than summing,
+but it does not strictly prove arithmetic failure — the model may hold different per-100 g
+nutrition beliefs than USDA. What argues against a systematic belief gap is the size and
+inconsistent direction of the errors (CESAR protein −41% below its own grams, PASTEL carbs +64%
+above them). The next iteration settles it by asking for per-ingredient macros directly.
+
+**Hand audit (all three raw draws):** every `ingredients[]` list matches the printed description
+— CESAR 5, Salmone 8, PASTEL 7 entries, no invented and no omitted ingredient, in printed order.
+The gram values are the only new content and none is absurd.
+
+**Atwater self-consistency (reported calories minus `4P + 4C + 9F`):** CESAR −5 (−1.2%), −5,
++45 (+11.1%); Salmone +25 (+4.8%), +45 (+8.9%), +75 (+14.3%); PASTEL 0 (0.0%), +60 (+13.6%),
++70 (+14.6%). Worse than baseline-002's max gap of 8.2% — the calorie figure drifts further from
+its own macros than before.
+
+**Dispersion across draws:** calorie CV rose from **0.0% on every item** in baseline-002 to 5.7%
+(CESAR), 4.2% (Salmone), 4.6% (PASTEL). The change introduced real run-to-run variance where
+there was none, which is why this run reports a range rather than a single value.
+
+**Confidence label:** dropped from `high` on all nine baseline outputs to **`medium` on all nine
+here.** Every item failed in both runs, so the label still does not discriminate pass from fail —
+but the shift is recorded. Consistent with B8: do not gate on it.
+
+**Archived raw responses:** `scripts/fixtures/caches/macro-bench.iter-b1-001-d{0,1,2}.raw.json`.
+Actual cost from the archived `usage` blocks: 2,064 input + 1,758 output tokens = **$0.0227**.
+
+**Verdict: do NOT deploy `1768a1d` as-is.** It trades a worse tally for better portions. Keep it
+on the branch as the input to the next iteration — see B10, which this run created.
 
 ---
 

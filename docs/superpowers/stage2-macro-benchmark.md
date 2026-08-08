@@ -317,6 +317,44 @@ the one part of the task a computer cannot get wrong.
 
 **Do first:** this outranks B4, B5 and B6 — it is the only item the run data points at directly.
 
+### B11 — The vegetable/sauce carbohydrate over-count *(created by iter-b10-001, 2026-08-08)*
+
+**The only systematic defect left, and the first one visible at ingredient level.**
+
+iter-b10-001 made carbs the sole out-of-band field on CESAR and PASTEL. The per-ingredient
+numbers show the model over-states carbohydrate for vegetables and sauces by large factors, while
+being accurate on obvious carb foods:
+
+| ingredient | model g | model carb_g | USDA at that weight | factor |
+|---|---:|---:|---:|---:|
+| salsa de tomate | 50 | 10 | 2.7 | **3.7×** |
+| elote (sweet corn) | 30 | 15 | 5.6 | **2.7×** |
+| croutones | 30 | 20 | 19.1 | 1.05× ✓ |
+| frijoles | 70 | 20 | 17.7 | 1.13× ✓ |
+
+Bread, croutons and beans are fine. Vegetables and sauces are not. The model appears to reach for
+a round "this is the carb one" number rather than the ingredient's real composition — note 15 g
+carb from 30 g of corn implies **50% carb by weight**, when sweet corn is 18.6%.
+
+**Candidate fixes, cheapest first — none measured:**
+1. **Prompt only:** name the trap directly — most vegetables and tomato-based sauces are
+   mostly water and contribute far less carbohydrate than their volume suggests; reserve high
+   carb values for grains, bread, tortilla, rice, potato, corn kernels, legumes and sugar. Zero
+   cost, no new call, no dish-specific rule.
+2. **Static per-100 g anchors in the prompt text** for the dozen most common menu ingredient
+   classes (explicitly allowed — prompting, not a lookup).
+3. **A sanity guard in code:** reject an ingredient whose macros exceed its own gram weight, or
+   whose carb fraction exceeds a category ceiling. Deterministic, testable for $0. Risk: a
+   ceiling is a heuristic with a worldwide blast radius — needs a wide archive check first.
+
+**Do first:** option 1. It is the smallest diff, targets the measured defect directly, and its
+falsifier is clean — if vegetable carb values do not fall, the model's per-ingredient nutrition
+knowledge is the limit and options 2–3 become the real candidates.
+
+**A second, separate observation to carry:** CESAR's carbs also suffer a *portion* error
+(croutones 30 g vs the oracle's 20 g) whose carb density was correct. Portion and composition are
+now separable defects — do not conflate them when reading the next run.
+
 ### B9 — Cross-model comparison arm *(added 2026-08-08, Santiago)*
 
 Run the **unchanged** benchmark against a newer OpenAI model alongside the pinned
@@ -356,6 +394,7 @@ work that a model upgrade would have closed anyway.
 | baseline-002 | 2026-08-08 | nothing — reproducible `gpt-4o-2024-08-06` pin | CESAR 0/3 · Salmone 0/3 · Pastel 3/3 | FAIL — pinned baseline confirms CESAR and Salmone failures; no pipeline change made |
 | baseline-002r | 2026-08-08 | **oracle only** — printed-weight rule applied to all three dishes; **$0, no new model call** | CESAR 0/3 · Salmone 3/3 · Pastel 0/3 | FAIL — 9 failed field/draws (was 15). Re-score of the SAME archived baseline-002 responses against the corrected oracle |
 | iter-b1-001 | 2026-08-08 | **B1** — required per-ingredient `grams` + prompt derives totals by summing (`1768a1d`); $0.023 | CESAR 0/3 · Salmone 0/3 · Pastel 0/3 | **REGRESSION on the tally** (14 failed field/draws vs 9) — but the portions are now good and auditable. NOT deployed. See notes: this run produced the phase's most decisive diagnostic |
+| iter-b10-001 | 2026-08-08 | **B10** — per-ingredient macros, item totals summed in code, calories by Atwater (`1ce5139`); $0.036 | CESAR 0/3 · Salmone 2/3 · Pastel 0/3 | MIXED — 9 failed field/draws, same as baseline. **Calories, protein and fat all improved; CARBS is now the single systematic defect.** NOT deployed |
 
 ### baseline-001 — notes
 
@@ -670,6 +709,112 @@ Actual cost from the archived `usage` blocks: 2,064 input + 1,758 output tokens 
 
 **Verdict: do NOT deploy `1768a1d` as-is.** It trades a worse tally for better portions. Keep it
 on the branch as the input to the next iteration — see B10, which this run created.
+
+### iter-b10-001 — B10 per-ingredient macros summed in code (2026-08-08, $0.036, 3 draws, NOT deployed)
+
+**Change under test:** commit `1ce5139` — each `ingredients[]` entry gains `protein_g`, `carb_g`,
+`fat_g` at its stated gram weight; `sumIngredientMacros` totals them and derives calories by
+Atwater (4/4/9) on the unrounded sums. Item-level macros became **computed**, not model output.
+The harness was fixed in the same commit — it had been parsing the response itself and grading
+the raw item-level macros, i.e. values production now discards (lesson 23).
+
+**Mean signed error per field, all three runs side by side** (`!` = outside band):
+
+| item | run | calories | protein_g | carb_g | fat_g |
+|---|---|---|---|---|---|
+| **CESAR** | baseline-002r | −24.2% ! | −16.9% | −13.7% | −32.1% ! |
+| | iter-b1-001 | −9.8% | −33.5% ! | +43.8% ! | −15.1% |
+| | **iter-b10-001** | **+3.2%** | +20.8% | +34.3% ! | **−9.4%** |
+| **Salmone** | baseline-002r | −9.3% | −6.4% | −0.6% | −27.5% |
+| | iter-b1-001 | −6.6% | −22.0% | +32.5% ! | −27.5% |
+| | **iter-b10-001** | −12.5% | −8.0% | +10.4% | **−22.6%** |
+| **PASTEL** | baseline-002r | −13.3% | −41.5% ! | +12.6% | −25.5% |
+| | iter-b1-001 | −10.4% | −48.0% ! | +31.4% ! | −25.5% |
+| | **iter-b10-001** | **−9.7%** | **−17.4%** | +42.6% ! | −37.9% ! |
+
+**Aggregate:** 9 failed field/draws (baseline-002r 9, iter-b1-001 14); 2/9 passing item-draws
+(baseline 3/9, b1 0/9); mean |error| 20.6% (baseline 18.6%, b1 25.5%).
+
+**Read the aggregate honestly: B10 is NOT a clear win on the headline.** It ties baseline on
+failed fields, loses one passing item-draw, and its mean absolute error is 2 points worse. What
+it did is **concentrate the error into one field**:
+
+- **Calories improved on every item and are now near-exact on CESAR (+3.2%, from −24.2%).**
+  8 of 9 calorie field/draws pass; the one failure is Salmone draw 1 at −21.5%.
+- **Protein improved decisively on PASTEL: −41.5% → −17.4%, back inside band.**
+- **Fat improved on CESAR (−32.1% → −9.4%) and Salmone, worsened on PASTEL (−25.5% → −37.9%).**
+- **Carbs worsened on all three and is now the only systematic defect.**
+
+**FINDING 1 — the model CAN add; it just had nothing to add before.** The item-level macros it
+emitted (which production discards) now match our computed sums almost exactly, in every draw:
+
+| item | computed (shipped) | model said at item level (discarded) |
+|---|---|---|
+| CESAR | P36 C23 F27 | P35.7 C22.6 F27.1 |
+| Salmone | P38 C22 F26 | P37.5 C22 F26.4 |
+| PASTEL | P41 C50 F15 | P40.8 C50 F14.7 |
+
+Those values are also no longer multiples of 5. **This answers the open question from
+iter-b1-001**: the failure was never arithmetic. Without per-ingredient macros the model had no
+parts to sum, so it jumped straight to a round guess. Given parts, it sums them correctly on its
+own.
+
+**Consequence for the design:** `sumIngredientMacros` is now earning its keep on **calories
+only**. The model's stated calorie figure still drifts from its own macros by 9–11% (CESAR 470 vs
+477, Salmone 520 vs 476, PASTEL 550 vs 496); Atwater removes that drift by construction.
+
+**Honest caveat about Atwater — the one calorie failure argues against it.** On Salmone draw 1 the
+model's own calorie figure (520, −14.3%) would have **passed**, while our Atwater value (476,
+−21.5%) **failed**. Same on PASTEL, where the model's 550 (−4.6%) beats Atwater's 496 (−14.0%).
+Atwater guarantees internal consistency, not accuracy, and the model's calorie intuition
+sometimes lands closer to the oracle. n=1 failure is not enough to act on — record it, watch it.
+
+**FINDING 2 — carbs fail for two distinct reasons, and only one is the model's fault.**
+From the per-ingredient numbers (draw 1):
+
+| ingredient | model g | model carb_g | USDA carb at that weight | reading |
+|---|---:|---:|---:|---|
+| CESAR croutones | 30 | 20 | 19.1 | carb *density* right, **portion** 30 g vs oracle's 20 g |
+| PASTEL elote | 30 | 15 | 5.6 | **2.7× too carb-dense** |
+| PASTEL salsa de tomate | 50 | 10 | 2.7 | **3.7× too carb-dense** |
+| PASTEL frijoles | 70 | 20 | 17.7 | close |
+
+So: **the model systematically over-states the carbohydrate content of vegetables and sauces.**
+That is a new, specific, nameable defect that was invisible before B10 — it only became legible
+because the per-ingredient numbers are now on the record. Creates **B11**.
+
+**FINDING 3 — PASTEL's remaining failures are substantially our scope convention, not model
+error.** The model puts the beans inside the printed 300 g (80 g chicken + 30 g cheese + 70 g
+beans = 300 g); the corrected oracle prices a 300 g casserole *plus* 80 g beans, which scales its
+chicken to 109 g and cheese to 61 g. That alone explains most of the −37.9% fat gap. Under the
+"beans inside" convention PASTEL passed 3/3. This is not a reason to re-open the ruling — one
+rule applied blind is still right — but PASTEL's numbers should not be read as pure model error.
+
+**Hand audit (all three draws):** every ingredient list matches the printed description — CESAR 5,
+Salmone 8, PASTEL 7 entries, nothing invented, nothing omitted, printed order preserved. Gram
+sums: CESAR 200 (= printed), PASTEL 300 (= printed), Salmone 250. No per-ingredient macro is
+physically impossible (none exceeds its own gram weight).
+
+**Atwater self-consistency:** exact by construction (gap 0 on every item, every draw), versus a
+max gap of 14.6% in iter-b1-001 and 8.2% in baseline-002. This is the one property the change
+guarantees rather than hopes for.
+
+**Dispersion across draws:** calorie CV 0.1% (CESAR), 8.0% (Salmone), 7.8% (PASTEL). Salmone's
+draw 1 diverged sharply (476 vs 558/559) — the largest single-draw divergence seen in the phase,
+and it is the draw that failed. **First evidence in this phase that dispersion tracks failure**,
+which B8 predicted and the earlier zero-dispersion runs could not test. One observation; not a
+calibration.
+
+**Confidence label:** `medium` on all nine outputs again. Still not discriminating.
+
+**Archived raw responses:** `scripts/fixtures/caches/macro-bench.iter-b10-001-d{0,1,2}.raw.json`.
+Cost from the archived `usage` blocks: 2,283 input + 3,014 output tokens = **$0.0358**. Output
+tokens rose 71% over iter-b1-001, as expected for three extra numbers per ingredient.
+
+**Verdict: do not deploy yet.** B10 is directionally right — it fixed calories, fixed PASTEL
+protein, and made the model's reasoning legible for the first time — but it has not beaten
+baseline on the headline, and it introduced a carb regression with a now-identified cause. Fix
+the carb defect (B11) and re-measure before considering deployment.
 
 ---
 

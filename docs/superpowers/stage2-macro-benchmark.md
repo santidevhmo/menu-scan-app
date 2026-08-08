@@ -316,6 +316,7 @@ work that a model upgrade would have closed anyway.
 |---|---|---|---|---|
 | baseline-001 | 2026-08-07 | nothing — pipeline as shipped | CESAR 0/3 · Salmone 0/3 · Pastel 2/3 | FAIL — baseline establishes failures for portion/fat and calorie estimation; no pipeline change made |
 | baseline-002 | 2026-08-08 | nothing — reproducible `gpt-4o-2024-08-06` pin | CESAR 0/3 · Salmone 0/3 · Pastel 3/3 | FAIL — pinned baseline confirms CESAR and Salmone failures; no pipeline change made |
+| baseline-002r | 2026-08-08 | **oracle only** — printed-weight rule applied to all three dishes; **$0, no new model call** | CESAR 0/3 · Salmone 3/3 · Pastel 0/3 | FAIL — 9 failed field/draws (was 15). Re-score of the SAME archived baseline-002 responses against the corrected oracle |
 
 ### baseline-001 — notes
 
@@ -458,6 +459,86 @@ In this baseline, the label does not distinguish passing from failing items.
 `scripts/fixtures/caches/macro-bench.baseline-002-d{0,1,2}.raw.json`. Execution-evidence
 manifest: `scripts/fixtures/caches/macro-bench.baseline-002-execution-manifest.json`.
 
+### baseline-002r — oracle correction and $0 re-score (2026-08-08)
+
+**No model call was made.** This entry re-scores the *same* archived `baseline-002-d{0,1,2}`
+responses against a corrected oracle. The model's answers are byte-identical to baseline-002;
+only the ground truth moved. Recorded as its own row because the failure list changed.
+
+**Why the oracle changed.** The frozen oracle applied **two different printed-weight
+conventions**: CESAR and PASTEL summed *to* their printed weight (whole dish), while Salmone
+summed to 348 g against a printed 200 g (component only). Salmone and Pastel use near-identical
+accompaniment wording — `acompañado con baguette` and `servido con frijoles` — and were treated
+oppositely. Any prompt rule written against that oracle would have been graded on a
+self-contradicting target.
+
+**The rule Santiago ruled (2026-08-08), now encoded in all three `assumed` lines:**
+
+> The printed weight covers the **plated dish**. An ingredient the menu marks as an
+> **accompaniment** sits **outside** the printed weight — but is still eaten, so the oracle still
+> counts it. Inside the printed weight, the **principal protein takes a main-course share**.
+
+**Applied blind, with no per-dish tuning:**
+
+| item | accompaniment wording | printed weight covers | total eaten | change |
+|---|---|---|---:|---|
+| CESAR (200 g) | none | everything | 200 g | **untouched** |
+| Salmone toscano | `acompañado con baguette` | plate: salmon 140 g + 60 g sauce/veg | 245 g | baguette 45 g moved outside |
+| PASTEL AZTECA | `servido con frijoles` | casserole scaled 220 g → 300 g | 380 g | beans 80 g moved outside |
+
+**Corrected oracle totals:** CESAR 462.0 kcal / 30.1 P / 17.4 C / 29.4 F (unchanged);
+Salmone 606.6 / 42.7 / 30.2 / 34.5 (was 843.2 / 59.7 / 35.1 / 51.0);
+PASTEL 576.7 / 51.3 / 35.5 / 26.8 (was 452.1 / 39.2 / 31.4 / 19.9).
+
+**Re-scored result — identical in all three draws:**
+
+| item | calories | protein_g | carb_g | fat_g | tally |
+|---|---|---|---|---|---:|
+| CESAR (200 g) | 350 (**−24.2% FAIL**) | 25 (−16.9%) | 15 (−13.7%) | 20 (**−32.1% FAIL**) | **0/3** |
+| Salmone toscano | 550 (−9.3%) | 40 (−6.4%) | 30 (−0.6%) | 25 (−27.5%) | **3/3** |
+| PASTEL AZTECA | 500 (−13.3%) | 30 (**−41.5% FAIL**) | 40 (+12.6%) | 20 (−25.5%) | **0/3** |
+
+**Failed field/draws: 9** (was 15). Salmone gained, PASTEL lost.
+
+**Read the PASTEL flip correctly — it is a revealed defect, not an artifact.** The old oracle
+squeezed the casserole into 220 g, which shrank its chicken and cheese and masked a real protein
+under-count. Under the corrected 300 g casserole the oracle carries ~109 g chicken and ~61 g
+cheese for 51.3 g protein; the model said 30 g. The independent LLM review corroborated this
+without seeing our oracle: *"its 30 g protein looks low for a 300-g dish containing both chicken
+and a substantial cheese mixture."*
+
+**Method note, deliberately recorded.** Santiago's constraint was *"I don't want changes to make
+the salmon pass but break on many others."* The rule was applied to every dish without exception
+and one item gained while another lost. **A convention where every dish improves is the one to
+distrust** — that is oracle-shopping, selecting ground truth to match the prediction. Measured
+alternatives, all $0, for the record:
+
+| convention | CESAR | Salmone | PASTEL |
+|---|---|---|---|
+| original frozen oracle (two conventions) | 0/3 | 0/3 | 3/3 |
+| whole dish, everything inside, proportional | 0/3 | 0/3 (carbs) | 3/3 |
+| whole dish, everything inside, protein-first | 0/3 | 0/3 (carbs, worse) | 3/3 |
+| **accompaniment outside (ADOPTED)** | **0/3** | **3/3** | **0/3** |
+
+**No convention passes all three, and CESAR fails under every one of them.** Its grams are
+agreed at 200 g in all four variants, so its −32.1% fat miss is convention-independent — the
+cleanest signal on the set, and the reason B1 is justified regardless of how the scope question
+resolves.
+
+**The strongest free evidence for B1, from data already owned.** Every macro value the model
+produced — three dishes × three draws × both baselines — is a **multiple of 5**, and every
+calorie figure a **multiple of 50**: `25/15/20 → 350`, `40/30/25 → 550`, `30/40/20 → 500`.
+Nothing summing real per-ingredient grams lands on round fives nine times out of nine. This is
+the signature of a guess made directly at the macro level, which is exactly what B1 targets.
+
+**Every significant miss is an under-count of a dense component:** CESAR's fat (30 g Caesar
+dressing), PASTEL's protein (chicken + cheese blend), Salmone's fat (heavy cream — passing, but
+the largest in-band miss at −27.5%). Both external reviewers named this independently.
+
+**Verification:** `deno test --allow-all scripts/ supabase/` → `298 passed | 1 failed`, the one
+failure still only `scripts/tile-cut_test.ts`. `validateRecipe` passes for all three corrected
+recipes.
+
 ---
 
 ## Rulings
@@ -505,6 +586,17 @@ manifest: `scripts/fixtures/caches/macro-bench.baseline-002-execution-manifest.j
      That is a different problem from estimation — matching, not inferring. **Parked as a
      post-release option, not scheduled, not part of this phase.**
 
+- **2026-08-08 — Printed-weight scope (Santiago). SUPERSEDES the per-dish treatment below.**
+  The printed weight covers the **plated dish**; an ingredient the menu marks as an
+  **accompaniment** sits **outside** it but is still eaten and still counted; inside the printed
+  weight the **principal protein takes a main-course share**. Applied to all three dishes without
+  exception — see baseline-002r. This ruling settles the oracle only. **It is deliberately NOT
+  being encoded into `ENRICH_PROMPT`:** a shipped rule matching accompaniment wording
+  (`acompañado con` / `servido con`) would be a text-pattern rule that must hold across every
+  language and menu layout worldwide, which is exactly the fragility Santiago's
+  no-menu-specific-hardcoding rule exists to prevent. Scope adjudication stays in the oracle,
+  where a human decides it. **This is why B3 was dropped as the next iteration** — the general
+  fix is to make the model *state its portions* (B1), not to teach it a wording convention.
 - **2026-08-07 — USDA oracle ingredient convention (Santiago).** Ingredient basis is raw,
   cooked, or prepared; use prepared for ready-to-eat dressing, cheese, bread, and canned foods.
   Prefer Foundation/FNDDS generic records, but use USDA SR Legacy only when neither represents

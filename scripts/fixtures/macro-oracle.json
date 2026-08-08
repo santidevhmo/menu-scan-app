@@ -13,7 +13,7 @@
       "protein_g": 30.084,
       "carb_g": 17.38,
       "fat_g": 29.4495,
-      "assumed": "USDA FDC recipe",
+      "assumed": "USDA FDC recipe. Printed 200 g = the whole plated salad; the menu names no accompaniment, so every ingredient sits inside the printed weight.",
       "source": "USDA FoodData Central",
       "retrieved_at": "2026-08-08",
       "ingredients": [
@@ -90,18 +90,18 @@
     "options": [],
     "printed_weight": "200g",
     "oracle": {
-      "calories": 843.1599999999999,
-      "protein_g": 59.667399999999994,
-      "carb_g": 35.132,
-      "fat_g": 50.96039999999999,
-      "assumed": "USDA FDC recipe",
+      "calories": 606.573,
+      "protein_g": 42.74998000000001,
+      "carb_g": 30.19571,
+      "fat_g": 34.4669,
+      "assumed": "USDA FDC recipe. Printed 200g = the plated dish (salmon 140g main-course portion + 60g Tuscan cream sauce and vegetables). The baguette is an accompaniment (\"acompañado con baguette\") and sits OUTSIDE the printed weight at 45g, but is eaten and counted. Total eaten 245g.",
       "source": "USDA FoodData Central",
       "retrieved_at": "2026-08-08",
       "ingredients": [
         {
           "name": "Salmon, baked or broiled",
           "fdc_id": 2706286,
-          "grams": 200,
+          "grams": 140,
           "basis": "cooked",
           "per_100g": {
             "calories": 274,
@@ -113,7 +113,7 @@
         {
           "name": "Heavy cream",
           "fdc_id": 2705597,
-          "grams": 35,
+          "grams": 20.4,
           "basis": "prepared",
           "per_100g": {
             "calories": 343,
@@ -125,7 +125,7 @@
         {
           "name": "Garlic, cooked",
           "fdc_id": 2709932,
-          "grams": 3,
+          "grams": 1.7,
           "basis": "cooked",
           "per_100g": {
             "calories": 142,
@@ -137,7 +137,7 @@
         {
           "name": "Spinach, fresh, cooked without fat",
           "fdc_id": 2709615,
-          "grams": 25,
+          "grams": 14.6,
           "basis": "cooked",
           "per_100g": {
             "calories": 33,
@@ -149,7 +149,7 @@
         {
           "name": "Artichokes, cooked without salt",
           "fdc_id": 168386,
-          "grams": 25,
+          "grams": 14.6,
           "basis": "cooked",
           "per_100g": {
             "calories": 53,
@@ -161,7 +161,7 @@
         {
           "name": "Sun-dried tomatoes",
           "fdc_id": 2709727,
-          "grams": 10,
+          "grams": 5.8,
           "basis": "prepared",
           "per_100g": {
             "calories": 258,
@@ -173,7 +173,7 @@
         {
           "name": "Capers, canned",
           "fdc_id": 172238,
-          "grams": 5,
+          "grams": 2.9,
           "basis": "prepared",
           "per_100g": {
             "calories": 23,
@@ -207,18 +207,18 @@
     "options": [],
     "printed_weight": "300gr.",
     "oracle": {
-      "calories": 452.05000000000007,
-      "protein_g": 39.2155,
-      "carb_g": 31.445999999999998,
-      "fat_g": 19.866,
-      "assumed": "USDA FDC recipe",
+      "calories": 576.705,
+      "protein_g": 51.256949999999996,
+      "carb_g": 35.51987,
+      "fat_g": 26.82937,
+      "assumed": "USDA FDC recipe. Printed 300gr. = the plated casserole (chicken, tomato sauce, green chile, onion, corn, cheese blend). The beans are an accompaniment (\"servido con frijoles\") and sit OUTSIDE the printed weight at 80g, but are eaten and counted. Total eaten 380g. Only ingredients printed on the menu are included: no tortilla, oil or cream is inferred.",
       "source": "USDA FoodData Central",
       "retrieved_at": "2026-08-08",
       "ingredients": [
         {
           "name": "Chicken, unspecified cut/method, skin not eaten",
           "fdc_id": 2705931,
-          "grams": 80,
+          "grams": 109.1,
           "basis": "cooked",
           "per_100g": {
             "calories": 164,
@@ -230,7 +230,7 @@
         {
           "name": "Tomato sauce, canned with salt",
           "fdc_id": 170054,
-          "grams": 40,
+          "grams": 54.5,
           "basis": "prepared",
           "per_100g": {
             "calories": 24,
@@ -242,7 +242,7 @@
         {
           "name": "Green chile, cooked",
           "fdc_id": 2709978,
-          "grams": 10,
+          "grams": 13.6,
           "basis": "cooked",
           "per_100g": {
             "calories": 59,
@@ -254,7 +254,7 @@
         {
           "name": "Onion, cooked without fat",
           "fdc_id": 2709950,
-          "grams": 15,
+          "grams": 20.5,
           "basis": "cooked",
           "per_100g": {
             "calories": 47,
@@ -266,7 +266,7 @@
         {
           "name": "Sweet corn, cooked without fat",
           "fdc_id": 2709910,
-          "grams": 30,
+          "grams": 40.9,
           "basis": "cooked",
           "per_100g": {
             "calories": 86,
@@ -278,7 +278,7 @@
         {
           "name": "Mexican cheese blend",
           "fdc_id": 2705741,
-          "grams": 45,
+          "grams": 61.4,
           "basis": "prepared",
           "per_100g": {
             "calories": 362,

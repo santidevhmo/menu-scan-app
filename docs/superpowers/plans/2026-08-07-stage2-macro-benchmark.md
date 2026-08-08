@@ -67,12 +67,15 @@ procedure** (mirror check, archiving, hand audit, what to report), which every i
 | `ff1b553` | iter-b1-001 measured ($0.023) | — |
 | `1ce5139` | **B10** — per-ingredient macros, item totals summed in code, calories by Atwater | ❌ branch only |
 | `fda94e9` | iter-b10-001 measured ($0.036) | — |
+| `766be47` | **B11** — carb-trap sentence in `ENRICH_PROMPT`; **falsified**, do not keep as written | ❌ branch only |
 
 Failed field/draws (of 36), under the PASTEL beans tolerance: baseline-002r **6** →
-iter-b1-001 **13** → iter-b10-001 **7**. **Neither iteration has beaten the baseline, so neither
-is deployed.** Six of iter-b10-001's seven failures are a single identified defect — the model
-over-states carbohydrate for vegetables and sauces by 2.7–3.7×. **Next action is B11**, a prompt
-sentence targeting exactly that; see the log's B11 entry.
+iter-b1-001 **13** → iter-b10-001 **7** → iter-b11-001 **6**. **No iteration has beaten the
+baseline, so none is deployed.** B11's tie comes from Salmone moving for reasons its sentence
+cannot explain; the carb number it targeted did not move at all. What it did buy is the diagnosis:
+the model's carb value is a round number anchored to the ingredient's **category tag**, not to the
+food. **Next action is B12** — ask for composition per 100 g and scale it in code; see the log's
+B12 entry and the iter-b11-001 notes.
 
 **Standing rules for any iteration that reuses this file's Task 5 procedure:**
 - **Skip the mirror call** unless the change under test has been deployed. Comparing a changed

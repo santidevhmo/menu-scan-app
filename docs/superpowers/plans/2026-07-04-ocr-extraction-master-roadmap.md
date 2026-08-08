@@ -17,7 +17,7 @@ missing is a measured benchmark, including printed-weight items so P2's "prefer 
 rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope detail: item #5 of
 "Release scope decision" below.
 
-> **🚧 IN PROGRESS — the benchmark is built, two fixes measured, ONE defect left. Nothing deployed.**
+> **🚧 IN PROGRESS — the benchmark is built, THREE fixes measured, ONE defect left. Nothing deployed.**
 >
 > **Branch `worktree-stage2-macro-benchmark`** (off `main` at `04e77ab`). All of this phase's
 > work lives there, NOT on `main`. The local worktree is `.claude/worktrees/stage2-macro-benchmark/`
@@ -27,9 +27,9 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > ### Taking over? Read this block, then the log. Everything else is history.
 >
 > **Where the phase stands (2026-08-08):** the harness, the USDA oracle and the scoring are done
-> and frozen. Two prompt/schema iterations have been measured against them. Production is
+> and frozen. Three prompt/schema iterations have been measured against them. Production is
 > **untouched** — the deployed edge function still runs the original pre-B1 prompt. Total spend on
-> this phase to date: **$0.059**.
+> this phase to date: **$0.093**.
 >
 > | Commit | What | Deployed? |
 > |---|---|---|
@@ -40,6 +40,7 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > | `a4ebf0f` | oracle re-frozen under one printed-weight rule; $0 re-score | — |
 > | `1768a1d` | **B1** — required per-ingredient `grams` | ❌ **on branch only** |
 > | `1ce5139` | **B10** — per-ingredient macros, item totals summed in code | ❌ **on branch only** |
+> | `766be47` | **B11** — carb-trap sentence in the prompt (**falsified, do not keep as written**) | ❌ **on branch only** |
 >
 > **The measured story, in one table.** Failed field/draws, scored under the PASTEL beans
 > tolerance (see Rulings) — 36 field/draws total:
@@ -48,41 +49,54 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > |---|---:|---|---:|
 > | baseline-002r | **6** | CESAR calories −24%, CESAR fat −32% | 18.6% |
 > | iter-b1-001 (grams only) | 13 | spread over 5 item/field combinations | 25.5% |
-> | **iter-b10-001 (summed)** | **7** | **carbs ×6**, one Salmone calorie draw | 20.6% |
+> | iter-b10-001 (summed) | 7 | **carbs ×6**, one Salmone calorie draw | 20.6% |
+> | **iter-b11-001 (carb sentence)** | **6** | **carbs ×6** — CESAR ×3, PASTEL ×3 | 19.6% |
 >
-> ⚠️ **Do not claim B10 beat the baseline — it did not.** 7 vs 6 on the count. Its case is the
-> *shape* of what is left: six of its seven failures are **one defect**, with a measured cause,
-> where baseline failed on two unrelated fields with no cause identified.
+> ⚠️ **Neither B10 nor B11 beat the baseline.** B11 ties it at 6, but **only because Salmone went
+> 2/3 → 3/3 for reasons B11's sentence cannot explain** (unstable salmon/cream fat guesses). The
+> number it aimed at did not move at all. Do not read the tie as progress.
 >
-> **What the two iterations established (all from archived responses, $0 to re-check):**
+> **What the three iterations established (all from archived responses, $0 to re-check):**
 >
 > 1. **B1 alone regressed things**, but proved the model **portions** well — its gram sums land
 >    exactly on the printed weight on 2 of 3 dishes, which it never did before.
 > 2. **B10 proved the model can add.** Once given per-ingredient macros, the item totals it emits
->    match our computed sums almost exactly and stop being multiples of 5. The old round-number
->    guessing was never an arithmetic failure — it had no parts to sum.
-> 3. **The one defect left is carbohydrate on vegetables and sauces**, over-stated 2.7–3.7× at
->    ingredient level (tomato sauce 10 g claimed vs 2.7 g actual; sweet corn 15 g vs 5.6 g).
->    Bread, croutons and beans are accurate. This was **invisible before B10**.
+>    match our computed sums almost exactly and stop being multiples of 5.
+> 3. **B11 proved the ceiling is not the prompt's wording.** PASTEL's carb sum is **50 g in both
+>    runs**. Worse, the sentence listed `corn kernels` among high-carb foods and the model took the
+>    licence: sweet corn went 15 g → **20 g** of carb at 30 g (USDA: 5.6 g). Self-inflicted, now
+>    measured.
+> 4. **The real defect, and the phase's most useful finding: the carb number is anchored to the
+>    ingredient's CATEGORY TAG, not to the food.** Anything tagged `carb` gets a round 20 or 30 g
+>    regardless of what it is or how much there is — croutons 30 g→20, corn 30 g→20, baguette
+>    50 g→30, beans 70 g→20. Three of four are right *by coincidence of their gram weights*.
+>    **B10 did not remove the round-number guess; it pushed it down one level**, where summing it
+>    produced an unround total that looked fixed.
+> 5. **The two surviving carb failures have different causes.** CESAR is a **portion** error
+>    (croutons 30 g vs the oracle's 20 g; its carb *density* is right). PASTEL is a **composition**
+>    error and is now almost entirely the corn. Never fix them with one lever.
 >
-> ### 🎯 NEXT ACTION — B11, and nothing else
+> ### 🎯 NEXT ACTION — B12, and nothing else
 >
-> Add a prompt sentence naming the carb trap: most vegetables and tomato-based sauces are mostly
-> water and contribute far less carbohydrate than their volume suggests; reserve high carb values
-> for grains, bread, tortilla, rice, potato, corn kernels, legumes and sugar. **No dish names, no
-> cuisine assumptions** — Santiago's no-menu-specific-hardcoding rule governs.
+> Ask for `carb_per_100g` (a composition fact) instead of `carb_g` (an amount), and compute
+> `carb_g = per100 × grams / 100` in `sumIngredientMacros`, which already owns the arithmetic. Same
+> for protein and fat so the fields stay symmetrical. This is **the B10 trick one level down** —
+> take away the step where a round guess is possible and leave only knowledge the model has.
+> In the same change, **delete `corn kernels` from B11's sentence, or delete the sentence** — it is
+> measured net-negative and would otherwise confound the run.
 >
-> Then run `BENCH_DRAWS=3 BENCH_RUN_ID=iter-b11-001` (~$0.04, **needs his explicit approval
-> first**) and compare against iter-b10-001. Falsifier: if vegetable carb values do not fall, the
-> model's per-ingredient nutrition knowledge is the ceiling, and static per-100 g anchors in the
-> prompt text (B11 option 2) become the real candidate.
+> Then run `BENCH_DRAWS=3 BENCH_RUN_ID=iter-b12-001` (~$0.04, **needs his explicit approval
+> first**). Falsifier: corn's carb must fall from 20 g to roughly 5–6 g at 30 g. **CESAR's carb
+> will not move and that does not count against B12** — it is a portion error (finding 5).
+> If B12 fails too, the ceiling is the model's per-100 g knowledge itself and static per-100 g
+> anchors in the prompt text (B11 option 2) are the last free lever.
 >
-> Full detail, including the two rejected candidate fixes, is in the log's **B11** entry.
+> Full detail is in the log's **B12** entry and the **iter-b11-001** notes.
 >
-> **Do NOT do any of these without a new ruling:** deploy B1 or B10 (neither has beaten baseline);
-> re-run a baseline (two exist); re-open the printed-weight scope question (ruled, applied blind);
-> change the frozen oracle (Santiago's alone); or start B2/B4/B5/B6/B9 (none has run data behind
-> it, unlike B11).
+> **Do NOT do any of these without a new ruling:** deploy B1, B10 or B11 (none has beaten
+> baseline); re-run a baseline (two exist); re-open the printed-weight scope question (ruled,
+> applied blind); change the frozen oracle (Santiago's alone); or start B2/B4/B5/B6/B9 (none has
+> run data behind it, unlike B12).
 >
 > **Read in this order — these files are the whole phase:**
 > 1. `stage2-macro-benchmark.md` — Backlog (B1–B11), Runs, Rulings. **This is the living

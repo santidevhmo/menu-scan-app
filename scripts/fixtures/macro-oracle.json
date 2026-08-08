@@ -9,11 +9,11 @@
     "options": [],
     "printed_weight": "200 g",
     "oracle": {
-      "calories": 462,
-      "protein_g": 30.084,
-      "carb_g": 17.38,
-      "fat_g": 29.4495,
-      "assumed": "USDA FDC recipe. Printed 200 g = the whole plated salad; the menu names no accompaniment, so every ingredient sits inside the printed weight.",
+      "calories": 409.5,
+      "protein_g": 30.432,
+      "carb_g": 18.391,
+      "fat_g": 23.1105,
+      "assumed": "USDA FDC recipe. Printed 200 g = the whole plated salad; the menu names no accompaniment, so every ingredient sits inside the printed weight. Dressing re-picked 2026-08-08 (Santiago) from FDC 2710199 (57.8 g fat/100 g) to FDC 2290157 (36.67): 57.8 is the top of ~40 full-fat Caesar entries whose median is 36.7 and mean 37.7, and three separate branded entries agree on 367/3.33/6.67/36.67. Caveat: branded FDC entries are back-computed from serving sizes, hence the multiples of 3.33; no mid-cluster SR Legacy entry exists.",
       "source": "USDA FoodData Central",
       "retrieved_at": "2026-08-08",
       "ingredients": [
@@ -67,14 +67,14 @@
         },
         {
           "name": "Caesar dressing",
-          "fdc_id": 2710199,
+          "fdc_id": 2290157,
           "grams": 30,
           "basis": "prepared",
           "per_100g": {
-            "calories": 542,
-            "protein_g": 2.17,
-            "carb_g": 3.3,
-            "fat_g": 57.8
+            "calories": 367,
+            "protein_g": 3.33,
+            "carb_g": 6.67,
+            "fat_g": 36.67
           }
         }
       ]

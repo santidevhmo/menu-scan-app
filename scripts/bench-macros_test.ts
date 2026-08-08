@@ -12,6 +12,10 @@ import {
   renderTable,
   toExtractedItems,
 } from "./bench-macros.ts";
+import {
+  type UsdaRecipeIngredient,
+  validateRecipe,
+} from "./usda-oracle.ts";
 
 const ORACLE_PATH = "scripts/fixtures/macro-oracle.json";
 
@@ -23,6 +27,34 @@ Deno.test("the shipped oracle is complete and USDA-validated", () => {
     "Salmone toscano",
     "PASTEL AZTECA (300gr.)",
   ]);
+});
+
+Deno.test("every shipped dish total is the sum of its own ingredients", () => {
+  // The oracle stores dish totals AND the ingredients they came from. Edit an
+  // ingredient and forget the totals - which is exactly the shape of the
+  // 2026-08-08 Caesar dressing re-pick - and every score silently shifts against
+  // a yardstick that no longer describes its own parts. validateRecipe was only
+  // ever exercised on synthetic recipes; this runs it on the real file.
+  const raw = JSON.parse(Deno.readTextFileSync(ORACLE_PATH)) as {
+    name: string;
+    oracle: {
+      calories: number;
+      protein_g: number;
+      carb_g: number;
+      fat_g: number;
+      ingredients: UsdaRecipeIngredient[];
+    };
+  }[];
+
+  for (const dish of raw) {
+    const { ingredients, ...totals } = dish.oracle;
+    validateRecipe(ingredients, {
+      calories: totals.calories,
+      protein_g: totals.protein_g,
+      carb_g: totals.carb_g,
+      fat_g: totals.fat_g,
+    });
+  }
 });
 
 Deno.test("loadOracle refuses to proceed while any oracle is unfilled", () => {

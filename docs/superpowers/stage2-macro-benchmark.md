@@ -73,6 +73,69 @@ first, then Stage 1 becomes iteration 1.
 
 ---
 
+## Failure decomposition of baseline-002 (2026-08-08, $0, from the archived draws)
+
+Splitting each item's error into **how many grams** vs **how dense per 100 g** separates a
+portion mistake from a nutrition mistake. On this set they come apart cleanly, and the two
+failing items fail for **different reasons**:
+
+| item | grams agreed? | oracle kcal/100g | model kcal/100g | reading |
+|---|---|---:|---:|---|
+| CESAR | yes, both 200 g | 231 | 175 | −24% density — **the whole error** |
+| Salmone | **no — 348 vs 200** | 242 | **275** | model is *denser* than the oracle |
+| Pastel | yes, both 300 g | 151 | 167 | +11%, comfortably in band |
+
+- **Salmone is a scope error, not a nutrition error.** Per gram the model is richer than USDA.
+  It fails only because it priced a 200 g plate while the oracle prices 348 g (200 g salmon
+  *plus* separately counted sauce, vegetables and a 45 g baguette). Arithmetic illustration
+  only — **not a predicted score**: keeping the model's own per-gram numbers and using 348 g
+  gives calories +13.5% PASS, protein +16.6% PASS, fat −14.6% PASS, carbs +48.6% FAIL. Scope
+  alone would take Salmone from three failed fields to one. **This confirms B3.**
+- **CESAR is a density error, almost entirely fat.** 9.4 g of missing fat accounts for 85 of the
+  112 missing calories. The oracle's 30 g of Caesar dressing carries 17.3 g fat / 163 kcal —
+  over half the dish's fat and more than the chicken. The hand audit shows the model named all
+  five ingredients correctly; it never committed to a quantity for any of them, so its portion
+  assumption is unrecoverable. **This is the shape B1 addresses.**
+- **A blanket "estimate more fat" instruction cannot work.** CESAR needs +47% fat, Salmone
+  +104%, Pastel is already exact at +0.7%. A global +30% nudge puts Pastel at +30.8% — outside
+  its band. Any fix must make the model reason per dish rather than carry a bias. Record this
+  before designing a prompt change.
+- **B8 is answered and dead on this set.** Calorie dispersion across draws was 0.0% for all
+  three items, including both permanent failures. Dispersion cannot separate pass from fail here.
+
+## External LLM corroboration of the oracle (2026-08-08, no cost, NOT a measurement)
+
+Santiago put the oracle-vs-model numbers to independent LLMs **without** the pass/fail bands,
+asking only which was more consistent with the ingredients and credible food-composition data.
+Source: `~/Downloads/OracleModelInsights.md` (outside the repo).
+
+Both independently reconstructed each dish from per-100 g composition values and judged the
+**oracle better on all three items** — decisively on CESAR and Salmone, narrowly on Pastel:
+
+| dish | their reconstructed range | oracle | model |
+|---|---|---:|---:|
+| CESAR | 460–490 kcal | 462 | 350 |
+| Salmone | 800–900 kcal | 843 | 550 |
+| Pastel | 450–500 kcal | 452 | 500 |
+
+Two observations worth carrying into design work:
+
+1. **One of them raised the 200 g scope ambiguity unprompted** — *"la única salvedad es el peso:
+   si '200 g' significa el peso total del platillo…"* — independently reaching the same
+   conclusion as the density decomposition above. Independent support for B3.
+2. **Both named the same failure mode:** the model systematically underestimates energy-dense
+   ingredients — dressing, cream, cheese, oil. One put it sharply: the model's 25 g of fat for
+   Salmone is roughly what 200 g of salmon contributes *by itself*, leaving essentially zero fat
+   for the cream sauce and bread.
+
+**Limits, stated so this is not over-read.** These are LLM reconstructions, not laboratory
+values and not a second oracle; the restaurants publish no recipe, so no exact answer exists.
+They were shown our numbers, which invites anchoring. **Nothing here changes the frozen oracle
+and nothing here counts as a run.** Its only legitimate use: raising confidence that we are not
+tuning the model toward a wrong target before spending on B3.
+
+---
+
 ## Backlog — not started
 
 **Rule: nothing here starts without a failure list from a real run to justify it.** A predicted
@@ -215,6 +278,33 @@ the coefficient of variation of `estimated_calories` per item across the baselin
 check whether high dispersion predicts "outside tolerance."
 
 Keep the `confidence` label as a coarse UI hint at most; do not gate on it.
+
+### B9 — Cross-model comparison arm *(added 2026-08-08, Santiago)*
+
+Run the **unchanged** benchmark against a newer OpenAI model alongside the pinned
+`gpt-4o-2024-08-06`, so the report reads **USDA oracle vs GPT-4o vs <newer model>** on the same
+three items, same prompt, same schema, same bands.
+
+**What this is NOT:** not a pipeline change, not a prompt change, and not a production model
+switch. It is one extra column in the benchmark table. Nothing about `ENRICH_MODEL` in
+`supabase/functions/analyze-menu/` moves unless a measured result justifies it later.
+
+**Do not hardcode a guessed model ID.** Before spending, list the account's available models
+(`GET https://api.openai.com/v1/models`) and pick the newest **dated snapshot** — the same
+pinning discipline as commit `0476481`; a floating alias is what made baseline-001 historical
+rather than reproducible. Record the exact snapshot string in the run entry.
+
+**Open risk to check before believing any result:** a newer model may not accept
+`temperature: 0` / `seed`, and reasoning-family models may reject or reinterpret them. If the
+run cannot use identical parameters, that is a **confound**, not a footnote — record it in the
+run entry and do not compare the two columns as if they were controlled.
+
+Cost shape: same as a baseline (3 draws + 1 mirror), per additional model. Needs Santiago's
+explicit paid-run approval like any other run.
+
+**Sequencing:** this is a measurement arm, not a fix. It answers "is our failure list a GPT-4o
+problem or a task problem?" — which is worth knowing *before* spending iterations on prompt
+work that a model upgrade would have closed anyway.
 
 ---
 

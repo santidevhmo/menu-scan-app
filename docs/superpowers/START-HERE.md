@@ -33,22 +33,26 @@ it is stale — fix it or ignore it, never believe it. The active Stage-2 macro 
 the explicit exception: it is the bounded Phase-9 workstream record, not a competing roadmap.
 
 **Stage-2 macro-enrichment handoff (2026-08-08) — THIS IS THE ACTIVE WORK.** The benchmark is
-built and frozen; three prompt/schema iterations have been measured against it; **one defect
-remains**. Production is untouched — the deployed edge function still runs the original pre-B1
-prompt, pinned to `gpt-4o-2024-08-06`. Phase spend to date: **$0.093**.
+built and frozen; four prompt/schema iterations have been measured against it. Production is
+untouched — the deployed edge function still runs the original pre-B1 prompt, pinned to
+`gpt-4o-2024-08-06`. Phase spend to date: **$0.135**.
 
 Read **② the roadmap's `🎯 CURRENT PHASE` block first** — it now carries the full takeover
 briefing: every commit and whether it is deployed, the three runs side by side, what each proved,
-the explicit next action (**B12**), and the list of things not to do without a new ruling. Then
-read `docs/superpowers/stage2-macro-benchmark.md`, which is the living document (Backlog B1–B12,
+the explicit next action (**B13**), and the list of things not to do without a new ruling. Then
+read `docs/superpowers/stage2-macro-benchmark.md`, which is the living document (Backlog B1–B13,
 Runs, Rulings). `docs/superpowers/plans/2026-08-07-stage2-macro-benchmark.md` holds the paid-run
 procedure; its Tasks 1–5 are COMPLETE. The USDA plan is the frozen oracle/provenance reference:
 `docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
 
-**One-line state:** the model portions well and totals correctly, but its per-ingredient
-**carbohydrate is a round number anchored to the category tag** — anything tagged `carb` gets 20
-or 30 g whatever the food or weight. B11 tried to fix this with prompt wording and was falsified;
-B12 asks for composition per 100 g and scales it in code.
+**One-line state:** B12 solved per-ingredient composition — asked for grams per 100 g instead of
+"the amount in this serving", the model returns USDA values to the decimal — so **portioning is now
+the whole remaining carbohydrate error**. The bill was fat, which fell on all three dishes in a
+confounded change; B13 separates that in one run.
+
+⚠️ **Never put a food, dish or cuisine name into the nutrition step of `ENRICH_PROMPT`.** B11 did
+(its "high carb" list was a roll-call of our own three fixtures) and it measurably made sweet corn
+worse. `enrich_test.ts` now fails the build if one reappears.
 
 ℹ️ **The suite's `1 failed` is noise.** `304 passed | 1 failed` with only `scripts/tile-cut_test.ts`
 red is a CLEAN run — Santiago has ruled it unimportant and it cannot affect macros (it tests the

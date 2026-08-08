@@ -67,15 +67,20 @@ procedure** (mirror check, archiving, hand audit, what to report), which every i
 | `ff1b553` | iter-b1-001 measured ($0.023) | — |
 | `1ce5139` | **B10** — per-ingredient macros, item totals summed in code, calories by Atwater | ❌ branch only |
 | `fda94e9` | iter-b10-001 measured ($0.036) | — |
-| `766be47` | **B11** — carb-trap sentence in `ENRICH_PROMPT`; **falsified**, do not keep as written | ❌ branch only |
+| `766be47` | **B11** — carb-trap sentence in `ENRICH_PROMPT`; **falsified**, reverted by B12 | ❌ branch only |
+| `<b12>` | **B12** — per-100 g composition priced in code; B11's food list deleted | ❌ branch only |
 
 Failed field/draws (of 36), under the PASTEL beans tolerance: baseline-002r **6** →
-iter-b1-001 **13** → iter-b10-001 **7** → iter-b11-001 **6**. **No iteration has beaten the
-baseline, so none is deployed.** B11's tie comes from Salmone moving for reasons its sentence
-cannot explain; the carb number it targeted did not move at all. What it did buy is the diagnosis:
-the model's carb value is a round number anchored to the ingredient's **category tag**, not to the
-food. **Next action is B12** — ask for composition per 100 g and scale it in code; see the log's
-B12 entry and the iter-b11-001 notes.
+iter-b1-001 **13** → iter-b10-001 **7** → iter-b11-001 **6** → iter-b12-001 **11**. **No iteration
+has beaten the baseline, so none is deployed** — but read the count and the mechanism separately.
+B12 **solved per-ingredient composition** (the model now returns USDA per-100 g values to the
+decimal), which leaves **portioning** as the whole remaining carbohydrate error. Its regression is
+in fat, in a change that also deleted step 2's only fat signal. **Next action is B13** — restore a
+food-free preparation clause and re-measure; see the log's B13 entry and the iter-b12-001 notes.
+
+⚠️ **Never name a food, dish or cuisine in the prompt's nutrition step.** B11's "high carb" list was
+a roll-call of the three fixtures' own ingredients and measurably worsened sweet corn.
+`enrich_test.ts` guards this now.
 
 **Standing rules for any iteration that reuses this file's Task 5 procedure:**
 - **Skip the mirror call** unless the change under test has been deployed. Comparing a changed

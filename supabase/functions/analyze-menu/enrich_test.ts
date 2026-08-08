@@ -28,9 +28,9 @@ const enriched = (name: string): EnrichedItem => ({
     name: "x",
     category: "protein",
     grams: 100,
-    protein_g: 31,
-    carb_g: 0,
-    fat_g: 3.6,
+    protein_per_100g: 31,
+    carb_per_100g: 0,
+    fat_per_100g: 3.6,
   }],
   protein_g: 10,
   carb_g: 5,
@@ -175,23 +175,54 @@ Deno.test("enrich prompt asks for per-ingredient grams and derived totals (B1)",
   );
 });
 
-Deno.test("enrich prompt names the vegetable/sauce carb trap (B11)", () => {
-  // iter-b10-001: six of seven failures were carbs. Per-ingredient numbers show
-  // vegetables and tomato sauces over-rated 2.7-3.7x (30 g corn -> 15 g carb,
-  // i.e. 50% carb by weight when sweet corn is 18.6%), while bread, croutons
-  // and beans were accurate. No dish names, no cuisines - ingredient classes only.
-  assertEquals(ENRICH_PROMPT.includes("mostly water"), true);
-  assertEquals(
-    ENRICH_PROMPT.includes("reserve high carb_g values for"),
-    true,
-  );
+Deno.test("the nutrition step names no specific food (B11 lesson)", () => {
+  // B11 shipped a sentence listing "grains, bread, tortilla, rice, potato, corn
+  // kernels, legumes and sugar" as the high-carb foods. That list was a
+  // roll-call of the three benchmark fixtures' own ingredients, and the model
+  // took the licence: sweet corn went from 15 g to 20 g of carb at 30 g, against
+  // USDA's 5.6 g. The prompt ships to every menu on earth; a food named HERE is
+  // a nutrition claim about that food, and the test set must not leak into it.
+  //
+  // Scoped to step 2 on purpose. Step 1 is about reading the menu's own text and
+  // its "chicken (80gr)" example illustrates printed-weight NOTATION, not
+  // composition - it is baseline wording common to every run measured so far.
+  const nutritionStep = ENRICH_PROMPT.split("\n2. ")[1]?.split("\n3. ")[0];
+  assertEquals(typeof nutritionStep, "string", "step 2 must be findable");
+
+  for (
+    const food of [
+      "tortilla",
+      "corn",
+      "rice",
+      "potato",
+      "bread",
+      "legume",
+      "sugar",
+      "grain",
+      "crouton",
+      "salmon",
+      "chicken",
+      "tomato",
+      "cheese",
+      "bean",
+      "dressing",
+      "cream",
+    ]
+  ) {
+    assertEquals(
+      new RegExp(`\\b${food}`, "i").test(nutritionStep),
+      false,
+      `step 2 must not name "${food}" - it is a nutrition claim about our fixtures`,
+    );
+  }
 });
 
-Deno.test("every ingredient carries its own macros so code can sum them (B10)", () => {
-  // iter-b1-001: the model portions well and totals badly. Its own grams,
-  // priced with USDA values, scored BETTER than the macros it reported on two
-  // of three dishes, while every total it emitted stayed a multiple of 5.
-  // So we ask for the per-ingredient numbers and do the addition ourselves.
+Deno.test("every ingredient carries per-100g composition, not an amount (B12)", () => {
+  // iter-b11-001: asked for the amount in the serving, the model returns a round
+  // number anchored to the ingredient's category tag - anything tagged carb got
+  // 20 or 30 g whatever the food or weight (croutons 30 g->20, corn 30 g->20,
+  // baguette 50 g->30, beans 70 g->20). Composition per 100 g is a property of
+  // the food, and the multiplication is the part a computer cannot get wrong.
   const schema = ENRICH_SCHEMA_OPENAI as {
     properties: {
       items: {
@@ -210,7 +241,7 @@ Deno.test("every ingredient carries its own macros so code can sum them (B10)", 
   };
   const ingredient = schema.properties.items.items.properties.ingredients.items;
 
-  for (const field of ["protein_g", "carb_g", "fat_g"]) {
+  for (const field of ["protein_per_100g", "carb_per_100g", "fat_per_100g"]) {
     assertEquals(
       Object.keys(ingredient.properties).includes(field),
       true,
@@ -222,25 +253,36 @@ Deno.test("every ingredient carries its own macros so code can sum them (B10)", 
       `${field} must be required, or strict mode will omit it`,
     );
   }
+  // The per-serving amounts must NOT be askable, or the model answers those and
+  // the anchor comes straight back.
+  for (const field of ["protein_g", "carb_g", "fat_g"]) {
+    assertEquals(
+      Object.keys(ingredient.properties).includes(field),
+      false,
+      `ingredients[] must not ask for ${field} - that is ours to compute`,
+    );
+  }
 });
 
-Deno.test("sumIngredientMacros totals the parts and derives calories by Atwater", () => {
+Deno.test("sumIngredientMacros prices composition at each ingredient's weight", () => {
   const got = sumIngredientMacros([
-    { name: "chicken", category: "protein", grams: 100, protein_g: 31, carb_g: 0, fat_g: 3.6 },
-    { name: "rice", category: "carb", grams: 150, protein_g: 4, carb_g: 42, fat_g: 0.4 },
+    // Per 100 g, so the 150 g of rice must contribute 1.5x its stated numbers.
+    // Drop the scaling and protein comes out 34, not 35.
+    { name: "a", category: "protein", grams: 100, protein_per_100g: 31, carb_per_100g: 0, fat_per_100g: 3.6 },
+    { name: "b", category: "carb", grams: 150, protein_per_100g: 2.7, carb_per_100g: 28, fat_per_100g: 0.3 },
   ]);
 
-  assertEquals(got.protein_g, 35);
-  assertEquals(got.carb_g, 42);
-  assertEquals(got.fat_g, 4);
-  // 4*35 + 4*42 + 9*4 = 140 + 168 + 36 = 344
-  assertEquals(got.estimated_calories, 344);
+  assertEquals(got.protein_g, 35); // 31 + 4.05
+  assertEquals(got.carb_g, 42); // 0 + 42
+  assertEquals(got.fat_g, 4); // 3.6 + 0.45
+  // Atwater on the unrounded sums: 4*35.05 + 4*42 + 9*4.05
+  assertEquals(got.estimated_calories, 345);
 });
 
 Deno.test("sumIngredientMacros rounds to whole grams and calories", () => {
   const got = sumIngredientMacros([
-    { name: "a", category: "fat", grams: 10, protein_g: 1.24, carb_g: 0.31, fat_g: 2.46 },
-    { name: "b", category: "veg", grams: 10, protein_g: 0.11, carb_g: 0.24, fat_g: 0.07 },
+    { name: "a", category: "fat", grams: 10, protein_per_100g: 12.4, carb_per_100g: 3.1, fat_per_100g: 24.6 },
+    { name: "b", category: "veg", grams: 10, protein_per_100g: 1.1, carb_per_100g: 2.4, fat_per_100g: 0.7 },
   ]);
 
   // 1.35 -> 1, 0.55 -> 1, 2.53 -> 3; calories from the UNROUNDED sums so the

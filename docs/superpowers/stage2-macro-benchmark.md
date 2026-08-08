@@ -392,6 +392,38 @@ the run.
 (static per-100 g anchors written into the prompt for common ingredient classes) is the remaining
 free lever before anything with a runtime cost is considered.
 
+### B13 — Restore a fat/preparation signal, worded for every menu *(created by iter-b12-001, 2026-08-08)*
+
+**The one-variable follow-up that resolves B12's confound.**
+
+iter-b12-001 removed step 2's *"(e.g. grilled vs fried, dressing and cream are mostly fat)"* in the
+same commit that introduced per-100 g composition. Fat then fell on all three dishes, and the
+per-ingredient numbers show the model answering with **plain, unprepared reference entries** — its
+fat is below the oracle on all six fats measured (dressing 40 vs 57.8, croutons 10 vs 18.3, chicken
+3.6 vs 5.45, salmon 13.4 vs 18.4, cream 30 vs 35.6, parmesan 25.8 vs 28.8).
+
+**Fix shape:** add one clause to step 2 stating the *basis* rather than any food — the composition
+wanted is the ingredient **as it arrives at the table**, including fat absorbed in frying or added
+in sauces and dressings, not the plain or raw reference form. **It must name no food, no cuisine and
+no dish**; the B11 lesson is that a food list in the nutrition step is a nutrition claim about our
+own fixtures, and `enrich_test.ts` now guards it mechanically.
+
+**Change nothing else.** Per-100 g fields stay exactly as B12 shipped them, so the run reads as a
+clean A/B against iter-b12-001.
+
+**Predictions:**
+- Fat rises on all three dishes; CESAR fat returns inside band.
+- **Carbohydrate composition does not regress** — corn stays near 19/100 g. If it does regress, the
+  per-100 g win was fragile and that is worth knowing.
+- CESAR carb still fails: it is a portion error and nothing here touches portions.
+
+**Cost:** ~$0.04, 3 draws.
+
+**After B13, whatever it shows, the next target is PORTIONING** — B12 established that every
+surviving carbohydrate error is a portion error (CESAR's croutons 30 g vs 20 g; Salmone's baguette
+collapsing 50 g → 10 g between draws). That is now the largest untouched source of error in the
+phase, and B4 (a dedicated portion/volume stage) is the backlog item that addresses it.
+
 ### B9 — Cross-model comparison arm *(added 2026-08-08, Santiago)*
 
 Run the **unchanged** benchmark against a newer OpenAI model alongside the pinned
@@ -433,6 +465,7 @@ work that a model upgrade would have closed anyway.
 | iter-b1-001 | 2026-08-08 | **B1** — required per-ingredient `grams` + prompt derives totals by summing (`1768a1d`); $0.023 | CESAR 0/3 · Salmone 0/3 · Pastel 0/3 | **REGRESSION on the tally** (14 failed field/draws vs 9) — but the portions are now good and auditable. NOT deployed. See notes: this run produced the phase's most decisive diagnostic |
 | iter-b10-001 | 2026-08-08 | **B10** — per-ingredient macros, item totals summed in code, calories by Atwater (`1ce5139`); $0.036 | CESAR 0/3 · Salmone 2/3 · Pastel 0/3 | MIXED — 9 failed field/draws, same as baseline. **Calories, protein and fat all improved; CARBS is now the single systematic defect.** NOT deployed |
 | iter-b11-001 | 2026-08-08 | **B11 option 1** — one prompt sentence naming the vegetable/sauce carb trap (`766be47`); $0.034 | CESAR 0/3 · Salmone 3/3 · Pastel 0/3 | **FALSIFIED — the targeted number did not move.** 6 failed field/draws under the beans tolerance (ties baseline, beats b10's 7), but PASTEL's carb sum is 50 g in *both* runs and the sentence made sweet corn WORSE. Creates **B12**. NOT deployed |
+| iter-b12-001 | 2026-08-08 | **B12** — per-ingredient composition asked PER 100 g and priced in code; B11's food list deleted; $0.042 | CESAR 0/3 · Salmone 1/3 · Pastel 0/3 | **SPLIT: composition SOLVED, tally REGRESSED.** Per-100 g values now match USDA to the decimal (corn 19 vs 18.7; the B11 defect is gone) and every surviving carb miss is a PORTION error. But 11 failed field/draws under the beans tolerance (worst since B1) — fat fell on all three dishes. **Confounded: two things changed.** Creates **B13**. NOT deployed |
 
 ### baseline-001 — notes
 
@@ -986,6 +1019,111 @@ Cost from the archived `usage` blocks: 2,409 input + 2,792 output tokens = **$0.
 its one measurable ingredient-level effect on corn was negative, and the count improvement came
 from an unrelated dish. Its value is diagnostic: it proved the ceiling is not the model's *wording*
 but the round per-tag anchor identified in Finding 3. **Next is B12.**
+
+### iter-b12-001 — B12 per-100 g composition, priced in code (2026-08-08, $0.042, 3 draws, NOT deployed)
+
+**Change under test:** per-ingredient `protein_g`/`carb_g`/`fat_g` (an amount) replaced by
+`protein_per_100g`/`carb_per_100g`/`fat_per_100g` (a composition); `sumIngredientMacros` now
+multiplies by `grams / 100` before summing. B11's food list was deleted from the prompt in the
+same commit, on Santiago's instruction — see the confound note below.
+
+**FINDING 1 — B12's falsifier passed outright. The model recites USDA per-100 g values almost
+exactly.** For the first time both sides of the comparison are per-100 g, so this is a like-for-like
+read of what the model actually knows:
+
+| ingredient | model carb/100 g | USDA | | ingredient | model | USDA |
+|---|---:|---:|---|---|---:|---:|
+| **elote (sweet corn)** | **19** | 18.7 ✓ | | garlic | 33.1 | 33.1 ✓ |
+| **salsa de tomate** | **5** | 5.3 ✓ | | onion | 9.3 | 9.3 ✓ |
+| croutones | 72 | 73.5 ✓ | | sun-dried tomato | 55 | 55.8 ✓ |
+| baguette | 50 | ~50 ✓ | | capers | 4.9 | 4.9 ✓ |
+| romaine | 2.9 | 3.3 ✓ | | spinach, cooked | 3.6 | 3.8 ✓ |
+
+Parmesan came back `P35.8 C3.2 F25.8` against USDA's `35.75 / 3.22 / 25.83` — matching to the
+decimal. **The composition knowledge was there the whole time; asking for "the amount in this
+serving" was destroying it.** Corn, the B11 casualty, went from an implied 67 g carb/100 g to 19.
+That defect is gone.
+
+**FINDING 2 — every surviving carbohydrate error is now a PORTION error, exactly as predicted.**
+
+| dish | carb result | cause |
+|---|---|---|
+| PASTEL | **+40.8% → −12.7%, passes 3/3** | composition fixed; nothing else needed |
+| CESAR | +43.8% (2/3 fail) | croutons priced at **72/100 g (right)** but portioned 30 g vs the oracle's 20 g |
+| Salmone | −50.3% on 2 draws | the baguette portion **collapsed from 50 g to 10 g** between draws |
+
+The B12 backlog entry predicted CESAR would not move because its defect is portion, not
+composition. It did not move. **Composition is solved; portioning is now the whole problem.**
+
+**FINDING 3 — and the bill: fat fell on all three dishes, which is why the tally regressed.**
+
+| item | field | iter-b11-001 | iter-b12-001 |
+|---|---|---:|---:|
+| CESAR | fat | −8.3% | **−35.5%** ✗ |
+| Salmone | fat | −2.4% | −21.7% |
+| Salmone | calories | +0.6% | −22.2% ✗ |
+| PASTEL | fat | −47.8% | −50.3% ✗ |
+| PASTEL | calories | −14.3% | **−30.8%** ✗ |
+
+The cause is visible per ingredient: **the model quotes plain, unprepared reference entries, and
+its fat is low on every single one.**
+
+| ingredient | model fat/100 g | oracle (as-prepared) |
+|---|---:|---:|
+| Caesar dressing | 40 | **57.8** |
+| croutons | 10 | 18.3 |
+| chicken | 3.6 (= USDA *meat only, roasted*) | 5.45–6.36 (FNDDS, as eaten) |
+| salmon | 13.4 | 18.4 |
+| cream | 30 | 35.6 |
+| parmesan | 25.8 | 28.8 |
+
+Not one is above the oracle. This is a **basis mismatch**, not ignorance: Santiago's 2026-08-07
+oracle convention deliberately picks *prepared* entries, and the model is answering with the plain
+ones. It is the same question B6 (raw vs cooked convention) was opened for, now with data behind it.
+
+**⚠️ CONFOUND — two things changed in this run; be honest about which caused what.** The field
+change (amount → per 100 g) and the deletion of step 2's preparation clause
+*"(e.g. grilled vs fried, dressing and cream are mostly fat)"* shipped together. The clause was cut
+because it names two of our three fixtures' own ingredients, which is the overfitting Santiago
+called out — but it was also the only fat signal in the prompt, and fat is what regressed.
+**Attribution: the carb result is safely B12's** (composition values moved to USDA-exact and no
+deleted wording could have caused that). **The fat result is NOT cleanly attributable** and is what
+B13 exists to separate.
+
+**Scored both ways.** Strict (shipped oracle): **15** failed field/draws. Under the PASTEL beans
+tolerance:
+
+| run | failed field/draws | which | mean \|error\| |
+|---|---:|---|---:|
+| baseline-002r | **6** | CESAR calories ×3, CESAR fat ×3 | 18.6% |
+| iter-b1-001 | 13 | spread over 5 item/field combinations | 25.5% |
+| iter-b10-001 | 7 | CESAR carb ×3, PASTEL carb ×3, Salmone calories ×1 | 20.6% |
+| iter-b11-001 | **6** | CESAR carb ×3, PASTEL carb ×3 | 19.6% |
+| **iter-b12-001** | **11** | CESAR fat ×3 + carb ×2, Salmone calories ×2 + carb ×2, PASTEL fat ×2 | 26.8% |
+
+**This is the worst tally of the phase, and it is still the most useful run of the phase.** PASTEL
+draw 2 passed all four fields under the beans tolerance — the first time that dish has passed since
+baseline-002. What broke is fat, on a change that removed the prompt's only fat signal.
+
+**Hand audit (all three draws):** ingredient lists unchanged and still matching the printed
+descriptions — CESAR 5, Salmone 8, PASTEL 7, nothing invented, nothing omitted, printed order
+preserved. No ingredient's three per-100 g values sum above 100. Gram sums: CESAR 200 (= printed),
+PASTEL 300 (= printed), Salmone 240 / 200 / 200 — **the Salmone portions are the least stable numbers
+in the run** (salmon 150 → 120 g, baguette 50 → 10 g), and they are what its two failed draws are
+made of. Atwater exact by construction.
+
+**Confidence label:** `medium` on all nine (was `high` on 7 of 9 in B11) — the model got *less*
+confident while its composition got dramatically *more* accurate. Still not usable as a gate, and
+now visibly anti-correlated.
+
+**Archived raw responses:** `scripts/fixtures/caches/macro-bench.iter-b12-001-d{0,1,2}.raw.json`.
+Cost from the archived `usage` blocks: 2,475 input + 3,612 output tokens = **$0.0423**. Output rose
+~29% over B11 (three decimal composition values per ingredient instead of three rounded amounts).
+Phase total **$0.135**.
+
+**Verdict: keep the per-100 g mechanism, do not deploy, run B13.** The mechanism did precisely what
+it was built to do and the evidence is unusually strong. The regression is in fat, on wording that
+was removed at the same time, and separating those is one cheap run.
 
 ---
 

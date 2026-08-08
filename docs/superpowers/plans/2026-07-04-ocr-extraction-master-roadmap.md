@@ -17,7 +17,8 @@ missing is a measured benchmark, including printed-weight items so P2's "prefer 
 rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope detail: item #5 of
 "Release scope decision" below.
 
-> **🚧 IN PROGRESS — the benchmark is built, THREE fixes measured, ONE defect left. Nothing deployed.**
+> **🚧 IN PROGRESS — benchmark built, FOUR fixes measured, composition solved, portions now the
+> problem. Nothing deployed.**
 >
 > **Branch `worktree-stage2-macro-benchmark`** (off `main` at `04e77ab`). All of this phase's
 > work lives there, NOT on `main`. The local worktree is `.claude/worktrees/stage2-macro-benchmark/`
@@ -27,9 +28,9 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > ### Taking over? Read this block, then the log. Everything else is history.
 >
 > **Where the phase stands (2026-08-08):** the harness, the USDA oracle and the scoring are done
-> and frozen. Three prompt/schema iterations have been measured against them. Production is
+> and frozen. Four prompt/schema iterations have been measured against them. Production is
 > **untouched** — the deployed edge function still runs the original pre-B1 prompt. Total spend on
-> this phase to date: **$0.093**.
+> this phase to date: **$0.135**.
 >
 > | Commit | What | Deployed? |
 > |---|---|---|
@@ -40,7 +41,8 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > | `a4ebf0f` | oracle re-frozen under one printed-weight rule; $0 re-score | — |
 > | `1768a1d` | **B1** — required per-ingredient `grams` | ❌ **on branch only** |
 > | `1ce5139` | **B10** — per-ingredient macros, item totals summed in code | ❌ **on branch only** |
-> | `766be47` | **B11** — carb-trap sentence in the prompt (**falsified, do not keep as written**) | ❌ **on branch only** |
+> | `766be47` | **B11** — carb-trap sentence in the prompt (**falsified, reverted by B12**) | ❌ **on branch only** |
+> | `<b12>` | **B12** — per-100 g composition, priced in code; B11's food list deleted | ❌ **on branch only** |
 >
 > **The measured story, in one table.** Failed field/draws, scored under the PASTEL beans
 > tolerance (see Rulings) — 36 field/draws total:
@@ -50,53 +52,60 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > | baseline-002r | **6** | CESAR calories −24%, CESAR fat −32% | 18.6% |
 > | iter-b1-001 (grams only) | 13 | spread over 5 item/field combinations | 25.5% |
 > | iter-b10-001 (summed) | 7 | **carbs ×6**, one Salmone calorie draw | 20.6% |
-> | **iter-b11-001 (carb sentence)** | **6** | **carbs ×6** — CESAR ×3, PASTEL ×3 | 19.6% |
+> | iter-b11-001 (carb sentence) | **6** | **carbs ×6** — CESAR ×3, PASTEL ×3 | 19.6% |
+> | **iter-b12-001 (per-100 g)** | 11 | **fat ×5**, calories ×2, carb ×4 | 26.8% |
 >
-> ⚠️ **Neither B10 nor B11 beat the baseline.** B11 ties it at 6, but **only because Salmone went
-> 2/3 → 3/3 for reasons B11's sentence cannot explain** (unstable salmon/cream fat guesses). The
-> number it aimed at did not move at all. Do not read the tie as progress.
+> ⚠️ **No iteration has beaten the baseline on the count, and B12 is the worst of them.** Read the
+> count and the mechanism separately — **B12 is the run that actually solved something**, and its
+> regression is in a different field from the one it fixed.
 >
-> **What the three iterations established (all from archived responses, $0 to re-check):**
+> **What the four iterations established (all from archived responses, $0 to re-check):**
 >
 > 1. **B1 alone regressed things**, but proved the model **portions** well — its gram sums land
 >    exactly on the printed weight on 2 of 3 dishes, which it never did before.
 > 2. **B10 proved the model can add.** Once given per-ingredient macros, the item totals it emits
 >    match our computed sums almost exactly and stop being multiples of 5.
-> 3. **B11 proved the ceiling is not the prompt's wording.** PASTEL's carb sum is **50 g in both
->    runs**. Worse, the sentence listed `corn kernels` among high-carb foods and the model took the
->    licence: sweet corn went 15 g → **20 g** of carb at 30 g (USDA: 5.6 g). Self-inflicted, now
->    measured.
-> 4. **The real defect, and the phase's most useful finding: the carb number is anchored to the
->    ingredient's CATEGORY TAG, not to the food.** Anything tagged `carb` gets a round 20 or 30 g
->    regardless of what it is or how much there is — croutons 30 g→20, corn 30 g→20, baguette
->    50 g→30, beans 70 g→20. Three of four are right *by coincidence of their gram weights*.
->    **B10 did not remove the round-number guess; it pushed it down one level**, where summing it
->    produced an unround total that looked fixed.
-> 5. **The two surviving carb failures have different causes.** CESAR is a **portion** error
->    (croutons 30 g vs the oracle's 20 g; its carb *density* is right). PASTEL is a **composition**
->    error and is now almost entirely the corn. Never fix them with one lever.
+> 3. **B11 proved prompt wording is not the lever, and that a food list BACKFIRES.** PASTEL's carb
+>    sum was 50 g in both runs. The sentence listed `corn kernels` among high-carb foods and the
+>    model took the licence: sweet corn went 15 g → **20 g** of carb at 30 g. That list was a
+>    roll-call of our own three fixtures' ingredients — **the test set had leaked into the shipped
+>    prompt.** `enrich_test.ts` now guards step 2 against any food name mechanically.
+> 4. **B12 SOLVED per-ingredient composition.** Asked for composition per 100 g instead of "the
+>    amount in this serving", the model returns USDA values to the decimal — corn **19** vs USDA
+>    18.7, tomato sauce 5 vs 5.3, parmesan `35.8/3.2/25.8` vs `35.75/3.22/25.83`. The knowledge was
+>    always there; asking for an *amount* was destroying it, because an amount comes back as a round
+>    number anchored to the ingredient's **category tag** (anything tagged `carb` got 20 or 30 g
+>    whatever the food or weight).
+> 5. **Therefore: composition is done, PORTIONING is the whole remaining carbohydrate problem.**
+>    PASTEL's carb now passes 3/3. CESAR still fails because its croutons are portioned 30 g against
+>    the oracle's 20 g while priced correctly at 72 g/100 g; Salmone fails two draws because its
+>    baguette portion **collapsed from 50 g to 10 g** between draws.
+> 6. **B12's bill: fat fell on all three dishes** — and the model's fat is below the oracle on all
+>    six fats measured, because it quotes **plain/raw reference entries** while the oracle
+>    deliberately prices *as-prepared* ones. **Confounded**: B12 also deleted step 2's only fat
+>    signal (`dressing and cream are mostly fat`) because that clause named our fixtures' own
+>    ingredients. Which of the two caused the fat drop is exactly what B13 separates.
 >
-> ### 🎯 NEXT ACTION — B12, and nothing else
+> ### 🎯 NEXT ACTION — B13, and nothing else
 >
-> Ask for `carb_per_100g` (a composition fact) instead of `carb_g` (an amount), and compute
-> `carb_g = per100 × grams / 100` in `sumIngredientMacros`, which already owns the arithmetic. Same
-> for protein and fat so the fields stay symmetrical. This is **the B10 trick one level down** —
-> take away the step where a round guess is possible and leave only knowledge the model has.
-> In the same change, **delete `corn kernels` from B11's sentence, or delete the sentence** — it is
-> measured net-negative and would otherwise confound the run.
+> Add one clause to step 2 stating the **basis**: the composition wanted is the ingredient *as it
+> arrives at the table*, including fat absorbed in frying or added in sauces and dressings — not the
+> plain or raw reference form. **Name no food, no cuisine, no dish** (lesson from #3; the test
+> enforces it). Change nothing else, so the run is a clean A/B against iter-b12-001.
 >
-> Then run `BENCH_DRAWS=3 BENCH_RUN_ID=iter-b12-001` (~$0.04, **needs his explicit approval
-> first**). Falsifier: corn's carb must fall from 20 g to roughly 5–6 g at 30 g. **CESAR's carb
-> will not move and that does not count against B12** — it is a portion error (finding 5).
-> If B12 fails too, the ceiling is the model's per-100 g knowledge itself and static per-100 g
-> anchors in the prompt text (B11 option 2) are the last free lever.
+> Then run `BENCH_DRAWS=3 BENCH_RUN_ID=iter-b13-001` (~$0.04, **needs his explicit approval
+> first**). Predictions: fat rises on all three dishes; **carbohydrate composition must NOT
+> regress** (corn stays near 19/100 g); CESAR's carb still fails, because it is a portion error and
+> nothing here touches portions.
 >
-> Full detail is in the log's **B12** entry and the **iter-b11-001** notes.
+> **After B13, the target is PORTIONING** — the largest untouched source of error left, addressed
+> by B4. Full detail is in the log's **B13** entry and the **iter-b12-001** notes.
 >
-> **Do NOT do any of these without a new ruling:** deploy B1, B10 or B11 (none has beaten
+> **Do NOT do any of these without a new ruling:** deploy B1, B10, B11 or B12 (none has beaten
 > baseline); re-run a baseline (two exist); re-open the printed-weight scope question (ruled,
-> applied blind); change the frozen oracle (Santiago's alone); or start B2/B4/B5/B6/B9 (none has
-> run data behind it, unlike B12).
+> applied blind); change the frozen oracle (Santiago's alone); put any food, dish or cuisine name
+> into the nutrition step of the prompt (measured harmful, and now unit-tested); or start
+> B2/B5/B6/B9 (none has run data behind it, unlike B13 and B4).
 >
 > **Read in this order — these files are the whole phase:**
 > 1. `stage2-macro-benchmark.md` — Backlog (B1–B11), Runs, Rulings. **This is the living

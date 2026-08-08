@@ -33,7 +33,7 @@ export type UsdaRecipeIngredient = {
   name: string;
   fdc_id: number;
   grams: number;
-  basis: "raw" | "cooked";
+  basis: "raw" | "cooked" | "prepared";
   per_100g: MacroValues;
 };
 
@@ -198,8 +198,13 @@ export function validateRecipe(
     if (!Number.isFinite(ingredient.grams) || ingredient.grams <= 0) {
       throw new Error("Each recipe ingredient requires positive finite grams");
     }
-    if (ingredient.basis !== "raw" && ingredient.basis !== "cooked") {
-      throw new Error("Each recipe ingredient requires a raw or cooked basis");
+    if (
+      ingredient.basis !== "raw" && ingredient.basis !== "cooked" &&
+      ingredient.basis !== "prepared"
+    ) {
+      throw new Error(
+        "Each recipe ingredient requires a raw, cooked, or prepared basis",
+      );
     }
     for (const field of MACRO_FIELDS) {
       if (

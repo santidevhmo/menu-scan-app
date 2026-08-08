@@ -39,6 +39,13 @@ Deno.test("validateRecipe rejects missing source data and mismatched totals", ()
   );
 });
 
+Deno.test("validateRecipe accepts a prepared ingredient", () => {
+  validateRecipe(
+    [{ ...recipe[0], basis: "prepared" }],
+    sumRecipe([{ ...recipe[0], basis: "prepared" }]),
+  );
+});
+
 const cannedFoodDetail = {
   foodNutrients: [
     { nutrient: { name: "Energy", unitName: "kcal" }, amount: 165 },

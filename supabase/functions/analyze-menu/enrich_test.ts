@@ -1,5 +1,6 @@
 import {
   assertEquals,
+  assertRejects,
   assertThrows,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
@@ -136,6 +137,21 @@ Deno.test("production enrichment serializes the pinned Stage-2 model", async () 
   try {
     await enrichBatch([extracted("A")], "test-key");
     assertEquals(request?.model, "gpt-4o-2024-08-06");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("production enrichment rejects a malformed OpenAI response clearly", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({}));
+
+  try {
+    await assertRejects(
+      () => enrichBatch([extracted("A")], "test-key"),
+      Error,
+      "OpenAI response missing choices",
+    );
   } finally {
     globalThis.fetch = originalFetch;
   }

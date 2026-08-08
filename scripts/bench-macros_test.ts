@@ -3,6 +3,9 @@ import {
   assertThrows,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
+  ENRICH_MODEL,
+} from "../supabase/functions/analyze-menu/enrich.ts";
+import {
   enrich,
   loadOracle,
   type OracleEntry,
@@ -12,10 +15,10 @@ import {
 
 const ORACLE_PATH = "scripts/fixtures/macro-oracle.json";
 
-Deno.test("the shipped oracle file has three items with the expected names", () => {
-  const raw = JSON.parse(Deno.readTextFileSync(ORACLE_PATH)) as OracleEntry[];
-  assertEquals(raw.length, 3);
-  assertEquals(raw.map((entry) => entry.name), [
+Deno.test("the shipped oracle is complete and USDA-validated", () => {
+  const entries = loadOracle(ORACLE_PATH);
+  assertEquals(entries.length, 3);
+  assertEquals(entries.map((entry) => entry.name), [
     "CESAR (200 g)",
     "Salmone toscano",
     "PASTEL AZTECA (300gr.)",
@@ -186,7 +189,7 @@ Deno.test("macro benchmark serializes the pinned Stage-2 enrichment model", asyn
 
   try {
     await enrich([]);
-    assertEquals(request?.model, "gpt-4o-2024-08-06");
+    assertEquals(request?.model, ENRICH_MODEL);
   } finally {
     globalThis.fetch = originalFetch;
     if (originalKey === undefined) Deno.env.delete("OPENAI_API_KEY");

@@ -3,6 +3,7 @@
 import type { ExtractedMenuItem } from "../supabase/functions/analyze-menu/extract.ts";
 import {
   ENRICH_PROMPT,
+  ENRICH_MODEL,
   ENRICH_SCHEMA_OPENAI,
   type EnrichedItem,
 } from "../supabase/functions/analyze-menu/enrich.ts";
@@ -117,7 +118,7 @@ export async function enrich(items: ExtractedMenuItem[]): Promise<{ items: Enric
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o-2024-08-06",
+      model: ENRICH_MODEL,
       messages: [{
         role: "user",
         content: `${ENRICH_PROMPT}\n\nMenu items (JSON):\n${JSON.stringify(items)}`,

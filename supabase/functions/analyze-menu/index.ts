@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import {
   chunk,
   enrichBatch,
+  ENRICH_MODEL,
   type EnrichedItem,
   type ExtractedItem,
   reassembleEnriched,
@@ -149,7 +150,7 @@ export async function handleRequest(req: Request): Promise<Response> {
 
       if (provider === "gpt-4o") {
         result = await callGptEnrich(inputItems as ExtractedItem[]);
-        modelId = "gpt-4o-2024-08-06";
+        modelId = ENRICH_MODEL;
       } else {
         throw new Error(`Unknown enrichment provider: ${provider}`);
       }

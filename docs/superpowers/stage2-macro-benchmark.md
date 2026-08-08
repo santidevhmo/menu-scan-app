@@ -4,9 +4,9 @@ Single append-only log for this phase. Spec:
 `specs/2026-08-07-stage2-macro-enrichment-benchmark-design.md`.
 Plan: `plans/2026-08-07-stage2-macro-benchmark.md`.
 
-**Three artifacts only** in this phase — `scripts/fixtures/macro-oracle.json` (Santiago's
-numbers), `scripts/bench-macros.ts` (the runner), and this log. Deliberately smaller than the
-OCR phase's six, which drifted.
+**Evidence set:** oracle JSON, runner, this log, request/response archives, an
+execution-evidence manifest, and three local raw draw archives. The baseline evidence
+limitations below still apply.
 
 Newest **Runs** entries go at the BOTTOM.
 
@@ -40,7 +40,7 @@ function v24.
 ## Research findings (2026-08-07) — read before designing any change
 
 Full report: `research/2026-08-07-macro-estimation-prior-art.md`. It is dated evidence, not
-status, so it does not count against the three-artifact rule and cannot rot.
+status.
 
 **What it settles:**
 
@@ -314,10 +314,11 @@ not a determinism claim.
 
 **Execution evidence and limitation:**
 `scripts/fixtures/caches/macro-bench.baseline-002-execution-manifest.json` maps only this
-baseline's mirror request/response and its three raw local responses. The executor reported one
-mirror operation plus one `BENCH_DRAWS=3` invocation: four paid calls, with no retry requested.
-The manifest is post-hoc evidence, not a transport log or command transcript; it does not
-independently establish endpoint, HTTP status, exhaustive call count, or absence of retries.
+baseline's mirror request/response and its three raw local responses. Those artifacts prove the
+reported pinned response/model evidence, but do not prove linkage to deployed commit `0476481`,
+endpoint, exhaustive call count, or absence of retries. The executor reported one mirror
+operation plus one `BENCH_DRAWS=3` invocation: four paid calls, with no retry requested. The
+manifest is post-hoc evidence, not a transport log or command transcript.
 
 **Per-item, per-field results (range across three local draws):**
 

@@ -90,6 +90,11 @@ export const ENRICH_SCHEMA_OPENAI = {
 
 const MODEL_TIMEOUT_MS = 120000;
 const ENRICH_SEED = 17; // fixed seed + temperature 0 run-to-run stability
+export const ENRICH_MODEL = "gpt-4o-2024-08-06";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
 
 async function fetchWithTimeout(
   url: string,
@@ -125,7 +130,7 @@ export async function enrichBatch(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-2024-08-06",
+        model: ENRICH_MODEL,
         messages: [{
           role: "user",
           content: `${ENRICH_PROMPT}\n\nMenu items (JSON):\n${JSON.stringify(items)}`,
@@ -139,10 +144,33 @@ export async function enrichBatch(
       }),
     },
   );
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.error?.message ?? "OpenAI API error");
-  console.log("[openai] finish_reason:", json.choices[0].finish_reason);
-  return JSON.parse(json.choices[0].message.content).items as EnrichedItem[];
+  const json: unknown = await res.json();
+  const errorMessage = isRecord(json) && isRecord(json.error) &&
+      typeof json.error.message === "string"
+    ? json.error.message
+    : undefined;
+  if (!res.ok) throw new Error(errorMessage ?? "OpenAI API error");
+
+  const choices = isRecord(json) && Array.isArray(json.choices)
+    ? json.choices
+    : undefined;
+  const first = choices?.[0];
+  if (!isRecord(first)) throw new Error("OpenAI response missing choices");
+  const finishReason = typeof first.finish_reason === "string"
+    ? first.finish_reason
+    : undefined;
+  const content = isRecord(first.message) &&
+      typeof first.message.content === "string"
+    ? first.message.content
+    : undefined;
+  if (!content) throw new Error("OpenAI response missing content");
+
+  console.log("[openai] finish_reason:", finishReason);
+  const parsed: unknown = JSON.parse(content);
+  if (!isRecord(parsed) || !Array.isArray(parsed.items)) {
+    throw new Error("OpenAI response missing items");
+  }
+  return parsed.items as EnrichedItem[];
 }
 
 /** Splits array into consecutive batches at most `size`. */

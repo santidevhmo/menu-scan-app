@@ -24,7 +24,7 @@
 - USDA FDC is the only nutrition source. Open Food Facts is out of scope.
 - Use `USDA_FDC_API_KEY` from gitignored `.env.local`; never print, commit, or put the key in a command or log.
 - All USDA calls are benchmark preparation only. The app and production enrichment pipeline make no USDA request.
-- Search results are candidates, not truth. Santiago approves every selected FDC ID, grams value, and raw/cooked basis before `macro-oracle.json` changes.
+- Search results are candidates, not truth. Santiago approves every selected FDC ID, grams value, and raw/cooked/prepared basis before `macro-oracle.json` changes.
 - Preserve the three existing dish texts and their photo-verified fields. Do not alter any other fixture or oracle.
 - The existing model baseline completed after the oracle passed Task 4 and separate paid-run
   approval was given.
@@ -178,11 +178,11 @@ deno run --allow-read --allow-env --allow-net scripts/usda-oracle.ts search "gri
 
 Present candidates as `description | data_type | fdc_id`; do not edit the oracle or infer portions yet.
 
-**Abort condition:** if no candidate represents the printed ingredient and stated raw/cooked basis, stop. Do not substitute a nearest dish-level food or a branded food not named on the menu.
+**Abort condition:** if no candidate represents the printed ingredient and stated raw/cooked/prepared basis, stop. Do not substitute a nearest dish-level food or a branded food not named on the menu.
 
 - [x] **Step 2: Obtain Santiago’s approval of every recipe row**
 
-For each ingredient, show `ingredient name | selected FDC description and ID | edible grams | raw/cooked basis`. Wait for explicit approval. These choices are the human-owned part of the oracle.
+For each ingredient, show `ingredient name | selected FDC description and ID | edible grams | raw/cooked/prepared basis`. Wait for explicit approval. These choices are the human-owned part of the oracle.
 
 - [x] **Step 3: Add approved recipe inputs and prepare the oracle**
 

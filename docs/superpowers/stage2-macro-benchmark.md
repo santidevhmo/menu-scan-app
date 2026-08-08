@@ -248,3 +248,24 @@ Keep the `confidence` label as a coarse UI hint at most; do not gate on it.
   (el-marcos). Spread deliberately rather than three from one menu — lesson 19.
 - **2026-08-07 — Baseline first, no fixes before a failure list.** The pipeline is measured
   exactly as it ships before any change is designed.
+- **2026-08-07 — NO DATABASE OR API IN THE ENRICHMENT PIPELINE (Santiago).** Stage 2 stays a
+  pure LLM step. Accuracy is pursued through **chain-of-thought, prompt wording, schema and
+  field-order design, and pipeline structure** (batch size, staged vs single call, abstain
+  path) — never a runtime lookup. Evidence: RAG against a food-composition database did not
+  reliably beat plain CoT and made GPT-4o-mini *worse*; the retrieval DB's 100 g metric entries
+  did not map onto natural servings, and the model already holds the knowledge, so retrieval
+  added noise (NutriBench §"RAG Does Not Always Improve Performance").
+
+  **Three things this ruling does NOT forbid — read before assuming otherwise:**
+
+  1. **Static portion anchors written into the prompt text** (e.g. FDA RACC category amounts,
+     FNDDS portion weights as literal reference values). This is prompting, not a lookup: no
+     call, no key, no latency, nothing to be unavailable at runtime. It is the research's
+     recommended alternative *to* RAG, and it stays available.
+  2. **USDA FoodData Central for the ORACLE.** That is Santiago's measuring instrument for
+     building ground truth by hand. It is never called by the app and never ships. Do not
+     confuse "we use USDA" with "the app uses USDA".
+  3. **A licensed chain-menu lookup layer** (Nutritionix / MenuStat) for matching *known chain
+     restaurant items* to their published nutrition, with the LLM as fallback for independents.
+     That is a different problem from estimation — matching, not inferring. **Parked as a
+     post-release option, not scheduled, not part of this phase.**

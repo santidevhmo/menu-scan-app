@@ -13,6 +13,7 @@ import {
   sumIngredientMacros,
   fallbackEnriched,
   reassembleEnriched,
+  resolveGrams,
 } from "./enrich.ts";
 
 const extracted = (name: string): ExtractedItem => ({
@@ -24,10 +25,12 @@ const extracted = (name: string): ExtractedItem => ({
 
 const enriched = (name: string): EnrichedItem => ({
   ...extracted(name),
+  printed_total_g: null,
   ingredients: [{
     name: "x",
     category: "protein",
-    grams: 100,
+    within_printed_weight: true,
+    typical_serving_g: 100,
     protein_per_100g: 31,
     carb_per_100g: 0,
     fat_per_100g: 3.6,
@@ -290,10 +293,10 @@ Deno.test("every ingredient carries per-100g composition, not an amount (B12)", 
 
 Deno.test("sumIngredientMacros prices composition at each ingredient's weight", () => {
   const got = sumIngredientMacros([
-    // Per 100 g, so the 150 g of rice must contribute 1.5x its stated numbers.
-    // Drop the scaling and protein comes out 34, not 35.
-    { name: "a", category: "protein", grams: 100, protein_per_100g: 31, carb_per_100g: 0, fat_per_100g: 3.6 },
-    { name: "b", category: "carb", grams: 150, protein_per_100g: 2.7, carb_per_100g: 28, fat_per_100g: 0.3 },
+    // Per 100 g, so the 150 g second ingredient must contribute 1.5x its stated
+    // numbers. Drop the scaling and protein comes out 34, not 35.
+    { name: "a", category: "protein", within_printed_weight: true, typical_serving_g: 100, protein_per_100g: 31, carb_per_100g: 0, fat_per_100g: 3.6 },
+    { name: "b", category: "carb", within_printed_weight: true, typical_serving_g: 150, protein_per_100g: 2.7, carb_per_100g: 28, fat_per_100g: 0.3 },
   ]);
 
   assertEquals(got.protein_g, 35); // 31 + 4.05
@@ -305,8 +308,8 @@ Deno.test("sumIngredientMacros prices composition at each ingredient's weight", 
 
 Deno.test("sumIngredientMacros rounds to whole grams and calories", () => {
   const got = sumIngredientMacros([
-    { name: "a", category: "fat", grams: 10, protein_per_100g: 12.4, carb_per_100g: 3.1, fat_per_100g: 24.6 },
-    { name: "b", category: "veg", grams: 10, protein_per_100g: 1.1, carb_per_100g: 2.4, fat_per_100g: 0.7 },
+    { name: "a", category: "fat", within_printed_weight: true, typical_serving_g: 10, protein_per_100g: 12.4, carb_per_100g: 3.1, fat_per_100g: 24.6 },
+    { name: "b", category: "veg", within_printed_weight: true, typical_serving_g: 10, protein_per_100g: 1.1, carb_per_100g: 2.4, fat_per_100g: 0.7 },
   ]);
 
   // 1.35 -> 1, 0.55 -> 1, 2.53 -> 3; calories from the UNROUNDED sums so the
@@ -315,6 +318,66 @@ Deno.test("sumIngredientMacros rounds to whole grams and calories", () => {
   assertEquals(got.carb_g, 1);
   assertEquals(got.fat_g, 3);
   assertEquals(got.estimated_calories, Math.round(4 * 1.35 + 4 * 0.55 + 9 * 2.53));
+});
+
+Deno.test("resolveGrams fits the printed weight and leaves accompaniments alone (B4)", () => {
+  // The Salmone case. Its menu prints 200g for the plate, but the baguette is
+  // served alongside and sits OUTSIDE that weight - the oracle's total is 245 g.
+  // Scaling every ingredient to 200 would pull the baguette inside and collapse
+  // the dish, destroying a judgment the model already gets right.
+  const got = resolveGrams(
+    [
+      { name: "plate a", category: "protein", within_printed_weight: true, typical_serving_g: 100, protein_per_100g: 0, carb_per_100g: 0, fat_per_100g: 0 },
+      { name: "plate b", category: "veg", within_printed_weight: true, typical_serving_g: 150, protein_per_100g: 0, carb_per_100g: 0, fat_per_100g: 0 },
+      { name: "side", category: "carb", within_printed_weight: false, typical_serving_g: 50, protein_per_100g: 0, carb_per_100g: 0, fat_per_100g: 0 },
+    ],
+    200,
+  );
+
+  // Inside sums to 250, printed is 200, so the scale is 0.8 - applied to the two
+  // plate items only. The side keeps its stated serving.
+  assertEquals(got, [80, 120, 50]);
+  assertEquals(got[0] + got[1], 200);
+});
+
+Deno.test("resolveGrams passes servings through when no weight is printed (B4)", () => {
+  const got = resolveGrams(
+    [
+      { name: "a", category: "protein", within_printed_weight: true, typical_serving_g: 140, protein_per_100g: 0, carb_per_100g: 0, fat_per_100g: 0 },
+      { name: "b", category: "veg", within_printed_weight: true, typical_serving_g: 60, protein_per_100g: 0, carb_per_100g: 0, fat_per_100g: 0 },
+    ],
+    null,
+  );
+
+  assertEquals(got, [140, 60]);
+});
+
+Deno.test("resolveGrams does not divide by zero when nothing is inside (B4)", () => {
+  // The retry path backfills dropped items with an empty ingredient list, and a
+  // dish can legitimately be all-accompaniment. Either must not produce NaN.
+  assertEquals(resolveGrams([], 200), []);
+  assertEquals(
+    resolveGrams(
+      [{ name: "side", category: "carb", within_printed_weight: false, typical_serving_g: 45, protein_per_100g: 0, carb_per_100g: 0, fat_per_100g: 0 }],
+      200,
+    ),
+    [45],
+  );
+});
+
+Deno.test("sumIngredientMacros prices the SCALED grams, not the raw servings (B4)", () => {
+  // Servings sum to 250 inside a printed 200, so every inside ingredient is
+  // priced at 0.8x what it stated. Without the scaling this returns 62.
+  const got = sumIngredientMacros(
+    [
+      { name: "a", category: "protein", within_printed_weight: true, typical_serving_g: 100, protein_per_100g: 20, carb_per_100g: 0, fat_per_100g: 0 },
+      { name: "b", category: "carb", within_printed_weight: true, typical_serving_g: 150, protein_per_100g: 28, carb_per_100g: 0, fat_per_100g: 0 },
+    ],
+    200,
+  );
+
+  // 80 g x 20/100 + 120 g x 28/100 = 16 + 33.6 = 49.6 -> 50
+  assertEquals(got.protein_g, 50);
 });
 
 Deno.test("sumIngredientMacros returns zeros for an empty ingredient list", () => {

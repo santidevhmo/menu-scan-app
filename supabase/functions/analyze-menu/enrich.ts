@@ -9,10 +9,12 @@ export interface ExtractedItem {
 export type IngredientCategory = "protein" | "carb" | "fat" | "veg" | "other";
 
 export interface EnrichedItem extends ExtractedItem {
+  printed_total_g: number | null;
   ingredients: {
     name: string;
     category: IngredientCategory;
-    grams: number;
+    within_printed_weight: boolean;
+    typical_serving_g: number;
     protein_per_100g: number;
     carb_per_100g: number;
     fat_per_100g: number;
@@ -209,25 +211,57 @@ export async function enrichBatch(
 }
 
 /**
+ * Per-ingredient grams. The model states a conventional serving for each
+ * ingredient; we fit the ones the menu's printed weight covers to that weight
+ * and let accompaniments through untouched.
+ *
+ * B4: the model used to pick gram numbers that had to sum to the printed
+ * weight - constrained arithmetic, and it solved it by rounding. Across five
+ * archived runs every gram it emitted was a multiple of 5 and CESAR's
+ * displacement sat at exactly 20.0% in all 15 draws, never once moving. Taking
+ * the fitting away is the same move as B10 (we do the addition) and B12 (we do
+ * the multiplication).
+ */
+export function resolveGrams(
+  ingredients: EnrichedItem["ingredients"],
+  printedTotalG?: number | null,
+): number[] {
+  const inside = ingredients.reduce(
+    (sum, i) => i.within_printed_weight ? sum + (i.typical_serving_g ?? 0) : sum,
+    0,
+  );
+  // No printed weight, or nothing tagged inside it, means there is nothing to
+  // fit to and the model's own servings stand. Requiring inside > 0 is also what
+  // keeps an empty ingredient list from producing NaN.
+  const scale = printedTotalG && inside > 0 ? printedTotalG / inside : 1;
+
+  return ingredients.map((i) =>
+    (i.typical_serving_g ?? 0) * (i.within_printed_weight ? scale : 1)
+  );
+}
+
+/**
  * Item macros summed from the model's per-ingredient composition, priced at each
- * ingredient's gram weight, with calories derived by Atwater (4 kcal/g protein,
- * 4 carb, 9 fat) so the total is always consistent with its own parts.
+ * ingredient's resolved gram weight, with calories derived by Atwater (4 kcal/g
+ * protein, 4 carb, 9 fat) so the total is always consistent with its own parts.
  */
 export function sumIngredientMacros(
   ingredients: EnrichedItem["ingredients"],
+  printedTotalG?: number | null,
 ): Pick<
   EnrichedItem,
   "protein_g" | "carb_g" | "fat_g" | "estimated_calories"
 > {
+  const grams = resolveGrams(ingredients, printedTotalG);
   let protein = 0, carb = 0, fat = 0;
-  for (const i of ingredients) {
+  ingredients.forEach((i, idx) => {
     // B12: per-100 g composition x portion. The model states what the food IS;
-    // the multiplication is ours.
-    const share = (i.grams ?? 0) / 100;
+    // the multiplication is ours. B4: and so is the portion.
+    const share = grams[idx] / 100;
     protein += (i.protein_per_100g ?? 0) * share;
     carb += (i.carb_per_100g ?? 0) * share;
     fat += (i.fat_per_100g ?? 0) * share;
-  }
+  });
   return {
     protein_g: Math.round(protein),
     carb_g: Math.round(carb),
@@ -255,6 +289,7 @@ export function fallbackEnriched(src: ExtractedItem): EnrichedItem {
     description: src.description ?? "",
     price: src.price ?? null,
     category: src.category ?? "other",
+    printed_total_g: null,
     ingredients: [],
     protein_g: 0,
     carb_g: 0,

@@ -35,21 +35,21 @@ the explicit exception: it is the bounded Phase-9 workstream record, not a compe
 **Stage-2 macro-enrichment handoff (2026-08-08) — THIS IS THE ACTIVE WORK.** The benchmark is
 built and frozen; six prompt/schema iterations have been measured against it. Production is
 untouched — the deployed edge function still runs the original pre-B1 prompt, pinned to
-`gpt-4o-2024-08-06`. Phase spend to date: **$0.226**.
+`gpt-4o-2024-08-06`. Phase spend to date: **$0.374**.
 
 Read **② the roadmap's `🎯 CURRENT PHASE` block first** — it now carries the full takeover
 briefing: every commit and whether it is deployed, the runs side by side, what each proved,
-the explicit next action (**reproduce iter-b4-001**), and the list of things not to do without a
-new ruling. Then read `docs/superpowers/stage2-macro-benchmark.md`, which is the living document
+the explicit next action (**Santiago's decision — deploy, fix the last defect, or settle the
+oracle question**), and the list of things not to do without a new ruling. Then read `docs/superpowers/stage2-macro-benchmark.md`, which is the living document
 (Backlog B1–B13, Runs, Rulings). `docs/superpowers/plans/2026-08-07-stage2-macro-benchmark.md`
 holds the paid-run procedure; its Tasks 1–5 are COMPLETE. The USDA plan is the frozen
 oracle/provenance reference: `docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
 
-**One-line state:** B12 solved composition, B13 showed fat was a portion problem too, and **B4
-scored 36/36 — the first clean sweep and the first thing to beat the baseline** — by asking the
-model for a *conventional serving* per ingredient and fitting those to the printed weight in code.
-**It is one run and 13 of its 36 fields are within 5 points of failing; reproduce it before
-believing it.**
+**One-line state:** B12 solved composition, B13 showed fat was a portion problem too, and **B4 beat
+the baseline and reproduced over four runs** — 2 failed field/draws out of 144, against the best
+prior result of 6 out of 36 — by asking the model for a *conventional serving* per ingredient and
+fitting those to the printed weight in code. **Quote the range 0–1, never the single zero run.**
+One defect remains: PASTEL's cheese serving drops 50 g → 30 g in 2 of 12 draws.
 
 ⚠️ **Never put a food, dish or cuisine name into the nutrition step of `ENRICH_PROMPT`.** B11 did
 (its "high carb" list was a roll-call of our own three fixtures) and it measurably made sweet corn

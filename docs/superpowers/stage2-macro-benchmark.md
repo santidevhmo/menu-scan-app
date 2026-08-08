@@ -484,6 +484,7 @@ work that a model upgrade would have closed anyway.
 | iter-b12-001 | 2026-08-08 | **B12** — per-ingredient composition asked PER 100 g and priced in code; B11's food list deleted; $0.042 | CESAR 0/3 · Salmone 1/3 · Pastel 0/3 | **SPLIT: composition SOLVED, tally REGRESSED.** Per-100 g values now match USDA to the decimal (corn 19 vs 18.7; the B11 defect is gone) and every surviving carb miss is a PORTION error. But 11 failed field/draws under the beans tolerance (worst since B1) — fat fell on all three dishes. **Confounded: two things changed.** Creates **B13**. NOT deployed |
 | iter-b13-001 | 2026-08-08 | **B13** — one step-2 clause naming the raw reference figure as the wrong answer (`06fd49a`); $0.042 | CESAR 0/3 · Salmone **3/3** · Pastel 0/3 | **FALSIFIED, yet the best tally of the series.** Not one fat composition value moved (CESAR fat −35.5% in all 3 draws of BOTH runs) — but portions stabilised and the count fell 11 → **6**, tying baseline. The gain is NOT attributable to the clause. Fat now decomposes to portioning like carbs did. Points to **B4**. NOT deployed |
 | iter-b4-001 | 2026-08-08 | **B4** — model states a conventional serving per ingredient + tags what the printed weight covers; code fits it (`fae3291`, `ff93de2`, `950c334`, `3ce44b7`); $0.049 | CESAR **3/3** · Salmone **3/3** · Pastel **3/3** | **0 failed field/draws — the first clean sweep of the phase**, beating baseline's 6 for the first time. Mean abs error **16.7%**, also the best. Portions unfroze after five static runs: the model tagged PASTEL's beans OUTSIDE the printed weight unprompted, closing a −21.1% total error frozen since iter-b1-001. **Caveat: 13 of 36 fields sit within 5pp of their band edge.** NOT deployed |
+| iter-b4-002/003/004 | 2026-08-08 | **reproduction** — identical code, no change under test; $0.148 | 8/9 · 9/9 · 8/9 item-draws | **HOLDS.** 0 / 1 / 0 / 1 failed field/draws across the four runs — **2 of 144**. Mean abs error 16.1–17.3%. Both failures are the same defect: PASTEL's cheese serving dropping 50 g → 30 g in 2 of 12 draws. Beans tagged OUTSIDE in **12/12**. NOT deployed |
 
 ### baseline-001 — notes
 
@@ -1324,6 +1325,58 @@ three dishes. Before deployment it needs at least a repeat run to establish the 
 standing rule is that a single run is never quoted as quality — and the margins in Finding 6 mean the
 result would not survive a tighter band. What it does establish is that portioning was the remaining
 error and that it is reachable.
+
+### iter-b4-002 / 003 / 004 — reproduction (2026-08-08, $0.148, 3 runs × 3 draws, NOT deployed)
+
+**No change under test.** Identical code at `33309a1`, working tree clean, three more 3-draw runs.
+Santiago asked for three repeats before the B4 result was believed. **This is the range, and the
+range is what to quote — never iter-b4-001 alone.**
+
+| run | failed field/draws (of 36) | mean abs error |
+|---|---:|---:|
+| iter-b4-001 | 0 | 16.7% |
+| iter-b4-002 | 1 | 17.3% |
+| iter-b4-003 | 0 | 16.3% |
+| iter-b4-004 | 1 | 16.1% |
+| **across 4 runs** | **2 of 144 (1.4%)** | **16.1–17.3%** |
+
+For comparison, the best prior result in the phase was baseline-002r's **6 of 36 (16.7%)** failures.
+
+**FINDING 1 — the result holds, and the residual is a single named defect.** Both failures are the
+same field on the same dish with the same magnitude: PASTEL fat, model 15 g vs oracle 26.8 g,
+−44.1%. Both trace to one number:
+
+| | cheese serving | outcome |
+|---|---:|---|
+| 10 of 12 draws | **50 g** | PASTEL passes |
+| iter-b4-002 d2, iter-b4-004 d1 | **30 g** | PASTEL fat fails |
+
+The cheese blend is the dish's dominant fat at 30 g/100 g. When its serving drops to 30 g the inside
+sum falls to 280, so `resolveGrams` scales it back up to only 32.1 g, and the dish's fat falls from
+~20 g to 15 g. **Nothing else varies.** This is a portion-stability problem on one ingredient, not a
+systemic one — and it is the natural next target.
+
+**FINDING 2 — the accompaniment judgment is completely stable.** The model tagged PASTEL's beans
+`within_printed_weight: false` in **12 of 12 draws**, and Salmone's baguette likewise. iter-b4-001's
+result was not a fluke. `printed_total_g` also read correctly in **12 of 12** — 200, 200, 300 — with
+no nulls and no misreads.
+
+**FINDING 3 — displacement is near-deterministic under B4.** CESAR 20.4% in 11 of 12 draws (20.0%
+once); Salmone **14.3% in 12 of 12** with a total error of +2.0% in 12 of 12; PASTEL 18.4–22.7%. The
+remaining PASTEL spread is the beans serving flapping between 50 g and 100 g against the oracle's
+80 g — which never costs a field, because beans are low-fat and the bands absorb it.
+
+**What is still NOT settled.** The margins from iter-b4-001 Finding 6 have not moved: a large share
+of fields pass within a few percentage points of their band edge, so a tighter tolerance would still
+fail them. And the oracle-strictness question (iter-b13-001 Finding 5) remains open and unanswered.
+
+**Archived raw responses:** `scripts/fixtures/caches/macro-bench.iter-b4-{002,003,004}-d{0,1,2}.raw.json`.
+Cost from the archived `usage` blocks: 8,802 input + 12,571 output tokens = **$0.1477** for the three
+runs. Four-run B4 total **$0.197**. Phase total **$0.374**.
+
+**Verdict: B4 is reproduced and is the best result the phase has produced by a wide margin.** Whether
+that justifies deployment is Santiago's call, not a measurement question. The one open engineering
+target is the cheese-serving instability in Finding 1.
 
 ---
 

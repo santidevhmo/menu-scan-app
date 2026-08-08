@@ -60,11 +60,19 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > | iter-b12-001 (per-100 g) | 11 | **fat ×5**, calories ×2, carb ×4 | 26.8% |
 > | iter-b13-001 (raw-reference clause) | 6 | fat ×4, carb ×2 | 21.3% |
 > | **iter-b4-001 (conventional servings)** | **0** | **nothing** | **16.7%** |
+> | **iter-b4-002 / 003 / 004 (reproduction)** | **1 / 0 / 1** | PASTEL fat only | 16.1–17.3% |
 >
-> ✅ **B4 is the first iteration to beat the baseline, and it did it by clearing the board.** Read it
-> with two caveats, both in the run notes: it is **one run**, and **13 of its 36 fields sit within 5
-> percentage points of their band edge**. It is not "solved" — it is the first result worth
-> reproducing.
+> ✅ **B4 is the first iteration to beat the baseline, and it REPRODUCED.** Four runs, twelve draws:
+> **2 failed field/draws out of 144 (1.4%)**, against the best prior result of 6 out of 36. Quote the
+> **range 0–1**, never iter-b4-001's zero alone.
+>
+> Both failures are one named defect: PASTEL's cheese serving drops 50 g → 30 g in 2 of 12 draws, and
+> since cheese is that dish's dominant fat its fat falls to −44.1%. Everything else is near
+> deterministic — beans tagged outside the printed weight in **12/12**, `printed_total_g` read
+> correctly in **12/12**, Salmone displacement 14.3% in **12/12**.
+>
+> Still not settled: a large share of passing fields sit within a few points of their band edge, so a
+> tighter tolerance would fail them.
 >
 > **What the six iterations established (all from archived responses, $0 to re-check):**
 >
@@ -113,15 +121,20 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >    and leave it knowledge. B10 took the addition, B12 the multiplication, B4 the fitting. The two
 >    changes that only added instructions (B11, B13) moved nothing.
 >
-> ### 🎯 NEXT ACTION — reproduce iter-b4-001 before believing it
+> ### 🎯 NEXT ACTION — Santiago's decision, not a measurement
 >
-> **One run is not quality.** Re-run `BENCH_DRAWS=3 BENCH_RUN_ID=iter-b4-002` on the unchanged code
-> (~$0.05, needs Santiago's explicit approval) and report the **range** across both runs. Two reasons
-> this matters more than usual here: 13 of the 36 fields sit within 5 percentage points of their band
-> edge, so the sweep is not comfortable; and B4's own prediction 6 was falsified, meaning the model's
-> beans decision was not something we predicted and may not be stable.
+> The reproduction is done (four runs, 2 failures in 144). **The measurement question that opened this
+> phase is answered.** What remains is a judgment call that belongs to Santiago:
 >
-> **Only after a reproduced result** is deployment worth discussing — and that is Santiago's call.
+> 1. **Deploy B4?** It is the best result the phase has produced by a wide margin and is reproduced.
+>    Nothing in this phase has ever been deployed; the live edge function still runs the pre-B1 prompt.
+>    Deployment has never been authorised and must not happen without his explicit ruling.
+> 2. **Fix the cheese-serving instability first?** The one remaining defect: PASTEL's cheese serving
+>    drops 50 g → 30 g in 2 of 12 draws. Small, specific, and the only thing standing between the
+>    current range (0–1) and a clean 0.
+> 3. **Answer the open oracle-strictness question** (iter-b13-001 Finding 5) before either.
+>
+> There is no obviously-correct order, and no further run is needed to inform the choice.
 >
 > 📊 **Prior to weigh, not a prohibition (Santiago, 2026-08-08).** The scoreboard on *kinds of change*
 > so far: **prompt wording 0 for 2** (B11, B13 — ~$0.076, zero target numbers moved), **mechanism

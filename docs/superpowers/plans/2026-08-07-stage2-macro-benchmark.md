@@ -80,9 +80,12 @@ fat values, proving the fat gap was not a wording problem either and that CESAR'
 one ingredient and mostly a portion call**; **B4 then cleared the board** by asking for a conventional
 serving per ingredient and fitting it to the printed weight in code.
 
-**Nothing is deployed, including B4.** It has beaten the baseline exactly once, 13 of its 36 fields
-sit within 5 percentage points of their band edge, and one of its own predictions was falsified.
-**Next action: reproduce it as `iter-b4-002` on unchanged code and report the range.**
+**B4 reproduced over four runs** (`iter-b4-001` through `-004`, unchanged code): failed field/draws
+**0 / 1 / 0 / 1**, i.e. **2 of 144**, mean abs error 16.1–17.3%. Quote that range, never the single
+zero. Both failures are one defect — PASTEL's cheese serving dropping 50 g → 30 g in 2 of 12 draws.
+
+**Nothing is deployed, including B4.** Deployment has never been authorised and is Santiago's ruling
+alone.
 
 ⚠️ **Never name a food, dish or cuisine in the prompt's nutrition step.** B11's "high carb" list was
 a roll-call of the three fixtures' own ingredients and measurably worsened sweet corn.

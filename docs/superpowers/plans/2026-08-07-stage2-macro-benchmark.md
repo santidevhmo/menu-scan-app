@@ -303,9 +303,21 @@ When Santiago fills one in, it looks like:
   "protein_g": 38,
   "carb_g": 14,
   "fat_g": 25,
-  "assumed": "150g grilled chicken breast, 60g romaine, 30g parmesan, 25g croutons, 40g full-fat caesar dressing; chicken grilled not breaded"
+  "assumed": "USDA FDC lookups: 150g grilled chicken breast, 60g romaine, 30g parmesan, 25g croutons, 40g full-fat caesar dressing; chicken grilled not breaded"
 }
 ```
+
+**The numbers must come from database lookups, not judgment** (research 2026-08-07, and
+spec §4). This is measured, not stylistic: unaided nutritionists scored **42.45%** on
+NutriBench's human study — *below* GPT-4o + CoT's 60.56% on the same queries — and only reached
+parity (59.72%) once given database access. An unaided oracle would be a weaker instrument than
+the model it grades, and every disagreement would be unattributable.
+
+Use **USDA FoodData Central** (free public REST API, ingredient-level per-100 g composition and
+standard portion gram weights) or an equivalent table, and **name the source in the `assumed`
+line**, as above. For the Mexican dish (`PASTEL AZTECA`), USDA coverage is weak — SMAE or the
+INSP/Zubirán Mexican composition tables are the better source, and which one was used matters
+enough to record.
 
 - [ ] **Step 3: Verify the JSON parses and the text round-trips**
 
@@ -837,6 +849,16 @@ For Salmone toscano, did it read 200g as the whole dish or as the salmon alone?>
 **Self-consistency check ($0, from the archived responses):** <do the reported macros imply
 the reported calories under Atwater factors — 4 kcal/g protein, 4 kcal/g carb, 9 kcal/g fat?
 Relevant to backlog B5.>
+
+**Dispersion across draws ($0, backlog B8):** <coefficient of variation of estimated_calories
+per item across the three draws. Research shows the model's own confidence label is a
+near-chance failure predictor (AUROC ~0.5-0.65), while sampling dispersion is better supported -
+so record whether high dispersion lines up with the items that fell outside tolerance. Three
+draws is a small sample; report it as an observation, not a calibration.>
+
+**Confidence label vs reality ($0):** <what confidence did the model self-report for each item,
+and did it correspond to whether the item passed? Expect it not to - recording it either way
+gives us our own evidence rather than only the literature's.>
 
 **Archived raw responses:** `scripts/fixtures/caches/macro-bench.baseline-001-d{0,1,2}.raw.json`
 ```

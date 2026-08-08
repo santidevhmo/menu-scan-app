@@ -157,6 +157,21 @@ Effort is bounded: one line per item, written once. If an item fails and the lin
 explain why, break down that item only — do not pre-pay full per-ingredient detail for items
 that pass.
 
+### The oracle MUST be built from database lookups, not judgment (added 2026-08-07, research)
+
+Not a style preference — a measured one. In NutriBench's own human study, **unaided
+nutritionists scored 42.45% Acc@7.5, below GPT-4o + CoT's 60.56% on the same queries.** The best
+nutritionist only reached parity (59.72%) **once allowed database access.**
+
+An unaided human oracle would therefore be a *weaker* instrument than the model it is grading,
+and any disagreement would be unattributable. Look each ingredient up — USDA FoodData Central
+(free public REST API, ingredient-level per-100 g composition and standard portion weights) or
+an equivalent table — and name the source used in the `assumed` line.
+
+Corollary for interpreting results: the oracle is a careful reference point, **not ground
+truth**. Inter-dietitian agreement on portion estimation is only moderate (ICC 0.59–0.77). Do
+not read a disagreement inside the tolerance band as the model being wrong.
+
 ---
 
 ## 5. The harness
@@ -244,6 +259,19 @@ The `confidence: high|medium|low` field already exists and `ENRICH_PROMPT` alrea
 `low` for evocative/promotional names. **Whether it actually fires correctly is unmeasured.**
 That measurement is the natural first step of phase 2, and it is free — it re-reads the
 baseline's archived responses.
+
+**⚠ Revised 2026-08-07 by research — do not build suppression on that field.** Verbalized LLM
+confidence is measurably poorly calibrated: overconfident, ECE ≈0.1 even at ≥70B parameters, and
+**AUROC ≈0.5–0.65 as a failure predictor — near chance** (Xiong et al., arXiv:2306.13063). It
+also saturates to a few values, which defeats thresholding. Two better-supported directions,
+both recorded as backlog items:
+
+- **B8 — sampling dispersion.** The spread of `estimated_calories` across draws is a
+  better-evidenced uncertainty signal than a self-reported label. First measurement costs **$0**:
+  we already archive three draws.
+- **B7 — an explicit `insufficient_information` option, plus a hard gate.** Providing the option
+  outright measurably increases safe abstention far more than prompt tweaks; models
+  systematically under-abstain without it, so the gate on name-only items is not optional.
 
 ---
 

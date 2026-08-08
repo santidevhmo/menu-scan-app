@@ -17,8 +17,9 @@ missing is a measured benchmark, including printed-weight items so P2's "prefer 
 rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope detail: item #5 of
 "Release scope decision" below.
 
-> **🚧 IN PROGRESS — benchmark built, FIVE fixes measured, composition solved, PORTIONING is now
-> the whole remaining problem and prompt wording is exhausted as a lever. Nothing deployed.**
+> **🚧 IN PROGRESS — benchmark built, SIX fixes measured. B4 scored 36/36, the first clean sweep and
+> the first time anything has beaten the baseline. Needs a repeat run before it means anything.
+> Nothing deployed.**
 >
 > **Branch `worktree-stage2-macro-benchmark`** (off `main` at `04e77ab`). All of this phase's
 > work lives there, NOT on `main`. The local worktree is `.claude/worktrees/stage2-macro-benchmark/`
@@ -28,9 +29,9 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > ### Taking over? Read this block, then the log. Everything else is history.
 >
 > **Where the phase stands (2026-08-08):** the harness, the USDA oracle and the scoring are done
-> and frozen. Five prompt/schema iterations have been measured against them. Production is
+> and frozen. Six prompt/schema iterations have been measured against them. Production is
 > **untouched** — the deployed edge function still runs the original pre-B1 prompt. Total spend on
-> this phase to date: **$0.177**.
+> this phase to date: **$0.226**.
 >
 > | Commit | What | Deployed? |
 > |---|---|---|
@@ -44,6 +45,8 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > | `766be47` | **B11** — carb-trap sentence in the prompt (**falsified, reverted by B12**) | ❌ **on branch only** |
 > | `692a8af` | **B12** — per-100 g composition, priced in code; B11's food list deleted | ❌ **on branch only** |
 > | `06fd49a` | **B13** — step-2 clause rejecting the raw reference figure (**falsified, kept**) | ❌ **on branch only** |
+> | `55f924d` | portion scorer — displacement metric, benchmark-only, $0 | — |
+> | `fae3291` `ff93de2` `950c334` `3ce44b7` | **B4** — conventional servings + printed-weight scope tag, fitted in code | ❌ **on branch only** |
 >
 > **The measured story, in one table.** Failed field/draws, scored under the PASTEL beans
 > tolerance (see Rulings) — 36 field/draws total:
@@ -55,13 +58,15 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > | iter-b10-001 (summed) | 7 | **carbs ×6**, one Salmone calorie draw | 20.6% |
 > | iter-b11-001 (carb sentence) | **6** | **carbs ×6** — CESAR ×3, PASTEL ×3 | 19.6% |
 > | iter-b12-001 (per-100 g) | 11 | **fat ×5**, calories ×2, carb ×4 | 26.8% |
-> | **iter-b13-001 (raw-reference clause)** | **6** | fat ×4, carb ×2 | 21.3% |
+> | iter-b13-001 (raw-reference clause) | 6 | fat ×4, carb ×2 | 21.3% |
+> | **iter-b4-001 (conventional servings)** | **0** | **nothing** | **16.7%** |
 >
-> ⚠️ **No iteration has beaten the baseline on the count.** Three have now tied its 6 and none has
-> passed it. Read the count and the mechanism separately — **B12 is the run that actually solved
-> something**, and B13's tie is **not attributable to B13** (see #7).
+> ✅ **B4 is the first iteration to beat the baseline, and it did it by clearing the board.** Read it
+> with two caveats, both in the run notes: it is **one run**, and **13 of its 36 fields sit within 5
+> percentage points of their band edge**. It is not "solved" — it is the first result worth
+> reproducing.
 >
-> **What the five iterations established (all from archived responses, $0 to re-check):**
+> **What the six iterations established (all from archived responses, $0 to re-check):**
 >
 > 1. **B1 alone regressed things**, but proved the model **portions** well — its gram sums land
 >    exactly on the printed weight on 2 of 3 dishes, which it never did before.
@@ -96,12 +101,27 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >    gap is **91% one ingredient** (Caesar dressing) — and 5.78 g of that 9.34 g is the portion call
 >    (20 g vs the oracle's 30 g) against only 3.56 g for the composition.
 >
-> ### 🎯 NEXT ACTION — B4 (portioning), and nothing else
+> 9. **B4 closed it, and cheaply.** Two $0 measurements set it up: an ablation showing the model's own
+>    composition scores **36/36 once given the oracle's grams**, and a new portion scorer showing
+>    CESAR's *displacement* — the share of a dish's mass on the wrong ingredient — was **20.0% in all
+>    fifteen draws of all five prior runs**, never once moving. Asked for a **conventional serving**
+>    instead of a number that had to sum to the printed weight, the model said Caesar dressing is 30 g
+>    (the oracle's figure exactly; it had said 20 g every time before) and tagged PASTEL's beans as
+>    sitting *outside* the printed weight unprompted, closing a −21.1% total error frozen since B1.
+>    Result: **0 failed field/draws.** The backlog's two-call design was never needed.
+> 10. **The pattern that has now won three times out of three:** take arithmetic away from the model
+>    and leave it knowledge. B10 took the addition, B12 the multiplication, B4 the fitting. The two
+>    changes that only added instructions (B11, B13) moved nothing.
 >
-> Two independent lines of evidence now terminate at the same place. Carbohydrate: PASTEL passes 3/3
-> on composition alone, while CESAR's croutons are priced correctly at 72 g/100 g and portioned 30 g
-> against the oracle's 20 g, and Salmone's baguette collapsed 50 g → 10 g between draws in B12. Fat:
-> #8 above. **Portioning is the entire remaining error surface.**
+> ### 🎯 NEXT ACTION — reproduce iter-b4-001 before believing it
+>
+> **One run is not quality.** Re-run `BENCH_DRAWS=3 BENCH_RUN_ID=iter-b4-002` on the unchanged code
+> (~$0.05, needs Santiago's explicit approval) and report the **range** across both runs. Two reasons
+> this matters more than usual here: 13 of the 36 fields sit within 5 percentage points of their band
+> edge, so the sweep is not comfortable; and B4's own prediction 6 was falsified, meaning the model's
+> beans decision was not something we predicted and may not be stable.
+>
+> **Only after a reproduced result** is deployment worth discussing — and that is Santiago's call.
 >
 > 📊 **Prior to weigh, not a prohibition (Santiago, 2026-08-08).** The scoreboard on *kinds of change*
 > so far: **prompt wording 0 for 2** (B11, B13 — ~$0.076, zero target numbers moved), **mechanism
@@ -119,8 +139,9 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > than the richest available entry, some of what is scored as model error is an oracle choice. Raised
 > in the iter-b13-001 notes, Finding 5.
 >
-> **Do NOT do any of these without a new ruling:** deploy B1, B10, B11, B12 or B13 (none has beaten
-> baseline); re-run a baseline (two exist); re-open the printed-weight scope question (ruled,
+> **Do NOT do any of these without a new ruling:** deploy anything — including B4, which has beaten
+> baseline exactly once and is unreproduced; re-run a baseline (two exist); re-open the
+> printed-weight scope question (ruled,
 > applied blind); change the frozen oracle (Santiago's alone); or put any food, dish or cuisine name
 > into the nutrition step of the prompt (measured harmful, and now unit-tested). **Deprioritise**
 > B2/B5/B6/B9 — no run data stands behind them, unlike B4 — but that is sequencing, not a ban.

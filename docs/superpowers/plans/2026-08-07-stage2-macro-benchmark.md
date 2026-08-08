@@ -70,14 +70,19 @@ procedure** (mirror check, archiving, hand audit, what to report), which every i
 | `766be47` | **B11** — carb-trap sentence in `ENRICH_PROMPT`; **falsified**, reverted by B12 | ❌ branch only |
 | `692a8af` | **B12** — per-100 g composition priced in code; B11's food list deleted | ❌ branch only |
 | `06fd49a` | **B13** — step-2 clause rejecting the raw reference figure; **falsified**, kept | ❌ branch only |
+| `55f924d` | portion scorer — displacement metric, benchmark-only, $0 | — |
+| `fae3291` `ff93de2` `950c334` `3ce44b7` | **B4** — conventional servings + printed-weight scope tag, fitted in code | ❌ branch only |
 
 Failed field/draws (of 36), under the PASTEL beans tolerance: baseline-002r **6** →
 iter-b1-001 **13** → iter-b10-001 **7** → iter-b11-001 **6** → iter-b12-001 **11** →
-iter-b13-001 **6**. **No iteration has beaten the baseline, so none is deployed** — three have tied
-it — but read the count and the mechanism separately. B12 **solved per-ingredient composition** (the
-model now returns USDA per-100 g values to the decimal). B13 then moved **zero** fat values, proving
-the fat gap is not a wording problem either, and showed CESAR's fat gap is **91% one ingredient and
-mostly a portion call**. **Next action is B4 — portioning.** See the iter-b13-001 notes.
+iter-b13-001 **6** → **iter-b4-001 0**. B12 **solved per-ingredient composition**; B13 moved **zero**
+fat values, proving the fat gap was not a wording problem either and that CESAR's fat gap was **91%
+one ingredient and mostly a portion call**; **B4 then cleared the board** by asking for a conventional
+serving per ingredient and fitting it to the printed weight in code.
+
+**Nothing is deployed, including B4.** It has beaten the baseline exactly once, 13 of its 36 fields
+sit within 5 percentage points of their band edge, and one of its own predictions was falsified.
+**Next action: reproduce it as `iter-b4-002` on unchanged code and report the range.**
 
 ⚠️ **Never name a food, dish or cuisine in the prompt's nutrition step.** B11's "high carb" list was
 a roll-call of the three fixtures' own ingredients and measurably worsened sweet corn.

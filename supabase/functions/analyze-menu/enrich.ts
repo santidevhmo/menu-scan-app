@@ -31,7 +31,7 @@ export interface EnrichedItem extends ExtractedItem {
 // Exported so offline harnesses run the real prompt rather than a copy.
 export const ENRICH_PROMPT =
   `You estimate the nutrition profile of restaurant menu items. For each item, work step by step:
-1. List the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other, and give its edible weight in grams for one serving. If the item's name or description contains explicit weight or portion info — e.g. (280gr), chicken (80gr), 2 chicken breasts sliced — use it as the primary basis for gram estimates rather than a typical portion; prefer printed weights over guesses.
+1. Give "printed_total_g": the weight printed on the menu for this item — e.g. (280gr), 200g — or null when the menu prints none. Then list the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other. Set "within_printed_weight" to false for anything the menu presents as served alongside the item rather than as part of it, because a printed weight normally describes the item itself and not what accompanies it. Give "typical_serving_g": what a normal restaurant serving of that ingredient is when it appears in this role, whether as the centrepiece, as a sauce or dressing, or as a garnish. Give the conventional serving for the ingredient itself — these are rescaled to the printed weight afterwards, so they do not need to add up to anything.
 2. For each ingredient, give its composition PER 100 g of that ingredient as served: protein_per_100g, carb_per_100g and fat_per_100g. These describe the food itself, not the size of the portion — the amount in this serving is calculated from them and the gram weight, so give the composition and let the weight do the rest. Base them on what the food is actually made of, including its water content, and on how it is prepared (fat absorbed or added in cooking counts), rather than on which macro the ingredient is best known for. Where a food is normally cooked, sauced or seasoned before it reaches the table, give the figures for that prepared version — the plain or raw reference figure for the same food understates the fat that preparation adds. The item's totals are added up from these, rather than estimating the totals directly, so each ingredient's numbers must stand on their own.
 3. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive, leaving you with little ingredient information to go on.
 List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, shellfish, egg, soy). Use an empty allergens array when none are inferred; do not include "none". Preserve each item's name, description, price, and category exactly as given. Do NOT sort the items. Return one object per input item, in the same order.`;
@@ -42,9 +42,17 @@ const ENRICH_INGREDIENT_PROPS = {
     type: "string",
     enum: ["protein", "carb", "fat", "veg", "other"],
   },
-  // Makes the model commit to a portion out loud before it totals anything.
-  // Required, not optional: strict mode only emits required fields.
-  grams: { type: "number" },
+  // B4: decided BEFORE the serving, so the model settles what the printed
+  // weight covers before it sizes anything. Also the first time the
+  // inside-or-outside judgment is recorded rather than inferred by adding up
+  // grams afterwards - it is where PASTEL's whole portion error lives.
+  within_printed_weight: { type: "boolean" },
+  // B4: a conventional serving of this ingredient, NOT a number fitted to the
+  // dish. resolveGrams does the fitting. iter-b1-001 through iter-b13-001 asked
+  // for a fitted gram figure and got constrained arithmetic solved by rounding:
+  // every gram was a multiple of 5 and CESAR's displacement was 20.0% in all 15
+  // draws. Required, not optional: strict mode only emits required fields.
+  typical_serving_g: { type: "number" },
   // B12: composition per 100 g, NOT the amount in this serving - the amount is
   // grams x per100 / 100, done in sumIngredientMacros. iter-b11-001 measured
   // that an asked-for amount comes back as a round number anchored to the
@@ -73,6 +81,11 @@ export const ENRICH_SCHEMA_OPENAI = {
             type: "string",
             enum: ["food", "side", "dessert", "drink", "other"],
           },
+          // B4: before ingredients on purpose - the model commits to the dish's
+          // printed weight before portioning anything into it. Asked for rather
+          // than parsed in code: the three benchmark fixtures alone print
+          // "200 g", "200g" and "300gr.", and this prompt ships worldwide.
+          printed_total_g: { type: ["number", "null"] },
           ingredients: {
             type: "array",
             items: {
@@ -81,7 +94,8 @@ export const ENRICH_SCHEMA_OPENAI = {
               required: [
                 "name",
                 "category",
-                "grams",
+                "within_printed_weight",
+                "typical_serving_g",
                 "protein_per_100g",
                 "carb_per_100g",
                 "fat_per_100g",
@@ -101,6 +115,7 @@ export const ENRICH_SCHEMA_OPENAI = {
           "description",
           "price",
           "category",
+          "printed_total_g",
           "ingredients",
           "protein_g",
           "carb_g",
@@ -206,7 +221,7 @@ export async function enrichBatch(
   // we do the addition, which is the one step a computer cannot get wrong.
   return (parsed.items as EnrichedItem[]).map((item) => ({
     ...item,
-    ...sumIngredientMacros(item.ingredients ?? []),
+    ...sumIngredientMacros(item.ingredients ?? [], item.printed_total_g),
   }));
 }
 

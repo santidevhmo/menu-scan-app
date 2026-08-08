@@ -128,16 +128,22 @@ Deno.test("enrich schema generates ingredients BEFORE the macro numbers", () => 
 });
 
 Deno.test("enrich prompt still instructs the two-step ingredient-then-estimate method", () => {
-  assertEquals(ENRICH_PROMPT.includes("List the most likely ingredients"), true);
-  assertEquals(ENRICH_PROMPT.includes("prefer printed weights over guesses"), true);
+  // Case-insensitive: B4 moved this clause mid-sentence, behind the printed
+  // weight, so it is no longer sentence-initial. The step it guards is the same.
+  assertEquals(/list the most likely ingredients/i.test(ENRICH_PROMPT), true);
+  // B4 replaced "prefer printed weights over guesses" - the printed weight is
+  // now a field the model reports and code scales to, not a basis for its own
+  // gram guesses.
+  assertEquals(ENRICH_PROMPT.includes("printed_total_g"), true);
 });
 
-Deno.test("every ingredient must carry a gram weight (B1)", () => {
-  // Without this the model records WHAT is in a dish and never HOW MUCH, so its
-  // portion assumption is unrecoverable from its output. baseline-002 showed
-  // every macro it emitted was a multiple of 5 and every calorie a multiple of
-  // 50 across 3 dishes x 3 draws - the signature of a guess made straight at
-  // the macro level rather than a sum over portions.
+Deno.test("every ingredient must carry a serving and a scope tag (B1, B4)", () => {
+  // Without a per-ingredient size the model records WHAT is in a dish and never
+  // HOW MUCH, so its portion assumption is unrecoverable from its output.
+  // baseline-002 showed every macro it emitted was a multiple of 5 and every
+  // calorie a multiple of 50 across 3 dishes x 3 draws - the signature of a
+  // guess made straight at the macro level rather than a sum over portions.
+  // B4 keeps that property and changes only what the size means.
   const schema = ENRICH_SCHEMA_OPENAI as {
     properties: {
       items: {
@@ -155,23 +161,62 @@ Deno.test("every ingredient must carry a gram weight (B1)", () => {
     };
   };
   const ingredient = schema.properties.items.items.properties.ingredients.items;
+  const keys = Object.keys(ingredient.properties);
 
+  for (const field of ["within_printed_weight", "typical_serving_g"]) {
+    assertEquals(keys.includes(field), true, `ingredients[] must declare ${field}`);
+    // Strict mode only emits a field when it is required, so declaring it is not
+    // enough - an optional field would be silently omitted on every call.
+    assertEquals(
+      ingredient.required.includes(field),
+      true,
+      `${field} must be required, or strict mode will omit it`,
+    );
+  }
+  // The scope decision must come first: settle what the printed weight covers
+  // before sizing anything into it.
   assertEquals(
-    Object.keys(ingredient.properties).includes("grams"),
+    keys.indexOf("within_printed_weight") < keys.indexOf("typical_serving_g"),
     true,
-    "ingredients[] must declare a grams property",
+    "within_printed_weight must precede typical_serving_g",
   );
-  // Strict mode only emits a field when it is required, so declaring it is not
-  // enough - an optional grams would be silently omitted on every call.
+  // A literal gram figure must not be askable - that is ours to derive, and
+  // asking for it is exactly what produced five runs of frozen portions.
   assertEquals(
-    ingredient.required.includes("grams"),
-    true,
-    "grams must be required, or strict mode will omit it",
+    keys.includes("grams"),
+    false,
+    "ingredients[] must not ask for grams - resolveGrams computes them",
   );
 });
 
-Deno.test("enrich prompt asks for per-ingredient grams and derived totals (B1)", () => {
-  assertEquals(ENRICH_PROMPT.includes("edible weight in grams"), true);
+Deno.test("the item commits to its printed weight before portioning (B4)", () => {
+  const schema = ENRICH_SCHEMA_OPENAI as {
+    properties: {
+      items: { items: { properties: Record<string, unknown>; required: string[] } };
+    };
+  };
+  const item = schema.properties.items.items;
+  const keys = Object.keys(item.properties);
+
+  assertEquals(item.required.includes("printed_total_g"), true);
+  assertEquals(
+    keys.indexOf("printed_total_g") < keys.indexOf("ingredients"),
+    true,
+    "printed_total_g must precede ingredients",
+  );
+  // Null is how "the menu prints no weight" is expressed; without it in the type
+  // union strict mode forces the model to invent a number.
+  assertEquals(
+    (item.properties.printed_total_g as { type: string[] }).type,
+    ["number", "null"],
+  );
+});
+
+Deno.test("enrich prompt asks for per-ingredient servings and derived totals (B1, B4)", () => {
+  // B4 replaced "edible weight in grams" with a conventional serving; the grams
+  // are ours to derive. The B1 property being guarded is unchanged: the item's
+  // totals must still be summed from the parts rather than guessed directly.
+  assertEquals(ENRICH_PROMPT.includes("typical_serving_g"), true);
   assertEquals(
     ENRICH_PROMPT.includes("rather than estimating the totals directly"),
     true,

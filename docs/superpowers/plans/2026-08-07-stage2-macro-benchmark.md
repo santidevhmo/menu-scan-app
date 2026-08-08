@@ -84,6 +84,11 @@ serving per ingredient and fitting it to the printed weight in code.
 **0 / 1 / 0 / 1**, i.e. **2 of 144**, mean abs error 16.1–17.3%. Quote that range, never the single
 zero. Both failures are one defect — PASTEL's cheese serving dropping 50 g → 30 g in 2 of 12 draws.
 
+🏁 **Tagged `stage2-b4-checkpoint` (→ `22a1ac5`) as the fallback and publishable state** (Santiago,
+2026-08-08). Restore from it if a later evaluation regresses. **Every new iteration is measured
+against it, not the baseline**, and it is only superseded by a result that beats the *range* over at
+least 4 runs × 3 draws.
+
 **Nothing is deployed, including B4.** Deployment has never been authorised and is Santiago's ruling
 alone.
 

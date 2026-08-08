@@ -51,6 +51,14 @@ prior result of 6 out of 36 — by asking the model for a *conventional serving*
 fitting those to the printed weight in code. **Quote the range 0–1, never the single zero run.**
 One defect remains: PASTEL's cheese serving drops 50 g → 30 g in 2 of 12 draws.
 
+🏁 **There is a fallback checkpoint: the git tag `stage2-b4-checkpoint` (commit `22a1ac5`).**
+Santiago ruled it the best version yet and the state to restore from if a later evaluation regresses,
+or to publish from if the phase stops. `git show stage2-b4-checkpoint` prints the measured result;
+`git diff stage2-b4-checkpoint -- supabase/functions/analyze-menu/` shows what has drifted since.
+**Measure every new iteration against it, not against the baseline — the bar is 0–1 failed
+field/draws now, and beating it requires beating the RANGE over 4 runs × 3 draws, not one lucky run.**
+Do not move or delete the tag. Being publishable is still NOT permission to deploy.
+
 ⚠️ **Never put a food, dish or cuisine name into the nutrition step of `ENRICH_PROMPT`.** B11 did
 (its "high carb" list was a roll-call of our own three fixtures) and it measurably made sweet corn
 worse. `enrich_test.ts` now fails the build if one reappears.

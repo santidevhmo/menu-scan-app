@@ -121,20 +121,30 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >    and leave it knowledge. B10 took the addition, B12 the multiplication, B4 the fitting. The two
 >    changes that only added instructions (B11, B13) moved nothing.
 >
-> ### 🎯 NEXT ACTION — Santiago's decision, not a measurement
+> ### 🏁 CHECKPOINT SET — `stage2-b4-checkpoint` (tag → `22a1ac5`)
 >
-> The reproduction is done (four runs, 2 failures in 144). **The measurement question that opened this
-> phase is answered.** What remains is a judgment call that belongs to Santiago:
+> **Santiago ruled on 2026-08-08 that B4 is the best version yet and the state to fall back to.** If a
+> later evaluation regresses, restore from this tag; if the phase stops, publish from it. Full ruling,
+> the absolute-error table behind it, and the rules for superseding it are in the log's **Rulings**
+> section. `git show stage2-b4-checkpoint` prints the measured result.
 >
-> 1. **Deploy B4?** It is the best result the phase has produced by a wide margin and is reproduced.
->    Nothing in this phase has ever been deployed; the live edge function still runs the pre-B1 prompt.
->    Deployment has never been authorised and must not happen without his explicit ruling.
-> 2. **Fix the cheese-serving instability first?** The one remaining defect: PASTEL's cheese serving
->    drops 50 g → 30 g in 2 of 12 draws. Small, specific, and the only thing standing between the
->    current range (0–1) and a clean 0.
-> 3. **Answer the open oracle-strictness question** (iter-b13-001 Finding 5) before either.
+> **The bar is now 0–1 failed field/draws, not the baseline's 6.** A new result replaces the checkpoint
+> only if it beats that *range* over at least 4 runs × 3 draws — one better run is never enough.
 >
-> There is no obviously-correct order, and no further run is needed to inform the choice.
+> ### 🎯 NEXT ACTION — keep iterating; nothing is blocked
+>
+> Santiago's direction: continue running evaluations until the results feel solid, with the checkpoint
+> as insurance. The open targets, in the order I would take them:
+>
+> 1. **The cheese-serving instability.** PASTEL's cheese drops 50 g → 30 g in 2 of 12 draws, taking
+>    that dish's fat to −44.1%. It is the *only* failing field in 144 and the sole gap between the
+>    current 0–1 and a clean 0.
+> 2. **The systematic lean.** Carbs read high on all three dishes, fat low on all three — unchanged
+>    since B13. It costs nothing today because the bands absorb it, but it is why 6 of the 11
+>    always-passing fields sit within 5 points of their edge (PASTEL calories clears ±20% by 0.8).
+> 3. **The oracle-strictness question** (iter-b13-001 Finding 5), still open and Santiago's alone.
+>
+> **Deployment remains unauthorised.** Being the publishable state is not permission to publish.
 >
 > 📊 **Prior to weigh, not a prohibition (Santiago, 2026-08-08).** The scoreboard on *kinds of change*
 > so far: **prompt wording 0 for 2** (B11, B13 — ~$0.076, zero target numbers moved), **mechanism

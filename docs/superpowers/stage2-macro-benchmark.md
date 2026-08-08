@@ -1382,6 +1382,47 @@ target is the cheese-serving instability in Finding 1.
 
 ## Rulings
 
+### 🏁 CHECKPOINT — `stage2-b4-checkpoint` is the fallback and the publishable state *(Santiago, 2026-08-08)*
+
+**Git tag `stage2-b4-checkpoint` → commit `22a1ac5`.** Annotated, pushed. `git show stage2-b4-checkpoint`
+prints the full measured result.
+
+**Santiago's ruling:** B4 is accepted as the **best version yet**. Iteration continues, but this state
+is the floor — **if a later evaluation makes things worse, fall back to this tag**, and if the phase
+stops here, this is the state to publish from.
+
+His reasoning, and it is correct: the percentage errors look alarming because the denominators are
+small. In absolute terms **every dish's calorie estimate is within 37 kcal of USDA truth from menu
+text alone**, and the worst carbohydrate miss is 8.5 g.
+
+| dish | calories off by | carbs off by | fat off by |
+|---|---:|---:|---:|
+| CESAR | −35 kcal | +4.6 g | −8.4 g |
+| Salmone | −37 kcal | +6.8 g | −5.5 g |
+| PASTEL | +3 kcal | +8.5 g | −6.8 g |
+
+**What the tag guarantees:** 4 runs × 3 draws, **2 failed field/draws out of 144**, mean abs error
+16.1–17.3%. The previous best in the phase was baseline-002r at 6 of 36.
+
+**Working with it:**
+
+```bash
+git show stage2-b4-checkpoint                                   # the full result, in the tag message
+git diff stage2-b4-checkpoint -- supabase/functions/analyze-menu/   # what has drifted since
+git checkout stage2-b4-checkpoint -- supabase/functions/analyze-menu/enrich.ts   # restore the code
+```
+
+**Rules that follow from this ruling:**
+
+- **Every future iteration is measured against this tag, not against the baseline.** The bar is now
+  0–1 failed field/draws, not 6.
+- **A new result only replaces the checkpoint if it beats the RANGE**, over at least the same 4 runs ×
+  3 draws. One better run is not enough — that is exactly the trap iter-b4-001 alone would have been.
+- **Do not move or delete the tag.** If something better lands, cut a *new* tag and record the
+  supersession here; leave this one reachable.
+- **Deployment is still unauthorised.** Being the publishable state is not permission to publish.
+  Santiago rules on that separately.
+
 ### How to read the track record — insights, not prohibitions *(Santiago, 2026-08-08)*
 
 **These iterations exist to break and confirm hypotheses against grounded data.** A run that

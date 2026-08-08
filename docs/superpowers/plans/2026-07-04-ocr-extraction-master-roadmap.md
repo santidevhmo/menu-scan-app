@@ -17,20 +17,29 @@ missing is a measured benchmark, including printed-weight items so P2's "prefer 
 rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope detail: item #5 of
 "Release scope decision" below.
 
-> **🚧 IN PROGRESS since 2026-08-07 — designed and planned, not yet implemented.**
+> **🚧 IN PROGRESS — the Stage-2 harness foundation is complete; the USDA-backed oracle is next.**
 >
 > **Branch `worktree-stage2-macro-benchmark`** (off `main` at `04e77ab`). All of this phase's
 > work lives there, NOT on `main`. The local worktree is `.claude/worktrees/stage2-macro-benchmark/`
 > — that path is gitignored, so on a fresh machine just `git checkout worktree-stage2-macro-benchmark`
 > and work in the repo root.
 >
-> **Read in this order — the three files are the whole phase:**
+> **Exact resumption point (2026-08-07):** execute
+> `plans/2026-08-07-usda-macro-oracle.md`, **Task 1, Step 1**. Do not make a GPT-4o call yet.
+> The completed harness foundation is committed on this branch: `58dfc1f`, `73efc15`, `6bd5752`,
+> and `f8ca5a2`.
+>
+> **Read in this order — these files are the whole phase:**
 > 1. `specs/2026-08-07-stage2-macro-enrichment-benchmark-design.md` — the approved design: what
 >    is measured, the tolerance bands, the three starting items, and what is explicitly NOT in
 >    scope. Also documents how Stage 2 actually works, which was undocumented before.
-> 2. `plans/2026-08-07-stage2-macro-benchmark.md` — five tasks, TDD, executable by a
->    zero-context engineer. Only Task 5 spends money (<$0.05) and it is double-gated.
-> 3. `stage2-macro-benchmark.md` — the single append-only log: Backlog (B1–B8), Runs, Rulings.
+> 2. `specs/2026-08-07-usda-macro-oracle-design.md` — approved USDA-only oracle design. It
+>    replaces unaided/manual nutrition values; Open Food Facts is out of scope.
+> 3. `plans/2026-08-07-usda-macro-oracle.md` — **the current executable plan**. Resume at
+>    Task 1, Step 1; Tasks 1–4 in the original plan are already complete.
+> 4. `plans/2026-08-07-stage2-macro-benchmark.md` — historical foundation and the later
+>    GPT baseline/mirror-check procedure. Do not repeat its completed Tasks 1–4.
+> 5. `stage2-macro-benchmark.md` — the single append-only log: Backlog (B1–B8), Runs, Rulings.
 >    **This is the living document.** Check its Runs table for what has actually been measured.
 >
 > Supporting evidence: `research/2026-08-07-macro-estimation-prior-art.md` (NutriBench, FDA
@@ -38,9 +47,10 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > proposing any change to the enrichment prompt or schema — it already rules several ideas in
 > and one (RAG over a food database) out.
 >
-> **BLOCKED ON SANTIAGO:** the three `oracle` blocks in `scripts/fixtures/macro-oracle.json`
-> must be filled with his database-backed manual lookups before Task 5 can run. Tasks 1–4 are
-> unblocked and cost nothing.
+> **Current gates:** Tasks 1–2 of the USDA plan are free implementation work. Task 3 is a
+> human-review checkpoint: Santiago must approve every FDC ID, edible grams, and raw/cooked basis
+> before the fixture changes. The GPT baseline remains separately double-gated: a complete local
+> USDA oracle, then Santiago's explicit approval for the <$0.05 GPT-4o calls.
 
 **OPEN ALONGSIDE, not a blocker: the real-restaurant field test.** Every scan to date has been a
 photo of a screen or a gallery import — paper, real lighting, angles and glare are untested.

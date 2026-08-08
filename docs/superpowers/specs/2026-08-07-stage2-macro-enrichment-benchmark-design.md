@@ -118,6 +118,11 @@ pre-emptively fix this; let the baseline show whether it happens.
 
 ## 4. The oracle
 
+> **Implementation status (2026-08-07):** the approved USDA-only recipe-oracle design in
+> `2026-08-07-usda-macro-oracle-design.md` now governs the concrete fixture format and source
+> selection. This section remains the benchmark rationale; do not use its illustrative manual
+> values to populate the oracle.
+
 `scripts/fixtures/macro-oracle.json` — one entry per item, edited by Santiago.
 
 ```json

@@ -20,6 +20,24 @@ Deno script, one append-only log.
 **Spec:** `docs/superpowers/specs/2026-08-07-stage2-macro-enrichment-benchmark-design.md` —
 read it before starting. This plan implements it and does not restate its rationale.
 
+## Execution status — historical foundation
+
+**Do not execute Tasks 1–4 again.** They are complete on branch
+`worktree-stage2-macro-benchmark`:
+
+- Task 1 — prompt/schema export: `58dfc1f`
+- Task 2 — three-item fixture shell: `73efc15`
+- Task 3 — pure macro scoring: `6bd5752`
+- Task 4 — benchmark runner and raw-response archive: `f8ca5a2`
+
+The unchecked boxes below are retained as the original implementation record, not a live task
+list. The manual-value portions of Tasks 2 and 5 are superseded by the approved USDA plan:
+`docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
+
+**Current handoff:** resume that USDA plan at **Task 1, Step 1**. After its reviewed oracle is
+complete, return here only for this plan's Task 5 paid GPT baseline and mirror check; obtain a
+fresh explicit <$0.05 approval first.
+
 ## Before you start (zero-context setup)
 
 You need nothing from any previous conversation. Everything below is verified working as of

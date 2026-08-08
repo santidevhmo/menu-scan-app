@@ -6,6 +6,7 @@ import {
   ENRICH_MODEL,
   ENRICH_SCHEMA_OPENAI,
   type EnrichedItem,
+  sumIngredientMacros,
 } from "../supabase/functions/analyze-menu/enrich.ts";
 import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
 import {
@@ -82,11 +83,16 @@ export function toExtractedItems(entries: OracleEntry[]): ExtractedMenuItem[] {
 }
 
 function modelValues(item: EnrichedItem): MacroValues {
+  // B10: production computes the item totals from the model's per-ingredient
+  // numbers and DISCARDS the ones the model emitted at item level. Scoring
+  // item.protein_g here would grade a value the app never shows (lesson 23 -
+  // the harness must run the real logic, not a parallel copy).
+  const totals = sumIngredientMacros(item.ingredients ?? []);
   return {
-    calories: item.estimated_calories,
-    protein_g: item.protein_g,
-    carb_g: item.carb_g,
-    fat_g: item.fat_g,
+    calories: totals.estimated_calories,
+    protein_g: totals.protein_g,
+    carb_g: totals.carb_g,
+    fat_g: totals.fat_g,
   };
 }
 

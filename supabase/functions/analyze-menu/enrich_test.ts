@@ -10,6 +10,7 @@ import {
   ENRICH_SCHEMA_OPENAI,
   type EnrichedItem,
   type ExtractedItem,
+  sumIngredientMacros,
   fallbackEnriched,
   reassembleEnriched,
 } from "./enrich.ts";
@@ -23,7 +24,14 @@ const extracted = (name: string): ExtractedItem => ({
 
 const enriched = (name: string): EnrichedItem => ({
   ...extracted(name),
-  ingredients: [{ name: "x", category: "protein", grams: 100 }],
+  ingredients: [{
+    name: "x",
+    category: "protein",
+    grams: 100,
+    protein_g: 31,
+    carb_g: 0,
+    fat_g: 3.6,
+  }],
   protein_g: 10,
   carb_g: 5,
   fat_g: 3,
@@ -165,6 +173,81 @@ Deno.test("enrich prompt asks for per-ingredient grams and derived totals (B1)",
     ENRICH_PROMPT.includes("rather than estimating the totals directly"),
     true,
   );
+});
+
+Deno.test("every ingredient carries its own macros so code can sum them (B10)", () => {
+  // iter-b1-001: the model portions well and totals badly. Its own grams,
+  // priced with USDA values, scored BETTER than the macros it reported on two
+  // of three dishes, while every total it emitted stayed a multiple of 5.
+  // So we ask for the per-ingredient numbers and do the addition ourselves.
+  const schema = ENRICH_SCHEMA_OPENAI as {
+    properties: {
+      items: {
+        items: {
+          properties: {
+            ingredients: {
+              items: {
+                properties: Record<string, unknown>;
+                required: string[];
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+  const ingredient = schema.properties.items.items.properties.ingredients.items;
+
+  for (const field of ["protein_g", "carb_g", "fat_g"]) {
+    assertEquals(
+      Object.keys(ingredient.properties).includes(field),
+      true,
+      `ingredients[] must declare ${field}`,
+    );
+    assertEquals(
+      ingredient.required.includes(field),
+      true,
+      `${field} must be required, or strict mode will omit it`,
+    );
+  }
+});
+
+Deno.test("sumIngredientMacros totals the parts and derives calories by Atwater", () => {
+  const got = sumIngredientMacros([
+    { name: "chicken", category: "protein", grams: 100, protein_g: 31, carb_g: 0, fat_g: 3.6 },
+    { name: "rice", category: "carb", grams: 150, protein_g: 4, carb_g: 42, fat_g: 0.4 },
+  ]);
+
+  assertEquals(got.protein_g, 35);
+  assertEquals(got.carb_g, 42);
+  assertEquals(got.fat_g, 4);
+  // 4*35 + 4*42 + 9*4 = 140 + 168 + 36 = 344
+  assertEquals(got.estimated_calories, 344);
+});
+
+Deno.test("sumIngredientMacros rounds to whole grams and calories", () => {
+  const got = sumIngredientMacros([
+    { name: "a", category: "fat", grams: 10, protein_g: 1.24, carb_g: 0.31, fat_g: 2.46 },
+    { name: "b", category: "veg", grams: 10, protein_g: 0.11, carb_g: 0.24, fat_g: 0.07 },
+  ]);
+
+  // 1.35 -> 1, 0.55 -> 1, 2.53 -> 3; calories from the UNROUNDED sums so the
+  // total never drifts from what the parts actually add up to.
+  assertEquals(got.protein_g, 1);
+  assertEquals(got.carb_g, 1);
+  assertEquals(got.fat_g, 3);
+  assertEquals(got.estimated_calories, Math.round(4 * 1.35 + 4 * 0.55 + 9 * 2.53));
+});
+
+Deno.test("sumIngredientMacros returns zeros for an empty ingredient list", () => {
+  // The retry path backfills dropped items with zeros at confidence "low"; an
+  // empty list must not produce NaN and poison the whole batch.
+  assertEquals(sumIngredientMacros([]), {
+    protein_g: 0,
+    carb_g: 0,
+    fat_g: 0,
+    estimated_calories: 0,
+  });
 });
 
 Deno.test("production enrichment serializes the pinned Stage-2 model", async () => {

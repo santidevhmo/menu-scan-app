@@ -9,7 +9,14 @@ export interface ExtractedItem {
 export type IngredientCategory = "protein" | "carb" | "fat" | "veg" | "other";
 
 export interface EnrichedItem extends ExtractedItem {
-  ingredients: { name: string; category: IngredientCategory; grams: number }[];
+  ingredients: {
+    name: string;
+    category: IngredientCategory;
+    grams: number;
+    protein_g: number;
+    carb_g: number;
+    fat_g: number;
+  }[];
   protein_g: number;
   carb_g: number;
   fat_g: number;
@@ -22,8 +29,8 @@ export interface EnrichedItem extends ExtractedItem {
 // Exported so offline harnesses run the real prompt rather than a copy.
 export const ENRICH_PROMPT =
   `You estimate the nutrition profile of restaurant menu items. For each item, work step by step:
-1. List the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other, and give its edible weight in grams for one serving.
-2. Derive protein_g, carb_g, fat_g and estimated_calories for that serving from the per-ingredient grams you just listed — add up what each ingredient contributes, rather than estimating the totals directly. If the item's name or description contains explicit weight or portion info — e.g. (280gr), chicken (80gr), 2 chicken breasts sliced — use it as the primary basis for gram estimates rather than a typical portion; prefer printed weights over guesses.
+1. List the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other, and give its edible weight in grams for one serving. If the item's name or description contains explicit weight or portion info — e.g. (280gr), chicken (80gr), 2 chicken breasts sliced — use it as the primary basis for gram estimates rather than a typical portion; prefer printed weights over guesses.
+2. For each ingredient, give the protein_g, carb_g and fat_g that AT THAT GRAM WEIGHT contributes — not per 100 g, but the actual amount in this serving. Work from the ingredient's real composition and its preparation (e.g. grilled vs fried, dressing and cream are mostly fat). The item's totals are added up from these, rather than estimating the totals directly, so each ingredient's numbers must stand on their own.
 3. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive, leaving you with little ingredient information to go on.
 List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, shellfish, egg, soy). Use an empty allergens array when none are inferred; do not include "none". Preserve each item's name, description, price, and category exactly as given. Do NOT sort the items. Return one object per input item, in the same order.`;
 
@@ -36,6 +43,12 @@ const ENRICH_INGREDIENT_PROPS = {
   // Makes the model commit to a portion out loud before it totals anything.
   // Required, not optional: strict mode only emits required fields.
   grams: { type: "number" },
+  // B10: the model supplies each ingredient's contribution; sumIngredientMacros
+  // adds them up. Grams first so the portion is committed before the numbers
+  // that depend on it - field order is the chain of thought.
+  protein_g: { type: "number" },
+  carb_g: { type: "number" },
+  fat_g: { type: "number" },
 };
 
 // Property order is load-bearing: strict-mode output is emitted in schema order.
@@ -59,7 +72,14 @@ export const ENRICH_SCHEMA_OPENAI = {
             items: {
               type: "object",
               properties: ENRICH_INGREDIENT_PROPS,
-              required: ["name", "category", "grams"],
+              required: [
+                "name",
+                "category",
+                "grams",
+                "protein_g",
+                "carb_g",
+                "fat_g",
+              ],
               additionalProperties: false,
             },
           },
@@ -173,7 +193,41 @@ export async function enrichBatch(
   if (!isRecord(parsed) || !Array.isArray(parsed.items)) {
     throw new Error("OpenAI response missing items");
   }
-  return parsed.items as EnrichedItem[];
+  // B10: the item-level macros are OURS, not the model's. iter-b1-001 measured
+  // that the model portions well and totals badly - its own grams, priced with
+  // USDA values, beat the macros it reported on two of three dishes, while
+  // every total it emitted stayed a multiple of 5. So it supplies the parts and
+  // we do the addition, which is the one step a computer cannot get wrong.
+  return (parsed.items as EnrichedItem[]).map((item) => ({
+    ...item,
+    ...sumIngredientMacros(item.ingredients ?? []),
+  }));
+}
+
+/**
+ * Item macros summed from the model's per-ingredient numbers, with calories
+ * derived by Atwater (4 kcal/g protein, 4 carb, 9 fat) so the total is always
+ * consistent with its own parts.
+ */
+export function sumIngredientMacros(
+  ingredients: EnrichedItem["ingredients"],
+): Pick<
+  EnrichedItem,
+  "protein_g" | "carb_g" | "fat_g" | "estimated_calories"
+> {
+  let protein = 0, carb = 0, fat = 0;
+  for (const i of ingredients) {
+    protein += i.protein_g ?? 0;
+    carb += i.carb_g ?? 0;
+    fat += i.fat_g ?? 0;
+  }
+  return {
+    protein_g: Math.round(protein),
+    carb_g: Math.round(carb),
+    fat_g: Math.round(fat),
+    // Atwater on the UNROUNDED sums, so calories never drift from the parts.
+    estimated_calories: Math.round(4 * protein + 4 * carb + 9 * fat),
+  };
 }
 
 /** Splits array into consecutive batches at most `size`. */

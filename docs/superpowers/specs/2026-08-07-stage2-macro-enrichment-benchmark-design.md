@@ -56,6 +56,16 @@ name → description → price → category
 Because OpenAI strict mode generates fields in schema order, `ingredients[]` is genuine
 chain-of-thought written into the output, not a post-hoc label.
 
+**Verified against OpenAI's docs (context7, 2026-08-07).** Their own prompt-generation guide
+ships a `META_PROMPT` — the instructions OpenAI's schema generator itself follows — which
+states verbatim:
+
+> *"field order matters. any form of 'thinking' or 'explanation' should come before the
+> conclusion"*
+
+So the ordering is not incidental: putting the reasoning field before the conclusion fields is
+OpenAI's documented recommendation, and the current schema follows it correctly.
+
 **The gap:** each ingredient is only `{name, category}`. There is **no gram weight per
 ingredient**. The model records *what* is in the dish and never *how much*, then jumps
 straight to four totals. Its portion assumption is unrecoverable from its output.
@@ -243,7 +253,11 @@ Recorded now so they are not lost; **none run until the baseline produces a fail
 
 - **B1 — per-ingredient grams.** Add a `grams` field to each entry of `ingredients[]`, forcing
   the model to commit to portions out loud before totalling. Directly targets the §2 gap.
-  Hypothesis only — untested, and per §10 it stays a hypothesis until measured.
+  Note this is exactly the pattern OpenAI's own `META_PROMPT` prescribes — portions are
+  "thinking" that currently is not written down before the conclusion (see §2). That raises
+  the prior, but it does **not** promote it above a hypothesis: per §10 it stays untested until
+  measured, and lesson 16 is that a confident predicted gain sends the next session chasing the
+  wrong work.
 - **B2 — batch-size sweep.** `ENRICH_BATCH_SIZE` is 10 and has never been varied. Test 5 / 15 /
   20 on the same items. Cramming more items into one call may cost per-item attention; nobody
   has measured it. Note the 3-item benchmark is a single call at every batch size, so B2 needs

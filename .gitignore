@@ -46,6 +46,10 @@ example
 
 # git worktrees checked out inside the repo
 .worktrees/
+# ...and the location Claude Code's native worktree tool uses. Without this, a
+# whole second copy of the repo sits untracked inside the repo, one `git add
+# .claude` away from being committed.
+.claude/worktrees/
 
 # Supabase CLI / detached runs
 supabase/.temp/

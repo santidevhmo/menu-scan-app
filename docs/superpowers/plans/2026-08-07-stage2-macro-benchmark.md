@@ -20,10 +20,47 @@ Deno script, one append-only log.
 **Spec:** `docs/superpowers/specs/2026-08-07-stage2-macro-enrichment-benchmark-design.md` —
 read it before starting. This plan implements it and does not restate its rationale.
 
+## Before you start (zero-context setup)
+
+You need nothing from any previous conversation. Everything below is verified working as of
+2026-08-07.
+
+```bash
+# 1. Get on the branch. All of this phase's work is here, NOT on main.
+git fetch origin
+git checkout worktree-stage2-macro-benchmark
+
+# 2. Secrets. Both files are gitignored, so a fresh clone will NOT have them.
+#    .env.local holds the project's ONLY working OPENAI_API_KEY - the repo's .env
+#    has the literal placeholder string "PENDING" for that key. Ask Santiago, or
+#    copy them from the primary checkout at ~/Desktop/CODING/menu-scan-app/.
+#    Needed: OPENAI_API_KEY (.env.local), EXPO_PUBLIC_SUPABASE_* (.env).
+
+# 3. Dependencies. This phase is Deno; pnpm is only needed so one pre-existing
+#    Node-based test can run at all.
+pnpm install --prefer-offline
+
+# 4. Baseline. Confirm you start clean.
+deno test --allow-all --quiet scripts/ supabase/
+```
+
+**Expected baseline: `267 passed | 1 failed`.** The one failure is `scripts/tile-cut_test.ts`,
+pre-existing and unchanged since eval 114 — it is not yours. **Any other failure is.**
+
+Do NOT run `deno test` over the repo root: `src/` holds React Native tests whose `@/*` path
+alias Deno cannot resolve, and they will fail for reasons unrelated to this work.
+
+**Read before touching anything:** the spec (linked above), then this phase's log
+`docs/superpowers/stage2-macro-benchmark.md` — its Runs table is the only record of what has
+actually been measured, and its Backlog explains why several obvious-looking ideas are
+deliberately not being done yet.
+
 ## Global Constraints
 
-- **Working directory:** the worktree `.claude/worktrees/stage2-macro-benchmark`, branch
-  `worktree-stage2-macro-benchmark`, branched from `origin/main` at `04e77ab`.
+- **Working directory:** branch `worktree-stage2-macro-benchmark`, branched from `origin/main`
+  at `04e77ab`. On this machine it is checked out as a worktree at
+  `.claude/worktrees/stage2-macro-benchmark/` (gitignored); on any other machine, just check the
+  branch out normally in the repo root. Nothing in the plan depends on the worktree path.
 - **The Bash tool's working directory resets between calls.** Use absolute paths or `git -C`.
   (Lesson 15 — this has caused a commit on the wrong branch in this repo before.)
 - **Never `git add` a directory.** Name every file you edited:

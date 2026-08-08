@@ -68,7 +68,7 @@ procedure** (mirror check, archiving, hand audit, what to report), which every i
 | `1ce5139` | **B10** — per-ingredient macros, item totals summed in code, calories by Atwater | ❌ branch only |
 | `fda94e9` | iter-b10-001 measured ($0.036) | — |
 | `766be47` | **B11** — carb-trap sentence in `ENRICH_PROMPT`; **falsified**, reverted by B12 | ❌ branch only |
-| `<b12>` | **B12** — per-100 g composition priced in code; B11's food list deleted | ❌ branch only |
+| `692a8af` | **B12** — per-100 g composition priced in code; B11's food list deleted | ❌ branch only |
 
 Failed field/draws (of 36), under the PASTEL beans tolerance: baseline-002r **6** →
 iter-b1-001 **13** → iter-b10-001 **7** → iter-b11-001 **6** → iter-b12-001 **11**. **No iteration

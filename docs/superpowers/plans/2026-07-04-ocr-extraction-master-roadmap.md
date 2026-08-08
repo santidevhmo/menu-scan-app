@@ -42,7 +42,7 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > | `1768a1d` | **B1** — required per-ingredient `grams` | ❌ **on branch only** |
 > | `1ce5139` | **B10** — per-ingredient macros, item totals summed in code | ❌ **on branch only** |
 > | `766be47` | **B11** — carb-trap sentence in the prompt (**falsified, reverted by B12**) | ❌ **on branch only** |
-> | `<b12>` | **B12** — per-100 g composition, priced in code; B11's food list deleted | ❌ **on branch only** |
+> | `692a8af` | **B12** — per-100 g composition, priced in code; B11's food list deleted | ❌ **on branch only** |
 >
 > **The measured story, in one table.** Failed field/draws, scored under the PASTEL beans
 > tolerance (see Rulings) — 36 field/draws total:

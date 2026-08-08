@@ -1,0 +1,33 @@
+{
+  "items": [
+    {
+      "name": "CESAR (200 g)",
+      "description": "Lechuga, queso parmesano rallado, croutones,\npollo a la plancha y aderezo cesar de la casa.",
+      "price": 275,
+      "category": "food",
+      "section_title": "ensaladas",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "Salmone toscano",
+      "description": "Salmon al horno bañado en crema toscana blanca con ajo, espinaca, alcachofa, tomate deshidratado y alcaparra, acompañado con baguette. 200g",
+      "price": 330,
+      "category": "food",
+      "section_title": "Frutti di mare",
+      "options": [],
+      "grams": 200
+    },
+    {
+      "name": "PASTEL AZTECA (300gr.)",
+      "description": "Con pollo, salsa de tomate, chile verde, cebolla, elote y mezcla de quesos, servido con frijoles.",
+      "price": 94,
+      "category": "food",
+      "section_title": "MEXICANOS",
+      "options": [],
+      "grams": 300
+    }
+  ],
+  "provider": "gpt-4o",
+  "stage": "enrich"
+}

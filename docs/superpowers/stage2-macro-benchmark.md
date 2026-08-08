@@ -225,6 +225,7 @@ Keep the `confidence` label as a coarse UI hint at most; do not gate on it.
 | # | date | what changed | result (range across draws) | verdict |
 |---|---|---|---|---|
 | baseline-001 | 2026-08-07 | nothing — pipeline as shipped | CESAR 0/3 · Salmone 0/3 · Pastel 2/3 | FAIL — baseline establishes failures for portion/fat and calorie estimation; no pipeline change made |
+| baseline-002 | 2026-08-08 | nothing — reproducible `gpt-4o-2024-08-06` pin | CESAR 0/3 · Salmone 0/3 · Pastel 3/3 | FAIL — pinned baseline confirms CESAR and Salmone failures; no pipeline change made |
 
 ### baseline-001 — notes
 
@@ -299,6 +300,72 @@ baseline, the label did not distinguish passing from failing items.
 `scripts/fixtures/caches/macro-bench.mirror-response.json`, and
 `scripts/fixtures/caches/macro-bench.baseline-001-d{0,1,2}.raw.json`. Execution-evidence
 manifest: `scripts/fixtures/caches/macro-bench.baseline-001-execution-manifest.json`.
+
+### baseline-002 — pinned reproduction (2026-08-08)
+
+**Mirror/model verification:** the new deployed `stage: "enrich"` mirror received the three
+completed original-order items and returned three original-order items with non-empty
+`ingredients[]` counts of 5, 8, and 7. Its response reports
+`model_id: "gpt-4o-2024-08-06"`. Each local raw Chat Completion response reports the exact same
+pinned model and `finish_reason: "stop"`. The mirror and local outputs semantically cover the
+same printed ingredients, while retaining descriptive variants such as `queso parmesano` versus
+`queso parmesano rallado` and `crema toscana` versus `crema toscana blanca`; that comparison is
+not a determinism claim.
+
+**Execution evidence and limitation:**
+`scripts/fixtures/caches/macro-bench.baseline-002-execution-manifest.json` maps only this
+baseline's mirror request/response and its three raw local responses. The executor reported one
+mirror operation plus one `BENCH_DRAWS=3` invocation: four paid calls, with no retry requested.
+The manifest is post-hoc evidence, not a transport log or command transcript; it does not
+independently establish endpoint, HTTP status, exhaustive call count, or absence of retries.
+
+**Per-item, per-field results (range across three local draws):**
+
+| item | estimated_calories | protein_g | carb_g | fat_g | tally |
+|---|---:|---:|---:|---:|---:|
+| CESAR (200 g) | 350–350 | 25–25 | 15–15 | 20–20 | 0/3 |
+| Salmone toscano | 550–550 | 40–40 | 30–30 | 25–25 | 0/3 |
+| PASTEL AZTECA (300gr.) | 500–500 | 30–30 | 40–40 | 20–20 | 3/3 |
+
+**Per-draw verdicts:** CESAR: calories 350 (-24.2%) FAIL; protein 25 (-16.9%) PASS;
+carbs 15 (-13.7%) PASS; fat 20 (-32.1%) FAIL in all three draws. Salmone: calories 550
+(-34.8%) FAIL; protein 40 (-33.0%) FAIL; carbs 30 (-14.6%) PASS; fat 25 (-50.9%) FAIL in all
+three. PASTEL AZTECA: calories 500 (+10.6%), protein 30 (-23.5%), carbs 40 (+27.2%), and fat
+20 (+0.7%) all PASS in all three.
+
+**Failure list:** CESAR has six failed field/draws (calories and fat × three). Salmone has nine
+(calories, protein, and fat × three). PASTEL AZTECA has none. No other field/draw failed the
+approved bands.
+
+**Hand audit (mirror and all three raw draws):** every new `ingredients[]` list semantically
+covers the printed description and frozen USDA oracle ingredient set, rather than using an
+identical name string in every response. The factual variants include `queso parmesano` versus
+`queso parmesano rallado`, `aderezo cesar` versus `aderezo cesar de la casa`, and `crema
+toscana` versus `crema toscana blanca`. CESAR covers lettuce, parmesan, croutons, grilled
+chicken, and Caesar dressing. Salmone covers salmon, Tuscan cream, garlic, spinach, artichoke,
+sun-dried tomato, capers, and baguette. PASTEL AZTECA covers chicken, tomato sauce, green chile,
+onion, corn, cheese blend, and beans. No audited output added a semantically unprinted
+ingredient or omitted a printed ingredient.
+
+**Atwater self-consistency (reported calories minus `4P + 4C + 9F`):** CESAR was +10 kcal
+(+2.9%) in every draw (350 reported vs 340 implied). Salmone was +45 kcal (+8.2%) in every
+draw (550 vs 505). PASTEL AZTECA was +40 kcal (+8.0%) in every draw (500 vs 460). Outputs are
+not exactly Atwater-consistent; the largest observed gap is 45 kcal / 8.2%.
+
+**Dispersion across draws:** population coefficient of variation for estimated calories was
+0.0% for CESAR, Salmone, and PASTEL AZTECA. Both permanently failing items have zero dispersion,
+as does the passing item; this sample does not support using dispersion as a calibrated failure
+gate.
+
+**Confidence label vs reality:** all nine local outputs and all three mirror outputs reported
+`high`. CESAR and Salmone failed every draw despite that label; PASTEL AZTECA passed all three.
+In this baseline, the label does not distinguish passing from failing items.
+
+**Archived raw responses:**
+`scripts/fixtures/caches/macro-bench.baseline-002-mirror-request.json`,
+`scripts/fixtures/caches/macro-bench.baseline-002-mirror-response.json`, and
+`scripts/fixtures/caches/macro-bench.baseline-002-d{0,1,2}.raw.json`. Execution-evidence
+manifest: `scripts/fixtures/caches/macro-bench.baseline-002-execution-manifest.json`.
 
 ---
 

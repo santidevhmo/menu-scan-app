@@ -1,0 +1,51 @@
+{
+  "format": "post-hoc execution evidence manifest",
+  "provenance": "Created after baseline-002 by mapping the new archived artifacts. It is not a transport log or command transcript.",
+  "local_run_reporting": "The executor reported one approved deployed mirror operation and one BENCH_DRAWS=3 local benchmark invocation: four paid model calls were intended and completed without a requested retry. This report is not independently provable from the artifacts.",
+  "operations": [
+    {
+      "operation": "deployed-edge-mirror",
+      "request_artifact": "macro-bench.baseline-002-mirror-request.json",
+      "response_artifact": "macro-bench.baseline-002-mirror-response.json",
+      "observed_response": {
+        "item_count": 3,
+        "model_id": "gpt-4o-2024-08-06",
+        "ingredient_counts": [5, 8, 7]
+      },
+      "limitations": "No transport metadata was archived. The artifacts do not independently prove endpoint, HTTP status, timestamp, request count, or retry behavior."
+    },
+    {
+      "operation": "local-benchmark-draw-0",
+      "response_artifact": "macro-bench.baseline-002-d0.raw.json",
+      "observed_response": {
+        "id": "chatcmpl-EAUfA0OiNRQlHt4KkRezoa7WQa30J",
+        "created_unix_seconds": 1786169856,
+        "model": "gpt-4o-2024-08-06",
+        "finish_reason": "stop"
+      },
+      "limitations": "The archived final response supports one successful completion response. It does not prove that no retry or other paid call occurred."
+    },
+    {
+      "operation": "local-benchmark-draw-1",
+      "response_artifact": "macro-bench.baseline-002-d1.raw.json",
+      "observed_response": {
+        "id": "chatcmpl-EAUfDV2xAfc3l2J4geGIWFt6Izj6R",
+        "created_unix_seconds": 1786169859,
+        "model": "gpt-4o-2024-08-06",
+        "finish_reason": "stop"
+      },
+      "limitations": "The archived final response supports one successful completion response. It does not prove that no retry or other paid call occurred."
+    },
+    {
+      "operation": "local-benchmark-draw-2",
+      "response_artifact": "macro-bench.baseline-002-d2.raw.json",
+      "observed_response": {
+        "id": "chatcmpl-EAUfG5K9OHesb68JLeXRgag3h9Xiv",
+        "created_unix_seconds": 1786169862,
+        "model": "gpt-4o-2024-08-06",
+        "finish_reason": "stop"
+      },
+      "limitations": "The archived final response supports one successful completion response. It does not prove that no retry or other paid call occurred."
+    }
+  ]
+}

@@ -217,6 +217,30 @@ Deno.test("the nutrition step names no specific food (B11 lesson)", () => {
   }
 });
 
+Deno.test("the nutrition step rejects the raw reference form (B13)", () => {
+  // iter-b12-001: fat came back BELOW the oracle on all six fats measured, and
+  // the per-ingredient dump showed why - the model was quoting plain, raw
+  // reference entries while the oracle prices as-prepared ones.
+  //
+  // Step 2 already said "as served" and "fat absorbed or added in cooking
+  // counts" when that run was measured, so an inclusive phrasing is proven
+  // insufficient. What is load-bearing here is the NEGATIVE: naming the raw
+  // reference figure as the wrong answer. Stated as a basis, never as a food -
+  // the guard above still applies to this sentence.
+  const nutritionStep = ENRICH_PROMPT.split("\n2. ")[1]?.split("\n3. ")[0] ?? "";
+
+  assertEquals(
+    nutritionStep.includes("cooked, sauced or seasoned"),
+    true,
+    "step 2 must name preparation as the basis",
+  );
+  assertEquals(
+    /plain or raw reference figure/.test(nutritionStep),
+    true,
+    "step 2 must reject the raw reference figure explicitly, not just ask for the prepared one",
+  );
+});
+
 Deno.test("every ingredient carries per-100g composition, not an amount (B12)", () => {
   // iter-b11-001: asked for the amount in the serving, the model returns a round
   // number anchored to the ingredient's category tag - anything tagged carb got

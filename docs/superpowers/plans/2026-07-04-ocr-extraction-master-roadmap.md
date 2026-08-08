@@ -121,6 +121,27 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >    and leave it knowledge. B10 took the addition, B12 the multiplication, B4 the fitting. The two
 >    changes that only added instructions (B11, B13) moved nothing.
 >
+> ### ⚠️ ORACLE RE-FROZEN 2026-08-08 — read this before any number above
+>
+> `a60eb2a` re-picked CESAR's Caesar dressing from 57.8 g fat/100 g (the top of ~40 USDA entries) to
+> the market median 36.67. **Our oracle was stricter than reality and the model was closer to it than
+> we were.** Re-scored history, $0, `deno run --allow-read scripts/rescore-history.ts`:
+>
+> | run | was | now | mean abs error |
+> |---|---:|---:|---:|
+> | baseline-002 | 6 | **0** | 16.7% |
+> | iter-b13-001 | 6 | 3 | 18.3% |
+> | **iter-b4-001…004** | 0/1/0/1 | **0 0 0 0** | **13.6–14.7%** |
+>
+> **The baseline's only six failures were the two CESAR fields we just corrected, so B4 no longer beats
+> it on the headline count — they tie at 0.** B4 leads on mean absolute error instead. The failure
+> count is now a **saturated gate**: two very different pipelines both score 0, so mean absolute error
+> is the primary number from here and the count is a floor that must not regress.
+>
+> A $0 re-derivation then showed **~70% of the fat lean was our own oracle**. The three remaining
+> top-five errors are portion problems, two are composition. **B5 was designed against the old lean
+> and is not being run** — see the log's "B5 premise re-derived" entry.
+>
 > ### 🏁 CHECKPOINT SET — `stage2-b4-checkpoint` (tag → `22a1ac5`)
 >
 > **Santiago ruled on 2026-08-08 that B4 is the best version yet and the state to fall back to.** If a

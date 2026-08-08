@@ -1428,6 +1428,43 @@ iter-b1-001 carry no per-ingredient macros (item-level totals), iter-b10/b11 car
 current path on all ten and produced a tidy table of **−100% failures for six of them**. It printed
 cleanly and was entirely false; the era-aware script exists so that cannot recur.
 
+### B5 premise re-derived after the re-freeze — mostly dissolved *($0, 2026-08-08)*
+
+The B5 design (`specs/2026-08-08-b5-preparation-and-oracle-dressing-design.md`) was built on a fat
+lean measured against the **old** oracle. Re-running the portion/composition ablation on B4's 12 draws
+against the corrected oracle, mean signed error:
+
+| dish | carbs | fat | fat *was* |
+|---|---:|---:|---:|
+| CESAR | +20.3% | **−8.4%** | −28.1% |
+| Salmone | +22.4% | −16.3% | −16.3% |
+| PASTEL | −2.7% | −28.3% | −28.3% |
+
+**Roughly 70% of CESAR's fat error was our own oracle**, not the model. What is left is not a
+systematic three-dish lean.
+
+**The two halves swapped importance.** Ranked by worst-case error across 12 draws, the top five
+remaining errors are now **three portion problems and two composition problems**:
+
+| rank | error | worst | cause | ceiling if fixed |
+|---|---|---:|---|---|
+| 1 | PASTEL fat | −44.1% | mixed; oracle distorted by the tortilla exclusion | −11.3% grams / −16.5% composition — *neither alone fixes it* |
+| 2 | PASTEL carbs | +26.7% | portion | +3.1% |
+| 3 | Salmone carbs | +25.8% | portion | +4.1% |
+| 4 | CESAR protein | +24.9% | portion (chicken 87 g vs 75) | +7.6% |
+| 5 | Salmone fat | −21.7% | composition (salmon) | −2.6% |
+
+**Consequence for B5:** its target was salmon and chicken, on the evidence that the menu states
+*al horno* and *a la plancha* and the model ignores both. That evidence is untouched — but CESAR's fat
+is now −9.1% worst-case, so the chicken half no longer matters, and PASTEL states no method for its
+cheese. **B5 would now move one field on one dish (Salmone fat).** It has not been falsified; it has
+been shrunk from a three-dish systematic fix to a single-field one, and priced at ~$0.20 that is a
+poor trade. **Not run. The spec stands as designed if the target ever widens again.**
+
+**Note on strictness:** the 0/36 figures above use the PASTEL beans tolerance, as all reporting in this
+log does. Scored strictly against the shipped oracle, PASTEL fat still fails **2 of 12** draws — the
+cheese-serving instability, unchanged.
+
 ### 🏁 CHECKPOINT — `stage2-b4-checkpoint` is the fallback and the publishable state *(Santiago, 2026-08-08)*
 
 > ⚠️ **The tag's message quotes PRE-re-freeze numbers** (2 failed field/draws of 144, mean error

@@ -224,6 +224,76 @@ Keep the `confidence` label as a coarse UI hint at most; do not gate on it.
 
 | # | date | what changed | result (range across draws) | verdict |
 |---|---|---|---|---|
+| baseline-001 | 2026-08-07 | nothing — pipeline as shipped | CESAR 0/3 · Salmone 0/3 · Pastel 2/3 | FAIL — baseline establishes failures for portion/fat and calorie estimation; no pipeline change made |
+
+### baseline-001 — notes
+
+**Mirror verification:** the archived deployed `stage: "enrich"` request/response pair has
+exactly three items in the original order, with all required fields and non-empty
+`ingredients[]` (5, 8, and 7 entries respectively). Its item names, ingredient lists, macros,
+and `high` confidence labels matched local draw 1. The mirror shape passes; this comparison is
+not a determinism claim.
+
+**Execution evidence and limitation:**
+`scripts/fixtures/caches/macro-bench.baseline-001-execution-manifest.json` maps the request/
+response pair and the three local raw responses. The local raw artifacts independently show
+three successful Chat Completion responses (`gpt-4o-2024-08-06`, `finish_reason: "stop"`) at
+provider `created` values 1786167217, 1786167220, and 1786167224. The executor reported one
+mirror operation plus one `BENCH_DRAWS=3` run (four approved operations total), but no durable
+transport trace or command transcript was archived. Therefore the artifacts do **not**
+independently prove endpoint, HTTP status, an exhaustive paid-call count, or absence of retries.
+The manifest is post-hoc evidence mapping, not a reconstructed transport log.
+
+**Per-item, per-field results (range across three local draws):**
+
+| item | estimated_calories | protein_g | carb_g | fat_g | tally |
+|---|---:|---:|---:|---:|---:|
+| CESAR (200 g) | 350–350 | 25–25 | 15–15 | 20–20 | 0/3 |
+| Salmone toscano | 550–600 | 40–40 | 30–30 | 25–35 | 0/3 |
+| PASTEL AZTECA (300gr.) | 500–550 | 30–30 | 40–40 | 20–25 | 2/3 |
+
+**Per-draw verdicts:**
+
+| item | draw 1 | draw 2 | draw 3 |
+|---|---|---|---|
+| CESAR (200 g) | calories 350 (-24.2%) FAIL; protein 25 (-16.9%) PASS; carbs 15 (-13.7%) PASS; fat 20 (-32.1%) FAIL | same as draw 1 | same as draw 1 |
+| Salmone toscano | calories 550 (-34.8%) FAIL; protein 40 (-33.0%) FAIL; carbs 30 (-14.6%) PASS; fat 25 (-50.9%) FAIL | calories 600 (-28.8%) FAIL; protein 40 (-33.0%) FAIL; carbs 30 (-14.6%) PASS; fat 35 (-31.3%) FAIL | same as draw 1 |
+| PASTEL AZTECA (300gr.) | calories 500 (+10.6%) PASS; protein 30 (-23.5%) PASS; carbs 40 (+27.2%) PASS; fat 20 (+0.7%) PASS | calories 550 (+21.7%) FAIL; protein 30 (-23.5%) PASS; carbs 40 (+27.2%) PASS; fat 25 (+25.8%) PASS | same as draw 1 |
+
+**Failure list:** CESAR missed calories and fat in every draw (six failed field/draws).
+Salmone missed calories, protein, and fat in every draw (nine failed field/draws). Pastel
+missed only draw 2 calories (one failed field/draw). No other field/draw failed the approved
+bands.
+
+**Hand audit (mirror and all three raw draws):** every `ingredients[]` list matches the printed
+description. CESAR listed lettuce, parmesan, croutons, grilled chicken, and Caesar dressing.
+Salmone listed salmon, Tuscan cream, garlic, spinach, artichoke, sun-dried tomato, capers, and
+baguette. Pastel listed chicken, tomato sauce, green chile, onion, corn, cheese blend, and
+beans. Salmone's 40 g protein plus sauce and baguette indicates the model treated printed 200 g
+as the salmon component rather than the whole plated dish; nevertheless it substantially
+underestimated the USDA oracle's protein, fat, and calories.
+
+**Atwater self-consistency (reported calories minus `4P + 4C + 9F`):** CESAR was +10 kcal
+(+2.9%) in every draw (350 reported vs 340 implied). Salmone was +45 kcal (+8.2%), +5 kcal
+(+0.8%), and +45 kcal (+8.2%) in draws 1–3 (550 vs 505, 600 vs 595, 550 vs 505).
+Pastel was +40 kcal (+8.0%), +45 kcal (+8.2%), and +40 kcal (+8.0%) (500 vs 460, 550 vs 505,
+500 vs 460). The outputs are not exactly Atwater-consistent; the largest observed gap is 45
+kcal / 8.2%.
+
+**Dispersion across draws:** population coefficient of variation for estimated calories was
+0.0% (CESAR), 4.2% (Salmone), and 4.6% (Pastel). The zero-dispersion CESAR still failed all
+draws, while the higher-dispersion Pastel passed two; this three-draw sample does not support
+using dispersion as a calibrated failure gate.
+
+**Confidence label vs reality:** all nine local outputs (and all three mirror outputs) reported
+`high`. CESAR and Salmone failed every draw despite that label; Pastel passed two. In this
+baseline, the label did not distinguish passing from failing items.
+
+**Archived raw responses:**
+`scripts/fixtures/caches/macro-bench.mirror-request.json`,
+`scripts/fixtures/caches/macro-bench.mirror-response.json`, and
+`scripts/fixtures/caches/macro-bench.baseline-001-d{0,1,2}.raw.json`. Execution-evidence
+manifest: `scripts/fixtures/caches/macro-bench.baseline-001-execution-manifest.json`.
 
 ---
 

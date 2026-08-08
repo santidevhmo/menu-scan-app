@@ -1382,7 +1382,59 @@ target is the cheese-serving instability in Finding 1.
 
 ## Rulings
 
+### ⚠️ ORACLE RE-FROZEN 2026-08-08 — every figure above this line is pre-re-freeze
+
+**Commit `a60eb2a`.** CESAR's Caesar dressing moved from FDC `2710199` (57.8 g fat/100 g) to FDC
+`2290157` (36.67), on Santiago's ruling and on USDA evidence: 57.8 is the top of ~40 full-fat Caesar
+entries whose **median is 36.7 and mean 37.7**. Our oracle was stricter than the market; the model's
+40 was closer to it than we were. CESAR's dish totals moved with it — calories 462 → 409.5, protein
+30.084 → 30.432, carb 17.38 → 18.391, fat 29.4495 → **23.1105**. Salmone and PASTEL are untouched.
+
+**Re-scored history, `deno run --allow-read scripts/rescore-history.ts`, $0, no model calls.** Failed
+field/draws of 36 under the PASTEL beans tolerance:
+
+| run | was | **now** | mean abs error |
+|---|---:|---:|---:|
+| baseline-002 | 6 | **0** | 16.7% |
+| iter-b1-001 | 13 | 13 | 23.9% |
+| iter-b10-001 | 7 | 5 | 21.4% |
+| iter-b11-001 | 6 | 7 | 20.6% |
+| iter-b12-001 | 11 | 8 | 23.9% |
+| iter-b13-001 | 6 | 3 | 18.3% |
+| iter-b4-001 | 0 | **0** | 14.1% |
+| iter-b4-002 | 1 | **0** | 14.7% |
+| iter-b4-003 | 0 | **0** | 13.6% |
+| iter-b4-004 | 1 | **0** | 14.2% |
+
+**FINDING — the re-freeze eliminated the baseline's only failures, and B4's lead on the headline
+count with them.** baseline-002r's 6 were *CESAR calories ×3 and CESAR fat ×3* — both fields we just
+changed. **Baseline and B4 now tie at 0 of 36.** This was predicted in the spec ("the baseline improves
+too… whether B4 still beats baseline is a question the re-score answers, it must not be assumed") and
+the answer is: it no longer does, on that metric.
+
+**B4's remaining advantage is real but narrower:** mean absolute error **13.6–14.7% vs baseline's
+16.7%**, plus everything the log records about *why* its numbers are what they are. It is still the
+best version measured. It is no longer uniquely passing.
+
+**Consequence for future iterations: the failure count is now a saturated gate.** Two very different
+pipelines both score 0, so it can no longer tell them apart. **Mean absolute error becomes the primary
+number**, with the failure count kept as a floor that must not regress. Any iteration reported only as
+"0 failures" from here is reporting nothing.
+
+**Why `rescore-history.ts` is separate from `BENCH_RESCORE=1`:** the harness runs the *current*
+scoring path, which is wrong for archives that predate it. There are three eras — baseline-002 and
+iter-b1-001 carry no per-ingredient macros (item-level totals), iter-b10/b11 carry per-ingredient
+*amounts*, iter-b12 onward carry per-100 g composition. The first attempt at this re-score used the
+current path on all ten and produced a tidy table of **−100% failures for six of them**. It printed
+cleanly and was entirely false; the era-aware script exists so that cannot recur.
+
 ### 🏁 CHECKPOINT — `stage2-b4-checkpoint` is the fallback and the publishable state *(Santiago, 2026-08-08)*
+
+> ⚠️ **The tag's message quotes PRE-re-freeze numbers** (2 failed field/draws of 144, mean error
+> 16.1–17.3%). Under the corrected oracle the same four runs score **0 of 144, mean error 13.6–14.7%**.
+> The tag is immutable by ruling and stays where it is; these are its current figures. Santiago's
+> ruling below stands — B4 is still the best measured version — but note it now **ties** the baseline
+> on failure count rather than beating it, and leads on mean error instead.
 
 **Git tag `stage2-b4-checkpoint` → commit `22a1ac5`.** Annotated, pushed. `git show stage2-b4-checkpoint`
 prints the full measured result.

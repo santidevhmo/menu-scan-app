@@ -17,6 +17,7 @@
 // Run: deno run --allow-read scripts/score-portions.ts [runId ...]
 
 import { resolveGrams } from "../supabase/functions/analyze-menu/enrich.ts";
+import { archivedIngredients } from "./bench-macros.ts";
 
 const CACHE_DIR = "scripts/fixtures/caches";
 const DRAWS = 3;
@@ -103,13 +104,12 @@ export function modelGrams(
   },
 ): { name: string; grams: number }[] {
   const ingredients = item.ingredients ?? [];
-  const isPreB4 = ingredients.length > 0 &&
-    ingredients[0].typical_serving_g === undefined;
-
-  const grams = isPreB4
-    ? ingredients.map((i) => i.grams ?? 0)
-    // deno-lint-ignore no-explicit-any
-    : resolveGrams(ingredients as any, item.printed_total_g);
+  // One shape adapter, shared with the benchmark runner, so the two can never
+  // disagree about what an archived run meant.
+  const grams = resolveGrams(
+    archivedIngredients(ingredients),
+    item.printed_total_g,
+  );
 
   return ingredients.map((i, idx) => ({ name: i.name, grams: grams[idx] }));
 }

@@ -90,7 +90,10 @@ function modelValues(item: EnrichedItem): MacroValues {
   // B4: the printed total is part of the real computation - without it the
   // servings are scored unscaled and the harness grades a number production
   // never emits (lesson 23 - the harness must run the real logic).
-  const totals = sumIngredientMacros(item.ingredients ?? [], item.printed_total_g);
+  const totals = sumIngredientMacros(
+    archivedIngredients(item.ingredients ?? []),
+    item.printed_total_g,
+  );
   return {
     calories: totals.estimated_calories,
     protein_g: totals.protein_g,
@@ -155,6 +158,57 @@ export async function enrich(items: ExtractedMenuItem[]): Promise<{ items: Enric
   return { items: JSON.parse(content).items as EnrichedItem[], raw };
 }
 
+/**
+ * Normalises an archived ingredient list to the current shape.
+ *
+ * Runs before B4 emitted a final `grams` per ingredient and carried no printed
+ * total. Mapping those to `typical_serving_g` with `within_printed_weight: true`
+ * and no printed total makes resolveGrams pass them through unscaled - which is
+ * exactly what they meant.
+ *
+ * Without this, re-scoring any pre-B4 run returns ZERO for every macro and still
+ * prints a full table of -100% failures that looks like a real result. Six of
+ * the ten archived runs are pre-B4.
+ */
+export function archivedIngredients(
+  ingredients: {
+    grams?: number;
+    typical_serving_g?: number;
+    within_printed_weight?: boolean;
+  }[],
+): EnrichedItem["ingredients"] {
+  return ingredients.map((i) =>
+    i.typical_serving_g === undefined && i.grams !== undefined
+      ? { ...i, typical_serving_g: i.grams, within_printed_weight: true }
+      : i
+  ) as EnrichedItem["ingredients"];
+}
+
+/**
+ * Re-reads one archived draw instead of calling the model, so a changed oracle
+ * can be applied to history for $0.
+ *
+ * The oracle has been re-frozen twice now (printed weights `a4ebf0f`, the Caesar
+ * dressing `a60eb2a`) and each time every archived run had to be re-scored or
+ * the phase's numbers stop being comparable. That was done once with an ad-hoc
+ * script that no longer exists; this is the same thing, kept.
+ */
+export async function replayDraw(
+  runId: string,
+  draw: number,
+): Promise<EnrichedItem[]> {
+  const raw: unknown = JSON.parse(
+    await Deno.readTextFile(`${CACHE_DIR}/macro-bench.${runId}-d${draw}.raw.json`),
+  );
+  const content = (raw as {
+    choices?: { message?: { content?: string } }[];
+  })?.choices?.[0]?.message?.content;
+  if (typeof content !== "string") {
+    throw new Error(`archived draw ${draw} of ${runId} has no message content`);
+  }
+  return JSON.parse(content).items as EnrichedItem[];
+}
+
 async function run(): Promise<void> {
   const entries = loadOracle(ORACLE_PATH);
   const items = toExtractedItems(entries);
@@ -165,15 +219,26 @@ async function run(): Promise<void> {
     draws: [],
   }));
 
+  // BENCH_RESCORE=1 costs nothing: it replays archived responses through the
+  // CURRENT oracle. It must never write to the cache - the archive it reads is
+  // the evidence, and overwriting it would destroy the run it is re-scoring.
+  const rescore = Deno.env.get("BENCH_RESCORE") === "1";
+
   for (let draw = 0; draw < draws; draw++) {
-    const response = await enrich(items);
-    await Deno.writeTextFile(
-      `${CACHE_DIR}/macro-bench.${runId}-d${draw}.raw.json`,
-      JSON.stringify(response.raw, null, 2),
-    );
+    let drawItems: EnrichedItem[];
+    if (rescore) {
+      drawItems = await replayDraw(runId, draw);
+    } else {
+      const response = await enrich(items);
+      await Deno.writeTextFile(
+        `${CACHE_DIR}/macro-bench.${runId}-d${draw}.raw.json`,
+        JSON.stringify(response.raw, null, 2),
+      );
+      drawItems = response.items;
+    }
 
     for (const [index, entry] of entries.entries()) {
-      const item = response.items[index];
+      const item = drawItems[index];
       if (!item) throw new Error(`draw ${draw}: model returned too few items`);
       results[index].draws.push(scoreItem(entry.oracle!, modelValues(item)));
     }

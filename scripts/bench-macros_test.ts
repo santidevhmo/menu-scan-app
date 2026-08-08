@@ -1,5 +1,6 @@
 import {
   assertEquals,
+  assertRejects,
   assertThrows,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
@@ -9,7 +10,9 @@ import {
   enrich,
   loadOracle,
   type OracleEntry,
+  archivedIngredients,
   renderTable,
+  replayDraw,
   toExtractedItems,
 } from "./bench-macros.ts";
 import {
@@ -27,6 +30,44 @@ Deno.test("the shipped oracle is complete and USDA-validated", () => {
     "Salmone toscano",
     "PASTEL AZTECA (300gr.)",
   ]);
+});
+
+Deno.test("replayDraw reads an archived run without calling the model", async () => {
+  // Guards the $0 re-score path. iter-b4-004 is committed, so this is a stable
+  // fixture; if the archive format ever changes, this fails before a re-score
+  // silently produces nonsense.
+  const items = await replayDraw("iter-b4-004", 0);
+
+  assertEquals(items.length, 3);
+  assertEquals(items.map((i) => i.name), [
+    "CESAR (200 g)",
+    "Salmone toscano",
+    "PASTEL AZTECA (300gr.)",
+  ]);
+  assertEquals(items[0].printed_total_g, 200);
+});
+
+Deno.test("a pre-B4 archive still scores non-zero when re-scored", async () => {
+  // The bug this exists for: pre-B4 runs archived a final `grams` per
+  // ingredient, and B4 renamed that to `typical_serving_g`. Without the shape
+  // adapter, resolveGrams sees no servings, returns 0 for everything, and the
+  // re-score prints a full table of -100% failures that looks like a result.
+  // Six of the ten archived runs are pre-B4.
+  const items = await replayDraw("iter-b13-001", 0);
+  const cesar = archivedIngredients(items[0].ingredients);
+
+  assertEquals(cesar.length, 5);
+  // Every ingredient must carry a usable serving after adaptation.
+  assertEquals(cesar.every((i) => i.typical_serving_g > 0), true);
+  // 50 g lettuce + 20 parmesan + 30 croutons + 80 chicken + 20 dressing.
+  assertEquals(cesar.reduce((s, i) => s + i.typical_serving_g, 0), 200);
+});
+
+Deno.test("replayDraw fails loudly on an archive it cannot read", async () => {
+  await assertRejects(
+    () => replayDraw("no-such-run", 0),
+    Error,
+  );
 });
 
 Deno.test("every shipped dish total is the sum of its own ingredients", () => {

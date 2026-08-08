@@ -32,14 +32,26 @@ the edge function → ②.** If a phase or priority is asserted anywhere other t
 it is stale — fix it or ignore it, never believe it. The active Stage-2 macro handoff below is
 the explicit exception: it is the bounded Phase-9 workstream record, not a competing roadmap.
 
-**Stage-2 macro-enrichment handoff (2026-08-08):** the USDA oracle and pinned baseline are
-complete on `worktree-stage2-macro-benchmark`; production Stage 2 is pinned to
-`gpt-4o-2024-08-06`. Read
-`docs/superpowers/plans/2026-08-07-stage2-macro-benchmark.md` first for exact status, commits,
-the remaining branch-handoff decision, and what must not be re-run. Then read
-`docs/superpowers/stage2-macro-benchmark.md` for the two archived baseline ranges and failure
-list. The USDA plan is the frozen oracle/provenance reference:
+**Stage-2 macro-enrichment handoff (2026-08-08) — THIS IS THE ACTIVE WORK.** The benchmark is
+built and frozen; two prompt/schema iterations have been measured against it; **one defect
+remains**. Production is untouched — the deployed edge function still runs the original pre-B1
+prompt, pinned to `gpt-4o-2024-08-06`. Phase spend to date: **$0.059**.
+
+Read **② the roadmap's `🎯 CURRENT PHASE` block first** — it now carries the full takeover
+briefing: every commit and whether it is deployed, the three runs side by side, what each proved,
+the explicit next action (**B11**), and the list of things not to do without a new ruling. Then
+read `docs/superpowers/stage2-macro-benchmark.md`, which is the living document (Backlog B1–B11,
+Runs, Rulings). `docs/superpowers/plans/2026-08-07-stage2-macro-benchmark.md` holds the paid-run
+procedure; its Tasks 1–5 are COMPLETE. The USDA plan is the frozen oracle/provenance reference:
 `docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
+
+**One-line state:** the model portions well and, once given per-ingredient macros, totals them
+correctly — the only systematic error left is that it over-states carbohydrate for vegetables and
+sauces by 2.7–3.7×. B11 is a prompt sentence targeting exactly that.
+
+ℹ️ **The suite's `1 failed` is noise.** `304 passed | 1 failed` with only `scripts/tile-cut_test.ts`
+red is a CLEAN run — Santiago has ruled it unimportant and it cannot affect macros (it tests the
+image tile cutter; Stage 2 never sees a photo). Any *other* failure is yours. Details in ②.
 
 Then read:
 

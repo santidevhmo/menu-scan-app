@@ -811,10 +811,28 @@ calibration.
 Cost from the archived `usage` blocks: 2,283 input + 3,014 output tokens = **$0.0358**. Output
 tokens rose 71% over iter-b1-001, as expected for three extra numbers per ingredient.
 
-**Verdict: do not deploy yet.** B10 is directionally right — it fixed calories, fixed PASTEL
-protein, and made the model's reasoning legible for the first time — but it has not beaten
-baseline on the headline, and it introduced a carb regression with a now-identified cause. Fix
-the carb defect (B11) and re-measure before considering deployment.
+**Scored under the PASTEL beans tolerance (Santiago 2026-08-08), which is the number to quote:**
+
+| run | failed field/draws | which |
+|---|---:|---|
+| baseline-002r | **6** | CESAR calories ×3, CESAR fat ×3 |
+| iter-b1-001 | 13 | spread across 5 different item/field combinations |
+| **iter-b10-001** | **7** | **CESAR carb ×3, PASTEL carb ×3**, Salmone calories ×1 |
+
+**Baseline is still marginally ahead on the count (6 vs 7). Do not claim B10 won.** The case for
+B10 is the *shape* of what is left, not the size:
+
+- Baseline fails on **two different fields** of CESAR — calories −24% and fat −32% — the core
+  numbers a diner reads, with no identified cause.
+- B10 fails on **one field, carbs, on two dishes**, with a measured per-ingredient cause
+  (vegetables and sauces over-rated 2.7–3.7×), plus a single divergent calorie draw.
+
+Six of B10's seven failures are the same defect. That is a fixable state; baseline's was not.
+
+**Verdict: do not deploy yet.** B10 fixed calories, fixed PASTEL protein, and made the model's
+reasoning legible for the first time — but it has not beaten baseline on the headline, and it
+introduced a carb regression whose cause is now known precisely. Fix the carb defect (B11) and
+re-measure before considering deployment.
 
 ---
 
@@ -879,6 +897,24 @@ the carb defect (B11) and re-measure before considering deployment.
   MenuStat) matching *known chain restaurant items* to their published nutrition, with the LLM
   as fallback for independents. That is matching, not inferring — a different problem from
   estimation. Still **not scheduled and not part of this phase**, but no longer ruled out.
+
+- **2026-08-08 — PASTEL AZTECA's beans are TOLERATED either way (Santiago).** Whether the
+  printed `300gr.` includes the `servido con frijoles` beans or not is **not important enough to
+  fail an item on**. Either result is acceptable to show a diner.
+
+  **How to score it:** a PASTEL field counts as failed **only if it misses under BOTH readings**
+  — beans outside (the shipped oracle, 380 g total) and beans inside (300 g total,
+  452 kcal / 39.2 P / 31.4 C / 19.9 F). Do **not** change the shipped oracle; it stays as the one
+  consistent rule. This is a *reading tolerance*, the same pattern as the extraction ledger's
+  tolerated classes: record the difference, do not block on it.
+
+  **What this immediately settled (all $0, from archived responses):** PASTEL's **fat** failure in
+  iter-b10-001 was **pure scope** — −44% beans-outside but −24% beans-inside, which passes. Its
+  **carb** failure survives both readings (+41% outside, +59% inside) and is therefore **real
+  model error**. This is the cleanest possible confirmation that B11 is the right target.
+
+  **Failed field/draws under this tolerance:** baseline-002r **6**, iter-b1-001 **13**,
+  iter-b10-001 **7**. Quote these numbers going forward, alongside the strict ones.
 
 - **2026-08-08 — Printed-weight scope (Santiago). SUPERSEDES the per-dish treatment below.**
   The printed weight covers the **plated dish**; an ingredient the menu marks as an

@@ -53,17 +53,40 @@ audits, Atwater checks, dispersion, and evidence limitations are in
 `scripts/fixtures/macro-oracle.json` and
 `docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
 
-**Current pause:** final review is clean, but a fresh full suite on `ce91e91` reports
-`298 passed | 1 failed`. The only failure is the documented, pre-existing Polloteria image
-dimension mismatch in `scripts/tile-cut_test.ts` (actual `1478×1022`, expected
-`1364×943`). Do not change it as part of macro work without Santiago's direction. The remaining
-branch-handoff decision is whether Santiago wants that unrelated failure fixed now or accepted
-as pre-existing before merge/PR options are presented.
+⚠️ **This section is the historical record up to the pinned baseline. Work has continued past
+it.** For current status go to the master roadmap's `🎯 CURRENT PHASE` block, which carries the
+full takeover briefing. What follows below in this file is still live and correct: the **paid-run
+procedure** (mirror check, archiving, hand audit, what to report), which every iteration reuses.
 
-**Next macro-development decision after handoff:** do not spend on another baseline by default.
-The pinned baseline establishes persistent CESAR/Salmone portion/fat/calorie failures. Choose one
-backlog hypothesis from the run ledger, design it with `superpowers:brainstorming`, and obtain
-Santiago's explicit paid-run approval before measuring it.
+**What happened after the pinned baseline (2026-08-08), in one table:**
+
+| Commit | What | Deployed? |
+|---|---|---|
+| `a4ebf0f` | Oracle re-frozen under **one** printed-weight rule; $0 re-score of the archived draws | — |
+| `1768a1d` | **B1** — required per-ingredient `grams` | ❌ branch only |
+| `ff1b553` | iter-b1-001 measured ($0.023) | — |
+| `1ce5139` | **B10** — per-ingredient macros, item totals summed in code, calories by Atwater | ❌ branch only |
+| `fda94e9` | iter-b10-001 measured ($0.036) | — |
+
+Failed field/draws (of 36), under the PASTEL beans tolerance: baseline-002r **6** →
+iter-b1-001 **13** → iter-b10-001 **7**. **Neither iteration has beaten the baseline, so neither
+is deployed.** Six of iter-b10-001's seven failures are a single identified defect — the model
+over-states carbohydrate for vegetables and sauces by 2.7–3.7×. **Next action is B11**, a prompt
+sentence targeting exactly that; see the log's B11 entry.
+
+**Standing rules for any iteration that reuses this file's Task 5 procedure:**
+- **Skip the mirror call** unless the change under test has been deployed. Comparing a changed
+  harness against an unchanged edge function proves nothing and costs a call.
+- **Check the harness still measures the real path.** `scripts/bench-macros.ts` parses the model
+  response itself, so any change to how `enrich.ts` derives item macros must be mirrored there.
+  This was missed once and caught before spending (lesson 23) — `modelValues` now imports and
+  applies the real `sumIngredientMacros`.
+- **Never quote a single draw.** Report the range, and count failed field/draws, not just tallies.
+
+ℹ️ **The suite's one failing test is noise.** `304 passed | 1 failed` with only
+`scripts/tile-cut_test.ts` red is a CLEAN run. Santiago has ruled it unimportant: it tests the
+image tile cutter, Stage 2 is text-only and never sees a photo, and it guards code that cannot
+execute under the current pipeline. Do not spend time on it. **Any other failure is yours.**
 
 ## Before you start (zero-context setup)
 
@@ -89,8 +112,9 @@ pnpm install --prefer-offline
 deno test --allow-all --quiet scripts/ supabase/
 ```
 
-**Expected baseline: `298 passed | 1 failed`.** The one failure is `scripts/tile-cut_test.ts`,
-pre-existing and unchanged since eval 114 — it is not yours. **Any other failure is.**
+**Expected baseline: `304 passed | 1 failed`** (was 298 before B1/B10 added tests). The one
+failure is `scripts/tile-cut_test.ts` — unimportant, ruled so by Santiago, and unable to affect
+macros. It is not yours. **Any other failure is.**
 
 Do NOT run `deno test` over the repo root: `src/` holds React Native tests whose `@/*` path
 alias Deno cannot resolve, and they will fail for reasons unrelated to this work.
@@ -124,9 +148,9 @@ deliberately not being done yet.
 - **Environment:** `OPENAI_API_KEY` is in the worktree's gitignored `.env.local` (the repo's
   `.env` has the literal placeholder `PENDING` — do not use it). Scripts read it via
   `Deno.env.get`, house style.
-- **Baseline at plan start:** `deno test --allow-all scripts/ supabase/` = **298 passed /
-  1 failed**. The single failure is `scripts/tile-cut_test.ts`, pre-existing and unchanged
-  since eval 114. Any *other* failure is yours.
+- **Baseline as of 2026-08-08:** `deno test --allow-all scripts/ supabase/` = **304 passed /
+  1 failed** (298 at plan start; B1 and B10 added six tests). The single failure is
+  `scripts/tile-cut_test.ts` — noise, see the handoff note above. Any *other* failure is yours.
 
 ---
 

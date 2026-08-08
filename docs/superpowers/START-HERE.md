@@ -1,12 +1,13 @@
 # START HERE
 
-Entry point for any new session on Menu Scan. **This file deliberately contains no status.**
-Status drifts; routing does not. Everything below tells you *where* to look, never *what is true*.
+Entry point for any new session on Menu Scan. This file keeps only a compact handoff pointer;
+the detailed, time-sensitive macro status lives in its executable plan and run ledger.
 
-**Working directory:** `/Users/santiagoaguirre/Desktop/CODING/menu-scan-app`, branch `main`.
-One folder, one branch — app code, edge function, scripts, fixtures, oracles, docs and the ledger
-all live here. Older docs reference a `.worktrees/extraction-eval-harness` folder; **it no longer
-exists** (merged into `main`, eval 138). Read any such path as "this repo".
+**Repository root:** `/Users/santiagoaguirre/Desktop/CODING/menu-scan-app`. App code, edge
+function, scripts, fixtures, oracles, docs and ledgers all live here. Macro-enrichment work is
+currently on linked-worktree branch `worktree-stage2-macro-benchmark`; confirm the active branch
+before editing. Older docs reference a `.worktrees/extraction-eval-harness` folder; **it no
+longer exists** (merged into `main`, eval 138). Read any such path as "this repo".
 
 ---
 
@@ -28,7 +29,17 @@ written down.
 
 Which one applies: **product/UI/feature work → ①. Extraction accuracy, prompts, evals, oracles,
 the edge function → ②.** If a phase or priority is asserted anywhere other than these two blocks,
-it is stale — fix it or ignore it, never believe it.
+it is stale — fix it or ignore it, never believe it. The active Stage-2 macro handoff below is
+the explicit exception: it is the bounded Phase-9 workstream record, not a competing roadmap.
+
+**Stage-2 macro-enrichment handoff (2026-08-08):** the USDA oracle and pinned baseline are
+complete on `worktree-stage2-macro-benchmark`; production Stage 2 is pinned to
+`gpt-4o-2024-08-06`. Read
+`docs/superpowers/plans/2026-08-07-stage2-macro-benchmark.md` first for exact status, commits,
+the remaining branch-handoff decision, and what must not be re-run. Then read
+`docs/superpowers/stage2-macro-benchmark.md` for the two archived baseline ranges and failure
+list. The USDA plan is the frozen oracle/provenance reference:
+`docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
 
 Then read:
 

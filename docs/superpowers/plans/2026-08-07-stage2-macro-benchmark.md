@@ -4,18 +4,17 @@
 > (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use
 > checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a $0.05 harness that measures whether GPT-4o's Stage-2 macro estimates agree
-with Santiago's manual ingredient lookup, on three already-extracted menu items, and produce
-the first baseline measurement.
+**Goal:** Build a benchmark that measures whether Stage-2 macro estimates agree with a
+Santiago-approved USDA FoodData Central recipe oracle, on three already-extracted menu items.
 
 **Architecture:** Stage 2 is a text-only step — it takes extracted menu items as JSON and never
-sees a photo. So the benchmark reuses items already extracted and photo-verified from the
-fixture archive, sends them through the real production prompt and schema, and scores the
-result against a human oracle. Three artifacts total: an oracle JSON that Santiago edits, one
-Deno script, one append-only log.
+sees a photo. The benchmark reuses photo-verified fixture items, sends them through the real
+production prompt and schema, and scores them against a frozen USDA recipe oracle. Its evidence
+set is the oracle, harness, append-only log, mirror request/response, raw draws, and a limited
+execution-evidence manifest.
 
-**Tech Stack:** Deno (test + run), TypeScript, OpenAI Chat Completions (`gpt-4o`, strict
-`json_schema`), Supabase Edge Functions (for the one-time mirror check only).
+**Tech Stack:** Deno (test + run), TypeScript, OpenAI Chat Completions
+(`gpt-4o-2024-08-06`, strict `json_schema`), Supabase Edge Functions (for mirror checks).
 
 **Spec:** `docs/superpowers/specs/2026-08-07-stage2-macro-enrichment-benchmark-design.md` —
 read it before starting. This plan implements it and does not restate its rationale.
@@ -34,9 +33,37 @@ The unchecked boxes below are retained as the original implementation record, no
 list. The manual-value portions of Tasks 2 and 5 are superseded by the approved USDA plan:
 `docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
 
-**Current handoff:** resume that USDA plan at **Task 1, Step 1**. After its reviewed oracle is
-complete, return here only for this plan's Task 5 paid GPT baseline and mirror check; obtain a
-fresh explicit <$0.05 approval first.
+## Current handoff — 2026-08-08
+
+**Do not execute Tasks 1–5 again.** The USDA oracle plan is complete and all benchmark evidence
+is committed on branch `worktree-stage2-macro-benchmark`:
+
+| Milestone | Commit / result |
+|---|---|
+| Deterministic USDA calculator, FDC helper, approved recipes, runner guard | `4300e4f` → `242ab9e` |
+| Alias-based historical baseline-001 | `f32af60`; CESAR 0/3, Salmone 0/3, Pastel 2/3 |
+| Pin Stage-2 production + harness and deploy it | `0476481` (deployment manually confirmed) |
+| Pinned baseline-002 | `37dd47c`; CESAR 0/3, Salmone 0/3, Pastel 3/3 |
+| Response-boundary hardening and final deploy | `ce91e91` (deployment manually confirmed) |
+
+Stage 2 production requests, benchmark requests, and response metadata share the pinned
+`ENRICH_MODEL = "gpt-4o-2024-08-06"`. The full raw archive, per-field ranges, ingredient
+audits, Atwater checks, dispersion, and evidence limitations are in
+`docs/superpowers/stage2-macro-benchmark.md`. The approved USDA rows and provenance are in
+`scripts/fixtures/macro-oracle.json` and
+`docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
+
+**Current pause:** final review is clean, but a fresh full suite on `ce91e91` reports
+`298 passed | 1 failed`. The only failure is the documented, pre-existing Polloteria image
+dimension mismatch in `scripts/tile-cut_test.ts` (actual `1478×1022`, expected
+`1364×943`). Do not change it as part of macro work without Santiago's direction. The remaining
+branch-handoff decision is whether Santiago wants that unrelated failure fixed now or accepted
+as pre-existing before merge/PR options are presented.
+
+**Next macro-development decision after handoff:** do not spend on another baseline by default.
+The pinned baseline establishes persistent CESAR/Salmone portion/fat/calorie failures. Choose one
+backlog hypothesis from the run ledger, design it with `superpowers:brainstorming`, and obtain
+Santiago's explicit paid-run approval before measuring it.
 
 ## Before you start (zero-context setup)
 
@@ -62,7 +89,7 @@ pnpm install --prefer-offline
 deno test --allow-all --quiet scripts/ supabase/
 ```
 
-**Expected baseline: `267 passed | 1 failed`.** The one failure is `scripts/tile-cut_test.ts`,
+**Expected baseline: `298 passed | 1 failed`.** The one failure is `scripts/tile-cut_test.ts`,
 pre-existing and unchanged since eval 114 — it is not yours. **Any other failure is.**
 
 Do NOT run `deno test` over the repo root: `src/` holds React Native tests whose `@/*` path
@@ -88,7 +115,8 @@ deliberately not being done yet.
   reformatted oracle files before.
 - **No new API calls beyond those named in Task 5.** No OCR, no extraction, no photo upload.
   Stage 2 is text-only.
-- **Model parameters are fixed and must match production exactly:** model `gpt-4o`,
+- **Model parameters are fixed and must match production exactly:** model
+  `gpt-4o-2024-08-06`,
   `temperature: 0`, `seed: 17`, `response_format` strict `json_schema`. Do not "improve" them.
 - **Tolerance bands (user-approved, do not change without a ruling):** `estimated_calories`
   ±20%; `protein_g`, `carb_g`, `fat_g` ±30% each. An item passes a draw only if all four pass.
@@ -96,7 +124,7 @@ deliberately not being done yet.
 - **Environment:** `OPENAI_API_KEY` is in the worktree's gitignored `.env.local` (the repo's
   `.env` has the literal placeholder `PENDING` — do not use it). Scripts read it via
   `Deno.env.get`, house style.
-- **Baseline at plan start:** `deno test --allow-all scripts/ supabase/` = **267 passed /
+- **Baseline at plan start:** `deno test --allow-all scripts/ supabase/` = **298 passed /
   1 failed**. The single failure is `scripts/tile-cut_test.ts`, pre-existing and unchanged
   since eval 114. Any *other* failure is yours.
 

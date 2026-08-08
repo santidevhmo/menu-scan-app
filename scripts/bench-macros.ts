@@ -87,7 +87,10 @@ function modelValues(item: EnrichedItem): MacroValues {
   // numbers and DISCARDS the ones the model emitted at item level. Scoring
   // item.protein_g here would grade a value the app never shows (lesson 23 -
   // the harness must run the real logic, not a parallel copy).
-  const totals = sumIngredientMacros(item.ingredients ?? []);
+  // B4: the printed total is part of the real computation - without it the
+  // servings are scored unscaled and the harness grades a number production
+  // never emits (lesson 23 - the harness must run the real logic).
+  const totals = sumIngredientMacros(item.ingredients ?? [], item.printed_total_g);
   return {
     calories: totals.estimated_calories,
     protein_g: totals.protein_g,

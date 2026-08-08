@@ -12,11 +12,20 @@ import {
   type MacroValues,
   scoreItem,
 } from "./macro-score.ts";
+import {
+  type UsdaRecipeIngredient,
+  validateRecipe,
+} from "./usda-oracle.ts";
 
 const ORACLE_PATH = "scripts/fixtures/macro-oracle.json";
 const CACHE_DIR = "scripts/fixtures/caches";
 
-type OracleValues = MacroValues & { assumed: string };
+type OracleValues = MacroValues & {
+  assumed: string;
+  source: string;
+  retrieved_at: string;
+  ingredients: UsdaRecipeIngredient[];
+};
 
 export interface OracleEntry {
   menu: string;
@@ -42,8 +51,19 @@ interface ItemResult {
 
 export function loadOracle(path: string): OracleEntry[] {
   const entries = JSON.parse(Deno.readTextFileSync(path)) as OracleEntry[];
-  if (!Array.isArray(entries) || entries.some((entry) => !entry.oracle)) {
+  if (!Array.isArray(entries)) {
     throw new Error("oracle not filled");
+  }
+  for (const entry of entries) {
+    const oracle = entry.oracle;
+    if (!oracle) throw new Error("oracle not filled");
+    if (oracle.source !== "USDA FoodData Central") {
+      throw new Error("oracle source must be USDA FoodData Central");
+    }
+    if (!Array.isArray(oracle.ingredients) || !oracle.ingredients.length) {
+      throw new Error("oracle requires a completed USDA ingredient list");
+    }
+    validateRecipe(oracle.ingredients, oracle);
   }
   return entries;
 }

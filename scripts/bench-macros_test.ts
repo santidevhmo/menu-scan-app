@@ -42,6 +42,46 @@ Deno.test("loadOracle refuses to proceed while any oracle is unfilled", () => {
   Deno.removeSync(tmp);
 });
 
+Deno.test("loadOracle rejects an unprovenanced or inconsistent oracle", () => {
+  const tmp = Deno.makeTempFileSync({ suffix: ".json" });
+  const completeEntry = {
+    menu: "m",
+    name: "n",
+    description: "",
+    price: null,
+    category: "food",
+    section_title: null,
+    options: [],
+    printed_weight: "",
+    oracle: {
+      calories: 165,
+      protein_g: 31,
+      carb_g: 0,
+      fat_g: 3.6,
+      assumed: "USDA FDC",
+      source: "USDA FoodData Central",
+      retrieved_at: "2026-08-07",
+      ingredients: [{
+        name: "chicken",
+        fdc_id: 1,
+        grams: 100,
+        basis: "cooked",
+        per_100g: { calories: 165, protein_g: 31, carb_g: 0, fat_g: 3.6 },
+      }],
+    },
+  };
+  Deno.writeTextFileSync(
+    tmp,
+    JSON.stringify([{
+      ...completeEntry,
+      oracle: { ...completeEntry.oracle, source: "other" },
+    }]),
+  );
+
+  assertThrows(() => loadOracle(tmp), Error, "USDA FoodData Central");
+  Deno.removeSync(tmp);
+});
+
 Deno.test("grams comes from the real parseItemGrams, matching production", () => {
   const entries = JSON.parse(
     Deno.readTextFileSync(ORACLE_PATH),

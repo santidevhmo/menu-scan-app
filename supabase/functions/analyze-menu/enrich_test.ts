@@ -175,6 +175,18 @@ Deno.test("enrich prompt asks for per-ingredient grams and derived totals (B1)",
   );
 });
 
+Deno.test("enrich prompt names the vegetable/sauce carb trap (B11)", () => {
+  // iter-b10-001: six of seven failures were carbs. Per-ingredient numbers show
+  // vegetables and tomato sauces over-rated 2.7-3.7x (30 g corn -> 15 g carb,
+  // i.e. 50% carb by weight when sweet corn is 18.6%), while bread, croutons
+  // and beans were accurate. No dish names, no cuisines - ingredient classes only.
+  assertEquals(ENRICH_PROMPT.includes("mostly water"), true);
+  assertEquals(
+    ENRICH_PROMPT.includes("reserve high carb_g values for"),
+    true,
+  );
+});
+
 Deno.test("every ingredient carries its own macros so code can sum them (B10)", () => {
   // iter-b1-001: the model portions well and totals badly. Its own grams,
   // priced with USDA values, scored BETTER than the macros it reported on two

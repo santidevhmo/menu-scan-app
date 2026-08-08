@@ -16,6 +16,8 @@
 //
 // Run: deno run --allow-read scripts/score-portions.ts [runId ...]
 
+import { resolveGrams } from "../supabase/functions/analyze-menu/enrich.ts";
+
 const CACHE_DIR = "scripts/fixtures/caches";
 const DRAWS = 3;
 
@@ -81,6 +83,37 @@ export function scoreDishPortions(
   };
 }
 
+/**
+ * The grams to score for one archived item.
+ *
+ * Runs before B4 archived a literal `grams` per ingredient. From B4 on the
+ * response carries `typical_serving_g` and the grams are derived, so the metric
+ * must score what the code actually produces - scoring raw servings would grade
+ * a number the app never emits.
+ */
+export function modelGrams(
+  item: {
+    printed_total_g?: number | null;
+    ingredients?: {
+      name: string;
+      grams?: number;
+      typical_serving_g?: number;
+      within_printed_weight?: boolean;
+    }[];
+  },
+): { name: string; grams: number }[] {
+  const ingredients = item.ingredients ?? [];
+  const isPreB4 = ingredients.length > 0 &&
+    ingredients[0].typical_serving_g === undefined;
+
+  const grams = isPreB4
+    ? ingredients.map((i) => i.grams ?? 0)
+    // deno-lint-ignore no-explicit-any
+    : resolveGrams(ingredients as any, item.printed_total_g);
+
+  return ingredients.map((i, idx) => ({ name: i.name, grams: grams[idx] }));
+}
+
 function pct(x: number): string {
   return `${(x * 100).toFixed(1)}%`;
 }
@@ -122,7 +155,7 @@ async function main() {
 
         const score = scoreDishPortions(
           oracleIngredients,
-          item.ingredients ?? [],
+          modelGrams(item),
           item.name,
         );
         if (!score) {

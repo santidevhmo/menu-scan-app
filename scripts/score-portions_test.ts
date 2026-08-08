@@ -1,5 +1,31 @@
 import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
-import { scoreDishPortions } from "./score-portions.ts";
+import { modelGrams, scoreDishPortions } from "./score-portions.ts";
+
+Deno.test("modelGrams derives B4 grams and still reads pre-B4 runs", () => {
+  // Post-B4: servings sum to 250 inside a printed 200, so the two plate items
+  // scale by 0.8 and the accompaniment passes through.
+  assertEquals(
+    modelGrams({
+      printed_total_g: 200,
+      ingredients: [
+        { name: "a", within_printed_weight: true, typical_serving_g: 100 },
+        { name: "b", within_printed_weight: true, typical_serving_g: 150 },
+        { name: "side", within_printed_weight: false, typical_serving_g: 50 },
+      ],
+    }),
+    [{ name: "a", grams: 80 }, { name: "b", grams: 120 }, { name: "side", grams: 50 }],
+  );
+
+  // Pre-B4 archived runs carry a literal grams and no printed_total_g. They must
+  // keep scoring exactly as before or the five historical rows stop being
+  // comparable to the new one.
+  assertEquals(
+    modelGrams({
+      ingredients: [{ name: "a", grams: 50 }, { name: "b", grams: 30 }],
+    }),
+    [{ name: "a", grams: 50 }, { name: "b", grams: 30 }],
+  );
+});
 
 Deno.test("displacement is the share of dish mass on the wrong ingredient", () => {
   // The real CESAR case: the model's total is exactly right (200 g) and every

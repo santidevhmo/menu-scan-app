@@ -2787,3 +2787,41 @@ Recorded as **lesson 30** in the roadmap.
 
 **What this unblocks:** B20 (parse the printed weight in code, hide it from the model) is now
 measurable and is the next thing to run.
+
+### iter-b20b — blind the model to the printed weight. FALSIFIED, and it kills the self-fitting thread (2026-08-09, ~$0.10)
+
+**Reverted to `macro-best-v3`.** Probe **16/96 at 18.8%** against B15's 11–13/96 at 14.1–14.9%.
+ENFRIJOLADAS carried most of it (7/12 at 44.8%, from 4/12 at 25.3%).
+
+**The mechanism DID work — partially.** With the printed weight parsed in code and stripped from what
+the model sees, servings stopped matching the target on several dishes:
+
+| dish | B15 servings/printed | B20 blinded |
+|---|---:|---:|
+| Gnocchi | 1.00 | **1.17** |
+| Salmone | 1.09 | **1.20** |
+| NEW YORK | 0.88 | 0.83 |
+| French Fries | 1.02 | 1.02 |
+| **CESAR** | **1.00** | **1.00** |
+| **Coleslaw** | **1.00** | **1.00** |
+| mean | 1.00 | 1.03 |
+
+🔑 **CESAR and Coleslaw stayed at exactly 1.00 while BLIND. They cannot be fitting to a number they
+never saw.** Their conventional servings genuinely sum to the printed weight by coincidence —
+Coleslaw is 50 + 50 + 30 + 20 = 150, which is simply what the model thinks a slaw side contains.
+
+**This falsifies the premise behind B19 and B20 for the dishes that actually fail.** The
+servings/printed = 1.00 audit was read as evidence of self-fitting; for these two it is evidence of
+nothing. Self-fitting is real on Gnocchi and Salmone — both already score 0/48 — and absent on the two
+dishes it was invoked to explain.
+
+**So the remaining Coleslaw and CESAR error is not a fitting artefact and never was.** It is exactly
+what it looks like on the surface: the model's conventional serving for a dressing is 20 g, on a 150 g
+slaw and a 200 g salad alike, and USDA says 30 g. Three separate mechanisms have now been aimed at
+that number through the fitting step (B16 ratio, B19 order, B20 blinding) and none touched it,
+because none of them was addressing the actual cause.
+
+⚠️ **Method note — this is the second theory in this phase corrected by its own data.** An aggregate
+that looked like a smoking gun (mean 1.01) was driven by dishes that already pass, while the failing
+dishes sat at the same value for an unrelated reason. **Check that an aggregate holds on the specific
+cases it is being used to explain, before building on it.**

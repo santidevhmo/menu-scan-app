@@ -1,8 +1,29 @@
 # Stage-2 Macro Enrichment Benchmark — Implementation Plan
 
+## ⛔ STOP — this file is a PROCEDURE, not a status page, and it is FULLY EXECUTED (2026-08-09)
+
+**Tasks 1–5 below are COMPLETE. Do not execute any of them.** The checkbox syntax and the
+"REQUIRED SUB-SKILL" note below are the original implementation record — they are **not** a live
+task list, and a session that starts executing them is redoing finished, paid work.
+
+**The only live content in this file is the paid-run procedure in Task 5** — mirror check,
+archiving, hand audit, what to report. Every new iteration reuses that and nothing else.
+
+**For current status go to the master roadmap's `🎯 CURRENT PHASE` block.** Everything in this file
+is historical and several statements in it are superseded, including both "handoff" sections.
+
+**The one-line state as of 2026-08-09:** the benchmark is built and frozen (8 dishes, USDA oracle);
+**"B4" was selected and DEPLOYED as edge function v28** (39/96 failed field/draws → 24–27/96, mean
+error 37.7% → 21.0%); **GPT-5.5 was measured, won on macros, and was declined on latency**; the one
+genuinely open technical question is the printed-weight **scope** convention, which is Santiago's
+ruling. Phase spend ~**$2.52**.
+
+---
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development
 > (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use
-> checkbox (`- [ ]`) syntax for tracking.
+> checkbox (`- [ ]`) syntax for tracking. **⚠️ Superseded — see the STOP banner above; this plan is
+> already executed.**
 
 **Goal:** Build a benchmark that measures whether Stage-2 macro estimates agree with a
 Santiago-approved USDA FoodData Central recipe oracle, on three already-extracted menu items.
@@ -33,7 +54,7 @@ The unchecked boxes below are retained as the original implementation record, no
 list. The manual-value portions of Tasks 2 and 5 are superseded by the approved USDA plan:
 `docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
 
-## Current handoff — 2026-08-08
+## Current handoff — 2026-08-08 *(historical — superseded by the STOP banner at the top)*
 
 **Do not execute Tasks 1–5 again.** The USDA oracle plan is complete and all benchmark evidence
 is committed on branch `worktree-stage2-macro-benchmark`:
@@ -142,7 +163,7 @@ still worth running.
   applies the real `sumIngredientMacros`.
 - **Never quote a single draw.** Report the range, and count failed field/draws, not just tallies.
 
-ℹ️ **The suite's one failing test is noise.** `330 passed | 1 failed` with only
+ℹ️ **The suite's one failing test is noise.** `337 passed | 1 failed` with only
 `scripts/tile-cut_test.ts` red is a CLEAN run. Santiago has ruled it unimportant: it tests the
 image tile cutter, Stage 2 is text-only and never sees a photo, and it guards code that cannot
 execute under the current pipeline. Do not spend time on it. **Any other failure is yours.**
@@ -171,7 +192,7 @@ pnpm install --prefer-offline
 deno test --allow-all --quiet scripts/ supabase/
 ```
 
-**Expected baseline: `330 passed | 1 failed`** (298 at plan start; B1/B10, B14 and the 2026-08-09 measurement guards added the rest). The one
+**Expected baseline: `337 passed | 1 failed`** (298 at plan start; B1/B10, B14 and the 2026-08-09 measurement guards added the rest). The one
 failure is `scripts/tile-cut_test.ts` — unimportant, ruled so by Santiago, and unable to affect
 macros. It is not yours. **Any other failure is.**
 
@@ -207,7 +228,7 @@ deliberately not being done yet.
 - **Environment:** `OPENAI_API_KEY` is in the worktree's gitignored `.env.local` (the repo's
   `.env` has the literal placeholder `PENDING` — do not use it). Scripts read it via
   `Deno.env.get`, house style.
-- **Baseline as of 2026-08-09:** `deno test --allow-all scripts/ supabase/` = **330 passed /
+- **Baseline as of 2026-08-09:** `deno test --allow-all scripts/ supabase/` = **337 passed /
   1 failed** (298 at plan start). The single failure is
   `scripts/tile-cut_test.ts` — noise, see the handoff note above. Any *other* failure is yours.
 

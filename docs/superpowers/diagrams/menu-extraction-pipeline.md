@@ -3,10 +3,18 @@
 > **Canonical file** (the master roadmap links here as the source-of-truth for the flow + prompts).
 > A snapshot copy also lives at `~/Downloads/menu-extraction-pipeline.md`.
 >
-> **Last updated:** 2026-08-06 — **full rewrite for the deployed OCR pipeline.** The 2026-07-12
-> diagram (GPT-4o Vision as Stage 1, with a dense auto-cutter) is gone; it no longer describes what
-> runs. Production is **edge function v24** (`supabase functions list` → ACTIVE, 2026-08-04 19:49 UTC)
-> and `main` (`563f3d5`, clean, == `origin/main`). The pipeline logic below is what both carry.
+> **Last updated:** 2026-08-09 — **Stage 2 rewritten (B4) and deployed.** Production is **edge
+> function v28** (`supabase functions list` → ACTIVE), deployed from branch
+> `worktree-stage2-macro-benchmark`, still pinned to `gpt-4o-2024-08-06`. **Stage 1 is unchanged**;
+> only the P2 appendix and the Stage-2 row below moved. Previous body text (2026-08-06, v24) described
+> the same Stage 1 and is retained below.
+>
+> **What changed 2026-08-09:** P2 `ENRICH_PROMPT` and `ENRICH_SCHEMA_OPENAI` were rewritten so the
+> model supplies *knowledge* (ingredients, a conventional serving each, composition per 100 g) and the
+> **code** does all the arithmetic (`resolveGrams` fits servings to the printed weight,
+> `sumIngredientMacros` multiplies and adds, calories by Atwater). Benchmark: **39/96 failed
+> field/draws → 24–27/96**, mean error **37.7% → 21.0%**. `callGptEnrich` also moved from `index.ts`
+> to `enrich.ts`. Full verbatim prompt in the P2 appendix below.
 >
 > **What changed since the last diagram (all deployed):**
 > - **Stage 1 extractor migrated off GPT-4o Vision** (container rulings 29/30, deployed eval 126).
@@ -85,7 +93,8 @@ sequenceDiagram
     C->>EF: POST stage=enrich {items, provider:"gpt-4o"}
     par batches of 10 items, concurrent
         EF->>EN: enrichBatch · P2 ENRICH_PROMPT · temp 0 · seed 17<br/>(enrichBatchWithRetry: 1 retry if the batch comes back short)
-        EN-->>EF: per-item protein_g/carb_g/fat_g/estimated_calories + confidence + allergens
+        EN-->>EF: printed_total_g + per-ingredient serving & per-100g composition<br/>+ confidence + allergens (NOT the item totals)
+        EF->>EF: resolveGrams — fit inside-printed-weight servings to printed_total_g<br/>sumIngredientMacros — composition x grams, summed; calories by Atwater
     end
     EF->>EF: reassembleEnriched — one enriched row per input, in order,<br/>any dropped item backfilled with fallbackEnriched (confidence low, zeros)
     EF-->>C: enriched items[] (model_id: "gpt-4o")
@@ -120,10 +129,14 @@ sequenceDiagram
      assess the photo), plus `raw_response` (the OCR + structuring payloads per page).
    - `recordScan` writes one `scan_log` row (menu text only; failures are swallowed).
 3. **Client** sends the items back → `POST {stage:"enrich", provider:"gpt-4o"}` → `callGptEnrich`
-   (`index.ts`): items are split into batches of 10 and enriched in parallel with **P2**
-   (`ENRICH_PROMPT`, GPT-4o, temp 0, seed 17); `reassembleEnriched` guarantees one enriched item per
-   input, backfilling any drop. Returns per-item `protein_g / carb_g / fat_g / estimated_calories /
-   confidence / allergens`.
+   (**`enrich.ts`** since 2026-08-09, not `index.ts`): items are split into batches of 10 and enriched
+   in parallel with **P2** (`ENRICH_PROMPT`, GPT-4o, temp 0, seed 17). **The model returns ingredient
+   knowledge, not totals** — `printed_total_g`, and per ingredient a conventional `typical_serving_g`,
+   a `within_printed_weight` flag and `*_per_100g` composition. `resolveGrams` then fits the inside
+   servings to the printed weight and `sumIngredientMacros` multiplies and adds, deriving calories by
+   Atwater. `reassembleEnriched` guarantees one enriched item per input, backfilling any drop. Returns
+   per-item `printed_total_g / protein_g / carb_g / fat_g / estimated_calories / confidence /
+   allergens`.
 4. **Client** re-ranks items by the user's goals (soft-clamped z-scores — in `main`). Re-ranking reuses
    saved `parsed_items`; no re-scan.
 
@@ -156,7 +169,7 @@ would need re-validation against the OCR pipeline before being re-armed.
 | Sections & sub-sections (Feature 3) | 🟢 CLOSED | food-scoped `section_context`; postprocess + `textStructureCleanup` folds |
 | Categories + option-price/grams (Feature 4) | 🟢 CLOSED | food-scoped categories + pins; `items[].grams` parsed by postprocess `parseItemGrams` (schema unchanged) |
 | C4 — OCR-path gate close | 🟢 CLOSED 2026-08-01 | live re-graded 45/45/45, offline 44–45/45 after Santiago's tolerance rulings (evals 122–125b) |
-| Stage 2 enrichment (macros + allergens) | 🟡 CURRENT PHASE | GPT-4o, batched(10)+backfill; **macro-accuracy benchmark not yet run** — critical-path #5, the active phase |
+| Stage 2 enrichment (macros + allergens) | 🟢 **B4 DEPLOYED v28 (2026-08-09)** | GPT-4o, batched(10)+backfill. Macro accuracy **is** benchmark-gated now: 8 USDA-oracle dishes, **24–27/96 failed field/draws at 21.0–21.2%** (was 39/96 at 37.7%). Model supplies knowledge, code does the arithmetic. Open: printed-weight **scope** ruling; Coleslaw-type side dishes regressed |
 | Goal re-ranking | 🟢 | soft-clamped z-scores in `main` |
 | Dense auto-cutter + tile path | 💤 DORMANT | built & gated on the old Vision path (eval 055); unreachable now — `needs_crops` is never emitted |
 | `stage:"extract-crops"` (`runCropExtractions`) | 💤 LEGACY | GPT-4o Vision crops; no client caller |
@@ -275,18 +288,43 @@ words from two different printed dishes is NOT printed.
 When unsure, answer true.
 ```
 
-### P2 · `ENRICH_PROMPT` — `supabase/functions/analyze-menu/index.ts`
+### P2 · `ENRICH_PROMPT` — `supabase/functions/analyze-menu/enrich.ts`
+
+> ⚠️ **Rewritten 2026-08-09 — this is the "B4" prompt, deployed as edge function v28.** The prompt,
+> the schema and `callGptEnrich` all moved out of `index.ts` into `enrich.ts`, which is the importable
+> module (`index.ts` calls `serve()` at module scope, so a harness can only ever test a *copy* of
+> anything left there). The pre-B1 prompt this replaced asked the model for finished macro totals; it
+> is the version that scored **39/96 failed field/draws at 37.7% mean error** on the Stage-2 benchmark.
 
 ```text
 You estimate the nutrition profile of restaurant menu items. For each item, work step by step:
-1. List the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other.
-2. From those ingredients and the likely preparation (e.g. grilled vs fried), estimate per typical single restaurant serving: protein_g, carb_g, fat_g, estimated_calories. If the item's name or description contains explicit weight or portion info — e.g. (280gr), chicken (80gr), 2 chicken breasts sliced — use it as the primary basis for gram estimates rather than a typical portion; prefer printed weights over guesses.
+1. Give "printed_total_g": the weight printed on the menu for this item — e.g. (280gr), 200g — or null when the menu prints none. Then list the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other. Set "within_printed_weight" to false for anything the menu presents as served alongside the item rather than as part of it, because a printed weight normally describes the item itself and not what accompanies it. Give "typical_serving_g": what a normal restaurant serving of that ingredient is when it appears in this role, whether as the centrepiece, as a sauce or dressing, or as a garnish. Give the conventional serving for the ingredient itself — these are rescaled to the printed weight afterwards, so they do not need to add up to anything.
+2. For each ingredient, give its composition PER 100 g of that ingredient as served: protein_per_100g, carb_per_100g and fat_per_100g. These describe the food itself, not the size of the portion — the amount in this serving is calculated from them and the gram weight, so give the composition and let the weight do the rest. Base them on what the food is actually made of, including its water content, and on how it is prepared (fat absorbed or added in cooking counts), rather than on which macro the ingredient is best known for. Where a food is normally cooked, sauced or seasoned before it reaches the table, give the figures for that prepared version — the plain or raw reference figure for the same food understates the fat that preparation adds. The item's totals are added up from these, rather than estimating the totals directly, so each ingredient's numbers must stand on their own.
 3. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive, leaving you with little ingredient information to go on.
 List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, shellfish, egg, soy). Use an empty allergens array when none are inferred; do not include "none". Preserve each item's name, description, price, and category exactly as given. Do NOT sort the items. Return one object per input item, in the same order.
 ```
 
-Enrichment runs via **GPT-4o** (`callGptEnrich`), in parallel batches of 10 (`ENRICH_BATCH_SIZE`), temp 0,
-seed 17. Output adds `protein_g / carb_g / fat_g / estimated_calories / confidence / allergens[]` +
+**The model no longer computes the item's macros — the code does.** That is the whole design, and it
+is the change that halved the error:
+
+| step | who does it | where |
+|---|---|---|
+| Name the ingredients, tag each one, say what the printed weight covers | model | prompt step 1 |
+| State a **conventional serving** per ingredient (not fitted to the dish) | model | `typical_serving_g` |
+| State **composition per 100 g** (not the amount in this serving) | model | `*_per_100g` |
+| **Fit** the inside-the-printed-weight servings to `printed_total_g` | **code** | `resolveGrams` |
+| **Multiply** composition × grams and **add up** the item total | **code** | `sumIngredientMacros` |
+| Calories by Atwater (4/4/9) on the unrounded sums | **code** | `sumIngredientMacros` |
+
+⚠️ **Schema property ORDER is load-bearing** and is pinned by a test: strict mode emits fields in
+declaration order, so `printed_total_g` → `ingredients[]` must precede the macro fields or the
+chain-of-thought silently stops working. ⚠️ **Never name a food, dish or cuisine in step 2** —
+measured harmful, and `enrich_test.ts` fails the build if one appears.
+
+Enrichment runs via **GPT-4o** (`callGptEnrich`), parallel batches of 10 (`ENRICH_BATCH_SIZE`), temp 0,
+seed 17. Temperature now travels with the model via `samplingFor()` — gpt-5.x **rejects** `temperature: 0`
+and 400s the request, so hardcoding it would break any future model switch. Output adds
+`printed_total_g / protein_g / carb_g / fat_g / estimated_calories / confidence / allergens[]` +
 `ingredients[]` per item; `reassembleEnriched` guarantees one enriched object per input, order preserved,
 backfilling any item the model dropped.
 

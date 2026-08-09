@@ -15,8 +15,12 @@ belongs somewhere else.
 
 ## 2026-08-09 — GPT-5.5 beats GPT-4o on macro estimation, and our own fixture hid it
 
-**Status: measured, NOT deployed.** Production still runs `gpt-4o-2024-08-06` for Stage-2 macro
-enrichment. Switching is a separate decision that has not been taken.
+**Status: measured, and the switch was CONSIDERED AND DECLINED (Santiago, 2026-08-09).** Production
+runs `gpt-4o-2024-08-06` for Stage-2 macro enrichment and will continue to. GPT-5.5 wins on macro
+accuracy — that finding stands and is not retracted — but it is **~2.4× slower** on Stage 2 and gets
+drinks wrong, and the latency lost the trade. **Do not re-open this as a measurement question; the
+measurement is done and the decision was made on product grounds.** See the integrity findings at
+the end of this file.
 
 ### What was run
 

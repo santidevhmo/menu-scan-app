@@ -17,9 +17,16 @@ missing is a measured benchmark, including printed-weight items so P2's "prefer 
 rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope detail: item #5 of
 "Release scope decision" below.
 
-> **🚧 IN PROGRESS — benchmark built, SIX fixes measured. B4 scored 36/36, the first clean sweep and
-> the first time anything has beaten the baseline. Needs a repeat run before it means anything.
-> Nothing deployed.**
+> **✅ SHIPPED (2026-08-09) — the benchmark is built, eight fixes were measured, and the winner
+> ("B4") is DEPLOYED as edge function v28. Production went from 39/96 failed field/draws at 37.7%
+> mean error to 24–27/96 at 21.0–21.2%. GPT-5.5 was measured, won on macros, and was DECLINED on
+> latency. Two things remain and both need Santiago: the printed-weight SCOPE ruling, and the
+> real-restaurant field test.**
+>
+> ⚠️ **Everything between here and "NEXT ACTIONS" is the historical record of how that was reached,
+> written progressively as it happened.** Individual blocks contradict each other on purpose — later
+> ones supersede earlier ones and say so. **If you only want current state, read the paragraph above,
+> then jump to `### 🎯 NEXT ACTIONS`.**
 >
 > **Branch `worktree-stage2-macro-benchmark`** (off `main` at `04e77ab`). All of this phase's
 > work lives there, NOT on `main`. The local worktree is `.claude/worktrees/stage2-macro-benchmark/`
@@ -46,7 +53,12 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > | `692a8af` | **B12** — per-100 g composition, priced in code; B11's food list deleted | ❌ **on branch only** |
 > | `06fd49a` | **B13** — step-2 clause rejecting the raw reference figure (**falsified, kept**) | ❌ **on branch only** |
 > | `55f924d` | portion scorer — displacement metric, benchmark-only, $0 | — |
-> | `fae3291` `ff93de2` `950c334` `3ce44b7` | **B4** — conventional servings + printed-weight scope tag, fitted in code | ❌ **on branch only** |
+> | `fae3291` `ff93de2` `950c334` `3ce44b7` | **B4** — conventional servings + printed-weight scope tag, fitted in code | ✅ **DEPLOYED 2026-08-09 as v28** |
+> | `a9fce10` | temperature travels with the model; `callGptEnrich` moved to `enrich.ts` so a harness tests the real batching | ✅ **DEPLOYED 2026-08-09 as v28** |
+>
+> ⚠️ **The "on branch only" marks above are the status AT THE TIME each commit landed.** B4 was
+> subsequently deployed and the pre-B1 prompt it replaced is no longer what production runs. B1 and
+> B10–B13 were superseded by B4 on the branch, so they never shipped in their own right.
 >
 > **The measured story, in one table.** Failed field/draws, scored under the PASTEL beans
 > tolerance (see Rulings) — 36 field/draws total:
@@ -267,7 +279,8 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > re-scored both arms at $0 and the ranges **stopped overlapping**: GPT-4o **24–27/96 at 21.0–21.2%**,
 > GPT-5.5 **14–19/96 at 15.5–17.2%**. The "level, do not switch" reading was substantially our own
 > fixture punishing the model that correctly named the tortilla. **Switching is a live question and
-> Santiago's call.** `ENRICH_MODEL` is still `gpt-4o-2024-08-06`; nothing is deployed. App-wide
+> Santiago's call — since MADE, and he DECLINED the switch on latency (see NEXT ACTIONS).**
+> `ENRICH_MODEL` is still `gpt-4o-2024-08-06`; B4 is deployed as v28, GPT-5.5 is not. App-wide
 > write-up kept outside this phase: `docs/model-findings.md`.
 >
 > ✅ **The `resolveGrams` fix this block used to recommend is FALSIFIED ($0 ablation).** Protecting
@@ -363,7 +376,7 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >
 > ### ℹ️ The `1 failed` in the test suite is NOISE — do not spend time on it
 >
-> The full suite reports `330 passed | 1 failed`. **That one failure is `scripts/tile-cut_test.ts`
+> The full suite reports `337 passed | 1 failed`. **That one failure is `scripts/tile-cut_test.ts`
 > and it does not matter.** Santiago's position (2026-08-08): not important, not blocking, not
 > worth a session. Treat it as the known-good baseline number and move on.
 >
@@ -382,7 +395,7 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >   `1364×943` (the 60% portrait numbers) was never updated. If anyone ever does fix it, it is two
 >   numbers → `1478, 1022`.
 >
-> **The rule for a new session:** `330 passed | 1 failed` with only `tile-cut_test.ts` red is a
+> **The rule for a new session:** `337 passed | 1 failed` with only `tile-cut_test.ts` red is a
 > CLEAN run. Any *other* failure is yours.
 
 

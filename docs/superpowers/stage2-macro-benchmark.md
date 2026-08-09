@@ -3213,3 +3213,51 @@ regression. Mean |error| stays inside range.
 
 ⚠️ **A legacy archive has no alcohol field at all**, so `?? 0` keeps every $0 re-score of a pre-B25 run
 byte-identical. Pinned by a test.
+
+### ⬅️ B25 REVERTED — drinks and alcohol are POST-LAUNCH (Santiago, 2026-08-09)
+
+> *"Drinks are not being handled right now and not included in the nutritional enrichment schema.
+> Drinks and alcohol is going to be handled post-launch."*
+
+B25 added `alcohol_per_100g` to every item's schema for a category deliberately out of scope, so it
+is out. Verified: **zero references to alcohol or ethanol remain** anywhere in `src/`, `supabase/` or
+`scripts/`.
+
+**The finding is kept for whoever picks drinks up.** Calories are Atwater over protein, carbohydrate
+and fat; ethanol is none of the three and carries 7 kcal/g, so a 150 ml glass of wine reads **18 kcal
+against a real ~125**. ⚠️ **It reaches FOOD too** — Coq au Vin measured 512 → 618 kcal — so it is not
+purely a drinks problem when that work starts.
+
+### ✅ An item with no ingredients now shows "—", not 0 (Santiago, 2026-08-09)
+
+The wide probe's DEFECT 1. Item macros are summed from ingredients (B10), so an item the model could
+not decompose sums to **0** — which renders as a confident `0 Cal` and **sorts to the top of a
+"lowest calorie" ranking.** A dash says *we don't know*; a zero says something false and appealing.
+
+`MenuItemRow` renders `—` for every macro when `ingredients` is empty. One condition, at the render
+layer — the macros themselves are untouched, so nothing downstream of enrichment changes.
+
+**We already had the detector, and it fired correctly.** `confidence` is set by the model (step 3:
+*low* when a name is "evocative or promotional rather than descriptive"), forced to `low` by B24 on a
+black-box ingredient, and surfaced by `results.tsx` as a banner when **≥75%** of items are low.
+`El Capricho del Chef` and `Explosión de Sabores` both came back `low` with zero ingredients. **The
+gap was never detection — it was that the banner is menu-level, so a handful of undescribed dishes on
+an otherwise good menu triggered nothing while still displaying 0.**
+
+**Still open, deliberately deferred:** whether such items should also be excluded from goal SORTING
+rather than merely displaying a dash. Santiago: *"we'll later decide how to handle them."*
+
+### ⚠️ PROVENANCE — the wide probe's 36 dishes were SYNTHETIC, and one claim must not be reused
+
+The 36 items were **written for the probe**, not taken from a real menu. That was not stated when the
+run was reported and it changes what the results support:
+
+| finding | still valid |
+|---|---|
+| `12 oz` → 340 g, `1/2 lb` → 227 g, `1.2 kg` → 1200 g | ✅ tests OUR parser; the input's origin is irrelevant |
+| wine at 18 kcal | ✅ an arithmetic gap in our own code |
+| the 0-kcal display defect | ✅ reproduces from any item with no ingredients |
+| composite dishes decompose | ⚠️ weaker — the dishes were chosen as ones the model likely knows |
+| **"1 of 36 black-boxed"** | 🔴 **NOT a real rate. The denominator is a designed set — never quote it as a frequency** (standing rule: a frequency claim needs a denominator, and this one is not a sample of anything) |
+
+**For an honest rate, sample the nine real archived menus in `scripts/fixtures/caches/` instead.**

@@ -1,0 +1,25 @@
+# CodeRabbit configuration.
+#
+# Why this exists: `scripts/fixtures/caches/` holds archived MODEL RESPONSES, not
+# source. They are committed on purpose - they are the benchmark's evidence trail
+# and they power the $0 re-score path (`scripts/rescore-history.ts`), so an oracle
+# correction can be applied to every historical run without paying to re-run it.
+# `bench-macros_test.ts` fails the build if a specific archive goes missing.
+#
+# They also swamp a review: 137 of the 179 files in PR #14 are these archives,
+# which put it past CodeRabbit's 100-file limit and stopped the review running.
+# There is nothing to review in them - each is a raw JSON API response.
+#
+# Excluding them from REVIEW is not the same as deleting them. They stay in the
+# repo, tracked and intact.
+reviews:
+  path_filters:
+    # Archived model responses: benchmark draws, generalisation probes, and the
+    # extraction eval corpus. Evidence, not code.
+    - "!scripts/fixtures/caches/**"
+    # Frozen expectation files for the extraction harness - data, not logic.
+    - "!scripts/fixtures/*.expected.json"
+    - "!scripts/fixtures/photos/**"
+    # Lockfiles.
+    - "!**/package-lock.json"
+    - "!**/deno.lock"

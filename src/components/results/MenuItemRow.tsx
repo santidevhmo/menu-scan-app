@@ -38,6 +38,13 @@ export function MenuItemRow({
   const matchingAllergens = item.allergens.filter((allergen) =>
     selectedAllergens.includes(allergen),
   );
+  // An item the model could not decompose has no ingredients, and macros summed
+  // from no ingredients are 0 - which reads as a confident "0 calories" and sorts
+  // to the TOP of a low-calorie ranking. A dash says "we don't know"; a zero
+  // says something false and appealing. Found by the 2026-08-09 generalisation
+  // probe on evocative names ("El Capricho del Chef"), which are common on
+  // exactly the menus this app targets.
+  const unknownMacros = (item.ingredients?.length ?? 0) === 0;
 
   return (
     <View className="rounded-card bg-card border border-border p-4 mb-3">
@@ -79,7 +86,7 @@ export function MenuItemRow({
           <MacroBadge
             key={macro.field}
             label={macro.label}
-            value={item[macro.field] * portion}
+            value={unknownMacros ? null : item[macro.field] * portion}
             unit={macro.unit}
             highlight={highlight.has(macro.field)}
           />
@@ -133,7 +140,8 @@ function MacroBadge({
   highlight,
 }: {
   label: string;
-  value: number;
+  /** null when the value is unknown - rendered as a dash, never as 0. */
+  value: number | null;
   unit: string;
   highlight: boolean;
 }) {
@@ -144,8 +152,7 @@ function MacroBadge({
           highlight ? "text-foreground font-semibold" : "text-muted-foreground"
         }`}
       >
-        {Math.round(value)}
-        {unit}
+        {value === null ? "—" : `${Math.round(value)}${unit}`}
       </Text>
       <Text className="font-sans text-caption text-muted-foreground">
         {label}

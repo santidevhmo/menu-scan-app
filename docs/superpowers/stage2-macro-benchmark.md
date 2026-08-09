@@ -2882,3 +2882,60 @@ achieved it as a by-product.
 
 **Open target: ENFRIJOLADAS**, which alone carries the mean-error regression. A reference amount for a
 filled-tortilla dish pushes its portions the wrong way.
+
+### ⚖️ TOLERANCE — calories gain a 50 kcal allowance, grams go 5 → 6 (Santiago, 2026-08-09)
+
+> *"For coleslaw, honestly the 40 cal and 5 g carb difference is tolerable. Not that drastic."*
+
+The real misses behind that ruling, read off the B21 archives rather than from memory: Coleslaw's
+carbs miss by **exactly 5.3 g** (ten times — 0.3 g above the old 5 g floor) and its calories by
+**47.7 kcal**. So the allowances are **6 g** and **50 kcal**. Calories had been excluded when the gram
+rule was added, on the reasoning that no dish here has a *small* calorie figure — true, and beside the
+point: a fixed small quantity is not worth failing whatever the denominator.
+
+🔴 **THIS RULING REVERSED THE B21 DECISION, and that is the important part.**
+
+| | failed/96 | mean \|error\| |
+|---|---|---|
+| **under the old tolerance** | | |
+| B15 | 11–13 | 14.1–14.9% |
+| B21 | **9–11** ✅ | 15.0–17.1% |
+| **under this tolerance** | | |
+| **B15** | **3–4** ✅ | **14.1–14.9%** ✅ |
+| B21 | 4–7 | 15.0–17.1% |
+
+B21 was adopted for getting fewer numbers wrong. The new allowance forgives precisely the small
+misses B15 was making, while B21's remaining misses are larger and survive it — so on the headline
+count the order flips. **The scoring rule, not the pipeline, decides that comparison.**
+
+✅ **The guard still passes and this is not the metric going soft:** the naive baseline still fails
+**30 of 96**, so the baseline→best gap *widened* from 22–24 to **26–27**. Mean |error| is untouched by
+tolerance by design — forgiven fields keep their real percentage — so those figures stay comparable
+across the whole history.
+
+**Santiago's ruling on the conflict (2026-08-09): KEEP B21.** Per dish it is closer to the truth on
+four dishes and worse on one. Coleslaw is the clearest case: under the new tolerance *both* versions
+pass it, but B15 passes because the rule forgives a 27.8% error while **B21 actually fixed it to
+18.7%**. ENFRIJOLADAS alone carries B21's disadvantage and is the next target.
+
+### 🏁 CHECKPOINT HISTORY — every previous best, and why it was superseded
+
+Each tag is a restorable fallback. **`git show <tag>` prints its measured result.** Do not move or
+delete any of them.
+
+| tag | pipeline | measured (at the time it was set) | superseded because |
+|---|---|---|---|
+| `stage2-b4-checkpoint` (`22a1ac5`) | **B4** | 3-dish era; retired figures | the fixture set widened to 8 (B14) |
+| `macro-best-v1` | **B4** | 19–21/96, 21.0–21.2% | B15 beat it on both metrics |
+| `macro-best-v2` | **B15** | 17–19/96, 18.2–19.0% | the Gnocchi oracle correction re-based every figure |
+| `macro-best-v3` | **B15** + corrected Gnocchi oracle | 11–13/96, 14.1–14.9% | B21 adopted (Santiago, on per-dish accuracy) |
+| **`macro-best-v4`** | **B21** | 9–11/96, 15.0–17.1% | **current** |
+
+⚠️ **`macro-best-v3` (B15) remains a strong fallback and under the current tolerance it still scores
+BETTER on both headline numbers (3–4/96 at 14.1–14.9%, against B21's 4–7/96 at 15.0–17.1%).** It was
+superseded on a deliberate judgement about per-dish accuracy, not on the headline. If a later
+iteration goes wrong, v3 is the safe place to fall back to.
+
+⚠️ **Figures are only comparable within an era.** The oracle changed at v3 (Gnocchi) and the scoring
+rule changed twice (the 5 g gram allowance, then 6 g + 50 kcal). Always re-score with
+`rescore-history.ts` rather than comparing numbers written on different days.

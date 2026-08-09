@@ -44,10 +44,19 @@ const SMALL_ORACLE_ABS_ALLOWANCE_G = 3;
 // Calories deliberately keep a pure percentage band - no dish in the set has a
 // small calorie figure (the smallest is Coleslaw at 163), so the problem that
 // motivates this rule does not arise there.
-const MACRO_ABS_ALLOWANCE_G = 5;
+const MACRO_ABS_ALLOWANCE_G = 6;
+// Calories get an absolute allowance too (Santiago, 2026-08-09, on Coleslaw:
+// "the 40 cal and 5 g carb difference is tolerable, not that drastic"). The real
+// misses behind that ruling were 47.7 kcal and 5.3 g - the carb one sitting 0.3 g
+// above the old 5 g floor. 50 kcal is roughly a fifth of a small side dish and
+// well inside the noise of what a kitchen actually plates. It was excluded when
+// the gram rule was added on the reasoning that no dish here has a SMALL calorie
+// figure; that reasoning held for the count and missed the point, which is that a
+// fixed small quantity is not worth failing whatever the denominator.
+const CALORIE_ABS_ALLOWANCE = 50;
 
 const FIELDS: { key: keyof MacroValues; tolerance: number; absAllowance: number | null }[] = [
-  { key: "calories", tolerance: CALORIE_TOLERANCE, absAllowance: null },
+  { key: "calories", tolerance: CALORIE_TOLERANCE, absAllowance: CALORIE_ABS_ALLOWANCE },
   { key: "protein_g", tolerance: MACRO_TOLERANCE, absAllowance: MACRO_ABS_ALLOWANCE_G },
   { key: "carb_g", tolerance: MACRO_TOLERANCE, absAllowance: MACRO_ABS_ALLOWANCE_G },
   { key: "fat_g", tolerance: MACRO_TOLERANCE, absAllowance: MACRO_ABS_ALLOWANCE_G },

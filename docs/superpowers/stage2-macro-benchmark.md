@@ -2669,3 +2669,53 @@ first place.
 to escape**, whatever the units and however the question is framed. B10 took the addition away, B12
 the multiplication, B4 the fitting; B18 tried to hand one back and got a round number. This is fresh
 evidence FOR the build-from-ingredients design, which is worth more than the dish it failed to fix.
+
+### 🔍 $0 FINDING — B4's fitting mechanism has gone DORMANT (2026-08-09)
+
+Audited across every archived draw. The ratio of the model's own inside-the-printed-weight servings
+to the printed weight itself:
+
+| dish | B4 | B15 |
+|---|---:|---:|
+| CESAR | 1.15 | 1.01 |
+| Salmone | 1.19 | 1.09 |
+| PASTEL | 0.94 | 1.01 |
+| NEW YORK | 1.00 | 0.91 |
+| French Fries | 1.02 | 1.02 |
+| Gnocchi | 1.10 | 1.00 |
+| ENFRIJOLADAS | 1.02 | 1.00 |
+| Coleslaw | 1.00 | 1.00 |
+| **mean** | **1.05** | **1.01** |
+
+**1.00 means the model fitted its own servings to the printed weight, so `resolveGrams` does nothing.**
+B4 exists to take exactly that constrained arithmetic away, on measured grounds: when the model had to
+make grams sum to a target it solved the problem by rounding, and CESAR's displacement sat at 20.0% in
+all fifteen draws without ever moving. **The remaining errors carry that same signature** — the model
+says 20 g of dressing on a 150 g slaw and on a 200 g salad alike, a portion frozen against dish size.
+
+It also explains **why B16 failed**: when the model has already fitted, forcing one ingredient's grams
+in code only makes the others absorb the difference.
+
+### iter-b19 — invert the field order to break self-fitting. FALSIFIED (2026-08-09, ~$0.10, 1 probe)
+
+**Reverted to `macro-best-v3`.** Probe **13/96 at 15.0%** against B15's 11–13/96 at 14.1–14.9% — the
+top of the range on count, just outside it on error.
+
+**The hypothesis:** the model self-fits because B4 has it state `printed_total_g` BEFORE portioning.
+Move it after the ingredients and it cannot fit to a number it has not written yet.
+
+**Result: the ordering is not the cause.** Mean servings/printed went 1.00 → **1.01**, and all three
+dishes that still fail — Coleslaw, CESAR, ENFRIJOLADAS — stayed at exactly **1.00**. Two dishes did
+loosen (PASTEL 1.00 → 0.92, Gnocchi 1.00 → 1.07), so the inversion had *some* effect, just not where
+it was needed.
+
+✅ **One thing worth keeping from this run: scope tagging did NOT regress.** B4's rationale for
+weight-first was that the model should settle scope before sizing, and the fear was that inverting
+would break it. It did not — baguette, frijoles and chimichurri were all still tagged outside the
+printed weight. **So B4's ordering rationale is weaker than assumed**, and a future change may reorder
+these fields without paying that tax.
+
+🔑 **The prior: self-fitting is a behaviour, not an artefact of field order.** The model makes its
+ingredient servings sum to the dish weight because that is what it believes a dish IS, and it will do
+so wherever the number appears in the schema. Anything that hopes to free the portions has to remove
+the model's ability to know the target at that moment — not merely reorder when it is asked.

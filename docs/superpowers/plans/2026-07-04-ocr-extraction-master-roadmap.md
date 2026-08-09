@@ -314,7 +314,10 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > partly answered — a $0 USDA check found the model **right** about Caesar dressing and Mexican cheese,
 > and the oracle right about baked salmon, croutons and heavy cream.
 >
-> **Deployment remains unauthorised.** Being the publishable state is not permission to publish.
+> 🚀 **DEPLOYED 2026-08-09 — B4 is live as edge function v28** (was v27), still pinned to
+> `gpt-4o-2024-08-06`. Santiago authorised it after the integrity arm cleared the real batched path.
+> Production had been running the pre-B1 prompt, the worst version measured. Rollback target is
+> **`ce91e91`**. Nothing beyond B4 is authorised — GPT-5.5 was considered and declined on latency.
 >
 > 📊 **Prior to weigh, not a prohibition (Santiago, 2026-08-08).** The scoreboard on *kinds of change*
 > so far: **prompt wording 0 for 2** (B11, B13 — ~$0.076, zero target numbers moved), **mechanism

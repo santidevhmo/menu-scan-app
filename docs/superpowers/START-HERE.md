@@ -34,8 +34,17 @@ the explicit exception: it is the bounded Phase-9 workstream record, not a compe
 
 **Stage-2 macro-enrichment handoff (2026-08-09) — THIS IS THE ACTIVE WORK.** The benchmark is
 built and frozen; six prompt/schema iterations have been measured against it, and the fixture set was
-widened from 3 dishes to 8 on 2026-08-09. Production is untouched — the deployed edge function still
-runs the original pre-B1 prompt, pinned to `gpt-4o-2024-08-06`. Phase spend to date: **$1.80**.
+widened from 3 dishes to 8 on 2026-08-09. Phase spend to date: **~$2.52**.
+
+🚀 **B4 IS DEPLOYED (2026-08-09, Santiago authorised).** Edge function `analyze-menu` **v27 → v28**,
+still pinned to `gpt-4o-2024-08-06`. Production previously ran the original pre-B1 prompt — the
+worst version measured (39/96 failed, 37.7% error); it now runs B4 (**24–27/96, 21.0–21.2%**).
+Verified live: `printed_total_g` read correctly on all three smoke-test dishes, allergens present,
+`model_id` = the pin. **Rollback = redeploy from `ce91e91`**:
+`git checkout ce91e91 -- supabase/functions/analyze-menu/ && supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw`.
+⚠️ **A known regression shipped with it:** B4 is WORSE than the old version on small dressed side
+dishes (Coleslaw 0/48 → 22/48) — it under-portions dressing. Accepted as the price of a ~2× net win.
+**GPT-5.5 is NOT deployed and was NOT chosen** — see the model block below.
 
 Read **② the roadmap's `🎯 CURRENT PHASE` block first** — it carries the full takeover briefing:
 every commit and whether it is deployed, the runs side by side, and what each proved. Then read
@@ -53,10 +62,12 @@ post the 2026-08-09 PASTEL re-freeze; on the old 3-dish set both arms scored 0, 
 was widened.
 
 🏁 **Fallback checkpoint: git tag `stage2-b4-checkpoint` → commit `22a1ac5`.** Restore from it if an
-evaluation regresses; publish from it if the phase stops. `git show stage2-b4-checkpoint` prints the
-result; `git diff stage2-b4-checkpoint -- supabase/functions/analyze-menu/` shows what has drifted.
+evaluation regresses. `git show stage2-b4-checkpoint` prints the result;
+`git diff stage2-b4-checkpoint -- supabase/functions/analyze-menu/` shows what has drifted.
 ⚠️ **That tag message quotes PRE-re-freeze numbers** — the current ones are in the log's Rulings. Do
-not move or delete the tag. Publishable is NOT permission to deploy.
+not move or delete the tag. ✅ **B4 was deployed on 2026-08-09** (see above) — the "publishable is not
+permission to deploy" caveat that used to sit here is spent. **The rollback target is `ce91e91`,
+the pre-B1 state**, not this tag.
 
 ✅ **The saturated gate is FIXED — the fixture set is now 8 dishes.** It used to be that
 baseline-002 and B4 both scored 0 of 36 and were indistinguishable. B14 (2026-08-09) added five
@@ -87,7 +98,8 @@ repeating paid work. Full detail in the log's Runs table and Rulings.
 | Measurement-code duplication (4 divergences) | Fixed; `macro-measure.ts` is the single path, guarded by tests |
 
 **Deliberately NOT done, and each needs a ruling before anyone starts:** deploying anything
-(never authorised); switching production to GPT-5.5; changing the oracle; re-running a baseline;
+FURTHER (B4 was authorised and deployed 2026-08-09 as v28; nothing else is); switching production
+to GPT-5.5 (considered and declined — 2.4× slower); changing the oracle; re-running a baseline;
 putting any food/dish/cuisine name in the prompt's nutrition step (measured harmful, unit-tested).
 
 **Two decisions are open and BOTH are Santiago's, not measurement questions:**

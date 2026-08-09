@@ -1935,8 +1935,44 @@ git checkout stage2-b4-checkpoint -- supabase/functions/analyze-menu/enrich.ts  
   3 draws. One better run is not enough — that is exactly the trap iter-b4-001 alone would have been.
 - **Do not move or delete the tag.** If something better lands, cut a *new* tag and record the
   supersession here; leave this one reachable.
-- **Deployment is still unauthorised.** Being the publishable state is not permission to publish.
-  Santiago rules on that separately.
+- ~~**Deployment is still unauthorised.**~~ ✅ **SUPERSEDED — Santiago authorised the deploy on
+  2026-08-09 and B4 is live as v28.** See the deployment ruling below.
+
+### 🚀 DEPLOYED — B4 is live *(Santiago authorised, 2026-08-09)*
+
+**Edge function `analyze-menu` v27 → v28**, project `uonuiadueykynbetxxrw`, still pinned to
+`gpt-4o-2024-08-06`. Deployed with
+`supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw` from the worktree,
+bundle 105 kB, at branch commit `fbcbd8b` + the docs commit that follows this entry.
+
+**What changed for users:** production had been running the **pre-B1 prompt** — the worst version
+ever measured here (39/96 failed field/draws, 37.7% mean error). It now runs B4 (**24–27/96,
+21.0–21.2%**), roughly a 2× improvement on both metrics.
+
+**Pre-deploy checks, all green:** project ACTIVE; `OPENAI_API_KEY` and `MISTRAL_API_KEY` sha256
+identical between prod and `.env.local`; client compatible (`src/types/scan.ts` reads the same four
+macro fields and does not validate-and-strip, so B4's extra `printed_total_g` and per-ingredient
+fields pass through harmlessly); suite 337 passed / 1 failed (tile-cut noise).
+
+**Live smoke test** (3 dishes, HTTP 200 in 12.3 s, `model_id` = the pin): `printed_total_g` read
+correctly as 200 / 200 / 300, per-ingredient composition present, allergens present. CESAR 427 kcal
+vs oracle 410, Salmone 570 vs 607, PASTEL 509 vs 624 (PASTEL's carbs low — the known tortilla gap).
+⚠️ **One draw. A functioning check, NOT a quality measurement** — the range rule still applies.
+
+⚠️ **A known regression shipped with it.** B4 is worse than the version it replaced on small dressed
+side dishes: **Coleslaw 0/48 → 22/48**, because it under-portions dressing. Accepted knowingly as
+the price of a ~2× net win, and USDA has since confirmed the oracle right about that dressing, so
+it is genuine model error and a real open target.
+
+**Rollback, one command pair:**
+
+```bash
+git checkout ce91e91 -- supabase/functions/analyze-menu/
+supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw
+```
+
+**Not deployed, and not chosen: GPT-5.5.** Better macros, but ~2.4× slower on Stage 2 and wrong
+about mineral water. Declined on the latency trade, not on measurement.
 
 ### How to read the track record — insights, not prohibitions *(Santiago, 2026-08-08)*
 

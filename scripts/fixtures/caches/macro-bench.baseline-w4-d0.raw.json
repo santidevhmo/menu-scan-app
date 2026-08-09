@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EApGkQOQ3dS0dPqQOoBneefBkQFVN",
+  "object": "chat.completion",
+  "created": 1786249066,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"CESAR (200 g)\",\"description\":\"Lechuga, queso parmesano rallado, croutones,\\npollo a la plancha y aderezo cesar de la casa.\",\"price\":275,\"category\":\"food\",\"ingredients\":[{\"name\":\"lechuga\",\"category\":\"veg\"},{\"name\":\"queso parmesano\",\"category\":\"fat\"},{\"name\":\"croutones\",\"category\":\"carb\"},{\"name\":\"pollo a la plancha\",\"category\":\"protein\"},{\"name\":\"aderezo cesar\",\"category\":\"fat\"}],\"protein_g\":25,\"carb_g\":15,\"fat_g\":20,\"estimated_calories\":350,\"confidence\":\"high\",\"allergens\":[\"dairy\",\"gluten\"]},{\"name\":\"Salmone toscano\",\"description\":\"Salmon al horno bañado en crema toscana blanca con ajo, espinaca, alcachofa, tomate deshidratado y alcaparra, acompañado con baguette. 200g\",\"price\":330,\"category\":\"food\",\"ingredients\":[{\"name\":\"salmon\",\"category\":\"protein\"},{\"name\":\"crema toscana\",\"category\":\"fat\"},{\"name\":\"ajo\",\"category\":\"veg\"},{\"name\":\"espinaca\",\"category\":\"veg\"},{\"name\":\"alcachofa\",\"category\":\"veg\"},{\"name\":\"tomate deshidratado\",\"category\":\"veg\"},{\"name\":\"alcaparra\",\"category\":\"veg\"},{\"name\":\"baguette\",\"category\":\"carb\"}],\"protein_g\":40,\"carb_g\":30,\"fat_g\":25,\"estimated_calories\":550,\"confidence\":\"high\",\"allergens\":[\"dairy\",\"gluten\",\"fish\"]},{\"name\":\"PASTEL AZTECA (300gr.)\",\"description\":\"Con pollo, salsa de tomate, chile verde, cebolla, elote y mezcla de quesos, servido con frijoles.\",\"price\":94,\"category\":\"food\",\"ingredients\":[{\"name\":\"pollo\",\"category\":\"protein\"},{\"name\":\"salsa de tomate\",\"category\":\"veg\"},{\"name\":\"chile verde\",\"category\":\"veg\"},{\"name\":\"cebolla\",\"category\":\"veg\"},{\"name\":\"elote\",\"category\":\"carb\"},{\"name\":\"mezcla de quesos\",\"category\":\"fat\"},{\"name\":\"frijoles\",\"category\":\"protein\"}],\"protein_g\":30,\"carb_g\":40,\"fat_g\":20,\"estimated_calories\":500,\"confidence\":\"high\",\"allergens\":[\"dairy\"]},{\"name\":\"NEW YORK\",\"description\":\"Calidad choice acompañado de chimichurri de la casa. (400gr)\",\"price\":690,\"category\":\"food\",\"ingredients\":[{\"name\":\"new york steak\",\"category\":\"protein\"},{\"name\":\"chimichurri\",\"category\":\"fat\"}],\"protein_g\":80,\"carb_g\":0,\"fat_g\":30,\"estimated_calories\":700,\"confidence\":\"high\",\"allergens\":[]},{\"name\":\"French Fries (300gr)\",\"description\":\"Papas a la francesa con un toque de perejil.\",\"price\":60,\"category\":\"side\",\"ingredients\":[{\"name\":\"papas\",\"category\":\"carb\"},{\"name\":\"aceite\",\"category\":\"fat\"},{\"name\":\"perejil\",\"category\":\"veg\"}],\"protein_g\":5,\"carb_g\":60,\"fat_g\":25,\"estimated_calories\":450,\"confidence\":\"high\",\"allergens\":[]},{\"name\":\"Gnocchi alla sorrentina\",\"description\":\"Gnocchi fresco en salsa preparada de tomate italiano con mozzarella fresco gratinado y parmesano. 180g\",\"price\":250,\"category\":\"food\",\"ingredients\":[{\"name\":\"gnocchi\",\"category\":\"carb\"},{\"name\":\"salsa de tomate\",\"category\":\"veg\"},{\"name\":\"mozzarella\",\"category\":\"fat\"},{\"name\":\"parmesano\",\"category\":\"fat\"}],\"protein_g\":15,\"carb_g\":50,\"fat_g\":20,\"estimated_calories\":500,\"confidence\":\"high\",\"allergens\":[\"dairy\",\"gluten\"]},{\"name\":\"ENFRIJOLADAS (135gr.)\",\"description\":\"Tres tortillas de maíz rellenas de pollo y bañadas con salsa de frijol, crema y queso cotija.\",\"price\":94,\"category\":\"food\",\"ingredients\":[{\"name\":\"tortillas de maíz\",\"category\":\"carb\"},{\"name\":\"pollo\",\"category\":\"protein\"},{\"name\":\"salsa de frijol\",\"category\":\"protein\"},{\"name\":\"crema\",\"category\":\"fat\"},{\"name\":\"queso cotija\",\"category\":\"fat\"}],\"protein_g\":20,\"carb_g\":30,\"fat_g\":15,\"estimated_calories\":400,\"confidence\":\"high\",\"allergens\":[\"dairy\"]},{\"name\":\"Coleslaw (150gr)\",\"description\":\"Ensalada de col morada, repollo y zanahoria con un delicioso aderezo cremoso.\",\"price\":52,\"category\":\"side\",\"ingredients\":[{\"name\":\"col morada\",\"category\":\"veg\"},{\"name\":\"repollo\",\"category\":\"veg\"},{\"name\":\"zanahoria\",\"category\":\"veg\"},{\"name\":\"aderezo cremoso\",\"category\":\"fat\"}],\"protein_g\":2,\"carb_g\":15,\"fat_g\":10,\"estimated_calories\":150,\"confidence\":\"high\",\"allergens\":[\"dairy\"]}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 928,
+    "completion_tokens": 1057,
+    "total_tokens": 1985,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_e160a45017"
+}

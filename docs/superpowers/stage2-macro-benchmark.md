@@ -2719,3 +2719,47 @@ these fields without paying that tax.
 ingredient servings sum to the dish weight because that is what it believes a dish IS, and it will do
 so wherever the number appears in the schema. Anything that hopes to free the portions has to remove
 the model's ability to know the target at that moment — not merely reorder when it is asked.
+
+### 🔴 HARNESS DEFECT — `bench-macros.ts` does NOT run the deployed path (2026-08-09)
+
+**Every macro number this project has ever published came from a request the harness built itself.**
+`bench-macros.ts`'s `enrich()` calls `fetch` directly with its own body. It does not call
+`enrichBatch` / `callGptEnrich`. It shares `ENRICH_PROMPT` and `ENRICH_SCHEMA_OPENAI`, which is why
+prompt and schema experiments have measured correctly — but **anything enrichBatch does around the
+request is invisible to the benchmark.**
+
+⚠️ **This is the `temperature: 0` incident repeating.** That one was recorded as: *"a benchmark that
+reaches the model by its OWN path is not evidence that the DEPLOYED path works."* `a9fce10` moved
+`callGptEnrich` into `enrich.ts` so a harness could exercise the real batching — and fixed
+`bench-pipeline.ts`, while **`bench-macros.ts` kept its private copy.** The divergence the lesson was
+written about was only half closed.
+
+**How it surfaced, and what it cost:** B20 moved gram-parsing and payload-stripping INTO
+`enrichBatch`. The probe returned 26/96 at 25.3% — apparently a catastrophic regression. It was not:
+the harness sent the old payload (gram tokens still in the names) against the new schema (no
+`printed_total_g` asked, and none supplied by the harness), so the run measured a hybrid that exists
+nowhere. **Cost: $0.10 and one wasted iteration.** The archived item's `name` field gave it away —
+`"CESAR (200 g)"`, still carrying the token B20 strips.
+
+**Rule going forward: a change that lives in `enrichBatch` CANNOT be measured until this is fixed.**
+Prompt- and schema-only changes remain valid, which covers B1–B19.
+
+### B20 — parse the printed weight in code, hide it from the model. DESIGNED, NOT MEASURED
+
+Reverted to `macro-best-v3` because the harness cannot test it. **The design is sound and should be
+re-applied once `bench-macros.ts` calls the real path.**
+
+**Why:** the model fits its own servings to the printed weight whenever it can see one
+(servings/printed ≈ 1.00), which makes `resolveGrams` a no-op and restores the constrained arithmetic
+B4 removed. B19 proved reordering the field does not help, because the weight sits in the description
+the model reads. So the target must be removed, not moved.
+
+✅ **The key enabling fact, verified at $0:** `parseItemGrams` — which already exists in the
+extraction stage — reads **8 of 8** fixture formats correctly, including the exact three B4 cited as
+the reason for asking the model instead (`200 g`, `200g`, `300gr.`). **We are paying the model to
+answer a question our own code already answers, and handing it the target it then fits to.**
+
+**The shape:** `enrichBatch` parses the weight with `parseItemGrams`, strips the token with a new
+`stripGramsTokens` (sharing the same regex, so what is hidden is exactly what is recovered), sends the
+blinded items, then restores name, description and `printed_total_g` from its own parse. One call, no
+extra cost, and `resolveGrams` does the fitting it was built for.

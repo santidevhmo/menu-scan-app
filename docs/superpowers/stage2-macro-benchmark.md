@@ -2939,3 +2939,33 @@ iteration goes wrong, v3 is the safe place to fall back to.
 ⚠️ **Figures are only comparable within an era.** The oracle changed at v3 (Gnocchi) and the scoring
 rule changed twice (the 5 g gram allowance, then 6 g + 50 kcal). Always re-score with
 `rescore-history.ts` rather than comparing numbers written on different days.
+
+### iter-b22 — multiply a stated unit count in code. FALSIFIED BY CONSTRUCTION (2026-08-09, ~$0.10)
+
+**Reverted to `macro-best-v4`.** Probe **5/96 at 15.1%**, inside B21's 4–7/96 at 15.0–17.1% — no
+movement.
+
+**The idea:** ENFRIJOLADAS' menu prints *"Tres tortillas de maíz"*. Menus state counts constantly and
+in every language (`3 pzas`, `6 PZ`, `orden de dos`), so asking for the count and the per-unit amount
+and multiplying in code is B10/B12/B4's pattern on a new fact.
+
+**The count fired correctly — `unit_count: 3` — and the design still fails, for a reason arithmetic
+settles without another run.** The model returned `typical_serving_g: 60`, the total for all three,
+so code multiplied to 180 g. Fix the wording so it answers per-unit and it returns 20 g, which code
+multiplies to **60 g — exactly what B21 already produced.** ⚠️ **A correctly-implemented B22 is a
+no-op.** The model's total for the tortillas is 60 g whichever way it is asked, and the count only
+changes how that 60 g is spelled.
+
+**Worth keeping from the accident:** the erroneous double-count pushed tortillas to 83.8 g against the
+oracle's 72 g and ENFRIJOLADAS improved from **35.4% → 25.9%**. That is evidence the oracle's
+tortilla-heavy split is nearer the truth than the model's default, and that the dish's error is a
+SPLIT problem, not a totals problem.
+
+🔴 **What actually fails this dish, and it is an ORACLE question for Santiago.** Under B21 the model
+fits reference amounts for the fillings — chicken 50 g, crema 20 g, cotija 10 g — around a 60 g
+tortilla serving, sums to 190 g, and scaling to the printed 135 g squeezes the tortillas to 42.6 g
+against the oracle's 72 g. The oracle gives chicken **25 g** for three filled tortillas.
+**Every arm measured in this phase has run protein 33–48% over that figure**, and the 2026-08-09 USDA
+adjudication closed the tortilla question while explicitly leaving the chicken one open: *"USDA cannot
+settle it."* Three independent pipelines disagreeing with an oracle in the same direction is the
+Gnocchi signature, which turned out to be the oracle. **Nothing changed. Raised for a ruling.**

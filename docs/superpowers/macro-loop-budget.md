@@ -36,8 +36,9 @@ under-quoted a run by pricing per *menu* instead of per *call* — check which u
 | 9 | 2026-08-09 | harness fix verification — 12/96 at 14.4%, inside B15's range | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **~$1.10 of $8.64** |
 | 10 | 2026-08-09 | B20 measured on the fixed harness — regressed. FALSIFIED | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **~$1.20 of $8.64** |
 | 11 | 2026-08-09 | B21 RACC reference-amount servings, full arm (4 runs) | gpt-4o-2024-08-06 | 12 | $0.40 | ~$0.396 | **~$1.60 of $8.64** |
+| 12 | 2026-08-09 | B22 unit-count probe — a correct version is a no-op. FALSIFIED | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **~$1.70 of $8.64** |
 
-**Remaining: ~$7.04**
+**Remaining: ~$6.94**
 
 ## Stop conditions
 

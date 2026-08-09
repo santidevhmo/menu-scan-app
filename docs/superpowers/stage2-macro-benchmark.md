@@ -3025,3 +3025,62 @@ it.
 
 🔴 **MEASUREMENT correction, NOT a pipeline improvement.** B21 is byte-identical before and after.
 Figures either side of this change are not comparable.
+
+### 🌍 GENERALISATION PROBE — B21 on 16 dishes no fixture covers (2026-08-09, ~$0.10)
+
+**The point of the phase is a pipeline that works on ANY menu, and eight fixtures cannot show that.**
+This runs the DEPLOYED path over dishes chosen to look nothing like them — other cuisines, other
+languages, a dish with no printed weight, a drink — and audits STRUCTURE rather than macros, since
+these have no oracle and building one needs Santiago's approval per recipe.
+
+✅ **`name_implied_components` (B15) generalises, and stays precise.** It fired on forms it was never
+designed against and stayed silent where the description was already complete:
+
+| dish | implied |
+|---|---|
+| BACON CHEESE BURGER | `burger patty, burger bun` |
+| Nigiri de salmón (2 pzas) | `sushi rice` |
+| Club Sandwich | `bread` |
+| PASTA ALFREDO | `pasta` |
+| Margherita | `pizza crust` |
+| Ensalada Griega, PURÉ DE PAPA, RIB EYE, Tarta de queso, Pad Thai, Tikka Masala | `[]` — correctly |
+
+✅ **Scope tagging generalises.** `chimichurri` outside RIB EYE's 400 gr and `french fries` outside
+the Club Sandwich — both marked *acompañado* on menus the fixture set never used.
+
+✅ **RACC servings (B21) hold across cuisines.** Sauces and dressings land at 30 g repeatedly —
+garlic sauce 30, berry coulis 30, tamarind sauce 30 — the behaviour B21 was adopted for, on foods it
+was never tuned against.
+
+✅ **No printed weight is handled correctly.** Six dishes had none, returned `printed_total_g: null`,
+and the fitting step did not fire.
+
+✅ **Tiny printed weights do not produce absurdities.** `ESPÁRRAGOS CON JAMÓN SERRANO (20 g)` → 18 kcal,
+`COSTRA DE CHAMORRO (80 g)` → 176 kcal.
+
+✅ **The drink is right, and this is the one GPT-5.5 got wrong.** `Bebida de litro mineral (1lt)` → **0
+kcal**, one ingredient, sparkling water. The pipeline-integrity arm recorded GPT-5.5 assigning it
+**252 kcal**. Drinks remain out of the benchmark, but the pinned model handles this one correctly.
+
+🔴 **ONE REAL DEFECT — the BLACK-BOX INGREDIENT, and it is a general failure, not a fixture quirk.**
+`Chicken Tikka Masala with basmati rice` decomposed to exactly two ingredients:
+
+```
+chicken tikka masala   200 g   (C5 per 100 g)
+basmati rice           150 g   (C75 per 100 g)
+```
+
+**The dish named itself as its own ingredient.** No chicken, cream, tomato or spice — one opaque 200 g
+block whose per-100 g composition is a dish-level guess. Pad Thai, by contrast, decomposed properly
+into noodles, egg, sprouts, peanuts and sauce.
+
+**Why it matters more than one dish:** this is B18's failure leaking back in through the ingredient
+list. B18 measured that the model's dish-level recall is WORSE than its ingredient sum on 6 of 8
+dishes, which is the whole reason this pipeline builds from parts. When a menu item's name is itself a
+well-known composite dish, the model can satisfy the schema without decomposing anything — and every
+guard we have is downstream of the ingredient list, so nothing catches it. **The risk is highest
+exactly where the app is least tested: named dishes from cuisines whose components a Western menu
+never spells out.**
+
+**Not fixed, and deliberately not rushed:** it needs a run to measure and the eight fixtures cannot
+detect it — none of them is a named composite dish. Logged as the top generalisation target.

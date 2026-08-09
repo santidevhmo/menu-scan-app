@@ -27,8 +27,10 @@ under-quoted a run by pricing per *menu* instead of per *call* — check which u
 | — | 2026-08-09 | opening balance | — | — | — | — | **$0.00 of $8.64** |
 | 1 | 2026-08-09 | B15 `name_implied_components`, run w1 of 4 | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **$0.10 of $8.64** |
 | 2 | 2026-08-09 | B15 runs w2, w3, w4 (arm complete) | gpt-4o-2024-08-06 | 9 | $0.30 | ~$0.297 | **~$0.40 of $8.64** |
+| 3 | 2026-08-09 | B16 run w1 — mechanism never fired, prompt defect | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **~$0.50 of $8.64** |
+| 4 | 2026-08-09 | B16b probe — mechanism fired, hypothesis FALSIFIED | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **~$0.60 of $8.64** |
 
-**Remaining: ~$8.24**
+**Remaining: ~$8.04**
 
 ## Stop conditions
 

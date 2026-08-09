@@ -2468,3 +2468,49 @@ enumeration also moves portioning.
 
 Net it is strongly positive — one dish regressed, four improved, and both headline metrics moved the
 right way — but the CESAR case is a live target and a reminder that these two steps are coupled.
+
+### iter-b16 — coating-as-a-share-of-the-dish. FALSIFIED (2026-08-09, ~$0.20, 2 probe runs)
+
+**Reverted to `macro-best-v2` (B15). The code is gone; the finding is the point.**
+
+**The hypothesis.** Verified from the B15 archives rather than inherited from these docs: Coleslaw's
+whole error is 10 g misallocated inside a fixed mass. Model and oracle both sum to exactly 150 g,
+but the model gives carrot 30 / dressing 20 where the oracle gives carrot 20 / dressing 30. At
+40 g fat/100 g against 0.2, that swing is ~36 kcal of the 41 kcal gap. CESAR carries the identical
+defect (dressing 20 g vs 30 g), so one mechanism would have covered 34 of the ~72 open failures.
+
+**Prior art said the oracle was right.** Classic creamy slaw runs 5–5.5 tbsp dressing per pound of
+cabbage (~18%, which backs the MODEL); extra-creamy runs 7–8 tbsp (~25%, which backs the oracle).
+The tiebreak is finished density: real coleslaw clusters at 107–124 kcal/100 g, the oracle sits at
+108, the model's answer at 81 — below every real coleslaw in FDC.
+
+**The mechanism was B12's move applied to portioning:** a coating has no serving size independent of
+what it coats, so asking for grams gets a spoonful. Ask instead for `share_of_dish_pct` and compute
+the grams from the printed weight in code.
+
+🔴 **It fired, and it changed nothing — because the ratio is not independent knowledge.** The model
+back-computed each share from the gram figure it already held:
+
+| ingredient | share returned | × printed weight | its own serving |
+|---|---:|---:|---:|
+| CESAR dressing | 10% | 20 g | 20 g |
+| Coleslaw dressing | 13.3% | 20 g | 20 g |
+| Salmone cream | 15% | 30 g | 30 g |
+
+Every one reproduces the original answer exactly. Scores confirm it: probe **20/96 at 18.1%**
+against B15's **17–19/96 at 18.2–19.0%** — outside B15's count range on the wrong side.
+
+🔑 **The prior this leaves, and it sharpens B10/B12/B4 rather than contradicting them.** "Take the
+arithmetic away and leave the model knowledge" only pays when the thing asked for is knowledge the
+model holds INDEPENDENTLY of the quantity being replaced. B12 worked because composition per 100 g
+is a property of the food, held separately from any portion. A coating's *ratio* is not a separate
+fact — it is the gram guess divided by the dish weight, so asking for it re-asks the same question in
+new units. **Before the next reformulation, ask: could the model derive this answer FROM the number I
+am trying to replace? If yes, expect no movement.**
+
+⚠️ **A second, cheaper lesson: the first B16 run measured nothing.** The prompt said *"Give
+share_of_dish_pct instead … with typical_serving_g still filled in"*, which is self-contradictory,
+and the model returned null on every ingredient including a dish literally named Coleslaw. That run
+(18/96 at 19.4%) is not evidence about the hypothesis — only about the wording. **Probe ONE run and
+confirm the field is populated before buying a four-run arm.** It cost $0.10 to learn instead of
+$0.40.

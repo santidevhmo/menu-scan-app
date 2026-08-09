@@ -270,9 +270,20 @@ Deno.test("macro benchmark serializes the pinned Stage-2 enrichment model", asyn
   };
 
   try {
+    // Default: the harness measures whatever production is pinned to.
+    assertEquals(Deno.env.get("BENCH_MODEL"), undefined, "BENCH_MODEL must not leak between tests");
     await enrich([]);
     assertEquals(request?.model, ENRICH_MODEL);
+
+    // B9's knob overrides the harness ONLY. It must never be able to change
+    // what production sends, so ENRICH_MODEL is re-asserted after the override.
+    Deno.env.set("BENCH_MODEL", "some-other-model-2026-01-01");
+    await enrich([]);
+    assertEquals(request?.model, "some-other-model-2026-01-01");
+    assertEquals(ENRICH_MODEL, "gpt-4o-2024-08-06");
+    Deno.env.delete("BENCH_MODEL");
   } finally {
+    Deno.env.delete("BENCH_MODEL");
     globalThis.fetch = originalFetch;
     if (originalKey === undefined) Deno.env.delete("OPENAI_API_KEY");
     else Deno.env.set("OPENAI_API_KEY", originalKey);

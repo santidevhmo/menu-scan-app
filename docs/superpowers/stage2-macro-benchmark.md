@@ -1522,6 +1522,67 @@ bar moves here.** The old "0–1 of 144" bar described a saturated 3-dish set an
 the live bar is **22–24 of 96**. Nothing is deployed. Open engineering targets are now Coleslaw
 (Finding 3) and Gnocchi (44/48), not the PASTEL cheese wobble.
 
+
+### b9-gpt55-w1…w4 — B9, the CROSS-MODEL arm (2026-08-09, ~$0.47, 4 runs × 3 draws)
+
+**The question B9 existed to answer: is the remaining error a GPT-4o ceiling or a task ceiling?
+Answer: a TASK ceiling.** A model a generation and a half newer moves the total essentially nothing.
+
+Model chosen by listing the account's models (`GET /v1/models`) and taking the newest **dated
+snapshot**: `gpt-5.5-2026-04-23`. The `gpt-5.6-*` entries of 2026-06-23 exist but publish no dated
+snapshot form — they are floating aliases, and pinning discipline (commit `0476481`) rules them out.
+
+| arm | failed field/draws | mean abs error |
+|---|---|---:|
+| GPT-4o `gpt-4o-2024-08-06` (B4) | 22–24/96 | 19.7–20.1% |
+| GPT-5.5 `gpt-5.5-2026-04-23` | 17–22/96 | 18.6–20.8% |
+
+⚠️ **CONFOUND, recorded not buried: `gpt-5.5-2026-04-23` REJECTS `temperature: 0`** — *"Only the
+default (1) value is supported."* `seed` is accepted. The arm therefore cannot be run at production
+parity: GPT-4o ran at temperature 0, GPT-5.5 at its default 1. Its wider spread (17–22, against
+GPT-4o's 22–24) is consistent with sampling variance, so **its best run is partly luck and the
+ranges overlap.** Treat the two as level, not as a GPT-5.5 win. Probe archived as `probe-b9-d0`.
+
+**The totals are level; the COMPOSITION is completely different — and it regressed two dishes that
+GPT-4o had perfect:**
+
+| dish | GPT-4o | GPT-5.5 |
+|---|---|---|
+| CESAR | 0/48, 14.5% | 0/48, **9.4%** |
+| **Salmone toscano** | **0/48, 13.7%** | **12/48, 21.1%** |
+| **PASTEL AZTECA** | **0/48, 14.1%** | **13/48, 32.2%** |
+| NEW YORK | 0/48, 4.8% | 0/48, 3.9% |
+| French Fries | 0/48, 6.1% | 0/48, 6.4% |
+| Gnocchi | 44/48, 47.7% | **27/48, 35.1%** |
+| ENFRIJOLADAS | 28/48, 30.9% | **14/48, 22.3%** |
+| Coleslaw | 22/48, 24.9% | **12/48, 25.8%** |
+
+GPT-5.5 improves every dish GPT-4o struggled with and breaks two it had exact.
+
+**Findings:**
+
+1. **PASTEL's regression is mostly OUR ORACLE, not the model.** GPT-5.5 lists `tortillas de maíz en
+   pastel` at 90 g. The menu never prints tortilla, and Santiago's oracle convention excludes what is
+   not printed — so a model that correctly identifies a tortilla casserole as containing tortilla is
+   scored wrong for it. This is the fixture's own documented artifact (B14 warned that PASTEL "cannot
+   serve as a portion target") now **actively penalising the better-reasoning model.** It is an
+   argument for revisiting that fixture, and the oracle is Santiago's alone.
+2. **Salmone's regression exposes a real defect in B4's mechanism.** GPT-5.5 lists more accompaniment
+   mass inside the printed weight — 358 g of servings against a printed 200 g, where GPT-4o listed
+   220 g. `resolveGrams` fits both to 200 g, so GPT-5.5's salmon is scaled to **112 g** against
+   GPT-4o's 136 g and the oracle's 140 g. **The more complete the ingredient list, the more the
+   principal protein is diluted.** The fit is proportional when it should protect the main component.
+3. **That is the same root as the Coleslaw regression.** There too the fit under-weights the
+   macro-dense component (dressing) relative to bulk (cabbage). **One mechanism defect explains both
+   open targets**, which makes it the highest-value thing to fix next.
+4. **Hand audit.** No invented ingredient on any dish, and `frijoles servidos aparte` was correctly
+   tagged OUTSIDE the printed weight. The one flag is PASTEL's tortilla — **not a hallucination, an
+   inference the oracle forbids.** Recorded as an audit note, not a model failure.
+
+**Verdict: do NOT switch models.** The measurement says a newer model buys nothing on the total and
+costs two exact dishes, and the two regressions point at one fixable mechanism. `ENRICH_MODEL` stays
+`gpt-4o-2024-08-06`. Phase total **$1.80**.
+
 ---
 
 ## Rulings

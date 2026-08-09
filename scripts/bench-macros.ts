@@ -104,6 +104,19 @@ export function renderTable(results: ItemResult[]): string {
   }).join("\n\n");
 }
 
+/**
+ * The model this BENCHMARK calls. Defaults to whatever production is pinned to,
+ * so the harness measures the real pipeline unless told otherwise (lesson 23).
+ *
+ * `BENCH_MODEL` exists for B9, the cross-model arm: it is a measurement knob and
+ * nothing more. Production's `ENRICH_MODEL` in supabase/functions/analyze-menu/
+ * is untouched by it, and no measured result moves that constant without a
+ * separate ruling.
+ */
+export function benchModel(): string {
+  return Deno.env.get("BENCH_MODEL") ?? ENRICH_MODEL;
+}
+
 export async function enrich(items: ExtractedMenuItem[]): Promise<{ items: EnrichedItem[]; raw: unknown }> {
   const apiKey = Deno.env.get("OPENAI_API_KEY");
   if (!apiKey) throw new Error("OPENAI_API_KEY is required");
@@ -115,7 +128,7 @@ export async function enrich(items: ExtractedMenuItem[]): Promise<{ items: Enric
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: ENRICH_MODEL,
+      model: benchModel(),
       messages: [{
         role: "user",
         content: `${ENRICH_PROMPT}\n\nMenu items (JSON):\n${JSON.stringify(items)}`,
@@ -128,7 +141,13 @@ export async function enrich(items: ExtractedMenuItem[]): Promise<{ items: Enric
           schema: ENRICH_SCHEMA_OPENAI,
         },
       },
-      temperature: 0,
+      // B9 confound, recorded deliberately: gpt-5.5-2026-04-23 REJECTS
+      // temperature 0 ("Only the default (1) value is supported"), so a
+      // cross-model arm cannot be run at production parity. The pinned
+      // gpt-4o-2024-08-06 baseline keeps temperature 0; an overridden model
+      // omits the parameter and runs at ITS default. Never silently equalise
+      // this - the difference is part of the result and belongs in the report.
+      ...(Deno.env.get("BENCH_MODEL") ? {} : { temperature: 0 }),
       seed: 17,
     }),
   });

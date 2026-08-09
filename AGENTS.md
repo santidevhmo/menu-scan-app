@@ -112,9 +112,22 @@ newest last) and `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadma
 (phases, release scope, and the lessons learned from real mistakes made in this codebase).
 Read those for current state — do not restate status in this file, it drifts.
 
-**Stage 2 enrichment** estimates `protein_g`, `carb_g`, `fat_g` and `estimated_calories` by
-reasoning over listed ingredients, preferring any weight printed on the menu over a guessed
-portion. It retains per-item `allergens` so the mandatory allergen disclaimer keeps working.
+**Stage 2 enrichment** produces `protein_g`, `carb_g`, `fat_g` and `estimated_calories`, and retains
+per-item `allergens` so the mandatory allergen disclaimer keeps working.
+
+⚠️ **The model does NOT compute the macro totals — the code does.** This is the single most
+important thing to know before editing `enrich.ts`, and it is measured, not stylistic. The model
+returns *knowledge*: `printed_total_g`, and per ingredient a `within_printed_weight` flag, a
+conventional `typical_serving_g`, and `*_per_100g` composition. Then `resolveGrams` fits the
+inside-the-printed-weight servings to that weight and `sumIngredientMacros` multiplies composition ×
+grams, sums, and derives calories by Atwater (4/4/9). Every time arithmetic was taken away from the
+model and left as knowledge, accuracy improved; every time it was asked for a finished number, it
+returned a round multiple of 5. **Do not "simplify" this by asking the model for the totals.**
+
+Two mechanical guards in `enrich_test.ts` fail the build: **schema property order** (`ingredients[]`
+must precede the macro fields, or the chain-of-thought silently stops working) and **no food, dish
+or cuisine name in the prompt's nutrition step** (measured harmful — a food list leaked the test set
+into a prompt that ships to every menu on earth).
 
 Do not introduce new major libraries unless there is a strong reason.
 Ask before installing anything new.

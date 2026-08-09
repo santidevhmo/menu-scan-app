@@ -1,0 +1,626 @@
+[
+  {
+    "menu": "andaluz",
+    "name": "CESAR (200 g)",
+    "description": "Lechuga, queso parmesano rallado, croutones,\npollo a la plancha y aderezo cesar de la casa.",
+    "price": 275,
+    "category": "food",
+    "section_title": "ensaladas",
+    "options": [],
+    "printed_weight": "200 g",
+    "oracle": {
+      "calories": 409.5,
+      "protein_g": 30.432,
+      "carb_g": 18.391,
+      "fat_g": 23.1105,
+      "assumed": "USDA FDC recipe. Printed 200 g = the whole plated salad; the menu names no accompaniment, so every ingredient sits inside the printed weight. Dressing re-picked 2026-08-08 (Santiago) from FDC 2710199 (57.8 g fat/100 g) to FDC 2290157 (36.67): 57.8 is the top of ~40 full-fat Caesar entries whose median is 36.7 and mean 37.7, and three separate branded entries agree on 367/3.33/6.67/36.67. Caveat: branded FDC entries are back-computed from serving sizes, hence the multiples of 3.33; no mid-cluster SR Legacy entry exists.",
+      "source": "USDA FoodData Central",
+      "retrieved_at": "2026-08-08",
+      "ingredients": [
+        {
+          "name": "Romaine lettuce, raw",
+          "fdc_id": 2709590,
+          "grams": 60,
+          "basis": "raw",
+          "per_100g": {
+            "calories": 21,
+            "protein_g": 0.98,
+            "carb_g": 4.06,
+            "fat_g": 0.07
+          }
+        },
+        {
+          "name": "Parmesan cheese, grated",
+          "fdc_id": 2705728,
+          "grams": 15,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 412,
+            "protein_g": 29.9,
+            "carb_g": 8.36,
+            "fat_g": 28.8
+          }
+        },
+        {
+          "name": "Croutons",
+          "fdc_id": 2707697,
+          "grams": 20,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 465,
+            "protein_g": 10.8,
+            "carb_g": 63.5,
+            "fat_g": 18.3
+          }
+        },
+        {
+          "name": "Chicken breast, grilled, skin not eaten",
+          "fdc_id": 2705968,
+          "grams": 75,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 176,
+            "protein_g": 29.6,
+            "carb_g": 0,
+            "fat_g": 5.45
+          }
+        },
+        {
+          "name": "Caesar dressing",
+          "fdc_id": 2290157,
+          "grams": 30,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 367,
+            "protein_g": 3.33,
+            "carb_g": 6.67,
+            "fat_g": 36.67
+          }
+        }
+      ]
+    }
+  },
+  {
+    "menu": "casa-nostra",
+    "name": "Salmone toscano",
+    "description": "Salmon al horno bañado en crema toscana blanca con ajo, espinaca, alcachofa, tomate deshidratado y alcaparra, acompañado con baguette. 200g",
+    "price": 330,
+    "category": "food",
+    "section_title": "Frutti di mare",
+    "options": [],
+    "printed_weight": "200g",
+    "oracle": {
+      "calories": 606.573,
+      "protein_g": 42.74998000000001,
+      "carb_g": 30.19571,
+      "fat_g": 34.4669,
+      "assumed": "USDA FDC recipe. Printed 200g = the plated dish (salmon 140g main-course portion + 60g Tuscan cream sauce and vegetables). The baguette is an accompaniment (\"acompañado con baguette\") and sits OUTSIDE the printed weight at 45g, but is eaten and counted. Total eaten 245g. Casa Nostra states no weighing basis; cooked/as-served is an assumption under Santiago's 2026-08-09 basis ruling. The unadopted raw-salmon reading would be 486.2 kcal.",
+      "source": "USDA FoodData Central",
+      "retrieved_at": "2026-08-08",
+      "ingredients": [
+        {
+          "name": "Salmon, baked or broiled",
+          "fdc_id": 2706286,
+          "grams": 140,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 274,
+            "protein_g": 25.4,
+            "carb_g": 0.01,
+            "fat_g": 18.4
+          }
+        },
+        {
+          "name": "Heavy cream",
+          "fdc_id": 2705597,
+          "grams": 20.4,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 343,
+            "protein_g": 2.02,
+            "carb_g": 3.8,
+            "fat_g": 35.6
+          }
+        },
+        {
+          "name": "Garlic, cooked",
+          "fdc_id": 2709932,
+          "grams": 1.7,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 142,
+            "protein_g": 6.58,
+            "carb_g": 28,
+            "fat_g": 0.38
+          }
+        },
+        {
+          "name": "Spinach, fresh, cooked without fat",
+          "fdc_id": 2709615,
+          "grams": 14.6,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 33,
+            "protein_g": 3.41,
+            "carb_g": 3.1,
+            "fat_g": 0.7
+          }
+        },
+        {
+          "name": "Artichokes, cooked without salt",
+          "fdc_id": 168386,
+          "grams": 14.6,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 53,
+            "protein_g": 2.89,
+            "carb_g": 11.95,
+            "fat_g": 0.34
+          }
+        },
+        {
+          "name": "Sun-dried tomatoes",
+          "fdc_id": 2709727,
+          "grams": 5.8,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 258,
+            "protein_g": 14.1,
+            "carb_g": 55.8,
+            "fat_g": 2.97
+          }
+        },
+        {
+          "name": "Capers, canned",
+          "fdc_id": 172238,
+          "grams": 2.9,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 23,
+            "protein_g": 2.36,
+            "carb_g": 4.89,
+            "fat_g": 0.86
+          }
+        },
+        {
+          "name": "French or Vienna bread",
+          "fdc_id": 2707610,
+          "grams": 45,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 272,
+            "protein_g": 10.8,
+            "carb_g": 51.9,
+            "fat_g": 2.42
+          }
+        }
+      ]
+    }
+  },
+  {
+    "menu": "el-marcos",
+    "name": "PASTEL AZTECA (300gr.)",
+    "description": "Con pollo, salsa de tomate, chile verde, cebolla, elote y mezcla de quesos, servido con frijoles.",
+    "price": 94,
+    "category": "food",
+    "section_title": "MEXICANOS",
+    "options": [],
+    "printed_weight": "300gr.",
+    "oracle": {
+      "calories": 623.5500000000001,
+      "protein_g": 44.290099999999995,
+      "carb_g": 65.1591,
+      "fat_g": 22.440199999999997,
+      "assumed": "USDA FDC recipe. Printed 300gr. = the plated casserole. The beans are an accompaniment (\"servido con frijoles\") and sit OUTSIDE the printed weight at 80g, but are eaten and counted. Total eaten 380g. TORTILLA ADDED 2026-08-09 (Santiago), superseding this dish's original \"do not infer tortilla, oil, or cream\" note. Refined convention: an ingredient ENTAILED BY THE DISH NAME is not an inference - a pastel azteca is a layered tortilla casserole, as a cheeseburger has a bun. Oil and cream remain excluded because the name does not entail them. Why it mattered: holding 300g while excluding the tortilla inflated every other ingredient (cheese reached 20.5% of plate weight), and B9 measured the cost - gpt-5.5-2026-04-23 listed tortillas at 90g and was scored 13/48 failed for being right, where gpt-4o-2024-08-06, which omits them, scored 0/48. The fixture was rewarding the weaker reading. Tortilla at 75g is ~25% of the casserole, from layered-casserole ratios, NOT from the model's 90g - fitting the oracle to what it measures would be circular. Menu citation: \"El gramaje se refiere a los ingredientes principales.\"",
+      "source": "USDA FoodData Central",
+      "retrieved_at": "2026-08-09",
+      "ingredients": [
+        {
+          "name": "Tortilla, corn (casserole layers)",
+          "fdc_id": 2707823,
+          "grams": 75,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 218,
+            "protein_g": 5.7,
+            "carb_g": 44.6,
+            "fat_g": 2.85
+          }
+        },
+        {
+          "name": "Chicken, unspecified cut/method, skin not eaten",
+          "fdc_id": 2705931,
+          "grams": 82,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 164,
+            "protein_g": 26.8,
+            "carb_g": 0,
+            "fat_g": 6.36
+          }
+        },
+        {
+          "name": "Tomato sauce, canned with salt",
+          "fdc_id": 170054,
+          "grams": 41,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 24,
+            "protein_g": 1.2,
+            "carb_g": 5.31,
+            "fat_g": 0.3
+          }
+        },
+        {
+          "name": "Green chile, cooked",
+          "fdc_id": 2709978,
+          "grams": 10,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 59,
+            "protein_g": 1.41,
+            "carb_g": 7.72,
+            "fat_g": 3.06
+          }
+        },
+        {
+          "name": "Onion, cooked without fat",
+          "fdc_id": 2709950,
+          "grams": 15,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 47,
+            "protein_g": 1.29,
+            "carb_g": 11,
+            "fat_g": 0.12
+          }
+        },
+        {
+          "name": "Sweet corn, cooked without fat",
+          "fdc_id": 2709910,
+          "grams": 31,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 86,
+            "protein_g": 3.26,
+            "carb_g": 18.6,
+            "fat_g": 1.35
+          }
+        },
+        {
+          "name": "Mexican cheese blend",
+          "fdc_id": 2705741,
+          "grams": 46,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 362,
+            "protein_g": 21.9,
+            "carb_g": 2.4,
+            "fat_g": 29.3
+          }
+        },
+        {
+          "name": "Pinto beans, canned without fat",
+          "fdc_id": 2707375,
+          "grams": 80,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 137,
+            "protein_g": 7.66,
+            "carb_g": 25.3,
+            "fat_g": 0.93
+          }
+        }
+      ]
+    }
+  },
+  {
+    "menu": "brasero",
+    "name": "NEW YORK",
+    "description": "Calidad choice acompañado de chimichurri de la casa. (400gr)",
+    "price": 690,
+    "category": "food",
+    "section_title": "CARNE",
+    "options": [],
+    "printed_weight": "400gr",
+    "oracle": {
+      "calories": 1257.68,
+      "protein_g": 103.1461,
+      "carb_g": 0.8229000000000001,
+      "fat_g": 93.8627,
+      "assumed": "USDA FDC recipe. Printed 400gr = the plated steak, read as the COOKED portion, the same convention the Salmone toscano oracle uses for its printed 200g. The chimichurri is an accompaniment (\"acompañado de chimichurri\") and sits OUTSIDE the printed weight at 30g, but is eaten and counted. Total eaten 430g. Cut: \"calidad choice\" is stated, so the choice-grade top loin (New York strip) entries were surveyed; the three that are lean-and-fat, choice and grilled read 233, 275 and 278 kcal/100g and FDC 174712 is the MEDIAN, not the richest. Chimichurri has no USDA entry, so it is built from its two macro-carrying parts at a restaurant ratio (~57% oil): olive oil 17g + fresh parsley 13g. Garlic, vinegar, oregano and chilli are omitted as macro-negligible. Brasero states no weighing basis; cooked/as-served is an assumption under Santiago's 2026-08-09 basis ruling. The unadopted 400g-raw, 280g-cooked reading would be 927.7 kcal.",
+      "source": "USDA FoodData Central",
+      "retrieved_at": "2026-08-09",
+      "ingredients": [
+        {
+          "name": "Beef top loin steak (New York), choice, lean and fat, grilled",
+          "fdc_id": 174712,
+          "grams": 400,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 275,
+            "protein_g": 25.69,
+            "carb_g": 0,
+            "fat_g": 19.19
+          }
+        },
+        {
+          "name": "Olive oil (chimichurri base)",
+          "fdc_id": 2710186,
+          "grams": 17,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 900,
+            "protein_g": 0,
+            "carb_g": 0,
+            "fat_g": 100
+          }
+        },
+        {
+          "name": "Parsley, fresh (chimichurri)",
+          "fdc_id": 2709796,
+          "grams": 13,
+          "basis": "raw",
+          "per_100g": {
+            "calories": 36,
+            "protein_g": 2.97,
+            "carb_g": 6.33,
+            "fat_g": 0.79
+          }
+        }
+      ]
+    }
+  },
+  {
+    "menu": "polloteria",
+    "name": "French Fries (300gr)",
+    "description": "Papas a la francesa con un toque de perejil.",
+    "price": 60,
+    "category": "side",
+    "section_title": "Sides",
+    "options": [],
+    "printed_weight": "300gr",
+    "oracle": {
+      "calories": 867,
+      "protein_g": 10.47,
+      "carb_g": 111.6,
+      "fat_g": 42,
+      "assumed": "USDA FDC recipe. Printed 300gr = the whole portion; nothing is marked as an accompaniment, so the single ingredient sits inside it. FDC 2709462 is the literal descriptor for this context (\"Potato, french fries, restaurant\"). It is above the fried-potato median of ~242 kcal/100g (spread 198-312) but below the fast-food entry at 312, and the restaurant descriptor is what the menu is. The \"toque de perejil\" is a garnish under 1g and is excluded, the same treatment the existing oracles give trace seasonings. DOCUMENTED LIMITATION (2026-08-09, not an oracle change): the Polloteria menu's italic footer reads \"El peso del producto es antes de cocinarlo\", so the printed 300gr is a PRE-COOK weight while this entry reads it as finished fries. Two re-freezes attempting to correct it (raw-potato 409 kcal, frozen-par-fried 594 kcal) were REVERTED: both changed a researched dish's USDA composition, which is Santiago's alone, and the raw-potato version was internally inconsistent (ingredients 340g, eaten 264g, printed 300g). The real finding is a PIPELINE gap - Stage 2 has no concept of weighing basis - recorded in the log, not patched here.",
+      "source": "USDA FoodData Central",
+      "retrieved_at": "2026-08-09",
+      "ingredients": [
+        {
+          "name": "Potato, french fries, restaurant",
+          "fdc_id": 2709462,
+          "grams": 300,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 289,
+            "protein_g": 3.49,
+            "carb_g": 37.2,
+            "fat_g": 14
+          }
+        }
+      ]
+    }
+  },
+  {
+    "menu": "casa-nostra",
+    "name": "Gnocchi alla sorrentina",
+    "description": "Gnocchi fresco en salsa preparada de tomate italiano con mozzarella fresco gratinado y parmesano. 180g",
+    "price": 250,
+    "category": "food",
+    "section_title": "Pasta",
+    "options": [],
+    "printed_weight": "180g",
+    "oracle": {
+      "calories": 267.26,
+      "protein_g": 11.9036,
+      "carb_g": 40.3667,
+      "fat_g": 6.4002,
+      "assumed": "USDA FDC recipe. Printed 180g = the whole plated dish; the menu names no accompaniment, so every ingredient sits inside the printed weight. Only ingredients printed on the menu are included: no oil, butter or basil is inferred. Tomato sauce uses FDC 170054, the same entry the PASTEL AZTECA oracle uses for its salsa de tomate, so the two dishes stay consistent. \"Mozzarella fresco\" states whole milk, which the FNDDS generic (NFS, 296 kcal/100g) does not, so SR Legacy 170845 is used per the oracle convention; the two differ by 3 kcal/100g and 170845 is not the richest (low-moisture is 318). Parmesan reuses CESAR's FDC 2705728. Casa Nostra states no weighing basis; cooked/as-served is an assumption under Santiago's 2026-08-09 basis ruling. The unadopted fresh-gnocchi reading would be 295.9 kcal. GNOCCHI ENTRY REPLACED 2026-08-09 (Santiago). Was FDC 2708722 'Gnocchi, potato' (FNDDS): 135 kcal, 2.44 P, 17.2 C, 6.33 F per 100 g. That entry is BOTH lower in calories than every real packaged gnocchi (150-211) and far fattier - the signature of boiled-then-tossed-in-butter, where water dilutes the calories and added fat raises the fat. It made the dumplings supply 7.0 g of the dish's 13.1 g of fat - 53%, more than the mozzarella and parmesan combined - for a dish whose visible fat IS the cheese, which this recipe already counts separately. Replaced with FDC 2632546 (Colavita, GNOCCHI OF POTATO): 158 kcal, 4.8 P, 33.6 C, 0.24 F. Chosen as the MEDIAN of the real packaged cluster surveyed live (133/142/150/158/169/211 kcal), not the richest and not the leanest, per the standing rule that produced the Caesar dressing correction. RULING BEHIND IT (Santiago, 2026-08-09): model these plates the way they are USUALLY served rather than at a rich extreme - if a dish really is heavy on an ingredient, the menu description says so. NOT fitted to the model: the entry was picked on USDA grounds alone, before looking at what any arm returned.",
+      "source": "USDA FoodData Central",
+      "retrieved_at": "2026-08-09",
+      "ingredients": [
+        {
+          "name": "Gnocchi, potato (packaged, plain)",
+          "fdc_id": 2632546,
+          "grams": 110,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 158.0,
+            "protein_g": 4.8,
+            "carb_g": 33.6,
+            "fat_g": 0.24
+          }
+        },
+        {
+          "name": "Tomato sauce, canned with salt",
+          "fdc_id": 170054,
+          "grams": 45,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 24,
+            "protein_g": 1.2,
+            "carb_g": 5.31,
+            "fat_g": 0.3
+          }
+        },
+        {
+          "name": "Mozzarella cheese, whole milk",
+          "fdc_id": 170845,
+          "grams": 18,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 299,
+            "protein_g": 22.17,
+            "carb_g": 2.4,
+            "fat_g": 22.14
+          }
+        },
+        {
+          "name": "Parmesan cheese, grated",
+          "fdc_id": 2705728,
+          "grams": 7,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 412,
+            "protein_g": 29.9,
+            "carb_g": 8.36,
+            "fat_g": 28.8
+          }
+        }
+      ]
+    }
+  },
+  {
+    "menu": "el-marcos",
+    "name": "ENFRIJOLADAS (135gr.)",
+    "description": "Tres tortillas de maíz rellenas de pollo y bañadas con salsa de frijol, crema y queso cotija.",
+    "price": 94,
+    "category": "food",
+    "section_title": "MEXICANOS",
+    "options": [],
+    "printed_weight": "135gr.",
+    "oracle": {
+      "calories": 298.88,
+      "protein_g": 16.1915,
+      "carb_g": 37.978,
+      "fat_g": 9.9563,
+      "assumed": "USDA FDC recipe. Printed 135gr. = the whole plated dish; nothing is marked as an accompaniment, so every ingredient sits inside it. Unlike PASTEL AZTECA, every ingredient here IS printed - the tortillas included - so no ingredient has to be inferred and none is excluded. 135g is tight for three tortillas plus filling: at 24g each the tortillas are 72g, 53% of the plate, leaving 63g for chicken, bean sauce, crema and cotija. That is a light portion but internally consistent, and it is what the menu prints. Chicken reuses PASTEL's FDC 2705931. \"Salsa de frijol\" is thinned refried beans: FDC 2707396 at 90 kcal/100g is the FNDDS generic and the median of the refried family (spread 79-156; the restaurant entry at 156 was NOT taken). Crema is the FNDDS regular sour cream, not the richer imitation entry. Menu citation: \"El gramaje se refiere a los ingredientes principales.\" That citation creates a tension with this entry's whole-plated-dish reading; it remains an OPEN SCOPE question for Santiago and is not resolved here. SCOPE CORRECTED 2026-08-09 (Santiago), superseding this entry's whole-plate reading. El Marcos prints its own convention on the menu - \"El gramaje se refiere a los ingredientes principales\" - and this entry was overriding it. The printed 135gr. is now the PRINCIPAL INGREDIENTS: tortillas 72g + chicken 28g + bean sauce 35g. The crema and cotija are garnish and sit OUTSIDE it, still eaten and counted, the same treatment NEW YORK's chimichurri has. Total eaten 160g. The bean sauce is INSIDE because the dish is \"banadas con salsa de frijol\" - a sauce the dish is bathed in and named for is principal, where a sprinkle on top is not. EVIDENCE (three external sources Santiago supplied, 2026-08-09): this reading gives 187 kcal/100g against a published reference of 175, and its chicken at 28g matches Avena's 30g for a comparable dish. Two wider readings were computed and REJECTED: the old whole-plate 135g reading sat 67% from every measured arm, and a tortilla+chicken-only reading (chicken 63g, plate 235g) overshot to 167 kcal/100g and made the oracle richer than every source. That 63g came from scaling Fitia's 120g:120g ratio without noticing its recipe is a 632g dish, nearly five times this one - the error is recorded so it is not repeated. Our per-100g composition was never the problem: it read 188 against the reference's 175 before this change and 187 after. What was wrong was the PLATE SIZE - a published reference puts one enfrijolada at 110g, so three are ~330g, and the old reading made three of them 135g.",
+      "source": "USDA FoodData Central",
+      "retrieved_at": "2026-08-09",
+      "ingredients": [
+        {
+          "name": "Tortilla, corn (three)",
+          "fdc_id": 2707823,
+          "grams": 72,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 218,
+            "protein_g": 5.7,
+            "carb_g": 44.6,
+            "fat_g": 2.85
+          }
+        },
+        {
+          "name": "Chicken, unspecified cut/method, skin not eaten",
+          "fdc_id": 2705931,
+          "grams": 28,
+          "basis": "cooked",
+          "per_100g": {
+            "calories": 164,
+            "protein_g": 26.8,
+            "carb_g": 0,
+            "fat_g": 6.36
+          }
+        },
+        {
+          "name": "Refried beans (salsa de frijol)",
+          "fdc_id": 2707396,
+          "grams": 35,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 90,
+            "protein_g": 4.98,
+            "carb_g": 13.6,
+            "fat_g": 2.01
+          }
+        },
+        {
+          "name": "Sour cream, regular (crema)",
+          "fdc_id": 2705614,
+          "grams": 15,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 196,
+            "protein_g": 3.07,
+            "carb_g": 5.56,
+            "fat_g": 18
+          }
+        },
+        {
+          "name": "Queso cotija",
+          "fdc_id": 2705746,
+          "grams": 10,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 351,
+            "protein_g": 23.8,
+            "carb_g": 2.72,
+            "fat_g": 27.2
+          }
+        }
+      ]
+    }
+  },
+  {
+    "menu": "polloteria",
+    "name": "Coleslaw (150gr)",
+    "description": "Ensalada de col morada, repollo y zanahoria con un delicioso aderezo cremoso.",
+    "price": 52,
+    "category": "side",
+    "section_title": "Sides",
+    "options": [],
+    "printed_weight": "150gr",
+    "oracle": {
+      "calories": 162.65,
+      "protein_g": 1.5429999999999997,
+      "carb_g": 15.261499999999998,
+      "fat_g": 10.616999999999999,
+      "assumed": "USDA FDC recipe. Printed 150gr = the whole portion; nothing is marked as an accompaniment. Built from the four printed ingredients rather than from the ready-made \"Coleslaw\" entry, so the dressing share is visible and reviewable: 120g vegetable to 30g dressing (20% by weight, the standard deli ratio). Cross-check: this recipe lands at ~108 kcal/100g against FNDDS prepared coleslaw at 117 and a spread of 113-183 across restaurant entries, so it sits at the lean end of real products rather than the rich end. Dressing FDC 2710200 is the FNDDS full-fat generic, not the reduced-fat variant.",
+      "source": "USDA FoodData Central",
+      "retrieved_at": "2026-08-09",
+      "ingredients": [
+        {
+          "name": "Cabbage, red, raw",
+          "fdc_id": 2709775,
+          "grams": 55,
+          "basis": "raw",
+          "per_100g": {
+            "calories": 34,
+            "protein_g": 1.24,
+            "carb_g": 6.79,
+            "fat_g": 0.21
+          }
+        },
+        {
+          "name": "Cabbage, green, raw",
+          "fdc_id": 2709773,
+          "grams": 45,
+          "basis": "raw",
+          "per_100g": {
+            "calories": 31,
+            "protein_g": 0.96,
+            "carb_g": 6.38,
+            "fat_g": 0.23
+          }
+        },
+        {
+          "name": "Carrots, raw",
+          "fdc_id": 2709660,
+          "grams": 20,
+          "basis": "raw",
+          "per_100g": {
+            "calories": 44,
+            "protein_g": 0.87,
+            "carb_g": 9.68,
+            "fat_g": 0.24
+          }
+        },
+        {
+          "name": "Coleslaw dressing",
+          "fdc_id": 2710200,
+          "grams": 30,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 404,
+            "protein_g": 0.85,
+            "carb_g": 22.4,
+            "fat_g": 34.5
+          }
+        }
+      ]
+    }
+  }
+]

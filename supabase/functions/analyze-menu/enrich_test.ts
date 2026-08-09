@@ -554,3 +554,41 @@ Deno.test("production enrichment rejects a malformed OpenAI response clearly", a
     globalThis.fetch = originalFetch;
   }
 });
+
+Deno.test("B16: a coating's grams are a share of the printed weight, not a fitted serving", () => {
+  const ing = (
+    name: string,
+    typical_serving_g: number,
+    share_of_dish_pct: number | null = null,
+    within_printed_weight = true,
+  ) => ({
+    name,
+    category: "other" as const,
+    within_printed_weight,
+    typical_serving_g,
+    share_of_dish_pct,
+    protein_per_100g: 0,
+    carb_per_100g: 0,
+    fat_per_100g: 0,
+  });
+
+  // The Coleslaw shape: the coating takes its stated share of the 150 g dish and
+  // the rest fit into what remains, instead of every ingredient scaling together.
+  const grams = resolveGrams(
+    [ing("cabbage", 100), ing("carrot", 30), ing("dressing", 20, 20)],
+    150,
+  );
+  assertEquals(grams[2], 30); // 20% of 150, not the 20 g serving it offered
+  assertEquals(Math.round(grams[0] + grams[1] + grams[2]), 150);
+
+  // No printed weight means there is nothing to take a share OF.
+  assertEquals(resolveGrams([ing("dressing", 20, 20)], null)[0], 20);
+
+  // An accompaniment keeps its own serving even with a share stated.
+  assertEquals(resolveGrams([ing("side", 50, 90, false)], 200)[0], 50);
+
+  // Incoherent shares (>= the whole dish) fall all the way back to the pre-B16
+  // fit rather than zeroing every other ingredient.
+  const broken = resolveGrams([ing("a", 100), ing("sauce", 20, 150)], 200);
+  assertEquals(broken.every((g) => g > 0), true);
+});

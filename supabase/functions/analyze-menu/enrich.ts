@@ -24,6 +24,22 @@ export interface EnrichedItem extends ExtractedItem {
     category: IngredientCategory;
     within_printed_weight: boolean;
     typical_serving_g: number;
+    /**
+     * B16: for an ingredient that COATS the item rather than sitting in it as a
+     * distinct portion, the share of the finished item's weight it makes up.
+     * null for anything portioned in its own right.
+     *
+     * A coating has no independent conventional serving - its amount is defined
+     * by the thing it coats. Asked for a serving in grams the model answers with
+     * a spoonful, which is right for a garnish and badly wrong for a dish whose
+     * name says it is dressed: it puts 20 g on both a 150 g slaw and a 200 g
+     * salad, where the oracle and USDA both say 30 g. Asking for the ratio and
+     * computing the grams here is B12's move applied to portioning.
+     */
+    // Optional in TS, REQUIRED in the JSON schema: strict mode only emits
+    // required fields, so the model must always answer it - but our own
+    // fixtures and the three archived response eras predate it.
+    share_of_dish_pct?: number | null;
     protein_per_100g: number;
     carb_per_100g: number;
     fat_per_100g: number;
@@ -40,7 +56,7 @@ export interface EnrichedItem extends ExtractedItem {
 // Exported so offline harnesses run the real prompt rather than a copy.
 export const ENRICH_PROMPT =
   `You estimate the nutrition profile of restaurant menu items. For each item, work step by step:
-1. Give "printed_total_g": the weight printed on the menu for this item — e.g. (280gr), 200g — or null when the menu prints none. Then give "name_implied_components": when the item's NAME denotes a composed or assembled form, name the structural components that form always contains but this description never states, and otherwise give an empty array. Judge it from what the named form IS, not from what sounds typical: a form's defining component is part of the dish even when the menu leaves it unsaid, because menus describe what varies and take the form itself as read. These components are frequently the item's main source of carbohydrate, and omitting them understates it badly. Include every one of them in the ingredient list below. Then list the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other. Set "within_printed_weight" to false for anything the menu presents as served alongside the item rather than as part of it, because a printed weight normally describes the item itself and not what accompanies it. Give "typical_serving_g": what a normal restaurant serving of that ingredient is when it appears in this role, whether as the centrepiece, as a sauce or dressing, or as a garnish. Give the conventional serving for the ingredient itself — these are rescaled to the printed weight afterwards, so they do not need to add up to anything.
+1. Give "printed_total_g": the weight printed on the menu for this item — e.g. (280gr), 200g — or null when the menu prints none. Then give "name_implied_components": when the item's NAME denotes a composed or assembled form, name the structural components that form always contains but this description never states, and otherwise give an empty array. Judge it from what the named form IS, not from what sounds typical: a form's defining component is part of the dish even when the menu leaves it unsaid, because menus describe what varies and take the form itself as read. These components are frequently the item's main source of carbohydrate, and omitting them understates it badly. Include every one of them in the ingredient list below. Then list the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other. Set "within_printed_weight" to false for anything the menu presents as served alongside the item rather than as part of it, because a printed weight normally describes the item itself and not what accompanies it. Give "typical_serving_g": what a normal restaurant serving of that ingredient is when it appears in this role, whether as the centrepiece, as a sauce or dressing, or as a garnish. Give "share_of_dish_pct" instead — as a percentage of the finished item's weight, with "typical_serving_g" still filled in — for any ingredient that COATS, dresses or binds the item rather than sitting in it as a portion of its own; use null for everything else. A coating has no serving size independent of what it coats, so its amount follows the size of the item rather than a fixed spoonful, and an item whose name or description says it is dressed, creamy or sauced carries a far larger share of it than a garnish would. Give the conventional serving for the ingredient itself — these are rescaled to the printed weight afterwards, so they do not need to add up to anything.
 2. For each ingredient, give its composition PER 100 g of that ingredient as served: protein_per_100g, carb_per_100g and fat_per_100g. These describe the food itself, not the size of the portion — the amount in this serving is calculated from them and the gram weight, so give the composition and let the weight do the rest. Base them on what the food is actually made of, including its water content, and on how it is prepared (fat absorbed or added in cooking counts), rather than on which macro the ingredient is best known for. Where a food is normally cooked, sauced or seasoned before it reaches the table, give the figures for that prepared version — the plain or raw reference figure for the same food understates the fat that preparation adds. The item's totals are added up from these, rather than estimating the totals directly, so each ingredient's numbers must stand on their own.
 3. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive, leaving you with little ingredient information to go on.
 List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, shellfish, egg, soy). Use an empty allergens array when none are inferred; do not include "none". Preserve each item's name, description, price, and category exactly as given. Do NOT sort the items. Return one object per input item, in the same order.`;
@@ -62,6 +78,7 @@ const ENRICH_INGREDIENT_PROPS = {
   // every gram was a multiple of 5 and CESAR's displacement was 20.0% in all 15
   // draws. Required, not optional: strict mode only emits required fields.
   typical_serving_g: { type: "number" },
+  share_of_dish_pct: { type: ["number", "null"] },
   // B12: composition per 100 g, NOT the amount in this serving - the amount is
   // grams x per100 / 100, done in sumIngredientMacros. iter-b11-001 measured
   // that an asked-for amount comes back as a round number anchored to the
@@ -110,6 +127,7 @@ export const ENRICH_SCHEMA_OPENAI = {
                 "category",
                 "within_printed_weight",
                 "typical_serving_g",
+                "share_of_dish_pct",
                 "protein_per_100g",
                 "carb_per_100g",
                 "fat_per_100g",
@@ -271,18 +289,38 @@ export function resolveGrams(
   ingredients: EnrichedItem["ingredients"],
   printedTotalG?: number | null,
 ): number[] {
+  // B16: a coating's grams are a share OF the printed weight, so they are
+  // computed here rather than fitted. Without a printed weight there is nothing
+  // to take a share of, and the conventional serving stands.
+  const shareG = (i: EnrichedItem["ingredients"][number]) =>
+    printedTotalG && i.within_printed_weight && i.share_of_dish_pct != null
+      ? (i.share_of_dish_pct / 100) * printedTotalG
+      : null;
+
+  const fixed = ingredients.reduce((sum, i) => sum + (shareG(i) ?? 0), 0);
+  // ponytail: if the shares alone meet or exceed the printed weight the answer
+  // is incoherent, and honouring it would zero every other ingredient. Fall all
+  // the way back to the pre-B16 fit rather than half-applying a broken answer.
+  const shares = printedTotalG && fixed < printedTotalG ? shareG : () => null;
+
+  const fixedG = ingredients.reduce((sum, i) => sum + (shares(i) ?? 0), 0);
   const inside = ingredients.reduce(
-    (sum, i) => i.within_printed_weight ? sum + (i.typical_serving_g ?? 0) : sum,
+    (sum, i) =>
+      i.within_printed_weight && shares(i) === null
+        ? sum + (i.typical_serving_g ?? 0)
+        : sum,
     0,
   );
   // No printed weight, or nothing tagged inside it, means there is nothing to
   // fit to and the model's own servings stand. Requiring inside > 0 is also what
   // keeps an empty ingredient list from producing NaN.
-  const scale = printedTotalG && inside > 0 ? printedTotalG / inside : 1;
+  const scale = printedTotalG && inside > 0 ? (printedTotalG - fixedG) / inside : 1;
 
-  return ingredients.map((i) =>
-    (i.typical_serving_g ?? 0) * (i.within_printed_weight ? scale : 1)
-  );
+  return ingredients.map((i) => {
+    const share = shares(i);
+    if (share !== null) return share;
+    return (i.typical_serving_g ?? 0) * (i.within_printed_weight ? scale : 1);
+  });
 }
 
 /**

@@ -1,11 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import {
-  chunk,
-  enrichBatch,
+  callGptEnrich,
   ENRICH_MODEL,
   type EnrichedItem,
   type ExtractedItem,
-  reassembleEnriched,
 } from "./enrich.ts";
 import {
   runCropExtractions,
@@ -16,47 +14,6 @@ import { isValidOcrPhotos } from "./request-validation.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
 const MISTRAL_API_KEY = Deno.env.get("MISTRAL_API_KEY")!;
-const ENRICH_BATCH_SIZE = 10; // ponytail: small batches stop GPT-4o early-stopping; tune if drops persist
-
-/** Enriches a batch, retrying once if the model returns fewer items than sent. */
-async function enrichBatchWithRetry(
-  batch: ExtractedItem[],
-): Promise<EnrichedItem[]> {
-  try {
-    const first = await enrichBatch(batch, OPENAI_API_KEY);
-    if (first.length >= batch.length) return first;
-  } catch (err) {
-    console.error(
-      "[enrich] batch failed, retrying:",
-      err instanceof Error ? err.message : err,
-    );
-  }
-
-  try {
-    return await enrichBatch(batch, OPENAI_API_KEY);
-  } catch (err) {
-    console.error(
-      "[enrich] batch failed twice, backfilling:",
-      err instanceof Error ? err.message : err,
-    );
-    return [];
-  }
-}
-
-/**
- * GPT-4o text enrichment over extracted items. Splits into small parallel batches
- * to avoid early-stopping/truncation, then reassembles to guarantee one enriched
- * item per input (dropped items are backfilled in enrich.ts).
- */
-async function callGptEnrich(
-  items: ExtractedItem[],
-): Promise<{ items: EnrichedItem[]; raw_response: string }> {
-  const batches = chunk(items, ENRICH_BATCH_SIZE);
-  const settled = await Promise.all(batches.map(enrichBatchWithRetry));
-  const enriched = reassembleEnriched(items, settled.flat());
-  return { items: enriched, raw_response: JSON.stringify({ items: enriched }) };
-}
-
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -149,7 +106,10 @@ export async function handleRequest(req: Request): Promise<Response> {
       let modelId: string;
 
       if (provider === "gpt-4o") {
-        result = await callGptEnrich(inputItems as ExtractedItem[]);
+        result = await callGptEnrich(
+          inputItems as ExtractedItem[],
+          OPENAI_API_KEY,
+        );
         modelId = ENRICH_MODEL;
       } else {
         throw new Error(`Unknown enrichment provider: ${provider}`);

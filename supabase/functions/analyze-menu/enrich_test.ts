@@ -4,8 +4,10 @@ import {
   assertThrows,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
+  callGptEnrich,
   chunk,
   enrichBatch,
+  ENRICH_MODEL,
   ENRICH_PROMPT,
   ENRICH_SCHEMA_OPENAI,
   type EnrichedItem,
@@ -452,6 +454,86 @@ Deno.test("production enrichment serializes the pinned Stage-2 model", async () 
   try {
     await enrichBatch([extracted("A")], "test-key");
     assertEquals(request?.model, "gpt-4o-2024-08-06");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("the pinned model is sent WITH temperature 0, the parameter it accepts", async () => {
+  const originalFetch = globalThis.fetch;
+  let request: Record<string, unknown> | undefined;
+  globalThis.fetch = async (_input, init) => {
+    request = JSON.parse(init?.body as string) as Record<string, unknown>;
+    return new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: { content: JSON.stringify({ items: [enriched("A")] }) },
+      }],
+    }));
+  };
+
+  try {
+    await enrichBatch([extracted("A")], "test-key");
+    assertEquals(request?.temperature, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("a model that rejects temperature 0 is sent none, and cannot change the pin", async () => {
+  // gpt-5.x answers "Only the default (1) value is supported" and 400s the whole
+  // request. Sending it anyway is how a model switch breaks every scan in
+  // production while the benchmark stays green - the harness quietly drops the
+  // parameter, so nothing measured here ever exercised the real path.
+  const originalFetch = globalThis.fetch;
+  let request: Record<string, unknown> | undefined;
+  globalThis.fetch = async (_input, init) => {
+    request = JSON.parse(init?.body as string) as Record<string, unknown>;
+    return new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: { content: JSON.stringify({ items: [enriched("A")] }) },
+      }],
+    }));
+  };
+
+  try {
+    await enrichBatch([extracted("A")], "test-key", "gpt-5.5-2026-04-23");
+    assertEquals(request?.model, "gpt-5.5-2026-04-23");
+    assertEquals("temperature" in (request ?? {}), false);
+    // Overriding the argument must never move what production is pinned to.
+    assertEquals(ENRICH_MODEL, "gpt-4o-2024-08-06");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("callGptEnrich batches at the production size and returns one item per input", async () => {
+  const items = Array.from({ length: 23 }, (_, i) => extracted(`item-${i}`));
+  const batchSizes: number[] = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (_input, init) => {
+    const body = JSON.parse(init?.body as string) as { messages: { content: string }[] };
+    const sent = JSON.parse(
+      body.messages[0].content.split("Menu items (JSON):\n")[1],
+    ) as { name: string }[];
+    batchSizes.push(sent.length);
+    return new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: {
+          content: JSON.stringify({ items: sent.map((s) => enriched(s.name)) }),
+        },
+      }],
+    }));
+  };
+
+  try {
+    const out = await callGptEnrich(items, "test-key");
+    assertEquals(batchSizes.sort((a, b) => b - a), [10, 10, 3]);
+    assertEquals(out.items.length, 23);
+    // Order is the contract the client re-ranks against.
+    assertEquals(out.items.map((i) => i.name), items.map((i) => i.name));
   } finally {
     globalThis.fetch = originalFetch;
   }

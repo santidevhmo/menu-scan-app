@@ -160,10 +160,26 @@ async function fetchWithTimeout(
   }
 }
 
-/** Enriches one Stage-2 batch with the deployed OpenAI request. */
+/**
+ * `temperature: 0` is not universally accepted: gpt-5.x rejects it outright
+ * ("Only the default (1) value is supported") and 400s the whole request. It
+ * therefore travels with the model rather than being hardcoded, so changing the
+ * pin cannot silently break every scan.
+ */
+function samplingFor(model: string): Record<string, number> {
+  return model.startsWith("gpt-4") ? { temperature: 0, seed: ENRICH_SEED } : { seed: ENRICH_SEED };
+}
+
+/**
+ * Enriches one Stage-2 batch with the deployed OpenAI request.
+ *
+ * `model` exists so an offline harness can exercise THIS path against another
+ * model. It defaults to the pin, so production callers cannot be affected.
+ */
 export async function enrichBatch(
   items: ExtractedItem[],
   apiKey: string,
+  model: string = ENRICH_MODEL,
 ): Promise<EnrichedItem[]> {
   const res = await fetchWithTimeout(
     "https://api.openai.com/v1/chat/completions",
@@ -174,7 +190,7 @@ export async function enrichBatch(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: ENRICH_MODEL,
+        model,
         messages: [{
           role: "user",
           content: `${ENRICH_PROMPT}\n\nMenu items (JSON):\n${JSON.stringify(items)}`,
@@ -183,8 +199,7 @@ export async function enrichBatch(
           type: "json_schema",
           json_schema: { name: "menu_items", strict: true, schema: ENRICH_SCHEMA_OPENAI },
         },
-        temperature: 0,
-        seed: ENRICH_SEED,
+        ...samplingFor(model),
       }),
     },
   );
@@ -334,4 +349,55 @@ export function reassembleEnriched(
   return inputs.map((src) =>
     pools.get(src.name)?.shift() ?? fallbackEnriched(src)
   );
+}
+
+export const ENRICH_BATCH_SIZE = 10; // ponytail: small batches stop GPT-4o early-stopping; tune if drops persist
+
+/** Enriches a batch, retrying once if the model returns fewer items than sent. */
+async function enrichBatchWithRetry(
+  batch: ExtractedItem[],
+  apiKey: string,
+  model: string,
+): Promise<EnrichedItem[]> {
+  try {
+    const first = await enrichBatch(batch, apiKey, model);
+    if (first.length >= batch.length) return first;
+  } catch (err) {
+    console.error(
+      "[enrich] batch failed, retrying:",
+      err instanceof Error ? err.message : err,
+    );
+  }
+
+  try {
+    return await enrichBatch(batch, apiKey, model);
+  } catch (err) {
+    console.error(
+      "[enrich] batch failed twice, backfilling:",
+      err instanceof Error ? err.message : err,
+    );
+    return [];
+  }
+}
+
+/**
+ * Stage-2 text enrichment over extracted items. Splits into small parallel
+ * batches to avoid early-stopping/truncation, then reassembles to guarantee one
+ * enriched item per input (dropped items are backfilled above).
+ *
+ * Lives here rather than in index.ts because index.ts calls serve() at module
+ * scope and cannot be imported — so a harness could only ever test a COPY of
+ * the batching, which is lesson 23 exactly.
+ */
+export async function callGptEnrich(
+  items: ExtractedItem[],
+  apiKey: string,
+  model: string = ENRICH_MODEL,
+): Promise<{ items: EnrichedItem[]; raw_response: string }> {
+  const batches = chunk(items, ENRICH_BATCH_SIZE);
+  const settled = await Promise.all(
+    batches.map((batch) => enrichBatchWithRetry(batch, apiKey, model)),
+  );
+  const enriched = reassembleEnriched(items, settled.flat());
+  return { items: enriched, raw_response: JSON.stringify({ items: enriched }) };
 }

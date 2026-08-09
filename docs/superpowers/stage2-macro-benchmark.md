@@ -2575,3 +2575,59 @@ carb/100 g and, unlike dry pasta, is already hydrated, so boiling adds little wa
 30 C / 1 F may be the better description of the gnocchi component itself**, with the oracle's entry
 diluted by fat the recipe already counts separately in its mozzarella and parmesan. Same shape as the
 Caesar dressing episode, where the oracle was found stricter than reality. **Nothing changed.**
+
+### ⚖️ ORACLE CORRECTED — Gnocchi's dumplings, and the rule behind it (Santiago, 2026-08-09, $0)
+
+> *"For these type of plates, go with how it's usually done… nudge towards the average usual way these
+> plates are served, and not overestimating ingredients… if it is, I would assume the description
+> mentions it."*
+
+**THE RULE, and it outlives this dish.** Model a plate the way it is **usually served**, not at a rich
+extreme. An unusual amount of anything is the menu's job to declare — if a dish really is heavy on an
+ingredient, the description says so. This extends the standing "prefer the median of real products"
+rule from *which entry* to *which preparation*, and it is the same instinct that produced the Caesar
+dressing correction.
+
+**What changed — one ingredient on one dish.** Gnocchi alla sorrentina's dumplings:
+
+| | entry | kcal | P | C | F |
+|---|---|---:|---:|---:|---:|
+| was | FDC 2708722 `Gnocchi, potato` (FNDDS) | 135 | 2.44 | 17.2 | **6.33** |
+| now | FDC 2632546 `GNOCCHI OF POTATO` (Colavita) | 158 | 4.8 | 33.6 | **0.24** |
+
+**Why the old entry was wrong for this dish.** It is simultaneously *lower* in calories than every real
+packaged gnocchi surveyed live (133 / 142 / 150 / 158 / 169 / 211) and *far* fattier — the signature of
+boiled-then-tossed-in-butter, where water dilutes the calories while added fat raises the fat. It made
+the dumplings supply **7.0 g of the dish's 13.1 g of fat (53%)** — more than the mozzarella and
+parmesan combined — for a dish whose visible fat IS the cheese, which the recipe already counts
+separately. The new entry is the **median** of the real cluster: not the richest (211), not the
+leanest (133).
+
+⚠️ **Not fitted to the model.** The entry was chosen on USDA grounds before looking at what any arm
+returned — the circularity the PASTEL note warns about.
+
+**Dish totals: 242.0 → 267.3 kcal, 9.31 → 11.90 P, 22.33 → 40.37 C, 13.10 → 6.40 F.**
+
+**Result — Gnocchi goes from the worst dish in the set to a clean pass:**
+
+| dish | before | after |
+|---|---|---|
+| Gnocchi alla sorrentina | 24/48, 44.3% | **0/48, 13.7%** |
+
+**Every arm re-scored ($0, archived draws). The oracle moved, so ALL arms moved with it:**
+
+| arm | old oracle | corrected oracle |
+|---|---|---|
+| baseline (naive) | 39/96, 37.7% | 33/96, 37.8% |
+| B4 / gpt-4o | 19–21/96, 21.0–21.2% | 12–13/96, 16.8–17.3% |
+| **B15 / gpt-4o (best)** | 17–19/96, 18.2–19.0% | **11–13/96, 14.1–14.9%** |
+| GPT-5.5 (on the B4 prompt) | 14–19/96, 15.5–17.2% | 5–9/96, 13.1–15.6% |
+
+✅ **Discrimination guard PASSED and this is the evidence the new stick is sound:** the baseline→best
+gap was 20–22 and is **still 20–22**. A correction that made everything pass equally would have
+collapsed it.
+
+🔴 **This is a MEASUREMENT correction, not a pipeline improvement. Nothing about the app changed** —
+B15 is byte-identical before and after. Mean |error| figures from before this entry swap are **not**
+comparable with those after it; failed counts are not either. The same trap the French Fries
+re-freezes set, flagged here so nobody reads 18.2% → 14.1% as the model getting better.

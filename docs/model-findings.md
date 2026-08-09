@@ -30,8 +30,8 @@ same schema, same tolerance bands. 4 runs × 3 draws each. Run IDs `iter-b4-w1�
 
 | model | failed field/draws of 96 | mean absolute error |
 |---|---|---:|
-| `gpt-4o-2024-08-06` | 19–21 | 21.0–21.2% |
-| `gpt-5.5-2026-04-23` | **8–12** | **15.5–17.2%** |
+| `gpt-4o-2024-08-06` | 12–13 | 16.8–17.3% |
+| `gpt-5.5-2026-04-23` | **5–9** | **13.1–15.6%** |
 
 Non-overlapping ranges on both metrics, consistent across all four runs. These are the
 2026-08-09 figures, on the RESEARCHED oracle (two French Fries re-freezes were made and reverted

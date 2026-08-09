@@ -414,24 +414,24 @@
     "options": [],
     "printed_weight": "180g",
     "oracle": {
-      "calories": 241.96,
-      "protein_g": 9.3076,
-      "carb_g": 22.3267,
-      "fat_g": 13.099199999999998,
-      "assumed": "USDA FDC recipe. Printed 180g = the whole plated dish; the menu names no accompaniment, so every ingredient sits inside the printed weight. Only ingredients printed on the menu are included: no oil, butter or basil is inferred. Tomato sauce uses FDC 170054, the same entry the PASTEL AZTECA oracle uses for its salsa de tomate, so the two dishes stay consistent. \"Mozzarella fresco\" states whole milk, which the FNDDS generic (NFS, 296 kcal/100g) does not, so SR Legacy 170845 is used per the oracle convention; the two differ by 3 kcal/100g and 170845 is not the richest (low-moisture is 318). Parmesan reuses CESAR's FDC 2705728. Casa Nostra states no weighing basis; cooked/as-served is an assumption under Santiago's 2026-08-09 basis ruling. The unadopted fresh-gnocchi reading would be 295.9 kcal.",
+      "calories": 267.26,
+      "protein_g": 11.9036,
+      "carb_g": 40.3667,
+      "fat_g": 6.4002,
+      "assumed": "USDA FDC recipe. Printed 180g = the whole plated dish; the menu names no accompaniment, so every ingredient sits inside the printed weight. Only ingredients printed on the menu are included: no oil, butter or basil is inferred. Tomato sauce uses FDC 170054, the same entry the PASTEL AZTECA oracle uses for its salsa de tomate, so the two dishes stay consistent. \"Mozzarella fresco\" states whole milk, which the FNDDS generic (NFS, 296 kcal/100g) does not, so SR Legacy 170845 is used per the oracle convention; the two differ by 3 kcal/100g and 170845 is not the richest (low-moisture is 318). Parmesan reuses CESAR's FDC 2705728. Casa Nostra states no weighing basis; cooked/as-served is an assumption under Santiago's 2026-08-09 basis ruling. The unadopted fresh-gnocchi reading would be 295.9 kcal. GNOCCHI ENTRY REPLACED 2026-08-09 (Santiago). Was FDC 2708722 'Gnocchi, potato' (FNDDS): 135 kcal, 2.44 P, 17.2 C, 6.33 F per 100 g. That entry is BOTH lower in calories than every real packaged gnocchi (150-211) and far fattier - the signature of boiled-then-tossed-in-butter, where water dilutes the calories and added fat raises the fat. It made the dumplings supply 7.0 g of the dish's 13.1 g of fat - 53%, more than the mozzarella and parmesan combined - for a dish whose visible fat IS the cheese, which this recipe already counts separately. Replaced with FDC 2632546 (Colavita, GNOCCHI OF POTATO): 158 kcal, 4.8 P, 33.6 C, 0.24 F. Chosen as the MEDIAN of the real packaged cluster surveyed live (133/142/150/158/169/211 kcal), not the richest and not the leanest, per the standing rule that produced the Caesar dressing correction. RULING BEHIND IT (Santiago, 2026-08-09): model these plates the way they are USUALLY served rather than at a rich extreme - if a dish really is heavy on an ingredient, the menu description says so. NOT fitted to the model: the entry was picked on USDA grounds alone, before looking at what any arm returned.",
       "source": "USDA FoodData Central",
       "retrieved_at": "2026-08-09",
       "ingredients": [
         {
-          "name": "Gnocchi, potato",
-          "fdc_id": 2708722,
+          "name": "Gnocchi, potato (packaged, plain)",
+          "fdc_id": 2632546,
           "grams": 110,
           "basis": "prepared",
           "per_100g": {
-            "calories": 135,
-            "protein_g": 2.44,
-            "carb_g": 17.2,
-            "fat_g": 6.33
+            "calories": 158.0,
+            "protein_g": 4.8,
+            "carb_g": 33.6,
+            "fat_g": 0.24
           }
         },
         {

@@ -16,7 +16,8 @@
 //
 // Run: deno run --allow-read scripts/rescore-history.ts
 import { replayDraw } from "./bench-macros.ts";
-import { pairWithOracle, scoreDish, toMacroValues } from "./macro-measure.ts";
+import { altOracle, pairWithOracle, scoreDish, toMacroValues } from "./macro-measure.ts";
+import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
 
 const oracleFile = JSON.parse(
   await Deno.readTextFile("scripts/fixtures/macro-oracle.json"),
@@ -56,7 +57,23 @@ for (const run of runs) {
     ) {
       // deno-lint-ignore no-explicit-any
       const dish = oracleFile.find((o: any) => o.name === name);
-      const shipped = scoreDish(name, dish.oracle, toMacroValues(item));
+      // The printed weight comes from the SAME parser production uses, so the
+      // second reading is anchored to the same number the pipeline sees.
+      const [parsed] = parseItemGrams([{
+        name: dish.name,
+        description: dish.description,
+        price: dish.price,
+        category: dish.category,
+        section_title: dish.section_title,
+        options: dish.options,
+        grams: null,
+      }]);
+      const shipped = scoreDish(
+        name,
+        dish.oracle,
+        toMacroValues(item),
+        altOracle(dish, parsed.grams),
+      );
       for (const [i, verdict] of shipped.fields.entries()) {
         fieldDraws++;
         if (!shipped.passes[i]) fails++;

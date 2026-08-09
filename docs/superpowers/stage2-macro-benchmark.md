@@ -1583,6 +1583,76 @@ GPT-5.5 improves every dish GPT-4o struggled with and breaks two it had exact.
 costs two exact dishes, and the two regressions point at one fixable mechanism. `ENRICH_MODEL` stays
 `gpt-4o-2024-08-06`. Phase total **$1.80**.
 
+
+### ⚠️ ORACLE RE-FROZEN 2026-08-09 — PASTEL gains its tortilla, and it REVERSES B9
+
+**Santiago's ruling, 2026-08-09.** PASTEL AZTECA's recipe now includes 75 g of corn tortilla
+(FDC 2707823), rebalanced to hold the printed 300 g. This **supersedes** that dish's original
+*"include only ingredients printed on the menu: do not infer tortilla, oil, or cream"* note.
+
+**Refined convention: an ingredient ENTAILED BY THE DISH NAME is not an inference.** A pastel
+azteca is a layered tortilla casserole the way a cheeseburger has a bun. Oil and cream stay
+excluded — the name does not entail them. The tortilla's 75 g (~25% of the casserole) comes from
+layered-casserole ratios, deliberately **not** from the model's 90 g; fitting the oracle to the
+thing it measures would be circular.
+
+**Why it had to change:** holding 300 g while excluding the tortilla inflated every other
+ingredient (cheese reached 20.5% of plate weight), and B9 measured what that cost —
+`gpt-5.5-2026-04-23` listed the tortillas and was scored **13/48 failed for being right**, where
+`gpt-4o-2024-08-06`, which omits them, scored 0/48. **The fixture was rewarding the weaker reading.**
+
+New totals: **623.6 kcal / 44.3 P / 65.2 C / 22.4 F** (beans outside, 380 g eaten).
+
+**Re-scored history, $0** (`deno run --allow-read scripts/rescore-history.ts`):
+
+| run | failed (was) | mean abs error (was) |
+|---|---|---|
+| baseline-002 | 0/36 (0) | 17.5% (16.7%) |
+| iter-b4-001…004 | 1–3/36 (0) | 16.2–18.6% (13.6–14.7%) |
+| baseline-w1…w4 | 39/96 (39) | 37.7% (37.4%) |
+| iter-b4-w1…w4 | **24–27/96** (22–24) | **21.0–21.2%** (19.7–20.1%) |
+| b9-gpt55-w1…w4 | **14–19/96** (17–22) | **15.5–17.2%** (18.6–20.8%) |
+
+🔴 **THIS REVERSES B9's VERDICT.** Under the old oracle the two models overlapped and the entry
+concluded *"the ceiling is the task, not GPT-4o; do not switch models."* Under the corrected
+oracle **the ranges do not overlap and GPT-5.5 clearly wins on both metrics.** The earlier
+"task ceiling" reading was substantially our own fixture. The `temperature: 0` confound still
+stands and still means GPT-5.5 carries more spread — but a gap this size across all four runs is
+not sampling noise. **Switching models is now a live question rather than a closed one, and it is
+Santiago's decision, not a measurement one.**
+
+⚠️ B4 no longer sweeps the original three dishes either — `iter-b4-001…004` go from 0/36 to
+1–3/36. The corrected PASTEL is harder for a model that omits the tortilla, which is the point.
+
+### $0 ABLATION — "protect the principal component" when fitting is FALSIFIED (2026-08-09)
+
+Tested before spending anything, from archived responses. The hypothesis was that `resolveGrams`
+scaling every inside ingredient proportionally dilutes the principal component when a model lists
+more mass, and that protecting the largest inside ingredient would help.
+
+| arm | proportional (current) | protect principal |
+|---|---|---|
+| GPT-4o | 103/384, 21.1% | **105/384**, 20.9% |
+| GPT-5.5 | 66/384, 16.3% | **69/384**, 17.3% |
+
+**It makes the failure count worse on both arms.** `resolveGrams` is unchanged. Cost: $0, against
+a paid run that would have measured the same thing.
+
+**Two corrections to the B9 entry above, both from measurement:**
+
+1. **"One mechanism defect explains both open targets" was WRONG.** The scale factor
+   `resolveGrams` applies to **Coleslaw is exactly 1.00 in all 12 GPT-4o draws** — the fit is a
+   no-op there, so Coleslaw's regression cannot be the fit. Its cause is a plain portion
+   disagreement: the model puts 20 g of dressing where the oracle says 30 g.
+2. **The severe compression is a GPT-5.5 phenomenon, not a pipeline one.** Scale factors under
+   GPT-4o run 0.87–1.06; under GPT-5.5 they run 0.53–0.83 because it lists far more mass. And
+   GPT-5.5 still wins, so the compression is not obviously harmful.
+
+**Remaining open targets are portion/oracle disagreements, not mechanism defects:** Coleslaw
+(dressing 20 g vs 30 g), Gnocchi (gnocchi 150 g vs 110 g, sauce 20 g vs 45 g), ENFRIJOLADAS
+(tortilla 60 g vs 72 g, chicken 40 g vs 25 g). Each is a case where both readings are defensible,
+and **the oracle is Santiago's.**
+
 ---
 
 ## Rulings

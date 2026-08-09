@@ -11,6 +11,7 @@ import {
 import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
 import { type FieldVerdict, type MacroValues } from "./macro-score.ts";
 import {
+  altOracle,
   pairWithOracle,
   scoreDish,
   toMacroValues,
@@ -225,7 +226,12 @@ async function run(): Promise<void> {
     )) {
       const index = entries.findIndex((entry) => entry.name === name);
       results[index].draws.push(
-        scoreDish(name, entries[index].oracle!, toMacroValues(item)),
+        scoreDish(
+          name,
+          entries[index].oracle!,
+          toMacroValues(item),
+          altOracle(entries[index], items[index].grams),
+        ),
       );
     }
   }

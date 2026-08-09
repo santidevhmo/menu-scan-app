@@ -81,14 +81,31 @@ against running one.
    ceiling, not a GPT-4o ceiling.** Confound: GPT-5.5 rejects `temperature: 0`, so it ran at its
    default 1 and its best run is partly sampling luck. **Ruling: do not switch models.**
 
-⛔ **NEXT IS A FIX, NOT AN ITERATION** (Santiago, 2026-08-09: *"if more stuff regresses then lets take
-a step back and handle that"*). Two regressions are on the board, and **one mechanism defect explains
-both**: `resolveGrams` fits servings to the printed weight **proportionally**, so the more complete a
-model's ingredient list, the more the principal component is diluted. GPT-5.5 listed 358 g of servings
-inside Salmone's printed 200 g and its salmon scaled to 112 g against the oracle's 140 g; Coleslaw is
-the same defect with dressing against cabbage. Fix the fit before running anything else. Then decide
-the PASTEL fixture question — GPT-5.5 was scored wrong for correctly inferring a tortilla the menu
-never prints, which is an **oracle** question and therefore Santiago's.
+🔴 **B9's VERDICT WAS REVERSED by the 2026-08-09 PASTEL fix — read this before quoting it.**
+PASTEL AZTECA's oracle now includes its tortilla (Santiago's ruling; a pastel azteca is a tortilla
+casserole the way a cheeseburger has a bun). Under the old, tortilla-free oracle GPT-4o and GPT-5.5
+overlapped and the session concluded "task ceiling, do not switch models". Under the corrected
+oracle the ranges **do not overlap**:
+
+| model | failed/96 | mean abs error |
+|---|---|---|
+| `gpt-4o-2024-08-06` | 24–27 | 21.0–21.2% |
+| `gpt-5.5-2026-04-23` | **14–19** | **15.5–17.2%** |
+
+**Switching models is a live question again — and it is Santiago's call.** Confound that still
+stands: GPT-5.5 rejects `temperature: 0`, so it ran at its default 1 and carries more spread.
+App-wide write-up, kept outside this phase: **`docs/model-findings.md`**.
+
+✅ **The "fix resolveGrams" idea is FALSIFIED, $0.** Protecting the principal component when fitting
+made the failure count WORSE on both arms (GPT-4o 103→105, GPT-5.5 66→69 of 384). Production
+`resolveGrams` is unchanged. Two claims from the previous session were corrected by measurement:
+Coleslaw's scale factor is **exactly 1.00** in all 12 GPT-4o draws, so the fit is a no-op there and
+cannot be its cause; and the severe compression is a GPT-5.5 phenomenon (scales 0.53–0.83) not a
+pipeline one (GPT-4o 0.87–1.06).
+
+**Remaining open targets are portion/ORACLE disagreements, not mechanism defects** — Coleslaw
+(dressing 20 g vs 30 g), Gnocchi (150 g vs 110 g), ENFRIJOLADAS (tortilla 60 g vs 72 g). Both
+readings are defensible in each case, so these are Santiago's to rule on, not code to change.
 
 **B5 is designed but shelved**, not falsified — see
 `specs/2026-08-08-b5-preparation-and-oracle-dressing-design.md` and the log's "B5 premise re-derived"

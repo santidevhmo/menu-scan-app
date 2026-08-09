@@ -260,16 +260,29 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > wrong for being right. The fixture's own documented artifact now penalises a model. **Revisiting that
 > fixture is Santiago's call.**
 >
-> **Ruling: do NOT switch models.** `ENRICH_MODEL` stays `gpt-4o-2024-08-06`.
+> 🔴 **THAT RULING WAS REVERSED THE SAME DAY.** The 2026-08-09 PASTEL re-freeze (tortilla added)
+> re-scored both arms at $0 and the ranges **stopped overlapping**: GPT-4o **24–27/96 at 21.0–21.2%**,
+> GPT-5.5 **14–19/96 at 15.5–17.2%**. The "level, do not switch" reading was substantially our own
+> fixture punishing the model that correctly named the tortilla. **Switching is a live question and
+> Santiago's call.** `ENRICH_MODEL` is still `gpt-4o-2024-08-06`; nothing is deployed. App-wide
+> write-up kept outside this phase: `docs/model-findings.md`.
+>
+> ✅ **The `resolveGrams` fix this block used to recommend is FALSIFIED ($0 ablation).** Protecting
+> the principal component made failures WORSE on both arms (GPT-4o 103→105, GPT-5.5 66→69 of 384).
+> Coleslaw's scale factor is **exactly 1.00** in all 12 GPT-4o draws, so the fit was never its cause.
+> **The remaining open targets are portion/ORACLE disagreements, not mechanism defects.**
 >
 > ### 🎯 NEXT ACTIONS
 >
-> **Santiago's standing instruction (2026-08-09): "if more stuff regresses then lets take a step back
-> and handle that."** Two regressions are now on the board — Coleslaw under B4, and Salmone/PASTEL
-> under B9 — so the next move is **not** another iteration. It is:
+> **Both items this block previously listed are resolved** — the `resolveGrams` fix was falsified at
+> $0 (above), and the PASTEL fixture question was ruled on and applied. What is left is not code:
 >
-> 1. **Fix the proportional fit in `resolveGrams`** (Finding above). One defect, three dishes.
-> 2. **Decide the PASTEL fixture question** — Santiago's, because it is an oracle change.
+> 1. **Santiago's call: switch models, or not.** GPT-5.5 now measurably beats GPT-4o on the benchmark.
+>    Not a measurement question any more.
+> 2. **Santiago's call: the three portion/oracle disagreements** — Coleslaw dressing 20 g vs 30 g,
+>    Gnocchi 150 g vs 110 g, ENFRIJOLADAS tortilla 60 g vs 72 g. Both readings are defensible in each,
+>    and the PASTEL episode is the precedent for what happens when the oracle is wrong: it silently
+>    flatters whichever model shares its flaw.
 >
 > **Open defects, none blocking:** PASTEL's cheese serving drops 50 g → 30 g in 2 of 12 draws (the only
 > strict failure left); the PASTEL tortilla artifact above; and the oracle-strictness question, now

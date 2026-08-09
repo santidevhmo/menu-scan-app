@@ -207,18 +207,30 @@
     "options": [],
     "printed_weight": "300gr.",
     "oracle": {
-      "calories": 576.705,
-      "protein_g": 51.256949999999996,
-      "carb_g": 35.51987,
-      "fat_g": 26.82937,
-      "assumed": "USDA FDC recipe. Printed 300gr. = the plated casserole (chicken, tomato sauce, green chile, onion, corn, cheese blend). The beans are an accompaniment (\"servido con frijoles\") and sit OUTSIDE the printed weight at 80g, but are eaten and counted. Total eaten 380g. Only ingredients printed on the menu are included: no tortilla, oil or cream is inferred.",
+      "calories": 623.5500000000001,
+      "protein_g": 44.290099999999995,
+      "carb_g": 65.1591,
+      "fat_g": 22.440199999999997,
+      "assumed": "USDA FDC recipe. Printed 300gr. = the plated casserole. The beans are an accompaniment (\"servido con frijoles\") and sit OUTSIDE the printed weight at 80g, but are eaten and counted. Total eaten 380g. TORTILLA ADDED 2026-08-09 (Santiago), superseding this dish's original \"do not infer tortilla, oil, or cream\" note. Refined convention: an ingredient ENTAILED BY THE DISH NAME is not an inference - a pastel azteca is a layered tortilla casserole, as a cheeseburger has a bun. Oil and cream remain excluded because the name does not entail them. Why it mattered: holding 300g while excluding the tortilla inflated every other ingredient (cheese reached 20.5% of plate weight), and B9 measured the cost - gpt-5.5-2026-04-23 listed tortillas at 90g and was scored 13/48 failed for being right, where gpt-4o-2024-08-06, which omits them, scored 0/48. The fixture was rewarding the weaker reading. Tortilla at 75g is ~25% of the casserole, from layered-casserole ratios, NOT from the model's 90g - fitting the oracle to what it measures would be circular.",
       "source": "USDA FoodData Central",
-      "retrieved_at": "2026-08-08",
+      "retrieved_at": "2026-08-09",
       "ingredients": [
+        {
+          "name": "Tortilla, corn (casserole layers)",
+          "fdc_id": 2707823,
+          "grams": 75,
+          "basis": "prepared",
+          "per_100g": {
+            "calories": 218,
+            "protein_g": 5.7,
+            "carb_g": 44.6,
+            "fat_g": 2.85
+          }
+        },
         {
           "name": "Chicken, unspecified cut/method, skin not eaten",
           "fdc_id": 2705931,
-          "grams": 109.1,
+          "grams": 82,
           "basis": "cooked",
           "per_100g": {
             "calories": 164,
@@ -230,7 +242,7 @@
         {
           "name": "Tomato sauce, canned with salt",
           "fdc_id": 170054,
-          "grams": 54.5,
+          "grams": 41,
           "basis": "prepared",
           "per_100g": {
             "calories": 24,
@@ -242,7 +254,7 @@
         {
           "name": "Green chile, cooked",
           "fdc_id": 2709978,
-          "grams": 13.6,
+          "grams": 10,
           "basis": "cooked",
           "per_100g": {
             "calories": 59,
@@ -254,7 +266,7 @@
         {
           "name": "Onion, cooked without fat",
           "fdc_id": 2709950,
-          "grams": 20.5,
+          "grams": 15,
           "basis": "cooked",
           "per_100g": {
             "calories": 47,
@@ -266,7 +278,7 @@
         {
           "name": "Sweet corn, cooked without fat",
           "fdc_id": 2709910,
-          "grams": 40.9,
+          "grams": 31,
           "basis": "cooked",
           "per_100g": {
             "calories": 86,
@@ -278,7 +290,7 @@
         {
           "name": "Mexican cheese blend",
           "fdc_id": 2705741,
-          "grams": 61.4,
+          "grams": 46,
           "basis": "prepared",
           "per_100g": {
             "calories": 362,

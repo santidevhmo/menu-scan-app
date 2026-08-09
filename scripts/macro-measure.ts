@@ -36,12 +36,43 @@ import { type MacroValues, scoreItem } from "./macro-score.ts";
  * to fail an item on, and that the shipped oracle stays as the one consistent
  * rule - so the tolerance lives here, in scoring, and never in the oracle file.
  */
-const ALT_ORACLES: { matches: (name: string) => boolean; oracle: MacroValues }[] = [
-  {
-    matches: (name) => name.startsWith("PASTEL"),
-    oracle: { calories: 452, protein_g: 39.2, carb_g: 31.4, fat_g: 19.9 },
+const HAS_ALT_READING = (name: string) => name.startsWith("PASTEL");
+
+/**
+ * The second reading's totals, DERIVED from the shipped oracle rather than
+ * restated as constants.
+ *
+ * "Beans inside" means the printed weight covers everything eaten, so it is the
+ * same ingredient list scaled by printed / total. Deriving it removes a whole
+ * class of silent error: the constants used to be hardcoded, and when PASTEL's
+ * recipe gained its tortilla on 2026-08-09 they became stale instantly - the
+ * tolerance would have been measured against a dish that no longer existed,
+ * with nothing to show it.
+ *
+ * Returns null when the dish has no second reading, or when the printed weight
+ * cannot be read - never a guess.
+ */
+export function altOracle(
+  entry: {
+    name: string;
+    printed_weight?: string;
+    oracle: { ingredients: { grams: number; per_100g: MacroValues }[] } | null;
   },
-];
+  printedTotalG: number | null,
+): MacroValues | null {
+  if (!HAS_ALT_READING(entry.name) || !entry.oracle || !printedTotalG) return null;
+
+  const total = entry.oracle.ingredients.reduce((sum, i) => sum + i.grams, 0);
+  if (total <= 0) return null;
+  const scale = printedTotalG / total;
+
+  return entry.oracle.ingredients.reduce((acc, i) => ({
+    calories: acc.calories + i.per_100g.calories * i.grams * scale / 100,
+    protein_g: acc.protein_g + i.per_100g.protein_g * i.grams * scale / 100,
+    carb_g: acc.carb_g + i.per_100g.carb_g * i.grams * scale / 100,
+    fat_g: acc.fat_g + i.per_100g.fat_g * i.grams * scale / 100,
+  }), { calories: 0, protein_g: 0, carb_g: 0, fat_g: 0 });
+}
 
 /**
  * Normalises an archived ingredient list to the current shape.
@@ -122,15 +153,20 @@ export interface DishVerdict {
   pass: boolean;
 }
 
-/** Scores one dish for one draw, honouring any alternative oracle reading. */
+/**
+ * Scores one dish for one draw, honouring any alternative oracle reading.
+ *
+ * `alt` is passed in rather than looked up so this stays pure; callers get it
+ * from `altOracle()`, which derives it from the shipped oracle.
+ */
 export function scoreDish(
   dishName: string,
   oracle: MacroValues,
   model: MacroValues,
+  alt: MacroValues | null = null,
 ): DishVerdict {
   const shipped = scoreItem(oracle, model);
-  const alt = ALT_ORACLES.find((entry) => entry.matches(dishName));
-  const altScored = alt ? scoreItem(alt.oracle, model) : null;
+  const altScored = alt && HAS_ALT_READING(dishName) ? scoreItem(alt, model) : null;
 
   const passes = shipped.fields.map((field, i) =>
     field.pass || (altScored?.fields[i].pass ?? false)

@@ -2,7 +2,7 @@ import {
   assertEquals,
   assertThrows,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
-import { pairWithOracle, scoreDish, toMacroValues } from "./macro-measure.ts";
+import { altOracle, pairWithOracle, scoreDish, toMacroValues } from "./macro-measure.ts";
 import { replayDraw } from "./bench-macros.ts";
 
 // ---------------------------------------------------------------------------
@@ -82,18 +82,34 @@ Deno.test("only macro-measure.ts knows the archive eras", async () => {
   );
 });
 
-Deno.test("only macro-measure.ts declares an alternative oracle reading", async () => {
-  // PASTEL's beans-inside totals. Held in only one tool, the harness printed
-  // failures that the published figure forgave.
-  const offenders = (await sourceFiles()).filter(({ path, text }) =>
-    path !== "scripts/macro-measure.ts" &&
-    text.includes("39.2") && text.includes("31.4")
-  );
-  assertEquals(
-    offenders.map((o) => o.path),
-    [],
-    "alternative oracle readings belong to ALT_ORACLES alone",
-  );
+Deno.test("the alternative oracle reading is DERIVED, never hardcoded", () => {
+  // It used to be four constants. When PASTEL's recipe gained its tortilla on
+  // 2026-08-09 those constants went stale instantly - the tolerance would have
+  // been measured against a dish that no longer existed, silently. Deriving it
+  // from the shipped ingredients makes that impossible.
+  const entry = {
+    name: "PASTEL AZTECA (300gr.)",
+    oracle: {
+      ingredients: [
+        // 300 g inside the printed weight ...
+        { grams: 300, per_100g: { calories: 100, protein_g: 10, carb_g: 20, fat_g: 5 } },
+        // ... plus a 100 g accompaniment outside it.
+        { grams: 100, per_100g: { calories: 100, protein_g: 10, carb_g: 20, fat_g: 5 } },
+      ],
+    },
+  };
+  // Beans inside: the same 400 g of food declared to weigh 300 g -> x0.75.
+  assertEquals(altOracle(entry, 300), {
+    calories: 300,
+    protein_g: 30,
+    carb_g: 60,
+    fat_g: 15,
+  });
+
+  // A dish with no second reading, and an unreadable printed weight, both yield
+  // null rather than a guess.
+  assertEquals(altOracle({ ...entry, name: "CESAR (200 g)" }, 300), null);
+  assertEquals(altOracle(entry, null), null);
 });
 
 // ---------------------------------------------------------------------------
@@ -153,7 +169,12 @@ Deno.test("an alternative reading rescues a field without flattering the report"
   const shipped = { calories: 576.7, protein_g: 51.3, carb_g: 35.5, fat_g: 26.8 };
   const beansInside = { calories: 452, protein_g: 39.2, carb_g: 31.4, fat_g: 19.9 };
 
-  const verdict = scoreDish("PASTEL AZTECA (300gr.)", shipped, beansInside);
+  const verdict = scoreDish(
+    "PASTEL AZTECA (300gr.)",
+    shipped,
+    beansInside,
+    beansInside,
+  );
   assertEquals(verdict.pass, true, "the second reading must rescue the draw");
   // Calories is the field that genuinely needs rescuing here: -21.6% against
   // the shipped oracle, outside the +/-20% calorie band, exact under the other
@@ -164,5 +185,8 @@ Deno.test("an alternative reading rescues a field without flattering the report"
   assertEquals(verdict.passes[0], true, "but the draw forgives it");
 
   // A dish with no alternative reading gets no such leniency.
-  assertEquals(scoreDish("CESAR (200 g)", shipped, beansInside).pass, false);
+  assertEquals(
+    scoreDish("CESAR (200 g)", shipped, beansInside, beansInside).pass,
+    false,
+  );
 });

@@ -665,7 +665,27 @@ This gives a native dialog instead of a browser popup and is the correct archite
 
 ### Phase 9 — Vision Model Consolidation + Optional USDA Macro Normalization
 
-**Status:** `[~]` **SUPERSEDED IN SUBSTANCE — read the OCR sub-roadmap instead.** Model consolidation is decided and deployed: Stage 1a `mistral-ocr-4-0` → Stage 1b `gpt-4.1-2025-04-14` → Stage 2 GPT-4o enrichment (edge fn v24). **Still open:** macro/enrichment accuracy has never been gated — that is the ACTIVE item in `plans/2026-07-04-ocr-extraction-master-roadmap.md`. USDA normalization not started.
+**Status:** `[~]` Model consolidation is deployed: Stage 1a `mistral-ocr-4-0` → Stage 1b
+`gpt-4.1-2025-04-14` → Stage 2 `gpt-4o-2024-08-06` enrichment. Macro accuracy is benchmark-gated
+against a USDA FoodData Central **benchmark-only** oracle of **8 dishes** (the oracle never runs in
+the app; runtime USDA normalization is still out of scope).
+
+✅ **An enrichment fix WAS selected and IS deployed (2026-08-09): "B4", edge function v28.** The
+model now supplies ingredient knowledge — a conventional serving and per-100 g composition per
+ingredient, plus what the menu's printed weight covers — and the **code** does the fitting,
+multiplication and summation. Measured: **39/96 failed field/draws at 37.7% mean error → 24–27/96
+at 21.0–21.2%**, over 4 runs × 3 draws. ⚠️ One known regression shipped with it: small dressed side
+dishes (Coleslaw) got worse. **GPT-5.5 was measured, beat GPT-4o on macros, and was DECLINED** —
+~2.4× slower on Stage 2. Nothing else is authorised for deployment.
+
+**Macro handoff — read in this order:** the master roadmap's `🎯 CURRENT PHASE` block
+(`docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`) is the single source of truth
+for status; `docs/superpowers/stage2-macro-benchmark.md` is the living log (Runs, Rulings, the
+deployment entry); `docs/superpowers/plans/2026-08-07-stage2-macro-benchmark.md` holds the paid-run
+procedure only — its Tasks 1–5 are COMPLETE. Do not rerun paid baselines without a new hypothesis
+and Santiago's explicit cost approval. **Two decisions are open and both are his:** the
+printed-weight *scope* convention, and the real-restaurant field test (never done — every scan to
+date has been a photo of a screen).
 
 **Goal:** Pick the winning vision model from Phase 1 testing + production data, lock it via feature flag, optionally improve macro accuracy.
 

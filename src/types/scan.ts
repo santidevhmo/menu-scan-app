@@ -44,6 +44,8 @@ export interface EnrichedItem extends ExtractedItem {
   carb_g: number;
   fat_g: number;
   estimated_calories: number;
+  /** Pieces the item is served as (pizza slices, sushi pcs); null if eaten whole. */
+  serving_pieces?: number | null;
   confidence: "high" | "medium" | "low";
   allergens: string[];
 }

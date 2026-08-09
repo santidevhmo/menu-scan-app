@@ -17,6 +17,419 @@ missing is a measured benchmark, including printed-weight items so P2's "prefer 
 rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope detail: item #5 of
 "Release scope decision" below.
 
+> **✅ CURRENT BEST: `macro-best-v8` (B21 + B24b). NOT DEPLOYED — production still runs B4 as edge
+> function v28.** Live figures on the 8-dish set, 4 runs x 3 draws:
+> **baseline 24/96 at 34.2% · B21 0–3/96 at 12.1–14.1%.** One full run scored a perfect 0/96, and six
+> of the eight dishes score 0/48. The baseline→best gap is 21–24, so the metric still separates a
+> naive pipeline from a good one.
+>
+> **What got there, in order:** B15 (name-implied components), Santiago's Gnocchi and ENFRIJOLADAS
+> oracle corrections, B21 (standard reference-amount servings), B24b (black-box detection). Seven
+> other hypotheses were falsified and each closed a direction — see the log.
+>
+> **Generalisation, measured on 72 real items across all nine archived menus** (not the fixtures):
+> black-box ingredient **1.4%**, undecomposable **2.8%**, weight parsing correct on every format
+> including `12 oz` and `1/2 lb`. Two structural defects were found and fixed there that the eight
+> fixtures structurally cannot detect.
+>
+> **Deliberately out of scope:** drinks and alcohol (Santiago, post-launch). An `alcohol_per_100g`
+> term was built, measured and REVERTED for that reason; the finding is preserved in the log.
+>
+> 🎯 **THE BIGGEST REMAINING UNKNOWN IS NOT MEASURABLE HERE: the real-restaurant field test.** Every
+> scan in this project's history is a photo of a screen or a gallery import. Paper, real lighting,
+> angles and glare are untested. It needs Santiago and a phone, and it is unblocked.
+>
+> ⚠️ **Two French Fries re-freezes were made and then REVERTED on 2026-08-09** (raw-potato 409 kcal,
+> frozen-par-fried 594 kcal). Both changed a researched dish's USDA composition, which is Santiago's
+> alone, and the raw-potato version was internally inconsistent (ingredients 340 g, eaten 264 g,
+> printed 300 g). While they were in place the docs briefly recorded "B4 scores worse than baseline";
+> **that was one dish and an instruction mismatch, never an app regression.** Do not act on any figure
+> quoting baseline 27–33/96 or B4 33–39/96 — those belong to the reverted oracles.
+>
+> 🔬 **The finding those re-freezes produced is real and is a PIPELINE gap, not an oracle one:**
+> Polloteria prints *"El peso del producto es antes de cocinarlo"*, so a printed weight is sometimes a
+> PRE-COOK weight, and Stage 2 has no concept of weighing basis — it fits ingredients to every printed
+> number as though it were finished food. Same shape as the SCOPE question (a printed weight may name
+> one component, not the plate; Casa Nostra prints 180 g on five pastas and 200 g on three salmons,
+> El Marcos prints *"el gramaje se refiere a los ingredientes principales"*). **Both remain OPEN**,
+> alongside the real-restaurant field test.
+>
+> ⚠️ **Everything between here and "NEXT ACTIONS" is the historical record of how that was reached,
+> written progressively as it happened.** Individual blocks contradict each other on purpose — later
+> ones supersede earlier ones and say so. **If you only want current state, read the paragraph above,
+> then jump to `### 🎯 NEXT ACTIONS`.**
+>
+> **Branch `worktree-stage2-macro-benchmark`** (off `main` at `04e77ab`). All of this phase's
+> work lives there, NOT on `main`. The local worktree is `.claude/worktrees/stage2-macro-benchmark/`
+> — that path is gitignored, so on a fresh machine just `git checkout worktree-stage2-macro-benchmark`
+> and work in the repo root.
+>
+> ### Taking over? Read this block, then the log. Everything else is history.
+>
+> **Where the phase stands (2026-08-08):** the harness, the USDA oracle and the scoring are done
+> and frozen. Six prompt/schema iterations have been measured against them. Production is
+> **untouched** — the deployed edge function still runs the original pre-B1 prompt. Total spend on
+> this phase to date: **$0.226**.
+>
+> | Commit | What | Deployed? |
+> |---|---|---|
+> | `58dfc1f` `73efc15` `6bd5752` `f8ca5a2` | harness: prompt/schema export, pure scoring, runner, raw archiving | — |
+> | `4300e4f` → `242ab9e` | USDA calculator, FDC helper, approved recipes, provenance guard | — |
+> | `0476481` | Stage 2 pinned to `gpt-4o-2024-08-06` | ✅ deployed |
+> | `ce91e91` | response-boundary hardening | ✅ deployed |
+> | `a4ebf0f` | oracle re-frozen under one printed-weight rule; $0 re-score | — |
+> | `1768a1d` | **B1** — required per-ingredient `grams` | ❌ **on branch only** |
+> | `1ce5139` | **B10** — per-ingredient macros, item totals summed in code | ❌ **on branch only** |
+> | `766be47` | **B11** — carb-trap sentence in the prompt (**falsified, reverted by B12**) | ❌ **on branch only** |
+> | `692a8af` | **B12** — per-100 g composition, priced in code; B11's food list deleted | ❌ **on branch only** |
+> | `06fd49a` | **B13** — step-2 clause rejecting the raw reference figure (**falsified, kept**) | ❌ **on branch only** |
+> | `55f924d` | portion scorer — displacement metric, benchmark-only, $0 | — |
+> | `fae3291` `ff93de2` `950c334` `3ce44b7` | **B4** — conventional servings + printed-weight scope tag, fitted in code | ✅ **DEPLOYED 2026-08-09 as v28** |
+> | `a9fce10` | temperature travels with the model; `callGptEnrich` moved to `enrich.ts` so a harness tests the real batching | ✅ **DEPLOYED 2026-08-09 as v28** |
+>
+> ⚠️ **The "on branch only" marks above are the status AT THE TIME each commit landed.** B4 was
+> subsequently deployed and the pre-B1 prompt it replaced is no longer what production runs. B1 and
+> B10–B13 were superseded by B4 on the branch, so they never shipped in their own right.
+>
+> **The measured story, in one table.** Failed field/draws, scored under the PASTEL beans
+> tolerance (see Rulings) — 36 field/draws total:
+>
+> | run | failed | what fails | mean \|error\| |
+> |---|---:|---|---:|
+> | baseline-002r | **6** | CESAR calories −24%, CESAR fat −32% | 18.6% |
+> | iter-b1-001 (grams only) | 13 | spread over 5 item/field combinations | 25.5% |
+> | iter-b10-001 (summed) | 7 | **carbs ×6**, one Salmone calorie draw | 20.6% |
+> | iter-b11-001 (carb sentence) | **6** | **carbs ×6** — CESAR ×3, PASTEL ×3 | 19.6% |
+> | iter-b12-001 (per-100 g) | 11 | **fat ×5**, calories ×2, carb ×4 | 26.8% |
+> | iter-b13-001 (raw-reference clause) | 6 | fat ×4, carb ×2 | 21.3% |
+> | **iter-b4-001 (conventional servings)** | **0** | **nothing** | **16.7%** |
+> | **iter-b4-002 / 003 / 004 (reproduction)** | **1 / 0 / 1** | PASTEL fat only | 16.1–17.3% |
+>
+> ✅ **B4 is the first iteration to beat the baseline, and it REPRODUCED.** Four runs, twelve draws:
+> **2 failed field/draws out of 144 (1.4%)**, against the best prior result of 6 out of 36. Quote the
+> **range 0–1**, never iter-b4-001's zero alone.
+>
+> Both failures are one named defect: PASTEL's cheese serving drops 50 g → 30 g in 2 of 12 draws, and
+> since cheese is that dish's dominant fat its fat falls to −44.1%. Everything else is near
+> deterministic — beans tagged outside the printed weight in **12/12**, `printed_total_g` read
+> correctly in **12/12**, Salmone displacement 14.3% in **12/12**.
+>
+> Still not settled: a large share of passing fields sit within a few points of their band edge, so a
+> tighter tolerance would fail them.
+>
+> **What the six iterations established (all from archived responses, $0 to re-check):**
+>
+> 1. **B1 alone regressed things**, but proved the model **portions** well — its gram sums land
+>    exactly on the printed weight on 2 of 3 dishes, which it never did before.
+> 2. **B10 proved the model can add.** Once given per-ingredient macros, the item totals it emits
+>    match our computed sums almost exactly and stop being multiples of 5.
+> 3. **B11 proved prompt wording is not the lever, and that a food list BACKFIRES.** PASTEL's carb
+>    sum was 50 g in both runs. The sentence listed `corn kernels` among high-carb foods and the
+>    model took the licence: sweet corn went 15 g → **20 g** of carb at 30 g. That list was a
+>    roll-call of our own three fixtures' ingredients — **the test set had leaked into the shipped
+>    prompt.** `enrich_test.ts` now guards step 2 against any food name mechanically.
+> 4. **B12 SOLVED per-ingredient composition.** Asked for composition per 100 g instead of "the
+>    amount in this serving", the model returns USDA values to the decimal — corn **19** vs USDA
+>    18.7, tomato sauce 5 vs 5.3, parmesan `35.8/3.2/25.8` vs `35.75/3.22/25.83`. The knowledge was
+>    always there; asking for an *amount* was destroying it, because an amount comes back as a round
+>    number anchored to the ingredient's **category tag** (anything tagged `carb` got 20 or 30 g
+>    whatever the food or weight).
+> 5. **Therefore: composition is done, PORTIONING is the whole remaining carbohydrate problem.**
+>    PASTEL's carb now passes 3/3. CESAR still fails because its croutons are portioned 30 g against
+>    the oracle's 20 g while priced correctly at 72 g/100 g; Salmone fails two draws because its
+>    baguette portion **collapsed from 50 g to 10 g** between draws.
+> 6. **B12's bill was fat, on all three dishes** — the model's fat is below the oracle on all six
+>    fats measured. B12 guessed the cause was a raw-vs-prepared basis error, and it also deleted step
+>    2's only fat signal in the same commit, so the run was confounded. **B13 resolved both** — see #7.
+> 7. **B13 falsified prompt wording for the second time, and this one is decisive.** Telling the model
+>    outright that the raw reference figure is the wrong answer moved **zero** fat values: Caesar
+>    dressing 40, croutons 10, chicken 3.6, parmesan 25.8 — identical to B12 to the decimal, and
+>    CESAR's fat error is **−35.5% in all three draws of both runs**. So the deleted fat signal was
+>    never the cause either. Also: **the model is not quoting *raw*.** Raw chicken breast is ~1.2 g
+>    fat/100 g and it says 3.6. It picks a **leaner but real** product where the oracle picks a richer
+>    as-prepared one. That is a product disagreement, not a basis error.
+> 8. **Fat now decomposes to PORTIONING, exactly like carbohydrate did.** CESAR's whole 10.3 g fat
+>    gap is **91% one ingredient** (Caesar dressing) — and 5.78 g of that 9.34 g is the portion call
+>    (20 g vs the oracle's 30 g) against only 3.56 g for the composition.
+>
+> 9. **B4 closed it, and cheaply.** Two $0 measurements set it up: an ablation showing the model's own
+>    composition scores **36/36 once given the oracle's grams**, and a new portion scorer showing
+>    CESAR's *displacement* — the share of a dish's mass on the wrong ingredient — was **20.0% in all
+>    fifteen draws of all five prior runs**, never once moving. Asked for a **conventional serving**
+>    instead of a number that had to sum to the printed weight, the model said Caesar dressing is 30 g
+>    (the oracle's figure exactly; it had said 20 g every time before) and tagged PASTEL's beans as
+>    sitting *outside* the printed weight unprompted, closing a −21.1% total error frozen since B1.
+>    Result: **0 failed field/draws.** The backlog's two-call design was never needed.
+> 10. **The pattern that has now won three times out of three:** take arithmetic away from the model
+>    and leave it knowledge. B10 took the addition, B12 the multiplication, B4 the fitting. The two
+>    changes that only added instructions (B11, B13) moved nothing.
+>
+> ⚠️ **Everything from here down to the B14 block was written when the set was THREE dishes.** Those
+> figures are still correct for that set and are what B14's 8-dish numbers replaced; read them as the
+> history that motivated widening, not as current status.
+>
+> ### ⚠️ ORACLE RE-FROZEN 2026-08-08 — read this before any number above
+>
+> `a60eb2a` re-picked CESAR's Caesar dressing from 57.8 g fat/100 g (the top of ~40 USDA entries) to
+> the market median 36.67. **Our oracle was stricter than reality and the model was closer to it than
+> we were.** Re-scored history, $0, `deno run --allow-read scripts/rescore-history.ts`:
+>
+> | run | was | now | mean abs error |
+> |---|---:|---:|---:|
+> | baseline-002 | 6 | **0** | 16.7% |
+> | iter-b13-001 | 6 | 3 | 18.3% |
+> | **iter-b4-001…004** | 0/1/0/1 | **0 0 0 0** | **13.6–14.7%** |
+>
+> **The baseline's only six failures were the two CESAR fields we just corrected, so B4 no longer beats
+> it on the headline count — they tie at 0.** B4 leads on mean absolute error instead. The failure
+> count is now a **saturated gate**: two very different pipelines both score 0, so mean absolute error
+> is the primary number from here and the count is a floor that must not regress.
+>
+> A $0 re-derivation then showed **~70% of the fat lean was our own oracle**. The three remaining
+> top-five errors are portion problems, two are composition. **B5 was designed against the old lean
+> and is not being run** — see the log's "B5 premise re-derived" entry.
+>
+> ### 🏁 CHECKPOINT SET — `stage2-b4-checkpoint` (tag → `22a1ac5`)
+>
+> **Santiago ruled on 2026-08-08 that B4 is the best version yet and the state to fall back to.** If a
+> later evaluation regresses, restore from this tag; if the phase stops, publish from it. Full ruling,
+> the absolute-error table behind it, and the rules for superseding it are in the log's **Rulings**
+> section. `git show stage2-b4-checkpoint` prints the measured result.
+>
+> ⚠️ **That bar is RETIRED.** It read "0–1 failed field/draws, not the baseline's 6" and described the
+> saturated 3-dish set. Since B14 the live bar is **24–27 of 96 with mean error 21.0–21.2%**. What has
+> not changed is the rule: a new result replaces the checkpoint only if it beats that *range* over at
+> least 4 runs × 3 draws — one better run is never enough.
+>
+> ### 💰 COST IS NOT A CONSTRAINT — ruling, Santiago 2026-08-08
+>
+> *"This is what this session and evaluations are for: to clear out all hypotheses we have on our core
+> feature and on ensuring it works and on making it better. Cost is not an issue in these sessions, so
+> don't limit yourself to not iterating and experimenting that much due to cost."*
+>
+> **Never narrow scope, skip an experiment, or recommend stopping on cost grounds.** State the dollar
+> estimate and get his approval before any paid run — that rule stands — but price is never an argument
+> against running one. A previous session recommended stopping at $0.374 partly on cost; he corrected
+> it.
+>
+> ### ✅ B14 DONE 2026-08-09 — the set is 8 dishes and the metric works again
+>
+> Santiago approved five new dishes, their USDA recipes, a sub-3 g scoring floor and both paid arms.
+> 8 runs × 3 draws × 8 dishes, **$0.96**. Full entry in the log under **baseline-w1…w4 / iter-b4-w1…w4**.
+>
+> | arm | failed field/draws | mean abs error |
+> |---|---|---:|
+> | baseline (pre-B1 prompt) | 39/96, all four runs | 37.7% |
+> | **B4** (GPT-4o) | **24–27/96** | **21.0–21.2%** |
+> | **B9** (GPT-5.5) | **14–19/96** | **15.5–17.2%** |
+>
+> **The saturation was real and total.** On the old three dishes both arms score **0 of 48 each**; every
+> bit of discriminating signal came from the five new dishes. **B4 now beats the baseline ~2× on both
+> metrics**, where on three dishes it could only tie.
+>
+> **The bar moved.** "0–1 failed of 144" described a saturated set and is **retired as a target**. The
+> live bar is **24–27 of 96 with mean error 21.0–21.2%**, over 4 runs × 3 draws.
+>
+> **B4's mechanism generalised to dishes it was never designed against** — NEW YORK 44.8% → 4.8% error,
+> French Fries 46.9% → 6.1%, and it tagged the chimichurri as outside the printed 400 g unprompted. The
+> hand audit found **no invented or unprinted ingredient** on any of the five.
+>
+> **Two NEW open targets replace the PASTEL cheese wobble:**
+> - **Coleslaw — B4 REGRESSED, 0/48 → 22/48**, the one dish the baseline wins. B4 portions the dressing
+>   at 20 g against the oracle's 30 g, and dressing is a slaw's entire fat. First evidence that
+>   portion-fitting can *hurt* a small side dish.
+> - **Gnocchi — 44/48**, the worst remaining dish.
+>
+> ⚠️ **Several remaining failures are portion disagreements where BOTH parties are defensible** (gnocchi
+> 150 g vs 110 g, tortilla 60 g vs 72 g, dressing 20 g vs 30 g). That is the Caesar-dressing situation,
+> not proven model error. **The oracle is Santiago's alone** — flagged, not changed.
+>
+> ### 🎯 NEXT ACTIONS, in this order
+>
+> **1. ~~Widen the fixture set~~ — DONE, see above.** Historical note on why it mattered: three dishes is
+> *why* the failure count saturated — baseline and B4 both scored 0 of 36, so the metric could no longer
+> separate a naive pipeline from a good one. Santiago's direction was to take new dishes from data the
+> extraction phase already produced.
+>
+> ```bash
+> deno run --allow-read scripts/find-weighted-dishes.ts    # $0, no model calls
+> ```
+>
+> lists **120 distinct printed-weight dishes** across the archived extraction dumps in
+> `scripts/fixtures/caches/`. CESAR itself came from that corpus (menu `andaluz`). A printed weight
+> matters because it is exactly what B4's mechanism keys off — `printed_total_g` plus
+> `within_printed_weight`.
+>
+> Adding a dish is **not** automatic. Each needs a USDA-sourced oracle recipe with real `fdc_id`s, and
+> **Santiago approves every recipe personally** — that ruling has not changed. `scripts/usda-oracle.ts`
+> provides `searchFoods` / `fetchNutrients` against the free FDC API (key in `.env.local`), and
+> `bench-macros_test.ts` now fails the build if any dish's stored totals stop matching its own
+> ingredients.
+>
+> Two traps the current three fixtures already taught:
+> - **Do not pick the richest USDA entry when several are defensible.** That is what made the Caesar
+>   dressing wrong for six runs. Check the spread first; prefer the median of real products.
+> - **Beware dishes whose defining ingredient is unprinted.** PASTEL AZTECA is a tortilla casserole
+>   whose menu never says tortilla, so its oracle inflates everything else (cheese to 20.5% of plate
+>   weight). Santiago ruled to leave it — but it is why PASTEL cannot serve as a portion target.
+>
+> ### ✅ B9 DONE 2026-08-09 — the ceiling is the TASK, not GPT-4o
+>
+> `gpt-5.5-2026-04-23` (newest **dated** snapshot on the account; the `gpt-5.6-*` entries are floating
+> aliases and are ruled out by pinning discipline), 4 runs × 3 draws, ~$0.47.
+>
+> | arm | failed field/draws | mean abs error |
+> |---|---|---:|
+> | GPT-4o (B4) | 24–27/96 | 21.0–21.2% |
+> | GPT-5.5 | **14–19/96** | **15.5–17.2%** |
+>
+> *(Figures below the table were written before the same-day PASTEL re-freeze and are corrected here.)*
+>
+> **A model a generation and a half newer moves the total essentially nothing.** No model upgrade was
+> ever going to close this. ⚠️ **Confound: GPT-5.5 rejects `temperature: 0`** (only its default 1),
+> so the arm cannot run at production parity; its wider spread is consistent with sampling, its best
+> run is partly luck, and the ranges overlap. **Treat the two as level.**
+>
+> **The totals are level, the composition is not.** GPT-5.5 improves every dish GPT-4o struggled with
+> (Gnocchi 44→27, ENFRIJOLADAS 28→14, Coleslaw 22→12) and **regresses two it had exact — Salmone
+> 0→12/48 and PASTEL 0→13/48.**
+>
+> 🔑 **The single most valuable finding of the phase so far: ONE mechanism defect explains every open
+> target.** `resolveGrams` fits servings to the printed weight **proportionally**, so the more complete
+> a model's ingredient list, the more the principal component is diluted. GPT-5.5 listed 358 g of
+> servings inside Salmone's printed 200 g against GPT-4o's 220 g, and its salmon scaled to 112 g
+> against the oracle's 140 g. **Coleslaw is the same defect** — the fit under-weights dressing against
+> cabbage. Fixing the fit is worth more than any model or wording change.
+>
+> ⚠️ **PASTEL's regression is mostly OUR ORACLE.** GPT-5.5 lists tortillas at 90 g; the menu never
+> prints tortilla and the oracle excludes what is not printed, so the better-reasoning model is scored
+> wrong for being right. The fixture's own documented artifact now penalises a model. **Revisiting that
+> fixture is Santiago's call.**
+>
+> 🔴 **THAT RULING WAS REVERSED THE SAME DAY.** The 2026-08-09 PASTEL re-freeze (tortilla added)
+> re-scored both arms at $0 and the ranges **stopped overlapping**: GPT-4o **24–27/96 at 21.0–21.2%**,
+> GPT-5.5 **14–19/96 at 15.5–17.2%**. The "level, do not switch" reading was substantially our own
+> fixture punishing the model that correctly named the tortilla. **Switching is a live question and
+> Santiago's call — since MADE, and he DECLINED the switch on latency (see NEXT ACTIONS).**
+> `ENRICH_MODEL` is still `gpt-4o-2024-08-06`; B4 is deployed as v28, GPT-5.5 is not. App-wide
+> write-up kept outside this phase: `docs/model-findings.md`.
+>
+> ✅ **The `resolveGrams` fix this block used to recommend is FALSIFIED ($0 ablation).** Protecting
+> the principal component made failures WORSE on both arms (GPT-4o 103→105, GPT-5.5 66→69 of 384).
+> Coleslaw's scale factor is **exactly 1.00** in all 12 GPT-4o draws, so the fit was never its cause.
+> **The remaining open targets are portion/ORACLE disagreements, not mechanism defects.**
+>
+> ### 🎯 NEXT ACTIONS
+>
+> **Updated 2026-08-09 (second session).** Santiago approved three things and all three are done:
+> the pipeline-integrity arm, USDA adjudication of the portion disputes, and a $0 scope
+> investigation. Full entries at the end of the log's Runs section.
+>
+> 🔴 **A latent production break was caught before it shipped.** `enrichBatch` hardcoded
+> `temperature: 0`, which `gpt-5.5` rejects — swapping `ENRICH_MODEL` alone would have 400'd **every
+> scan**. The benchmark could not have caught it: the harness quietly drops the parameter for an
+> overridden model, so the whole measured GPT-5.5 arm ran a path production does not have. Fixed in
+> `a9fce10`; `callGptEnrich` now lives in `enrich.ts` so a harness tests the real batching, not a copy.
+>
+> ✅ **GPT-5.5 clears the integrity bar** (2 real menus, 91 items, batches of 10): zero dropped items,
+> order preserved, no truncation on either model. Two new facts for the switch decision:
+> **GPT-5.5 is ~2.4× slower** (101 s vs 41 s of Stage 2 on a 55-item menu) and it **flags more
+> allergens**, including on items GPT-4o flagged none for. It is also wrong about mineral water.
+>
+> ✅ **Coleslaw and ENFRIJOLADAS are CLOSED — USDA backs the oracle on both, unchanged.** Coleslaw's
+> 30 g dressing is USDA's own standard serving; the model's 20 g puts the dish below every real
+> coleslaw in FDC. The ENFRIJOLADAS tortilla is worth 2% and is not what fails that dish — the
+> chicken portion is (all three arms run protein +33–48% over the oracle's 25 g).
+>
+> **What is left, and both are Santiago's:**
+>
+> 1. **Switch models, or not.** No longer blocked on the unknown. The trade is now explicit:
+>    **better macros + safer allergens vs 2.4× Stage-2 latency.** A product call.
+> 2. **The printed-weight SCOPE question — the one genuinely open finding.** Gnocchi is not a portion
+>    dispute: all three arms overshoot it in the same direction, the menu prints the same 180 g on
+>    five different pasta dishes, and Andaluz prints weights as small as **20 g**, which cannot be a
+>    plate. The oracle reads "printed weight = whole plate" uniformly across all eight fixtures.
+>    Re-reading Casa Nostra would move **Gnocchi +39%** and **Salmone +27%** — and Salmone currently
+>    scores 0/48, so it could break a passing fixture. **This re-opens a question marked closed and
+>    needs a new ruling. Nothing was changed.**
+>
+> **Open defects, none blocking:** PASTEL's cheese serving drops 50 g → 30 g in 2 of 12 draws (the only
+> strict failure left); the PASTEL tortilla artifact above; and the oracle-strictness question, now
+> partly answered — a $0 USDA check found the model **right** about Caesar dressing and Mexican cheese,
+> and the oracle right about baked salmon, croutons and heavy cream.
+>
+> 🚀 **DEPLOYED 2026-08-09 — B4 is live as edge function v28** (was v27), still pinned to
+> `gpt-4o-2024-08-06`. Santiago authorised it after the integrity arm cleared the real batched path.
+> Production had been running the pre-B1 prompt, the worst version measured. Rollback target is
+> **`ce91e91`**. Nothing beyond B4 is authorised — GPT-5.5 was considered and declined on latency.
+>
+> 📊 **Prior to weigh, not a prohibition (Santiago, 2026-08-08).** The scoreboard on *kinds of change*
+> so far: **prompt wording 0 for 2** (B11, B13 — ~$0.076, zero target numbers moved), **mechanism
+> changes 2 for 2** (B10, B12 — both worked by taking arithmetic away from the model and leaving it
+> knowledge). That is evidence about where to look first, not a closed door: these iterations exist
+> to break and confirm hypotheses, so a wording idea with a *new* mechanism behind it and a stated
+> falsifier is still a legitimate run. Bring the prior into the brainstorm; don't let it end one.
+>
+> Design B4 with `superpowers:brainstorming` and get Santiago's approval on the shape before
+> spending anything.
+>
+> ⚠️ **Open question for Santiago before more money goes on fat (his call alone, no change proposed):**
+> on all six fats the oracle picks the richer as-prepared FDC entry and the model picks a leaner real
+> one — both defensible foods. If the oracle is meant to represent a *typical* restaurant plate rather
+> than the richest available entry, some of what is scored as model error is an oracle choice. Raised
+> in the iter-b13-001 notes, Finding 5.
+>
+> **Do NOT do any of these without a new ruling:** deploy anything — including B4, which has beaten
+> baseline exactly once and is unreproduced; re-run a baseline (two exist); re-open the
+> printed-weight scope question (ruled,
+> applied blind); change the frozen oracle (Santiago's alone); or put any food, dish or cuisine name
+> into the nutrition step of the prompt (measured harmful, and now unit-tested). **Deprioritise**
+> B2/B5/B6 — no run data stands behind them, unlike B4 — but that is sequencing, not a ban.
+> **B9 is DONE (2026-08-09) and no longer belongs on that list.**
+>
+> **Read in this order — these files are the whole phase:**
+> 1. `stage2-macro-benchmark.md` — Backlog (B1–B11), Runs, Rulings. **This is the living
+>    document.** Its Runs table is the only record of what was measured.
+> 2. `plans/2026-08-07-stage2-macro-benchmark.md` — the paid-run procedure (archiving, hand
+>    audit, what to report). Tasks 1–5 are COMPLETE; do not re-execute them.
+> 3. `specs/2026-08-07-stage2-macro-enrichment-benchmark-design.md` — the approved design:
+>    tolerance bands, the three items, what is explicitly NOT in scope, and how Stage 2 works.
+> 4. `specs/2026-08-07-usda-macro-oracle-design.md` + `plans/2026-08-07-usda-macro-oracle.md` —
+>    the **frozen** oracle reference. Complete; nothing to execute.
+>
+> Supporting evidence: `research/2026-08-07-macro-estimation-prior-art.md` (NutriBench, FDA
+> tolerance basis, "Lost in the Middle" batching, LLM-confidence calibration). Read it before
+> proposing any change to the enrichment prompt or schema.
+>
+> **Current gates:** the oracle is frozen — changing any FDC ID, edible grams, or raw/cooked
+> basis needs Santiago's approval, same as when it was built. Every paid run stays separately
+> gated on his explicit approval with a stated dollar estimate.
+>
+> ### ℹ️ The `1 failed` in the test suite is NOISE — do not spend time on it
+>
+> The full suite reports `337 passed | 1 failed`. **That one failure is `scripts/tile-cut_test.ts`
+> and it does not matter.** Santiago's position (2026-08-08): not important, not blocking, not
+> worth a session. Treat it as the known-good baseline number and move on.
+>
+> It is here only so you can tell it apart from a real regression:
+>
+> - **It cannot affect macros.** It tests the image tile cutter; Stage 2 is text-only and never
+>   sees a photo.
+> - **It guards code that cannot run.** The tile path is dead under the (c) pipeline — see the
+>   trace under critical-path #2 below.
+> - **It can only ever pass on Santiago's machine.** Line 54 hardcodes
+>   `~/Downloads/MenusTesting/PolloteriaMenu.png`, outside the repo.
+> - **The cause recorded in earlier handoffs was wrong**, corrected here so nobody re-investigates:
+>   it is NOT a "Polloteria image dimension mismatch". The image is exactly the 2274×1572 the test
+>   passes in. `gridCropRects` reads `tileFrac = width > height ? 0.65 : 0.6`; the H1.2b
+>   landscape-overlap change (`f9b2029`) widened landscape tiles to 65%, and this test's hardcoded
+>   `1364×943` (the 60% portrait numbers) was never updated. If anyone ever does fix it, it is two
+>   numbers → `1478, 1022`.
+>
+> **The rule for a new session:** `337 passed | 1 failed` with only `tile-cut_test.ts` red is a
+> CLEAN run. Any *other* failure is yours.
+
+
 **OPEN ALONGSIDE, not a blocker: the real-restaurant field test.** Every scan to date has been a
 photo of a screen or a gallery import — paper, real lighting, angles and glare are untested.
 Unblocked 2026-08-05: TestFlight build 5 carries the fix for the crash that had blocked it
@@ -111,6 +524,8 @@ Distilled from Features 1–4 and the 2026-07-10 per-page-wiring close (ledger e
 
 27. **WHEN A LIVE NUMBER DISAGREES WITH AN OFFLINE NUMBER, SUSPECT THAT THEY ARE MEASURING DIFFERENT SAMPLES BEFORE YOU SUSPECT DIFFERENT CODE.** A ×3 live gate scored 33/31/33 against an offline 40/45 and the gap read as a 7-9 dimension live-only defect. Two confident mechanisms were proposed — an input-fidelity mismatch (cached OCR came from a 2048/q95 re-encode, production sends the passthrough original) and OCR model drift — and **both were refuted by a $0.004 probe**: all three markdowns were the same length with the same heading and the same fold behaviour. Re-scoring against three fresh draws instead of one archived draw put the offline number at 34/36/36 and **the gap shrank to ~2 dims**. There was no live defect; the two numbers were samples of different sizes from a varying distribution. **The diagnostic order that works, cheapest first: (1) is the offline baseline one sample or many? (2) hold the input constant and vary only the model output, then the reverse — the bisect that localises it; (3) only then look for a code difference.** Doing this backwards costs a day and produces two ledger entries that have to be retracted.
 
+28. **TWO TOOLS THAT BOTH REPORT A NUMBER MUST SHARE ONE MEASUREMENT PATH — a second copy does not announce itself, it just prints a clean table of wrong numbers.** The macro benchmark had two: the live runner (`bench-macros.ts`) and the $0 re-scorer (`rescore-history.ts`). They had drifted apart in **four** ways at once, and a 2026-08-09 audit found all four only because ONE of them was noticed by accident. (a) **Tolerance bands were declared twice**, so a newly-approved band applied to new runs and not to the history they were being compared against — the comparison silently stops being like-for-like. (b) **The runner paired model items to oracle dishes BY POSITION, the re-scorer BY NAME**; the oracle had just grown from three dishes to eight, so one reordering would have landed every score on the wrong dish with nothing in the output to show it. (c) **The PASTEL beans tolerance existed in only one of them**, so the runner printed failures the published figure forgave. (d) **Era handling existed in only one of them**, and the archive spans three response shapes — the wrong reader returns ZERO for every macro and prints `-100%` across the board, which reads exactly like a catastrophic model regression. That last one had **already happened once** in this phase and produced a tidy, entirely false table. **The fix is deletion, not documentation:** one module (`scripts/macro-measure.ts`) owns era detection, dish pairing, alternative oracle readings and the bands, and every tool imports it. **Documentation alone does not work here** — a zero-context session cannot be expected to rediscover an incident it never saw — so `macro-measure_test.ts` fails the build if a second copy of any of the four reappears, and each guard was verified to actually fire by reintroducing the defect. Corollary, and the reason this is expensive: **bad measurement code is worse than bad feature code.** A broken feature is visible; a broken measurement silently redirects every future iteration, and you spend real money iterating against numbers that mean nothing.
+
 ---
 
 ## Prior art — DoorDash's menu-transcription pipeline (researched 2026-07-09, Feature 2)
@@ -140,6 +555,41 @@ Features 1–4 are CLOSED and the user chose **release momentum over roadmap com
 **Pre-release critical path (work on THESE, in this order):**
 1. **Production wiring of the per-page multi-photo recipe** ✅ DONE 2026-07-10 (3/3 gate, ledger eval 048) — shared `runPagedExtraction` in `extract.ts`: edge `stage:"extract"` + eval runner both call it (1 photo ⇒ 1 call; N photos ⇒ N parallel high-detail calls → `merge.ts` → ONE unified menu; enrichment once/scan); `extractWithRetry` now production; multi-page detail locked `high` (`auto` A/B deferred to the cost pass). Closing the gate required P1 v3 (keep printed weights verbatim; "y/and" joins are one dish — see diagram appendix) + Plato Surtido options ORACLE-CHANGE (`unchecked: true`). Spec/plan in the worktree (`docs/superpowers/specs/2026-07-10-per-page-multi-photo-wiring-design.md`).
 2. **Dense-menu auto-cutter** ✅ DONE 2026-07-12 (3/3 gate eval 055 + same-day device verification) — two-phase stateless: phase-1 `stage:"extract"` returns `{needs_crops}` on dense signal (`image_layout.dense` OR terminal timeout/length after retry); client cuts 2×2 PNG tiles from ORIGINALS (`gridCropRects`+`prepareTile`) → `stage:"extract-pages"` → `runGroupedExtraction` (tile calls get `TILE_PROMPT_SUFFIX`, page calls get P1 v7 `PAGE_PROMPT_SUFFIX`; per-tile drink filter; sectionLenient merge; post-merge `dropHeaderEchoes`). Closing the gate took: `dropSiblingEchoOptions` postprocess, Chipo one-indel scorer tolerance (user ruling), v7 page-scoped completeness (global v6 REGRESSED — mode-scope prompt rules!). Detector 100% correct all campaign (5 normal menus never trigger — credit guard). Known limits ledgered: Churrasquería box recall ~25% (union-of-2, post-release), device tile fidelity below eval (ImagePicker re-encode suspect — client-fidelity follow-up). Spec/plan/ledger in the worktree.
+
+   ⚠️ **THE TILE PATH IS DEAD CODE AS OF THE (c) MIGRATION — traced 2026-08-08, not previously
+   recorded.** Everything described above still exists in the repo but **can no longer execute in
+   production**. The chain, verifiable in four steps:
+
+   | # | Fact | Where |
+   |---|---|---|
+   | 1 | The client only calls `stage:"extract-pages"` from inside `if (Array.isArray(data?.needs_crops))` | `src/lib/analyzeMenu.ts:265` |
+   | 2 | Only `runPagedExtraction` (the deployed `stage:"extract"` handler) could emit that signal | `supabase/functions/analyze-menu/index.ts:256` |
+   | 3 | It **hardcodes** `image_layout: { dense: false, crop_direction: "none" }` — the dense detector was not carried over to the Mistral path | `supabase/functions/analyze-menu/extract.ts:719` |
+   | 4 | `needs_crops` therefore appears **only** as a union member in `PagedExtraction` and is never constructed anywhere | `extract.ts:629` |
+
+   So `gridCropRects`, `cutTile`, `runGroupedExtraction`, `stage:"extract-pages"`,
+   `stage:"extract-crops"`, `TILE_PROMPT_SUFFIX` and the whole tile-hygiene stack are unreachable
+   from the app. Dense pages now go through Mistral OCR whole.
+
+   **This was never decided — it happened by omission.** The (c) migration (eval 126) replaced
+   vision extraction with `mistral-ocr-4-0` + `gpt-4.1` and simply did not port the dense
+   detector. No ledger entry claims tiling was removed, and no measurement compared tiled vs
+   whole-read under (c). **Do not read this as "Mistral proved tiling unnecessary" — that
+   comparison has not been run.** What we do have, from the pre-(c) era: eval 091 measured
+   whole-read *beating* tiling on guest-house (49 vs 34/48, tiling lost the entire Enhancements
+   section), and the E1 bake-off carries "a strong OCR model reads dense pages whole" as an
+   explicit *hypothesis*, still untested.
+
+   **Open decision for Santiago (not macro work, not scheduled, LOW priority):** either (a) delete
+   the tile stack and its tests as confirmed-dead, (b) keep it dormant and fix `tile-cut_test.ts`
+   so the suite is green, or (c) treat "is dense-page recall still adequate without tiling?" as a
+   real gap and measure it — polloteria is the dense fixture the tile path was built for, and
+   nothing has re-checked it under (c). Option (c) is the only one that produces evidence.
+
+   ⚠️ **Do not pick this up on your own initiative.** Santiago has ruled the failing
+   `tile-cut_test.ts` unimportant, and the dead code is harmless where it sits. Of the three, only
+   (c) asks a question worth answering, and it is a paid extraction run — his call, not a
+   tidy-up job. Leave it alone unless he raises it.
 3. **Client compression fidelity fix** ✅ DONE 2026-07-12 (ledger evals 056-058 + device 3/3; spec/plan `2026-07-12-client-compression-fidelity-*` in the worktree) — NO JPEG re-encode setting cleared the oracle row (4-arm ladder + q90/q95 probes: q0.85/q0.90 stably misread small price digits, q95 still lost el-marcos options + mochomos section_context 4/4). **Shipped: passthrough uploads** — originals ≤6.75MB file (≈9M b64 vs the 10M cap) upload untouched as correct-mime data URLs; 2048px/q0.95 fallback only for oversized. Intake compression removed (primary folder (`feat/selectable-options`)'s stale intake files were double-compressing and feeding tiles a 1024px copy — the T9 device delta's root cause); eval gate phase-1 input = the production mirror permanently. ImagePicker re-encode DISPROVEN (gallery PNGs byte-identical at quality:1). Norteños = tolerated header (oracle). New offline tool: `scripts/score-dump.ts`.
 4. **Horizontal/landscape menu handling** ✅ **CLOSED 2026-08-04** (ledger evals 132–137; H2 rotation deployed as edge fn v22 and device-verified: a wide menu photographed sideways was detected, straightened client-side, resubmitted, and recovered 24/24 with 23 of 24 items byte-identical to its upright twin). **The `docs/superpowers/horizontal-menus/` folder is a CLOSED-phase archive — do not re-enter it for work, and do not treat its `DELEGATION-BRIEF.md` / `DELEGATION-PROMPT.txt` as an entry point; new sessions start at `docs/superpowers/START-HERE.md`.** Historical detail follows, kept because the ledger references it — *original scope note (user 2026-07-12):* detect menu orientation and extract accordingly. Expected user behavior: a physically landscape menu gets photographed in portrait, rotated 90° (menu's left edge at the top, right edge at the bottom — as if the menu in front of you were flipped 90°). Candidate approach: detect the rotation (EXIF, aspect ratio + a cheap model signal, or P1's layout assessment) and rotate the image upright client-side before phase-1; tiles then cut from the rotated image. Never tested — all 6 fixtures are portrait-upright; needs at least one landscape fixture (can reuse an existing menu photographed/rotated sideways) + detector false-positive assertions on the 6 upright menus (same discipline as the dense detector). ⚠️ **HISTORICAL — this pointer is retired.** It used to read "SINGLE SOURCE OF TRUTH = the containerized sub-roadmap on branch `feat/extraction-eval-harness`". That branch is an ancestor of `main` and that folder is now a closed archive in this repo; current status lives in the 🎯 CURRENT PHASE block at the top of this file. Stable scope facts only: LAUNCH SCOPE incl. rotation (container ruling 27); launch plan is H1 tiling → H2 rotation → H3 wiring → H4 combined gate; Phase-2 eval set (GH Shape-A + polloteria Ensaladas) lives in container ROADMAP MANDATORY RESTORE. ✅ **The 2026-07-22 "PRIORITY ZERO" (container ruling 29) — the GPT-4o→Mistral-OCR extraction migration — LANDED and is the deployed pipeline** (Stage 1a `mistral-ocr-4-0` transcription → Stage 1b `gpt-4.1-2025-04-14` structuring → Stage 2 GPT-4o enrichment; deployed eval 126, current edge fn v24). It is **not** an open priority; see AGENTS.md's "OCR / Extraction Model Decision" for the live pipeline.**
 5. **Stage-2 enrichment accuracy benchmark** ← **⬅ ACTIVE (see 🎯 CURRENT PHASE at the top)** (user reorder 2026-07-12: runs BEFORE the model bake-off) — macro accuracy has never been gated (the enrichment model is decided: GPT-4o, same as extraction — Gemini 2.5 Flash discarded 2026-07-10); include printed-weight items so the "prefer printed weights" P2 rule is measured (grams now flow from F4's `items[].grams`). Note: if the later bake-off changes the extraction backend, spot-check the benchmark on the winner's output shape.
@@ -172,6 +622,10 @@ Features 1–4 are CLOSED and the user chose **release momentum over roadmap com
 Rationale (user, 2026-07-10): options matter mainly where variants invert macros (already solved by F2's fold convention); coarse categories were always extracted; drinks don't serve the food-sorting core. Price extraction stays in results — it's free — but is not to be perfected further pre-release.
 
 ---
+
+30. **A BENCHMARK THAT BUILDS ITS OWN REQUEST IS NOT MEASURING THE PRODUCT — and it will keep passing while it does it.** This has now cost two paid incidents in one phase. First `bench-pipeline.ts` kept a private copy of the OpenAI request that quietly hardcoded `temperature: 0`; `gpt-5.5` rejects that outright, so swapping `ENRICH_MODEL` alone would have 400'd **every scan in production**, and the macro benchmark could never have caught it. `a9fce10` moved `callGptEnrich` into `enrich.ts` to end the duplication — **and fixed one file while leaving `bench-macros.ts` with the same private copy.** The half-fix survived four more paid arms unnoticed. It surfaced only when B20 put logic INSIDE `enrichBatch`: the probe returned 26/96 at 25.3%, which read as a catastrophic regression and was in fact a hybrid that exists nowhere — the harness sent the old payload against the new schema. **Why it hides so well: both copies imported `ENRICH_PROMPT` and `ENRICH_SCHEMA_OPENAI`, so every prompt and schema experiment measured correctly.** What diverged was everything *around* the request — sampling, payload shaping, response handling — which is precisely the part nobody thinks to verify, because the numbers look fine. **The test that matters is not "does the harness produce plausible numbers" but "does the harness CALL the deployed function".** Fixed by giving `enrichBatch` an optional `onRaw` hook so a harness can archive the exact response bytes without needing its own request, and `bench-macros_test.ts` now fails the build if `api.openai.com` reappears in that file or `enrichBatch` disappears from it. Same corollary as lesson 28, one level out: a broken measurement silently redirects every future iteration — and here it also meant **the deployed path had never once been exercised by the benchmark that gates it.**
+
+29. **When ONE fixture fails 100% of its fields, suspect a definitional mismatch between the oracle and the pipeline before you suspect the model.** The signature is the two sides measuring different things. French Fries went 0/48 → 48/48 on an oracle change alone, and the resulting arm-vs-arm reversal was entirely answer-key movement, not a quality change.
 
 ## Feature Sequence (MVP order)
 

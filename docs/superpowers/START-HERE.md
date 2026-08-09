@@ -32,10 +32,10 @@ the edge function → ②.** If a phase or priority is asserted anywhere other t
 it is stale — fix it or ignore it, never believe it. The active Stage-2 macro handoff below is
 the explicit exception: it is the bounded Phase-9 workstream record, not a competing roadmap.
 
-**Stage-2 macro-enrichment handoff (2026-08-08) — THIS IS THE ACTIVE WORK.** The benchmark is
-built and frozen; six prompt/schema iterations have been measured against it. Production is
-untouched — the deployed edge function still runs the original pre-B1 prompt, pinned to
-`gpt-4o-2024-08-06`. Phase spend to date: **$0.374**.
+**Stage-2 macro-enrichment handoff (2026-08-09) — THIS IS THE ACTIVE WORK.** The benchmark is
+built and frozen; six prompt/schema iterations have been measured against it, and the fixture set was
+widened from 3 dishes to 8 on 2026-08-09. Production is untouched — the deployed edge function still
+runs the original pre-B1 prompt, pinned to `gpt-4o-2024-08-06`. Phase spend to date: **$1.33**.
 
 Read **② the roadmap's `🎯 CURRENT PHASE` block first** — it carries the full takeover briefing:
 every commit and whether it is deployed, the runs side by side, and what each proved. Then read
@@ -46,8 +46,9 @@ Tasks 1–5 are COMPLETE. The USDA plan is the oracle/provenance reference:
 
 **One-line state:** **B4 is the best version and the fallback checkpoint.** It asks the model for a
 *conventional serving* per ingredient plus whether the menu's printed weight covers it, and fits
-those to the weight in code. Over 4 runs × 3 draws: **0 failed field/draws of 144, mean absolute
-error 13.6–14.7%.**
+those to the weight in code. On the **widened 8-dish set** (B14, 2026-08-09), over 4 runs × 3 draws:
+**22–24 failed field/draws of 96, mean absolute error 19.7–20.1%** — against the baseline's **39/96
+and 37.4%**. On the old 3-dish set both arms scored 0, which is why the set was widened.
 
 🏁 **Fallback checkpoint: git tag `stage2-b4-checkpoint` → commit `22a1ac5`.** Restore from it if an
 evaluation regresses; publish from it if the phase stops. `git show stage2-b4-checkpoint` prints the
@@ -55,11 +56,11 @@ result; `git diff stage2-b4-checkpoint -- supabase/functions/analyze-menu/` show
 ⚠️ **That tag message quotes PRE-re-freeze numbers** — the current ones are in the log's Rulings. Do
 not move or delete the tag. Publishable is NOT permission to deploy.
 
-⚠️ **The failure count is a SATURATED gate — never quote it alone.** The 2026-08-08 oracle re-freeze
-(`a60eb2a`) corrected CESAR's Caesar dressing from 57.8 g fat/100 g to the market median 36.67, and
-that erased the baseline's only 6 failures. **baseline-002 and B4 now BOTH score 0 of 36.** Two very
-different pipelines are indistinguishable on it. **Mean absolute error is the primary number**
-(baseline 16.7%, B4 13.6–14.7%); the count is a floor that must not regress.
+✅ **The saturated gate is FIXED — the fixture set is now 8 dishes.** It used to be that
+baseline-002 and B4 both scored 0 of 36 and were indistinguishable. B14 (2026-08-09) added five
+dishes and the metric separates them again: **B4 22–24/96 vs baseline 39/96**. On the original three
+dishes both arms still score 0 of 48 each, so **never quote a 36-field figure as current** — those
+belong to the retired 3-dish set. Report both numbers: failed field/draws AND mean absolute error.
 
 💰 **Cost is NOT a constraint (Santiago, 2026-08-08).** These sessions exist to clear hypotheses about
 the core feature. **Never narrow scope, skip an experiment, or recommend stopping on cost grounds.**
@@ -68,15 +69,13 @@ against running one.
 
 ### 🎯 Next actions, in this order
 
-1. **Widen the fixture set.** Three dishes is *why* the gate saturated. Take new dishes from data the
-   extraction phase already produced: `deno run --allow-read scripts/find-weighted-dishes.ts` lists
-   **120 distinct printed-weight dishes** across the archived extraction dumps — CESAR itself came
-   from that corpus. A printed weight matters because it is what B4's mechanism keys off. Each new
-   dish needs a USDA-sourced oracle recipe with `fdc_id`s, and **Santiago approves every recipe
-   personally.** `scripts/usda-oracle.ts` has `searchFoods` / `fetchNutrients` (free API, key in
-   `.env.local`), and `bench-macros_test.ts` now fails the build if a dish's totals stop matching its
-   own ingredients.
-2. **B9 — the cross-model arm.** Run the unchanged benchmark against a newer OpenAI model alongside
+1. ✅ **Widen the fixture set — DONE 2026-08-09.** The set is now **8 dishes**: the original three plus
+   NEW YORK (brasero), French Fries and Coleslaw (polloteria), Gnocchi alla sorrentina (casa-nostra)
+   and ENFRIJOLADAS (el-marcos). Two new engineering targets came out of it — **Coleslaw, where B4
+   REGRESSED 0/48 → 22/48 and the baseline wins**, and **Gnocchi at 44/48**. Adding more dishes later
+   follows the same route: `scripts/find-weighted-dishes.ts` lists 120 printed-weight candidates, each
+   needs a USDA recipe with real `fdc_id`s, and **Santiago approves every recipe personally.**
+2. **B9 — the cross-model arm ⬅ NOW NEXT.** Run the unchanged benchmark against a newer OpenAI model alongside
    the pinned `gpt-4o-2024-08-06`. It answers the one question no prompt work can: is the remaining
    error a GPT-4o ceiling or a task ceiling? Design in the log's **B9** backlog entry — **do not
    hardcode a guessed model ID**, and treat any parameter difference (`temperature`, `seed`) as a
@@ -97,7 +96,7 @@ that did work (B10, B12) both took arithmetic *away* from the model and left it 
 brainstorm — not a closed door. If a hypothesis says wording is the lever *for a different reason*,
 say what would falsify it and run it.
 
-ℹ️ **The suite's `1 failed` is noise.** `304 passed | 1 failed` with only `scripts/tile-cut_test.ts`
+ℹ️ **The suite's `1 failed` is noise.** `323 passed | 1 failed` with only `scripts/tile-cut_test.ts`
 red is a CLEAN run — Santiago has ruled it unimportant and it cannot affect macros (it tests the
 image tile cutter; Stage 2 never sees a photo). Any *other* failure is yours. Details in ②.
 

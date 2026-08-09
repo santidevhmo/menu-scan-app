@@ -121,6 +121,10 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >    and leave it knowledge. B10 took the addition, B12 the multiplication, B4 the fitting. The two
 >    changes that only added instructions (B11, B13) moved nothing.
 >
+> ⚠️ **Everything from here down to the B14 block was written when the set was THREE dishes.** Those
+> figures are still correct for that set and are what B14's 8-dish numbers replaced; read them as the
+> history that motivated widening, not as current status.
+>
 > ### ⚠️ ORACLE RE-FROZEN 2026-08-08 — read this before any number above
 >
 > `a60eb2a` re-picked CESAR's Caesar dressing from 57.8 g fat/100 g (the top of ~40 USDA entries) to
@@ -149,8 +153,10 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > the absolute-error table behind it, and the rules for superseding it are in the log's **Rulings**
 > section. `git show stage2-b4-checkpoint` prints the measured result.
 >
-> **The bar is now 0–1 failed field/draws, not the baseline's 6.** A new result replaces the checkpoint
-> only if it beats that *range* over at least 4 runs × 3 draws — one better run is never enough.
+> ⚠️ **That bar is RETIRED.** It read "0–1 failed field/draws, not the baseline's 6" and described the
+> saturated 3-dish set. Since B14 the live bar is **22–24 of 96 with mean error 19.7–20.1%**. What has
+> not changed is the rule: a new result replaces the checkpoint only if it beats that *range* over at
+> least 4 runs × 3 draws — one better run is never enough.
 >
 > ### 💰 COST IS NOT A CONSTRAINT — ruling, Santiago 2026-08-08
 >
@@ -163,11 +169,43 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > against running one. A previous session recommended stopping at $0.374 partly on cost; he corrected
 > it.
 >
+> ### ✅ B14 DONE 2026-08-09 — the set is 8 dishes and the metric works again
+>
+> Santiago approved five new dishes, their USDA recipes, a sub-3 g scoring floor and both paid arms.
+> 8 runs × 3 draws × 8 dishes, **$0.96**. Full entry in the log under **baseline-w1…w4 / iter-b4-w1…w4**.
+>
+> | arm | failed field/draws | mean abs error |
+> |---|---|---:|
+> | baseline (pre-B1 prompt) | 39/96, all four runs | 37.4% |
+> | **B4** | **22–24/96** | **19.7–20.1%** |
+>
+> **The saturation was real and total.** On the old three dishes both arms score **0 of 48 each**; every
+> bit of discriminating signal came from the five new dishes. **B4 now beats the baseline ~2× on both
+> metrics**, where on three dishes it could only tie.
+>
+> **The bar moved.** "0–1 failed of 144" described a saturated set and is **retired as a target**. The
+> live bar is **22–24 of 96 with mean error 19.7–20.1%**, over 4 runs × 3 draws.
+>
+> **B4's mechanism generalised to dishes it was never designed against** — NEW YORK 44.8% → 4.8% error,
+> French Fries 46.9% → 6.1%, and it tagged the chimichurri as outside the printed 400 g unprompted. The
+> hand audit found **no invented or unprinted ingredient** on any of the five.
+>
+> **Two NEW open targets replace the PASTEL cheese wobble:**
+> - **Coleslaw — B4 REGRESSED, 0/48 → 22/48**, the one dish the baseline wins. B4 portions the dressing
+>   at 20 g against the oracle's 30 g, and dressing is a slaw's entire fat. First evidence that
+>   portion-fitting can *hurt* a small side dish.
+> - **Gnocchi — 44/48**, the worst remaining dish.
+>
+> ⚠️ **Several remaining failures are portion disagreements where BOTH parties are defensible** (gnocchi
+> 150 g vs 110 g, tortilla 60 g vs 72 g, dressing 20 g vs 30 g). That is the Caesar-dressing situation,
+> not proven model error. **The oracle is Santiago's alone** — flagged, not changed.
+>
 > ### 🎯 NEXT ACTIONS, in this order
 >
-> **1. Widen the fixture set.** Three dishes is *why* the failure count saturated — baseline and B4 both
-> score 0 of 36, so the metric can no longer separate a naive pipeline from a good one. Santiago's
-> direction: take new dishes from data the extraction phase already produced.
+> **1. ~~Widen the fixture set~~ — DONE, see above.** Historical note on why it mattered: three dishes is
+> *why* the failure count saturated — baseline and B4 both scored 0 of 36, so the metric could no longer
+> separate a naive pipeline from a good one. Santiago's direction was to take new dishes from data the
+> extraction phase already produced.
 >
 > ```bash
 > deno run --allow-read scripts/find-weighted-dishes.ts    # $0, no model calls

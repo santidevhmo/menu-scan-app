@@ -26,6 +26,7 @@ type OracleRecipeInput = Omit<UsdaRecipeIngredient, "per_100g">;
 
 type OracleFixtureEntry = {
   recipe?: OracleRecipeInput[];
+  assumed?: string;
   oracle: unknown;
 };
 
@@ -139,6 +140,10 @@ export async function prepareOracle(
   if (!Array.isArray(entries)) throw new Error("USDA oracle must be an array");
 
   for (const entry of entries) {
+    // An entry that is already frozen carries no recipe - B14 adds fixtures to a
+    // file that already holds approved ones, so freezing a new dish must not
+    // re-fetch (or overwrite) a dish Santiago has already signed off.
+    if (!entry.recipe?.length && entry.oracle) continue;
     if (!entry.recipe?.length) {
       throw new Error("USDA oracle entries require reviewed recipe inputs");
     }
@@ -152,12 +157,16 @@ export async function prepareOracle(
     validateRecipe(ingredients, totals);
     entry.oracle = {
       ...totals,
-      assumed: "USDA FDC recipe",
+      // The judgment calls - what the printed weight covers, why each entry was
+      // chosen over its siblings - are the reviewable part of a recipe. Flattening
+      // them to a constant threw away the record Santiago approves against.
+      assumed: entry.assumed ?? "USDA FDC recipe",
       source: "USDA FoodData Central",
       retrieved_at: new Date().toISOString().slice(0, 10),
       ingredients,
     };
     delete entry.recipe;
+    delete entry.assumed;
   }
 
   await Deno.writeTextFile(path, `${JSON.stringify(entries, null, 2)}\n`);

@@ -23,12 +23,21 @@ import {
 const ORACLE_PATH = "scripts/fixtures/macro-oracle.json";
 
 Deno.test("the shipped oracle is complete and USDA-validated", () => {
+  // Pins the ROSTER, so a fixture cannot appear or vanish unnoticed - widening it
+  // changes the yardstick and every archived run has to be re-scored (B14). The
+  // archive tests below stay at three items on purpose: the runs they read were
+  // recorded against the original three and always will be.
   const entries = loadOracle(ORACLE_PATH);
-  assertEquals(entries.length, 3);
+  assertEquals(entries.length, 8);
   assertEquals(entries.map((entry) => entry.name), [
     "CESAR (200 g)",
     "Salmone toscano",
     "PASTEL AZTECA (300gr.)",
+    "NEW YORK",
+    "French Fries (300gr)",
+    "Gnocchi alla sorrentina",
+    "ENFRIJOLADAS (135gr.)",
+    "Coleslaw (150gr)",
   ]);
 });
 

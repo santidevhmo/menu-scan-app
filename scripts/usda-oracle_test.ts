@@ -181,6 +181,43 @@ Deno.test("USDA client rejects non-OK responses", async () => {
   );
 });
 
+Deno.test("prepareOracle leaves an already-frozen entry untouched and keeps its assumed note", async () => {
+  const path = await Deno.makeTempFile();
+  const frozen = {
+    calories: 1,
+    protein_g: 0,
+    carb_g: 0,
+    fat_g: 0,
+    assumed: "approved by hand, do not overwrite",
+    source: "USDA FoodData Central",
+    retrieved_at: "2026-08-07",
+    ingredients: [],
+  };
+  try {
+    await Deno.writeTextFile(
+      path,
+      JSON.stringify([{ oracle: frozen }, {
+        assumed: "printed 100 g is the plated dish",
+        recipe: [{ name: "chicken", fdc_id: 123, grams: 100, basis: "cooked" }],
+        oracle: null,
+      }]),
+    );
+    await withCannedFetch(() => Response.json(cannedFoodDetail), async () => {
+      await prepareOracle("test-key", path);
+    });
+    const entries = JSON.parse(await Deno.readTextFile(path)) as {
+      assumed?: string;
+      oracle: { assumed: string; calories: number };
+    }[];
+    assertEquals(entries[0].oracle, frozen);
+    assertEquals(entries[1].oracle.assumed, "printed 100 g is the plated dish");
+    assertEquals(entries[1].oracle.calories, 165);
+    assertEquals("assumed" in entries[1], false);
+  } finally {
+    await Deno.remove(path);
+  }
+});
+
 Deno.test("loadFdcApiKey reads USDA_FDC_API_KEY from a supplied env file", async () => {
   const path = await Deno.makeTempFile();
   try {

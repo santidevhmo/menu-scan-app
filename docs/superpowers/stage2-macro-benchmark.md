@@ -484,6 +484,39 @@ Tooling: `scripts/usda-oracle.ts` exposes `searchFoods` and `fetchNutrients` aga
 `deno run --allow-read scripts/rescore-history.ts` — and the checkpoint's recorded figures updated,
 exactly as the 2026-08-08 re-freeze required.
 
+#### B14 progress — five recipes built, ⏳ AWAITING SANTIAGO'S APPROVAL (2026-08-09, $0)
+
+Santiago approved the five **dishes** on 2026-08-09, and approved running both arms (baseline and B4)
+on the widened set. **He has not yet approved the five recipes** — that ruling is per-recipe and
+unchanged. Nothing paid has been run.
+
+| dish | menu | printed | eaten | oracle kcal / P / C / F |
+|---|---|---|---:|---|
+| NEW YORK | brasero | 400gr | 430 g | 1257.7 / 103.1 / 0.8 / 93.9 |
+| French Fries (300gr) | polloteria | 300gr | 300 g | 867.0 / 10.5 / 111.6 / 42.0 |
+| Gnocchi alla sorrentina | casa-nostra | 180g | 180 g | 242.0 / 9.3 / 22.3 / 13.1 |
+| ENFRIJOLADAS (135gr.) | el-marcos | 135gr. | 135 g | 253.7 / 13.5 / 36.1 / 6.9 |
+| Coleslaw (150gr) | polloteria | 150gr | 150 g | 162.7 / 1.5 / 15.3 / 10.6 |
+
+Every ingredient carries a real `fdc_id`, and each `assumed` note records the spread that was surveyed
+and why that entry was taken over its siblings — the anti-trap discipline the Caesar dressing taught.
+
+**Two blocking questions this surfaced, both Santiago's to rule on:**
+
+1. **NEW YORK: is the printed 400gr raw or cooked?** The oracle currently reads it as COOKED, following
+   the convention Salmone toscano already uses. Steakhouses commonly print the RAW cut weight; if that
+   is the right reading, the cooked portion is ~280 g at the USDA ~70% yield and every total for this
+   dish drops ~30%. This is **B6 (raw vs cooked) arriving as a live fixture decision**, not a
+   hypothetical.
+2. **A percentage band grades noise on a sub-gram field.** Two new fields land under 3 g — NEW YORK
+   carb 0.82 g (a steak has no carbohydrate; its whole carb figure is chimichurri parsley) and Coleslaw
+   protein 1.54 g. At ±30% those bands are 0.58–1.07 g and 1.08–2.01 g, so a model answering "0" or "2"
+   fails on a difference no diner could perceive. The scorer already concedes the point at exactly zero
+   (`ZERO_ORACLE_ABS_ALLOWANCE_G = 3`: when the oracle is 0, pass within ±3 g absolute). Extending that
+   floor to *any* oracle value under 3 g is the same rule, and it **cannot disturb any historical
+   number** — the smallest field across the original three fixtures is CESAR's 18.4 g carb. **Not
+   applied; tolerance bands change only by ruling.**
+
 ### B9 — Cross-model comparison arm *(⬅ NEXT after B14, Santiago 2026-08-08)*
 
 Run the **unchanged** benchmark against a newer OpenAI model alongside the pinned

@@ -3306,3 +3306,49 @@ with, and they now render as a dash rather than 0 kcal.
 
 **Honest rates to quote from here on: black-box ~1.4%, undecomposable ~2.8%, both on 72 real items
 across 9 menus.** Small, but real, and each now has a guard behind it.
+
+### 🍕 FEATURE — `serving_pieces`, so the portion stepper moves by PIECE (2026-08-09, ~$0.07)
+
+**Santiago's edge case: a pizza is one menu item with one set of macros, and a diner eats three of
+eight slices.** The stepper moved in halves, so 3/8 could not be expressed at all — the nearest was
+x0.5, which is half a pizza. This is product work rather than macro accuracy, and it was previously
+half-built: the front-end stepper existed, the back end had no concept of pieces.
+
+**Shape:** the model returns `serving_pieces` (a new required schema field, step 3, no food named);
+`src/lib/portions.ts` turns it into a step size and a label; `MenuItemRow` uses them. An item with a
+count steps by **one piece** and reads `3/8`; everything else keeps the half-item behaviour, because
+"half a steak" is how people talk and "1/17 of a steak" is not.
+
+**Measured on real menu lines:**
+
+| item | pieces |
+|---|---|
+| `Alitas 6 PZ` | **6** ✅ |
+| `HOT CAKES (3 piezas) Naturales` | **3** ✅ |
+| `Nigiri de salmón (2 pzas)` | **2** ✅ |
+| `TACOS O FAJITAS DE DIEZMILLO (3 pzas./200 g)` | **3** ✅ |
+| `ENFRIJOLADAS (135gr.)` — *"Tres tortillas"* in the description | **3** ✅ |
+| CESAR / NEW YORK / Coleslaw | `null` ✅ correctly |
+| **`Margherita`** | **`null`** ❌ |
+
+✅ **Every STATED count is read correctly, including one stated in prose rather than digits**
+("Tres tortillas"), and every single-plate dish correctly returns null. **5 for 5 and 4 for 4.**
+
+🔴 **The pizza case — the one that motivated the feature — does NOT work.** A menu that does not print
+a count gets `null`, so a pizza still steps in halves. A second, more explicit wording ("routinely cut,
+folded or assembled into countable pieces… a form served whole for one person to divide is still
+served in pieces") returned **exactly the same nulls**, so the extra text was reverted rather than
+shipped dead. **Prompt wording is now 0 for 4.**
+
+**Why it is shipped anyway:** stated counts are common on real menus — `3 pzas`, `6 PZ`, `(3 piezas)`,
+`orden de dos` all appear in the archived corpus — so the feature is real for those, and the fallback
+is exactly today's behaviour. Nothing regresses.
+
+**For conventional counts, the options are a product decision, not a prompt one:** let the diner set
+the piece count on the item, or hold a small conventional-count table in code. A table means naming
+foods, which is banned in the shipped prompt for good reason — but a lookup in CODE is a different
+thing from a food list in the prompt, and it was never covered by that ruling.
+
+**`portions.ts` is guarded by 5 tests** covering piece labelling, floating-point accumulation
+(1/3 + 1/3 + 1/3 must read "all", never "2.9999/3"), the half-item fallback, and every implausible
+count a model could return (0, 1.5, −3, 51, NaN, Infinity).

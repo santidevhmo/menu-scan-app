@@ -4,6 +4,7 @@ import { colors } from "@/constants/theme";
 import { allergenLabel } from "@/data/allergens";
 import type { EnrichedItem } from "@/types/scan";
 import type { MacroField } from "@/data/goals";
+import { portionSteps } from "@/lib/portions";
 
 interface MenuItemRowProps {
   item: EnrichedItem;
@@ -20,11 +21,6 @@ const MACROS: { field: MacroField; label: string; unit: string }[] = [
   { field: "fat_g", label: "Fat", unit: "g" },
   { field: "estimated_calories", label: "Cal", unit: "" },
 ];
-
-/** Formats a portion multiplier: "1/2" below one, otherwise "x1", "x1.5", "x2". */
-function formatPortion(portion: number): string {
-  return portion < 1 ? "1/2" : `x${portion}`;
-}
 
 /** Displays one ranked menu item with price, macros, and allergen warnings. */
 export function MenuItemRow({
@@ -45,6 +41,7 @@ export function MenuItemRow({
   // probe on evocative names ("El Capricho del Chef"), which are common on
   // exactly the menus this app targets.
   const unknownMacros = (item.ingredients?.length ?? 0) === 0;
+  const { step, label } = portionSteps(item.serving_pieces);
 
   return (
     <View className="rounded-card bg-card border border-border p-4 mb-3">
@@ -95,25 +92,25 @@ export function MenuItemRow({
 
       <View className="flex-row items-center justify-end mt-3 gap-2">
         <Pressable
-          onPress={() => onPortionChange(Math.max(0.5, portion - 0.5))}
-          disabled={portion <= 0.5}
+          onPress={() => onPortionChange(Math.max(step, portion - step))}
+          disabled={portion <= step}
           hitSlop={8}
           className={`w-7 h-7 items-center justify-center rounded-full border border-border ${
-            portion <= 0.5 ? "opacity-40" : ""
+            portion <= step ? "opacity-40" : ""
           }`}
           accessibilityRole="button"
           accessibilityLabel="Decrease portion"
-          accessibilityState={{ disabled: portion <= 0.5 }}
+          accessibilityState={{ disabled: portion <= step }}
         >
           <Minus size={14} color={colors.mutedForeground} strokeWidth={2} />
         </Pressable>
 
-        <Text className="font-sans text-caption text-muted-foreground w-9 text-center">
-          {formatPortion(portion)}
+        <Text className="font-sans text-caption text-muted-foreground w-12 text-center">
+          {label(portion)}
         </Text>
 
         <Pressable
-          onPress={() => onPortionChange(portion + 0.5)}
+          onPress={() => onPortionChange(portion + step)}
           hitSlop={8}
           className="w-7 h-7 items-center justify-center rounded-full border border-border"
           accessibilityRole="button"

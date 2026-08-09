@@ -42,8 +42,9 @@ under-quoted a run by pricing per *menu* instead of per *call* — check which u
 | 15 | 2026-08-09 | WIDE generalisation probe, 36 dishes, 5 languages | gpt-4o-2024-08-06 | 1 | $0.10 | ~$0.05 | **~$1.82 of $8.64** |
 | 16 | 2026-08-09 | B25 alcohol term — wide re-probe + fixture regression check | gpt-4o-2024-08-06 | 4 | $0.10 | ~$0.08 | **~$1.90 of $8.64** |
 | 17 | 2026-08-09 | REAL-menu probe — 72 items, 9 menus, batched production path | gpt-4o-2024-08-06 | 8 | $0.25 | ~$0.26 | **~$2.16 of $8.64** |
+| 18 | 2026-08-09 | serving_pieces — 2 probes (stated counts 5/5, conventional counts fail) | gpt-4o-2024-08-06 | 2 | $0.08 | ~$0.07 | **~$2.23 of $8.64** |
 
-**Remaining: ~$6.48**
+**Remaining: ~$6.41**
 
 ## Stop conditions
 

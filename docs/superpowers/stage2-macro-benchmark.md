@@ -1455,6 +1455,73 @@ runs. Four-run B4 total **$0.197**. Phase total **$0.374**.
 that justifies deployment is Santiago's call, not a measurement question. The one open engineering
 target is the cheese-serving instability in Finding 1.
 
+### baseline-w1…w4 and iter-b4-w1…w4 — B14, the WIDENED 8-dish set (2026-08-09, $0.96, 8 runs × 3 draws)
+
+**The metric de-saturated, and B4 separates from the baseline for the first time.** Santiago approved
+the five dishes, the sub-3 g floor and both paid arms on 2026-08-09. Run IDs carry a `-w` suffix for
+"widened"; they are **not** comparable to the 36-field figures above, which are 3 dishes.
+
+| arm | failed field/draws | mean abs error |
+|---|---|---:|
+| baseline (pre-B1 prompt, `ce91e91`) | **39/96 in all four runs** | 37.4% |
+| **B4** (`22a1ac5`) | **22–24/96** | **19.7–20.1%** |
+
+On the OLD three dishes both arms still score **0 of 48 each** — the saturation was real and total, and
+every bit of discriminating signal came from the five new dishes. That is B14 doing exactly its job.
+
+| dish | baseline failed | baseline err | B4 failed | B4 err |
+|---|---:|---:|---:|---:|
+| CESAR / Salmone / PASTEL | 0/48 each | 11–23% | 0/48 each | 14–15% |
+| NEW YORK | 24/48 | 44.8% | **0/48** | **4.8%** |
+| French Fries (300gr) | 48/48 | 46.9% | **0/48** | **6.1%** |
+| Gnocchi alla sorrentina | 48/48 | 86.1% | 44/48 | 47.7% |
+| ENFRIJOLADAS (135gr.) | 36/48 | 59.7% | 28/48 | 30.9% |
+| Coleslaw (150gr) | **0/48** | 5.1% | **22/48** | 24.9% |
+
+**Method notes.** The baseline arm was run from a temporary worktree detached at `ce91e91` — the last
+commit before B1 — with the 8-dish oracle copied in, so it is the *real* pre-B1 prompt and not a
+reconstruction (lesson 23). Both arms were then scored by one path, `rescore-history.ts`, which now
+reads its bands from `macro-score.ts` instead of keeping a second copy of them. Re-running it over all
+ten historical runs reproduces every published figure unchanged, with `abs-floor 0` on all of them,
+which is the evidence that the new floor cannot reach history.
+
+**Baseline dispersion is again 0.0%** — all four runs scored 39/96 and 37.4% identically. Verified as
+four genuine calls, not a copy: 12 distinct response IDs and `created` timestamps on the pinned model.
+This matches the property recorded when B8 was killed; the baseline's answers are multiples of 5.
+
+**Findings:**
+
+1. **B4's mechanism generalises.** It was designed against three dishes and, unmeasured, handled two
+   brand-new ones almost perfectly — NEW YORK 44.8% → 4.8% error, French Fries 46.9% → 6.1%. On
+   NEW YORK it tagged the chimichurri as sitting OUTSIDE the printed 400 g **unprompted**, the same
+   move it made on PASTEL's beans.
+2. **The hand audit is clean.** Across the five new dishes the model named **no ingredient that is not
+   printed on the menu** and invented nothing. It also hit the printed weight *exactly* on
+   ENFRIJOLADAS (135 g) and Coleslaw (150 g).
+3. **B4 REGRESSED on Coleslaw: 0/48 → 22/48.** The only dish where the baseline wins. B4 portions the
+   dressing at 20 g where the oracle says 30 g, and dressing is the whole fat and most of the carb of
+   a slaw, so the dish comes in light. This is the CESAR dressing failure shape again, and it is the
+   first evidence that B4's portion-fitting can *hurt* a small side dish.
+4. **Three of the remaining failures are portion disagreements where both parties are defensible** —
+   the Caesar dressing situation, not model error:
+   - Gnocchi: model puts 150 g of the 180 g on gnocchi, the oracle 110 g.
+   - ENFRIJOLADAS: model 60 g of tortilla and 40 g of chicken, the oracle 72 g and 25 g.
+   - Coleslaw: model 20 g of dressing, the oracle 30 g.
+   **None of these should be changed without Santiago** — the oracle is his. They are flagged because
+   the last time we assumed the oracle was right about a dressing, it was not.
+5. **The sub-3 g floor was necessary and is doing exactly one job.** Six field/draws per run land on it
+   (NEW YORK carb, Coleslaw protein). Before it existed, NEW YORK read `0/48 failed` and `44.4%` mean
+   error simultaneously — the model answering "0 g carb" for a steak scored a 100% error that was
+   real arithmetic and meaningless nutrition. Such fields are now counted for pass/fail, excluded from
+   the mean, and **reported as an `abs-floor` column** so the exclusion can never be silent.
+
+**Cost:** 8 runs × 3 draws × 8 dishes plus a 1-draw smoke test, **$0.96**. Phase total **$1.33**.
+
+**Verdict: B4 beats the baseline on the widened set by roughly 2× on both metrics, and the checkpoint's
+bar moves here.** The old "0–1 of 144" bar described a saturated 3-dish set and is retired as a target;
+the live bar is **22–24 of 96**. Nothing is deployed. Open engineering targets are now Coleslaw
+(Finding 3) and Gnocchi (44/48), not the PASTEL cheese wobble.
+
 ---
 
 ## Rulings

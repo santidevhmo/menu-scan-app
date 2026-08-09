@@ -83,6 +83,31 @@ Deno.test("zero oracle value uses the absolute 3g guard, not a percentage", () =
   assertEquals(beyond.pass, false);
 });
 
+Deno.test("a sub-3g oracle value uses the absolute guard, and still reports the delta", () => {
+  // NEW YORK's real shape: a steak whose entire carb figure is garnish parsley.
+  // At +/-30% the band would be 0.58-1.07g and "0" - the honest answer for a
+  // steak - would fail on a difference no diner could perceive.
+  const steak: MacroValues = {
+    calories: 1258,
+    protein_g: 103,
+    carb_g: 0.82,
+    fat_g: 94,
+  };
+
+  const saysZero = scoreItem(steak, { ...steak, carb_g: 0 });
+  assertEquals(saysZero.pass, true);
+  // The size of the miss is still information, even where it is not the rule.
+  assertEquals(saysZero.fields.find((f) => f.field === "carb_g")?.deltaPct, -1);
+
+  // The floor is an allowance, not an amnesty - 4g away still fails.
+  assertEquals(scoreItem(steak, { ...steak, carb_g: 4 }).pass, false);
+
+  // Anything at or above the floor keeps the percentage band untouched.
+  const atFloor: MacroValues = { ...steak, carb_g: 3 };
+  assertEquals(scoreItem(atFloor, { ...atFloor, carb_g: 3.9 }).pass, true);
+  assertEquals(scoreItem(atFloor, { ...atFloor, carb_g: 4.1 }).pass, false);
+});
+
 Deno.test("verdicts report every field, in a stable order", () => {
   const got = scoreItem(oracle, oracle);
   assertEquals(got.fields.map((field) => field.field), [

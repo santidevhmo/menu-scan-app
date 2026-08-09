@@ -17,18 +17,22 @@
 // Run: deno run --allow-read scripts/rescore-history.ts
 import { archivedIngredients, replayDraw } from "./bench-macros.ts";
 import { sumIngredientMacros } from "../supabase/functions/analyze-menu/enrich.ts";
+import { type MacroValues, scoreItem } from "./macro-score.ts";
 
 const oracleFile = JSON.parse(
   await Deno.readTextFile("scripts/fixtures/macro-oracle.json"),
 );
-const BAND: Record<string, number> = { cal: 0.2, p: 0.3, c: 0.3, f: 0.3 };
+// The bands live in macro-score.ts and are read from there, never restated. This
+// file used to keep its own copy, so the 2026-08-09 sub-3g floor would have
+// applied to new runs and not to the history they are compared against - the
+// exact drift that made the first re-score attempt print a tidy, false table.
 // PASTEL beans tolerance (Santiago 2026-08-08): a field fails only if it misses
 // under BOTH readings - beans outside (the shipped oracle) and beans inside.
-const BEANS_INSIDE: Record<string, number> = {
-  cal: 452,
-  p: 39.2,
-  c: 31.4,
-  f: 19.9,
+const BEANS_INSIDE: MacroValues = {
+  calories: 452,
+  protein_g: 39.2,
+  carb_g: 31.4,
+  fat_g: 19.9,
 };
 
 const RUNS = [
@@ -44,10 +48,15 @@ const RUNS = [
   "iter-b4-004",
 ];
 
-const out = ["run              failed/36   mean|err|"];
-for (const run of RUNS) {
-  let fails = 0, errSum = 0, n = 0;
-  for (let d = 0; d < 3; d++) {
+// Run IDs may be supplied on the command line, so a new arm is scored by the
+// SAME path as the history it will be compared against.
+const runs = Deno.args.length ? Deno.args : RUNS;
+const DRAWS = 3;
+
+const out = ["run              failed        mean|err|   abs-floor"];
+for (const run of runs) {
+  let fails = 0, errSum = 0, n = 0, fieldDraws = 0, absolutes = 0;
+  for (let d = 0; d < DRAWS; d++) {
     for (const item of await replayDraw(run, d)) {
       // deno-lint-ignore no-explicit-any
       const dish = oracleFile.find((o: any) => o.name === item.name);
@@ -56,14 +65,19 @@ for (const run of RUNS) {
       // the way IT was scored, or the comparison is meaningless.
       const ings = item.ingredients ?? [];
       const first = ings[0] ?? {};
-      let got: Record<string, number>;
+      let got: MacroValues;
       if (first.protein_per_100g !== undefined) {
         // B12 onward: per-100 g composition, summed and priced in code.
         const m = sumIngredientMacros(
           archivedIngredients(ings),
           item.printed_total_g,
         );
-        got = { cal: m.estimated_calories, p: m.protein_g, c: m.carb_g, f: m.fat_g };
+        got = {
+          calories: m.estimated_calories,
+          protein_g: m.protein_g,
+          carb_g: m.carb_g,
+          fat_g: m.fat_g,
+        };
       } else if (first.protein_g !== undefined) {
         // B10/B11: per-ingredient macros as AMOUNTS in the serving; the code of
         // the day summed them and derived calories by Atwater.
@@ -74,43 +88,50 @@ for (const run of RUNS) {
           f: a.f + (i.fat_g ?? 0),
         }), { p: 0, c: 0, f: 0 });
         got = {
-          cal: Math.round(4 * s.p + 4 * s.c + 9 * s.f),
-          p: Math.round(s.p),
-          c: Math.round(s.c),
-          f: Math.round(s.f),
+          calories: Math.round(4 * s.p + 4 * s.c + 9 * s.f),
+          protein_g: Math.round(s.p),
+          carb_g: Math.round(s.c),
+          fat_g: Math.round(s.f),
         };
       } else {
         // baseline-002 and B1: no per-ingredient macros existed. Those runs were
         // scored on the model's own item-level numbers.
         got = {
-          cal: item.estimated_calories,
-          p: item.protein_g,
-          c: item.carb_g,
-          f: item.fat_g,
+          calories: item.estimated_calories,
+          protein_g: item.protein_g,
+          carb_g: item.carb_g,
+          fat_g: item.fat_g,
         };
       }
-      const want: Record<string, number> = {
-        cal: dish.oracle.calories,
-        p: dish.oracle.protein_g,
-        c: dish.oracle.carb_g,
-        f: dish.oracle.fat_g,
-      };
-      const isPastel = item.name.startsWith("PASTEL");
-      for (const k of ["cal", "p", "c", "f"]) {
-        const err = Math.abs(got[k] - want[k]) / want[k];
-        errSum += err;
+      const want: MacroValues = dish.oracle;
+      const shipped = scoreItem(want, got);
+      // PASTEL only: a field survives if EITHER reading of the beans passes.
+      const alt = item.name.startsWith("PASTEL")
+        ? scoreItem(BEANS_INSIDE, got)
+        : null;
+
+      for (const [i, verdict] of shipped.fields.entries()) {
+        fieldDraws++;
+        if (!verdict.pass && !alt?.fields[i].pass) fails++;
+        // A field decided by the absolute floor has no meaningful percentage -
+        // "0 g carb" on a steak is a 100% error and a correct answer. Counted
+        // for pass/fail, excluded from the mean, and reported so the exclusion
+        // is visible rather than silent.
+        if (verdict.absolute) {
+          absolutes++;
+          continue;
+        }
+        // The mean is always measured against the SHIPPED oracle - one dish
+        // having a second acceptable reading must not flatter its error.
+        errSum += Math.abs(verdict.model - verdict.oracle) / verdict.oracle;
         n++;
-        const altMiss = isPastel
-          ? Math.abs(got[k] - BEANS_INSIDE[k]) / BEANS_INSIDE[k] > BAND[k]
-          : true;
-        if (err > BAND[k] && altMiss) fails++;
       }
     }
   }
   out.push(
-    `${run.padEnd(16)} ${String(fails).padStart(6)}/36   ${
-      (errSum / n * 100).toFixed(1)
-    }%`,
+    `${run.padEnd(16)} ${`${fails}/${fieldDraws}`.padStart(6)}   ${
+      `${(errSum / n * 100).toFixed(1)}%`.padStart(8)
+    }   ${absolutes}`,
   );
 }
 console.log(out.join("\n"));

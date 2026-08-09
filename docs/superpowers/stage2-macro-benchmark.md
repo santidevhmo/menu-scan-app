@@ -2514,3 +2514,28 @@ and the model returned null on every ingredient including a dish literally named
 (18/96 at 19.4%) is not evidence about the hypothesis — only about the wording. **Probe ONE run and
 confirm the field is populated before buying a four-run arm.** It cost $0.10 to learn instead of
 $0.40.
+
+### ⚖️ RULING — the printed weight is the ENTIRE PLATE. Scope is CLOSED (Santiago, 2026-08-09)
+
+> *"The Casa Nostra 200g of salmon is the entire plate."*
+
+**The whole-plate reading stands, and the frozen oracle already encodes it** — Salmone's printed 200 g
+is the plated dish (salmon 140 g + 60 g sauce and vegetables), with the baguette outside it as a
+named accompaniment. **No oracle change follows from this ruling.** Casa Nostra's Gnocchi is the same
+menu and takes the same reading: its printed 180 g is the whole plate.
+
+**What this CLOSES:**
+- The component-scope candidate oracle. Already deleted; do not rebuild it.
+- The `weight_scope` pipeline idea. Teaching the model that a printed weight may name one component
+  would now move it AWAY from the oracle. Dead, not deferred.
+
+**What this OPENS, and it is the more valuable half:** Gnocchi's error is **confirmed model error**,
+not an oracle artifact. It is the worst dish in the set (24/48 at 44.3% under B15) and it was
+unattackable while its oracle was in question. It is now a legitimate target.
+
+⚠️ **The accompaniment rule is unaffected** — an ingredient the menu marks as served alongside still
+sits outside the printed weight and is still eaten and counted. That is what `within_printed_weight`
+already does, and it is not what this ruling was about.
+
+**Still open and separate: weight BASIS** (Polloteria's *"el peso del producto es antes de
+cocinarlo"*). Scope and basis are different axes; closing one does not close the other.

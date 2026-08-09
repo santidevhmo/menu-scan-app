@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EAfU1Dt2JZVlencxIaRlWdT79TG8t",
+  "object": "chat.completion",
+  "created": 1786211449,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"CESAR (200 g)\",\"description\":\"Lechuga, queso parmesano rallado, croutones,\\npollo a la plancha y aderezo cesar de la casa.\",\"price\":275,\"category\":\"food\",\"ingredients\":[{\"name\":\"Lechuga\",\"category\":\"veg\",\"grams\":50},{\"name\":\"Queso parmesano rallado\",\"category\":\"fat\",\"grams\":20},{\"name\":\"Croutones\",\"category\":\"carb\",\"grams\":30},{\"name\":\"Pollo a la plancha\",\"category\":\"protein\",\"grams\":80},{\"name\":\"Aderezo cesar de la casa\",\"category\":\"fat\",\"grams\":20}],\"protein_g\":20,\"carb_g\":25,\"fat_g\":25,\"estimated_calories\":450,\"confidence\":\"medium\",\"allergens\":[\"dairy\",\"gluten\"]},{\"name\":\"Salmone toscano\",\"description\":\"Salmon al horno bañado en crema toscana blanca con ajo, espinaca, alcachofa, tomate deshidratado y alcaparra, acompañado con baguette. 200g\",\"price\":330,\"category\":\"food\",\"ingredients\":[{\"name\":\"Salmon al horno\",\"category\":\"protein\",\"grams\":150},{\"name\":\"Crema toscana blanca\",\"category\":\"fat\",\"grams\":30},{\"name\":\"Ajo\",\"category\":\"veg\",\"grams\":5},{\"name\":\"Espinaca\",\"category\":\"veg\",\"grams\":10},{\"name\":\"Alcachofa\",\"category\":\"veg\",\"grams\":10},{\"name\":\"Tomate deshidratado\",\"category\":\"veg\",\"grams\":5},{\"name\":\"Alcaparra\",\"category\":\"veg\",\"grams\":5},{\"name\":\"Baguette\",\"category\":\"carb\",\"grams\":50}],\"protein_g\":35,\"carb_g\":40,\"fat_g\":25,\"estimated_calories\":600,\"confidence\":\"medium\",\"allergens\":[\"dairy\",\"gluten\",\"fish\"]},{\"name\":\"PASTEL AZTECA (300gr.)\",\"description\":\"Con pollo, salsa de tomate, chile verde, cebolla, elote y mezcla de quesos, servido con frijoles.\",\"price\":94,\"category\":\"food\",\"ingredients\":[{\"name\":\"Pollo\",\"category\":\"protein\",\"grams\":80},{\"name\":\"Salsa de tomate\",\"category\":\"veg\",\"grams\":50},{\"name\":\"Chile verde\",\"category\":\"veg\",\"grams\":20},{\"name\":\"Cebolla\",\"category\":\"veg\",\"grams\":20},{\"name\":\"Elote\",\"category\":\"carb\",\"grams\":30},{\"name\":\"Mezcla de quesos\",\"category\":\"fat\",\"grams\":30},{\"name\":\"Frijoles\",\"category\":\"carb\",\"grams\":70}],\"protein_g\":25,\"carb_g\":50,\"fat_g\":20,\"estimated_calories\":550,\"confidence\":\"medium\",\"allergens\":[\"dairy\"]}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 688,
+    "completion_tokens": 586,
+    "total_tokens": 1274,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_e160a45017"
+}

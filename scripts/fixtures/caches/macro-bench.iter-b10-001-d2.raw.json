@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EAfejH8TO12dmg4vOroJKbN3cmTSL",
+  "object": "chat.completion",
+  "created": 1786212113,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"CESAR (200 g)\",\"description\":\"Lechuga, queso parmesano rallado, croutones,\\npollo a la plancha y aderezo cesar de la casa.\",\"price\":275,\"category\":\"food\",\"ingredients\":[{\"name\":\"Lechuga\",\"category\":\"veg\",\"grams\":50,\"protein_g\":0.5,\"carb_g\":1.0,\"fat_g\":0.1},{\"name\":\"Queso parmesano rallado\",\"category\":\"fat\",\"grams\":20,\"protein_g\":7.2,\"carb_g\":0.6,\"fat_g\":6.0},{\"name\":\"Croutones\",\"category\":\"carb\",\"grams\":30,\"protein_g\":2.5,\"carb_g\":20.0,\"fat_g\":3.0},{\"name\":\"Pollo a la plancha\",\"category\":\"protein\",\"grams\":80,\"protein_g\":25.0,\"carb_g\":0.0,\"fat_g\":3.0},{\"name\":\"Aderezo cesar de la casa\",\"category\":\"fat\",\"grams\":20,\"protein_g\":0.5,\"carb_g\":1.0,\"fat_g\":15.0}],\"protein_g\":35.7,\"carb_g\":22.6,\"fat_g\":27.1,\"estimated_calories\":470,\"confidence\":\"medium\",\"allergens\":[\"dairy\",\"gluten\"]},{\"name\":\"Salmone toscano\",\"description\":\"Salmon al horno bañado en crema toscana blanca con ajo, espinaca, alcachofa, tomate deshidratado y alcaparra, acompañado con baguette. 200g\",\"price\":330,\"category\":\"food\",\"ingredients\":[{\"name\":\"Salmon al horno\",\"category\":\"protein\",\"grams\":150,\"protein_g\":32.0,\"carb_g\":0.0,\"fat_g\":15.0},{\"name\":\"Crema toscana blanca\",\"category\":\"fat\",\"grams\":30,\"protein_g\":1.0,\"carb_g\":2.0,\"fat_g\":10.0},{\"name\":\"Ajo\",\"category\":\"veg\",\"grams\":5,\"protein_g\":0.2,\"carb_g\":1.0,\"fat_g\":0.0},{\"name\":\"Espinaca\",\"category\":\"veg\",\"grams\":10,\"protein_g\":0.3,\"carb_g\":0.5,\"fat_g\":0.1},{\"name\":\"Alcachofa\",\"category\":\"veg\",\"grams\":10,\"protein_g\":0.5,\"carb_g\":1.5,\"fat_g\":0.1},{\"name\":\"Tomate deshidratado\",\"category\":\"veg\",\"grams\":10,\"protein_g\":0.5,\"carb_g\":3.0,\"fat_g\":0.1},{\"name\":\"Alcaparra\",\"category\":\"veg\",\"grams\":5,\"protein_g\":0.2,\"carb_g\":0.5,\"fat_g\":0.1},{\"name\":\"Baguette\",\"category\":\"carb\",\"grams\":50,\"protein_g\":5.0,\"carb_g\":30.0,\"fat_g\":2.0}],\"protein_g\":39.7,\"carb_g\":38.5,\"fat_g\":27.4,\"estimated_calories\":590,\"confidence\":\"medium\",\"allergens\":[\"dairy\",\"gluten\",\"fish\"]},{\"name\":\"PASTEL AZTECA (300gr.)\",\"description\":\"Con pollo, salsa de tomate, chile verde, cebolla, elote y mezcla de quesos, servido con frijoles.\",\"price\":94,\"category\":\"food\",\"ingredients\":[{\"name\":\"Pollo\",\"category\":\"protein\",\"grams\":80,\"protein_g\":25.0,\"carb_g\":0.0,\"fat_g\":3.0},{\"name\":\"Salsa de tomate\",\"category\":\"veg\",\"grams\":50,\"protein_g\":1.0,\"carb_g\":10.0,\"fat_g\":0.5},{\"name\":\"Chile verde\",\"category\":\"veg\",\"grams\":20,\"protein_g\":0.5,\"carb_g\":2.0,\"fat_g\":0.1},{\"name\":\"Cebolla\",\"category\":\"veg\",\"grams\":20,\"protein_g\":0.4,\"carb_g\":4.0,\"fat_g\":0.1},{\"name\":\"Elote\",\"category\":\"carb\",\"grams\":30,\"protein_g\":2.5,\"carb_g\":15.0,\"fat_g\":1.0},{\"name\":\"Mezcla de quesos\",\"category\":\"fat\",\"grams\":40,\"protein_g\":10.0,\"carb_g\":1.0,\"fat_g\":15.0},{\"name\":\"Frijoles\",\"category\":\"carb\",\"grams\":60,\"protein_g\":5.0,\"carb_g\":20.0,\"fat_g\":1.0}],\"protein_g\":44.4,\"carb_g\":52.0,\"fat_g\":20.7,\"estimated_calories\":620,\"confidence\":\"medium\",\"allergens\":[\"dairy\"]}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 761,
+    "completion_tokens": 1044,
+    "total_tokens": 1805,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_e160a45017"
+}

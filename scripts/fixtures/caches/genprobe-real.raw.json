@@ -1,0 +1,4020 @@
+[
+  {
+    "name": "PAPAS FRITAS",
+    "description": "Sazonidas con trufa, parmesano\ny virutas de bacon crujiente.",
+    "price": 190,
+    "category": "side",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "potatoes",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 2,
+        "carb_per_100g": 37,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "truffle seasoning",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 0,
+        "carb_per_100g": 0,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "parmesan cheese",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 35,
+        "carb_per_100g": 4,
+        "fat_per_100g": 28
+      },
+      {
+        "name": "bacon bits",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 37,
+        "carb_per_100g": 1,
+        "fat_per_100g": 42
+      }
+    ],
+    "protein_g": 10,
+    "carb_g": 56,
+    "fat_g": 30,
+    "estimated_calories": 530,
+    "confidence": "medium",
+    "allergens": [
+      "dairy"
+    ],
+    "_menu": "andaluz"
+  },
+  {
+    "name": "PARRILLADA VERDURAS",
+    "description": "",
+    "price": 230,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "mixed grilled vegetables",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 200,
+        "protein_per_100g": 2,
+        "carb_per_100g": 10,
+        "fat_per_100g": 5
+      }
+    ],
+    "protein_g": 4,
+    "carb_g": 20,
+    "fat_g": 10,
+    "estimated_calories": 186,
+    "confidence": "low",
+    "allergens": [],
+    "_menu": "andaluz"
+  },
+  {
+    "name": "PANELA PLUS ASADA (30 g)",
+    "description": "A la plancha con champiñones,\nchile verde, jamón serrano y chistorra",
+    "price": 250,
+    "category": "food",
+    "printed_total_g": 30,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "panela cheese",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 18,
+        "carb_per_100g": 3,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "mushrooms",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 3,
+        "carb_per_100g": 4,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "green chili",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "serrano ham",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 31,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "chistorra sausage",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 20,
+        "carb_per_100g": 1,
+        "fat_per_100g": 40
+      }
+    ],
+    "protein_g": 4,
+    "carb_g": 1,
+    "fat_g": 5,
+    "estimated_calories": 62,
+    "confidence": "medium",
+    "allergens": [
+      "dairy"
+    ],
+    "_menu": "andaluz"
+  },
+  {
+    "name": "BONELESS DE POLLO (200 g)",
+    "description": "Buffalo, BBQ, mango habanero, cookies.",
+    "price": 220,
+    "category": "food",
+    "printed_total_g": 200,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "chicken breast",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 200,
+        "protein_per_100g": 31,
+        "carb_per_100g": 0,
+        "fat_per_100g": 3.6
+      },
+      {
+        "name": "buffalo sauce",
+        "category": "other",
+        "within_printed_weight": false,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "BBQ sauce",
+        "category": "other",
+        "within_printed_weight": false,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 30,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "mango habanero sauce",
+        "category": "other",
+        "within_printed_weight": false,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 20,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "cookies",
+        "category": "carb",
+        "within_printed_weight": false,
+        "typical_serving_g": 30,
+        "protein_per_100g": 5,
+        "carb_per_100g": 70,
+        "fat_per_100g": 20
+      }
+    ],
+    "protein_g": 64,
+    "carb_g": 38,
+    "fat_g": 16,
+    "estimated_calories": 553,
+    "confidence": "medium",
+    "allergens": [],
+    "_menu": "andaluz"
+  },
+  {
+    "name": "TIRAS DE POLLO",
+    "description": "Acompañadas de papas fritas.",
+    "price": 185,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "chicken strips",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "french fries",
+        "category": "carb",
+        "within_printed_weight": false,
+        "typical_serving_g": 150,
+        "protein_per_100g": 2,
+        "carb_per_100g": 37,
+        "fat_per_100g": 15
+      }
+    ],
+    "protein_g": 41,
+    "carb_g": 56,
+    "fat_g": 30,
+    "estimated_calories": 654,
+    "confidence": "medium",
+    "allergens": [],
+    "_menu": "andaluz"
+  },
+  {
+    "name": "DE POLLO (empanizado con panela)",
+    "description": "Por dentro pollo, pepino, alga y aguacate.",
+    "price": 265,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "breaded chicken",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 20,
+        "carb_per_100g": 15,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "cucumber",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 4,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "seaweed",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 5,
+        "carb_per_100g": 8,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      }
+    ],
+    "protein_g": 32,
+    "carb_g": 30,
+    "fat_g": 23,
+    "estimated_calories": 450,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ],
+    "_menu": "andaluz"
+  },
+  {
+    "name": "CAMARÓN ROKA (200 g)",
+    "description": "Camarón capeado y banado\nen nuestro aderezo roka a base de chipotle.",
+    "price": 320,
+    "category": "food",
+    "printed_total_g": 200,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "battered shrimp",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 200,
+        "protein_per_100g": 20,
+        "carb_per_100g": 15,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "roka chipotle dressing",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 20
+      }
+    ],
+    "protein_g": 35,
+    "carb_g": 27,
+    "fat_g": 23,
+    "estimated_calories": 453,
+    "confidence": "medium",
+    "allergens": [
+      "shellfish",
+      "gluten"
+    ],
+    "_menu": "andaluz"
+  },
+  {
+    "name": "TACOS DE PAPADA (2 pints.)",
+    "description": "Tortilla maíz o harina, más cebolla morada y aguacate.",
+    "price": 205,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "tortilla"
+    ],
+    "ingredients": [
+      {
+        "name": "pork belly",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 15,
+        "carb_per_100g": 0,
+        "fat_per_100g": 50
+      },
+      {
+        "name": "corn tortilla",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 5,
+        "carb_per_100g": 45,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "red onion",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      }
+    ],
+    "protein_g": 19,
+    "carb_g": 29,
+    "fat_g": 60,
+    "estimated_calories": 730,
+    "confidence": "medium",
+    "allergens": [
+      "gluten"
+    ],
+    "_menu": "andaluz"
+  },
+  {
+    "name": "5 FORMAGGI",
+    "description": "Queso mozzarella, chihuahua, azul, feta y cabra.",
+    "price": 240,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "pizza base"
+    ],
+    "ingredients": [
+      {
+        "name": "pizza base",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 8,
+        "carb_per_100g": 50,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "mozzarella cheese",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 22,
+        "carb_per_100g": 3,
+        "fat_per_100g": 22
+      },
+      {
+        "name": "chihuahua cheese",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 25,
+        "carb_per_100g": 2,
+        "fat_per_100g": 30
+      },
+      {
+        "name": "blue cheese",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 21,
+        "carb_per_100g": 2,
+        "fat_per_100g": 28
+      },
+      {
+        "name": "feta cheese",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 14,
+        "carb_per_100g": 4,
+        "fat_per_100g": 21
+      },
+      {
+        "name": "goat cheese",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 21,
+        "carb_per_100g": 2,
+        "fat_per_100g": 25
+      }
+    ],
+    "protein_g": 52,
+    "carb_g": 80,
+    "fat_g": 56,
+    "estimated_calories": 1030,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ],
+    "_menu": "bistro"
+  },
+  {
+    "name": "QUESO AZUL",
+    "description": "Base de crema, queso azul, espinaca, jamón serrano y laminas de manzana verde.",
+    "price": 272,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "pizza base"
+    ],
+    "ingredients": [
+      {
+        "name": "pizza base",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 8,
+        "carb_per_100g": 50,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "cream base",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 2,
+        "carb_per_100g": 4,
+        "fat_per_100g": 35
+      },
+      {
+        "name": "blue cheese",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 21,
+        "carb_per_100g": 2,
+        "fat_per_100g": 28
+      },
+      {
+        "name": "spinach",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 3,
+        "carb_per_100g": 4,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "serrano ham",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 31,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "green apple slices",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 0,
+        "carb_per_100g": 14,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 26,
+    "carb_g": 83,
+    "fat_g": 37,
+    "estimated_calories": 774,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ],
+    "_menu": "bistro"
+  },
+  {
+    "name": "HAWAIANA",
+    "description": "Jamón y piña.",
+    "price": 208,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "pizza base",
+      "cheese"
+    ],
+    "ingredients": [
+      {
+        "name": "pizza base",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 7,
+        "carb_per_100g": 50,
+        "fat_per_100g": 3
+      },
+      {
+        "name": "cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 25,
+        "carb_per_100g": 2,
+        "fat_per_100g": 33
+      },
+      {
+        "name": "ham",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 20,
+        "carb_per_100g": 1,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "pineapple",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 0.5,
+        "carb_per_100g": 13,
+        "fat_per_100g": 0.1
+      }
+    ],
+    "protein_g": 29,
+    "carb_g": 80,
+    "fat_g": 24,
+    "estimated_calories": 654,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ],
+    "_menu": "bistro"
+  },
+  {
+    "name": "MEXICANA",
+    "description": "Cebolla morada, pimiento verde y chistorra.",
+    "price": 252,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "pizza base",
+      "cheese"
+    ],
+    "ingredients": [
+      {
+        "name": "pizza base",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 7,
+        "carb_per_100g": 50,
+        "fat_per_100g": 3
+      },
+      {
+        "name": "cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 25,
+        "carb_per_100g": 2,
+        "fat_per_100g": 33
+      },
+      {
+        "name": "red onion",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "green pepper",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "chistorra",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 18,
+        "carb_per_100g": 1,
+        "fat_per_100g": 35
+      }
+    ],
+    "protein_g": 29,
+    "carb_g": 79,
+    "fat_g": 32,
+    "estimated_calories": 716,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ],
+    "_menu": "bistro"
+  },
+  {
+    "name": "MARGARITA",
+    "description": "Rebanadas de tomate fresco y albahaca deshidratada.",
+    "price": 225,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "pizza base",
+      "cheese"
+    ],
+    "ingredients": [
+      {
+        "name": "pizza base",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 7,
+        "carb_per_100g": 50,
+        "fat_per_100g": 3
+      },
+      {
+        "name": "cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 25,
+        "carb_per_100g": 2,
+        "fat_per_100g": 33
+      },
+      {
+        "name": "fresh tomato",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 4,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "dried basil",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 14,
+        "carb_per_100g": 61,
+        "fat_per_100g": 4
+      }
+    ],
+    "protein_g": 24,
+    "carb_g": 80,
+    "fat_g": 21,
+    "estimated_calories": 608,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ],
+    "_menu": "bistro"
+  },
+  {
+    "name": "Pollo.",
+    "description": "",
+    "price": null,
+    "category": "other",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "chicken",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 27,
+        "carb_per_100g": 0,
+        "fat_per_100g": 3
+      }
+    ],
+    "protein_g": 41,
+    "carb_g": 0,
+    "fat_g": 5,
+    "estimated_calories": 203,
+    "confidence": "low",
+    "allergens": [],
+    "_menu": "bistro"
+  },
+  {
+    "name": "ENSALADA BISTRO",
+    "description": "Tomate, campiñones, pimiento verde, cebolla morada, pera, manzana, calabaza, queso brie y chistorra.",
+    "price": 225,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "tomato",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 4,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "mushrooms",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 3,
+        "carb_per_100g": 3,
+        "fat_per_100g": 0.3
+      },
+      {
+        "name": "green pepper",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "red onion",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "pear",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 0.4,
+        "carb_per_100g": 15,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "apple",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 0.3,
+        "carb_per_100g": 14,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "pumpkin",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 7,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "brie cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 21,
+        "carb_per_100g": 0.5,
+        "fat_per_100g": 28
+      },
+      {
+        "name": "chistorra",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 18,
+        "carb_per_100g": 1,
+        "fat_per_100g": 35
+      }
+    ],
+    "protein_g": 14,
+    "carb_g": 16,
+    "fat_g": 19,
+    "estimated_calories": 294,
+    "confidence": "medium",
+    "allergens": [
+      "dairy"
+    ],
+    "_menu": "bistro"
+  },
+  {
+    "name": "CARBONARA",
+    "description": "Salsa blanca a base de crema y queso parmesano, con un toque de tocino y nuez moscada.",
+    "price": 235,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "pasta"
+    ],
+    "ingredients": [
+      {
+        "name": "pasta",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 5,
+        "carb_per_100g": 75,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "cream sauce",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 2,
+        "carb_per_100g": 4,
+        "fat_per_100g": 30
+      },
+      {
+        "name": "parmesan cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 35,
+        "carb_per_100g": 4,
+        "fat_per_100g": 25
+      },
+      {
+        "name": "bacon",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 14,
+        "carb_per_100g": 1,
+        "fat_per_100g": 42
+      },
+      {
+        "name": "nutmeg",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 1,
+        "protein_per_100g": 6,
+        "carb_per_100g": 50,
+        "fat_per_100g": 36
+      }
+    ],
+    "protein_g": 18,
+    "carb_g": 116,
+    "fat_g": 30,
+    "estimated_calories": 810,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ],
+    "_menu": "bistro"
+  },
+  {
+    "name": "NEW YORK",
+    "description": "Calidad choice acompañado de chimichurri de la casa. (400gr)",
+    "price": 690,
+    "category": "food",
+    "printed_total_g": 400,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "steak",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 300,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "chimichurri",
+        "category": "other",
+        "within_printed_weight": false,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 15
+      }
+    ],
+    "protein_g": 100,
+    "carb_g": 1,
+    "fat_g": 83,
+    "estimated_calories": 1152,
+    "confidence": "high",
+    "allergens": [],
+    "_menu": "brasero"
+  },
+  {
+    "name": "MEDALLÓN DE RES AL LIMÓN",
+    "description": "Medallones de filete salseados con mantequilla de limón, vino blanco y alcaparras. (230gr)",
+    "price": 750,
+    "category": "food",
+    "printed_total_g": 230,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "beef medallion",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 200,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "lemon butter sauce",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 2,
+        "fat_per_100g": 40
+      },
+      {
+        "name": "capers",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 2,
+        "carb_per_100g": 4,
+        "fat_per_100g": 1
+      }
+    ],
+    "protein_g": 49,
+    "carb_g": 1,
+    "fat_g": 41,
+    "estimated_calories": 571,
+    "confidence": "high",
+    "allergens": [
+      "dairy"
+    ],
+    "_menu": "brasero"
+  },
+  {
+    "name": "PULPO A LAS BRASAS",
+    "description": "Pulpo a las brasas con un adobo de chiles secos, con espárragos y champiñones. (280gr)",
+    "price": 530,
+    "category": "food",
+    "printed_total_g": 280,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "grilled octopus",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 200,
+        "protein_per_100g": 20,
+        "carb_per_100g": 2,
+        "fat_per_100g": 2
+      },
+      {
+        "name": "chili adobo",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 10,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "asparagus",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 4,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "mushrooms",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 3,
+        "carb_per_100g": 3,
+        "fat_per_100g": 0.3
+      }
+    ],
+    "protein_g": 42,
+    "carb_g": 9,
+    "fat_g": 6,
+    "estimated_calories": 253,
+    "confidence": "high",
+    "allergens": [
+      "shellfish"
+    ],
+    "_menu": "brasero"
+  },
+  {
+    "name": "TOMAHAWK DE PUERCO",
+    "description": "A las brasas, con salsa oriental, cebollas y chiles asados. (380gr)",
+    "price": 530,
+    "category": "food",
+    "printed_total_g": 380,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "pork tomahawk",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 300,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 25
+      },
+      {
+        "name": "oriental sauce",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 10,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "grilled onions",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "grilled chiles",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0.2
+      }
+    ],
+    "protein_g": 61,
+    "carb_g": 7,
+    "fat_g": 77,
+    "estimated_calories": 961,
+    "confidence": "high",
+    "allergens": [],
+    "_menu": "brasero"
+  },
+  {
+    "name": "COLES DE BRUSELAS 200gr",
+    "description": "",
+    "price": 150,
+    "category": "side",
+    "printed_total_g": 200,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Brussels sprouts",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 85,
+        "protein_per_100g": 3.4,
+        "carb_per_100g": 8.95,
+        "fat_per_100g": 0.3
+      }
+    ],
+    "protein_g": 7,
+    "carb_g": 18,
+    "fat_g": 1,
+    "estimated_calories": 104,
+    "confidence": "high",
+    "allergens": [],
+    "_menu": "brasero"
+  },
+  {
+    "name": "ESPINACAS A LA CREMA 250gr",
+    "description": "",
+    "price": 130,
+    "category": "side",
+    "printed_total_g": 250,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Spinach",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 85,
+        "protein_per_100g": 2.9,
+        "carb_per_100g": 3.6,
+        "fat_per_100g": 0.4
+      },
+      {
+        "name": "Cream",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2.1,
+        "carb_per_100g": 4.1,
+        "fat_per_100g": 19.1
+      }
+    ],
+    "protein_g": 7,
+    "carb_g": 9,
+    "fat_g": 13,
+    "estimated_calories": 183,
+    "confidence": "medium",
+    "allergens": [
+      "dairy"
+    ],
+    "_menu": "brasero"
+  },
+  {
+    "name": "TARTAR DE ATÚN",
+    "description": "Atún rojo cortado en pequeñas cubas, mezclado con cebolla morada, manzana verde, chile serrano y salsa panzu, servido sobre una base de aguacate.",
+    "price": 290,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Tuna",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 23,
+        "carb_per_100g": 0,
+        "fat_per_100g": 0.6
+      },
+      {
+        "name": "Avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 2,
+        "carb_per_100g": 8.5,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "Red onion",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 1.1,
+        "carb_per_100g": 9.3,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "Green apple",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 0.3,
+        "carb_per_100g": 13.8,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "Serrano chili",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 1.8,
+        "carb_per_100g": 7.3,
+        "fat_per_100g": 0.4
+      },
+      {
+        "name": "Panzu sauce",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 2,
+        "carb_per_100g": 10,
+        "fat_per_100g": 0.5
+      }
+    ],
+    "protein_g": 25,
+    "carb_g": 10,
+    "fat_g": 8,
+    "estimated_calories": 212,
+    "confidence": "medium",
+    "allergens": [
+      "fish"
+    ],
+    "_menu": "brasero"
+  },
+  {
+    "name": "SPAGHETTI A LA BOLOGNESA",
+    "description": "Spaghetti servido con una deliciosa salsa bolognesa de la casa. (380gr)",
+    "price": 290,
+    "category": "food",
+    "printed_total_g": 380,
+    "name_implied_components": [
+      "spaghetti"
+    ],
+    "ingredients": [
+      {
+        "name": "Spaghetti",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 180,
+        "protein_per_100g": 5.8,
+        "carb_per_100g": 31,
+        "fat_per_100g": 1.3
+      },
+      {
+        "name": "Bolognese sauce",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 8,
+        "carb_per_100g": 6,
+        "fat_per_100g": 7
+      }
+    ],
+    "protein_g": 25,
+    "carb_g": 84,
+    "fat_g": 13,
+    "estimated_calories": 550,
+    "confidence": "high",
+    "allergens": [
+      "gluten"
+    ],
+    "_menu": "brasero"
+  },
+  {
+    "name": "Lasagne al forno",
+    "description": "La tradicional cocinada al horno. 250g",
+    "price": 220,
+    "category": "food",
+    "printed_total_g": 250,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Lasagna sheets",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 5.8,
+        "carb_per_100g": 31,
+        "fat_per_100g": 1.3
+      },
+      {
+        "name": "Bolognese sauce",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 8,
+        "carb_per_100g": 6,
+        "fat_per_100g": 7
+      },
+      {
+        "name": "Bechamel sauce",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 3.5,
+        "carb_per_100g": 6.5,
+        "fat_per_100g": 10
+      }
+    ],
+    "protein_g": 16,
+    "carb_g": 40,
+    "fat_g": 13,
+    "estimated_calories": 343,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ],
+    "_menu": "casa-nostra"
+  },
+  {
+    "name": "Pasta alla romana",
+    "description": "Pasta rigatone en salsa de tomate machacado al momento, pancetta y toque de vino chianti tinto. 180g",
+    "price": 275,
+    "category": "food",
+    "printed_total_g": 180,
+    "name_implied_components": [
+      "rigatoni"
+    ],
+    "ingredients": [
+      {
+        "name": "Rigatoni",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 5.8,
+        "carb_per_100g": 31,
+        "fat_per_100g": 1.3
+      },
+      {
+        "name": "Tomato sauce",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1.2,
+        "carb_per_100g": 5.5,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "Pancetta",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 14.5,
+        "carb_per_100g": 0,
+        "fat_per_100g": 45
+      }
+    ],
+    "protein_g": 11,
+    "carb_g": 34,
+    "fat_g": 15,
+    "estimated_calories": 312,
+    "confidence": "medium",
+    "allergens": [
+      "gluten"
+    ],
+    "_menu": "casa-nostra"
+  },
+  {
+    "name": "Gnocchi toscano",
+    "description": "Gnocchi fresco en crema toscana blanca con espinaca, tomate deshidratado y pancetta salteada. 180g",
+    "price": 265,
+    "category": "food",
+    "printed_total_g": 180,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Gnocchi",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 3.5,
+        "carb_per_100g": 30,
+        "fat_per_100g": 0.5
+      },
+      {
+        "name": "Cream sauce",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 2.1,
+        "carb_per_100g": 4.1,
+        "fat_per_100g": 19.1
+      },
+      {
+        "name": "Spinach",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 2.9,
+        "carb_per_100g": 3.6,
+        "fat_per_100g": 0.4
+      },
+      {
+        "name": "Sun-dried tomatoes",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 5,
+        "carb_per_100g": 55,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "Pancetta",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 14.5,
+        "carb_per_100g": 0,
+        "fat_per_100g": 45
+      }
+    ],
+    "protein_g": 9,
+    "carb_g": 33,
+    "fat_g": 20,
+    "estimated_calories": 348,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ],
+    "_menu": "casa-nostra"
+  },
+  {
+    "name": "Spaghetti ai frutti di mare ubriaca",
+    "description": "Spaghetti fresco con camarón y pulpo horneados con licores, tomate cherry, morrones y hierbas.",
+    "price": 325,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "spaghetti"
+    ],
+    "ingredients": [
+      {
+        "name": "Spaghetti",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 180,
+        "protein_per_100g": 5.8,
+        "carb_per_100g": 31,
+        "fat_per_100g": 1.3
+      },
+      {
+        "name": "Shrimp",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 1.5
+      },
+      {
+        "name": "Octopus",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 15,
+        "carb_per_100g": 0,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "Cherry tomatoes",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1.2,
+        "carb_per_100g": 3.9,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "Bell peppers",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0.3
+      }
+    ],
+    "protein_g": 28,
+    "carb_g": 58,
+    "fat_g": 4,
+    "estimated_calories": 378,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "shellfish"
+    ],
+    "_menu": "casa-nostra"
+  },
+  {
+    "name": "Spaghetti Pettine di mare",
+    "description": "Spaghetti fresco con vieras, salteado en aceite de oliva, ajo y alcaparra acompañado con baguette. 80g",
+    "price": 250,
+    "category": "food",
+    "printed_total_g": 80,
+    "name_implied_components": [
+      "spaghetti"
+    ],
+    "ingredients": [
+      {
+        "name": "Spaghetti",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 180,
+        "protein_per_100g": 5.8,
+        "carb_per_100g": 31,
+        "fat_per_100g": 1.3
+      },
+      {
+        "name": "Scallops",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "Olive oil",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 0,
+        "carb_per_100g": 0,
+        "fat_per_100g": 100
+      },
+      {
+        "name": "Garlic",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 6.4,
+        "carb_per_100g": 33,
+        "fat_per_100g": 0.5
+      },
+      {
+        "name": "Capers",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 2.4,
+        "carb_per_100g": 4.9,
+        "fat_per_100g": 0.9
+      },
+      {
+        "name": "Baguette",
+        "category": "carb",
+        "within_printed_weight": false,
+        "typical_serving_g": 30,
+        "protein_per_100g": 8,
+        "carb_per_100g": 50,
+        "fat_per_100g": 1
+      }
+    ],
+    "protein_g": 9,
+    "carb_g": 33,
+    "fat_g": 4,
+    "estimated_calories": 210,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "shellfish"
+    ],
+    "_menu": "casa-nostra"
+  },
+  {
+    "name": "Cesar",
+    "description": "La tradicional. A su elección lechuga entera o en trozos",
+    "price": 190,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Romaine lettuce",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 85,
+        "protein_per_100g": 1.2,
+        "carb_per_100g": 3.3,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "Caesar dressing",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1.5,
+        "carb_per_100g": 5,
+        "fat_per_100g": 40
+      },
+      {
+        "name": "Croutons",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 10,
+        "carb_per_100g": 70,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "Parmesan cheese",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 35,
+        "carb_per_100g": 4,
+        "fat_per_100g": 25
+      }
+    ],
+    "protein_g": 7,
+    "carb_g": 19,
+    "fat_g": 16,
+    "estimated_calories": 244,
+    "confidence": "medium",
+    "allergens": [
+      "dairy",
+      "gluten"
+    ],
+    "_menu": "casa-nostra"
+  },
+  {
+    "name": "Prosciuto.",
+    "description": "Salsa italiana de tomate, queso mozzarella, parmesano y prosciuto.",
+    "price": 230,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "pizza crust"
+    ],
+    "ingredients": [
+      {
+        "name": "pizza crust",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 8,
+        "carb_per_100g": 50,
+        "fat_per_100g": 3
+      },
+      {
+        "name": "salsa italiana de tomate",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "queso mozzarella",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 22,
+        "carb_per_100g": 2,
+        "fat_per_100g": 22
+      },
+      {
+        "name": "queso parmesano",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 35,
+        "carb_per_100g": 4,
+        "fat_per_100g": 28
+      },
+      {
+        "name": "prosciuto",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 15
+      }
+    ],
+    "protein_g": 24,
+    "carb_g": 54,
+    "fat_g": 15,
+    "estimated_calories": 447,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ],
+    "_menu": "casa-nostra"
+  },
+  {
+    "name": "CasaNostra",
+    "description": "Salsa italiana de tomate, queso mozzarella, parmesano, espinaca, albahaca, queso de cabra.",
+    "price": 230,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "pizza crust"
+    ],
+    "ingredients": [
+      {
+        "name": "pizza crust",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 8,
+        "carb_per_100g": 50,
+        "fat_per_100g": 3
+      },
+      {
+        "name": "salsa italiana de tomate",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "queso mozzarella",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 22,
+        "carb_per_100g": 2,
+        "fat_per_100g": 22
+      },
+      {
+        "name": "queso parmesano",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 35,
+        "carb_per_100g": 4,
+        "fat_per_100g": 28
+      },
+      {
+        "name": "espinaca",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 3,
+        "carb_per_100g": 4,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "albahaca",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 3,
+        "carb_per_100g": 2,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "queso de cabra",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 21,
+        "carb_per_100g": 2,
+        "fat_per_100g": 25
+      }
+    ],
+    "protein_g": 24,
+    "carb_g": 55,
+    "fat_g": 17,
+    "estimated_calories": 473,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ],
+    "_menu": "casa-nostra"
+  },
+  {
+    "name": "DIVORCIADOS",
+    "description": "Dos huevos fritos montados sobre tortillas y bañados con salsa verde y roja.",
+    "price": 84,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "huevos fritos",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 13,
+        "carb_per_100g": 1,
+        "fat_per_100g": 11
+      },
+      {
+        "name": "tortillas",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 6,
+        "carb_per_100g": 50,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "salsa verde",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "salsa roja",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 17,
+    "carb_g": 29,
+    "fat_g": 14,
+    "estimated_calories": 304,
+    "confidence": "medium",
+    "allergens": [
+      "egg",
+      "gluten"
+    ],
+    "_menu": "el-marcos"
+  },
+  {
+    "name": "Dos huevos naturales",
+    "description": "",
+    "price": 78,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "huevos",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 13,
+        "carb_per_100g": 1,
+        "fat_per_100g": 11
+      }
+    ],
+    "protein_g": 13,
+    "carb_g": 1,
+    "fat_g": 11,
+    "estimated_calories": 155,
+    "confidence": "low",
+    "allergens": [
+      "egg"
+    ],
+    "_menu": "el-marcos"
+  },
+  {
+    "name": "NORTEÑOS",
+    "description": "Dos huevos revueltos con machaca y salsa norteña picosita.",
+    "price": 98,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "huevos revueltos",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 13,
+        "carb_per_100g": 1,
+        "fat_per_100g": 11
+      },
+      {
+        "name": "machaca",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 32,
+        "carb_per_100g": 0,
+        "fat_per_100g": 8
+      },
+      {
+        "name": "salsa norteña",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 29,
+    "carb_g": 3,
+    "fat_g": 15,
+    "estimated_calories": 262,
+    "confidence": "medium",
+    "allergens": [
+      "egg"
+    ],
+    "_menu": "el-marcos"
+  },
+  {
+    "name": "OMELETTE CUBANA",
+    "description": "Dos huevos con chorizo, jamón, tocino, queso, cebolla y pimiento verde.",
+    "price": 98,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "huevos",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 13,
+        "carb_per_100g": 1,
+        "fat_per_100g": 11
+      },
+      {
+        "name": "chorizo",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 18,
+        "carb_per_100g": 2,
+        "fat_per_100g": 30
+      },
+      {
+        "name": "jamón",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 20,
+        "carb_per_100g": 1,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "tocino",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 15,
+        "carb_per_100g": 0,
+        "fat_per_100g": 40
+      },
+      {
+        "name": "queso",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 25,
+        "carb_per_100g": 2,
+        "fat_per_100g": 30
+      },
+      {
+        "name": "cebolla",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "pimiento verde",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 33,
+    "carb_g": 4,
+    "fat_g": 37,
+    "estimated_calories": 479,
+    "confidence": "medium",
+    "allergens": [
+      "egg",
+      "dairy"
+    ],
+    "_menu": "el-marcos"
+  },
+  {
+    "name": "CHILAQUILES (70gr.) Divorciados",
+    "description": "Mitad rojos, mitad verdes.",
+    "price": 138,
+    "category": "food",
+    "printed_total_g": 70,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "tortilla chips",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 6,
+        "carb_per_100g": 60,
+        "fat_per_100g": 25
+      },
+      {
+        "name": "salsa roja",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "salsa verde",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 2,
+    "carb_g": 21,
+    "fat_g": 8,
+    "estimated_calories": 165,
+    "confidence": "medium",
+    "allergens": [
+      "gluten"
+    ],
+    "_menu": "el-marcos"
+  },
+  {
+    "name": "ENCHILADAS (135gr.)",
+    "description": "Verdes, Rojas o Suizas (verdes o rojas) 3 enchiladas rellenas de pollo, bañadas con salsa a elegir, con crema y queso gratinado.",
+    "price": 148,
+    "category": "food",
+    "printed_total_g": 135,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "tortillas",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 6,
+        "carb_per_100g": 50,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "pollo",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 27,
+        "carb_per_100g": 0,
+        "fat_per_100g": 3
+      },
+      {
+        "name": "salsa",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "crema",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 2,
+        "carb_per_100g": 4,
+        "fat_per_100g": 30
+      },
+      {
+        "name": "queso gratinado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 25,
+        "carb_per_100g": 2,
+        "fat_per_100g": 30
+      }
+    ],
+    "protein_g": 18,
+    "carb_g": 22,
+    "fat_g": 13,
+    "estimated_calories": 273,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ],
+    "_menu": "el-marcos"
+  },
+  {
+    "name": "Doblada de Camarón y Marlín",
+    "description": "",
+    "price": 98,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "tortilla"
+    ],
+    "ingredients": [
+      {
+        "name": "tortilla",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 6,
+        "carb_per_100g": 50,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "camarón",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 24,
+        "carb_per_100g": 0,
+        "fat_per_100g": 2
+      },
+      {
+        "name": "marlín",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 5
+      }
+    ],
+    "protein_g": 25,
+    "carb_g": 25,
+    "fat_g": 6,
+    "estimated_calories": 254,
+    "confidence": "low",
+    "allergens": [
+      "shellfish",
+      "gluten"
+    ],
+    "_menu": "el-marcos"
+  },
+  {
+    "name": "HOT CAKES (3 piezas) Naturales",
+    "description": "",
+    "price": 68,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "hot cakes",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 6,
+        "carb_per_100g": 50,
+        "fat_per_100g": 10
+      }
+    ],
+    "protein_g": 9,
+    "carb_g": 75,
+    "fat_g": 15,
+    "estimated_calories": 471,
+    "confidence": "low",
+    "allergens": [
+      "gluten",
+      "dairy",
+      "egg"
+    ],
+    "_menu": "el-marcos"
+  },
+  {
+    "name": "COASTAL OYSTERS (6) DF, GF",
+    "description": "chilled with cocktail sauce | mignonette",
+    "price": 28,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "oysters",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 9,
+        "carb_per_100g": 5,
+        "fat_per_100g": 2
+      },
+      {
+        "name": "cocktail sauce",
+        "category": "other",
+        "within_printed_weight": false,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 20,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "mignonette",
+        "category": "other",
+        "within_printed_weight": false,
+        "typical_serving_g": 15,
+        "protein_per_100g": 0,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 9,
+    "carb_g": 12,
+    "fat_g": 2,
+    "estimated_calories": 102,
+    "confidence": "high",
+    "allergens": [
+      "shellfish"
+    ],
+    "_menu": "guest-house"
+  },
+  {
+    "name": "STEAK TARTARE",
+    "description": "truffle toast",
+    "price": 27,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "toast"
+    ],
+    "ingredients": [
+      {
+        "name": "raw beef",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "truffle toast",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 5,
+        "carb_per_100g": 50,
+        "fat_per_100g": 10
+      }
+    ],
+    "protein_g": 22,
+    "carb_g": 15,
+    "fat_g": 13,
+    "estimated_calories": 263,
+    "confidence": "medium",
+    "allergens": [
+      "gluten"
+    ],
+    "_menu": "guest-house"
+  },
+  {
+    "name": "SHAVED BRUSSEL SPROUTS",
+    "description": "toasted hazelnuts | crushed red grapes | aged gouda",
+    "price": 21,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "brussel sprouts",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 85,
+        "protein_per_100g": 3,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "toasted hazelnuts",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 28,
+        "protein_per_100g": 15,
+        "carb_per_100g": 17,
+        "fat_per_100g": 61
+      },
+      {
+        "name": "crushed red grapes",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 17,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "aged gouda",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 25,
+        "carb_per_100g": 2,
+        "fat_per_100g": 33
+      }
+    ],
+    "protein_g": 15,
+    "carb_g": 22,
+    "fat_g": 27,
+    "estimated_calories": 388,
+    "confidence": "medium",
+    "allergens": [
+      "dairy",
+      "nuts"
+    ],
+    "_menu": "guest-house"
+  },
+  {
+    "name": "BUTCHER'S CUT* GF",
+    "description": "black pepper | black garlic | charred broccolini",
+    "price": 63,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "steak",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 200,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "black pepper",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 10,
+        "carb_per_100g": 64,
+        "fat_per_100g": 3
+      },
+      {
+        "name": "black garlic",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 6,
+        "carb_per_100g": 30,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "charred broccolini",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 85,
+        "protein_per_100g": 3,
+        "carb_per_100g": 7,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 54,
+    "carb_g": 12,
+    "fat_g": 40,
+    "estimated_calories": 625,
+    "confidence": "medium",
+    "allergens": [],
+    "_menu": "guest-house"
+  },
+  {
+    "name": "BLACK TRUFFLE BUTTER",
+    "description": "",
+    "price": 9,
+    "category": "side",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "butter",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 14,
+        "protein_per_100g": 1,
+        "carb_per_100g": 1,
+        "fat_per_100g": 81
+      },
+      {
+        "name": "black truffle",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 0,
+    "carb_g": 1,
+    "fat_g": 11,
+    "estimated_calories": 105,
+    "confidence": "low",
+    "allergens": [
+      "dairy"
+    ],
+    "_menu": "guest-house"
+  },
+  {
+    "name": "HORSERADISH CRÈME",
+    "description": "",
+    "price": 5,
+    "category": "side",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "sour cream",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 3,
+        "carb_per_100g": 4,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "horseradish",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 1,
+        "carb_per_100g": 11,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 1,
+    "carb_g": 2,
+    "fat_g": 6,
+    "estimated_calories": 67,
+    "confidence": "medium",
+    "allergens": [
+      "dairy"
+    ],
+    "_menu": "guest-house"
+  },
+  {
+    "name": "FAROE ISLAND SALMON GF",
+    "description": "beech mushrooms | ponzu brown butter",
+    "price": 42,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "salmon",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 13
+      },
+      {
+        "name": "beech mushrooms",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 3,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "ponzu brown butter",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 80
+      }
+    ],
+    "protein_g": 39,
+    "carb_g": 4,
+    "fat_g": 36,
+    "estimated_calories": 492,
+    "confidence": "medium",
+    "allergens": [
+      "fish",
+      "dairy"
+    ],
+    "_menu": "guest-house"
+  },
+  {
+    "name": "MISO MUSHROOMS",
+    "description": "",
+    "price": 15,
+    "category": "side",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "mushrooms",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 3,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "miso paste",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 12,
+        "carb_per_100g": 25,
+        "fat_per_100g": 6
+      }
+    ],
+    "protein_g": 5,
+    "carb_g": 11,
+    "fat_g": 1,
+    "estimated_calories": 76,
+    "confidence": "medium",
+    "allergens": [
+      "soy"
+    ],
+    "_menu": "guest-house"
+  },
+  {
+    "name": "TACOS DE CAMARÓN AL CHIPOTLE",
+    "description": "Orden de tres tacos de camarón bañados con nuestra salsa especial de chipotle servidos en tortilla de maíz.",
+    "price": 290,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "tortilla"
+    ],
+    "ingredients": [
+      {
+        "name": "shrimp",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 24,
+        "carb_per_100g": 0,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "chipotle sauce",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 10,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "corn tortilla",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 5,
+        "carb_per_100g": 45,
+        "fat_per_100g": 5
+      }
+    ],
+    "protein_g": 27,
+    "carb_g": 26,
+    "fat_g": 5,
+    "estimated_calories": 255,
+    "confidence": "medium",
+    "allergens": [
+      "shellfish",
+      "gluten"
+    ],
+    "_menu": "mochomos"
+  },
+  {
+    "name": "TACOS SONORENSES",
+    "description": "Gaoneras de New York sobre tortilla de harina, coronado con chile verde talemado, queso gratinado y láminas de aguacate.",
+    "price": 315,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "tortilla"
+    ],
+    "ingredients": [
+      {
+        "name": "New York strip steak",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "flour tortilla",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 8,
+        "carb_per_100g": 50,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "chile verde",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "grated cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 25,
+        "carb_per_100g": 2,
+        "fat_per_100g": 33
+      },
+      {
+        "name": "avocado slices",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      }
+    ],
+    "protein_g": 37,
+    "carb_g": 30,
+    "fat_g": 39,
+    "estimated_calories": 625,
+    "confidence": "medium",
+    "allergens": [
+      "dairy",
+      "gluten"
+    ],
+    "_menu": "mochomos"
+  },
+  {
+    "name": "TACOS DE COLA",
+    "description": "Orden de tres tacos de maíz semidorados de cola de res y sazonada con cebolla, cilantro y una rebanada de aguacate.",
+    "price": 355,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "taco shell"
+    ],
+    "ingredients": [
+      {
+        "name": "beef tail",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 85,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "corn taco shell",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 5,
+        "carb_per_100g": 65,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "onion",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "cilantro",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 3,
+        "carb_per_100g": 4,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      }
+    ],
+    "protein_g": 19,
+    "carb_g": 24,
+    "fat_g": 20,
+    "estimated_calories": 355,
+    "confidence": "medium",
+    "allergens": [
+      "gluten"
+    ],
+    "_menu": "mochomos"
+  },
+  {
+    "name": "TOSTADAS PUESTAS DE ATÚN",
+    "description": "Orden de tres tostadas de atún marinado en salsa de cítricos y salsas negras, coronada con finas rebanadas de aguacate y poro.",
+    "price": 340,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "tostada shell"
+    ],
+    "ingredients": [
+      {
+        "name": "tuna",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 85,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "corn tostada shell",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 5,
+        "carb_per_100g": 65,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "leek",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 1,
+        "carb_per_100g": 14,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 23,
+    "carb_g": 24,
+    "fat_g": 8,
+    "estimated_calories": 263,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "fish"
+    ],
+    "_menu": "mochomos"
+  },
+  {
+    "name": "TOSTADAS DE MARISCOS",
+    "description": "Mezcla de pulpo y camarón cocido, con jícama, pepino y cebolla morada, montado sobre tostada de maíz y bañado en una salsa marisquera de la casa.",
+    "price": 335,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "tostada shell"
+    ],
+    "ingredients": [
+      {
+        "name": "octopus",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 15,
+        "carb_per_100g": 0,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "shrimp",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "corn tostada shell",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 5,
+        "carb_per_100g": 65,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "jicama",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "cucumber",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 4,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "red onion",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 20,
+    "carb_g": 23,
+    "fat_g": 4,
+    "estimated_calories": 208,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "shellfish"
+    ],
+    "_menu": "mochomos"
+  },
+  {
+    "name": "ENSALADA MOCHOMOS",
+    "description": "Deliciosa ensalada de espinaca, aderezada con vinagreta balsámica y coronada con almendras, queso de cabra, arándanos y suprema de mandarina.",
+    "price": 255,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "spinach",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 3,
+        "carb_per_100g": 4,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "balsamic vinaigrette",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 0,
+        "carb_per_100g": 10,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "almonds",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 21,
+        "carb_per_100g": 22,
+        "fat_per_100g": 50
+      },
+      {
+        "name": "goat cheese",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 21,
+        "carb_per_100g": 2,
+        "fat_per_100g": 25
+      },
+      {
+        "name": "cranberries",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 0,
+        "carb_per_100g": 82,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "mandarin segments",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 12,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 11,
+    "carb_g": 24,
+    "fat_g": 21,
+    "estimated_calories": 329,
+    "confidence": "medium",
+    "allergens": [
+      "dairy",
+      "nuts"
+    ],
+    "_menu": "mochomos"
+  },
+  {
+    "name": "ENSALADA ALFREDO",
+    "description": "Mezcla de lechuga, tomate, aguacate, pepino, cebolla morada, aderezado con vinagreta cítrica de la casa.",
+    "price": 255,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "lettuce",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 3,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "tomato",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 4,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "cucumber",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 4,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "red onion",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "citrus vinaigrette",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 0,
+        "carb_per_100g": 10,
+        "fat_per_100g": 20
+      }
+    ],
+    "protein_g": 2,
+    "carb_g": 10,
+    "fat_g": 11,
+    "estimated_calories": 141,
+    "confidence": "medium",
+    "allergens": [],
+    "_menu": "mochomos"
+  },
+  {
+    "name": "TORRE DE BETABEL",
+    "description": "Láminas de betabel intercaladas con queso de cabra, aderezadas con una vinagreta de arándanos, escarchada con trozos de almendra tostadas.",
+    "price": 235,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "beetroot",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 2,
+        "carb_per_100g": 10,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "goat cheese",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 21,
+        "carb_per_100g": 2,
+        "fat_per_100g": 25
+      },
+      {
+        "name": "cranberry vinaigrette",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 0,
+        "carb_per_100g": 10,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "toasted almonds",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 21,
+        "carb_per_100g": 22,
+        "fat_per_100g": 50
+      }
+    ],
+    "protein_g": 10,
+    "carb_g": 12,
+    "fat_g": 21,
+    "estimated_calories": 278,
+    "confidence": "medium",
+    "allergens": [
+      "dairy",
+      "nuts"
+    ],
+    "_menu": "mochomos"
+  },
+  {
+    "name": "Salmón Roll",
+    "description": "Por dentro: Queso crema, pepino, aguacate y surimi. Por fuera: Salmón.",
+    "price": 169,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "sushi rice"
+    ],
+    "ingredients": [
+      {
+        "name": "cream cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 6,
+        "carb_per_100g": 4,
+        "fat_per_100g": 34
+      },
+      {
+        "name": "cucumber",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 4,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "surimi",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 10,
+        "carb_per_100g": 15,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "salmon",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 13
+      },
+      {
+        "name": "sushi rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 2,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 14,
+    "carb_g": 23,
+    "fat_g": 19,
+    "estimated_calories": 319,
+    "confidence": "medium",
+    "allergens": [
+      "dairy",
+      "fish",
+      "shellfish"
+    ],
+    "_menu": "nikkori"
+  },
+  {
+    "name": "Avocado",
+    "description": "Por dentro: Camarón, queso crema y pepino. Por fuera: Aguacate.",
+    "price": 159,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "sushi rice"
+    ],
+    "ingredients": [
+      {
+        "name": "shrimp",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "cream cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 6,
+        "carb_per_100g": 4,
+        "fat_per_100g": 34
+      },
+      {
+        "name": "cucumber",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 4,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "sushi rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 2,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 10,
+    "carb_g": 19,
+    "fat_g": 15,
+    "estimated_calories": 248,
+    "confidence": "medium",
+    "allergens": [
+      "dairy",
+      "shellfish"
+    ],
+    "_menu": "nikkori"
+  },
+  {
+    "name": "Roca Roll",
+    "description": "Por dentro: Camarón capeado y aguacate. Por fuera: Camarones roca, bañados con salsa de anguila, salsa spicy sambal, cebollín y ajonjoli.",
+    "price": 159,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "sushi rice"
+    ],
+    "ingredients": [
+      {
+        "name": "battered shrimp",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 15,
+        "carb_per_100g": 20,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "rock shrimp",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "eel sauce",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 1,
+        "carb_per_100g": 30,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "spicy sambal sauce",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 1,
+        "carb_per_100g": 20,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "green onion",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 1,
+        "carb_per_100g": 7,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "sesame seeds",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 18,
+        "carb_per_100g": 23,
+        "fat_per_100g": 50
+      },
+      {
+        "name": "sushi rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 2,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 13,
+    "carb_g": 32,
+    "fat_g": 11,
+    "estimated_calories": 281,
+    "confidence": "medium",
+    "allergens": [
+      "shellfish",
+      "sesame"
+    ],
+    "_menu": "nikkori"
+  },
+  {
+    "name": "Lomo Salteado",
+    "description": "Por dentro: Filate de red, aguacate y queso crema. Por fuera: Aderezo spicy, togarachi y cebolla frita.",
+    "price": 169,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "sushi rice"
+    ],
+    "ingredients": [
+      {
+        "name": "beef fillet",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "cream cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 6,
+        "carb_per_100g": 4,
+        "fat_per_100g": 34
+      },
+      {
+        "name": "spicy dressing",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 1,
+        "carb_per_100g": 20,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "togarashi",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 10,
+        "carb_per_100g": 30,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "fried onion",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 1,
+        "carb_per_100g": 10,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "sushi rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 2,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 17,
+    "carb_g": 24,
+    "fat_g": 26,
+    "estimated_calories": 394,
+    "confidence": "medium",
+    "allergens": [
+      "dairy"
+    ],
+    "_menu": "nikkori"
+  },
+  {
+    "name": "California",
+    "description": "Por dentro: Pasta de surimi, pepino y aguacate. Por fuera: Ajonjoli.",
+    "price": 139,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "sushi rice",
+      "nori"
+    ],
+    "ingredients": [
+      {
+        "name": "surimi",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 10,
+        "carb_per_100g": 15,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "cucumber",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 0.7,
+        "carb_per_100g": 3.6,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "sesame seeds",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 17,
+        "carb_per_100g": 23,
+        "fat_per_100g": 50
+      },
+      {
+        "name": "sushi rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 2.5,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0.3
+      },
+      {
+        "name": "nori",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 30,
+        "carb_per_100g": 35,
+        "fat_per_100g": 5
+      }
+    ],
+    "protein_g": 12,
+    "carb_g": 44,
+    "fat_g": 11,
+    "estimated_calories": 318,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "soy",
+      "sesame"
+    ],
+    "_menu": "nikkori"
+  },
+  {
+    "name": "Cosmo Camarón",
+    "description": "Por dentro: Camarón, queso crema y aguacate. Por fuera: Empanizado",
+    "price": 169,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "sushi rice",
+      "nori"
+    ],
+    "ingredients": [
+      {
+        "name": "shrimp",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 24,
+        "carb_per_100g": 0,
+        "fat_per_100g": 0.5
+      },
+      {
+        "name": "cream cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 6,
+        "carb_per_100g": 4,
+        "fat_per_100g": 34
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "breading",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 8,
+        "carb_per_100g": 60,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "sushi rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 2.5,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0.3
+      },
+      {
+        "name": "nori",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 30,
+        "carb_per_100g": 35,
+        "fat_per_100g": 5
+      }
+    ],
+    "protein_g": 21,
+    "carb_g": 52,
+    "fat_g": 17,
+    "estimated_calories": 443,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy",
+      "shellfish"
+    ],
+    "_menu": "nikkori"
+  },
+  {
+    "name": "Salmón Especial",
+    "description": "Por dentro: Anguila, queso crema y aguacate. Por fuera: Salmón horneado con un toque de aderezo.",
+    "price": 229,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "sushi rice",
+      "nori"
+    ],
+    "ingredients": [
+      {
+        "name": "eel",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 18,
+        "carb_per_100g": 0,
+        "fat_per_100g": 11
+      },
+      {
+        "name": "cream cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 6,
+        "carb_per_100g": 4,
+        "fat_per_100g": 34
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "baked salmon",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 13
+      },
+      {
+        "name": "sushi rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 2.5,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0.3
+      },
+      {
+        "name": "nori",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 30,
+        "carb_per_100g": 35,
+        "fat_per_100g": 5
+      }
+    ],
+    "protein_g": 28,
+    "carb_g": 34,
+    "fat_g": 27,
+    "estimated_calories": 491,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy",
+      "fish"
+    ],
+    "_menu": "nikkori"
+  },
+  {
+    "name": "Pastel de zanahoria",
+    "description": "",
+    "price": 105,
+    "category": "dessert",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "carrot cake",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 4,
+        "carb_per_100g": 50,
+        "fat_per_100g": 20
+      }
+    ],
+    "protein_g": 4,
+    "carb_g": 50,
+    "fat_g": 20,
+    "estimated_calories": 396,
+    "confidence": "low",
+    "allergens": [
+      "gluten",
+      "nuts",
+      "dairy",
+      "egg"
+    ],
+    "_menu": "nikkori"
+  },
+  {
+    "name": "TostiBoneless (450gr)",
+    "description": "Tostitos Salsa Verde® bañados con Buffalo Cheese, servidos con una orden de boneless(300gr), queso cheddar y cebollín.",
+    "price": 182,
+    "category": "food",
+    "printed_total_g": 450,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Tostitos Salsa Verde",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 6,
+        "carb_per_100g": 60,
+        "fat_per_100g": 30
+      },
+      {
+        "name": "buffalo cheese sauce",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 5,
+        "carb_per_100g": 10,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "boneless chicken",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 300,
+        "protein_per_100g": 20,
+        "carb_per_100g": 5,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "cheddar cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 25,
+        "carb_per_100g": 1,
+        "fat_per_100g": 33
+      },
+      {
+        "name": "scallions",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 10,
+        "protein_per_100g": 1.8,
+        "carb_per_100g": 7.3,
+        "fat_per_100g": 0.2
+      }
+    ],
+    "protein_g": 66,
+    "carb_g": 93,
+    "fat_g": 79,
+    "estimated_calories": 1346,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ],
+    "_menu": "polloteria"
+  },
+  {
+    "name": "Ensalada Boneless",
+    "description": "Mezcla de lechugas, zanahoria, col morada, crotones y boneless en tu salsa favorita. ¡Elige tu aderezo!",
+    "price": 158,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "lettuce mix",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1.4,
+        "carb_per_100g": 2.9,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "carrot",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 0.9,
+        "carb_per_100g": 10,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "purple cabbage",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1.3,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "croutons",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 12,
+        "carb_per_100g": 72,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "boneless chicken",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 20,
+        "carb_per_100g": 5,
+        "fat_per_100g": 10
+      }
+    ],
+    "protein_g": 24,
+    "carb_g": 26,
+    "fat_g": 12,
+    "estimated_calories": 307,
+    "confidence": "medium",
+    "allergens": [
+      "gluten"
+    ],
+    "_menu": "polloteria"
+  },
+  {
+    "name": "Tender Cordon Bleu (350gr)",
+    "description": "Tender de pechuga de pollo empanizado, cubiertos de jamón, queso mozzarella y tocino. Elige entre papas fritas o ensalada verde.",
+    "price": 185,
+    "category": "food",
+    "printed_total_g": 350,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "breaded chicken breast",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 25,
+        "carb_per_100g": 10,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "ham",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 20,
+        "carb_per_100g": 1,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "mozzarella cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 22,
+        "carb_per_100g": 2,
+        "fat_per_100g": 22
+      },
+      {
+        "name": "bacon",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 37,
+        "carb_per_100g": 1,
+        "fat_per_100g": 42
+      }
+    ],
+    "protein_g": 87,
+    "carb_g": 25,
+    "fat_g": 62,
+    "estimated_calories": 1003,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ],
+    "_menu": "polloteria"
+  },
+  {
+    "name": "Spicy Garlic",
+    "description": "",
+    "price": null,
+    "category": "other",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [],
+    "protein_g": 0,
+    "carb_g": 0,
+    "fat_g": 0,
+    "estimated_calories": 0,
+    "confidence": "low",
+    "allergens": [],
+    "_menu": "polloteria"
+  },
+  {
+    "name": "Fresh (300gr)",
+    "description": "Pan brioche, pechuga de pollo a la plancha, aguacate, pepino, tomate y lechuga romana con aderezo de cilantro. Agrega queso a tus papas por $10.",
+    "price": 150,
+    "category": "food",
+    "printed_total_g": 300,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "brioche bun",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 70,
+        "protein_per_100g": 9,
+        "carb_per_100g": 50,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "grilled chicken breast",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 31,
+        "carb_per_100g": 0,
+        "fat_per_100g": 3.6
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "cucumber",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 0.7,
+        "carb_per_100g": 3.6,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "tomato",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 0.9,
+        "carb_per_100g": 3.9,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "romaine lettuce",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1.2,
+        "carb_per_100g": 3.3,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "cilantro dressing",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 20
+      }
+    ],
+    "protein_g": 39,
+    "carb_g": 42,
+    "fat_g": 19,
+    "estimated_calories": 495,
+    "confidence": "medium",
+    "allergens": [
+      "gluten"
+    ],
+    "_menu": "polloteria"
+  },
+  {
+    "name": "Parmesano",
+    "description": "",
+    "price": null,
+    "category": "other",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [],
+    "protein_g": 0,
+    "carb_g": 0,
+    "fat_g": 0,
+    "estimated_calories": 0,
+    "confidence": "low",
+    "allergens": [],
+    "_menu": "polloteria"
+  },
+  {
+    "name": "Papas Sazonadas (300gr)",
+    "description": "Gajos de papas sazonadas.",
+    "price": 70,
+    "category": "side",
+    "printed_total_g": 300,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Potato wedges",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 2,
+        "carb_per_100g": 17,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "Seasoning (salt, pepper, paprika)",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 0,
+        "carb_per_100g": 0,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 6,
+    "carb_g": 49,
+    "fat_g": 15,
+    "estimated_calories": 351,
+    "confidence": "high",
+    "allergens": [],
+    "_menu": "polloteria"
+  },
+  {
+    "name": "Piña",
+    "description": "",
+    "price": 20,
+    "category": "dessert",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Pineapple",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 165,
+        "protein_per_100g": 0.5,
+        "carb_per_100g": 13,
+        "fat_per_100g": 0.1
+      }
+    ],
+    "protein_g": 1,
+    "carb_g": 21,
+    "fat_g": 0,
+    "estimated_calories": 91,
+    "confidence": "medium",
+    "allergens": [],
+    "_menu": "polloteria"
+  }
+]

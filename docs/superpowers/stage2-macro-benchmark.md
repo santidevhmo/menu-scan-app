@@ -2412,3 +2412,59 @@ the more it benefits. The baseline→B4 gap went from 12–15 to **18–20**. �
 change must be validated the same way: re-score all three arms and confirm the gap does not shrink.**
 A loosening that makes everything pass has blinded the benchmark, which is what the 3-dish saturation
 already cost this project once.
+
+### iter-b15-w1…w4 — B15, name-implied components (2026-08-09, ~$0.40, 4 runs × 3 draws)
+
+**✅ B15 BEATS B4 ON BOTH METRICS AND REPRODUCED.** New checkpoint `macro-best-v2`.
+
+| arm | failed field/draws | mean \|error\| |
+|---|---|---:|
+| baseline (pre-B1) | 39/96, all four runs | 37.7% |
+| B4 / gpt-4o | 19–21/96 | 21.0–21.2% |
+| **B15 / gpt-4o** | **17–19/96** | **18.2–19.0%** |
+
+Mean-error ranges do **not overlap**. ✅ **Discrimination widened**, so the metric did not go soft:
+baseline→B4 was 18–20, baseline→B15 is **20–22**.
+
+**The falsifier was stated before the run and it was answered.** PASTEL AZTECA, whose carbs ran −50%
+against the oracle, went **9/48 at 23.1% → 0/48 at 10.3%**.
+
+**The mechanism is precise — it does not over-trigger.** This was the real generalisation risk: a
+model that invents a structural component for dishes that are already fully described would inflate
+menus worldwide. It does not.
+
+| dish | `name_implied_components` | result |
+|---|---|---|
+| PASTEL AZTECA | `["tortilla"]` | tortilla listed at **70 g** against the oracle's 75 g |
+| CESAR | `[]` | correctly silent — a Caesar's description already names its croutons |
+
+**Per dish, B4 → B15:**
+
+| dish | B4 | B15 | |
+|---|---|---|---|
+| PASTEL AZTECA | 9/48, 23.1% | **0/48, 10.3%** | ✅ the target |
+| Gnocchi | 32/48, 47.7% | 24/48, 44.3% | ✅ |
+| ENFRIJOLADAS | 18/48, 30.9% | 16/48, 25.3% | ✅ |
+| Salmone | 0/48, 13.7% | 0/48, **8.8%** | ✅ error halved |
+| NEW YORK | 0/48, 4.8% | 0/48, 6.3% | — |
+| French Fries | 0/48, 6.1% | 0/48, 6.4% | — |
+| Coleslaw | 22/48, 24.9% | 23/48, 27.8% | — |
+| **CESAR** | **0/48, 14.5%** | **11/48, 19.0%** | ❌ **regressed** |
+
+🔍 **CESAR's regression is NOT caused by an added component** — its implied list is empty in every
+draw. The cause is a **fit-scale shift**, verified from the archives:
+
+| run | servings sum | printed | scale |
+|---|---:|---:|---:|
+| iter-b4-w1 d0 | 230 g | 200 g | **0.870** |
+| iter-b15-w1 d0 | 200 g | 200 g | **1.000** |
+
+Asked to name what the dish's form entails, the model also **portions more tightly** — its servings
+now sum to the printed weight instead of overshooting it (chicken 100 g → 80 g). With the scale at
+1.00 instead of 0.87, every non-chicken ingredient is effectively ~15% heavier than under B4, which
+pushes CESAR's fat and carbohydrate up. **A side-effect on the FITTING step of a change aimed at the
+LISTING step**, and worth carrying into the next brainstorm: prompting that touches ingredient
+enumeration also moves portioning.
+
+Net it is strongly positive — one dish regressed, four improved, and both headline metrics moved the
+right way — but the CESAR case is a live target and a reminder that these two steps are coupled.

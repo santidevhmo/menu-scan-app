@@ -28,6 +28,7 @@ const extracted = (name: string): ExtractedItem => ({
 const enriched = (name: string): EnrichedItem => ({
   ...extracted(name),
   printed_total_g: null,
+  name_implied_components: [],
   ingredients: [{
     name: "x",
     category: "protein",

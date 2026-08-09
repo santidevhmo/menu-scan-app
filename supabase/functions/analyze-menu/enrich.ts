@@ -10,6 +10,15 @@ export type IngredientCategory = "protein" | "carb" | "fat" | "veg" | "other";
 
 export interface EnrichedItem extends ExtractedItem {
   printed_total_g: number | null;
+  /**
+   * Components the item's NAME entails but its description never lists.
+   * B15: the model reliably omits a dish's defining structural component when
+   * the menu leaves it unsaid, and that component is often the dish's whole
+   * carbohydrate. Making it answer the question explicitly - rather than hoping
+   * it volunteers the ingredient - is the same move that made B4 work: ask for
+   * knowledge, then let the ingredient list carry the consequence.
+   */
+  name_implied_components: string[];
   ingredients: {
     name: string;
     category: IngredientCategory;
@@ -31,7 +40,7 @@ export interface EnrichedItem extends ExtractedItem {
 // Exported so offline harnesses run the real prompt rather than a copy.
 export const ENRICH_PROMPT =
   `You estimate the nutrition profile of restaurant menu items. For each item, work step by step:
-1. Give "printed_total_g": the weight printed on the menu for this item — e.g. (280gr), 200g — or null when the menu prints none. Then list the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other. Set "within_printed_weight" to false for anything the menu presents as served alongside the item rather than as part of it, because a printed weight normally describes the item itself and not what accompanies it. Give "typical_serving_g": what a normal restaurant serving of that ingredient is when it appears in this role, whether as the centrepiece, as a sauce or dressing, or as a garnish. Give the conventional serving for the ingredient itself — these are rescaled to the printed weight afterwards, so they do not need to add up to anything.
+1. Give "printed_total_g": the weight printed on the menu for this item — e.g. (280gr), 200g — or null when the menu prints none. Then give "name_implied_components": when the item's NAME denotes a composed or assembled form, name the structural components that form always contains but this description never states, and otherwise give an empty array. Judge it from what the named form IS, not from what sounds typical: a form's defining component is part of the dish even when the menu leaves it unsaid, because menus describe what varies and take the form itself as read. These components are frequently the item's main source of carbohydrate, and omitting them understates it badly. Include every one of them in the ingredient list below. Then list the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other. Set "within_printed_weight" to false for anything the menu presents as served alongside the item rather than as part of it, because a printed weight normally describes the item itself and not what accompanies it. Give "typical_serving_g": what a normal restaurant serving of that ingredient is when it appears in this role, whether as the centrepiece, as a sauce or dressing, or as a garnish. Give the conventional serving for the ingredient itself — these are rescaled to the printed weight afterwards, so they do not need to add up to anything.
 2. For each ingredient, give its composition PER 100 g of that ingredient as served: protein_per_100g, carb_per_100g and fat_per_100g. These describe the food itself, not the size of the portion — the amount in this serving is calculated from them and the gram weight, so give the composition and let the weight do the rest. Base them on what the food is actually made of, including its water content, and on how it is prepared (fat absorbed or added in cooking counts), rather than on which macro the ingredient is best known for. Where a food is normally cooked, sauced or seasoned before it reaches the table, give the figures for that prepared version — the plain or raw reference figure for the same food understates the fat that preparation adds. The item's totals are added up from these, rather than estimating the totals directly, so each ingredient's numbers must stand on their own.
 3. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive, leaving you with little ingredient information to go on.
 List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, shellfish, egg, soy). Use an empty allergens array when none are inferred; do not include "none". Preserve each item's name, description, price, and category exactly as given. Do NOT sort the items. Return one object per input item, in the same order.`;
@@ -86,6 +95,11 @@ export const ENRICH_SCHEMA_OPENAI = {
           // than parsed in code: the three benchmark fixtures alone print
           // "200 g", "200g" and "300gr.", and this prompt ships worldwide.
           printed_total_g: { type: ["number", "null"] },
+          // B15: also before ingredients, and for the same reason as B4's
+          // printed_total_g - the model names what the dish's form entails
+          // BEFORE it lists ingredients, so the answer constrains the list
+          // instead of rationalising one it has already written.
+          name_implied_components: { type: "array", items: { type: "string" } },
           ingredients: {
             type: "array",
             items: {
@@ -116,6 +130,7 @@ export const ENRICH_SCHEMA_OPENAI = {
           "price",
           "category",
           "printed_total_g",
+          "name_implied_components",
           "ingredients",
           "protein_g",
           "carb_g",
@@ -320,6 +335,7 @@ export function fallbackEnriched(src: ExtractedItem): EnrichedItem {
     price: src.price ?? null,
     category: src.category ?? "other",
     printed_total_g: null,
+    name_implied_components: [],
     ingredients: [],
     protein_g: 0,
     carb_g: 0,

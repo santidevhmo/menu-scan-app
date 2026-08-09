@@ -35,6 +35,9 @@ export function portionSteps(servingPieces?: number | null): {
       // a diner must never see "2.9999/3".
       const eaten = Math.round(portion * servingPieces);
       if (eaten === servingPieces) return "all";
+      // Above a whole item the piece fraction stops meaning anything - "16/8"
+      // is not how anyone describes two pizzas. Fall back to the multiplier.
+      if (eaten > servingPieces) return `x${Math.round(portion * 100) / 100}`;
       return `${eaten}/${servingPieces}`;
     },
   };

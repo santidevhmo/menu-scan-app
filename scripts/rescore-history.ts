@@ -119,7 +119,7 @@ for (const run of runs) {
   }
   out.push(
     `${run.padEnd(16)} ${`${fails}/${fieldDraws}`.padStart(6)}   ${
-      `${(errSum / n * 100).toFixed(1)}%`.padStart(8)
+      (n ? `${(errSum / n * 100).toFixed(1)}%` : "n/a").padStart(8)
     }   ${absolutes}`,
   );
 }

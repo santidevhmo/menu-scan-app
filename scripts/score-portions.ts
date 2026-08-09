@@ -17,7 +17,7 @@
 // Run: deno run --allow-read scripts/score-portions.ts [runId ...]
 
 import { resolveGrams } from "../supabase/functions/analyze-menu/enrich.ts";
-import { archivedIngredients } from "./bench-macros.ts";
+import { archivedIngredients } from "./macro-measure.ts";
 
 const CACHE_DIR = "scripts/fixtures/caches";
 const DRAWS = 3;

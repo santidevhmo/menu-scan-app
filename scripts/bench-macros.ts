@@ -9,11 +9,12 @@ import {
   sumIngredientMacros,
 } from "../supabase/functions/analyze-menu/enrich.ts";
 import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
+import { type FieldVerdict, type MacroValues } from "./macro-score.ts";
 import {
-  type FieldVerdict,
-  type MacroValues,
-  scoreItem,
-} from "./macro-score.ts";
+  pairWithOracle,
+  scoreDish,
+  toMacroValues,
+} from "./macro-measure.ts";
 import {
   type UsdaRecipeIngredient,
   validateRecipe,
@@ -44,6 +45,8 @@ export interface OracleEntry {
 interface ItemDraw {
   pass: boolean;
   fields: FieldVerdict[];
+  /** Per-field verdict AFTER any alternative oracle reading (PASTEL's beans). */
+  passes: boolean[];
 }
 
 interface ItemResult {
@@ -82,26 +85,6 @@ export function toExtractedItems(entries: OracleEntry[]): ExtractedMenuItem[] {
   })));
 }
 
-function modelValues(item: EnrichedItem): MacroValues {
-  // B10: production computes the item totals from the model's per-ingredient
-  // numbers and DISCARDS the ones the model emitted at item level. Scoring
-  // item.protein_g here would grade a value the app never shows (lesson 23 -
-  // the harness must run the real logic, not a parallel copy).
-  // B4: the printed total is part of the real computation - without it the
-  // servings are scored unscaled and the harness grades a number production
-  // never emits (lesson 23 - the harness must run the real logic).
-  const totals = sumIngredientMacros(
-    archivedIngredients(item.ingredients ?? []),
-    item.printed_total_g,
-  );
-  return {
-    calories: totals.estimated_calories,
-    protein_g: totals.protein_g,
-    carb_g: totals.carb_g,
-    fat_g: totals.fat_g,
-  };
-}
-
 function formatDelta(deltaPct: number | null): string {
   return deltaPct === null ? "n/a" : `${(deltaPct * 100).toFixed(1)}%`;
 }
@@ -110,8 +93,10 @@ export function renderTable(results: ItemResult[]): string {
   return results.map(({ name, draws }) => {
     const detail = draws.flatMap((draw, index) => [
       `  draw ${index + 1}: ${draw.pass ? "PASS" : "FAIL"}`,
-      ...draw.fields.map((field) =>
-        `    ${field.field}: oracle ${field.oracle}, model ${field.model}, ${formatDelta(field.deltaPct)} ${field.pass ? "PASS" : "FAIL"}`
+      ...draw.fields.map((field, i) =>
+        // draw.passes, not field.pass - otherwise a dish with a second accepted
+        // reading prints FAIL on a field its own draw counts as a PASS.
+        `    ${field.field}: oracle ${field.oracle}, model ${field.model}, ${formatDelta(field.deltaPct)} ${draw.passes[i] ? "PASS" : "FAIL"}`
       ),
     ]);
     return [`${name}: ${draws.filter((draw) => draw.pass).length}/${draws.length}`, ...detail]
@@ -156,32 +141,6 @@ export async function enrich(items: ExtractedMenuItem[]): Promise<{ items: Enric
   }).choices?.[0]?.message?.content;
   if (!content) throw new Error("OpenAI response missing content");
   return { items: JSON.parse(content).items as EnrichedItem[], raw };
-}
-
-/**
- * Normalises an archived ingredient list to the current shape.
- *
- * Runs before B4 emitted a final `grams` per ingredient and carried no printed
- * total. Mapping those to `typical_serving_g` with `within_printed_weight: true`
- * and no printed total makes resolveGrams pass them through unscaled - which is
- * exactly what they meant.
- *
- * Without this, re-scoring any pre-B4 run returns ZERO for every macro and still
- * prints a full table of -100% failures that looks like a real result. Six of
- * the ten archived runs are pre-B4.
- */
-export function archivedIngredients(
-  ingredients: {
-    grams?: number;
-    typical_serving_g?: number;
-    within_printed_weight?: boolean;
-  }[],
-): EnrichedItem["ingredients"] {
-  return ingredients.map((i) =>
-    i.typical_serving_g === undefined && i.grams !== undefined
-      ? { ...i, typical_serving_g: i.grams, within_printed_weight: true }
-      : i
-  ) as EnrichedItem["ingredients"];
 }
 
 /**
@@ -237,10 +196,18 @@ async function run(): Promise<void> {
       drawItems = response.items;
     }
 
-    for (const [index, entry] of entries.entries()) {
-      const item = drawItems[index];
-      if (!item) throw new Error(`draw ${draw}: model returned too few items`);
-      results[index].draws.push(scoreItem(entry.oracle!, modelValues(item)));
+    // Paired by NAME and scored through the shared path, so this table and the
+    // published figures from rescore-history.ts cannot say different things.
+    // A live call must return every dish; a replay may be an older, shorter run.
+    for (const { name, item } of pairWithOracle(
+      entries.map((entry) => entry.name),
+      drawItems,
+      rescore ? "skip" : "throw",
+    )) {
+      const index = entries.findIndex((entry) => entry.name === name);
+      results[index].draws.push(
+        scoreDish(name, entries[index].oracle!, toMacroValues(item)),
+      );
     }
   }
 

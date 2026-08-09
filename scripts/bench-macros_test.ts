@@ -10,11 +10,11 @@ import {
   enrich,
   loadOracle,
   type OracleEntry,
-  archivedIngredients,
   renderTable,
   replayDraw,
   toExtractedItems,
 } from "./bench-macros.ts";
+import { archivedIngredients } from "./macro-measure.ts";
 import {
   type UsdaRecipeIngredient,
   validateRecipe,
@@ -249,9 +249,9 @@ Deno.test("renderTable reports per-draw tallies, never a single number", () => {
   const out = renderTable([{
     name: "CESAR (200 g)",
     draws: [
-      { pass: true, fields: [] },
-      { pass: false, fields: [] },
-      { pass: true, fields: [] },
+      { pass: true, fields: [], passes: [] },
+      { pass: false, fields: [], passes: [] },
+      { pass: true, fields: [], passes: [] },
     ],
   }]);
 

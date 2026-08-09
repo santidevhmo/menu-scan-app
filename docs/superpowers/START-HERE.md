@@ -96,7 +96,7 @@ that did work (B10, B12) both took arithmetic *away* from the model and left it 
 brainstorm — not a closed door. If a hypothesis says wording is the lever *for a different reason*,
 say what would falsify it and run it.
 
-ℹ️ **The suite's `1 failed` is noise.** `323 passed | 1 failed` with only `scripts/tile-cut_test.ts`
+ℹ️ **The suite's `1 failed` is noise.** `330 passed | 1 failed` with only `scripts/tile-cut_test.ts`
 red is a CLEAN run — Santiago has ruled it unimportant and it cannot affect macros (it tests the
 image tile cutter; Stage 2 never sees a photo). Any *other* failure is yours. Details in ②.
 
@@ -104,8 +104,10 @@ Then read:
 
 1. ②'s **"Release scope decision"** — the numbered critical path and the POST-RELEASE list of
    things deliberately *not* to work on.
-2. ②'s **"Lessons learned"** — lessons 1–27 are mistakes previous LLMs actually made in this
-   codebase. Lessons 11–27 are the expensive ones. Read them before designing any rule or
+2. ②'s **"Lessons learned"** — lessons 1–28 are mistakes previous LLMs actually made in this
+   codebase. Lessons 11–28 are the expensive ones. **Lesson 28 is the one to read first if you are
+   about to touch anything that produces a number** — bad measurement code is worse than bad feature
+   code, because it silently redirects every future iteration. Read them before designing any rule or
    predicting any score.
 3. **`docs/superpowers/extraction-iteration-ledger.md`**, newest entries LAST — every experiment
    and what was measured. Read the last few for current state; do not re-run anything REJECTED.

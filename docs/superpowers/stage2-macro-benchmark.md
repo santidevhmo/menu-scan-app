@@ -2539,3 +2539,39 @@ already does, and it is not what this ruling was about.
 
 **Still open and separate: weight BASIS** (Polloteria's *"el peso del producto es antes de
 cocinarlo"*). Scope and basis are different axes; closing one does not close the other.
+
+### iter-b17 — state-as-served before composition. FALSIFIED (2026-08-09, ~$0.10, 1 probe run)
+
+**Reverted to `macro-best-v2`.** Probe **20/96 at 20.3%** against B15's 17–19/96 at 18.2–19.0% —
+worse on both. The one-run probe cost $0.10 instead of an arm's $0.40, per B16's procedure lesson.
+
+**The hypothesis.** B13 measured that TELLING the model its plain reference figure is wrong moves
+nothing. The re-diagnosis: it is not confused about nutrition, it is answering about a **different
+product**. So make it commit to the product first — name `state_as_served` before giving composition.
+It passed the B16 test (preparation state is not derivable from the composition numbers it replaces).
+
+**The field worked perfectly. The numbers did not move.**
+
+| ingredient | state returned | carb/100 g | fat/100 g |
+|---|---|---:|---:|
+| Gnocchi | **"boiled"** | **30** (was 30) | **0.5** (was 1) |
+| Papas a la francesa | "fried" | 41 | 15 |
+| Aderezo cremoso | "dressed" | 5 | 40 |
+
+The states are all correct. Gnocchi named itself boiled and still reported the packaged figure, and
+its fat moved the *wrong* way.
+
+🔑 **The prior, and it reframes what is left.** The model is not making a preparation-state error, and
+it cannot be prompted out of a number it believes. **It thinks boiled gnocchi is 30 g carb/100 g.**
+Three separate attempts have now failed to move an ingredient's composition — B13 (tell it the
+reference is wrong), B17 (make it name the state first) — while the two composition successes (B12,
+B15) both *added* a question rather than trying to correct an answer. **Prompting can make the model
+answer a question it was not asked; it cannot make it give a different answer to one it was.**
+
+⚠️ **This surfaced a possible ORACLE problem and it is Santiago's call — see the open question below.**
+FDC 2708722 "Gnocchi, potato" (FNDDS, verified live) is **2.44 P / 17.2 C / 6.33 F, 135 kcal per
+100 g**. That is an as-consumed entry carrying cooking fat. Fresh gnocchi is sold at roughly 30 g
+carb/100 g and, unlike dry pasta, is already hydrated, so boiling adds little water. **The model's
+30 C / 1 F may be the better description of the gnocchi component itself**, with the oracle's entry
+diluted by fat the recipe already counts separately in its mozzarella and parmesan. Same shape as the
+Caesar dressing episode, where the oracle was found stricter than reality. **Nothing changed.**

@@ -1,14 +1,17 @@
 # CodeRabbit configuration.
 #
-# Why this exists: `scripts/fixtures/caches/` holds archived MODEL RESPONSES, not
-# source. They are committed on purpose - they are the benchmark's evidence trail
-# and they power the $0 re-score path (`scripts/rescore-history.ts`), so an oracle
-# correction can be applied to every historical run without paying to re-run it.
-# `bench-macros_test.ts` fails the build if a specific archive goes missing.
+# `scripts/fixtures/caches/` holds archived MODEL RESPONSES, not source. They are
+# committed on purpose: `scripts/rescore-history.ts` replays them so an oracle
+# correction can be applied to every historical run for $0, and three tests
+# (`bench-macros_test.ts` x2, `macro-measure_test.ts`) fail without them. There is
+# nothing to review in a raw JSON API capture.
 #
-# They also swamp a review: 137 of the 179 files in PR #14 are these archives,
-# which put it past CodeRabbit's 100-file limit and stopped the review running.
-# There is nothing to review in them - each is a raw JSON API response.
+# ⚠️ THIS DOES NOT RAISE THE 100-FILE REVIEW LIMIT. CodeRabbit counts the RAW diff
+# BEFORE applying path_filters - PR #14 has 180 changed files and was skipped with
+# "180 files exceed the limit of 100" even with this config in place. The filters
+# only keep future, smaller PRs focused. A branch whose diff genuinely exceeds 100
+# files needs a source-only review branch (see PR #15), NOT deletion of these
+# archives.
 #
 # Excluding them from REVIEW is not the same as deleting them. They stay in the
 # repo, tracked and intact.

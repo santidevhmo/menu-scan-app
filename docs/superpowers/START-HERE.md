@@ -35,7 +35,7 @@ the explicit exception: it is the bounded Phase-9 workstream record, not a compe
 **Stage-2 macro-enrichment handoff (2026-08-09) — THIS IS THE ACTIVE WORK.** The benchmark is
 built and frozen; six prompt/schema iterations have been measured against it, and the fixture set was
 widened from 3 dishes to 8 on 2026-08-09. Production is untouched — the deployed edge function still
-runs the original pre-B1 prompt, pinned to `gpt-4o-2024-08-06`. Phase spend to date: **$1.33**.
+runs the original pre-B1 prompt, pinned to `gpt-4o-2024-08-06`. Phase spend to date: **$1.80**.
 
 Read **② the roadmap's `🎯 CURRENT PHASE` block first** — it carries the full takeover briefing:
 every commit and whether it is deployed, the runs side by side, and what each proved. Then read
@@ -75,11 +75,20 @@ against running one.
    REGRESSED 0/48 → 22/48 and the baseline wins**, and **Gnocchi at 44/48**. Adding more dishes later
    follows the same route: `scripts/find-weighted-dishes.ts` lists 120 printed-weight candidates, each
    needs a USDA recipe with real `fdc_id`s, and **Santiago approves every recipe personally.**
-2. **B9 — the cross-model arm ⬅ NOW NEXT.** Run the unchanged benchmark against a newer OpenAI model alongside
-   the pinned `gpt-4o-2024-08-06`. It answers the one question no prompt work can: is the remaining
-   error a GPT-4o ceiling or a task ceiling? Design in the log's **B9** backlog entry — **do not
-   hardcode a guessed model ID**, and treat any parameter difference (`temperature`, `seed`) as a
-   confound, not a footnote.
+2. ✅ **B9 — the cross-model arm — DONE 2026-08-09.** `gpt-5.5-2026-04-23`, 4 runs × 3 draws, ~$0.47.
+   **GPT-5.5 17–22/96 vs GPT-4o 22–24/96, mean error ~19–21% for both — level.** A model a generation
+   and a half newer moves the total essentially nothing, so **the remaining error is a task/oracle
+   ceiling, not a GPT-4o ceiling.** Confound: GPT-5.5 rejects `temperature: 0`, so it ran at its
+   default 1 and its best run is partly sampling luck. **Ruling: do not switch models.**
+
+⛔ **NEXT IS A FIX, NOT AN ITERATION** (Santiago, 2026-08-09: *"if more stuff regresses then lets take
+a step back and handle that"*). Two regressions are on the board, and **one mechanism defect explains
+both**: `resolveGrams` fits servings to the printed weight **proportionally**, so the more complete a
+model's ingredient list, the more the principal component is diluted. GPT-5.5 listed 358 g of servings
+inside Salmone's printed 200 g and its salmon scaled to 112 g against the oracle's 140 g; Coleslaw is
+the same defect with dressing against cabbage. Fix the fit before running anything else. Then decide
+the PASTEL fixture question — GPT-5.5 was scored wrong for correctly inferring a tortilla the menu
+never prints, which is an **oracle** question and therefore Santiago's.
 
 **B5 is designed but shelved**, not falsified — see
 `specs/2026-08-08-b5-preparation-and-oracle-dressing-design.md` and the log's "B5 premise re-derived"

@@ -229,12 +229,47 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >   whose menu never says tortilla, so its oracle inflates everything else (cheese to 20.5% of plate
 >   weight). Santiago ruled to leave it — but it is why PASTEL cannot serve as a portion target.
 >
-> **2. B9 — the cross-model arm.** Run the unchanged benchmark against a newer OpenAI model alongside
-> the pinned `gpt-4o-2024-08-06`. It answers the one question no amount of prompt or schema work can:
-> **is the remaining error a GPT-4o ceiling or a task ceiling?** Full design in the log's **B9** entry.
-> Non-negotiables recorded there: do not hardcode a guessed model ID (list the account's models and pick
-> the newest dated snapshot), and if the newer model cannot accept identical `temperature: 0` /
-> `seed: 17`, that is a **confound to record, not a footnote to ignore**.
+> ### ✅ B9 DONE 2026-08-09 — the ceiling is the TASK, not GPT-4o
+>
+> `gpt-5.5-2026-04-23` (newest **dated** snapshot on the account; the `gpt-5.6-*` entries are floating
+> aliases and are ruled out by pinning discipline), 4 runs × 3 draws, ~$0.47.
+>
+> | arm | failed field/draws | mean abs error |
+> |---|---|---:|
+> | GPT-4o (B4) | 22–24/96 | 19.7–20.1% |
+> | GPT-5.5 | 17–22/96 | 18.6–20.8% |
+>
+> **A model a generation and a half newer moves the total essentially nothing.** No model upgrade was
+> ever going to close this. ⚠️ **Confound: GPT-5.5 rejects `temperature: 0`** (only its default 1),
+> so the arm cannot run at production parity; its wider spread is consistent with sampling, its best
+> run is partly luck, and the ranges overlap. **Treat the two as level.**
+>
+> **The totals are level, the composition is not.** GPT-5.5 improves every dish GPT-4o struggled with
+> (Gnocchi 44→27, ENFRIJOLADAS 28→14, Coleslaw 22→12) and **regresses two it had exact — Salmone
+> 0→12/48 and PASTEL 0→13/48.**
+>
+> 🔑 **The single most valuable finding of the phase so far: ONE mechanism defect explains every open
+> target.** `resolveGrams` fits servings to the printed weight **proportionally**, so the more complete
+> a model's ingredient list, the more the principal component is diluted. GPT-5.5 listed 358 g of
+> servings inside Salmone's printed 200 g against GPT-4o's 220 g, and its salmon scaled to 112 g
+> against the oracle's 140 g. **Coleslaw is the same defect** — the fit under-weights dressing against
+> cabbage. Fixing the fit is worth more than any model or wording change.
+>
+> ⚠️ **PASTEL's regression is mostly OUR ORACLE.** GPT-5.5 lists tortillas at 90 g; the menu never
+> prints tortilla and the oracle excludes what is not printed, so the better-reasoning model is scored
+> wrong for being right. The fixture's own documented artifact now penalises a model. **Revisiting that
+> fixture is Santiago's call.**
+>
+> **Ruling: do NOT switch models.** `ENRICH_MODEL` stays `gpt-4o-2024-08-06`.
+>
+> ### 🎯 NEXT ACTIONS
+>
+> **Santiago's standing instruction (2026-08-09): "if more stuff regresses then lets take a step back
+> and handle that."** Two regressions are now on the board — Coleslaw under B4, and Salmone/PASTEL
+> under B9 — so the next move is **not** another iteration. It is:
+>
+> 1. **Fix the proportional fit in `resolveGrams`** (Finding above). One defect, three dishes.
+> 2. **Decide the PASTEL fixture question** — Santiago's, because it is an oracle change.
 >
 > **Open defects, none blocking:** PASTEL's cheese serving drops 50 g → 30 g in 2 of 12 draws (the only
 > strict failure left); the PASTEL tortilla artifact above; and the oracle-strictness question, now

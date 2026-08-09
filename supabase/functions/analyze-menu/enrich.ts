@@ -266,6 +266,14 @@ export async function enrichBatch(
   // we do the addition, which is the one step a computer cannot get wrong.
   return (parsed.items as EnrichedItem[]).map((item) => ({
     ...item,
+    // A black-box ingredient means the totals rest on a whole-dish guess. The
+    // numbers stand - nothing here can decompose what the model did not - but the
+    // item is no longer "high" confidence, and the app already surfaces that.
+    confidence: (item.ingredients ?? []).some((i) =>
+        isBlackBoxIngredient(item.name, i.name)
+      )
+      ? "low" as const
+      : item.confidence,
     ...sumIngredientMacros(item.ingredients ?? [], item.printed_total_g),
   }));
 }
@@ -282,6 +290,47 @@ export async function enrichBatch(
  * the fitting away is the same move as B10 (we do the addition) and B12 (we do
  * the multiplication).
  */
+/**
+ * True when an ingredient is really the DISH restated - a "black-box ingredient".
+ *
+ * Found by the 2026-08-09 generalisation probe: "Chicken Tikka Masala with
+ * basmati rice" came back as `chicken tikka masala 200 g` + `basmati rice 150 g`.
+ * The dish named itself, so its per-100 g figures are a whole-dish guess rather
+ * than the composition of a food - and B18 measured that dish-level guessing is
+ * WORSE than an ingredient sum on 6 of 8 dishes, which is the entire reason this
+ * pipeline builds from parts. Every other guard sits downstream of the ingredient
+ * list, so nothing else catches it.
+ *
+ * B23 tried to prompt the behaviour away and moved nothing - prompt wording is
+ * now 0 for 3 here. So it is DETECTED instead: comparing an ingredient name to
+ * the item's own name is cheap, language-agnostic, and needs no food list, which
+ * matters because a shipped food list is both forbidden and measurably harmful.
+ *
+ * Deliberately narrow: the item name must BEGIN with the ingredient name. Menus
+ * name dishes "X with Y" / "X con Y", where X is the dish and Y a component it
+ * lists, so a restated dish sits at the head and a genuine ingredient does not.
+ * Containment alone was tried first and was wrong - "Chicken Tikka Masala with
+ * basmati rice" contains "basmati rice", which is a real food, and flagging it
+ * would have downgraded a correct answer.
+ *
+ * A single-word ingredient is a food ("rice", "pollo"), never a dish restated.
+ */
+export function isBlackBoxIngredient(
+  itemName: string,
+  ingredientName: string,
+): boolean {
+  const norm = (t: string) =>
+    t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+
+  const item = norm(itemName);
+  const ing = norm(ingredientName);
+  if (ing.length < 3 || item.length < 3) return false;
+  // A one-word ingredient is a food ("rice", "pollo"), not a dish restated.
+  if (!ing.includes(" ")) return false;
+  return item.startsWith(ing);
+}
+
 export function resolveGrams(
   ingredients: EnrichedItem["ingredients"],
   printedTotalG?: number | null,

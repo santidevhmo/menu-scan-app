@@ -37,8 +37,10 @@ under-quoted a run by pricing per *menu* instead of per *call* — check which u
 | 10 | 2026-08-09 | B20 measured on the fixed harness — regressed. FALSIFIED | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **~$1.20 of $8.64** |
 | 11 | 2026-08-09 | B21 RACC reference-amount servings, full arm (4 runs) | gpt-4o-2024-08-06 | 12 | $0.40 | ~$0.396 | **~$1.60 of $8.64** |
 | 12 | 2026-08-09 | B22 unit-count probe — a correct version is a no-op. FALSIFIED | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **~$1.70 of $8.64** |
+| 13 | 2026-08-09 | generalisation probe, 16 untested dishes — found the black-box ingredient | gpt-4o-2024-08-06 | 1 | $0.10 | ~$0.033 | **~$1.73 of $8.64** |
+| 14 | 2026-08-09 | B23 prompt fix for it — FALSIFIED, wording now 0-for-3 | gpt-4o-2024-08-06 | 1 | $0.05 | ~$0.033 | **~$1.77 of $8.64** |
 
-**Remaining: ~$6.94**
+**Remaining: ~$6.87**
 
 ## Stop conditions
 

@@ -16,6 +16,7 @@ import {
   fallbackEnriched,
   reassembleEnriched,
   resolveGrams,
+  isBlackBoxIngredient,
 } from "./enrich.ts";
 
 const extracted = (name: string): ExtractedItem => ({
@@ -553,4 +554,35 @@ Deno.test("production enrichment rejects a malformed OpenAI response clearly", a
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+Deno.test("B24: a dish restated as its own ingredient is detected, and only that", () => {
+  // The real case, from the 2026-08-09 generalisation probe.
+  assertEquals(
+    isBlackBoxIngredient("Chicken Tikka Masala with basmati rice", "chicken tikka masala"),
+    true,
+  );
+  // Its sibling ingredient in the same response is a genuine food.
+  assertEquals(
+    isBlackBoxIngredient("Chicken Tikka Masala with basmati rice", "basmati rice"),
+    false,
+  );
+
+  // FALSE POSITIVES ARE THE RISK - every one of these came back from the same
+  // probe and must survive, or the fix silently downgrades good answers.
+  assertEquals(isBlackBoxIngredient("Margherita", "pizza crust"), false);
+  assertEquals(isBlackBoxIngredient("PASTA ALFREDO", "pasta"), false);
+  assertEquals(isBlackBoxIngredient("Pad Thai with prawns", "rice noodles"), false);
+  assertEquals(isBlackBoxIngredient("BACON CHEESE BURGER", "burger bun"), false);
+  assertEquals(isBlackBoxIngredient("Coleslaw (150gr)", "aderezo cremoso"), false);
+  // A one-word ingredient is a food, never a dish restated.
+  assertEquals(isBlackBoxIngredient("Pollo a la plancha", "pollo"), false);
+
+  // Accent- and case-insensitive, since this ships to every language.
+  assertEquals(isBlackBoxIngredient("PASTEL AZTECA (300gr.)", "pastel azteca"), true);
+  assertEquals(isBlackBoxIngredient("Ensalada Cesar", "ensalada cesar"), true);
+
+  // Degenerate input must not throw or match.
+  assertEquals(isBlackBoxIngredient("", "x"), false);
+  assertEquals(isBlackBoxIngredient("Soup", ""), false);
 });

@@ -3084,3 +3084,44 @@ never spells out.**
 
 **Not fixed, and deliberately not rushed:** it needs a run to measure and the eight fixtures cannot
 detect it — none of them is a named composite dish. Logged as the top generalisation target.
+
+### B23 → B24 — the black-box ingredient: prompting failed, detection shipped (2026-08-09, ~$0.07)
+
+**B23 (prompt) FALSIFIED. B24 (code detection) adopted.**
+
+**B23** added a structural requirement to the prompt: *"Every entry must be a SINGLE food, never a
+composed dish… if the item's name is itself the name of a prepared dish, that name is not an
+ingredient."* No food names, so the shipped-prompt guard passes. **The model returned `chicken tikka
+masala 200 g` again, unchanged.**
+
+📊 **Prompt wording is now 0 for 3** (B11, B13, B23), against mechanism changes at 4 for 6. The
+pattern is consistent and specific: **prompting can make the model answer a question it was not
+asked (B15, B21 both worked that way); it cannot make it stop giving an answer it already gives.**
+
+**B24 detects it in code instead.** `isBlackBoxIngredient(itemName, ingredientName)` fires when the
+item's name BEGINS with the ingredient's name. Where it fires, the item's `confidence` drops to
+`"low"` — the macros stand, because nothing here can decompose what the model did not, but the app
+already surfaces confidence, so the uncertainty reaches the diner instead of being silent.
+
+⚠️ **The first rule was wrong and the test caught it before it shipped.** Containment was tried first
+— and *"Chicken Tikka Masala with basmati rice"* **contains** *"basmati rice"*, a perfectly real
+ingredient. That would have downgraded correct answers. Menus name dishes **"X with Y" / "X con Y"**,
+where X is the dish and Y a component it lists, so a restated dish sits at the HEAD of the name and a
+genuine ingredient does not. `startsWith` is both simpler and correct.
+
+**No food list, no language assumption** — accent- and case-normalised only, which matters because a
+shipped food list is forbidden here and was measured harmful (B11).
+
+**Verified against the real probe data**, including every false-positive case it must not fire on:
+
+| item | ingredient | fires? |
+|---|---|---|
+| Chicken Tikka Masala with basmati rice | `chicken tikka masala` | ✅ yes |
+| Chicken Tikka Masala with basmati rice | `basmati rice` | no |
+| Margherita | `pizza crust` | no |
+| BACON CHEESE BURGER | `burger bun` | no |
+| PASTA ALFREDO | `pasta` | no (one word = a food) |
+| PASTEL AZTECA (300gr.) | `pastel azteca` | ✅ yes |
+
+**No effect on the eight fixtures** (0–3/96 at 12.1–14.1%, unchanged) — none of them is a named
+composite dish, which is exactly why only a generalisation probe could find this.

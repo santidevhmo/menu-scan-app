@@ -50,3 +50,14 @@ Deno.test("the real counts a menu states are handled", () => {
   assertEquals(portionSteps(6).label(2 / 6), "2/6");
   assertEquals(portionSteps(12).label(5 / 12), "5/12");
 });
+
+Deno.test("a portion above a whole item does not read as a piece fraction", () => {
+  // CodeRabbit, 2026-08-09: the + button has no ceiling, so two whole pizzas
+  // rendered "16/8". Above one item the fraction stops meaning anything.
+  const { label } = portionSteps(8);
+  assertEquals(label(2), "x2");
+  assertEquals(label(1.125), "x1.13");
+  // At or below a whole item the piece form is unchanged.
+  assertEquals(label(1), "all");
+  assertEquals(label(3 / 8), "3/8");
+});

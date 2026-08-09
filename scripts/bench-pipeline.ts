@@ -49,8 +49,10 @@ export interface IntegrityReport {
  * shape is the drop signal.
  */
 function isBackfilled(item: EnrichedItem): boolean {
-  return item.ingredients.length === 0 && item.estimated_calories === 0 &&
-    item.confidence === "low";
+  // `?? []` because an archived or malformed item may carry no ingredients key
+  // at all, and this must report a drop rather than throw mid-sweep.
+  return (item.ingredients ?? []).length === 0 &&
+    item.estimated_calories === 0 && item.confidence === "low";
 }
 
 export function inspect(

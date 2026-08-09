@@ -2,12 +2,9 @@
 //        scripts/bench-macros.ts
 import type { ExtractedMenuItem } from "../supabase/functions/analyze-menu/extract.ts";
 import {
-  ENRICH_PROMPT,
   enrichBatch,
   ENRICH_MODEL,
-  ENRICH_SCHEMA_OPENAI,
   type EnrichedItem,
-  sumIngredientMacros,
 } from "../supabase/functions/analyze-menu/enrich.ts";
 import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
 import { type FieldVerdict, type MacroValues } from "./macro-score.ts";

@@ -150,3 +150,19 @@ Deno.test("verdicts report every field, in a stable order", () => {
     "fat_g",
   ]);
 });
+
+Deno.test("a negative or non-finite prediction fails, whatever the allowance", () => {
+  // CodeRabbit, 2026-08-09: the allowances would forgive a broken answer. -2 g of
+  // carb against an oracle of 0 sits inside the 3 g floor and was PASSING. A
+  // negative macro cannot describe food, so no allowance may apply to it.
+  const zeroCarb: MacroValues = { calories: 400, protein_g: 40, carb_g: 0, fat_g: 20 };
+  assertEquals(scoreItem(zeroCarb, { ...zeroCarb, carb_g: -2 }).pass, false);
+
+  const dish: MacroValues = { calories: 400, protein_g: 10, carb_g: 40, fat_g: 20 };
+  assertEquals(scoreItem(dish, { ...dish, protein_g: -3 }).pass, false);
+  assertEquals(scoreItem(dish, { ...dish, carb_g: NaN }).pass, false);
+  assertEquals(scoreItem(dish, { ...dish, fat_g: Infinity }).pass, false);
+  // And it must be excluded from mean |error|, which cannot average a NaN.
+  const bad = scoreItem(dish, { ...dish, carb_g: NaN });
+  assertEquals(bad.fields.find((f) => f.field === "carb_g")?.absolute, true);
+});

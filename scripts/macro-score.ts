@@ -69,6 +69,23 @@ function scoreField(
   tolerance: number,
   absAllowance: number | null = null,
 ): FieldVerdict {
+  // A negative or non-finite prediction is not a near miss, it is a broken
+  // answer, and the allowances below would happily forgive one: -2 g of carb
+  // against an oracle of 0 sits inside the 3 g floor. No allowance applies to a
+  // number that cannot describe food.
+  if (!Number.isFinite(modelValue) || modelValue < 0) {
+    return {
+      field,
+      oracle: oracleValue,
+      model: modelValue,
+      deltaPct: null,
+      band: "invalid",
+      pass: false,
+      // Not `absolute` - it must stay OUT of mean |error|, which cannot
+      // meaningfully average a NaN or a negative.
+      absolute: true,
+    };
+  }
   if (oracleValue < SMALL_ORACLE_ABS_ALLOWANCE_G) {
     return {
       field,

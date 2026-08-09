@@ -17,11 +17,27 @@ missing is a measured benchmark, including printed-weight items so P2's "prefer 
 rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope detail: item #5 of
 "Release scope decision" below.
 
-> **✅ SHIPPED (2026-08-09) — B4 remains DEPLOYED as edge function v28. The oracle is back on its
-> researched USDA values and the scoring rule now forgives small ABSOLUTE gram misses (Santiago,
-> 2026-08-09). Live figures: baseline 39/96 at 37.7%, B4 19–21/96 at 21.0–21.2%, GPT-5.5 8–12/96
-> at 15.5–17.2%. Mean |error| is unchanged from every earlier figure by design — the new rule
-> changes the pass/fail count only, so error percentages stay comparable across the whole history.**
+> **✅ CURRENT BEST: `macro-best-v8` (B21 + B24b). NOT DEPLOYED — production still runs B4 as edge
+> function v28.** Live figures on the 8-dish set, 4 runs x 3 draws:
+> **baseline 24/96 at 34.2% · B21 0–3/96 at 12.1–14.1%.** One full run scored a perfect 0/96, and six
+> of the eight dishes score 0/48. The baseline→best gap is 21–24, so the metric still separates a
+> naive pipeline from a good one.
+>
+> **What got there, in order:** B15 (name-implied components), Santiago's Gnocchi and ENFRIJOLADAS
+> oracle corrections, B21 (standard reference-amount servings), B24b (black-box detection). Seven
+> other hypotheses were falsified and each closed a direction — see the log.
+>
+> **Generalisation, measured on 72 real items across all nine archived menus** (not the fixtures):
+> black-box ingredient **1.4%**, undecomposable **2.8%**, weight parsing correct on every format
+> including `12 oz` and `1/2 lb`. Two structural defects were found and fixed there that the eight
+> fixtures structurally cannot detect.
+>
+> **Deliberately out of scope:** drinks and alcohol (Santiago, post-launch). An `alcohol_per_100g`
+> term was built, measured and REVERTED for that reason; the finding is preserved in the log.
+>
+> 🎯 **THE BIGGEST REMAINING UNKNOWN IS NOT MEASURABLE HERE: the real-restaurant field test.** Every
+> scan in this project's history is a photo of a screen or a gallery import. Paper, real lighting,
+> angles and glare are untested. It needs Santiago and a phone, and it is unblocked.
 >
 > ⚠️ **Two French Fries re-freezes were made and then REVERTED on 2026-08-09** (raw-potato 409 kcal,
 > frozen-par-fried 594 kcal). Both changed a researched dish's USDA composition, which is Santiago's

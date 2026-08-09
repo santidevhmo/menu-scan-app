@@ -53,14 +53,7 @@ every commit and whether it is deployed, the runs side by side, and what each pr
 Tasks 1–5 are COMPLETE. The USDA plan is the oracle/provenance reference:
 `docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
 
-**One-line state:** **B4 is the best measured version and it is now what runs in production.** It
-asks the model for a *conventional serving* per ingredient plus whether the menu's printed weight
-covers it, then fits those to the weight and does all the arithmetic in code. On the **8-dish set**,
-over 4 runs × 3 draws: **24–27 failed field/draws of 96, mean absolute error 21.0–21.2%** — against
-the pre-B1 baseline's **39/96 and 37.7%**. `gpt-5.5-2026-04-23` scores better still (**14–19/96,
-15.5–17.2%**) but was **considered and declined** — ~2.4× slower on Stage 2. All figures are post the
-2026-08-09 PASTEL re-freeze; on the retired 3-dish set both arms scored 0, which is why the set was
-widened.
+**One-line state:** **`macro-best-v8` (B21 + B24b) is the best measured version. Production still runs B4 as edge function v28 — the newer work is NOT deployed.** On the 8-dish set, 4 runs x 3 draws: **baseline 24/96 at 34.2%, B21 0–3/96 at 12.1–14.1%**, with one perfect run and six of eight dishes at 0/48. Verified beyond the fixtures on **72 real items from all nine archived menus**: black-box ingredient 1.4%, undecomposable 2.8%. Drinks and alcohol are deliberately OUT (post-launch). **The biggest remaining unknown needs Santiago, not another run: the real-restaurant field test** — every scan to date is a photo of a screen. Always re-derive numbers with `deno run --allow-read scripts/rescore-history.ts`; figures written in prose are snapshots.
 
 🏁 **Fallback checkpoint: git tag `stage2-b4-checkpoint` → commit `22a1ac5`.** Restore from it if an
 evaluation regresses. `git show stage2-b4-checkpoint` prints the result;

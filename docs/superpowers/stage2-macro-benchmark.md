@@ -1682,6 +1682,114 @@ a paid run that would have measured the same thing.
 (tortilla 60 g vs 72 g, chicken 40 g vs 25 g). Each is a case where both readings are defensible,
 and **the oracle is Santiago's.**
 
+### USDA adjudication of the three portion disagreements (2026-08-09, $0)
+
+Santiago approved using the FDC API to settle them, the same way the Caesar dressing was settled.
+Evidence pulled from `foodPortions` (USDA's own standard serving weights) and the per-100 g spread
+of finished-dish entries. **Two of the three are now closed; the third turned out not to be a
+portion question at all.**
+
+| dish | USDA evidence | ruling |
+|---|---|---|
+| **Coleslaw** | USDA's default serving of coleslaw dressing (FDC 2710200) is **31 g**; 1 tbsp = 15.6 g, so 30 g = 2 tbsp exactly. At 30 g the dish is **108 kcal/100 g**, inside the real-product cluster (107–124; FNDDS 117). At the model's 20 g it is **84 kcal/100 g — below every real coleslaw in FDC** bar the fat-free ones. | **Oracle right, unchanged at 30 g.** B4's Coleslaw regression is genuine model error, not an oracle artifact. The opposite outcome to the Caesar dressing. |
+| **ENFRIJOLADAS** | FNDDS corn tortilla: small **18 g**, medium **28 g**. The oracle's 24 g each is the small–medium midpoint; the model's 20 g is near small. Impact on dish totals: **2%** (254 → 249 kcal). | **Oracle right, unchanged at 72 g** — and it is not what fails this dish. All three arms run protein **+33–48%** over the oracle's 25 g chicken. That, not the tortilla, is the live disagreement, and USDA cannot settle it. |
+| **Gnocchi** | See the scope entry below — **not a portion dispute.** | Deferred to Santiago. |
+
+**Method note:** the portion probe was a throwaway script, not a new `usda-oracle.ts` command.
+Portion lookups are not routine yet; promote it if they become so.
+
+### ⚠️ SCOPE, not portion — the printed weight is not always the plate (2026-08-09, $0)
+
+**Every arm overshoots Gnocchi in the same direction**, which is a scope signature, not model error:
+
+| arm | calories vs oracle | carbs vs oracle |
+|---|---:|---:|
+| baseline | +107% | +124% |
+| B4 / GPT-4o | +26% | +79% |
+| GPT-5.5 | +17% | +61% |
+
+Three independent pipelines all say the dish is bigger than the oracle allows. The Casa Nostra
+photo says why: it prints **180 g on five different fresh-pasta dishes** — Fettuccine, Pasta alla
+romana, both Gnocchi, Ravioli — which cannot all plate at the same weight with different sauces
+and toppings, and prints **80 g** on a spaghetti-with-scallops dish, impossible as a plated total.
+USDA's standard gnocchi serving (1 cup) is **188 g** ≈ the printed 180 g.
+
+**`find-weighted-dishes.ts` shows the convention is menu-wide, not a Casa Nostra quirk.** Andaluz
+prints `ESPÁRRAGOS CON JAMÓN SERRANO (20 g)`, `PANELA PLUS ASADA (30 g)`, `COSTRA DE CHAMORRO
+(80 g)`, `QUESO FUNDIDO / Con chistorra y champiñón (90 g)` and `TACOS O FAJITAS DE DIEZMILLO
+(3 pzas./200 g)`. **A 20 g plate does not exist** — those weights name one component. The oracle
+currently applies "printed weight = the whole plated dish" uniformly to all eight fixtures.
+
+The pattern that actually fits the corpus:
+
+| shape | reading | fixtures |
+|---|---|---|
+| Weight on a **side dish** | the whole dish ✅ current reading holds | French Fries, Coleslaw |
+| Weight on a **main with a stated accompaniment**, or a uniform weight repeated across a section | the **principal component** ⚠️ current reading may be wrong | Gnocchi, Salmone, CESAR, NEW YORK |
+| A **tiny** weight (20–90 g) | one named component, never the plate | not in the fixture set |
+
+What re-reading Casa Nostra would cost, computed at $0:
+
+| dish | current (printed = plate) | component reading | change |
+|---|---|---|---|
+| Gnocchi | 180 g, 242 kcal | 180 g gnocchi → 250 g plate, **336 kcal** | **+39%** |
+| Salmone | 245 g, 607 kcal | 200 g salmon → 305 g plate, **771 kcal** | **+27%** |
+
+⚠️ **This re-opens the printed-weight scope question, which is currently marked CLOSED ("ruled,
+applied blind"), so it needs a new ruling.** And it does not stop at Gnocchi: Salmone currently
+scores **0/48 on GPT-4o**, so re-reading it could break a passing fixture. Passing against a
+possibly-wrong oracle is exactly the PASTEL trap. **Nothing changed. Santiago's call.**
+
+### pipeline-integrity arm — can GPT-5.5 replace the pin without breaking the app? (2026-08-09, ~$0.72)
+
+**The macro benchmark tested almost none of the production path.** It sends 8 fixture items in one
+call; production sends whole menus through `callGptEnrich` in batches of `ENRICH_BATCH_SIZE = 10`.
+Item count, input order, allergens and truncation were never measured on any model.
+
+🔴 **A latent break was found before it shipped, at $0.** `enrichBatch` hardcoded `temperature: 0`,
+which `gpt-5.5` **rejects outright** — *"Only the default (1) value is supported."* Swapping
+`ENRICH_MODEL` alone would have 400'd **every scan in production**. The benchmark could never have
+caught it: `bench-macros.ts:151` quietly drops the parameter for an overridden model, so the entire
+measured GPT-5.5 arm ran a path production does not have. Fixed in `a9fce10` — `samplingFor(model)`
+attaches the parameter to the model, and `callGptEnrich` moved into `enrich.ts` so a harness can
+exercise the real batching instead of a copy (lesson 23).
+
+Run: two real archived menus (Andaluz 36 items, Polloteria 55) × both models, 20 batched calls, no
+OCR and no extraction bought. Archives: `scripts/fixtures/caches/pipeline.<model>.<menu>.raw.json`.
+
+| menu | model | sent → returned | order | dropped | items w/ allergens | latency |
+|---|---|---|---|---|---|---:|
+| Andaluz | gpt-4o | 36 → 36 | ok | 0 | 21 | 30.4 s |
+| Polloteria | gpt-4o | 55 → 55 | ok | 0 | 37 | 40.7 s |
+| Andaluz | gpt-5.5 | 36 → 36 | ok | 0 | 27 | **72.3 s** |
+| Polloteria | gpt-5.5 | 55 → 55 | ok | 0 | 39 | **100.9 s** |
+
+**Findings:**
+
+1. **Integrity is clean on both.** Zero dropped items, order preserved, every item got a non-empty
+   ingredient list. Neither model truncates a 55-item menu at batch size 10.
+2. **GPT-5.5 is ~2.4× slower** — 101 s against 41 s on the 55-item menu, and that is Stage 2 alone,
+   on top of Stage 1a OCR and Stage 1b structuring. This is a **new** consideration that the macro
+   benchmark could not surface, and it is a product decision, not a measurement one.
+3. **GPT-5.5 flags more allergens, in the safer direction.** It adds `egg` to every breaded item and
+   flags `dairy, egg, gluten` on items GPT-4o returned **no allergens at all** for (El Tendedero,
+   Megacharola Boneless — both breaded-chicken platters). Given the mandatory allergen disclaimer,
+   under-flagging is the dangerous failure. Not scored against an oracle — no allergen oracle exists.
+4. **GPT-5.5 is wrong about mineral water.** It assigns **252 kcal** to `Bebida de litro mineral
+   (1lt)`; GPT-4o says 0. It also gives 252 kcal to `Bebida de litro natural`, which is plausibly
+   right. Drinks are out of the benchmark entirely (Feature 5 is deferred post-release), so this is
+   unmeasured territory for both models.
+
+**Cost — I under-quoted this run.** I told Santiago "under $0.50" by pricing per *menu*; it is 10
+batched calls per model, not 2. At the per-call rates B14 and B9 measured (~$0.033 GPT-4o, ~$0.039
+GPT-5.5) it is **≈$0.72**. Exact figure unavailable: the harness archives the reassembled items, not
+the API `usage` block. Phase total ≈ **$2.52**.
+
+**Verdict: GPT-5.5 clears the integrity bar, so the blocker is no longer "unknown".** What the
+switch now trades is **2.4× Stage-2 latency and a worse drinks answer** against **better macros
+(14–19/96 vs 24–27/96) and safer allergen coverage**. That is Santiago's call, and it is a product
+trade-off rather than a measurement gap.
+
 ---
 
 ## Rulings

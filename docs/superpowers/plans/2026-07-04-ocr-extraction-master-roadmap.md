@@ -277,15 +277,37 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >
 > ### 🎯 NEXT ACTIONS
 >
-> **Both items this block previously listed are resolved** — the `resolveGrams` fix was falsified at
-> $0 (above), and the PASTEL fixture question was ruled on and applied. What is left is not code:
+> **Updated 2026-08-09 (second session).** Santiago approved three things and all three are done:
+> the pipeline-integrity arm, USDA adjudication of the portion disputes, and a $0 scope
+> investigation. Full entries at the end of the log's Runs section.
 >
-> 1. **Santiago's call: switch models, or not.** GPT-5.5 now measurably beats GPT-4o on the benchmark.
->    Not a measurement question any more.
-> 2. **Santiago's call: the three portion/oracle disagreements** — Coleslaw dressing 20 g vs 30 g,
->    Gnocchi 150 g vs 110 g, ENFRIJOLADAS tortilla 60 g vs 72 g. Both readings are defensible in each,
->    and the PASTEL episode is the precedent for what happens when the oracle is wrong: it silently
->    flatters whichever model shares its flaw.
+> 🔴 **A latent production break was caught before it shipped.** `enrichBatch` hardcoded
+> `temperature: 0`, which `gpt-5.5` rejects — swapping `ENRICH_MODEL` alone would have 400'd **every
+> scan**. The benchmark could not have caught it: the harness quietly drops the parameter for an
+> overridden model, so the whole measured GPT-5.5 arm ran a path production does not have. Fixed in
+> `a9fce10`; `callGptEnrich` now lives in `enrich.ts` so a harness tests the real batching, not a copy.
+>
+> ✅ **GPT-5.5 clears the integrity bar** (2 real menus, 91 items, batches of 10): zero dropped items,
+> order preserved, no truncation on either model. Two new facts for the switch decision:
+> **GPT-5.5 is ~2.4× slower** (101 s vs 41 s of Stage 2 on a 55-item menu) and it **flags more
+> allergens**, including on items GPT-4o flagged none for. It is also wrong about mineral water.
+>
+> ✅ **Coleslaw and ENFRIJOLADAS are CLOSED — USDA backs the oracle on both, unchanged.** Coleslaw's
+> 30 g dressing is USDA's own standard serving; the model's 20 g puts the dish below every real
+> coleslaw in FDC. The ENFRIJOLADAS tortilla is worth 2% and is not what fails that dish — the
+> chicken portion is (all three arms run protein +33–48% over the oracle's 25 g).
+>
+> **What is left, and both are Santiago's:**
+>
+> 1. **Switch models, or not.** No longer blocked on the unknown. The trade is now explicit:
+>    **better macros + safer allergens vs 2.4× Stage-2 latency.** A product call.
+> 2. **The printed-weight SCOPE question — the one genuinely open finding.** Gnocchi is not a portion
+>    dispute: all three arms overshoot it in the same direction, the menu prints the same 180 g on
+>    five different pasta dishes, and Andaluz prints weights as small as **20 g**, which cannot be a
+>    plate. The oracle reads "printed weight = whole plate" uniformly across all eight fixtures.
+>    Re-reading Casa Nostra would move **Gnocchi +39%** and **Salmone +27%** — and Salmone currently
+>    scores 0/48, so it could break a passing fixture. **This re-opens a question marked closed and
+>    needs a new ruling. Nothing was changed.**
 >
 > **Open defects, none blocking:** PASTEL's cheese serving drops 50 g → 30 g in 2 of 12 draws (the only
 > strict failure left); the PASTEL tortilla artifact above; and the oracle-strictness question, now

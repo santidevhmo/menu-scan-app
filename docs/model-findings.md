@@ -54,6 +54,12 @@ roadmap for the same failure mode in measurement code.
 - **It rejects `temperature: 0`** — *"Only the default (1) value is supported."* `seed` is
   accepted. Any comparison against a temperature-0 baseline is therefore not at parity, and the
   newer model's results carry more sampling spread. Record it; do not quietly equalise it.
+  🔴 **This is also a production landmine, found 2026-08-09.** `enrichBatch` hardcoded
+  `temperature: 0`, so changing `ENRICH_MODEL` alone would have **400'd every scan**. The benchmark
+  could not catch it — the harness drops the parameter for an overridden model, so every measured
+  GPT-5.5 number came from a request shape production cannot send. Fixed in `a9fce10`. **General
+  lesson: a benchmark that reaches the model by its own path is not evidence that the deployed path
+  works.**
 - **Token usage is comparable to GPT-4o** on this task — 2839 vs 2689 completion tokens on the
   same request — and `reasoning_tokens` was **0**. It is not a hidden-cost reasoning model here.
   The 4-run arm cost ~$0.47.
@@ -69,6 +75,25 @@ roadmap for the same failure mode in measurement code.
 - Not a cost or latency recommendation for production traffic; the benchmark is text-only Stage 2
   on 8 dishes.
 - Not a deployment decision.
+
+## 2026-08-09 — what a macro score does NOT tell you about a model switch
+
+The macro benchmark sends 8 fixture items in one call. Production sends whole menus through
+`callGptEnrich` in **batches of 10**. A pipeline-integrity arm (2 real menus, 91 items, both models,
+archived at `scripts/fixtures/caches/pipeline.*`) measured what the macro score never touches:
+
+| property | gpt-4o-2024-08-06 | gpt-5.5-2026-04-23 |
+|---|---|---|
+| items returned / order preserved | 36→36, 55→55, ok | 36→36, 55→55, ok |
+| dropped or truncated | none | none |
+| **Stage-2 latency, 55-item menu** | **41 s** | **101 s (~2.4×)** |
+| items given allergens (of 55) | 37 | 39, and adds `egg` to breaded items GPT-4o left **blank** |
+| mineral water | 0 kcal ✅ | **252 kcal** ❌ |
+
+**Both models are pipeline-safe.** The switch trades better macros and safer allergen coverage
+against 2.4× Stage-2 latency and a worse answer on drinks (which no benchmark covers — Feature 5 is
+deferred). **Check integrity and latency before any model switch; a macro score alone cannot see
+either.**
 
 ### Where the detail lives
 

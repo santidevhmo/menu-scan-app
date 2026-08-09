@@ -381,36 +381,24 @@
     "options": [],
     "printed_weight": "300gr",
     "oracle": {
-      "calories": 409.2,
-      "protein_g": 6.15,
-      "carb_g": 52.47,
-      "fat_g": 20.07,
-      "assumed": "USDA FDC composite. The Polloteria photo's italic footer says \"El peso del producto es antes de cocinarlo.\", so printed 300gr is raw potato, not finished fries. FDC 170026 supplies 300g raw potato. USDA Agriculture Handbook 102, potato item 2038 (raw pared potato -> French fried), gives a 55% yield (range 40-68), so the finished portion is 165g. Chiou et al., International Journal of Food Science and Technology 48 (2013), doi:10.1111/ijfs.12070, measured 6.6% mean oil absorption by fresh-potato weight (range 5.6-8.4); this adds 19.8g FDC 2710191 soybean oil. The composite is 248.0 kcal/100g finished, inside the FDC real-fries cluster: 198 (2709458 fresh-fried), 225 (2709463 frozen-fried), 289 (2709462 restaurant), 312 (2709461 fast-food). The \"toque de perejil\" is a garnish under 1g and is excluded, the same treatment the existing oracles give trace seasonings.",
+      "calories": 867,
+      "protein_g": 10.47,
+      "carb_g": 111.6,
+      "fat_g": 42,
+      "assumed": "USDA FDC recipe. Printed 300gr = the whole portion; nothing is marked as an accompaniment, so the single ingredient sits inside it. FDC 2709462 is the literal descriptor for this context (\"Potato, french fries, restaurant\"). It is above the fried-potato median of ~242 kcal/100g (spread 198-312) but below the fast-food entry at 312, and the restaurant descriptor is what the menu is. The \"toque de perejil\" is a garnish under 1g and is excluded, the same treatment the existing oracles give trace seasonings. DOCUMENTED LIMITATION (2026-08-09, not an oracle change): the Polloteria menu's italic footer reads \"El peso del producto es antes de cocinarlo\", so the printed 300gr is a PRE-COOK weight while this entry reads it as finished fries. Two re-freezes attempting to correct it (raw-potato 409 kcal, frozen-par-fried 594 kcal) were REVERTED: both changed a researched dish's USDA composition, which is Santiago's alone, and the raw-potato version was internally inconsistent (ingredients 340g, eaten 264g, printed 300g). The real finding is a PIPELINE gap - Stage 2 has no concept of weighing basis - recorded in the log, not patched here.",
       "source": "USDA FoodData Central",
       "retrieved_at": "2026-08-09",
       "ingredients": [
         {
-          "name": "Potatoes, flesh and skin, raw",
-          "fdc_id": 170026,
+          "name": "Potato, french fries, restaurant",
+          "fdc_id": 2709462,
           "grams": 300,
-          "basis": "raw",
-          "per_100g": {
-            "calories": 77,
-            "protein_g": 2.05,
-            "carb_g": 17.49,
-            "fat_g": 0.09
-          }
-        },
-        {
-          "name": "Oil, soybean (absorbed during frying)",
-          "fdc_id": 2710191,
-          "grams": 19.8,
           "basis": "prepared",
           "per_100g": {
-            "calories": 900,
-            "protein_g": 0,
-            "carb_g": 0,
-            "fat_g": 100
+            "calories": 289,
+            "protein_g": 3.49,
+            "carb_g": 37.2,
+            "fat_g": 14
           }
         }
       ]

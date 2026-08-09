@@ -94,7 +94,7 @@
       "protein_g": 42.74998000000001,
       "carb_g": 30.19571,
       "fat_g": 34.4669,
-      "assumed": "USDA FDC recipe. Printed 200g = the plated dish (salmon 140g main-course portion + 60g Tuscan cream sauce and vegetables). The baguette is an accompaniment (\"acompañado con baguette\") and sits OUTSIDE the printed weight at 45g, but is eaten and counted. Total eaten 245g.",
+      "assumed": "USDA FDC recipe. Printed 200g = the plated dish (salmon 140g main-course portion + 60g Tuscan cream sauce and vegetables). The baguette is an accompaniment (\"acompañado con baguette\") and sits OUTSIDE the printed weight at 45g, but is eaten and counted. Total eaten 245g. Casa Nostra states no weighing basis; cooked/as-served is an assumption under Santiago's 2026-08-09 basis ruling. The unadopted raw-salmon reading would be 486.2 kcal.",
       "source": "USDA FoodData Central",
       "retrieved_at": "2026-08-08",
       "ingredients": [
@@ -211,7 +211,7 @@
       "protein_g": 44.290099999999995,
       "carb_g": 65.1591,
       "fat_g": 22.440199999999997,
-      "assumed": "USDA FDC recipe. Printed 300gr. = the plated casserole. The beans are an accompaniment (\"servido con frijoles\") and sit OUTSIDE the printed weight at 80g, but are eaten and counted. Total eaten 380g. TORTILLA ADDED 2026-08-09 (Santiago), superseding this dish's original \"do not infer tortilla, oil, or cream\" note. Refined convention: an ingredient ENTAILED BY THE DISH NAME is not an inference - a pastel azteca is a layered tortilla casserole, as a cheeseburger has a bun. Oil and cream remain excluded because the name does not entail them. Why it mattered: holding 300g while excluding the tortilla inflated every other ingredient (cheese reached 20.5% of plate weight), and B9 measured the cost - gpt-5.5-2026-04-23 listed tortillas at 90g and was scored 13/48 failed for being right, where gpt-4o-2024-08-06, which omits them, scored 0/48. The fixture was rewarding the weaker reading. Tortilla at 75g is ~25% of the casserole, from layered-casserole ratios, NOT from the model's 90g - fitting the oracle to what it measures would be circular.",
+      "assumed": "USDA FDC recipe. Printed 300gr. = the plated casserole. The beans are an accompaniment (\"servido con frijoles\") and sit OUTSIDE the printed weight at 80g, but are eaten and counted. Total eaten 380g. TORTILLA ADDED 2026-08-09 (Santiago), superseding this dish's original \"do not infer tortilla, oil, or cream\" note. Refined convention: an ingredient ENTAILED BY THE DISH NAME is not an inference - a pastel azteca is a layered tortilla casserole, as a cheeseburger has a bun. Oil and cream remain excluded because the name does not entail them. Why it mattered: holding 300g while excluding the tortilla inflated every other ingredient (cheese reached 20.5% of plate weight), and B9 measured the cost - gpt-5.5-2026-04-23 listed tortillas at 90g and was scored 13/48 failed for being right, where gpt-4o-2024-08-06, which omits them, scored 0/48. The fixture was rewarding the weaker reading. Tortilla at 75g is ~25% of the casserole, from layered-casserole ratios, NOT from the model's 90g - fitting the oracle to what it measures would be circular. Menu citation: \"El gramaje se refiere a los ingredientes principales.\"",
       "source": "USDA FoodData Central",
       "retrieved_at": "2026-08-09",
       "ingredients": [
@@ -328,7 +328,7 @@
       "protein_g": 103.1461,
       "carb_g": 0.8229000000000001,
       "fat_g": 93.8627,
-      "assumed": "USDA FDC recipe. Printed 400gr = the plated steak, read as the COOKED portion, the same convention the Salmone toscano oracle uses for its printed 200g. The chimichurri is an accompaniment (\"acompañado de chimichurri\") and sits OUTSIDE the printed weight at 30g, but is eaten and counted. Total eaten 430g. Cut: \"calidad choice\" is stated, so the choice-grade top loin (New York strip) entries were surveyed; the three that are lean-and-fat, choice and grilled read 233, 275 and 278 kcal/100g and FDC 174712 is the MEDIAN, not the richest. Chimichurri has no USDA entry, so it is built from its two macro-carrying parts at a restaurant ratio (~57% oil): olive oil 17g + fresh parsley 13g. Garlic, vinegar, oregano and chilli are omitted as macro-negligible. OPEN QUESTION for Santiago: steakhouses commonly print the RAW cut weight. If 400gr is raw, the cooked portion is ~280g (USDA yield ~70%) and every total here falls by ~30%.",
+      "assumed": "USDA FDC recipe. Printed 400gr = the plated steak, read as the COOKED portion, the same convention the Salmone toscano oracle uses for its printed 200g. The chimichurri is an accompaniment (\"acompañado de chimichurri\") and sits OUTSIDE the printed weight at 30g, but is eaten and counted. Total eaten 430g. Cut: \"calidad choice\" is stated, so the choice-grade top loin (New York strip) entries were surveyed; the three that are lean-and-fat, choice and grilled read 233, 275 and 278 kcal/100g and FDC 174712 is the MEDIAN, not the richest. Chimichurri has no USDA entry, so it is built from its two macro-carrying parts at a restaurant ratio (~57% oil): olive oil 17g + fresh parsley 13g. Garlic, vinegar, oregano and chilli are omitted as macro-negligible. Brasero states no weighing basis; cooked/as-served is an assumption under Santiago's 2026-08-09 basis ruling. The unadopted 400g-raw, 280g-cooked reading would be 927.7 kcal.",
       "source": "USDA FoodData Central",
       "retrieved_at": "2026-08-09",
       "ingredients": [
@@ -381,24 +381,36 @@
     "options": [],
     "printed_weight": "300gr",
     "oracle": {
-      "calories": 867,
-      "protein_g": 10.47,
-      "carb_g": 111.6,
-      "fat_g": 42,
-      "assumed": "USDA FDC recipe. Printed 300gr = the whole portion; nothing is marked as an accompaniment, so the single ingredient sits inside it. FDC 2709462 is the literal descriptor for this context (\"Potato, french fries, restaurant\"). It is above the fried-potato median of ~242 kcal/100g (spread 198-312) but below the fast-food entry at 312, and the restaurant descriptor is what the menu is. The \"toque de perejil\" is a garnish under 1g and is excluded, the same treatment the existing oracles give trace seasonings.",
+      "calories": 409.2,
+      "protein_g": 6.15,
+      "carb_g": 52.47,
+      "fat_g": 20.07,
+      "assumed": "USDA FDC composite. The Polloteria photo's italic footer says \"El peso del producto es antes de cocinarlo.\", so printed 300gr is raw potato, not finished fries. FDC 170026 supplies 300g raw potato. USDA Agriculture Handbook 102, potato item 2038 (raw pared potato -> French fried), gives a 55% yield (range 40-68), so the finished portion is 165g. Chiou et al., International Journal of Food Science and Technology 48 (2013), doi:10.1111/ijfs.12070, measured 6.6% mean oil absorption by fresh-potato weight (range 5.6-8.4); this adds 19.8g FDC 2710191 soybean oil. The composite is 248.0 kcal/100g finished, inside the FDC real-fries cluster: 198 (2709458 fresh-fried), 225 (2709463 frozen-fried), 289 (2709462 restaurant), 312 (2709461 fast-food). The \"toque de perejil\" is a garnish under 1g and is excluded, the same treatment the existing oracles give trace seasonings.",
       "source": "USDA FoodData Central",
       "retrieved_at": "2026-08-09",
       "ingredients": [
         {
-          "name": "Potato, french fries, restaurant",
-          "fdc_id": 2709462,
+          "name": "Potatoes, flesh and skin, raw",
+          "fdc_id": 170026,
           "grams": 300,
+          "basis": "raw",
+          "per_100g": {
+            "calories": 77,
+            "protein_g": 2.05,
+            "carb_g": 17.49,
+            "fat_g": 0.09
+          }
+        },
+        {
+          "name": "Oil, soybean (absorbed during frying)",
+          "fdc_id": 2710191,
+          "grams": 19.8,
           "basis": "prepared",
           "per_100g": {
-            "calories": 289,
-            "protein_g": 3.49,
-            "carb_g": 37.2,
-            "fat_g": 14
+            "calories": 900,
+            "protein_g": 0,
+            "carb_g": 0,
+            "fat_g": 100
           }
         }
       ]
@@ -418,7 +430,7 @@
       "protein_g": 9.3076,
       "carb_g": 22.3267,
       "fat_g": 13.099199999999998,
-      "assumed": "USDA FDC recipe. Printed 180g = the whole plated dish; the menu names no accompaniment, so every ingredient sits inside the printed weight. Only ingredients printed on the menu are included: no oil, butter or basil is inferred. Tomato sauce uses FDC 170054, the same entry the PASTEL AZTECA oracle uses for its salsa de tomate, so the two dishes stay consistent. \"Mozzarella fresco\" states whole milk, which the FNDDS generic (NFS, 296 kcal/100g) does not, so SR Legacy 170845 is used per the oracle convention; the two differ by 3 kcal/100g and 170845 is not the richest (low-moisture is 318). Parmesan reuses CESAR's FDC 2705728.",
+      "assumed": "USDA FDC recipe. Printed 180g = the whole plated dish; the menu names no accompaniment, so every ingredient sits inside the printed weight. Only ingredients printed on the menu are included: no oil, butter or basil is inferred. Tomato sauce uses FDC 170054, the same entry the PASTEL AZTECA oracle uses for its salsa de tomate, so the two dishes stay consistent. \"Mozzarella fresco\" states whole milk, which the FNDDS generic (NFS, 296 kcal/100g) does not, so SR Legacy 170845 is used per the oracle convention; the two differ by 3 kcal/100g and 170845 is not the richest (low-moisture is 318). Parmesan reuses CESAR's FDC 2705728. Casa Nostra states no weighing basis; cooked/as-served is an assumption under Santiago's 2026-08-09 basis ruling. The unadopted fresh-gnocchi reading would be 295.9 kcal.",
       "source": "USDA FoodData Central",
       "retrieved_at": "2026-08-09",
       "ingredients": [
@@ -487,7 +499,7 @@
       "protein_g": 13.484599999999999,
       "carb_g": 36.092800000000004,
       "fat_g": 6.944500000000001,
-      "assumed": "USDA FDC recipe. Printed 135gr. = the whole plated dish; nothing is marked as an accompaniment, so every ingredient sits inside it. Unlike PASTEL AZTECA, every ingredient here IS printed - the tortillas included - so no ingredient has to be inferred and none is excluded. 135g is tight for three tortillas plus filling: at 24g each the tortillas are 72g, 53% of the plate, leaving 63g for chicken, bean sauce, crema and cotija. That is a light portion but internally consistent, and it is what the menu prints. Chicken reuses PASTEL's FDC 2705931. \"Salsa de frijol\" is thinned refried beans: FDC 2707396 at 90 kcal/100g is the FNDDS generic and the median of the refried family (spread 79-156; the restaurant entry at 156 was NOT taken). Crema is the FNDDS regular sour cream, not the richer imitation entry.",
+      "assumed": "USDA FDC recipe. Printed 135gr. = the whole plated dish; nothing is marked as an accompaniment, so every ingredient sits inside it. Unlike PASTEL AZTECA, every ingredient here IS printed - the tortillas included - so no ingredient has to be inferred and none is excluded. 135g is tight for three tortillas plus filling: at 24g each the tortillas are 72g, 53% of the plate, leaving 63g for chicken, bean sauce, crema and cotija. That is a light portion but internally consistent, and it is what the menu prints. Chicken reuses PASTEL's FDC 2705931. \"Salsa de frijol\" is thinned refried beans: FDC 2707396 at 90 kcal/100g is the FNDDS generic and the median of the refried family (spread 79-156; the restaurant entry at 156 was NOT taken). Crema is the FNDDS regular sour cream, not the richer imitation entry. Menu citation: \"El gramaje se refiere a los ingredientes principales.\" That citation creates a tension with this entry's whole-plated-dish reading; it remains an OPEN SCOPE question for Santiago and is not resolved here.",
       "source": "USDA FoodData Central",
       "retrieved_at": "2026-08-09",
       "ingredients": [

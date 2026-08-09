@@ -30,10 +30,12 @@ same schema, same tolerance bands. 4 runs × 3 draws each. Run IDs `iter-b4-w1�
 
 | model | failed field/draws of 96 | mean absolute error |
 |---|---|---:|
-| `gpt-4o-2024-08-06` | 24–27 | 21.0–21.2% |
-| `gpt-5.5-2026-04-23` | **14–19** | **15.5–17.2%** |
+| `gpt-4o-2024-08-06` | 36–39 | 34.8–35.0% |
+| `gpt-5.5-2026-04-23` | **26–31** | **28.6–30.5%** |
 
-Non-overlapping ranges on both metrics, consistent across all four runs.
+Non-overlapping ranges on both metrics, consistent across all four runs. These are the
+2026-08-09 fourth-re-freeze figures after Polloteria's printed pre-cook basis was applied to
+French Fries; production remains B4/v28.
 
 ### The finding that matters most: we nearly concluded the opposite
 

@@ -17,11 +17,11 @@ missing is a measured benchmark, including printed-weight items so P2's "prefer 
 rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope detail: item #5 of
 "Release scope decision" below.
 
-> **✅ SHIPPED (2026-08-09) — the benchmark is built, eight fixes were measured, and the winner
-> ("B4") is DEPLOYED as edge function v28. Production went from 39/96 failed field/draws at 37.7%
-> mean error to 24–27/96 at 21.0–21.2%. GPT-5.5 was measured, won on macros, and was DECLINED on
-> latency. Two things remain and both need Santiago: the printed-weight SCOPE ruling, and the
-> real-restaurant field test.**
+> **✅ SHIPPED (2026-08-09) — B4 remains DEPLOYED as edge function v28; this basis ruling changes
+> only the benchmark's measuring oracle, not production. The fourth oracle re-freeze applies
+> Polloteria's explicit pre-cook statement to French Fries: baseline now scores 27–28/96 at
+> 33.5–33.7%, B4 36–39/96 at 34.8–35.0%, and GPT-5.5 26–31/96 at 28.6–30.5%. BASIS is CLOSED;
+> printed-weight SCOPE remains OPEN for Santiago, alongside the real-restaurant field test.**
 >
 > ⚠️ **Everything between here and "NEXT ACTIONS" is the historical record of how that was reached,
 > written progressively as it happened.** Individual blocks contradict each other on purpose — later

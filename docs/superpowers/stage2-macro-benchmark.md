@@ -493,7 +493,7 @@ now **8 dishes**, and every figure "of 96" belongs to it.
 | dish | menu | printed | eaten | oracle kcal / P / C / F |
 |---|---|---|---:|---|
 | NEW YORK | brasero | 400gr | 430 g | 1257.7 / 103.1 / 0.8 / 93.9 |
-| French Fries (300gr) | polloteria | 300gr | 300 g | 867.0 / 10.5 / 111.6 / 42.0 |
+| French Fries (300gr) | polloteria | 300gr | 165 g finished (from 300 g raw) | 409.2 / 6.2 / 52.5 / 20.1 |
 | Gnocchi alla sorrentina | casa-nostra | 180g | 180 g | 242.0 / 9.3 / 22.3 / 13.1 |
 | ENFRIJOLADAS (135gr.) | el-marcos | 135gr. | 135 g | 253.7 / 13.5 / 36.1 / 6.9 |
 | Coleslaw (150gr) | polloteria | 150gr | 150 g | 162.7 / 1.5 / 15.3 / 10.6 |
@@ -521,8 +521,8 @@ and why that entry was taken over its siblings — the anti-trap discipline the 
 
 > ⚠️ **Read the result with the PASTEL re-freeze, not without it.** Scored against the pre-2026-08-09
 > oracle this arm looked level and produced a "do not switch models" conclusion. That conclusion was
-> **reversed** the same day. Current figures: GPT-5.5 **14–19/96 at 15.5–17.2%** vs GPT-4o **24–27/96
-> at 21.0–21.2%**. App-wide write-up: `docs/model-findings.md`. The design notes below are kept as
+> **reversed** the same day. Current fourth-re-freeze figures: GPT-5.5 **26–31/96 at 28.6–30.5%** vs
+> GPT-4o **36–39/96 at 34.8–35.0%**. App-wide write-up: `docs/model-findings.md`. The design notes below are kept as
 > the record of how the arm was specified.
 
 Run the **unchanged** benchmark against a newer OpenAI model alongside the pinned
@@ -578,9 +578,9 @@ work that a model upgrade would have closed anyway.
 | iter-b13-001 | 2026-08-08 | **B13** — one step-2 clause naming the raw reference figure as the wrong answer (`06fd49a`); $0.042 | CESAR 0/3 · Salmone **3/3** · Pastel 0/3 | **FALSIFIED, yet the best tally of the series.** Not one fat composition value moved (CESAR fat −35.5% in all 3 draws of BOTH runs) — but portions stabilised and the count fell 11 → **6**, tying baseline. The gain is NOT attributable to the clause. Fat now decomposes to portioning like carbs did. Points to **B4**. NOT deployed |
 | iter-b4-001 | 2026-08-08 | **B4** — model states a conventional serving per ingredient + tags what the printed weight covers; code fits it (`fae3291`, `ff93de2`, `950c334`, `3ce44b7`); $0.049 | CESAR **3/3** · Salmone **3/3** · Pastel **3/3** | **0 failed field/draws — the first clean sweep of the phase**, beating baseline's 6 for the first time. Mean abs error **16.7%**, also the best. Portions unfroze after five static runs: the model tagged PASTEL's beans OUTSIDE the printed weight unprompted, closing a −21.1% total error frozen since iter-b1-001. **Caveat: 13 of 36 fields sit within 5pp of their band edge.** NOT deployed |
 | iter-b4-002/003/004 | 2026-08-08 | **reproduction** — identical code, no change under test; $0.148 | 8/9 · 9/9 · 8/9 item-draws | **HOLDS.** 0 / 1 / 0 / 1 failed field/draws across the four runs — **2 of 144**. Mean abs error 16.1–17.3%. Both failures are the same defect: PASTEL's cheese serving dropping 50 g → 30 g in 2 of 12 draws. Beans tagged OUTSIDE in **12/12**. NOT deployed |
-| **baseline-w1…w4** | 2026-08-09 | **B14 widened set, 8 dishes** — baseline arm; the pre-B1 prompt, run from a worktree detached at `ce91e91` so it is the real prompt and not a reconstruction; $0.52 | **39/96 in all four runs**, 37.7% mean abs error | Reference arm for the widened set. Zero dispersion across runs, the property this arm has always shown. NOT deployed |
-| **iter-b4-w1…w4** | 2026-08-09 | **B4 on the widened set**, unchanged code; $0.52 | **24–27/96**, 21.0–21.2% | **B4 beats the baseline decisively** where on 3 dishes it could only tie. On the OLD three dishes both arms score 0/48 each — the saturation was total, and all the signal came from the five new dishes. NOT deployed |
-| **b9-gpt55-w1…w4** | 2026-08-09 | **B9 cross-model arm** — `gpt-5.5-2026-04-23`, same prompt, schema and bands; ~$0.47 | **14–19/96**, 15.5–17.2% | **GPT-5.5 BEATS GPT-4o on both metrics, ranges non-overlapping.** The first reading of this arm said "level, do not switch" and was REVERSED the same day by the PASTEL re-freeze. ⚠️ Confound: GPT-5.5 rejects `temperature: 0`. NOT deployed; switching is Santiago's open call |
+| **baseline-w1…w4** | 2026-08-09 | **B14 widened set, 8 dishes** — baseline arm; the pre-B1 prompt, run from a worktree detached at `ce91e91` so it is the real prompt and not a reconstruction; $0.52 | **27–28/96**, 33.5–33.7% mean abs error | Fourth re-freeze: the raw-fries oracle helps this archived arm. Reference only; not deployed. |
+| **iter-b4-w1…w4** | 2026-08-09 | **B4 on the widened set**, unchanged code; $0.52 | **36–39/96**, 34.8–35.0% | Fourth re-freeze: cooked-fries estimates now fail the raw-fries target. B4 remains deployed as v28; no production change. |
+| **b9-gpt55-w1…w4** | 2026-08-09 | **B9 cross-model arm** — `gpt-5.5-2026-04-23`, same prompt, schema and bands; ~$0.47 | **26–31/96**, 28.6–30.5% | **GPT-5.5 still beats GPT-4o on both metrics, ranges non-overlapping.** ⚠️ Confound: GPT-5.5 rejects `temperature: 0`. NOT deployed; switching remains Santiago's call. |
 
 ### baseline-001 — notes
 
@@ -1792,7 +1792,173 @@ trade-off rather than a measurement gap.
 
 ---
 
+### Printed-weight SCOPE evidence pass — $0 (2026-08-09)
+
+**Method.** The five source photos were read directly; no claim below comes from
+`find-weighted-dishes.ts` or extraction text. The hypothetical replay used the
+shared `macro-measure.ts` path against all four archived GPT-4o/B4 runs
+(`iter-b4-w1…w4`, 12 draws, 48 fields per dish). It changes only the two Casa
+Nostra principal-component allocations, preserves the existing PASTEL alternate
+reading, and makes no model call or oracle edit.
+
+**Table A — photo evidence.** For the two El Marcos entries, “principal component”
+means the menu explicitly defines the gramme figure as applying to the main ingredients
+collectively; it is not an assertion that one arbitrary ingredient owns all grams.
+
+| dish | menu line verbatim | classification | reason |
+|---|---|---|---|
+| CESAR | `CESAR (200 g) $275 — Lechuga, queso parmesano rallado, croutones, pollo a la plancha y aderezo cesar de la casa.` | whole plate | `(200 g)` is in the title before the ingredient line; no accompaniment is named. No other printed-weight salad appears in `ensaladas` (although 200 g repeats in other sections). The named salad and all listed ingredients form the serving. |
+| Salmone toscano | `Salmon al horno bañado en crema toscana blanca con ajo, espinaca, alcachofa, tomate deshidratado y alcaparra, acompañado con baguette. 200g · $330` | principal component | `200g` comes after the accompaniment clause. In `Frutti di mare`, both `Salmone padella` and `Salmone al pesto` also print 200g; the same page separately prints an implausible 80g for spaghetti with scallops and baguette. The repeated value is a salmon/fresh-pasta portion, not everything eaten. |
+| PASTEL AZTECA | `PASTEL AZTECA (300gr.) 94 — Con pollo, salsa de tomate, chile verde, cebolla, elote y mezcla de quesos, servido con frijoles.` | principal component | `(300gr.)` is in the title before the `servido con frijoles` clause; it does not repeat in `MEXICANOS`. The footer explicitly says `El gramaje se refiere a los ingredientes principales`; beans are an accompaniment. The current recipe already makes the non-bean casserole ingredients exactly 300g. |
+| NEW YORK | `NEW YORK $690 — Calidad choice acompañado de chimichurri de la casa. (400gr)` | principal component | `(400gr)` sits after the chimichurri accompaniment clause. `RIB EYE` repeats the same wording and 400gr in `CARNE`. **BraseroMenu.png, BraseroMenuTwo.png, and BraseroMenuTwo_TWo.png state no weight basis; the pre-cook question is OPEN and photo-unsupported.** It comes only from this oracle entry's own `assumed` note, which raises the restaurant-category assumption that steakhouses often print raw cut weight. The steak is the weighed product, not its sauce. |
+| French Fries | `French Fries (300gr) $60 — Papas a la francesa con un toque de perejil.` | whole plate | `(300gr)` is in the title before the description. `Papas Sazonadas` repeats 300gr in `Sides`; no accompaniment clause exists. The small parsley garnish does not create a separate eaten component. The same raw-product footer is a basis caveat, not a scope change. |
+| Coleslaw | `Coleslaw (150gr) $52 — Ensalada de col morada, repollo y zanahoria con un delicioso aderezo cremoso.` | whole plate | `(150gr)` is in the title before the description. `Ensalada Verde` repeats 150gr in `Sides`; no accompaniment clause exists. The dressing is described as part of the salad, so it belongs inside the serving. |
+| Gnocchi alla sorrentina | `Gnocchi fresco en salsa preparada de tomate italiano con mozzarella fresco gratinado y parmesano. 180g · $250` | principal component | `180g` ends the description. Five `Pasta` entries repeat it: `Fettuccine CasaNostra`, `Pasta alla romana`, `Gnocchi alla sorrentina`, `Gnocchi toscano`, and `Ravioli`. This is a standardized fresh-pasta amount, not a plated total including sauce and cheese. |
+| ENFRIJOLADAS | `ENFRIJOLADAS (135gr.) 94 — Tres tortillas de maíz rellenas de pollo y bañadas con salsa de frijol, crema y queso cotija.` | principal component | `(135gr.)` is in the title before the description and repeats on `ENCHILADAS` in `MEXICANOS`. The same footer says grammes refer to principal ingredients. Here every named ingredient is already in that core set and there is no accompaniment clause, so the current 135g total is unchanged. |
+
+**Andaluz side finding (photo, no extraction change):** `ESPÁRRAGOS con jamón serrano` is **(30 g)**, not 20 g. The other disputed line is `QUESO FUNDIDO — Con chistorra y champis **(50 g)**`, not 90 g.
+
+**Table B — GPT-4o/B4 replay.** Totals are `kcal / protein g / carb g / fat g`.
+Mean absolute error excludes fields decided by the existing <=3g absolute floor, exactly as
+`macro-measure.ts` does. Deltas are re-read minus current.
+
+| dish | current oracle totals | totals under re-read | Δ failed/48 | Δ mean error |
+|---|---:|---:|---:|---:|
+| CESAR | 409.5 / 30.4 / 18.4 / 23.1 | 409.5 / 30.4 / 18.4 / 23.1 | 0 | 0.0 pp |
+| Salmone toscano | 606.6 / 42.7 / 30.2 / 34.5 | 771.0 / 58.0 / 30.2 / 45.5 | **+34** | **+16.0 pp** |
+| PASTEL AZTECA | 623.6 / 44.3 / 65.2 / 22.4 | 623.6 / 44.3 / 65.2 / 22.4 | 0 | 0.0 pp |
+| NEW YORK | 1257.7 / 103.1 / 0.8 / 93.9 | 1257.7 / 103.1 / 0.8 / 93.9 | 0 | 0.0 pp |
+| French Fries | 409.2 / 6.2 / 52.5 / 20.1 | 409.2 / 6.2 / 52.5 / 20.1 | 0 | 0.0 pp |
+| Coleslaw | 162.7 / 1.5 / 15.3 / 10.6 | 162.7 / 1.5 / 15.3 / 10.6 | 0 | 0.0 pp |
+| Gnocchi alla sorrentina | 242.0 / 9.3 / 22.3 / 13.1 | 336.5 / 11.0 / 34.4 / 17.5 | **−26** | **−20.1 pp** |
+| ENFRIJOLADAS | 253.7 / 13.5 / 36.1 / 6.9 | 253.7 / 13.5 / 36.1 / 6.9 | 0 | 0.0 pp |
+| **overall (384 field/draws)** | **103 failed; 21.1%** | **111 failed; 20.5%** | **+8** | **−0.6 pp** |
+
+**What one consistent rule looks like.** A printed number is not automatically a
+whole plate. It applies to the menu-defined food unit: an explicit footer wins;
+an explicit accompaniment stays outside; otherwise a repeated named steak/fresh-pasta
+weight denotes that principal component, while a standalone described salad or side
+denotes the whole serving. This is one syntax-and-menu-convention rule, applied to all
+eight, rather than a score-driven exception per dish.
+
+It helps Gnocchi materially (44/48 -> 18/48 failed fields), leaves six fixtures
+unchanged, and hurts currently-perfect Salmone (0/48 -> 34/48). Overall it improves
+mean error slightly but adds eight failed field/draws. **Recommendation: adopt the
+classification rule only if Santiago accepts the semantic evidence over the current
+score; do not adopt it as an accuracy optimization.** It is **not** a claim that every
+printed weight is a whole plate, not a per-dish patch, not a raw-to-cooked conversion,
+not a model/prompt change, and not an oracle change made by this session.
+
+### Printed-weight BASIS evidence pass — $0 (2026-08-09)
+
+**SUPERSEDED ON BASIS ONLY by Santiago's 2026-08-09 ruling below.** The photo evidence remains;
+French Fries is now re-frozen as raw potato deep-fried, while the silent-menu cases retain their
+cooked/as-served totals as labelled assumptions. The SCOPE question remains open.
+
+**Correction to the preceding scope table.** `BraseroMenu.png`, `BraseroMenuTwo.png`,
+and `BraseroMenuTwo_TWo.png` have no weight-basis footer. NEW YORK's raw-versus-cooked
+question is photo-unsupported and comes only from its frozen `assumed` note. Conversely,
+the Polloteria photo really does print `*El peso del producto es antes de cocinarlo.` at
+its bottom left. El Marcos's `El consumo de productos crudos es bajo responsabilidad de
+quién lo solicita` is a liability disclaimer, not a weight statement.
+
+**Table A — basis evidence from photos.** “Assumption required” is deliberately not a
+basis classification: the menu is silent and cannot settle the question.
+
+| dish | printed weight | basis | evidence rank |
+|---|---:|---|---|
+| CESAR | 200g | cooked/as-served | **(b)** A finished salad listing `pollo a la plancha`; the menu does not state when it was weighed, but a final salad total is only meaningful as served. |
+| Salmone toscano | 200g | assumption required | The menu says `al horno` but never says whether its 200g was measured before or after baking. Current cooked reading is an **assumption**. |
+| PASTEL AZTECA | 300g | cooked/as-served | **(b)** A plated casserole `servido con frijoles`; its main-ingredients footer governs scope, not basis. No raw-weight statement. |
+| NEW YORK | 400g | assumption required | Brasero is silent in all three supplied photos. Current cooked reading and the oracle's possible raw-cut reading are both restaurant-category **assumptions**. |
+| French Fries | 300g | raw/uncooked | **(a)** Polloteria expressly says `El peso del producto es antes de cocinarlo.` |
+| Coleslaw | 150g | raw/uncooked | **(a)** The same Polloteria statement applies. Its vegetables are not cooked, so raw and final vegetable mass are the same basis here. |
+| Gnocchi alla sorrentina | 180g | assumption required | `Gnocchi fresco` identifies the product but does not say before or after boiling; Casa Nostra gives no basis statement. |
+| ENFRIJOLADAS | 135g | cooked/as-served | **(b)** Three tortillas are `rellenas` and `bañadas`; this is a finished dish weight. El Marcos gives no raw-weight statement. |
+
+**Table B — isolated other-basis replays, GPT-4o/B4 (four archived runs, 48 fields per dish).**
+Each counterfactual holds the frozen scope and all other ingredients fixed; it changes only the
+stated basis input. They are independent alternatives, so they must not be summed into a false
+“overall” score. Mean absolute error follows `macro-measure.ts` and excludes the <=3g absolute-floor
+field.
+
+| dish | current totals (kcal / P / C / F) | totals under other basis | Δ failed/48 | Δ mean error |
+|---|---:|---:|---:|---:|
+| CESAR | 409.5 / 30.4 / 18.4 / 23.1 | n/a — settled as served | n/a | n/a |
+| Salmone toscano | 606.6 / 42.7 / 30.2 / 34.5 | 486.2 / 35.7 / 30.2 / 24.4 — raw salmon FDC 2706284 at the frozen 140g allocation | **+2** | **+2.9 pp** |
+| PASTEL AZTECA | 623.6 / 44.3 / 65.2 / 22.4 | n/a — settled as served | n/a | n/a |
+| NEW YORK | 1257.7 / 103.1 / 0.8 / 93.9 | 927.7 / 72.3 / 0.8 / 70.8 — the oracle's own 400g raw -> 280g cooked (70% yield) reading | **+31** | **+25.5 pp** |
+| French Fries | 409.2 / 6.2 / 52.5 / 20.1 | n/a — settled by the menu's explicit raw basis and the fourth-re-freeze potato-plus-absorbed-oil composite | n/a | n/a |
+| Coleslaw | 162.7 / 1.5 / 15.3 / 10.6 | unchanged — no cooking transformation | 0 | 0.0 pp |
+| Gnocchi alla sorrentina | 242.0 / 9.3 / 22.3 / 13.1 | 295.9 / 9.3 / 50.0 / 6.1 — fresh potato gnocchi FDC 2452382 at the frozen 110g allocation | **−20** | **−18.0 pp** |
+| ENFRIJOLADAS | 253.7 / 13.5 / 36.1 / 6.9 | n/a — settled as served | n/a | n/a |
+
+**Interpretation and recommendation.** CESAR, PASTEL, and ENFRIJOLADAS are sufficiently
+settled as served by their described finished dishes; Polloteria settles French Fries and
+Coleslaw as pre-cook. The genuine unresolved cases are **Salmone, NEW YORK, and Gnocchi**.
+For the latter two, the photos cannot choose a basis: NEW YORK's raw option harms an otherwise
+perfect fixture heavily, while the fresh-gnocchi alternative materially improves Gnocchi.
+
+The consistent rule should be: use an explicit restaurant basis statement when printed; otherwise
+record an assumption rather than infer one from a different restaurant or from menu category.
+For composite finished dishes, use as-served only where the menu's wording makes another reading
+non-sensical. **Recommendation: retain existing totals and ask Santiago to rule only NEW YORK,
+Salmone, and Gnocchi together.** This is **not** an oracle re-freeze, scope ruling, model/prompt
+change, conversion of a raw liability disclaimer into a weight rule, or a claim that raw potato
+alone represents fried potatoes.
+
+**El Marcos citation-only oracle edit.** Added the photo-verbatim line `El gramaje se refiere a
+los ingredientes principales.` to the existing `assumed` fields for PASTEL AZTECA and
+ENFRIJOLADAS. `deno run --allow-read scripts/rescore-history.ts` was byte-identical before and
+after (the archived 3-dish history remains `0/36`, `9/36`, `2/36`, `4/36`, `10/36`, `5/36`,
+`1/36`, `3/36`, `3/36`, `2/36`; no total moved).
+
+---
+
 ## Rulings
+
+### Printed-weight BASIS *(Santiago, 2026-08-09)*
+
+> **Follow the menu where it speaks. Where the menu is silent on basis, keep cooked/as-served and LABEL it as an assumption.**
+
+A printed basis statement is binding. Silence is not evidence for flipping anything.
+
+### ⚠️ ORACLE RE-FROZEN 2026-08-09 — fourth re-freeze, French Fries basis
+
+**$0; no model calls.** Polloteria's photo explicitly says `*El peso del producto es antes de
+cocinarlo.` The French Fries 300gr is therefore **300 g raw potato**, not a 300 g finished-fries
+product. Coleslaw does not move: its ingredients are not cooked. Casa Nostra and Brasero are silent,
+so Salmone, NEW YORK, and Gnocchi keep their cooked/as-served totals as labelled assumptions.
+
+The new composite is 300 g FDC **170026** raw potato plus 19.8 g FDC **2710191** soybean oil. USDA
+Agriculture Handbook 102, potato item 2038, gives raw pared potato -> French fried a **55% yield**
+(40–68), hence 165 g finished. [Chiou et al. (2013)](https://doi.org/10.1111/ijfs.12070) measured
+mean oil absorption of **6.6% of fresh potato weight** (5.6–8.4), which supplies the 19.8 g oil.
+The resulting **248.0 kcal/100 g finished** lies inside the FDC real-fries cluster: 198 (2709458),
+225 (2709463), 289 (2709462), and 312 (2709461). It is a sourced composite, not a choice of the
+richest defensible fries entry and not a fit to any model output.
+
+| French Fries (300gr) | before | after |
+|---|---:|---:|
+| oracle totals (kcal / P / C / F) | 867.0 / 10.5 / 111.6 / 42.0 | **409.2 / 6.2 / 52.5 / 20.1** |
+| GPT-4o/B4, four archived runs (48 fields) | 0 failed; 6.1% mean error | **48 failed; 109.6% mean error** |
+
+| arm, four archived runs | before | after | delta |
+|---|---:|---:|---:|
+| baseline | 39/96; 37.7% | **27–28/96; 33.5–33.7%** | −11 to −12 failed; −4.0 to −4.2 pp |
+| GPT-4o/B4 | 24–27/96; 21.0–21.2% | **36–39/96; 34.8–35.0%** | +12 failed/run; +13.8 pp |
+| GPT-5.5/B9 | 14–19/96; 15.5–17.2% | **26–31/96; 28.6–30.5%** | +12 failed/run; +13.1 to +14.0 pp |
+
+**Interpretation.** This makes the measurement stricter in the direction the printed menu requires:
+the B4 and B9 archives model finished fries and therefore overshoot a raw-potato target. Baseline is
+closer to this one target, but this is not a prompt/model/deployment decision; B4 remains deployed as
+v28 and no production code changed. It is not a scope ruling, a model fit, a claim that raw potato is
+finished fries without oil, or authority to change any other total.
+
+**Stale-figure notice.** The active wide-arm table, B9 summary, app-wide model table, and the sole
+`🎯 CURRENT PHASE` block now carry these fourth-re-freeze figures. The earlier dated B14 and PASTEL
+re-freeze tables in this log and roadmap intentionally remain historical snapshots; their old French
+Fries and aggregate figures are not current and must not be quoted as current results.
 
 ### 💰 Cost is not a constraint *(Santiago, 2026-08-08)*
 

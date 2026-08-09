@@ -17,11 +17,26 @@ missing is a measured benchmark, including printed-weight items so P2's "prefer 
 rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope detail: item #5 of
 "Release scope decision" below.
 
-> **✅ SHIPPED (2026-08-09) — B4 remains DEPLOYED as edge function v28; this basis ruling changes
-> only the benchmark's measuring oracle, not production. The fourth oracle re-freeze applies
-> Polloteria's explicit pre-cook statement to French Fries: baseline now scores 27–28/96 at
-> 33.5–33.7%, B4 36–39/96 at 34.8–35.0%, and GPT-5.5 26–31/96 at 28.6–30.5%. BASIS is CLOSED;
-> printed-weight SCOPE remains OPEN for Santiago, alongside the real-restaurant field test.**
+> **✅ SHIPPED (2026-08-09) — B4 remains DEPLOYED as edge function v28. The oracle is back on its
+> researched USDA values and the scoring rule now forgives small ABSOLUTE gram misses (Santiago,
+> 2026-08-09). Live figures: baseline 39/96 at 37.7%, B4 19–21/96 at 21.0–21.2%, GPT-5.5 8–12/96
+> at 15.5–17.2%. Mean |error| is unchanged from every earlier figure by design — the new rule
+> changes the pass/fail count only, so error percentages stay comparable across the whole history.**
+>
+> ⚠️ **Two French Fries re-freezes were made and then REVERTED on 2026-08-09** (raw-potato 409 kcal,
+> frozen-par-fried 594 kcal). Both changed a researched dish's USDA composition, which is Santiago's
+> alone, and the raw-potato version was internally inconsistent (ingredients 340 g, eaten 264 g,
+> printed 300 g). While they were in place the docs briefly recorded "B4 scores worse than baseline";
+> **that was one dish and an instruction mismatch, never an app regression.** Do not act on any figure
+> quoting baseline 27–33/96 or B4 33–39/96 — those belong to the reverted oracles.
+>
+> 🔬 **The finding those re-freezes produced is real and is a PIPELINE gap, not an oracle one:**
+> Polloteria prints *"El peso del producto es antes de cocinarlo"*, so a printed weight is sometimes a
+> PRE-COOK weight, and Stage 2 has no concept of weighing basis — it fits ingredients to every printed
+> number as though it were finished food. Same shape as the SCOPE question (a printed weight may name
+> one component, not the plate; Casa Nostra prints 180 g on five pastas and 200 g on three salmons,
+> El Marcos prints *"el gramaje se refiere a los ingredientes principales"*). **Both remain OPEN**,
+> alongside the real-restaurant field test.
 >
 > ⚠️ **Everything between here and "NEXT ACTIONS" is the historical record of how that was reached,
 > written progressively as it happened.** Individual blocks contradict each other on purpose — later
@@ -591,6 +606,8 @@ Features 1–4 are CLOSED and the user chose **release momentum over roadmap com
 Rationale (user, 2026-07-10): options matter mainly where variants invert macros (already solved by F2's fold convention); coarse categories were always extracted; drinks don't serve the food-sorting core. Price extraction stays in results — it's free — but is not to be perfected further pre-release.
 
 ---
+
+29. **When ONE fixture fails 100% of its fields, suspect a definitional mismatch between the oracle and the pipeline before you suspect the model.** The signature is the two sides measuring different things. French Fries went 0/48 → 48/48 on an oracle change alone, and the resulting arm-vs-arm reversal was entirely answer-key movement, not a quality change.
 
 ## Feature Sequence (MVP order)
 

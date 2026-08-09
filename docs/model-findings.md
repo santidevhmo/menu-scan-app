@@ -30,12 +30,15 @@ same schema, same tolerance bands. 4 runs × 3 draws each. Run IDs `iter-b4-w1�
 
 | model | failed field/draws of 96 | mean absolute error |
 |---|---|---:|
-| `gpt-4o-2024-08-06` | 36–39 | 34.8–35.0% |
-| `gpt-5.5-2026-04-23` | **26–31** | **28.6–30.5%** |
+| `gpt-4o-2024-08-06` | 19–21 | 21.0–21.2% |
+| `gpt-5.5-2026-04-23` | **8–12** | **15.5–17.2%** |
 
 Non-overlapping ranges on both metrics, consistent across all four runs. These are the
-2026-08-09 fourth-re-freeze figures after Polloteria's printed pre-cook basis was applied to
-French Fries; production remains B4/v28.
+2026-08-09 figures, on the RESEARCHED oracle (two French Fries re-freezes were made and reverted
+the same day) and under the new small-absolute-miss scoring rule. Mean |error| is unchanged from the
+pre-rule figures by design, so those percentages stay comparable across the whole history; only the
+failed-field counts moved. Production remains B4/v28. GPT-5.5 still leads on macros and is still
+DECLINED on latency (~2.4x slower on Stage 2).
 
 ### The finding that matters most: we nearly concluded the opposite
 

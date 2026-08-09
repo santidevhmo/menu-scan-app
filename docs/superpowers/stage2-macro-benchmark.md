@@ -581,6 +581,7 @@ work that a model upgrade would have closed anyway.
 | **baseline-w1…w4** | 2026-08-09 | **B14 widened set, 8 dishes** — baseline arm; the pre-B1 prompt, run from a worktree detached at `ce91e91` so it is the real prompt and not a reconstruction; $0.52 | **27–28/96**, 33.5–33.7% mean abs error | Fourth re-freeze: the raw-fries oracle helps this archived arm. Reference only; not deployed. |
 | **iter-b4-w1…w4** | 2026-08-09 | **B4 on the widened set**, unchanged code; $0.52 | **36–39/96**, 34.8–35.0% | Fourth re-freeze: cooked-fries estimates now fail the raw-fries target. B4 remains deployed as v28; no production change. |
 | **b9-gpt55-w1…w4** | 2026-08-09 | **B9 cross-model arm** — `gpt-5.5-2026-04-23`, same prompt, schema and bands; ~$0.47 | **26–31/96**, 28.6–30.5% | **GPT-5.5 still beats GPT-4o on both metrics, ranges non-overlapping.** ⚠️ Confound: GPT-5.5 rejects `temperature: 0`. NOT deployed; switching remains Santiago's call. |
+| **oracle-fries-scope-001** | 2026-08-09 | $0 archival re-score: correct French Fries to a labelled frozen-par-fried product, then compare the frozen whole-plate oracle with a separate three-dish component-scope candidate | Frozen: baseline **32–33/96**, B4 **33–36/96**, GPT-5.5 **23–28/96**. Candidate: baseline **32–33/96**, B4 **35–37/96**, GPT-5.5 **36–39/96**. | **French Fries BASIS corrected; no model call or production change.** Candidate is evidence only: its larger baseline-vs-B4 separation is a scope-ruling input for Santiago, not an adoption. |
 
 ### baseline-001 — notes
 
@@ -2262,3 +2263,152 @@ re-buys a measurement we own.
   the printed ingredient's stated form. For Salmone Toscano, printed 200g is the cooked salmon
   portion; estimate its sauce and baguette separately. For Pastel Azteca, include only
   ingredients printed on the menu: do not infer tortilla, oil, or cream.
+
+### oracle-fries-scope-001 — French Fries correction and scope evidence (2026-08-09, $0)
+
+**No model calls.** Re-scored the archived four-run arms through the shared
+`macro-measure.ts` path. The frozen oracle changed only its French Fries entry; the separate
+`macro-oracle-scope-candidate.json` is not frozen and changes only the three scope cases below.
+
+**French Fries.** Polloteria's photo still binds the basis: the 300g is pre-cook. What changed is
+the product assumption, which the menu does not state: 300g frozen par-fried fries, not 300g raw
+whole potato. The composite is 300g raw-potato equivalent plus 40.333g oil (21g finishing uptake
+from U.S. Patent 8,133,520's ~7% frozen-fries result; 19.333g already absorbed during par-frying),
+finishing at 264g under U.S. Patent 3,968,265's 88% example. That is inside Santiago's 250–270g
+constraint; the latter source's conventional 65–75% alternative is explicitly outside it and was
+not substituted. The selected 225 kcal/100g finished density is FDC 2709463's frozen-fried entry,
+not the richer restaurant or fast-food entries.
+
+| Fries answer key | total | baseline failed/48, mean \|error\| | B4 failed/48, mean \|error\| | GPT-5.5 failed/48, mean \|error\| |
+|---|---:|---:|---:|---:|
+| pre-`e39000f` restaurant whole portion | 867 kcal, 300g | 48/48, 46.8–47.3% | 0/48, 6.1% | 0/48, 5.1–7.3% |
+| rejected raw-whole-potato composite | 409.2 kcal, 165g | 1/48, 15.9–16.9% | 48/48, 109.6% | 48/48, 103.5–111.8% |
+| corrected frozen-par-fried composite | 594 kcal, 264g | 23/48, 23.9–24.3% | 36/48, 64.3% | 36/48, 58.5–65.7% |
+
+The raw archives did not change. These are answer-key movements, not a B4 regression or a reason
+to roll back v28: the arms land on different sides of the revised Fries definition.
+
+**Scope candidate.** Basis labels are unchanged. The candidate reads 180g as gnocchi (250g eaten),
+200g as salmon (305g eaten), and El Marcos's explicit “El gramaje se refiere a los ingredientes
+principales” as 135g chicken (245g eaten). It is evidence for Santiago's ruling, not a replacement
+oracle, production change, prompt/schema change, or model-quality verdict.
+
+| arm | frozen oracle: failed/96, mean \|error\| | candidate: failed/96, mean \|error\| | baseline→B4 failed-field gap |
+|---|---:|---:|---:|
+| baseline | 32–33, 34.6% | 32–33, 24.9% | — |
+| B4 / GPT-4o | 33–36, 28.7–29.0% | 35–37, 27.9–28.5% | frozen: +0–3; candidate: +3–5 |
+| GPT-5.5 | 23–28, 22.6–24.2% | 36–39, 25.6–27.2% | — |
+
+The candidate makes baseline and B4 more distinguishable: B4's failure gap rises from 0–3 to 3–5
+per run. It does **not** show that baseline is a better pipeline; it shows B4's current
+whole-dish fitting cannot agree with a component-scope answer key. That matches the photo evidence
+and is the stronger scope instrument, subject to Santiago's ruling.
+
+| dish | baseline frozen → candidate failed/48 | B4 frozen → candidate failed/48 | GPT-5.5 frozen → candidate failed/48 |
+|---|---:|---:|---:|
+| CESAR | 0 → 0 | 0 → 0 | 0 → 0 |
+| Salmone toscano | 0 → 36 | 0 → 34 | 12 → 48 |
+| PASTEL AZTECA | 0 → 0 | 9 → 9 | 1 → 1 |
+| NEW YORK | 24 → 24 | 0 → 0 | 0 → 0 |
+| French Fries | 23 → 23 | 36 → 36 | 36 → 36 |
+| Gnocchi alla sorrentina | 48 → 36 | 44 → 18 | 27 → 12 |
+| ENFRIJOLADAS | 36 → 12 | 28 → 26 | 14 → 38 |
+| Coleslaw | 0 → 0 | 22 → 22 | 12 → 12 |
+
+**Ruling needed:** adopt the candidate's component scope, retain the frozen whole-plate scope, or
+choose another stated convention. No oracle scope change has been made pending that decision.
+
+**Stale-reference flag:** `docs/superpowers/START-HERE.md` lines 41, 59–61, 75, 150 and 170–171
+still present the retired 24–27/96 / 21.0–21.2% snapshot as current. They predate this oracle
+correction; the roadmap's CURRENT PHASE block is the sole current-status source and now supersedes
+them. The older numeric tables elsewhere in this log and roadmap are retained as dated historical
+snapshots, not current scores.
+
+### 🔁 REVERTED — both French Fries re-freezes, and why (2026-08-09, $0)
+
+**Santiago's ruling (2026-08-09):** *"Don't change the already researched dishes and their FDC/USDA
+results. Let's go only with internal stuff to change."* Both same-day French Fries re-freezes changed
+a researched dish's USDA composition, so both are reverted. The entry is back to its researched
+state: **300 g of FDC 2709462 (Potato, french fries, restaurant), 867 kcal**, one ingredient,
+internally consistent.
+
+| version | totals | status |
+|---|---|---|
+| researched (FDC 2709462, 300 g) | 867.0 / 10.5 / 111.6 / 42.0 | ✅ **restored, current** |
+| raw-potato re-freeze (`e39000f`) | 409.2 / 6.2 / 52.5 / 20.1 | ❌ reverted |
+| frozen-par-fried re-freeze | 594.0 / 6.2 / 52.5 / 40.6 | ❌ reverted |
+
+The raw-potato version was also **internally inconsistent**: its ingredients summed to 340 g while
+the finished portion was 264 g and the menu prints 300 g — three different masses in one entry, which
+would mislead any portion-level check.
+
+⚠️ **While those were in place the docs recorded "B4 scores worse than the baseline."** That was
+**one dish**. Per-dish decomposition: B4 moved +12 failed per run and French Fries alone is 48 fields
+÷ 4 runs = 12 per run. The baseline improved by the same amount on the same dish, because the baseline
+IGNORES printed weights while B4 READS them — so an oracle saying "the printed 300 g is not food"
+rewards the pipeline that ignores it. **An instruction mismatch, never an app regression.**
+
+**The finding survives the revert, and it is a PIPELINE gap:** Polloteria prints *"El peso del
+producto es antes de cocinarlo"*. A printed weight is sometimes a PRE-COOK weight and Stage 2 has no
+concept of weighing basis. Recorded here, not patched into the oracle.
+
+### ❌ SCOPE candidate oracle DELETED — its evidence, kept (2026-08-09, $0)
+
+`macro-oracle-scope-candidate.json` was removed. It encoded portion changes to researched dishes
+(outside the ruling above), one of its three entries was built wrong, and `bench-macros_test.ts` had
+been made to REQUIRE it — a scratch artifact became a build dependency. Its measurement is preserved
+here so it never needs re-running.
+
+**The wrong entry:** ENFRIJOLADAS assigned all 135 g to chicken *while keeping* the 72 g of tortillas,
+so its "principal ingredients" summed to 207 g — more than the printed weight — and contradicted the
+plural citation (*"los ingredientes principales"*) that motivated it. 135 g of chicken in three
+breakfast tortillas is not plausible; every model says ~33–37 g.
+
+**What it measured (B4/GPT-4o, per dish, frozen → component-scope):**
+
+| dish | frozen | candidate | |
+|---|---:|---:|---|
+| **Gnocchi** | 44/48, 47.7% | **18/48, 27.6%** | ✅ −26 |
+| **Salmone** | 0/48, 13.7% | **34/48, 29.7%** | ❌ +34 |
+| ENFRIJOLADAS | 28/48, 30.9% | 26/48, 29.9% | −2 |
+| CESAR, PASTEL, NEW YORK, Fries, Coleslaw | — | unchanged | — |
+
+🔑 **The scope question is therefore ONE DISH: Salmone.** Everything else improves or does not move,
+and the component reading is a large win on Gnocchi — the dish it was designed for, the worst in the
+set, and the one with independent support (all three arms overshoot it in the same direction; Casa
+Nostra prints 180 g on five different pastas).
+
+⚠️ **A discrimination test cannot settle scope, and the earlier claim that it could was wrong.** Both
+hypotheses predict the same result: if the component reading is wrong all arms look worse, and if it
+is RIGHT all arms still look worse, because none of them knows a printed weight may name one
+component. The three pipelines share the blind spot. Adjudicate Salmone from the photo and USDA
+portion data — the way Coleslaw was settled — not from the score.
+
+### ⚖️ SCORING RULE — a gram field now passes on a small ABSOLUTE miss (Santiago, 2026-08-09)
+
+> *"If something has 20 grams and the model says 15, maybe it takes it as super wrong when in fact
+> it's only five grams — so it's not that different."*
+
+`protein_g` / `carb_g` / `fat_g` now pass when **either** the value is within ±30% **or** the
+absolute miss is **≤ 5 g**. This is a SEPARATE rule from the pre-existing sub-3 g floor, which keys
+off a small ORACLE value; this one keys off a small DIFFERENCE. **Calories are deliberately
+excluded** — the smallest calorie figure in the set is Coleslaw's 163, so the noise problem that
+motivates the rule cannot arise there, and a kcal allowance would only hide real misses.
+
+**Mean |error| is unchanged.** A field forgiven by the gram allowance is NOT flagged `absolute`, so it
+still carries its real percentage into the error metric. Only the pass/fail count moves — which keeps
+every error figure ever recorded comparable.
+
+**The guard that matters — discrimination did not collapse, it WIDENED:**
+
+| arm | before | after | mean \|error\| |
+|---|---:|---:|---:|
+| baseline (naive) | 39/96 | **39/96 — unmoved** | 37.7% unchanged |
+| B4 / GPT-4o (deployed) | 24–27/96 | **19–21/96** | 21.0–21.2% unchanged |
+| GPT-5.5 | 14–19/96 | **8–12/96** | 15.5–17.2% unchanged |
+
+The baseline does not move at all — its misses are genuinely large — while the better the pipeline,
+the more it benefits. The baseline→B4 gap went from 12–15 to **18–20**. ✅ **Any future tolerance
+change must be validated the same way: re-score all three arms and confirm the gap does not shrink.**
+A loosening that makes everything pass has blinded the benchmark, which is what the 3-dish saturation
+already cost this project once.

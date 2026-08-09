@@ -102,10 +102,39 @@ Deno.test("a sub-3g oracle value uses the absolute guard, and still reports the 
   // The floor is an allowance, not an amnesty - 4g away still fails.
   assertEquals(scoreItem(steak, { ...steak, carb_g: 4 }).pass, false);
 
-  // Anything at or above the floor keeps the percentage band untouched.
+  // Above the floor the percentage band applies - but so does the 5g absolute
+  // allowance, so a 1.1g miss no longer fails on a 37% ratio.
   const atFloor: MacroValues = { ...steak, carb_g: 3 };
   assertEquals(scoreItem(atFloor, { ...atFloor, carb_g: 3.9 }).pass, true);
-  assertEquals(scoreItem(atFloor, { ...atFloor, carb_g: 4.1 }).pass, false);
+  assertEquals(scoreItem(atFloor, { ...atFloor, carb_g: 4.1 }).pass, true);
+});
+
+Deno.test("a gram field passes on a small ABSOLUTE miss, whatever the percentage", () => {
+  // Santiago 2026-08-09: "if something has 20 grams and the model says 15,
+  // that's only five grams - it's not that different." A ratio grades noise on
+  // small quantities; this rule keys off the DIFFERENCE, not the oracle value.
+  const dish: MacroValues = { calories: 400, protein_g: 10, carb_g: 40, fat_g: 20 };
+
+  // +40% but only 4g of food - forgiven.
+  assertEquals(scoreItem(dish, { ...dish, protein_g: 14 }).pass, true);
+  // Same +40% on a large quantity is 16g of food - still fails.
+  assertEquals(scoreItem(dish, { ...dish, carb_g: 56 }).pass, false);
+  // The allowance is 5g, not amnesty: 5.2g over on a 9.3g oracle still fails.
+  const gnocchi: MacroValues = { ...dish, protein_g: 9.3 };
+  assertEquals(scoreItem(gnocchi, { ...gnocchi, protein_g: 14.5 }).pass, false);
+
+  // Calories are deliberately excluded - no dish in the set has a small calorie
+  // figure, so a kcal allowance would only ever hide a real miss.
+  assertEquals(scoreItem(dish, { ...dish, calories: 404 }).pass, true); // +1%, band
+  assertEquals(scoreItem(dish, { ...dish, calories: 500 }).pass, false); // +25%, no floor
+
+  // A field forgiven by grams still reports its real percentage, so mean |error|
+  // stays comparable with every figure recorded before this rule existed.
+  const forgiven = scoreItem(dish, { ...dish, protein_g: 14 });
+  const protein = forgiven.fields.find((f) => f.field === "protein_g");
+  assertEquals(protein?.pass, true);
+  assertEquals(protein?.absolute, false);
+  assertEquals(Math.round((protein?.deltaPct ?? 0) * 100), 40);
 });
 
 Deno.test("verdicts report every field, in a stable order", () => {

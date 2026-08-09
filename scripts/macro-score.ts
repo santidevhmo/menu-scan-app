@@ -35,12 +35,22 @@ const MACRO_TOLERANCE = 0.30;
 // exact zero (Santiago, 2026-08-09). It cannot disturb a historical number: the
 // smallest field across the original three fixtures is CESAR's 18.4 g of carbs.
 const SMALL_ORACLE_ABS_ALLOWANCE_G = 3;
+// A gram field ALSO passes when the absolute miss is small, whatever the
+// percentage says. Santiago 2026-08-09: "if something has 20 grams and the
+// model says 15, that's only five grams - it's not that different." A ratio
+// grades noise on small quantities: 9.3 g of protein answered as 14.5 g is
+// +56% and 5.2 g of food. This is a SEPARATE rule from the floor above, which
+// keys off a small ORACLE value; this one keys off a small DIFFERENCE.
+// Calories deliberately keep a pure percentage band - no dish in the set has a
+// small calorie figure (the smallest is Coleslaw at 163), so the problem that
+// motivates this rule does not arise there.
+const MACRO_ABS_ALLOWANCE_G = 5;
 
-const FIELDS: { key: keyof MacroValues; tolerance: number }[] = [
-  { key: "calories", tolerance: CALORIE_TOLERANCE },
-  { key: "protein_g", tolerance: MACRO_TOLERANCE },
-  { key: "carb_g", tolerance: MACRO_TOLERANCE },
-  { key: "fat_g", tolerance: MACRO_TOLERANCE },
+const FIELDS: { key: keyof MacroValues; tolerance: number; absAllowance: number | null }[] = [
+  { key: "calories", tolerance: CALORIE_TOLERANCE, absAllowance: null },
+  { key: "protein_g", tolerance: MACRO_TOLERANCE, absAllowance: MACRO_ABS_ALLOWANCE_G },
+  { key: "carb_g", tolerance: MACRO_TOLERANCE, absAllowance: MACRO_ABS_ALLOWANCE_G },
+  { key: "fat_g", tolerance: MACRO_TOLERANCE, absAllowance: MACRO_ABS_ALLOWANCE_G },
 ];
 
 function scoreField(
@@ -48,6 +58,7 @@ function scoreField(
   oracleValue: number,
   modelValue: number,
   tolerance: number,
+  absAllowance: number | null = null,
 ): FieldVerdict {
   if (oracleValue < SMALL_ORACLE_ABS_ALLOWANCE_G) {
     return {
@@ -64,14 +75,23 @@ function scoreField(
   }
 
   const deltaPct = (modelValue - oracleValue) / oracleValue;
+  const withinBand = Math.abs(deltaPct) <= tolerance + 1e-9;
+  const withinGrams = absAllowance !== null &&
+    Math.abs(modelValue - oracleValue) <= absAllowance + 1e-9;
 
   return {
     field,
     oracle: oracleValue,
     model: modelValue,
     deltaPct,
-    band: `+/-${Math.round(tolerance * 100)}%`,
-    pass: Math.abs(deltaPct) <= tolerance + 1e-9,
+    band: absAllowance === null
+      ? `+/-${Math.round(tolerance * 100)}%`
+      : `+/-${Math.round(tolerance * 100)}% or <=${absAllowance}g`,
+    pass: withinBand || withinGrams,
+    // Deliberately NOT flagged absolute. A field forgiven by the gram allowance
+    // still carries a real percentage, so it stays in mean |error| - only the
+    // pass/fail count changes. That keeps mean |error| comparable with every
+    // figure recorded before this rule existed.
     absolute: false,
   };
 }
@@ -81,8 +101,8 @@ export function scoreItem(
   oracle: MacroValues,
   model: MacroValues,
 ): { fields: FieldVerdict[]; pass: boolean } {
-  const fields = FIELDS.map(({ key, tolerance }) =>
-    scoreField(key, oracle[key], model[key], tolerance)
+  const fields = FIELDS.map(({ key, tolerance, absAllowance }) =>
+    scoreField(key, oracle[key], model[key], tolerance, absAllowance)
   );
   return { fields, pass: fields.every((field) => field.pass) };
 }

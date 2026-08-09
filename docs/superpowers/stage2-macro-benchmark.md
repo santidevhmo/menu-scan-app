@@ -2969,3 +2969,59 @@ against the oracle's 72 g. The oracle gives chicken **25 g** for three filled to
 adjudication closed the tortilla question while explicitly leaving the chicken one open: *"USDA cannot
 settle it."* Three independent pipelines disagreeing with an oracle in the same direction is the
 Gnocchi signature, which turned out to be the oracle. **Nothing changed. Raised for a ruling.**
+
+### ⚖️ ORACLE — ENFRIJOLADAS follows its own menu's printed footer (Santiago, 2026-08-09, $0)
+
+**El Marcos prints its convention and this entry was overriding it:**
+*"El gramaje se refiere a los ingredientes principales."*
+
+The printed 135 gr. is now the **principal ingredients** — tortillas 72 g + chicken 28 g + bean sauce
+35 g — with crema and cotija as garnish OUTSIDE it, still eaten and counted, exactly as NEW YORK's
+chimichurri already is. Total eaten **160 g**. The bean sauce is *inside* because the dish is
+*"bañadas con salsa de frijol"*: a sauce a dish is bathed in and named for is principal; a sprinkle on
+top is not.
+
+⚠️ **NOT a re-opening of the Casa Nostra scope ruling.** That menu prints nothing about what its
+weights mean, and the whole-plate reading stands there. This menu prints its rule explicitly.
+
+**Totals: 253.7 → 298.9 kcal, 13.5 → 16.2 P, 36.1 → 38.0 C, 6.9 → 10.0 F.**
+
+**Three readings were computed at $0 and the middle one chosen:**
+
+| reading | inside the 135 g | kcal | protein | plate | kcal/100 g |
+|---|---|---:|---:|---:|---:|
+| A — the old whole-plate reading | everything | 254 | 13.5 | 135 g | 188 |
+| B — tortilla + chicken only | solids | 392 | 27.6 | 235 g | 167 |
+| **C — ADOPTED** | **+ the bean sauce** | **299** | **16.2** | **160 g** | **187** |
+| | *every measured arm says* | *305* | *19.1* | | |
+| | *published reference* | | | | **175** |
+
+🔴 **B was applied first and REVERTED — the error is recorded so it is not repeated.** Its 63 g of
+chicken came from scaling one source's 120 g : 120 g chicken-to-tortilla ratio without noticing that
+recipe is a **632 g** dish, nearly five times this one. It swung the oracle from 20–48% BELOW every
+arm to 22–31% ABOVE, and made our answer key richer than every published source. **A ratio does not
+transfer between portions of different size.**
+
+**What was actually wrong was the PLATE SIZE, not the composition.** Our per-100 g density read 188
+against the reference's 175 before this change and 187 after — it was never the problem. A published
+reference puts one enfrijolada at **110 g**, so three are ~330 g; the old reading made three of them
+135 g, less than half a real portion, which is why every arm ever measured ran protein 33–48% over it.
+
+**Result — ENFRIJOLADAS goes from the worst dish to a clean pass, and it resolves the B15/B21 split:**
+
+| arm | before | after |
+|---|---|---|
+| baseline (naive) | 30/96, 37.8% | 24/96, 34.2% |
+| B15 (`macro-best-v3`) | 3–4/96, 14.1–14.9% | 2–3/96, 12.0–12.6% |
+| **B21 (`macro-best-v4`)** | 4–7/96, 15.0–17.1% | **0–3/96, 12.1–14.1%** |
+
+**B21 now leads on BOTH metrics.** The earlier conflict — where the tolerance ruling made B15 look
+better on the headline — is dissolved: it was an artefact of a wrong answer key on one dish, and
+Santiago's per-dish judgement to keep B21 is vindicated by the corrected measurement.
+
+✅ **Guard PASSED:** the naive baseline still fails **24 of 96 at 34.2%**, so the baseline→best gap is
+**21–24** — held, not collapsed. A correction that made everything pass equally would have destroyed
+it.
+
+🔴 **MEASUREMENT correction, NOT a pipeline improvement.** B21 is byte-identical before and after.
+Figures either side of this change are not comparable.

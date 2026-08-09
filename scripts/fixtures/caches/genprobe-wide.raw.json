@@ -1,0 +1,1547 @@
+[
+  {
+    "name": "Beef Wellington",
+    "description": "",
+    "price": 480,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "puff pastry"
+    ],
+    "ingredients": [
+      {
+        "name": "beef fillet",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 200,
+        "protein_per_100g": 26,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "puff pastry",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 6,
+        "carb_per_100g": 45,
+        "fat_per_100g": 30
+      },
+      {
+        "name": "mushroom duxelles",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 3,
+        "carb_per_100g": 5,
+        "fat_per_100g": 2
+      },
+      {
+        "name": "prosciutto",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 15
+      }
+    ],
+    "protein_g": 67,
+    "carb_g": 48,
+    "fat_g": 76,
+    "estimated_calories": 1138,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ]
+  },
+  {
+    "name": "Coq au Vin",
+    "description": "",
+    "price": 320,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "chicken",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 200,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "red wine sauce",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "mushrooms",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 3,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "bacon",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 15,
+        "carb_per_100g": 0,
+        "fat_per_100g": 30
+      }
+    ],
+    "protein_g": 57,
+    "carb_g": 5,
+    "fat_g": 30,
+    "estimated_calories": 512,
+    "confidence": "medium",
+    "allergens": [
+      "sulfites"
+    ]
+  },
+  {
+    "name": "Moussaka",
+    "description": "",
+    "price": 260,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "bechamel sauce"
+    ],
+    "ingredients": [
+      {
+        "name": "eggplant",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "ground lamb",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "bechamel sauce",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 3,
+        "carb_per_100g": 10,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "tomato sauce",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 42,
+    "carb_g": 19,
+    "fat_g": 45,
+    "estimated_calories": 647,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ]
+  },
+  {
+    "name": "Bibimbap",
+    "description": "",
+    "price": 240,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "rice"
+    ],
+    "ingredients": [
+      {
+        "name": "rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 2,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "beef",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 26,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "vegetables",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 2,
+        "carb_per_100g": 8,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "fried egg",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 13,
+        "carb_per_100g": 1,
+        "fat_per_100g": 11
+      },
+      {
+        "name": "gochujang sauce",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 20,
+        "fat_per_100g": 1
+      }
+    ],
+    "protein_g": 38,
+    "carb_g": 57,
+    "fat_g": 26,
+    "estimated_calories": 611,
+    "confidence": "medium",
+    "allergens": [
+      "egg",
+      "soy",
+      "gluten"
+    ]
+  },
+  {
+    "name": "Ramen Tonkotsu",
+    "description": "",
+    "price": 220,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "noodles"
+    ],
+    "ingredients": [
+      {
+        "name": "noodles",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 5,
+        "carb_per_100g": 30,
+        "fat_per_100g": 2
+      },
+      {
+        "name": "pork broth",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 200,
+        "protein_per_100g": 3,
+        "carb_per_100g": 1,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "chashu pork",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "soft-boiled egg",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 13,
+        "carb_per_100g": 1,
+        "fat_per_100g": 11
+      },
+      {
+        "name": "scallions",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 33,
+    "carb_g": 49,
+    "fat_g": 29,
+    "estimated_calories": 581,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "egg",
+      "soy"
+    ]
+  },
+  {
+    "name": "Paella Valenciana (para 2)",
+    "description": "",
+    "price": 620,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "rice"
+    ],
+    "ingredients": [
+      {
+        "name": "rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 200,
+        "protein_per_100g": 2,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "chicken",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "rabbit",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "seafood",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 2
+      },
+      {
+        "name": "vegetables",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 2,
+        "carb_per_100g": 8,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "saffron",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 1,
+        "protein_per_100g": 11,
+        "carb_per_100g": 65,
+        "fat_per_100g": 5
+      }
+    ],
+    "protein_g": 76,
+    "carb_g": 65,
+    "fat_g": 17,
+    "estimated_calories": 716,
+    "confidence": "medium",
+    "allergens": [
+      "shellfish"
+    ]
+  },
+  {
+    "name": "Chiles en Nogada",
+    "description": "",
+    "price": 340,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "poblano peppers",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 2,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "ground beef",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 26,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "walnut sauce",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 5,
+        "carb_per_100g": 10,
+        "fat_per_100g": 50
+      },
+      {
+        "name": "pomegranate seeds",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 18,
+        "fat_per_100g": 1
+      }
+    ],
+    "protein_g": 31,
+    "carb_g": 16,
+    "fat_g": 45,
+    "estimated_calories": 597,
+    "confidence": "medium",
+    "allergens": [
+      "nuts",
+      "dairy"
+    ]
+  },
+  {
+    "name": "Fish and Chips",
+    "description": "",
+    "price": 280,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "fries"
+    ],
+    "ingredients": [
+      {
+        "name": "battered fish",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 20,
+        "carb_per_100g": 15,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "fries",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 3,
+        "carb_per_100g": 35,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "tartar sauce",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 50
+      }
+    ],
+    "protein_g": 35,
+    "carb_g": 77,
+    "fat_g": 53,
+    "estimated_calories": 918,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "fish",
+      "egg"
+    ]
+  },
+  {
+    "name": "Coquilles Saint-Jacques",
+    "description": "Noix de Saint-Jacques poêlées, purée de céleri, beurre blanc.",
+    "price": 390,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "scallops",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "celery root puree",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 2,
+        "carb_per_100g": 10,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "beurre blanc",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 2,
+        "fat_per_100g": 60
+      }
+    ],
+    "protein_g": 23,
+    "carb_g": 11,
+    "fat_g": 36,
+    "estimated_calories": 458,
+    "confidence": "medium",
+    "allergens": [
+      "dairy",
+      "shellfish"
+    ]
+  },
+  {
+    "name": "Wiener Schnitzel mit Kartoffelsalat",
+    "description": "",
+    "price": 340,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "veal schnitzel",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 26,
+        "carb_per_100g": 10,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "potato salad",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 2,
+        "carb_per_100g": 20,
+        "fat_per_100g": 10
+      }
+    ],
+    "protein_g": 42,
+    "carb_g": 45,
+    "fat_g": 38,
+    "estimated_calories": 686,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "egg"
+    ]
+  },
+  {
+    "name": "Insalata di Mare",
+    "description": "Polpo, calamari, gamberi, sedano e limone.",
+    "price": 300,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "octopus",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "calamari",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 15,
+        "carb_per_100g": 0,
+        "fat_per_100g": 2
+      },
+      {
+        "name": "shrimp",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 24,
+        "carb_per_100g": 0,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "celery",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 3,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "lemon dressing",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 10
+      }
+    ],
+    "protein_g": 60,
+    "carb_g": 3,
+    "fat_g": 7,
+    "estimated_calories": 314,
+    "confidence": "medium",
+    "allergens": [
+      "shellfish"
+    ]
+  },
+  {
+    "name": "Shawarma de pollo",
+    "description": "Con pan pita, tahini y ensalada.",
+    "price": 180,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "pita bread"
+    ],
+    "ingredients": [
+      {
+        "name": "chicken",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "pita bread",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 60,
+        "protein_per_100g": 8,
+        "carb_per_100g": 50,
+        "fat_per_100g": 2
+      },
+      {
+        "name": "tahini",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 17,
+        "carb_per_100g": 23,
+        "fat_per_100g": 54
+      },
+      {
+        "name": "salad",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 35,
+    "carb_g": 39,
+    "fat_g": 27,
+    "estimated_calories": 546,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "sesame"
+    ]
+  },
+  {
+    "name": "Bún chả Hà Nội",
+    "description": "Grilled pork, rice noodles, herbs, nuoc cham.",
+    "price": 210,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "rice noodles"
+    ],
+    "ingredients": [
+      {
+        "name": "grilled pork",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "rice noodles",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 2,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "herbs",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 3,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "nuoc cham",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 10,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 29,
+    "carb_g": 47,
+    "fat_g": 20,
+    "estimated_calories": 483,
+    "confidence": "medium",
+    "allergens": [
+      "fish",
+      "soy"
+    ]
+  },
+  {
+    "name": "Feijoada completa",
+    "description": "Com arroz, couve, farofa e laranja.",
+    "price": 290,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "beans"
+    ],
+    "ingredients": [
+      {
+        "name": "black beans",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 9,
+        "carb_per_100g": 23,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "pork",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "rice",
+        "category": "carb",
+        "within_printed_weight": false,
+        "typical_serving_g": 150,
+        "protein_per_100g": 2,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "collard greens",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 3,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "farofa",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 2,
+        "carb_per_100g": 60,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "orange slices",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 12,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 45,
+    "carb_g": 115,
+    "fat_g": 25,
+    "estimated_calories": 863,
+    "confidence": "medium",
+    "allergens": []
+  },
+  {
+    "name": "Tomahawk Steak 1.2 kg",
+    "description": "Para compartir.",
+    "price": 1200,
+    "category": "food",
+    "printed_total_g": 1200,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "tomahawk steak",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 1200,
+        "protein_per_100g": 26,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      }
+    ],
+    "protein_g": 312,
+    "carb_g": 0,
+    "fat_g": 240,
+    "estimated_calories": 3408,
+    "confidence": "low",
+    "allergens": []
+  },
+  {
+    "name": "Sirloin 12 oz",
+    "description": "",
+    "price": 520,
+    "category": "food",
+    "printed_total_g": 340,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "sirloin steak",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 340,
+        "protein_per_100g": 26,
+        "carb_per_100g": 0,
+        "fat_per_100g": 15
+      }
+    ],
+    "protein_g": 88,
+    "carb_g": 0,
+    "fat_g": 51,
+    "estimated_calories": 813,
+    "confidence": "medium",
+    "allergens": []
+  },
+  {
+    "name": "Half Roast Chicken (1/2 lb)",
+    "description": "",
+    "price": 260,
+    "category": "food",
+    "printed_total_g": 227,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "roast chicken",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 227,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 10
+      }
+    ],
+    "protein_g": 57,
+    "carb_g": 0,
+    "fat_g": 23,
+    "estimated_calories": 431,
+    "confidence": "medium",
+    "allergens": []
+  },
+  {
+    "name": "Sopa del día (350 ml)",
+    "description": "",
+    "price": 90,
+    "category": "food",
+    "printed_total_g": 350,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "soup",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 350,
+        "protein_per_100g": 2,
+        "carb_per_100g": 5,
+        "fat_per_100g": 3
+      }
+    ],
+    "protein_g": 7,
+    "carb_g": 18,
+    "fat_g": 11,
+    "estimated_calories": 193,
+    "confidence": "low",
+    "allergens": []
+  },
+  {
+    "name": "Costillas BBQ 500 grs",
+    "description": "Acompañadas de coleslaw y papas gajo.",
+    "price": 420,
+    "category": "food",
+    "printed_total_g": 500,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "bbq ribs",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 500,
+        "protein_per_100g": 20,
+        "carb_per_100g": 5,
+        "fat_per_100g": 25
+      },
+      {
+        "name": "coleslaw",
+        "category": "veg",
+        "within_printed_weight": false,
+        "typical_serving_g": 100,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 10
+      },
+      {
+        "name": "potato wedges",
+        "category": "carb",
+        "within_printed_weight": false,
+        "typical_serving_g": 150,
+        "protein_per_100g": 3,
+        "carb_per_100g": 35,
+        "fat_per_100g": 15
+      }
+    ],
+    "protein_g": 106,
+    "carb_g": 83,
+    "fat_g": 158,
+    "estimated_calories": 2170,
+    "confidence": "medium",
+    "allergens": [
+      "gluten"
+    ]
+  },
+  {
+    "name": "Mini burgers (3 pzas / 240 g)",
+    "description": "",
+    "price": 250,
+    "category": "food",
+    "printed_total_g": 240,
+    "name_implied_components": [
+      "buns"
+    ],
+    "ingredients": [
+      {
+        "name": "beef patties",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 120,
+        "protein_per_100g": 26,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "buns",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 120,
+        "protein_per_100g": 8,
+        "carb_per_100g": 50,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 25,
+        "carb_per_100g": 2,
+        "fat_per_100g": 33
+      }
+    ],
+    "protein_g": 43,
+    "carb_g": 54,
+    "fat_g": 35,
+    "estimated_calories": 706,
+    "confidence": "medium",
+    "allergens": [
+      "gluten",
+      "dairy"
+    ]
+  },
+  {
+    "name": "El Capricho del Chef",
+    "description": "Una sorpresa de temporada.",
+    "price": 350,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [],
+    "protein_g": 0,
+    "carb_g": 0,
+    "fat_g": 0,
+    "estimated_calories": 0,
+    "confidence": "low",
+    "allergens": []
+  },
+  {
+    "name": "Delicia Tropical",
+    "description": "",
+    "price": 140,
+    "category": "dessert",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "tropical fruits",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 1,
+        "carb_per_100g": 15,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "coconut cream",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 2,
+        "carb_per_100g": 5,
+        "fat_per_100g": 35
+      }
+    ],
+    "protein_g": 3,
+    "carb_g": 25,
+    "fat_g": 18,
+    "estimated_calories": 268,
+    "confidence": "medium",
+    "allergens": [
+      "coconut"
+    ]
+  },
+  {
+    "name": "Explosión de Sabores",
+    "description": "Nuestra especialidad de la casa.",
+    "price": 290,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [],
+    "protein_g": 0,
+    "carb_g": 0,
+    "fat_g": 0,
+    "estimated_calories": 0,
+    "confidence": "low",
+    "allergens": []
+  },
+  {
+    "name": "Cordero al horno (300 g)",
+    "description": "Servido con papas al romero y ensalada verde.",
+    "price": 460,
+    "category": "food",
+    "printed_total_g": 300,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "roast lamb",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 300,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "rosemary potatoes",
+        "category": "carb",
+        "within_printed_weight": false,
+        "typical_serving_g": 150,
+        "protein_per_100g": 3,
+        "carb_per_100g": 35,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "green salad",
+        "category": "veg",
+        "within_printed_weight": false,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 80,
+    "carb_g": 55,
+    "fat_g": 83,
+    "estimated_calories": 1283,
+    "confidence": "medium",
+    "allergens": []
+  },
+  {
+    "name": "Pulpo a la gallega",
+    "description": "Sobre cama de patata, acompañado de pan de masa madre.",
+    "price": 380,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "octopus",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "potato",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 2,
+        "carb_per_100g": 17,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "sourdough bread",
+        "category": "carb",
+        "within_printed_weight": false,
+        "typical_serving_g": 60,
+        "protein_per_100g": 8,
+        "carb_per_100g": 50,
+        "fat_per_100g": 2
+      }
+    ],
+    "protein_g": 37,
+    "carb_g": 47,
+    "fat_g": 3,
+    "estimated_calories": 360,
+    "confidence": "medium",
+    "allergens": [
+      "gluten"
+    ]
+  },
+  {
+    "name": "Chuletón (600 g)",
+    "description": "Acompañado de pimientos de padrón y patatas fritas.",
+    "price": 780,
+    "category": "food",
+    "printed_total_g": 600,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "ribeye steak",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 600,
+        "protein_per_100g": 26,
+        "carb_per_100g": 0,
+        "fat_per_100g": 20
+      },
+      {
+        "name": "padrón peppers",
+        "category": "veg",
+        "within_printed_weight": false,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "french fries",
+        "category": "carb",
+        "within_printed_weight": false,
+        "typical_serving_g": 150,
+        "protein_per_100g": 3,
+        "carb_per_100g": 35,
+        "fat_per_100g": 15
+      }
+    ],
+    "protein_g": 161,
+    "carb_g": 55,
+    "fat_g": 143,
+    "estimated_calories": 2147,
+    "confidence": "medium",
+    "allergens": []
+  },
+  {
+    "name": "Aceitunas marinadas (50 g)",
+    "description": "",
+    "price": 60,
+    "category": "side",
+    "printed_total_g": 50,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "marinated olives",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 5,
+        "fat_per_100g": 15
+      }
+    ],
+    "protein_g": 1,
+    "carb_g": 3,
+    "fat_g": 8,
+    "estimated_calories": 80,
+    "confidence": "medium",
+    "allergens": []
+  },
+  {
+    "name": "Tabla de quesos y embutidos (800 g)",
+    "description": "Para compartir entre 4.",
+    "price": 690,
+    "category": "food",
+    "printed_total_g": 800,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 400,
+        "protein_per_100g": 25,
+        "carb_per_100g": 2,
+        "fat_per_100g": 33
+      },
+      {
+        "name": "cured meats",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 400,
+        "protein_per_100g": 30,
+        "carb_per_100g": 0,
+        "fat_per_100g": 25
+      }
+    ],
+    "protein_g": 220,
+    "carb_g": 8,
+    "fat_g": 232,
+    "estimated_calories": 3000,
+    "confidence": "medium",
+    "allergens": [
+      "dairy"
+    ]
+  },
+  {
+    "name": "Buddha Bowl vegano",
+    "description": "Quinoa, garbanzo especiado, aguacate, kale y tahini.",
+    "price": 210,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "quinoa",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 14,
+        "carb_per_100g": 21,
+        "fat_per_100g": 6
+      },
+      {
+        "name": "spiced chickpeas",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 19,
+        "carb_per_100g": 61,
+        "fat_per_100g": 6
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "kale",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 4,
+        "carb_per_100g": 9,
+        "fat_per_100g": 1
+      },
+      {
+        "name": "tahini",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 17,
+        "carb_per_100g": 23,
+        "fat_per_100g": 54
+      }
+    ],
+    "protein_g": 41,
+    "carb_g": 98,
+    "fat_g": 36,
+    "estimated_calories": 882,
+    "confidence": "medium",
+    "allergens": [
+      "sesame"
+    ]
+  },
+  {
+    "name": "Tofu agridulce con arroz jazmín",
+    "description": "",
+    "price": 190,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "rice"
+    ],
+    "ingredients": [
+      {
+        "name": "tofu",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 8,
+        "carb_per_100g": 2,
+        "fat_per_100g": 4
+      },
+      {
+        "name": "sweet and sour sauce",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 20,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "jasmine rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 2,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 12,
+    "carb_g": 54,
+    "fat_g": 4,
+    "estimated_calories": 298,
+    "confidence": "medium",
+    "allergens": [
+      "soy"
+    ]
+  },
+  {
+    "name": "Ceviche de mango y palmito",
+    "description": "Vegano.",
+    "price": 175,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "mango",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 1,
+        "carb_per_100g": 15,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "hearts of palm",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 100,
+        "protein_per_100g": 2,
+        "carb_per_100g": 4,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "lime juice",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 10,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 3,
+    "carb_g": 22,
+    "fat_g": 0,
+    "estimated_calories": 101,
+    "confidence": "medium",
+    "allergens": []
+  },
+  {
+    "name": "Espresso doble",
+    "description": "",
+    "price": 45,
+    "category": "drink",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "espresso",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 60,
+        "protein_per_100g": 0,
+        "carb_per_100g": 0,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 0,
+    "carb_g": 0,
+    "fat_g": 0,
+    "estimated_calories": 0,
+    "confidence": "medium",
+    "allergens": []
+  },
+  {
+    "name": "Copa de vino tinto (150 ml)",
+    "description": "",
+    "price": 120,
+    "category": "drink",
+    "printed_total_g": 150,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "red wine",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 0,
+        "carb_per_100g": 3,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 0,
+    "carb_g": 5,
+    "fat_g": 0,
+    "estimated_calories": 18,
+    "confidence": "medium",
+    "allergens": [
+      "sulfites"
+    ]
+  },
+  {
+    "name": "Agua mineral 500 ml",
+    "description": "",
+    "price": 35,
+    "category": "drink",
+    "printed_total_g": 500,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "mineral water",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 500,
+        "protein_per_100g": 0,
+        "carb_per_100g": 0,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 0,
+    "carb_g": 0,
+    "fat_g": 0,
+    "estimated_calories": 0,
+    "confidence": "medium",
+    "allergens": []
+  },
+  {
+    "name": "Pan de la casa",
+    "description": "Cortesía.",
+    "price": null,
+    "category": "side",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "bread",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 60,
+        "protein_per_100g": 8,
+        "carb_per_100g": 50,
+        "fat_per_100g": 2
+      }
+    ],
+    "protein_g": 5,
+    "carb_g": 30,
+    "fat_g": 1,
+    "estimated_calories": 150,
+    "confidence": "medium",
+    "allergens": [
+      "gluten"
+    ]
+  },
+  {
+    "name": "Guarnición extra de arroz",
+    "description": "",
+    "price": 40,
+    "category": "side",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 2,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 3,
+    "carb_g": 42,
+    "fat_g": 0,
+    "estimated_calories": 180,
+    "confidence": "medium",
+    "allergens": []
+  }
+]

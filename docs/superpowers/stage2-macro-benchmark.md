@@ -3125,3 +3125,55 @@ shipped food list is forbidden here and was measured harmful (B11).
 
 **No effect on the eight fixtures** (0–3/96 at 12.1–14.1%, unchanged) — none of them is a named
 composite dish, which is exactly why only a generalisation probe could find this.
+
+### 🌍 WIDE GENERALISATION PROBE — 36 dishes, 5 languages, 0 fixtures (2026-08-09, ~$0.05)
+
+Deliberately built to break the pipeline in ways the eight fixtures **structurally cannot**: named
+composite dishes, French/German/Italian/Vietnamese/Portuguese, weight formats no fixture uses,
+promotional names, and items that are not really food. All 36 sent, **36 returned, none dropped**.
+
+✅ **Weight parsing generalises far past the fixture formats — every conversion correct:**
+
+| printed | parsed |
+|---|---|
+| `1.2 kg` | 1200 g |
+| `12 oz` | **340 g** |
+| `1/2 lb` | **227 g** |
+| `350 ml` | 350 g |
+| `500 grs` | 500 g |
+| `3 pzas / 240 g` | 240 g |
+
+Ounces and pounds appear in no fixture and are converted correctly.
+
+✅ **Named composite dishes DECOMPOSE — the black-box is rarer than feared.** Beef Wellington (4
+ingredients), Coq au Vin (4), Moussaka (4), Bibimbap (5), Ramen Tonkotsu (5), Paella (6), Chiles en
+Nogada (4), Feijoada (6), Wiener Schnitzel, Bún chả, Coquilles Saint-Jacques — all broken into
+component foods across five languages. **1 of 36 restated itself**: `Tomahawk Steak 1.2 kg` →
+`tomahawk steak` 1200 g.
+
+✅ **B24 caught that one, end to end.** It was the only item to trip the detector and its confidence
+dropped to `low` automatically. The guard works on data it was never built against.
+
+✅ **Promotional names behave.** `El Capricho del Chef` and `Explosión de Sabores` both returned
+`confidence: low`, which is exactly what step 3 asks for.
+
+🔴 **DEFECT 1 — an unknown dish reports 0 kcal, and that is worse than reporting nothing.**
+`El Capricho del Chef` and `Explosión de Sabores` returned **zero ingredients**, and because item
+totals are summed from ingredients (B10), the item shows **0 calories**. Confidence is `low`, but a
+diner reading a calorie-sorted list sees a **0** — a confident, wrong, and *appealing* number that
+sorts to the top of a "lowest calorie" ranking. **This is a product decision, not a measurement one:
+should an item with no ingredients show nothing rather than zero?** Raised for Santiago; nothing
+changed. It affects any menu with evocative dish names, which is common in the exact restaurants this
+app targets.
+
+🔴 **DEFECT 2 — alcohol is invisible to the calorie calculation, structurally.**
+`Copa de vino tinto (150 ml)` → **18 kcal**. A 150 ml glass of red wine is ~125 kcal. The model's
+ingredient figures are right (`red wine`, P0 C3 F0); the gap is that calories are computed by Atwater
+from protein, carbohydrate and fat, and **ethanol contributes 7 kcal/g while appearing in none of
+those three**. Every alcoholic drink will be understated by roughly the same mechanism — beer, wine,
+spirits, cocktails. Drinks are formally out of this phase's scope (Feature 5, deferred post-release)
+and the benchmark contains none, so this has never been measurable here. **Logged as a known
+structural limitation for whoever picks drinks up.**
+
+**Neither defect is a model error and neither is fixable by prompting** — one is a display decision,
+the other is a missing term in our own arithmetic.

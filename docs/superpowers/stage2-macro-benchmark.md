@@ -2825,3 +2825,60 @@ because none of them was addressing the actual cause.
 that looked like a smoking gun (mean 1.01) was driven by dishes that already pass, while the failing
 dishes sat at the same value for an unrelated reason. **Check that an aggregate holds on the specific
 cases it is being used to explain, before building on it.**
+
+### iter-b21 — ask for the STANDARD REFERENCE AMOUNT, not a by-eye serving. ✅ ADOPTED (2026-08-09, ~$0.40, 4 runs × 3 draws)
+
+**New checkpoint `macro-best-v4`. Santiago approved it 2026-08-09.**
+
+| arm | failed field/draws | mean \|error\| |
+|---|---|---:|
+| baseline (naive) | 33/96 | 37.8% |
+| B15 (`macro-best-v3`) | 11–13/96 | 14.1–14.9% |
+| **B21** | **9–11/96** | 15.0–17.1% |
+
+**A split decision, adopted deliberately:** B21 gets ~2 fewer numbers wrong while being 1–2 points
+sloppier on average — and the extra sloppiness is **almost entirely one dish**. The baseline→best gap
+widened from 20–22 to **22–24**.
+
+**What changed: one question, not one instruction.** Every earlier attempt at the dressing portion
+went through the *fitting* step — B16 asked for a ratio, B19 reordered the fields, B20 blinded the
+model to the printed weight — and none moved it. B21 changed what the serving field *asks for*:
+
+> from *"what a normal restaurant serving is when it appears in this role… as a sauce or dressing, or
+> as a garnish"* — a by-eye judgement of the plate
+> to *"the standard reference amount customarily consumed on one eating occasion"* — a recalled fact.
+
+**Prior art, not invention:** [21 CFR 101.12](https://www.ecfr.gov/current/title-21/chapter-I/subchapter-B/part-101/subpart-A/section-101.12)
+tabulates Reference Amounts Customarily Consumed for 150 product categories, and every US nutrition
+label derives from it. **Salad dressing's RACC is 30 g** — the oracle's figure exactly, and USDA's own
+default serving of coleslaw dressing is 31 g.
+
+🔑 **It passed the B16 test, which is why it worked where three others failed.** A coating's *ratio*
+is derivable from the gram figure the model already holds, so asking for it re-asks the same
+question. A *reference amount* is a published table value held independently of any plate impression.
+**Before reformulating, ask whether the model could derive the new answer from the number being
+replaced — and prefer a question whose answer lives in a different memory.**
+
+**The falsifier was stated before spending and hit exactly:** dressing moved **20 g → 30 g** on both
+CESAR and Coleslaw, after three mechanisms had failed to shift it at all.
+
+**Per dish (of 48):**
+
+| dish | B15 | B21 | |
+|---|---|---|---|
+| **CESAR** | 11/48, 19.0% | **4/48, 14.7%** | ✅ target fixed |
+| **Coleslaw** | 23/48, 27.8% | **11/48, 18.7%** | ✅ target fixed |
+| NEW YORK | 0/48, 6.3% | 0/48, **1.7%** | ✅ |
+| Gnocchi | 0/48, 13.7% | 0/48, 10.8% | ✅ |
+| French Fries | 0/48, 6.4% | 0/48, 6.3% | — |
+| PASTEL | 0/48, 10.3% | 0/48, 15.2% | ~ |
+| Salmone | 0/48, 8.8% | 3/48, 20.4% | ❌ |
+| **ENFRIJOLADAS** | 16/48, 25.3% | **22/48, 35.4%** | ❌ carries the regression |
+
+**Side effect worth recording: self-fitting broke on its own.** Servings stopped summing to the
+printed weight (Coleslaw 180 against a printed 150, CESAR 210 against 200), so `resolveGrams` is doing
+real work again. B19 and B20 both tried to cause that directly and failed; asking a different question
+achieved it as a by-product.
+
+**Open target: ENFRIJOLADAS**, which alone carries the mean-error regression. A reference amount for a
+filled-tortilla dish pushes its portions the wrong way.

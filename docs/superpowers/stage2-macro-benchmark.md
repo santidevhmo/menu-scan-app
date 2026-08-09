@@ -2763,3 +2763,27 @@ answer a question our own code already answers, and handing it the target it the
 `stripGramsTokens` (sharing the same regex, so what is hidden is exactly what is recovered), sends the
 blinded items, then restores name, description and `printed_total_g` from its own parse. One call, no
 extra cost, and `resolveGrams` does the fitting it was built for.
+
+### ✅ HARNESS FIXED — `bench-macros.ts` now calls the deployed path (2026-08-09, ~$0.10)
+
+`enrich()` no longer builds its own OpenAI request. It calls `enrichBatch` — the function production
+calls — and archives the exact response bytes through a new optional `onRaw` hook, so the evidence
+trail is unchanged while the request finally comes from one place.
+
+**Behaviour-preserving, verified rather than assumed:** a probe through the fixed harness scored
+**12/96 at 14.4%**, inside B15's 11–13/96 at 14.1–14.9%. **No historical figure is invalidated** —
+B1–B19 were prompt and schema changes, and both copies always imported `ENRICH_PROMPT` and
+`ENRICH_SCHEMA_OPENAI`.
+
+**It also deletes a second copy of the sampling rule.** The harness had its own
+`BENCH_MODEL ? {} : { temperature: 0 }`; `enrichBatch` already had `samplingFor(model)` expressing
+the same rule. One of those was going to drift — that is exactly how the `temperature: 0` incident
+happened.
+
+🔒 **Guarded so it cannot come back.** `bench-macros_test.ts` fails the build if `api.openai.com`
+appears in `bench-macros.ts`, or if `enrichBatch` stops appearing in it. Documentation alone was
+already tried — `a9fce10` recorded the lesson and still left this file diverged for four paid arms.
+Recorded as **lesson 30** in the roadmap.
+
+**What this unblocks:** B20 (parse the printed weight in code, hide it from the model) is now
+measurable and is the next thing to run.

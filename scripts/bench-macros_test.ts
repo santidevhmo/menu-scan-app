@@ -289,3 +289,39 @@ Deno.test("macro benchmark serializes the pinned Stage-2 enrichment model", asyn
     else Deno.env.set("OPENAI_API_KEY", originalKey);
   }
 });
+
+Deno.test("the macro harness calls the DEPLOYED path, never its own request", async () => {
+  // THE LESSON THIS GUARDS, and it has now cost two paid incidents:
+  //
+  //   temperature:0 - bench-pipeline.ts kept a private copy of the request and
+  //   quietly dropped a parameter production sends. Swapping ENRICH_MODEL alone
+  //   would have 400'd every scan. Fixed in a9fce10.
+  //
+  //   B20 - bench-macros.ts kept the SAME kind of private copy. a9fce10 fixed one
+  //   file and left this one. A change that lived inside enrichBatch was invisible
+  //   to the benchmark, so a probe returned 26/96 for a hybrid that exists
+  //   nowhere, and the paid run was wasted.
+  //
+  // Prompt and schema changes still measured correctly throughout, because both
+  // copies imported ENRICH_PROMPT and ENRICH_SCHEMA_OPENAI. What diverged is
+  // everything AROUND the request - sampling, payload shaping, response handling.
+  // That is exactly the part nobody thinks to check.
+  //
+  // So: this file must never contain its own call to the completions endpoint.
+  // If a harness needs the raw bytes, take enrichBatch's `onRaw` hook.
+  const source = await Deno.readTextFile("scripts/bench-macros.ts");
+
+  assertEquals(
+    /api\.openai\.com/.test(source),
+    false,
+    "bench-macros.ts must not build its own OpenAI request - call enrichBatch and archive via its onRaw hook",
+  );
+
+  // And it must actually import the real one, so the check above cannot be
+  // satisfied by moving the URL into a constant somewhere else.
+  assertEquals(
+    /\benrichBatch\b/.test(source),
+    true,
+    "bench-macros.ts must import and call enrichBatch",
+  );
+});

@@ -3,6 +3,7 @@
 import type { ExtractedMenuItem } from "../supabase/functions/analyze-menu/extract.ts";
 import {
   ENRICH_PROMPT,
+  enrichBatch,
   ENRICH_MODEL,
   ENRICH_SCHEMA_OPENAI,
   type EnrichedItem,
@@ -128,49 +129,24 @@ export function benchModel(): string {
   return Deno.env.get("BENCH_MODEL") ?? ENRICH_MODEL;
 }
 
-export async function enrich(items: ExtractedMenuItem[]): Promise<{ items: EnrichedItem[]; raw: unknown }> {
+export async function enrich(
+  items: ExtractedMenuItem[],
+): Promise<{ items: EnrichedItem[]; raw: unknown }> {
   const apiKey = Deno.env.get("OPENAI_API_KEY");
   if (!apiKey) throw new Error("OPENAI_API_KEY is required");
 
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: benchModel(),
-      messages: [{
-        role: "user",
-        content: `${ENRICH_PROMPT}\n\nMenu items (JSON):\n${JSON.stringify(items)}`,
-      }],
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "menu_items",
-          strict: true,
-          schema: ENRICH_SCHEMA_OPENAI,
-        },
-      },
-      // B9 confound, recorded deliberately: gpt-5.5-2026-04-23 REJECTS
-      // temperature 0 ("Only the default (1) value is supported"), so a
-      // cross-model arm cannot be run at production parity. The pinned
-      // gpt-4o-2024-08-06 baseline keeps temperature 0; an overridden model
-      // omits the parameter and runs at ITS default. Never silently equalise
-      // this - the difference is part of the result and belongs in the report.
-      ...(Deno.env.get("BENCH_MODEL") ? {} : { temperature: 0 }),
-      seed: 17,
-    }),
+  // Calls the DEPLOYED path. This function used to build its own OpenAI request,
+  // which meant every macro number ever published came from a request production
+  // does not send. Prompt and schema changes still measured correctly because
+  // both copies imported them - but anything enrichBatch did AROUND the request
+  // was invisible, and B20 wasted a paid run discovering it. The `temperature: 0`
+  // incident was the same defect in bench-pipeline.ts; a9fce10 fixed that copy
+  // and left this one. bench-macros_test.ts now fails the build if it returns.
+  let raw: unknown = null;
+  const enriched = await enrichBatch(items, apiKey, benchModel(), (r) => {
+    raw = r;
   });
-  const raw = await res.json();
-  if (!res.ok) {
-    throw new Error((raw as { error?: { message?: string } }).error?.message ?? "OpenAI API error");
-  }
-  const content = (raw as {
-    choices?: { message?: { content?: string } }[];
-  }).choices?.[0]?.message?.content;
-  if (!content) throw new Error("OpenAI response missing content");
-  return { items: JSON.parse(content).items as EnrichedItem[], raw };
+  return { items: enriched, raw };
 }
 
 /**

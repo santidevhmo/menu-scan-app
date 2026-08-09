@@ -195,6 +195,11 @@ export async function enrichBatch(
   items: ExtractedItem[],
   apiKey: string,
   model: string = ENRICH_MODEL,
+  // Lets a harness archive the exact response bytes WITHOUT building its own
+  // request. bench-macros.ts used to keep a private copy of this function; that
+  // copy silently drifted and cost a wasted paid run (see the harness-defect
+  // entry in the benchmark log). Production passes nothing.
+  onRaw?: (raw: unknown) => void,
 ): Promise<EnrichedItem[]> {
   const res = await fetchWithTimeout(
     "https://api.openai.com/v1/chat/completions",
@@ -219,6 +224,7 @@ export async function enrichBatch(
     },
   );
   const json: unknown = await res.json();
+  onRaw?.(json);
   const errorMessage = isRecord(json) && isRecord(json.error) &&
       typeof json.error.message === "string"
     ? json.error.message

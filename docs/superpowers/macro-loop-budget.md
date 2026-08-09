@@ -33,8 +33,9 @@ under-quoted a run by pricing per *menu* instead of per *call* — check which u
 | 6 | 2026-08-09 | B18 probe — dish-level recall loses to the ingredient sum. FALSIFIED | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **~$0.80 of $8.64** |
 | 7 | 2026-08-09 | B19 probe — field-order inversion, self-fitting unmoved. FALSIFIED | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **~$0.90 of $8.64** |
 | 8 | 2026-08-09 | B20 probe — WASTED, harness bypasses enrichBatch so the change never ran | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **~$1.00 of $8.64** |
+| 9 | 2026-08-09 | harness fix verification — 12/96 at 14.4%, inside B15's range | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **~$1.10 of $8.64** |
 
-**Remaining: ~$7.64**
+**Remaining: ~$7.54**
 
 ## Stop conditions
 

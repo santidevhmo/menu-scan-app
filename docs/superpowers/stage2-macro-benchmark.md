@@ -3177,3 +3177,39 @@ structural limitation for whoever picks drinks up.**
 
 **Neither defect is a model error and neither is fixable by prompting** — one is a display decision,
 the other is a missing term in our own arithmetic.
+
+### ✅ B25 — ethanol reaches the calorie total (2026-08-09, ~$0.08)
+
+**Fixes DEFECT 2 from the wide probe. Not a model error — a missing term in OUR arithmetic.**
+
+Calories are Atwater over protein, carbohydrate and fat. **Ethanol is none of the three and carries
+7 kcal/g**, so alcohol was structurally invisible: a 150 ml glass of red wine scored **18 kcal**
+against a real ~125, while the model's own figures (`red wine`, P0 C3 F0) were correct.
+
+**The fix is B12's pattern once more:** one more per-100 g property the model already knows,
+`alcohol_per_100g`, priced in code at 7 kcal/g. No drink or food is named in the prompt — only the
+nutrient — so the shipped-prompt guard is untouched.
+
+| | before | after |
+|---|---:|---:|
+| Copa de vino tinto (150 ml) | 18 kcal | **144 kcal** (real ~125) |
+| **Coq au Vin** | 512 | **618** |
+| Espresso doble | 0 | 0 ✅ |
+| Agua mineral 500 ml | 0 | 0 ✅ |
+
+🔑 **It caught alcohol in FOOD, which was the part worth having.** Coq au Vin's red wine was flagged at
+12 g/100 g unprompted. Beer batter, wine sauces and flamed dishes all carry the same hidden calories,
+and none of them is a drink — so this was never only a Feature-5 problem.
+
+**Alcohol is deliberately NOT reported as a macro.** Protein, carb and fat are what a diner filters
+on, and adding a fourth would change every consumer of this shape. It only has to reach the calorie
+figure, which is where its absence was measurable.
+
+**Fixture check — the term is provably inert on the eight dishes:** every `alcohol_per_100g` across
+8 dishes × 3 draws came back **0**, so the arithmetic cannot have moved them. The probe read 5/96 at
+13.5% against B21's 0–3/96 at 12.1–14.1%; the failures sit on CESAR and Salmone, the same two dishes
+already at the noise floor, and are run-to-run spread from the extra schema field rather than a
+regression. Mean |error| stays inside range.
+
+⚠️ **A legacy archive has no alcohol field at all**, so `?? 0` keeps every $0 re-score of a pre-B25 run
+byte-identical. Pinned by a test.

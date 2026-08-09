@@ -27,6 +27,18 @@ export interface EnrichedItem extends ExtractedItem {
     protein_per_100g: number;
     carb_per_100g: number;
     fat_per_100g: number;
+    /**
+     * B25: grams of ALCOHOL per 100 g, 0 for anything non-alcoholic.
+     *
+     * Calories are Atwater over protein, carbohydrate and fat - and ethanol is
+     * none of the three while carrying 7 kcal/g, so alcohol was invisible to the
+     * arithmetic. The 2026-08-09 wide probe measured a 150 ml glass of red wine
+     * at 18 kcal against a real ~125: the model's own figures were right
+     * (P0 C3 F0) and OUR sum had no term for the calories that matter. Every
+     * alcoholic drink was understated the same way, and cooking wine, beer
+     * batter and spirit-flamed sauces carry it into food too.
+     */
+    alcohol_per_100g?: number | null;
   }[];
   protein_g: number;
   carb_g: number;
@@ -41,7 +53,7 @@ export interface EnrichedItem extends ExtractedItem {
 export const ENRICH_PROMPT =
   `You estimate the nutrition profile of restaurant menu items. For each item, work step by step:
 1. Give "printed_total_g": the weight printed on the menu for this item — e.g. (280gr), 200g — or null when the menu prints none. Then give "name_implied_components": when the item's NAME denotes a composed or assembled form, name the structural components that form always contains but this description never states, and otherwise give an empty array. Judge it from what the named form IS, not from what sounds typical: a form's defining component is part of the dish even when the menu leaves it unsaid, because menus describe what varies and take the form itself as read. These components are frequently the item's main source of carbohydrate, and omitting them understates it badly. Include every one of them in the ingredient list below. Then list the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other. Set "within_printed_weight" to false for anything the menu presents as served alongside the item rather than as part of it, because a printed weight normally describes the item itself and not what accompanies it. Give "typical_serving_g": the standard reference amount of that ingredient customarily consumed on one eating occasion — the amount nutrition labelling treats as one serving of that kind of food. Recall that established amount for the kind of food it is; do not estimate by eye how much of it looks like it is on the plate, because a poured or spooned component has a standard serving considerably larger than it appears. Where a kind of food has no established reference amount, give the amount it is normally served in. Give the conventional serving for the ingredient itself — these are rescaled to the printed weight afterwards, so they do not need to add up to anything.
-2. For each ingredient, give its composition PER 100 g of that ingredient as served: protein_per_100g, carb_per_100g and fat_per_100g. These describe the food itself, not the size of the portion — the amount in this serving is calculated from them and the gram weight, so give the composition and let the weight do the rest. Base them on what the food is actually made of, including its water content, and on how it is prepared (fat absorbed or added in cooking counts), rather than on which macro the ingredient is best known for. Where a food is normally cooked, sauced or seasoned before it reaches the table, give the figures for that prepared version — the plain or raw reference figure for the same food understates the fat that preparation adds. The item's totals are added up from these, rather than estimating the totals directly, so each ingredient's numbers must stand on their own.
+2. For each ingredient, give its composition PER 100 g of that ingredient as served: protein_per_100g, carb_per_100g, fat_per_100g and alcohol_per_100g. Alcohol is 0 for anything without it, and grams of pure alcohol per 100 g where there is any; it carries calories that none of the other three account for. These describe the food itself, not the size of the portion — the amount in this serving is calculated from them and the gram weight, so give the composition and let the weight do the rest. Base them on what the food is actually made of, including its water content, and on how it is prepared (fat absorbed or added in cooking counts), rather than on which macro the ingredient is best known for. Where a food is normally cooked, sauced or seasoned before it reaches the table, give the figures for that prepared version — the plain or raw reference figure for the same food understates the fat that preparation adds. The item's totals are added up from these, rather than estimating the totals directly, so each ingredient's numbers must stand on their own.
 3. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive, leaving you with little ingredient information to go on.
 List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, shellfish, egg, soy). Use an empty allergens array when none are inferred; do not include "none". Preserve each item's name, description, price, and category exactly as given. Do NOT sort the items. Return one object per input item, in the same order.`;
 
@@ -81,6 +93,10 @@ const ENRICH_INGREDIENT_PROPS = {
   protein_per_100g: { type: "number" },
   carb_per_100g: { type: "number" },
   fat_per_100g: { type: "number" },
+  // B25: the fourth energy-bearing macronutrient. Asked for beside the others
+  // because it is the same KIND of fact - a property of the food per 100 g - and
+  // code does the pricing at 7 kcal/g, exactly as B12 does for the other three.
+  alcohol_per_100g: { type: ["number", "null"] },
 };
 
 // Property order is load-bearing: strict-mode output is emitted in schema order.
@@ -122,6 +138,7 @@ export const ENRICH_SCHEMA_OPENAI = {
                 "protein_per_100g",
                 "carb_per_100g",
                 "fat_per_100g",
+                "alcohol_per_100g",
               ],
               additionalProperties: false,
             },
@@ -352,7 +369,8 @@ export function resolveGrams(
 /**
  * Item macros summed from the model's per-ingredient composition, priced at each
  * ingredient's resolved gram weight, with calories derived by Atwater (4 kcal/g
- * protein, 4 carb, 9 fat) so the total is always consistent with its own parts.
+ * protein, 4 carb, 9 fat, 7 alcohol) so the total is always consistent with its
+ * own parts.
  */
 export function sumIngredientMacros(
   ingredients: EnrichedItem["ingredients"],
@@ -362,7 +380,7 @@ export function sumIngredientMacros(
   "protein_g" | "carb_g" | "fat_g" | "estimated_calories"
 > {
   const grams = resolveGrams(ingredients, printedTotalG);
-  let protein = 0, carb = 0, fat = 0;
+  let protein = 0, carb = 0, fat = 0, alcohol = 0;
   ingredients.forEach((i, idx) => {
     // B12: per-100 g composition x portion. The model states what the food IS;
     // the multiplication is ours. B4: and so is the portion.
@@ -370,13 +388,19 @@ export function sumIngredientMacros(
     protein += (i.protein_per_100g ?? 0) * share;
     carb += (i.carb_per_100g ?? 0) * share;
     fat += (i.fat_per_100g ?? 0) * share;
+    alcohol += (i.alcohol_per_100g ?? 0) * share;
   });
   return {
     protein_g: Math.round(protein),
     carb_g: Math.round(carb),
     fat_g: Math.round(fat),
     // Atwater on the UNROUNDED sums, so calories never drift from the parts.
-    estimated_calories: Math.round(4 * protein + 4 * carb + 9 * fat),
+    // B25 adds ethanol at 7 kcal/g - the fourth energy-bearing macronutrient,
+    // and the only one carrying calories that appear in no other field. It is
+    // NOT reported as a macro: protein/carb/fat are what a diner filters on, and
+    // adding a fourth would change every consumer of this shape. It only has to
+    // reach the calorie figure, which is where its absence was measurable.
+    estimated_calories: Math.round(4 * protein + 4 * carb + 9 * fat + 7 * alcohol),
   };
 }
 

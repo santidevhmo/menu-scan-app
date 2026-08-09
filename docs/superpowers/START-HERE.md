@@ -46,9 +46,11 @@ Tasks 1–5 are COMPLETE. The USDA plan is the oracle/provenance reference:
 
 **One-line state:** **B4 is the best version and the fallback checkpoint.** It asks the model for a
 *conventional serving* per ingredient plus whether the menu's printed weight covers it, and fits
-those to the weight in code. On the **widened 8-dish set** (B14, 2026-08-09), over 4 runs × 3 draws:
-**22–24 failed field/draws of 96, mean absolute error 19.7–20.1%** — against the baseline's **39/96
-and 37.4%**. On the old 3-dish set both arms scored 0, which is why the set was widened.
+those to the weight in code. On the **widened 8-dish set**, over 4 runs × 3 draws: **24–27 failed
+field/draws of 96, mean absolute error 21.0–21.2%** — against the baseline's **39/96 and 37.7%**.
+⚠️ **But `gpt-5.5-2026-04-23` beats it at 14–19/96 and 15.5–17.2%** (see below). All figures are
+post the 2026-08-09 PASTEL re-freeze; on the old 3-dish set both arms scored 0, which is why the set
+was widened.
 
 🏁 **Fallback checkpoint: git tag `stage2-b4-checkpoint` → commit `22a1ac5`.** Restore from it if an
 evaluation regresses; publish from it if the phase stops. `git show stage2-b4-checkpoint` prints the
@@ -58,7 +60,7 @@ not move or delete the tag. Publishable is NOT permission to deploy.
 
 ✅ **The saturated gate is FIXED — the fixture set is now 8 dishes.** It used to be that
 baseline-002 and B4 both scored 0 of 36 and were indistinguishable. B14 (2026-08-09) added five
-dishes and the metric separates them again: **B4 22–24/96 vs baseline 39/96**. On the original three
+dishes and the metric separates them again: **B4 24–27/96 vs baseline 39/96**. On the original three
 dishes both arms still score 0 of 48 each, so **never quote a 36-field figure as current** — those
 belong to the retired 3-dish set. Report both numbers: failed field/draws AND mean absolute error.
 
@@ -66,6 +68,34 @@ belong to the retired 3-dish set. Report both numbers: failed field/draws AND me
 the core feature. **Never narrow scope, skip an experiment, or recommend stopping on cost grounds.**
 State the dollar estimate and get his approval before a paid run — but price is never an argument
 against running one.
+
+### ✅ ALREADY DONE — do not redo, do not re-run, do not re-litigate
+
+Every line here was executed and measured. A new session that "discovers" one of these is
+repeating paid work. Full detail in the log's Runs table and Rulings.
+
+| Thing | Outcome |
+|---|---|
+| Benchmark harness, USDA oracle, scoring | Built, frozen |
+| B1, B10, B11, B12, B13 | Measured. B11 and B13 **falsified** (prompt wording moved nothing) |
+| **B4** — conventional serving + printed-weight tag, fitted in code | **The current best pipeline.** Tag `stage2-b4-checkpoint` |
+| **B14** — widen the fixture set | **DONE.** 3 dishes → **8** |
+| **B9** — cross-model arm | **DONE.** GPT-5.5 beats GPT-4o |
+| Oracle re-freezes ×3 | printed weights (`a4ebf0f`), Caesar dressing (`a60eb2a`), **PASTEL tortilla (2026-08-09)** |
+| Sub-3 g absolute scoring floor | Approved and applied |
+| **`resolveGrams` "protect the principal"** | **FALSIFIED at $0** — made failures worse on both arms. Not shipped |
+| Measurement-code duplication (4 divergences) | Fixed; `macro-measure.ts` is the single path, guarded by tests |
+
+**Deliberately NOT done, and each needs a ruling before anyone starts:** deploying anything
+(never authorised); switching production to GPT-5.5; changing the oracle; re-running a baseline;
+putting any food/dish/cuisine name in the prompt's nutrition step (measured harmful, unit-tested).
+
+**Two decisions are open and BOTH are Santiago's, not measurement questions:**
+1. **Switch Stage 2 to GPT-5.5, or stay on GPT-4o.**
+2. **The three portion disagreements** — Coleslaw dressing 20 g vs 30 g, Gnocchi 150 g vs 110 g,
+   ENFRIJOLADAS tortilla 60 g vs 72 g. Both readings are defensible in each. The PASTEL episode is
+   the precedent for getting this wrong: a bad fixture silently flatters whichever model shares
+   its flaw.
 
 ### 🎯 Next actions, in this order
 
@@ -76,10 +106,10 @@ against running one.
    follows the same route: `scripts/find-weighted-dishes.ts` lists 120 printed-weight candidates, each
    needs a USDA recipe with real `fdc_id`s, and **Santiago approves every recipe personally.**
 2. ✅ **B9 — the cross-model arm — DONE 2026-08-09.** `gpt-5.5-2026-04-23`, 4 runs × 3 draws, ~$0.47.
-   **GPT-5.5 17–22/96 vs GPT-4o 22–24/96, mean error ~19–21% for both — level.** A model a generation
-   and a half newer moves the total essentially nothing, so **the remaining error is a task/oracle
-   ceiling, not a GPT-4o ceiling.** Confound: GPT-5.5 rejects `temperature: 0`, so it ran at its
-   default 1 and its best run is partly sampling luck. **Ruling: do not switch models.**
+   **GPT-5.5 14–19/96 at 15.5–17.2% vs GPT-4o 24–27/96 at 21.0–21.2% — GPT-5.5 WINS**, ranges
+   non-overlapping. ⚠️ The first reading of this arm said "level, do not switch" and was **reversed**
+   the same day by the PASTEL re-freeze; see the red block below. Confound: GPT-5.5 rejects
+   `temperature: 0`, so it ran at its default 1 and carries more spread.
 
 🔴 **B9's VERDICT WAS REVERSED by the 2026-08-09 PASTEL fix — read this before quoting it.**
 PASTEL AZTECA's oracle now includes its tortilla (Santiago's ruling; a pastel azteca is a tortilla
@@ -121,6 +151,19 @@ that did work (B10, B12) both took arithmetic *away* from the model and left it 
 **two data points against wording and two for mechanism**, which is a prior to weigh in the next
 brainstorm — not a closed door. If a hypothesis says wording is the lever *for a different reason*,
 say what would falsify it and run it.
+
+🧭 **The commands that tell you the truth, all $0:**
+
+```bash
+deno test --allow-all scripts/ supabase/          # expect 330 passed | 1 failed (see below)
+deno run --allow-read scripts/rescore-history.ts  # CURRENT score of every archived run
+deno run --allow-read scripts/rescore-history.ts <run-id>…   # score specific runs the same way
+```
+
+`rescore-history.ts` is the **source of truth for every number in these docs.** Any figure written
+in prose is a snapshot of when it was written; that command is what is true now. All measurement
+logic lives in `scripts/macro-measure.ts` and **must never be re-implemented anywhere** — see
+lesson 28, and `scripts/macro-measure_test.ts` fails the build if it is.
 
 ℹ️ **The suite's `1 failed` is noise.** `330 passed | 1 failed` with only `scripts/tile-cut_test.ts`
 red is a CLEAN run — Santiago has ruled it unimportant and it cannot affect macros (it tests the

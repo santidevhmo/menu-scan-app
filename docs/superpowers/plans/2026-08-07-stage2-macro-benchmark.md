@@ -101,12 +101,27 @@ both score 0 of 36. **Mean absolute error is the primary number**; the count is 
 💰 **Cost is not a constraint** (Santiago, 2026-08-08). Never narrow scope or skip an experiment on
 cost grounds. Still state the estimate and get his approval — that is about him deciding, not price.
 
-🎯 **Next: (1) widen the fixture set** from the 120 printed-weight dishes that
-`scripts/find-weighted-dishes.ts` surfaces in the archived extraction dumps — backlog entry **B14**;
-**(2) B9**, the cross-model arm.
+✅ **BOTH of the next actions this file used to name are DONE (2026-08-09).** It said "(1) widen the
+fixture set, (2) B9". Both were executed:
 
-**Nothing is deployed, including B4.** Deployment has never been authorised and is Santiago's ruling
-alone.
+- **B14 — the set is now 8 dishes.** Added NEW YORK (brasero), French Fries and Coleslaw
+  (polloteria), Gnocchi alla sorrentina (casa-nostra), ENFRIJOLADAS (el-marcos). Figures scored
+  **"of 96"** belong to this set; anything **"of 36"** is the retired 3-dish set.
+- **B9 — `gpt-5.5-2026-04-23` measurably BEATS `gpt-4o-2024-08-06`** (14–19/96 at 15.5–17.2% vs
+  24–27/96 at 21.0–21.2%). Switching is Santiago's open decision; nothing is deployed.
+- **The oracle was re-frozen again on 2026-08-09** — PASTEL AZTECA gained its tortilla, which
+  **reversed** B9's first reading. Every figure written before that date is superseded.
+- **A `resolveGrams` "protect the principal" fix was falsified at $0** and NOT shipped.
+
+**Do not re-run any of it.** For current status read the master roadmap's `🎯 CURRENT PHASE` block;
+for the numbers run `deno run --allow-read scripts/rescore-history.ts`, which is the source of truth.
+App-wide model finding: `docs/model-findings.md`.
+
+**What is still live in THIS file:** the paid-run procedure below — mirror check, archiving, the
+by-hand audit, what to report. Every iteration reuses it. Two additions since it was written:
+`BENCH_MODEL=<id>` runs the harness against another model (measurement only; it cannot change what
+production sends, and that is unit-tested), and `scripts/rescore-history.ts <run-id>…` scores a new
+arm through the same path as the history it is compared against.
 
 ⚠️ **Never name a food, dish or cuisine in the prompt's nutrition step.** B11's "high carb" list was
 a roll-call of the three fixtures' own ingredients and measurably worsened sweet corn.
@@ -127,7 +142,7 @@ still worth running.
   applies the real `sumIngredientMacros`.
 - **Never quote a single draw.** Report the range, and count failed field/draws, not just tallies.
 
-ℹ️ **The suite's one failing test is noise.** `304 passed | 1 failed` with only
+ℹ️ **The suite's one failing test is noise.** `330 passed | 1 failed` with only
 `scripts/tile-cut_test.ts` red is a CLEAN run. Santiago has ruled it unimportant: it tests the
 image tile cutter, Stage 2 is text-only and never sees a photo, and it guards code that cannot
 execute under the current pipeline. Do not spend time on it. **Any other failure is yours.**
@@ -156,7 +171,7 @@ pnpm install --prefer-offline
 deno test --allow-all --quiet scripts/ supabase/
 ```
 
-**Expected baseline: `304 passed | 1 failed`** (was 298 before B1/B10 added tests). The one
+**Expected baseline: `330 passed | 1 failed`** (298 at plan start; B1/B10, B14 and the 2026-08-09 measurement guards added the rest). The one
 failure is `scripts/tile-cut_test.ts` — unimportant, ruled so by Santiago, and unable to affect
 macros. It is not yours. **Any other failure is.**
 
@@ -192,8 +207,8 @@ deliberately not being done yet.
 - **Environment:** `OPENAI_API_KEY` is in the worktree's gitignored `.env.local` (the repo's
   `.env` has the literal placeholder `PENDING` — do not use it). Scripts read it via
   `Deno.env.get`, house style.
-- **Baseline as of 2026-08-08:** `deno test --allow-all scripts/ supabase/` = **304 passed /
-  1 failed** (298 at plan start; B1 and B10 added six tests). The single failure is
+- **Baseline as of 2026-08-09:** `deno test --allow-all scripts/ supabase/` = **330 passed /
+  1 failed** (298 at plan start). The single failure is
   `scripts/tile-cut_test.ts` — noise, see the handoff note above. Any *other* failure is yours.
 
 ---

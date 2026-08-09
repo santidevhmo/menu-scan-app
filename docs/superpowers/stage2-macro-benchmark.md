@@ -440,7 +440,7 @@ surviving carbohydrate error is a portion error (CESAR's croutons 30 g vs 20 g; 
 collapsing 50 g → 10 g between draws). That is now the largest untouched source of error in the
 phase, and B4 (a dedicated portion/volume stage) is the backlog item that addresses it.
 
-### B14 — Widen the fixture set *(⬅ NEXT, Santiago 2026-08-08)*
+### B14 — Widen the fixture set *(✅ DONE 2026-08-09 — see the `-w` runs)*
 
 **Why now:** three dishes is why the failure count saturated. After the oracle re-freeze,
 **baseline-002 and iter-b4-001…004 all score 0 of 36** — a naive pipeline and our best one are
@@ -484,11 +484,11 @@ Tooling: `scripts/usda-oracle.ts` exposes `searchFoods` and `fetchNutrients` aga
 `deno run --allow-read scripts/rescore-history.ts` — and the checkpoint's recorded figures updated,
 exactly as the 2026-08-08 re-freeze required.
 
-#### B14 progress — five recipes built, ⏳ AWAITING SANTIAGO'S APPROVAL (2026-08-09, $0)
+#### B14 outcome — ✅ five dishes approved, built and measured (2026-08-09)
 
-Santiago approved the five **dishes** on 2026-08-09, and approved running both arms (baseline and B4)
-on the widened set. **He has not yet approved the five recipes** — that ruling is per-recipe and
-unchanged. Nothing paid has been run.
+Santiago approved the five dishes, their recipes, the sub-3 g scoring floor and both paid arms on
+2026-08-09. All of it is measured and committed — see the `-w` rows in the Runs table. The set is
+now **8 dishes**, and every figure "of 96" belongs to it.
 
 | dish | menu | printed | eaten | oracle kcal / P / C / F |
 |---|---|---|---:|---|
@@ -517,7 +517,13 @@ and why that entry was taken over its siblings — the anti-trap discipline the 
    number** — the smallest field across the original three fixtures is CESAR's 18.4 g carb. **Not
    applied; tolerance bands change only by ruling.**
 
-### B9 — Cross-model comparison arm *(⬅ NEXT after B14, Santiago 2026-08-08)*
+### B9 — Cross-model comparison arm *(✅ DONE 2026-08-09 — GPT-5.5 wins; see `b9-gpt55-w1…w4`)*
+
+> ⚠️ **Read the result with the PASTEL re-freeze, not without it.** Scored against the pre-2026-08-09
+> oracle this arm looked level and produced a "do not switch models" conclusion. That conclusion was
+> **reversed** the same day. Current figures: GPT-5.5 **14–19/96 at 15.5–17.2%** vs GPT-4o **24–27/96
+> at 21.0–21.2%**. App-wide write-up: `docs/model-findings.md`. The design notes below are kept as
+> the record of how the arm was specified.
 
 Run the **unchanged** benchmark against a newer OpenAI model alongside the pinned
 `gpt-4o-2024-08-06`, so the report reads **USDA oracle vs GPT-4o vs <newer model>** on the same
@@ -550,6 +556,16 @@ work that a model upgrade would have closed anyway.
 
 *(baseline-001 is recorded below.)*
 
+> ⚠️ **TWO ERAS OF NUMBERS LIVE IN THIS TABLE. Never compare across them.**
+> - Rows scored **of 36** are the retired **3-dish** set (CESAR, Salmone, PASTEL).
+> - Rows scored **of 96** are the current **8-dish** set (B14, 2026-08-09 onward).
+> - Every row except the `-w` runs was also written BEFORE the 2026-08-09 PASTEL tortilla
+>   re-freeze, so its figures are as-published-then.
+>
+> **The current value of any archived run is whatever `deno run --allow-read
+> scripts/rescore-history.ts` prints today.** That command is the source of truth; this table is
+> the narrative around it.
+
 | # | date | what changed | result (range across draws) | verdict |
 |---|---|---|---|---|
 | baseline-001 | 2026-08-07 | nothing — pipeline as shipped | CESAR 0/3 · Salmone 0/3 · Pastel 2/3 | FAIL — baseline establishes failures for portion/fat and calorie estimation; no pipeline change made |
@@ -562,6 +578,9 @@ work that a model upgrade would have closed anyway.
 | iter-b13-001 | 2026-08-08 | **B13** — one step-2 clause naming the raw reference figure as the wrong answer (`06fd49a`); $0.042 | CESAR 0/3 · Salmone **3/3** · Pastel 0/3 | **FALSIFIED, yet the best tally of the series.** Not one fat composition value moved (CESAR fat −35.5% in all 3 draws of BOTH runs) — but portions stabilised and the count fell 11 → **6**, tying baseline. The gain is NOT attributable to the clause. Fat now decomposes to portioning like carbs did. Points to **B4**. NOT deployed |
 | iter-b4-001 | 2026-08-08 | **B4** — model states a conventional serving per ingredient + tags what the printed weight covers; code fits it (`fae3291`, `ff93de2`, `950c334`, `3ce44b7`); $0.049 | CESAR **3/3** · Salmone **3/3** · Pastel **3/3** | **0 failed field/draws — the first clean sweep of the phase**, beating baseline's 6 for the first time. Mean abs error **16.7%**, also the best. Portions unfroze after five static runs: the model tagged PASTEL's beans OUTSIDE the printed weight unprompted, closing a −21.1% total error frozen since iter-b1-001. **Caveat: 13 of 36 fields sit within 5pp of their band edge.** NOT deployed |
 | iter-b4-002/003/004 | 2026-08-08 | **reproduction** — identical code, no change under test; $0.148 | 8/9 · 9/9 · 8/9 item-draws | **HOLDS.** 0 / 1 / 0 / 1 failed field/draws across the four runs — **2 of 144**. Mean abs error 16.1–17.3%. Both failures are the same defect: PASTEL's cheese serving dropping 50 g → 30 g in 2 of 12 draws. Beans tagged OUTSIDE in **12/12**. NOT deployed |
+| **baseline-w1…w4** | 2026-08-09 | **B14 widened set, 8 dishes** — baseline arm; the pre-B1 prompt, run from a worktree detached at `ce91e91` so it is the real prompt and not a reconstruction; $0.52 | **39/96 in all four runs**, 37.7% mean abs error | Reference arm for the widened set. Zero dispersion across runs, the property this arm has always shown. NOT deployed |
+| **iter-b4-w1…w4** | 2026-08-09 | **B4 on the widened set**, unchanged code; $0.52 | **24–27/96**, 21.0–21.2% | **B4 beats the baseline decisively** where on 3 dishes it could only tie. On the OLD three dishes both arms score 0/48 each — the saturation was total, and all the signal came from the five new dishes. NOT deployed |
+| **b9-gpt55-w1…w4** | 2026-08-09 | **B9 cross-model arm** — `gpt-5.5-2026-04-23`, same prompt, schema and bands; ~$0.47 | **14–19/96**, 15.5–17.2% | **GPT-5.5 BEATS GPT-4o on both metrics, ranges non-overlapping.** The first reading of this arm said "level, do not switch" and was REVERSED the same day by the PASTEL re-freeze. ⚠️ Confound: GPT-5.5 rejects `temperature: 0`. NOT deployed; switching is Santiago's open call |
 
 ### baseline-001 — notes
 
@@ -1457,6 +1476,12 @@ target is the cheese-serving instability in Finding 1.
 
 ### baseline-w1…w4 and iter-b4-w1…w4 — B14, the WIDENED 8-dish set (2026-08-09, $0.96, 8 runs × 3 draws)
 
+> ⚠️ **Every figure in this entry PREDATES the 2026-08-09 PASTEL tortilla re-freeze.** It is kept
+> as written, because that is what the run reported at the time. For the current value of these
+> same archives see the **ORACLE RE-FROZEN 2026-08-09** entry below, or just run
+> `deno run --allow-read scripts/rescore-history.ts`.
+
+
 **The metric de-saturated, and B4 separates from the baseline for the first time.** Santiago approved
 the five dishes, the sub-3 g floor and both paid arms on 2026-08-09. Run IDs carry a `-w` suffix for
 "widened"; they are **not** comparable to the 36-field figures above, which are 3 dishes.
@@ -1522,8 +1547,13 @@ bar moves here.** The old "0–1 of 144" bar described a saturated 3-dish set an
 the live bar is **22–24 of 96**. Nothing is deployed. Open engineering targets are now Coleslaw
 (Finding 3) and Gnocchi (44/48), not the PASTEL cheese wobble.
 
-
 ### b9-gpt55-w1…w4 — B9, the CROSS-MODEL arm (2026-08-09, ~$0.47, 4 runs × 3 draws)
+
+> ⚠️ **Every figure in this entry PREDATES the 2026-08-09 PASTEL tortilla re-freeze.** It is kept
+> as written, because that is what the run reported at the time. For the current value of these
+> same archives see the **ORACLE RE-FROZEN 2026-08-09** entry below, or just run
+> `deno run --allow-read scripts/rescore-history.ts`.
+
 
 **The question B9 existed to answer: is the remaining error a GPT-4o ceiling or a task ceiling?
 Answer: a TASK ceiling.** A model a generation and a half newer moves the total essentially nothing.
@@ -1582,7 +1612,6 @@ GPT-5.5 improves every dish GPT-4o struggled with and breaks two it had exact.
 **Verdict: do NOT switch models.** The measurement says a newer model buys nothing on the total and
 costs two exact dishes, and the two regressions point at one fixable mechanism. `ENRICH_MODEL` stays
 `gpt-4o-2024-08-06`. Phase total **$1.80**.
-
 
 ### ⚠️ ORACLE RE-FROZEN 2026-08-09 — PASTEL gains its tortilla, and it REVERSES B9
 

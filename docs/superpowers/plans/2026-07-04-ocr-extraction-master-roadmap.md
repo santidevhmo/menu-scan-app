@@ -154,7 +154,7 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > section. `git show stage2-b4-checkpoint` prints the measured result.
 >
 > ⚠️ **That bar is RETIRED.** It read "0–1 failed field/draws, not the baseline's 6" and described the
-> saturated 3-dish set. Since B14 the live bar is **22–24 of 96 with mean error 19.7–20.1%**. What has
+> saturated 3-dish set. Since B14 the live bar is **24–27 of 96 with mean error 21.0–21.2%**. What has
 > not changed is the rule: a new result replaces the checkpoint only if it beats that *range* over at
 > least 4 runs × 3 draws — one better run is never enough.
 >
@@ -176,15 +176,16 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >
 > | arm | failed field/draws | mean abs error |
 > |---|---|---:|
-> | baseline (pre-B1 prompt) | 39/96, all four runs | 37.4% |
-> | **B4** | **22–24/96** | **19.7–20.1%** |
+> | baseline (pre-B1 prompt) | 39/96, all four runs | 37.7% |
+> | **B4** (GPT-4o) | **24–27/96** | **21.0–21.2%** |
+> | **B9** (GPT-5.5) | **14–19/96** | **15.5–17.2%** |
 >
 > **The saturation was real and total.** On the old three dishes both arms score **0 of 48 each**; every
 > bit of discriminating signal came from the five new dishes. **B4 now beats the baseline ~2× on both
 > metrics**, where on three dishes it could only tie.
 >
 > **The bar moved.** "0–1 failed of 144" described a saturated set and is **retired as a target**. The
-> live bar is **22–24 of 96 with mean error 19.7–20.1%**, over 4 runs × 3 draws.
+> live bar is **24–27 of 96 with mean error 21.0–21.2%**, over 4 runs × 3 draws.
 >
 > **B4's mechanism generalised to dishes it was never designed against** — NEW YORK 44.8% → 4.8% error,
 > French Fries 46.9% → 6.1%, and it tagged the chimichurri as outside the printed 400 g unprompted. The
@@ -236,8 +237,10 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >
 > | arm | failed field/draws | mean abs error |
 > |---|---|---:|
-> | GPT-4o (B4) | 22–24/96 | 19.7–20.1% |
-> | GPT-5.5 | 17–22/96 | 18.6–20.8% |
+> | GPT-4o (B4) | 24–27/96 | 21.0–21.2% |
+> | GPT-5.5 | **14–19/96** | **15.5–17.2%** |
+>
+> *(Figures below the table were written before the same-day PASTEL re-freeze and are corrected here.)*
 >
 > **A model a generation and a half newer moves the total essentially nothing.** No model upgrade was
 > ever going to close this. ⚠️ **Confound: GPT-5.5 rejects `temperature: 0`** (only its default 1),
@@ -312,7 +315,8 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > printed-weight scope question (ruled,
 > applied blind); change the frozen oracle (Santiago's alone); or put any food, dish or cuisine name
 > into the nutrition step of the prompt (measured harmful, and now unit-tested). **Deprioritise**
-> B2/B5/B6/B9 — no run data stands behind them, unlike B4 — but that is sequencing, not a ban.
+> B2/B5/B6 — no run data stands behind them, unlike B4 — but that is sequencing, not a ban.
+> **B9 is DONE (2026-08-09) and no longer belongs on that list.**
 >
 > **Read in this order — these files are the whole phase:**
 > 1. `stage2-macro-benchmark.md` — Backlog (B1–B11), Runs, Rulings. **This is the living
@@ -334,7 +338,7 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >
 > ### ℹ️ The `1 failed` in the test suite is NOISE — do not spend time on it
 >
-> The full suite reports `304 passed | 1 failed`. **That one failure is `scripts/tile-cut_test.ts`
+> The full suite reports `330 passed | 1 failed`. **That one failure is `scripts/tile-cut_test.ts`
 > and it does not matter.** Santiago's position (2026-08-08): not important, not blocking, not
 > worth a session. Treat it as the known-good baseline number and move on.
 >
@@ -353,7 +357,7 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >   `1364×943` (the 60% portrait numbers) was never updated. If anyone ever does fix it, it is two
 >   numbers → `1478, 1022`.
 >
-> **The rule for a new session:** `304 passed | 1 failed` with only `tile-cut_test.ts` red is a
+> **The rule for a new session:** `330 passed | 1 failed` with only `tile-cut_test.ts` red is a
 > CLEAN run. Any *other* failure is yours.
 
 

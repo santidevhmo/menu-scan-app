@@ -15,13 +15,15 @@
 // numbers someone once printed.
 //
 // Run: deno run --allow-read scripts/rescore-history.ts
-import { replayDraw } from "./bench-macros.ts";
+import { ORACLE_PATH, replayDraw } from "./bench-macros.ts";
 import { altOracle, pairWithOracle, scoreDish, toMacroValues } from "./macro-measure.ts";
 import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
 
-const oracleFile = JSON.parse(
-  await Deno.readTextFile("scripts/fixtures/macro-oracle.json"),
-);
+const oracleFile = JSON.parse(await Deno.readTextFile(ORACLE_PATH));
+// The 3-dish runs are RETIRED (their /36 figures must never be quoted as current)
+// but stay here so their history re-scores under the same path. The -w runs are the
+// live 8-dish set, and they are in the default list so the bare command reports
+// CURRENT numbers instead of only the retired ones.
 const RUNS = [
   "baseline-002",
   "iter-b1-001",
@@ -33,12 +35,29 @@ const RUNS = [
   "iter-b4-002",
   "iter-b4-003",
   "iter-b4-004",
+  "baseline-w1",
+  "baseline-w2",
+  "baseline-w3",
+  "baseline-w4",
+  "iter-b4-w1",
+  "iter-b4-w2",
+  "iter-b4-w3",
+  "iter-b4-w4",
+  "b9-gpt55-w1",
+  "b9-gpt55-w2",
+  "b9-gpt55-w3",
+  "b9-gpt55-w4",
 ];
 
 // Run IDs may be supplied on the command line, so a new arm is scored by the
 // SAME path as the history it will be compared against.
-const runs = Deno.args.length ? Deno.args : RUNS;
+// ponytail: a plain flag, not an env var - env reads throw under the documented
+// `--allow-read`-only command, and a flag is discoverable where an env var is not.
+const BY_DISH = Deno.args.includes("--by-dish");
+const runArgs = Deno.args.filter((a) => !a.startsWith("--"));
+const runs = runArgs.length ? runArgs : RUNS;
 const DRAWS = 3;
+const byDish = new Map<string, { fails: number; errSum: number; n: number; fieldDraws: number }>();
 
 const out = ["run              failed        mean|err|   abs-floor"];
 for (const run of runs) {
@@ -55,6 +74,8 @@ for (const run of runs) {
         "skip",
       )
     ) {
+      if (!byDish.has(name)) byDish.set(name, { fails: 0, errSum: 0, n: 0, fieldDraws: 0 });
+      const dishTotals = byDish.get(name)!;
       // deno-lint-ignore no-explicit-any
       const dish = oracleFile.find((o: any) => o.name === name);
       // The printed weight comes from the SAME parser production uses, so the
@@ -76,7 +97,9 @@ for (const run of runs) {
       );
       for (const [i, verdict] of shipped.fields.entries()) {
         fieldDraws++;
+        dishTotals.fieldDraws++;
         if (!shipped.passes[i]) fails++;
+        if (!shipped.passes[i]) dishTotals.fails++;
         // A field decided by the absolute floor has no meaningful percentage -
         // "0 g carb" on a steak is a 100% error and a correct answer. Counted
         // for pass/fail, excluded from the mean, and reported so the exclusion
@@ -89,6 +112,8 @@ for (const run of runs) {
         // having a second acceptable reading must not flatter its error.
         errSum += Math.abs(verdict.model - verdict.oracle) / verdict.oracle;
         n++;
+        dishTotals.errSum += Math.abs(verdict.model - verdict.oracle) / verdict.oracle;
+        dishTotals.n++;
       }
     }
   }
@@ -97,5 +122,15 @@ for (const run of runs) {
       `${(errSum / n * 100).toFixed(1)}%`.padStart(8)
     }   ${absolutes}`,
   );
+}
+if (BY_DISH) {
+  out.push("", "dish                         failed        mean|err|");
+  for (const [name, totals] of byDish) {
+    out.push(
+      `${name.padEnd(28)} ${`${totals.fails}/${totals.fieldDraws}`.padStart(6)}   ${
+        `${(totals.errSum / totals.n * 100).toFixed(1)}%`.padStart(8)
+      }`,
+    );
+  }
 }
 console.log(out.join("\n"));

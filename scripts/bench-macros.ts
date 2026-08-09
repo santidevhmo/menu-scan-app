@@ -21,7 +21,17 @@ import {
   validateRecipe,
 } from "./usda-oracle.ts";
 
-const ORACLE_PATH = "scripts/fixtures/macro-oracle.json";
+const FROZEN_ORACLE_PATH = "scripts/fixtures/macro-oracle.json";
+// ponytail: the env read is optional on purpose. The documented $0 command is
+// `deno run --allow-read scripts/rescore-history.ts`, and a bare Deno.env.get
+// THROWS without --allow-env, which would break it. No env access = frozen oracle.
+export const ORACLE_PATH = (() => {
+  try {
+    return Deno.env.get("MACRO_ORACLE_PATH") ?? FROZEN_ORACLE_PATH;
+  } catch {
+    return FROZEN_ORACLE_PATH;
+  }
+})();
 const CACHE_DIR = "scripts/fixtures/caches";
 
 type OracleValues = MacroValues & {

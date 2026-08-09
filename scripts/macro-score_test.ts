@@ -119,14 +119,18 @@ Deno.test("a gram field passes on a small ABSOLUTE miss, whatever the percentage
   assertEquals(scoreItem(dish, { ...dish, protein_g: 14 }).pass, true);
   // Same +40% on a large quantity is 16g of food - still fails.
   assertEquals(scoreItem(dish, { ...dish, carb_g: 56 }).pass, false);
-  // The allowance is 5g, not amnesty: 5.2g over on a 9.3g oracle still fails.
+  // The allowance is 6g, not amnesty: 8g over on a 9.3g oracle still fails.
   const gnocchi: MacroValues = { ...dish, protein_g: 9.3 };
-  assertEquals(scoreItem(gnocchi, { ...gnocchi, protein_g: 14.5 }).pass, false);
+  assertEquals(scoreItem(gnocchi, { ...gnocchi, protein_g: 17.3 }).pass, false);
+  // 5.2g over on the same oracle is +56% and now forgiven - that is the point.
+  assertEquals(scoreItem(gnocchi, { ...gnocchi, protein_g: 14.5 }).pass, true);
 
-  // Calories are deliberately excluded - no dish in the set has a small calorie
-  // figure, so a kcal allowance would only ever hide a real miss.
+  // Calories carry their own allowance (Santiago: "the 40 cal ... difference is
+  // tolerable"), so a small absolute miss passes and a large one still fails.
   assertEquals(scoreItem(dish, { ...dish, calories: 404 }).pass, true); // +1%, band
-  assertEquals(scoreItem(dish, { ...dish, calories: 500 }).pass, false); // +25%, no floor
+  assertEquals(scoreItem(dish, { ...dish, calories: 440 }).pass, true); // +10%, band
+  assertEquals(scoreItem(dish, { ...dish, calories: 448 }).pass, true); // +12%, 48 kcal
+  assertEquals(scoreItem(dish, { ...dish, calories: 500 }).pass, false); // +25%, 100 kcal
 
   // A field forgiven by grams still reports its real percentage, so mean |error|
   // stays comparable with every figure recorded before this rule existed.

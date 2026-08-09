@@ -269,9 +269,7 @@ export async function enrichBatch(
     // A black-box ingredient means the totals rest on a whole-dish guess. The
     // numbers stand - nothing here can decompose what the model did not - but the
     // item is no longer "high" confidence, and the app already surfaces that.
-    confidence: (item.ingredients ?? []).some((i) =>
-        isBlackBoxIngredient(item.name, i.name)
-      )
+    confidence: isBlackBoxed(item.name, item.ingredients ?? [])
       ? "low" as const
       : item.confidence,
     ...sumIngredientMacros(item.ingredients ?? [], item.printed_total_g),
@@ -329,6 +327,34 @@ export function isBlackBoxIngredient(
   // A one-word ingredient is a food ("rice", "pollo"), not a dish restated.
   if (!ing.includes(" ")) return false;
   return item.startsWith(ing);
+}
+
+/**
+ * True when the item is REALLY undecomposed - a black-box ingredient standing in
+ * for the whole dish, not a component of a proper breakdown.
+ *
+ * The name test alone over-fires, and the 2026-08-09 real-menu probe caught it:
+ * `BLACK TRUFFLE BUTTER` decomposed correctly into butter 14 g + black truffle
+ * 5 g, and was flagged - and downgraded - purely because the item name starts
+ * with an ingredient name. One false positive in 72 real items, against one true
+ * positive, so the name test on its own is right about half the time.
+ *
+ * The distinguishing fact is MASS SHARE, not the name: a restated dish IS the
+ * dish, so it carries essentially all of it (`hot cakes` was the only ingredient
+ * of HOT CAKES). A genuine component shares the plate with others (truffle is
+ * 5 g of 19 g). The 80% threshold sits far from both observed cases - 100% and
+ * 26% - rather than being tuned to either.
+ */
+export function isBlackBoxed(
+  itemName: string,
+  ingredients: EnrichedItem["ingredients"],
+): boolean {
+  const total = ingredients.reduce((s, i) => s + (i.typical_serving_g ?? 0), 0);
+  if (total <= 0) return false;
+  return ingredients.some((i) =>
+    isBlackBoxIngredient(itemName, i.name) &&
+    (i.typical_serving_g ?? 0) / total >= 0.8
+  );
 }
 
 export function resolveGrams(

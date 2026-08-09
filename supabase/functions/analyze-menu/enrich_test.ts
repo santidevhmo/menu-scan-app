@@ -17,6 +17,7 @@ import {
   reassembleEnriched,
   resolveGrams,
   isBlackBoxIngredient,
+  isBlackBoxed,
 } from "./enrich.ts";
 
 const extracted = (name: string): ExtractedItem => ({
@@ -585,4 +586,39 @@ Deno.test("B24: a dish restated as its own ingredient is detected, and only that
   // Degenerate input must not throw or match.
   assertEquals(isBlackBoxIngredient("", "x"), false);
   assertEquals(isBlackBoxIngredient("Soup", ""), false);
+});
+
+Deno.test("B24b: only an ingredient carrying the whole dish is a black box", () => {
+  // Both cases are REAL, from the 2026-08-09 nine-menu probe.
+  const ing = (name: string, typical_serving_g: number) => ({
+    name,
+    category: "other" as const,
+    within_printed_weight: true,
+    typical_serving_g,
+    protein_per_100g: 0,
+    carb_per_100g: 0,
+    fat_per_100g: 0,
+  });
+
+  // TRUE positive: the dish restated as its only ingredient, 100% of the mass.
+  assertEquals(
+    isBlackBoxed("HOT CAKES (3 piezas) Naturales", [ing("hot cakes", 150)]),
+    true,
+  );
+
+  // FALSE positive that the name test alone produced, and the reason this guard
+  // exists: BLACK TRUFFLE BUTTER decomposed CORRECTLY into butter 14g + black
+  // truffle 5g and was downgraded anyway, purely because the item name starts
+  // with an ingredient name. Truffle is 26% of the mass.
+  assertEquals(
+    isBlackBoxed("BLACK TRUFFLE BUTTER", [ing("butter", 14), ing("black truffle", 5)]),
+    false,
+  );
+  // The name test still matches both - the mass share is what separates them.
+  assertEquals(isBlackBoxIngredient("BLACK TRUFFLE BUTTER", "black truffle"), true);
+
+  // No ingredients cannot be a black box; it is the separate empty-item case.
+  assertEquals(isBlackBoxed("Spicy Garlic", []), false);
+  // Zero-gram servings must not divide by zero.
+  assertEquals(isBlackBoxed("X Y", [ing("x y", 0)]), false);
 });

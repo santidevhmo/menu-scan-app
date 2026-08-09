@@ -3261,3 +3261,48 @@ run was reported and it changes what the results support:
 | **"1 of 36 black-boxed"** | 🔴 **NOT a real rate. The denominator is a designed set — never quote it as a frequency** (standing rule: a frequency claim needs a denominator, and this one is not a sample of anything) |
 
 **For an honest rate, sample the nine real archived menus in `scripts/fixtures/caches/` instead.**
+
+### 📊 REAL-MENU PROBE — 72 items, 9 menus, honest rates at last (2026-08-09, ~$0.26)
+
+Replaces the synthetic wide probe's unquotable figures. Items taken from the **latest extraction
+archive of each of the nine real menus**, food and sides only, sampled by a deterministic even spread
+fixed BEFORE any result was seen — so the set is not chosen to flatter or to break anything. Run
+through **`callGptEnrich`**, the full production entry point: batches of 10, retry, reassembly.
+
+⚠️ **A 72-item single call TIMED OUT at 120 s** on the first attempt. Production batches at 10 for
+exactly this reason; the probe now takes the same path a real scan takes, which makes it more
+faithful, not merely workable.
+
+| | count | rate |
+|---|---:|---:|
+| black-box ingredient (name test alone) | 2 | 2.8% |
+| **black-box after the mass-share guard** | **1** | **1.4%** |
+| no ingredients at all | 2 | 2.8% |
+| 0 kcal | 2 | 2.8% |
+| confidence | high 8 · medium 55 · **low 9** | |
+
+**Ingredient counts are healthy** — 4, 5 and 6 ingredients are the commonest (14, 13 and 11 items).
+Only 2 of 72 returned nothing, and 7 returned a single ingredient, which is correct for a one-food
+side like `Parmesano`.
+
+🔴 **B24 HAD A FALSE POSITIVE, and only a real menu could show it.**
+`BLACK TRUFFLE BUTTER` (guest-house) decomposed **correctly** — butter 14 g + black truffle 5 g — and
+was flagged and downgraded to `low` purely because the item name starts with an ingredient name. **One
+false positive against one true positive: the name test alone was right about half the time.**
+
+**B24b adds the distinguishing fact, which is MASS SHARE rather than the name.** A restated dish IS
+the dish, so it carries essentially all of it — `hot cakes` was 100% of HOT CAKES. A genuine component
+shares the plate — truffle is 26% of the butter. The threshold is **80%**, sitting far from both
+observed cases rather than tuned to either.
+
+| item | name test | mass share | flagged now |
+|---|---|---:|---|
+| `HOT CAKES (3 piezas) Naturales` → `hot cakes` | matches | **100%** | ✅ yes |
+| `BLACK TRUFFLE BUTTER` → `black truffle` | matches | 26% | **no** ✅ fixed |
+
+**The two empty-ingredient items are both real and both correct:** `Spicy Garlic` and `Parmesano`
+(polloteria) are sauce/seasoning names with no description — the model rightly had nothing to work
+with, and they now render as a dash rather than 0 kcal.
+
+**Honest rates to quote from here on: black-box ~1.4%, undecomposable ~2.8%, both on 72 real items
+across 9 menus.** Small, but real, and each now has a guard behind it.

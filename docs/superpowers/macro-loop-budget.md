@@ -30,8 +30,9 @@ under-quoted a run by pricing per *menu* instead of per *call* — check which u
 | 3 | 2026-08-09 | B16 run w1 — mechanism never fired, prompt defect | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **~$0.50 of $8.64** |
 | 4 | 2026-08-09 | B16b probe — mechanism fired, hypothesis FALSIFIED | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **~$0.60 of $8.64** |
 | 5 | 2026-08-09 | B17 probe — state named, composition unmoved. FALSIFIED | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **~$0.70 of $8.64** |
+| 6 | 2026-08-09 | B18 probe — dish-level recall loses to the ingredient sum. FALSIFIED | gpt-4o-2024-08-06 | 3 | $0.10 | ~$0.099 | **~$0.80 of $8.64** |
 
-**Remaining: ~$7.94**
+**Remaining: ~$7.84**
 
 ## Stop conditions
 

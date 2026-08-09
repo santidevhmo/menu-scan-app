@@ -2631,3 +2631,41 @@ collapsed it.
 B15 is byte-identical before and after. Mean |error| figures from before this entry swap are **not**
 comparable with those after it; failed counts are not either. The same trap the French Fries
 re-freezes set, flagged here so nobody reads 18.2% → 14.1% as the model getting better.
+
+### iter-b18 — dish-level energy-density recall. FALSIFIED (2026-08-09, ~$0.10, 1 probe run)
+
+**Reverted to `macro-best-v3`.** Probe **14/96 at 17.3%** against B15's 11–13/96 at 14.1–14.9%.
+
+**The hypothesis, straight off the B13/B17 prior.** Three attempts to correct an ingredient number the
+model already believes have failed, while both composition successes ADDED a question. So ask one
+never asked: for the KIND of dish this is, what does 100 g of it usually carry? Asked BEFORE the
+ingredient list on purpose, so the answer is independent recall and not a restatement of a sum — the
+mistake that made B16 useless. Coleslaw motivated it: the model's ingredients sum to 81 kcal/100 g
+where every real coleslaw in FDC is 107–124.
+
+🔴 **The model's dish-level recall is WORSE than its own ingredient sum — on 6 of 8 dishes.**
+
+| dish | recall | oracle | ingredient sum | closer |
+|---|---:|---:|---:|---|
+| CESAR | 180 | 205 | 209 | sum |
+| Salmone | 250 | 248 | 232 | **recall** |
+| PASTEL | 200 | 164 | 138 | sum |
+| NEW YORK | 250 | 292 | 306 | sum |
+| French Fries | 312 | 289 | 310 | sum |
+| Gnocchi | 200 | 148 | 158 | sum |
+| ENFRIJOLADAS | 180 | 188 | 224 | **recall** |
+| Coleslaw | 150 | 108 | 81 | sum |
+
+On Coleslaw — the dish that motivated the idea — recall overshoots by **+39%** where the sum
+undershoots by −25%. It did not merely fail to help; it was worse in both directions.
+
+🔑 **Look at the recall numbers: 180, 250, 200, 250, 200, 180, 150.** Almost every one is a multiple
+of 50. That is the exact signature baseline-002 showed — *"every macro a multiple of 5 and every
+calorie a multiple of 50, the signature of a guess made straight at the macro level rather than a sum
+over portions"* — and it is precisely why this pipeline was moved to per-ingredient composition in the
+first place.
+
+**The prior: asking the model for a dish-level TOTAL re-creates the failure the architecture was built
+to escape**, whatever the units and however the question is framed. B10 took the addition away, B12
+the multiplication, B4 the fitting; B18 tried to hand one back and got a round number. This is fresh
+evidence FOR the build-from-ingredients design, which is worth more than the dish it failed to fix.

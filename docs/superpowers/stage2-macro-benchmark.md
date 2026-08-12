@@ -3409,6 +3409,42 @@ more than it is worth on the weighted one, and the cause is prompt perturbation,
 | 1 | blinded fixtures | median **37.5%**, MAPE **50.1%** | 🔴 FAIL (target ≤25%) |
 | 5 | USDA-weighed dishes | **3/5 within 30%** — pizza 14.7%/24.3%, sushi 16.7%, taco 117%, wings 56% | ✅ PASS |
 
+### 🏆 PIECES-ONLY ARM — the forced piece count BEATS `macro-best-v8` (2026-08-11, ~$0.20)
+
+The anchor removed, the forced `serving_pieces` field kept. 4 runs x 3 draws.
+
+| arm | failed/96 | mean abs error |
+|---|---|---|
+| `macro-best-v8` | 2–3 | 14.3–14.5% |
+| **pieces-only** | **0–3** | **12.0–12.5%** |
+
+✅ **The best arm measured in this phase.** Two of the four runs scored a perfect **0/96**, and the
+error ranges do not overlap: 12.0–12.5% against 14.3–14.5%. It is not merely free — it appears to be
+an improvement.
+
+**Counts are stable and right:** across all 12 draws `ENFRIJOLADAS` returned **3** every time (its
+description says *"Tres tortillas"*) and every single-plate dish returned **1** every time. Zero
+variance. (The `iter-b4-w*` archives show `None` for this field only because they predate it — that
+column is not a comparison.)
+
+⚠️ **Why it would help macro accuracy is NOT established.** A plausible mechanism is B15's: making the
+model state the dish's served FORM before it lists ingredients constrains the list. That is a
+hypothesis, not a finding — what is measured is the score.
+
+### 🔬 A METHOD NOTE THAT SAVES MONEY — repeated draws of a FIXED input tell you almost nothing here
+
+The blinded-fixture probe was re-run to replicate a single-draw result. **Draw 2 came back
+byte-identical to draw 1** — all eight anchors reproduced exactly (250/350/300/300/150/300/350/150).
+`samplingFor` sends `temperature: 0` and `seed: 17` to the pinned model, so an identical request is
+very nearly deterministic; the small variation the benchmark does see across draws is OpenAI's
+residual nondeterminism, not model uncertainty.
+
+**Consequence: "run it again for confidence" is close to worthless on a fixed payload, and the third
+draw was cancelled rather than paid for.** Confidence comes from NEW INPUTS - more dishes, other
+menus, an oracle where none exists - not from more draws of the same eight. It also reframes test 1:
+those anchor values are not noisy, so what is uncertain there is the GROUND TRUTH (the open scope
+question), never the measurement.
+
 ### 🎯 DISAMBIGUATION — which sentence cost the fixtures? (2026-08-11, ~$0.20). **The anchor did.**
 
 The anchor arm changed two things at once. This arm reverts the `serving_pieces` half — prompt step 3

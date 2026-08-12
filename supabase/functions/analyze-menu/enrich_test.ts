@@ -882,3 +882,34 @@ Deno.test("the item commits to its customary weight before portioning", () => {
     "the dish's size must be settled before its ingredients",
   );
 });
+
+Deno.test("no source file fits grams to a raw printed weight", async () => {
+  // resolveGrams has three callers and two of them are measurement tools. If one
+  // passes item.printed_total_g directly it silently keeps the pre-anchor
+  // behaviour, and the benchmark then scores a pipeline production does not run
+  // - the lesson-28 class, which has already cost this project a paid run.
+  // portionTarget is the only place the choice is made; this fails the build if
+  // a caller drifts back.
+  const offenders: string[] = [];
+  for (const dir of ["scripts", "supabase/functions/analyze-menu"]) {
+    for await (const entry of Deno.readDir(dir)) {
+      if (!entry.isFile || !entry.name.endsWith(".ts")) continue;
+      if (entry.name.endsWith("_test.ts")) continue;
+      const path = `${dir}/${entry.name}`;
+      const text = await Deno.readTextFile(path);
+      if (
+        /(?:resolveGrams|sumIngredientMacros)\s*\([^)]*?\.printed_total_g/s
+          .test(text)
+      ) {
+        offenders.push(path);
+      }
+    }
+  }
+  assertEquals(
+    offenders,
+    [],
+    `these files must pass portionTarget(item) instead: ${
+      offenders.join(", ")
+    }`,
+  );
+});

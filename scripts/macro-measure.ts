@@ -23,7 +23,10 @@
 // A zero-context session cannot be expected to rediscover any of this, which is
 // why the duplication is deleted rather than documented, and why
 // `macro-measure_test.ts` fails the build if a second copy reappears.
-import { sumIngredientMacros } from "../supabase/functions/analyze-menu/enrich.ts";
+import {
+  portionTarget,
+  sumIngredientMacros,
+} from "../supabase/functions/analyze-menu/enrich.ts";
 import type { EnrichedItem } from "../supabase/functions/analyze-menu/enrich.ts";
 import { type MacroValues, scoreItem } from "./macro-score.ts";
 
@@ -60,7 +63,9 @@ export function altOracle(
   },
   printedTotalG: number | null,
 ): MacroValues | null {
-  if (!HAS_ALT_READING(entry.name) || !entry.oracle || !printedTotalG) return null;
+  if (!HAS_ALT_READING(entry.name) || !entry.oracle || !printedTotalG) {
+    return null;
+  }
 
   const total = entry.oracle.ingredients.reduce((sum, i) => sum + i.grams, 0);
   if (total <= 0) return null;
@@ -112,7 +117,7 @@ export function toMacroValues(item: any): MacroValues {
   if (first.protein_per_100g !== undefined) {
     const totals = sumIngredientMacros(
       archivedIngredients(ingredients),
-      item.printed_total_g,
+      portionTarget(item),
     );
     return {
       calories: totals.estimated_calories,
@@ -166,7 +171,9 @@ export function scoreDish(
   alt: MacroValues | null = null,
 ): DishVerdict {
   const shipped = scoreItem(oracle, model);
-  const altScored = alt && HAS_ALT_READING(dishName) ? scoreItem(alt, model) : null;
+  const altScored = alt && HAS_ALT_READING(dishName)
+    ? scoreItem(alt, model)
+    : null;
 
   const passes = shipped.fields.map((field, i) =>
     field.pass || (altScored?.fields[i].pass ?? false)

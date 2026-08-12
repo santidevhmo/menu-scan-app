@@ -15,6 +15,7 @@ import {
   callGptEnrich,
   type EnrichedItem,
   type ExtractedItem,
+  portionTarget,
   resolveGrams,
 } from "../supabase/functions/analyze-menu/enrich.ts";
 
@@ -22,7 +23,7 @@ import {
 export function plateGrams(
   item: EnrichedItem,
 ): { total: number; inside: number } {
-  const grams = resolveGrams(item.ingredients ?? [], item.printed_total_g);
+  const grams = resolveGrams(item.ingredients ?? [], portionTarget(item));
   const total = grams.reduce((s, g) => s + g, 0);
   const inside = grams.reduce(
     (s, g, i) => item.ingredients[i].within_printed_weight ? s + g : s,

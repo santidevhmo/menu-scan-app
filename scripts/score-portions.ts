@@ -16,7 +16,10 @@
 //
 // Run: deno run --allow-read scripts/score-portions.ts [runId ...]
 
-import { resolveGrams } from "../supabase/functions/analyze-menu/enrich.ts";
+import {
+  portionTarget,
+  resolveGrams,
+} from "../supabase/functions/analyze-menu/enrich.ts";
 import { archivedIngredients } from "./macro-measure.ts";
 
 const CACHE_DIR = "scripts/fixtures/caches";
@@ -108,7 +111,7 @@ export function modelGrams(
   // disagree about what an archived run meant.
   const grams = resolveGrams(
     archivedIngredients(ingredients),
-    item.printed_total_g,
+    portionTarget(item),
   );
 
   return ingredients.map((i, idx) => ({ name: i.name, grams: grams[idx] }));

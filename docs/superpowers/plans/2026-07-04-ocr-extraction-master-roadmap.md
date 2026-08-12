@@ -27,6 +27,20 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > oracle corrections, B21 (standard reference-amount servings), B24b (black-box detection). Seven
 > other hypotheses were falsified and each closed a direction — see the log.
 >
+> 🚧 **OPEN BLOCKER (2026-08-11, Santiago's ruling) — SIZE IS A DEAD CHANNEL EXCEPT PRINTED GRAMS.**
+> Measured, 3 draws, one item per call, calories as the metric: a printed-grams control moves the
+> answer **2.14–2.37×** for a 2× weight, while **diameter (28→40 cm) moves it 1.06–1.36×, "for 2
+> people" 0.62–1.22×, "6 pz"→"12 pz" 1.03–1.17×, and "chica"→"grande" 1.02–1.32×.** Every non-gram
+> statement of size is ignored. This is NOT dish-specific — pizza, wings, pasta and salad are equally
+> flat — and it is NOT a uniform under-estimate: estimates sit near a ~231 g prior and simply do not
+> move, so dishes near that prior look fine and a 28 cm pizza comes out ~2.5× low (517 kcal against a
+> reconstruction of 1,100–2,000).
+> **Consequences:** passing a captured size as TEXT cannot work (the probe put `40 cm` in the item
+> NAME and it was still ignored); a stated size only helps if CODE turns it into grams. "2 personas"
+> and "12 pz" are food-agnostic MULTIPLIERS and are the tractable part; `cm`→grams needs a
+> dish-specific density and is not. Evidence and the probe:
+> `docs/superpowers/stage2-macro-benchmark.md`, `scripts/probe-size-sensitivity.ts`.
+>
 > **Generalisation, measured on 72 real items across all nine archived menus** (not the fixtures):
 > black-box ingredient **1.4%**, undecomposable **2.8%**, weight parsing correct on every format
 > including `12 oz` and `1/2 lb`. Two structural defects were found and fixed there that the eight

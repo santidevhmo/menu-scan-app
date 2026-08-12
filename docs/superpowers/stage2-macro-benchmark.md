@@ -3352,3 +3352,51 @@ thing from a food list in the prompt, and it was never covered by that ruling.
 **`portions.ts` is guarded by 5 tests** covering piece labelling, floating-point accumulation
 (1/3 + 1/3 + 1/3 must read "all", never "2.9999/3"), the half-item fallback, and every implausible
 count a model could return (0, 1.5, −3, 51, NaN, Infinity).
+
+### 🔬 DIAGNOSTIC — the unweighted path, measured for the first time (2026-08-11, one run)
+
+**Why:** Santiago's real-restaurant Nikkori scan raised the question of whether a sushi order's grams
+are right. All 8 fixtures carry a printed weight, so `resolveGrams`' **fallback** — the branch where
+nothing is fitted — had never been measured on anything.
+
+`scripts/probe-unweighted-portions.ts` ran the 48 items of `device-scans/nikkori.device-r1.dump.json`
+(the real-camera device scan) through `callGptEnrich`, the deployed path. **48 of 48 print no weight.**
+
+✅ **No gross error.** Plate mass **260 g min / 375 g median / 520 g max** over 42 rolls — 31–38 g per
+piece at 10–12 pieces per order, which is a normal specialty-roll piece. Sushi rice landed on exactly
+**150 g in 42 of 42 rolls**.
+
+🔴 **THE DEFECT IS THE SLOPE, NOT THE LEVEL — plate mass tracks the LENGTH OF THE INGREDIENT LIST.**
+
+| ingredients | rolls | median plate |
+|---|---|---|
+| 5 | 7 | 320 g |
+| 6 | 9 | 350 g |
+| 7 | 13 | 388 g |
+| 8 | 6 | 400 g |
+| 9 | 5 | 425 g |
+| 10 | 2 | 454 g |
+
+Monotonic, **r = 0.74, ≈ 32 g per additional ingredient.** Every component enters at its full
+standalone reference serving and simply *adds*, because nothing represents how big one order is. A
+roll described in ten words weighs 1.8× the same roll described in five — and since the goal ranking
+sorts on these macros, **the ranking is partly a ranking of menu-copy verbosity.**
+
+📌 **Corroborated by B20**, which stripped printed weights from the fixtures and scored **16/96 at
+18.8%** against the anchored **11–13/96 at 14.1–14.9%**. The unanchored branch was already known to be
+the weaker one; nobody had connected that to the branch most real menus take.
+
+🔴 **`serving_pieces` null on 46 of 48** — 2 volunteered a count unprompted (4%, noise). This
+**confirms rather than overturns** the finding above: conventional counts do not arrive by asking.
+
+🔴 **Desserts collapse — a separate, unfixed defect.** All five cakes returned exactly 130 g / 2
+ingredients, and *Pastel de zanahoria* and *Red velvet* returned **identical macros** (62 C / 29 F /
+527 kcal). The black-box guard missed both twice over: the share is 100/130 = **77%**, just under the
+0.8 threshold, and `isBlackBoxIngredient` compares a Spanish item name to an English ingredient name,
+so the name test cannot fire across a translation.
+
+**Design that came out of it:** `docs/superpowers/specs/2026-08-11-unweighted-dish-portion-anchor-design.md`
+(approved 2026-08-11, not implemented). Anchor the ingredient fit to a model-supplied
+`typical_total_g` when the menu prints nothing; force `serving_pieces` to be non-nullable rather than
+asking for it a third time. **The code-review graph found a third `resolveGrams` caller
+(`scripts/score-portions.ts:109`) that would have silently kept the old behaviour — lesson 28 again.**

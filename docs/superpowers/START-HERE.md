@@ -36,9 +36,22 @@ the explicit exception: it is the bounded Phase-9 workstream record, not a compe
 built and frozen; six prompt/schema iterations have been measured against it, and the fixture set was
 widened from 3 dishes to 8 on 2026-08-09. Phase spend to date: **~$2.52**.
 
-🚀 **B4 IS DEPLOYED (2026-08-09, Santiago authorised).** Edge function `analyze-menu` **v27 → v28**,
-still pinned to `gpt-4o-2024-08-06`. Production previously ran the original pre-B1 prompt — the
-worst version measured (39/96 failed, 37.7% error); it now runs B4 (**24–27/96, 21.0–21.2%**).
+🚀 **`macro-best-v8` IS DEPLOYED — edge function `analyze-menu` v29, 2026-08-09 15:46 MST**, still
+pinned to `gpt-4o-2024-08-06`. ⚠️ **Every line below that says "v28" or "B4 is what production runs"
+was written before that deploy and is WRONG.** Verified against the live function on 2026-08-11: the
+deployed `ENRICH_PROMPT` is byte-identical to this repo's, and the bundle carries B15
+`name_implied_components`, B21, B24/B24b `isBlackBoxed`, `serving_pieces` and the `samplingFor`
+gpt-5 guard. `origin/main` carries the same `enrich.ts` (squash-merged as `3717f97`).
+
+🔍 **Never trust a doc for what is deployed — check the live function.** This block claimed v28/B4
+for two days while v29 was serving every scan. `mcp__supabase__list_edge_functions` gives the version
+and `updated_at`; `mcp__supabase__get_edge_function` gives the source, and the decisive test is
+whether the deployed bundle contains this repo's `ENRICH_PROMPT` verbatim (it is JSON-escaped in the
+payload, so compare with quotes and newlines escaped).
+
+Earlier deploy, kept for history: **B4 went out 2026-08-09 as v27 → v28**. Production before that ran
+the original pre-B1 prompt — the worst version measured (39/96 failed, 37.7% error); B4 measured
+**24–27/96, 21.0–21.2%**.
 Verified live: `printed_total_g` read correctly on all three smoke-test dishes, allergens present,
 `model_id` = the pin. **Rollback = redeploy from `ce91e91`**:
 `git checkout ce91e91 -- supabase/functions/analyze-menu/ && supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw`.
@@ -53,7 +66,7 @@ every commit and whether it is deployed, the runs side by side, and what each pr
 Tasks 1–5 are COMPLETE. The USDA plan is the oracle/provenance reference:
 `docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
 
-**One-line state:** **`macro-best-v8` (B21 + B24b) is the best measured version. Production still runs B4 as edge function v28 — the newer work is NOT deployed.** On the 8-dish set, 4 runs x 3 draws: **baseline 24/96 at 34.2%, B21 0–3/96 at 12.1–14.1%**, with one perfect run and six of eight dishes at 0/48. Verified beyond the fixtures on **72 real items from all nine archived menus**: black-box ingredient 1.4%, undecomposable 2.8%. Drinks and alcohol are deliberately OUT (post-launch). **The biggest remaining unknown needs Santiago, not another run: the real-restaurant field test** — every scan to date is a photo of a screen. Always re-derive numbers with `deno run --allow-read scripts/rescore-history.ts`; figures written in prose are snapshots.
+**One-line state:** **`macro-best-v8` (B21 + B24b) is the best measured version, and it IS what production runs — edge function v29 since 2026-08-09 (verified against the live function 2026-08-11).** On the 8-dish set, 4 runs x 3 draws: **baseline 24/96 at 34.2%, B21 0–3/96 at 12.1–14.1%**, with one perfect run and six of eight dishes at 0/48. Verified beyond the fixtures on **72 real items from all nine archived menus**: black-box ingredient 1.4%, undecomposable 2.8%. Drinks and alcohol are deliberately OUT (post-launch). **The biggest remaining unknown needs Santiago, not another run: the real-restaurant field test** — every scan to date is a photo of a screen. Always re-derive numbers with `deno run --allow-read scripts/rescore-history.ts`; figures written in prose are snapshots.
 
 🏁 **Fallback checkpoint: git tag `stage2-b4-checkpoint` → commit `22a1ac5`.** Restore from it if an
 evaluation regresses. `git show stage2-b4-checkpoint` prints the result;
@@ -91,12 +104,13 @@ repeating paid work. Full detail in the log's Runs table and Rulings.
 | **`resolveGrams` "protect the principal"** | **FALSIFIED at $0** — made failures worse on both arms. Not shipped |
 | Measurement-code duplication (4 divergences) | Fixed; `macro-measure.ts` is the single path, guarded by tests |
 | **Deploying B4** | ✅ **DONE 2026-08-09 — edge fn v28.** Rollback target `ce91e91` |
+| **Deploying `macro-best-v8`** | ✅ **DONE 2026-08-09 15:46 MST — edge fn v29.** Verified live 2026-08-11. Supersedes the v28 row |
 | **Pipeline-integrity arm** (real menus, batches of 10, both models) | **DONE.** Both models clean: no drops, order kept, no truncation. Found a latent production break — see below |
 | **USDA adjudication of Coleslaw + ENFRIJOLADAS portions** | **DONE, oracle UNCHANGED on both.** USDA backs the oracle. Coleslaw's regression is genuine model error |
 | **GPT-5.5 as the production model** | **CONSIDERED AND DECLINED** — better macros, ~2.4× slower. Not a measurement gap; a product call already made |
 
 **Deliberately NOT done, and each needs a ruling before anyone starts:** deploying anything
-FURTHER (B4 was authorised and deployed 2026-08-09 as v28; nothing else is); switching production
+FURTHER (B4 went out as v28 and `macro-best-v8` as v29, both on 2026-08-09; nothing else is); switching production
 to GPT-5.5 (considered and declined — 2.4× slower); changing the oracle; re-running a baseline;
 putting any food/dish/cuisine name in the prompt's nutrition step (measured harmful, unit-tested).
 

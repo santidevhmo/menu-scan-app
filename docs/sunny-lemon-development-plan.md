@@ -670,7 +670,9 @@ This gives a native dialog instead of a browser popup and is the correct archite
 against a USDA FoodData Central **benchmark-only** oracle of **8 dishes** (the oracle never runs in
 the app; runtime USDA normalization is still out of scope).
 
-✅ **An enrichment fix WAS selected and IS deployed (2026-08-09): "B4", edge function v28.** The
+✅ **Enrichment fixes ARE deployed (both 2026-08-09): "B4" as edge function v28, then `macro-best-v8`
+(B21 + B24b) as v29 at 15:46 MST — v29 is what production runs**, verified against the live function
+on 2026-08-11. The paragraph below describes B4, the first of the two. The
 model now supplies ingredient knowledge — a conventional serving and per-100 g composition per
 ingredient, plus what the menu's printed weight covers — and the **code** does the fitting,
 multiplication and summation. Measured: **39/96 failed field/draws at 37.7% mean error → 24–27/96

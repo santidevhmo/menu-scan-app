@@ -3581,3 +3581,40 @@ out of band, the pizza is still under its reconstruction, and four guard dishes 
 too thin to justify changing every scan. Directions this leaves: understand the Salmón Roll drop;
 more guard dishes; and the unweighted oracle, which this experiment deliberately did not need but
 which is what would settle it.
+
+### ✅ ARM A-CONDITIONAL — ask always, anchor only on a stated size (2026-08-11, ~$0.40)
+
+The synthesis of everything measured today. The `typical_total_g` field is **always requested**,
+because asking for the plate demonstrably improves how the model portions ingredients; the value is
+**applied as an anchor only when the menu states a size or quantity**, detected by a deterministic,
+food-agnostic parse (`\d+ cm|pulgadas`, `\d+ pz|piezas`, `\d+ personas`, `chica|grande|individual|
+compartir`, `dos|tres|seis|doce`) — units and quantifiers, never a food name, the `parseItemGrams`
+discipline.
+
+| metric, 3 draws | baseline | A | **A-conditional** |
+|---|---|---|---|
+| printed grams (control) | 2.09–2.22 ✅ | 2.15–2.26 ✅ | 2.09–2.16 ✅ |
+| diameter 28→40 cm | 1.06–1.34 ❌ | 1.68–1.81 ✅ | **1.77–1.95** ✅ |
+| piece count 6→12 pz | 1.00 ❌ | 1.66–1.95 ✅ | **1.81–1.97** ✅ |
+| portions for 2 people | 0.62–1.21 ❌ | 1.33 ❌ | 1.33 ❌ **still unfixed** |
+| Salmón Roll, no size stated | 482–492 ✅ | **362–385 ❌** | **482–496 ✅** |
+| Capricciosa, no size stated | 570–785 | 815–849 | **856 — best** |
+| Carbonara spread | 609–**987** | 745–867 | **701–745 — tightest** |
+| Coliflor Roka | 165–196 kcal | 122–220 | **59–91** (its mass band implies 42–83) |
+
+🔑 **The mechanism, now separated into two levers.** Asking for the plate total improves the
+INGREDIENT LIST — the Capricciosa reaches its best figure (856 kcal) under A-conditional while never
+being anchored at all. Applying the total is a SECOND, independent lever that only pays off when the
+menu actually said something about size; with nothing stated it overrides a reasoned ingredient list
+with a guess, which is what broke the Salmón Roll under plain A. The field is a reasoning device in
+the same family as `name_implied_components`; the anchor is arithmetic.
+
+⚠️ **What this does NOT establish.** Four guard dishes and three draws is thin. There is still no
+unweighted-dish oracle, so every verdict above is "inside/outside a defensible band", not a score.
+The **96-point weighted benchmark cannot validate any of this** — all eight fixtures print a weight,
+so all eight take the byte-identical path and never exercise the changed code. "Portions for N
+people" remains flat in every arm, and the Capricciosa at 856 kcal is still under its 1,100–2,000
+reconstruction.
+
+Probe: `scripts/probe-plate-arms.ts` (`statesSize` is the detector). Archives:
+`probe-plate-arms.raw.json`, `probe-plate-arms-guard.raw.json`.

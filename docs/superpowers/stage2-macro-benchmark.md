@@ -3444,3 +3444,46 @@ almost all sushi rolls, a heavier dish; that confound is the whole of the r=0.53
 Corollary for Nikkori: a 397 g Salmón Roll plate is 50 g per piece at the model's 8 and 33 g at
 Santiago's observed 12 — **33 g is a normal sushi piece, so the plate mass looks right and only
 the count is low.**
+
+### 🚧 BLOCKER — the pipeline responds to printed grams and to NO other size signal (2026-08-11, ~$0.20)
+
+Found without an oracle, which is why it is worth more than the six-dish oracle it was meant to
+support. The same dish was sent at two sizes, one item per call so variants could not anchor each
+other, three draws each. **Calories** is the metric: a printed-grams control moved the ingredient
+sum only 1.10× but calories 2.17×, because `resolveGrams` fits the model's servings to the printed
+weight IN CODE — the ingredient list sits upstream of the thing that responds.
+
+| signal | calorie ratio, 3 draws | expected | verdict |
+|---|---|---|---|
+| **printed grams 200 → 400 g** (control) | **2.14–2.37** | 2 | ✅ responds |
+| diameter 28 → 40 cm | 1.06–1.36 | 2.04 | ❌ flat |
+| "individual" → "para compartir, 2 personas" | **0.62**–1.22 | 2 | ❌ flat, sometimes inverted |
+| "6 pz" → "12 pz" | 1.03–1.17 | 2 | ❌ flat |
+| "chica" → "grande" | 1.02–1.32 | 1.5 | ❌ flat |
+
+🔴 **This kills arm B as designed.** B was "capture the `28 CM` and carry it to enrichment". The
+probe ran a stronger version than B could ever be — the size sat in the item's NAME, the most
+prominent position available — and the model ignored it. Passing size as TEXT achieves nothing.
+A captured size only helps if **code** converts it to grams, because grams is the only channel that
+works.
+
+**It is not a pizza problem.** Wings, pasta and salad are equally flat. The dish is irrelevant; the
+channel is everything.
+
+🔑 **A food-agnostic fix is visible in the table.** "2 personas" and "12 pz" are pure **multipliers**
+— 2× one portion whatever the dish, needing no food list, no dish names, and no effect on items that
+state nothing. Only `28 cm` needs a density, and a density is dish-specific.
+
+⚠️ **Interacts with what shipped the same day.** `serving_pieces` is treated as a **divisor** — 8
+slices divide one pizza. But "12 pz" of wings is twice the food, not the same food cut smaller.
+Both the model and the portion control currently treat every count as division. Those are two
+different meanings of a count and only one is implemented.
+
+**What this does NOT establish:** that estimates are uniformly low. They are not — Coliflor Roka
+(85 g), Carbonara (315 g) and Salmón Roll (397 g) all look plausible. The defect is that estimates
+sit near a ~231 g prior and **do not move when the menu says the dish is bigger**. Dishes whose true
+size happens to sit near that prior come out fine; dishes far from it — a 28 cm pizza, a platter for
+two, a 12-piece order — come out badly wrong.
+
+Probe: `scripts/probe-size-sensitivity.ts`. Archive:
+`scripts/fixtures/caches/probe-size-sensitivity.raw.json`.

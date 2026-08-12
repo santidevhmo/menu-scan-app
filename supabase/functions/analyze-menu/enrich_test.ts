@@ -6,18 +6,19 @@ import {
 import {
   callGptEnrich,
   chunk,
-  enrichBatch,
   ENRICH_MODEL,
   ENRICH_PROMPT,
   ENRICH_SCHEMA_OPENAI,
+  enrichBatch,
   type EnrichedItem,
   type ExtractedItem,
-  sumIngredientMacros,
   fallbackEnriched,
+  isBlackBoxed,
+  isBlackBoxIngredient,
+  portionTarget,
   reassembleEnriched,
   resolveGrams,
-  isBlackBoxIngredient,
-  isBlackBoxed,
+  sumIngredientMacros,
 } from "./enrich.ts";
 
 const extracted = (name: string): ExtractedItem => ({
@@ -30,6 +31,7 @@ const extracted = (name: string): ExtractedItem => ({
 const enriched = (name: string): EnrichedItem => ({
   ...extracted(name),
   printed_total_g: null,
+  typical_total_g: null,
   name_implied_components: [],
   ingredients: [{
     name: "x",
@@ -119,7 +121,11 @@ Deno.test("enrich schema generates ingredients BEFORE the macro numbers", () => 
   const proteinAt = keys.indexOf("protein_g");
   const caloriesAt = keys.indexOf("estimated_calories");
 
-  assertEquals(ingredientsAt >= 0, true, "ingredients must exist in the schema");
+  assertEquals(
+    ingredientsAt >= 0,
+    true,
+    "ingredients must exist in the schema",
+  );
   assertEquals(
     ingredientsAt < proteinAt,
     true,
@@ -169,7 +175,11 @@ Deno.test("every ingredient must carry a serving and a scope tag (B1, B4)", () =
   const keys = Object.keys(ingredient.properties);
 
   for (const field of ["within_printed_weight", "typical_serving_g"]) {
-    assertEquals(keys.includes(field), true, `ingredients[] must declare ${field}`);
+    assertEquals(
+      keys.includes(field),
+      true,
+      `ingredients[] must declare ${field}`,
+    );
     // Strict mode only emits a field when it is required, so declaring it is not
     // enough - an optional field would be silently omitted on every call.
     assertEquals(
@@ -197,7 +207,9 @@ Deno.test("every ingredient must carry a serving and a scope tag (B1, B4)", () =
 Deno.test("the item commits to its printed weight before portioning (B4)", () => {
   const schema = ENRICH_SCHEMA_OPENAI as {
     properties: {
-      items: { items: { properties: Record<string, unknown>; required: string[] } };
+      items: {
+        items: { properties: Record<string, unknown>; required: string[] };
+      };
     };
   };
   const item = schema.properties.items.items;
@@ -280,7 +292,8 @@ Deno.test("the nutrition step rejects the raw reference form (B13)", () => {
   // insufficient. What is load-bearing here is the NEGATIVE: naming the raw
   // reference figure as the wrong answer. Stated as a basis, never as a food -
   // the guard above still applies to this sentence.
-  const nutritionStep = ENRICH_PROMPT.split("\n2. ")[1]?.split("\n3. ")[0] ?? "";
+  const nutritionStep = ENRICH_PROMPT.split("\n2. ")[1]?.split("\n3. ")[0] ??
+    "";
 
   assertEquals(
     nutritionStep.includes("cooked, sauced or seasoned"),
@@ -345,8 +358,24 @@ Deno.test("sumIngredientMacros prices composition at each ingredient's weight", 
   const got = sumIngredientMacros([
     // Per 100 g, so the 150 g second ingredient must contribute 1.5x its stated
     // numbers. Drop the scaling and protein comes out 34, not 35.
-    { name: "a", category: "protein", within_printed_weight: true, typical_serving_g: 100, protein_per_100g: 31, carb_per_100g: 0, fat_per_100g: 3.6 },
-    { name: "b", category: "carb", within_printed_weight: true, typical_serving_g: 150, protein_per_100g: 2.7, carb_per_100g: 28, fat_per_100g: 0.3 },
+    {
+      name: "a",
+      category: "protein",
+      within_printed_weight: true,
+      typical_serving_g: 100,
+      protein_per_100g: 31,
+      carb_per_100g: 0,
+      fat_per_100g: 3.6,
+    },
+    {
+      name: "b",
+      category: "carb",
+      within_printed_weight: true,
+      typical_serving_g: 150,
+      protein_per_100g: 2.7,
+      carb_per_100g: 28,
+      fat_per_100g: 0.3,
+    },
   ]);
 
   assertEquals(got.protein_g, 35); // 31 + 4.05
@@ -358,8 +387,24 @@ Deno.test("sumIngredientMacros prices composition at each ingredient's weight", 
 
 Deno.test("sumIngredientMacros rounds to whole grams and calories", () => {
   const got = sumIngredientMacros([
-    { name: "a", category: "fat", within_printed_weight: true, typical_serving_g: 10, protein_per_100g: 12.4, carb_per_100g: 3.1, fat_per_100g: 24.6 },
-    { name: "b", category: "veg", within_printed_weight: true, typical_serving_g: 10, protein_per_100g: 1.1, carb_per_100g: 2.4, fat_per_100g: 0.7 },
+    {
+      name: "a",
+      category: "fat",
+      within_printed_weight: true,
+      typical_serving_g: 10,
+      protein_per_100g: 12.4,
+      carb_per_100g: 3.1,
+      fat_per_100g: 24.6,
+    },
+    {
+      name: "b",
+      category: "veg",
+      within_printed_weight: true,
+      typical_serving_g: 10,
+      protein_per_100g: 1.1,
+      carb_per_100g: 2.4,
+      fat_per_100g: 0.7,
+    },
   ]);
 
   // 1.35 -> 1, 0.55 -> 1, 2.53 -> 3; calories from the UNROUNDED sums so the
@@ -367,7 +412,10 @@ Deno.test("sumIngredientMacros rounds to whole grams and calories", () => {
   assertEquals(got.protein_g, 1);
   assertEquals(got.carb_g, 1);
   assertEquals(got.fat_g, 3);
-  assertEquals(got.estimated_calories, Math.round(4 * 1.35 + 4 * 0.55 + 9 * 2.53));
+  assertEquals(
+    got.estimated_calories,
+    Math.round(4 * 1.35 + 4 * 0.55 + 9 * 2.53),
+  );
 });
 
 Deno.test("resolveGrams fits the printed weight and leaves accompaniments alone (B4)", () => {
@@ -377,9 +425,33 @@ Deno.test("resolveGrams fits the printed weight and leaves accompaniments alone 
   // the dish, destroying a judgment the model already gets right.
   const got = resolveGrams(
     [
-      { name: "plate a", category: "protein", within_printed_weight: true, typical_serving_g: 100, protein_per_100g: 0, carb_per_100g: 0, fat_per_100g: 0 },
-      { name: "plate b", category: "veg", within_printed_weight: true, typical_serving_g: 150, protein_per_100g: 0, carb_per_100g: 0, fat_per_100g: 0 },
-      { name: "side", category: "carb", within_printed_weight: false, typical_serving_g: 50, protein_per_100g: 0, carb_per_100g: 0, fat_per_100g: 0 },
+      {
+        name: "plate a",
+        category: "protein",
+        within_printed_weight: true,
+        typical_serving_g: 100,
+        protein_per_100g: 0,
+        carb_per_100g: 0,
+        fat_per_100g: 0,
+      },
+      {
+        name: "plate b",
+        category: "veg",
+        within_printed_weight: true,
+        typical_serving_g: 150,
+        protein_per_100g: 0,
+        carb_per_100g: 0,
+        fat_per_100g: 0,
+      },
+      {
+        name: "side",
+        category: "carb",
+        within_printed_weight: false,
+        typical_serving_g: 50,
+        protein_per_100g: 0,
+        carb_per_100g: 0,
+        fat_per_100g: 0,
+      },
     ],
     200,
   );
@@ -393,8 +465,24 @@ Deno.test("resolveGrams fits the printed weight and leaves accompaniments alone 
 Deno.test("resolveGrams passes servings through when no weight is printed (B4)", () => {
   const got = resolveGrams(
     [
-      { name: "a", category: "protein", within_printed_weight: true, typical_serving_g: 140, protein_per_100g: 0, carb_per_100g: 0, fat_per_100g: 0 },
-      { name: "b", category: "veg", within_printed_weight: true, typical_serving_g: 60, protein_per_100g: 0, carb_per_100g: 0, fat_per_100g: 0 },
+      {
+        name: "a",
+        category: "protein",
+        within_printed_weight: true,
+        typical_serving_g: 140,
+        protein_per_100g: 0,
+        carb_per_100g: 0,
+        fat_per_100g: 0,
+      },
+      {
+        name: "b",
+        category: "veg",
+        within_printed_weight: true,
+        typical_serving_g: 60,
+        protein_per_100g: 0,
+        carb_per_100g: 0,
+        fat_per_100g: 0,
+      },
     ],
     null,
   );
@@ -408,7 +496,15 @@ Deno.test("resolveGrams does not divide by zero when nothing is inside (B4)", ()
   assertEquals(resolveGrams([], 200), []);
   assertEquals(
     resolveGrams(
-      [{ name: "side", category: "carb", within_printed_weight: false, typical_serving_g: 45, protein_per_100g: 0, carb_per_100g: 0, fat_per_100g: 0 }],
+      [{
+        name: "side",
+        category: "carb",
+        within_printed_weight: false,
+        typical_serving_g: 45,
+        protein_per_100g: 0,
+        carb_per_100g: 0,
+        fat_per_100g: 0,
+      }],
       200,
     ),
     [45],
@@ -420,8 +516,24 @@ Deno.test("sumIngredientMacros prices the SCALED grams, not the raw servings (B4
   // priced at 0.8x what it stated. Without the scaling this returns 62.
   const got = sumIngredientMacros(
     [
-      { name: "a", category: "protein", within_printed_weight: true, typical_serving_g: 100, protein_per_100g: 20, carb_per_100g: 0, fat_per_100g: 0 },
-      { name: "b", category: "carb", within_printed_weight: true, typical_serving_g: 150, protein_per_100g: 28, carb_per_100g: 0, fat_per_100g: 0 },
+      {
+        name: "a",
+        category: "protein",
+        within_printed_weight: true,
+        typical_serving_g: 100,
+        protein_per_100g: 20,
+        carb_per_100g: 0,
+        fat_per_100g: 0,
+      },
+      {
+        name: "b",
+        category: "carb",
+        within_printed_weight: true,
+        typical_serving_g: 150,
+        protein_per_100g: 28,
+        carb_per_100g: 0,
+        fat_per_100g: 0,
+      },
     ],
     200,
   );
@@ -516,7 +628,9 @@ Deno.test("callGptEnrich batches at the production size and returns one item per
   const batchSizes: number[] = [];
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (_input, init) => {
-    const body = JSON.parse(init?.body as string) as { messages: { content: string }[] };
+    const body = JSON.parse(init?.body as string) as {
+      messages: { content: string }[];
+    };
     const sent = JSON.parse(
       body.messages[0].content.split("Menu items (JSON):\n")[1],
     ) as { name: string }[];
@@ -560,12 +674,18 @@ Deno.test("production enrichment rejects a malformed OpenAI response clearly", a
 Deno.test("B24: a dish restated as its own ingredient is detected, and only that", () => {
   // The real case, from the 2026-08-09 generalisation probe.
   assertEquals(
-    isBlackBoxIngredient("Chicken Tikka Masala with basmati rice", "chicken tikka masala"),
+    isBlackBoxIngredient(
+      "Chicken Tikka Masala with basmati rice",
+      "chicken tikka masala",
+    ),
     true,
   );
   // Its sibling ingredient in the same response is a genuine food.
   assertEquals(
-    isBlackBoxIngredient("Chicken Tikka Masala with basmati rice", "basmati rice"),
+    isBlackBoxIngredient(
+      "Chicken Tikka Masala with basmati rice",
+      "basmati rice",
+    ),
     false,
   );
 
@@ -573,14 +693,26 @@ Deno.test("B24: a dish restated as its own ingredient is detected, and only that
   // probe and must survive, or the fix silently downgrades good answers.
   assertEquals(isBlackBoxIngredient("Margherita", "pizza crust"), false);
   assertEquals(isBlackBoxIngredient("PASTA ALFREDO", "pasta"), false);
-  assertEquals(isBlackBoxIngredient("Pad Thai with prawns", "rice noodles"), false);
-  assertEquals(isBlackBoxIngredient("BACON CHEESE BURGER", "burger bun"), false);
-  assertEquals(isBlackBoxIngredient("Coleslaw (150gr)", "aderezo cremoso"), false);
+  assertEquals(
+    isBlackBoxIngredient("Pad Thai with prawns", "rice noodles"),
+    false,
+  );
+  assertEquals(
+    isBlackBoxIngredient("BACON CHEESE BURGER", "burger bun"),
+    false,
+  );
+  assertEquals(
+    isBlackBoxIngredient("Coleslaw (150gr)", "aderezo cremoso"),
+    false,
+  );
   // A one-word ingredient is a food, never a dish restated.
   assertEquals(isBlackBoxIngredient("Pollo a la plancha", "pollo"), false);
 
   // Accent- and case-insensitive, since this ships to every language.
-  assertEquals(isBlackBoxIngredient("PASTEL AZTECA (300gr.)", "pastel azteca"), true);
+  assertEquals(
+    isBlackBoxIngredient("PASTEL AZTECA (300gr.)", "pastel azteca"),
+    true,
+  );
   assertEquals(isBlackBoxIngredient("Ensalada Cesar", "ensalada cesar"), true);
 
   // Degenerate input must not throw or match.
@@ -611,14 +743,142 @@ Deno.test("B24b: only an ingredient carrying the whole dish is a black box", () 
   // truffle 5g and was downgraded anyway, purely because the item name starts
   // with an ingredient name. Truffle is 26% of the mass.
   assertEquals(
-    isBlackBoxed("BLACK TRUFFLE BUTTER", [ing("butter", 14), ing("black truffle", 5)]),
+    isBlackBoxed("BLACK TRUFFLE BUTTER", [
+      ing("butter", 14),
+      ing("black truffle", 5),
+    ]),
     false,
   );
   // The name test still matches both - the mass share is what separates them.
-  assertEquals(isBlackBoxIngredient("BLACK TRUFFLE BUTTER", "black truffle"), true);
+  assertEquals(
+    isBlackBoxIngredient("BLACK TRUFFLE BUTTER", "black truffle"),
+    true,
+  );
 
   // No ingredients cannot be a black box; it is the separate empty-item case.
   assertEquals(isBlackBoxed("Spicy Garlic", []), false);
   // Zero-gram servings must not divide by zero.
   assertEquals(isBlackBoxed("X Y", [ing("x y", 0)]), false);
+});
+
+// ---------------------------------------------------------------------------
+// The portion anchor: a dish whose menu prints no weight still has a size.
+//
+// Without one, every ingredient enters at its full standalone reference serving
+// and simply ADDS, so plate mass tracks the LENGTH of the ingredient list.
+// Measured on 48 real sushi items (2026-08-11): r = 0.74, ~+32 g per extra
+// ingredient. Spec: specs/2026-08-11-unweighted-dish-portion-anchor-design.md
+// ---------------------------------------------------------------------------
+
+Deno.test("portionTarget prefers the printed weight over the customary one", () => {
+  assertEquals(
+    portionTarget({ printed_total_g: 200, typical_total_g: 350 }),
+    200,
+  );
+});
+
+Deno.test("portionTarget falls back to the customary weight when none is printed", () => {
+  assertEquals(
+    portionTarget({ printed_total_g: null, typical_total_g: 350 }),
+    350,
+  );
+});
+
+Deno.test("portionTarget rejects an implausible customary weight", () => {
+  // The band exists to survive a model returning 5 or 50000, not to have an
+  // opinion about portions. Rejection means today's behaviour: no fitting.
+  for (const bad of [0, -100, 19, 2001, NaN, Infinity]) {
+    assertEquals(
+      portionTarget({ printed_total_g: null, typical_total_g: bad }),
+      null,
+      `typical_total_g=${bad} must not anchor anything`,
+    );
+  }
+  // A printed weight is the menu's own claim and is NOT band-checked: Andaluz
+  // prints 20 g and 30 g items, and those are real.
+  assertEquals(portionTarget({ printed_total_g: 5, typical_total_g: null }), 5);
+});
+
+Deno.test("portionTarget returns null for an archived item that predates the field", () => {
+  // Why re-scoring history needs no era flag.
+  assertEquals(portionTarget({ printed_total_g: null }), null);
+  assertEquals(portionTarget({}), null);
+});
+
+Deno.test("the anchor fits ingredients when the menu prints no weight", () => {
+  const ingredients: EnrichedItem["ingredients"] = [
+    {
+      name: "sushi rice",
+      category: "carb",
+      within_printed_weight: true,
+      typical_serving_g: 150,
+      protein_per_100g: 2,
+      carb_per_100g: 28,
+      fat_per_100g: 0,
+    },
+    {
+      name: "avocado",
+      category: "fat",
+      within_printed_weight: true,
+      typical_serving_g: 50,
+      protein_per_100g: 2,
+      carb_per_100g: 9,
+      fat_per_100g: 15,
+    },
+  ];
+  // 200 g of servings fitted to a 300 g order: everything scales by 1.5.
+  assertEquals(
+    resolveGrams(
+      ingredients,
+      portionTarget({ printed_total_g: null, typical_total_g: 300 }),
+    ),
+    [225, 75],
+  );
+});
+
+Deno.test("the anchor changes nothing for a dish whose menu prints a weight", () => {
+  // The whole no-regression argument for the 8 fixtures, in one assertion.
+  const ingredients: EnrichedItem["ingredients"] = [
+    {
+      name: "salmon",
+      category: "protein",
+      within_printed_weight: true,
+      typical_serving_g: 100,
+      protein_per_100g: 20,
+      carb_per_100g: 0,
+      fat_per_100g: 13,
+    },
+  ];
+  const printedOnly = resolveGrams(
+    ingredients,
+    portionTarget({ printed_total_g: 200 }),
+  );
+  const withAnchor = resolveGrams(
+    ingredients,
+    portionTarget({ printed_total_g: 200, typical_total_g: 900 }),
+  );
+  assertEquals(printedOnly, withAnchor);
+  assertEquals(printedOnly, [200]);
+});
+
+Deno.test("the item commits to its customary weight before portioning", () => {
+  // Same argument as B4's printed_total_g, and the prior-art research
+  // recommends it independently: ask for the mass BEFORE the ingredient list,
+  // so the total cannot be inflated by the enumeration. Strict mode emits
+  // fields in schema order.
+  const props = Object.keys(
+    (ENRICH_SCHEMA_OPENAI.properties.items.items as {
+      properties: Record<string, unknown>;
+    }).properties,
+  );
+  assertEquals(
+    props.indexOf("typical_total_g"),
+    props.indexOf("printed_total_g") + 1,
+    "typical_total_g must sit immediately after printed_total_g",
+  );
+  assertEquals(
+    props.indexOf("typical_total_g") < props.indexOf("ingredients"),
+    true,
+    "the dish's size must be settled before its ingredients",
+  );
 });

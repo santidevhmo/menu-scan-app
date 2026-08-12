@@ -11,6 +11,23 @@ export type IngredientCategory = "protein" | "carb" | "fat" | "veg" | "other";
 export interface EnrichedItem extends ExtractedItem {
   printed_total_g: number | null;
   /**
+   * What one order of this dish customarily weighs, for a menu that prints
+   * nothing.
+   *
+   * Without it a dish has no size of its own: every ingredient enters at its
+   * full standalone reference serving and simply ADDS, so plate mass tracks the
+   * LENGTH of the ingredient list. Measured on 48 real sushi items with no
+   * printed weight (2026-08-11): r = 0.74 between ingredient count and plate
+   * mass, about +32 g per extra ingredient. A roll described in ten words came
+   * out 1.8x the same roll described in five - and the goal ranking sorts on
+   * those macros, so it was partly ranking menu-copy verbosity.
+   *
+   * Asked BEFORE the ingredient list for B4's reason, and because the prior-art
+   * research recommends it independently: a total asked afterwards can be
+   * inflated by the enumeration it is supposed to constrain.
+   */
+  typical_total_g: number | null;
+  /**
    * Components the item's NAME entails but its description never lists.
    * B15: the model reliably omits a dish's defining structural component when
    * the menu leaves it unsaid, and that component is often the dish's whole
@@ -52,7 +69,7 @@ export interface EnrichedItem extends ExtractedItem {
 // Exported so offline harnesses run the real prompt rather than a copy.
 export const ENRICH_PROMPT =
   `You estimate the nutrition profile of restaurant menu items. For each item, work step by step:
-1. Give "printed_total_g": the weight printed on the menu for this item — e.g. (280gr), 200g — or null when the menu prints none. Then give "name_implied_components": when the item's NAME denotes a composed or assembled form, name the structural components that form always contains but this description never states, and otherwise give an empty array. Judge it from what the named form IS, not from what sounds typical: a form's defining component is part of the dish even when the menu leaves it unsaid, because menus describe what varies and take the form itself as read. These components are frequently the item's main source of carbohydrate, and omitting them understates it badly. Include every one of them in the ingredient list below. Then list the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other. Set "within_printed_weight" to false for anything the menu presents as served alongside the item rather than as part of it, because a printed weight normally describes the item itself and not what accompanies it. Give "typical_serving_g": the standard reference amount of that ingredient customarily consumed on one eating occasion — the amount nutrition labelling treats as one serving of that kind of food. Recall that established amount for the kind of food it is; do not estimate by eye how much of it looks like it is on the plate, because a poured or spooned component has a standard serving considerably larger than it appears. Where a kind of food has no established reference amount, give the amount it is normally served in. Give the conventional serving for the ingredient itself — these are rescaled to the printed weight afterwards, so they do not need to add up to anything.
+1. Give "printed_total_g": the weight printed on the menu for this item — e.g. (280gr), 200g — or null when the menu prints none. Then give "typical_total_g": when the menu prints no weight, the total weight in grams of one order of this item as a restaurant customarily serves it, judged from the form the item is and the way that form is ordinarily plated and sold; give null when the menu does print one. Settle it here, before you list anything, because it is the size the parts will have to fit inside. Then give "name_implied_components": when the item's NAME denotes a composed or assembled form, name the structural components that form always contains but this description never states, and otherwise give an empty array. Judge it from what the named form IS, not from what sounds typical: a form's defining component is part of the dish even when the menu leaves it unsaid, because menus describe what varies and take the form itself as read. These components are frequently the item's main source of carbohydrate, and omitting them understates it badly. Include every one of them in the ingredient list below. Then list the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other. Set "within_printed_weight" to false for anything the menu presents as served alongside the item rather than as part of it, because a printed weight normally describes the item itself and not what accompanies it. Give "typical_serving_g": the standard reference amount of that ingredient customarily consumed on one eating occasion — the amount nutrition labelling treats as one serving of that kind of food. Recall that established amount for the kind of food it is; do not estimate by eye how much of it looks like it is on the plate, because a poured or spooned component has a standard serving considerably larger than it appears. Where a kind of food has no established reference amount, give the amount it is normally served in. Give the conventional serving for the ingredient itself — these are rescaled to the printed weight afterwards, so they do not need to add up to anything.
 2. For each ingredient, give its composition PER 100 g of that ingredient as served: protein_per_100g, carb_per_100g and fat_per_100g. These describe the food itself, not the size of the portion — the amount in this serving is calculated from them and the gram weight, so give the composition and let the weight do the rest. Base them on what the food is actually made of, including its water content, and on how it is prepared (fat absorbed or added in cooking counts), rather than on which macro the ingredient is best known for. Where a food is normally cooked, sauced or seasoned before it reaches the table, give the figures for that prepared version — the plain or raw reference figure for the same food understates the fat that preparation adds. The item's totals are added up from these, rather than estimating the totals directly, so each ingredient's numbers must stand on their own.
 3. Give "serving_pieces": the number of separate pieces the item is served as, when it is something a diner eats a number of rather than as one plate. Use the count the menu states if it states one, and null otherwise.
 4. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive, leaving you with little ingredient information to go on.
@@ -117,6 +134,10 @@ export const ENRICH_SCHEMA_OPENAI = {
           // than parsed in code: the three benchmark fixtures alone print
           // "200 g", "200g" and "300gr.", and this prompt ships worldwide.
           printed_total_g: { type: ["number", "null"] },
+          // The anchor for a menu that prints nothing. Immediately after
+          // printed_total_g and before the ingredient list, for B4's reason:
+          // the dish's size is settled before anything is portioned into it.
+          typical_total_g: { type: ["number", "null"] },
           // B15: also before ingredients, and for the same reason as B4's
           // printed_total_g - the model names what the dish's form entails
           // BEFORE it lists ingredients, so the answer constrains the list
@@ -153,6 +174,7 @@ export const ENRICH_SCHEMA_OPENAI = {
           "price",
           "category",
           "printed_total_g",
+          "typical_total_g",
           "name_implied_components",
           "ingredients",
           "protein_g",
@@ -206,7 +228,9 @@ async function fetchWithTimeout(
  * pin cannot silently break every scan.
  */
 function samplingFor(model: string): Record<string, number> {
-  return model.startsWith("gpt-4") ? { temperature: 0, seed: ENRICH_SEED } : { seed: ENRICH_SEED };
+  return model.startsWith("gpt-4")
+    ? { temperature: 0, seed: ENRICH_SEED }
+    : { seed: ENRICH_SEED };
 }
 
 /**
@@ -237,11 +261,17 @@ export async function enrichBatch(
         model,
         messages: [{
           role: "user",
-          content: `${ENRICH_PROMPT}\n\nMenu items (JSON):\n${JSON.stringify(items)}`,
+          content: `${ENRICH_PROMPT}\n\nMenu items (JSON):\n${
+            JSON.stringify(items)
+          }`,
         }],
         response_format: {
           type: "json_schema",
-          json_schema: { name: "menu_items", strict: true, schema: ENRICH_SCHEMA_OPENAI },
+          json_schema: {
+            name: "menu_items",
+            strict: true,
+            schema: ENRICH_SCHEMA_OPENAI,
+          },
         },
         ...samplingFor(model),
       }),
@@ -287,7 +317,7 @@ export async function enrichBatch(
     confidence: isBlackBoxed(item.name, item.ingredients ?? [])
       ? "low" as const
       : item.confidence,
-    ...sumIngredientMacros(item.ingredients ?? [], item.printed_total_g),
+    ...sumIngredientMacros(item.ingredients ?? [], portionTarget(item)),
   }));
 }
 
@@ -372,12 +402,50 @@ export function isBlackBoxed(
   );
 }
 
+/** Widest weights a single restaurant order can plausibly be. */
+// ponytail: a band, not a model - it catches 5 and 50000, nothing subtler. If
+// measurement shows the band doing real work, that is a finding to chase, not a
+// number to tune. The documented upgrade path is a small FNDDS-derived
+// dish-type table (see the prior-art doc), and it is deliberately not built.
+const MIN_PLAUSIBLE_ORDER_G = 20;
+const MAX_PLAUSIBLE_ORDER_G = 2000;
+
+/**
+ * The weight the ingredient list is fitted to.
+ *
+ * THE ONLY PLACE THIS CHOICE IS MADE. `resolveGrams` has three callers -
+ * production, `scripts/score-portions.ts` and `scripts/macro-measure.ts`, the
+ * last being the single measurement path. If one of them keeps passing
+ * `printed_total_g` raw, the benchmark scores a pipeline production does not
+ * run: lesson 28, which has already cost this project a paid run.
+ * `enrich_test.ts` fails the build if that happens.
+ *
+ * A printed weight is the menu's own claim and is used as given - Andaluz
+ * prints items as small as 20 g and 30 g. A customary weight is the model's, so
+ * it must be plausible first. An archived item has neither field and is
+ * unaffected, which is why re-scoring history needs no era flag.
+ */
+export function portionTarget(
+  item: { printed_total_g?: number | null; typical_total_g?: number | null },
+): number | null {
+  if (item.printed_total_g) return item.printed_total_g;
+  const typical = item.typical_total_g;
+  if (
+    typeof typical !== "number" || !Number.isFinite(typical) ||
+    typical < MIN_PLAUSIBLE_ORDER_G || typical > MAX_PLAUSIBLE_ORDER_G
+  ) {
+    return null;
+  }
+  return typical;
+}
+
 export function resolveGrams(
   ingredients: EnrichedItem["ingredients"],
   printedTotalG?: number | null,
 ): number[] {
   const inside = ingredients.reduce(
-    (sum, i) => i.within_printed_weight ? sum + (i.typical_serving_g ?? 0) : sum,
+    (sum, i) =>
+      i.within_printed_weight ? sum + (i.typical_serving_g ?? 0) : sum,
     0,
   );
   // No printed weight, or nothing tagged inside it, means there is nothing to
@@ -440,6 +508,7 @@ export function fallbackEnriched(src: ExtractedItem): EnrichedItem {
     price: src.price ?? null,
     category: src.category ?? "other",
     printed_total_g: null,
+    typical_total_g: null,
     name_implied_components: [],
     ingredients: [],
     protein_g: 0,

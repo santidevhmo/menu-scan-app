@@ -1,63 +1,97 @@
 import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
-import { portionSteps } from "./portions.ts";
+import {
+  parsePiecesInput,
+  parsePortionInput,
+  portionLabel,
+  portionStep,
+  resolvePiecesPerOrder,
+} from "./portions.ts";
 
-Deno.test("an item served in pieces steps by one piece", () => {
-  const { step, label } = portionSteps(8);
-
-  assertEquals(step, 1 / 8);
-  // Santiago, 2026-08-11: the stepper reads as a plain piece count - "3", not
-  // "3/8" - and opens at the whole order, so a pizza starts at 8. The case the
-  // half-item stepper could not express at all is still the point: three slices
-  // of a pizza is not a multiple of 0.5.
-  assertEquals(label(3 / 8), "3");
-  assertEquals(label(1 / 8), "1");
-  assertEquals(label(1), "8");
+Deno.test("a model count the UI can trust is kept", () => {
+  assertEquals(resolvePiecesPerOrder(8), 8);
+  assertEquals(resolvePiecesPerOrder(3), 3);
+  assertEquals(resolvePiecesPerOrder(12), 12);
+  assertEquals(resolvePiecesPerOrder(50), 50);
 });
 
-Deno.test("piece labels survive floating-point accumulation", () => {
-  // 1/3 + 1/3 + 1/3 is not exactly 1, and a diner must never see "2.9999".
-  const { step, label } = portionSteps(3);
-  const third = step;
-  assertEquals(label(third + third), "2");
-  assertEquals(label(third + third + third), "3");
-});
-
-Deno.test("anything not served in pieces keeps the half-item stepper", () => {
-  for (const pieces of [null, undefined, 0, 1]) {
-    const { step, label } = portionSteps(pieces);
-    assertEquals(step, 0.5, `pieces=${pieces} must keep the half step`);
-    assertEquals(label(0.5), "1/2");
-    assertEquals(label(1), "x1");
-    assertEquals(label(2), "x2");
+Deno.test("every other shape a model can return becomes 1", () => {
+  // 1 is the safe default: it is what most of the world's menu items are, and
+  // it behaves exactly as the app did before pieces existed.
+  for (const bad of [null, undefined, 0, -3, 1.5, 51, 1000, NaN, Infinity]) {
+    assertEquals(resolvePiecesPerOrder(bad), 1, `pieces=${bad} must become 1`);
   }
 });
 
-Deno.test("implausible piece counts fall back rather than produce nonsense", () => {
-  // A model can return anything. None of these should reach the stepper.
-  for (const bad of [-3, 1.5, 51, 1000, NaN, Infinity]) {
-    assertEquals(
-      portionSteps(bad).step,
-      0.5,
-      `pieces=${bad} must fall back to the half step`,
-    );
+Deno.test("the step is one piece, or half an order when there are no pieces", () => {
+  assertEquals(portionStep(1), 0.5);
+  assertEquals(portionStep(8), 1 / 8);
+  assertEquals(portionStep(3), 1 / 3);
+});
+
+Deno.test("a dish with no pieces reads as a plain quantity", () => {
+  assertEquals(portionLabel(1, 1), "1");
+  assertEquals(portionLabel(0.5, 1), "0.5");
+  assertEquals(portionLabel(2, 1), "2");
+});
+
+Deno.test("a dish with pieces reads as count over divisor", () => {
+  assertEquals(portionLabel(1, 8), "8 / 8");
+  assertEquals(portionLabel(0.5, 8), "4 / 8");
+  assertEquals(portionLabel(0.5, 3), "1.5 / 3");
+  assertEquals(portionLabel(2 / 3, 3), "2 / 3");
+});
+
+Deno.test("labels survive floating-point accumulation", () => {
+  // 1/3 + 1/3 + 1/3 is not exactly 1, and nobody may ever see "2.9999 / 3".
+  const third = portionStep(3);
+  assertEquals(portionLabel(third + third, 3), "2 / 3");
+  assertEquals(portionLabel(third + third + third, 3), "3 / 3");
+});
+
+Deno.test("neither form has a ceiling", () => {
+  // Two whole pizzas is sixteen slices; two soups is 2.
+  assertEquals(portionLabel(2, 8), "16 / 8");
+  assertEquals(portionLabel(3, 1), "3");
+});
+
+Deno.test("INVARIANT: changing the divisor never changes the macros", () => {
+  // The spec's central guarantee. Macros are itemMacros x portion, so the
+  // divisor is arithmetically absent - this test is what keeps it that way.
+  const kcal = 1043;
+  for (const portion of [1, 0.5, 0.25, 2, 1 / 3]) {
+    const macros = kcal * portion;
+    for (const divisor of [1, 3, 8, 12, 50]) {
+      // The label is the ONLY thing a divisor is allowed to touch.
+      portionLabel(portion, divisor);
+      assertEquals(
+        kcal * portion,
+        macros,
+        `divisor=${divisor} moved the macros`,
+      );
+    }
   }
 });
 
-Deno.test("the real counts a menu states are handled", () => {
-  // Observed on the archived menus: "(3 piezas)", "3 pzas", "orden de dos",
-  // "Alitas 6 PZ", plus the conventional counts for pizza and nigiri.
-  assertEquals(portionSteps(2).label(1 / 2), "1");
-  assertEquals(portionSteps(3).label(2 / 3), "2");
-  assertEquals(portionSteps(6).label(2 / 6), "2");
-  assertEquals(portionSteps(12).label(5 / 12), "5");
+Deno.test("a typed quantity is accepted down to a quarter and rounded to 2dp", () => {
+  assertEquals(parsePortionInput("0.25"), 0.25);
+  assertEquals(parsePortionInput("1"), 1);
+  assertEquals(parsePortionInput("2.5"), 2.5);
+  assertEquals(parsePortionInput("0.333"), 0.33);
+  // What is displayed must be what the macros used.
+  assertEquals(portionLabel(parsePortionInput("0.25")!, 1), "0.25");
 });
 
-Deno.test("the counter has no ceiling", () => {
-  // The + button never stops. Two whole pizzas is sixteen slices, and under a
-  // plain counter "16" is the right answer rather than the "16/8" CodeRabbit
-  // caught in the fraction form on 2026-08-09.
-  const { label } = portionSteps(8);
-  assertEquals(label(2), "16");
-  assertEquals(label(3), "24");
-  assertEquals(label(1.125), "9");
+Deno.test("a typed quantity that is not a positive number is rejected", () => {
+  for (const bad of ["", " ", "0", "-1", "abc", "1.2.3", "NaN", "Infinity"]) {
+    assertEquals(parsePortionInput(bad), null, `"${bad}" must be rejected`);
+  }
+});
+
+Deno.test("a typed divisor must be a whole number of pieces from 1 to 50", () => {
+  assertEquals(parsePiecesInput("8"), 8);
+  assertEquals(parsePiecesInput("1"), 1);
+  assertEquals(parsePiecesInput("50"), 50);
+  for (const bad of ["", "0", "-2", "1.5", "51", "abc", "Infinity"]) {
+    assertEquals(parsePiecesInput(bad), null, `"${bad}" must be rejected`);
+  }
 });

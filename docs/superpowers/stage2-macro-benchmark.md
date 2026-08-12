@@ -3655,3 +3655,42 @@ established is that a required field can be added without perturbing everything 
 next: the field on a SEPARATE call keyed to items that state a size (a narrowed arm C, which never
 touches the enrichment request at all), and a batched-vs-single measurement of the baseline's own
 variance so future arms are judged against the right noise floor.
+
+### 📏 THE NOISE FLOOR — median 25%, worst 88% (2026-08-11, ~$0.20). Read this before trusting any arm.
+
+The same fifteen dishes through the **unchanged** pipeline, five times, batched. Nothing varies but
+the model's own sampling — same prompt, same model, same `temperature: 0`, same seed.
+
+| dish | kcal across 5 identical runs | spread |
+|---|---|---|
+| OSTRICA | 525, 205, 243, 242, 242 | **88%** |
+| MEXICANA | 499, 335, 339, 362, 639 | **62%** |
+| BRAISED SHORT-RIB GF | 500, 379, 501, 501, 653 | 53% |
+| Nevada | 347, 514, 346, 503, 346 | 39% |
+| Cosmo de Pollo | 664, 501, 681, 693, 636 | 32% |
+| Nico | 867, 668, 818, 703, 705 | 26% |
+| Tiras de Pollo / TAYLOR BAY | — | 25% |
+| CAVIAR SERVICE | 291, 253, 232, 253, 232 | 23% |
+| Nikkori Dynamite | 680, 547, 683, 670, 593 | 22% |
+| FLAMENKUCHEN / SEAFOOD PLATEAU / Unagui Masago | — | 17% |
+| Amazonas Top | 454, 415, 454, 448, 472 | 13% |
+| **ENSALADA GRIEGA** | 195, 196, 196, 196, 196 | **1%** |
+
+🔴 **`temperature: 0` and a fixed seed do NOT make this deterministic.** OpenAI's seed is
+best-effort; these swings are what remains.
+
+🔑 **This retro-scores the A-conditional result.** Its headline was "12 of 15 dishes moved more than
+25%" — and the **median noise floor is 25%**. Re-judged against each dish's OWN noise, the real
+movements are: **up** — Ensalada Griega (+64% against **1%** noise, unmistakable), Tiras de Pollo,
+Caviar, Seafood Plateau, Scallop Ceviche; **down** — Unagui Masago, Amazonas Top, Nikkori Dynamite.
+Ostrica, Mexicana, Flamenkuchen and Nevada were noise, and Cosmo de Pollo and Nico are borderline.
+The sushi-down / non-sushi-up split is REAL but it is 5 versus 3, not 9 versus 5.
+
+⚠️ **A defect bigger than the experiment: the SHIPPED pipeline is unstable on unweighted dishes.**
+Ostrica returns 205–525 kcal for the same menu item on the same input; Mexicana 335–639. A diner
+scanning the same menu twice can see a dish's calories more than double. This is in production today,
+has nothing to do with the plate-total work, and is arguably the more urgent finding.
+
+**Standing consequence for every future arm:** a change must beat **that dish's own** noise, not a
+flat threshold, and three draws is too few for dishes whose spread approaches 90%. Judge per-dish or
+do not judge.

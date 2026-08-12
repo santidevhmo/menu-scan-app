@@ -335,6 +335,62 @@ const ARMS: Record<string, (items: Item[]) => Promise<unknown[]>> = {
 
 const archive: Record<string, unknown> = {};
 
+// WIDE MODE (Santiago, 2026-08-11): fifteen real unweighted dishes with real
+// descriptions, spanning 60 g to 510 g across four menus, run BATCHED the way
+// production runs them. Four dishes and single-item calls decided A-conditional;
+// this is the check on both of those limits at once.
+if (Deno.args[0] === "wide") {
+  const set: { name: string; description: string; menu: string; baseline_g: number }[] =
+    JSON.parse(await Deno.readTextFile("scripts/fixtures/unweighted-guard-set.json"));
+  const items = set.map((d) => item(d.name, d.description));
+
+  const runs: Record<string, Map<string, number[]>> = {};
+  for (const armName of ["baseline", "A-cond"]) {
+    const byName = new Map<string, number[]>();
+    for (let draw = 0; draw < DRAWS; draw++) {
+      // deno-lint-ignore no-explicit-any
+      const out = await ARMS[armName](items) as any[];
+      archive[`wide ${armName} d${draw}`] = out;
+      for (const it of out) {
+        if (!byName.has(it.name)) byName.set(it.name, []);
+        byName.get(it.name)!.push(Math.round(it.estimated_calories ?? 0));
+      }
+    }
+    runs[armName] = byName;
+  }
+
+  console.log(
+    `${"dish".padEnd(30)} ${"baseline kcal".padEnd(16)} ${"A-cond kcal".padEnd(16)} change  anchored`,
+  );
+  let moved = 0;
+  for (const d of set) {
+    const b = runs.baseline.get(d.name) ?? [];
+    const a = runs["A-cond"].get(d.name) ?? [];
+    if (b.length === 0 || a.length === 0) {
+      console.log(`${d.name.slice(0, 28).padEnd(30)} MISSING from a run`);
+      continue;
+    }
+    const mid = (xs: number[]) => (Math.min(...xs) + Math.max(...xs)) / 2;
+    const change = (mid(a) - mid(b)) / mid(b);
+    if (Math.abs(change) > 0.25) moved++;
+    const span = (xs: number[]) =>
+      Math.min(...xs) === Math.max(...xs)
+        ? String(xs[0])
+        : `${Math.min(...xs)}-${Math.max(...xs)}`;
+    console.log(
+      `${d.name.slice(0, 28).padEnd(30)} ${span(b).padEnd(16)} ${span(a).padEnd(16)} ` +
+        `${change >= 0 ? "+" : ""}${(change * 100).toFixed(0)}%   ` +
+        `${statesSize(d.name, d.description) ? "YES" : "no"}`,
+    );
+  }
+  console.log(`\n${moved} of ${set.length} dishes moved more than 25%.`);
+  await Deno.writeTextFile(
+    "scripts/fixtures/caches/probe-plate-arms-wide.raw.json",
+    JSON.stringify(archive, null, 2) + "\n",
+  );
+  Deno.exit(0);
+}
+
 // GUARD MODE. The 8-dish fixture cannot detect an Arm A regression: every one
 // of them prints a weight, so they all take the byte-identical path and the
 // changed path is never exercised. The dishes actually at risk are the

@@ -1,7 +1,10 @@
 # Design — the portion anchor for dishes whose menu prints no weight
 
 **Date:** 2026-08-11 · **Branch:** `feat/unweighted-portion-anchor` (off `origin/main` @ `1cc732d`)
-**Status:** approved by Santiago 2026-08-11, not yet implemented
+**Status:** approved by Santiago 2026-08-11 · **implemented 2026-08-11, UNMEASURED** — no paid run has
+been made, so nothing here has a number behind it yet. Plan:
+`docs/superpowers/plans/2026-08-11-unweighted-dish-portion-anchor.md`. Prior art:
+`docs/superpowers/prior-art-2026-08-11-dish-mass-anchoring.md`.
 **Phase:** Stage-2 macro enrichment (critical path #5), inside Phase 9 of the product roadmap
 
 ---
@@ -82,6 +85,24 @@ Everything downstream — per-100 g composition, the multiplication, the Atwater
 for" move, which is 2-for-2 in this phase (B15, B21), and it takes arithmetic *away* from the model
 rather than adding any, which is 4-for-6 (B10, B12, B4). It is explicitly **not** a wording change to
 an existing question, which is 0-for-4 (B11, B13, B23, and the `serving_pieces` attempt).
+
+**Independently corroborated by prior art** (`docs/superpowers/prior-art-2026-08-11-dish-mass-anchoring.md`,
+researched 2026-08-11):
+
+- **The exact mechanism is unpublished** — no paper tests "LLM dish-level mass vs the sum of
+  ingredient reference weights" head-to-head. Not a known dead end; an untested one. Our own ablation
+  is therefore the only evidence that will exist.
+- **Factorising mass out is the highest-evidence adjacent result.** Nutrition5k (CVPR 2021): predicting
+  calories *per gram* rather than calories directly cut MAE from 26.1% to 9.5%. Mass is the dominant
+  error term, and accumulating it is the worst way to get it.
+- **Ask for the mass BEFORE the ingredient list**, so the total cannot be inflated by the enumeration.
+  The research recommends this independently; §3.1's field order already does it, for B4's reason.
+- **The failure direction we should expect is UNDER-estimation, not over.** ChatGPT-4 under-estimated
+  meal weight on 76.3% of 114 photographed meals, with bias slopes of −0.23 to −0.50 that grow with
+  portion size. So the anchor may well *shrink* Nikkori's plates from today's 375 g median. That is a
+  prediction to test, not a bug to pre-empt.
+- **Ceiling to expect:** general-LLM weight MAPE is ~36% (ChatGPT), ~37% (Claude). If our anchor cannot
+  beat that, the direct ask is not adding value — see §5's abandon threshold.
 
 **Known counter-evidence to weigh, not to ignore:** B18 measured that the model's *dish-level* recall
 loses to its ingredient sum on 6 of 8 dishes. That was dish-level **composition** (macros per 100 g of
@@ -179,9 +200,35 @@ The live paths are: `callGptEnrich` → `enrichBatch` → `sumIngredientMacros` 
 | 2 | **No regression.** The 8 fixtures with their weights present | stays inside `macro-best-v8`'s 0–3/96 | ~$0.20 |
 | 3 | **Slope collapses.** Re-run the 48 Nikkori items | r ≤ 0.3 **and** ≤ 10 g per ingredient (from 32) | ~$0.15 |
 | 4 | **Counts appear.** Nikkori rolls under the required-field schema | ≥ 80% non-`1`, maki landing 8–12 | shares run 3 |
+| 5 | **Outside ground truth.** Ask for `typical_total_g` on five dishes USDA has actually weighed | within 30% of the FNDDS figure on ≥ 3 of 5 | ~$0.02 |
 
 Test 1 is the load-bearing one, and it is cheap because **menus that print weights are free ground
 truth for an anchor that never sees them.** No new fixtures, no new USDA recipes, no approvals.
+
+**Test 5 comes from the prior-art research and costs almost nothing.** USDA has measured dishes our
+fixtures do not contain, which gives the anchor a second, independent yardstick:
+
+| dish | USDA / FDC figure |
+|---|---|
+| California roll, 1 piece | **30 g** (FDC 2344446) — × 8 pieces = 240 g an order |
+| Pizza slice, 1/8 of a 14" | **117 g** Papa John's cheese; whole pie **938 g** |
+| Pizza slice, 14" thin crust | **79 g** Domino's; whole **563 g** |
+| Hard taco, beef | **69 g** (FDC 170332) |
+| Chicken wing segment, cooked | **30–34 g** edible |
+
+These are **checks, not constants.** Nothing here is shipped, hardcoded, or put in the prompt — the
+ban on food names in the nutrition step stands.
+
+**Two thresholds that end the design rather than tune it**, both from the research:
+
+- **Anchor MAPE > 35% on test 1** — that is the published general-LLM ceiling for weight estimation
+  (36.3% ChatGPT, 37.3% Claude). Beating nothing means the direct ask adds nothing, and the fallback
+  is a small shipped dish-type → mass table distilled from FNDDS/FDC composite-dish portion weights,
+  keyed by a model-supplied dish type. Public domain, shippable, and the same move that cut weight
+  MAE 63% in DietAI24. **Not built now** — it is the documented upgrade path, not speculative work.
+- **Ingredient-count correlation still > 0.4 after anchoring** — the model's own mass estimate is
+  itself contaminated by the enumeration, and the fix is field order, which §3.1 has already applied.
+  If it persists with the field ordered first, the mechanism has failed.
 
 Reproduction standard is unchanged: 4 runs × 3 draws before any figure is quoted as a range, every raw
 dump hand-audited against the photo, and `rescore-history.ts` as the source of truth. Estimated total

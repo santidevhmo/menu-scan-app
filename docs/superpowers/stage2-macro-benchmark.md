@@ -3534,3 +3534,50 @@ survives only in the UI portion control, not in the mass path.
 
 Probe: `scripts/probe-plate-knowledge.ts`. Archive:
 `scripts/fixtures/caches/probe-plate-knowledge.raw.json`.
+
+### ⚗️ ARMS A AND C MEASURED — A wins, and is NOT ready to ship (2026-08-11, ~$0.80)
+
+Spec: `specs/2026-08-11-plate-total-arms-design.md`. Probe: `scripts/probe-plate-arms.ts`.
+Neither arm touched `enrich.ts` or the deployed function.
+
+**A** splits the batch: items that print a weight keep today's request byte-identically, the rest get
+a required `typical_total_g` **placed immediately after `printed_total_g`, before `ingredients`** —
+the same B4 ordering logic, so the model commits to the plate before portioning into it. **C** leaves
+`ENRICH_PROMPT` untouched and asks a separate parallel call for the plate weight.
+
+| signal, 3 draws | baseline | **A** | C | expected |
+|---|---|---|---|---|
+| printed grams (control) | 2.01–2.10 | **2.14–2.31** ✅ | 2.02–2.17 ✅ | 2 |
+| diameter 28→40 cm | 1.00–1.31 ❌ | **1.74–1.76** ✅ | 1.39–1.41 ❌ | 2.04 |
+| piece count 6→12 pz | 1.00–1.00 ❌ | **1.66–2.48** ✅ | 1.20–1.40 ❌ | 2 |
+| portions for 2 | 1.00–1.28 ❌ | 1.24–1.33 ❌ | 1.42 ❌ | 2 |
+
+🔴 **My prediction about C was wrong.** I expected batching to dilute it; each call here carried a
+single item, so batching was never the cause. C is weaker because it asks **cold**, while A asks
+inside the enrichment prompt where the model is already decomposing the dish. Context helped rather
+than hurt — the opposite of what the design predicted.
+
+**Guard dishes, 3 draws, unweighted only** (the 8-dish fixture CANNOT detect an A regression: all
+eight print a weight, so all eight take the byte-identical path and never exercise the new code):
+
+| dish | plausible | baseline | A | C |
+|---|---|---|---|---|
+| Coliflor Roka | 80–160 g | 160–165 kcal | **150 g ✅** | 250 g ❌ |
+| CARBONARA | 250–400 g | **502–987 kcal** | **350–400 g ✅** | 350 g |
+| CAPRICCIOSA | 500–700 g | ~250 g ❌ | 400 g — improved, still below | 350 g |
+| Salmón Roll | 300–400 g | 397 g ✅ | **250 g ❌ below** | 250 g ❌ |
+
+⚠️ **A single guard run said Coliflor Roka went to 250 g and I called it a regression. Three draws
+say 150 g, inside the band.** The claim was wrong; the re-run caught it. This is the never-quote-a-
+single-run rule earning its place again.
+
+📊 **An unpredicted benefit: A cuts variance.** Baseline Carbonara swings **502–987 kcal** across
+three draws on identical input; A gives 786–825. Stability on unweighted dishes was not a metric in
+the spec and probably should have been.
+
+**Verdict: A wins between the two and does NOT ship yet.** It fixes the defect it was built for,
+provably cannot touch printed-weight items, and is steadier — but it moved one already-correct dish
+out of band, the pizza is still under its reconstruction, and four guard dishes without an oracle is
+too thin to justify changing every scan. Directions this leaves: understand the Salmón Roll drop;
+more guard dishes; and the unweighted oracle, which this experiment deliberately did not need but
+which is what would settle it.

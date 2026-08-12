@@ -124,6 +124,21 @@ grams, sums, and derives calories by Atwater (4/4/9). Every time arithmetic was 
 model and left as knowledge, accuracy improved; every time it was asked for a finished number, it
 returned a round multiple of 5. **Do not "simplify" this by asking the model for the totals.**
 
+**The ingredient rule (Santiago, 2026-08-11) — the description is the source of truth above all
+else.** The NAME says what the dish *is*; the DESCRIPTION says what that dish exactly has.
+
+| the menu gives | what to do |
+|---|---|
+| a description listing ingredients | **use exactly those — add none, remove none.** This is the source of truth. |
+| a name whose dish form requires components the menu never lists (a roll's rice and nori, a burger's bun, a taco's tortilla, a pizza's dough) | add ONLY those constitutive components — this is `name_implied_components` (B15), a measured win |
+| nothing else | **never invent.** No sesame, mayo or eel sauce that the menu did not mention. |
+
+Worked example, the case that settled it: *Salmón Roll — "Por dentro: queso crema, pepino, aguacate
+y surimi. Por fuera: salmón."* Those five are used exactly as printed. Rice and nori are added
+because a roll cannot exist without them, and the menu never lists them — they are 150 g and 42 of
+the dish's 54 g of carbs, and an independent cross-check put the result at ~592 kcal, matching.
+Nothing else may be added.
+
 Two mechanical guards in `enrich_test.ts` fail the build: **schema property order** (`ingredients[]`
 must precede the macro fields, or the chain-of-thought silently stops working) and **no food, dish
 or cuisine name in the prompt's nutrition step** (measured harmful — a food list leaked the test set

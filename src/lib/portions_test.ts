@@ -1,13 +1,49 @@
-import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
+import {
+  assertAlmostEquals,
+  assertEquals,
+} from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
   parsePiecesInput,
   parsePortionInput,
   portionLabel,
   portionStep,
   resolvePiecesPerOrder,
+  portionFromUnitCount,
   sanitizeDecimalInput,
   sanitizeIntegerInput,
+  unitCount,
 } from "./portions.ts";
+
+Deno.test("a portion counts in the dish's own unit", () => {
+  // A whole plate of 12 rolls is 12 units; a whole soup is 1.
+  assertEquals(unitCount(1, 12), 12);
+  assertEquals(unitCount(0.5, 12), 6);
+  assertEquals(unitCount(1, 1), 1);
+  assertEquals(unitCount(0.5, 1), 0.5);
+  // Santiago typed 18 meaning eighteen rolls of a twelve-roll plate.
+  assertEquals(portionFromUnitCount(18, 12), 1.5);
+  assertEquals(portionFromUnitCount(6, 12), 0.5);
+  assertEquals(portionFromUnitCount(0.5, 1), 0.5);
+});
+
+Deno.test("INVARIANT: units and share round-trip to observable precision", () => {
+  // The editor converts one way and the row converts back. Any drift here
+  // shows up as macros that do not match the number on the screen.
+  //
+  // NOT bit-identical: (1/3 * 50) / 50 differs from 1/3 in the last bit, which
+  // is real IEEE-754 behaviour and not something code can undo. 1e-9 of an
+  // order is a millionth of a calorie on a 1000 kcal plate.
+  for (const pieces of [1, 2, 3, 8, 12, 50]) {
+    for (const portion of [1, 0.5, 0.25, 2, 1 / 3]) {
+      assertAlmostEquals(
+        portionFromUnitCount(unitCount(portion, pieces), pieces),
+        portion,
+        1e-9,
+        `round trip failed for portion=${portion} pieces=${pieces}`,
+      );
+    }
+  }
+});
 
 Deno.test("nothing but digits and one dot survives the quantity field", () => {
   // A decimal-pad keyboard cannot produce letters, but a hardware keyboard, a

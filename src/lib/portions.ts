@@ -35,12 +35,30 @@ export function portionStep(piecesPerOrder: number): number {
 }
 
 /**
+ * How many of the dish's OWN units a portion is: pieces for a dish that has
+ * them, whole orders for one that does not. This is the number the diner sees
+ * and types in both places - the row and the editor - so that "18" always
+ * means the same thing on one screen.
+ */
+export function unitCount(portion: number, piecesPerOrder: number): number {
+  return portion * (piecesPerOrder > 1 ? piecesPerOrder : 1);
+}
+
+/** The inverse: the share of one order that a count of units represents. */
+export function portionFromUnitCount(
+  count: number,
+  piecesPerOrder: number,
+): number {
+  return count / (piecesPerOrder > 1 ? piecesPerOrder : 1);
+}
+
+/**
  * What the row shows. No ceiling in either form - "16 / 8" is two pizzas and
  * "2" is two soups, both of which someone orders.
  */
 export function portionLabel(portion: number, piecesPerOrder: number): string {
-  if (piecesPerOrder <= 1) return formatQuantity(portion);
-  return `${formatQuantity(portion * piecesPerOrder)} / ${piecesPerOrder}`;
+  const count = formatQuantity(unitCount(portion, piecesPerOrder));
+  return piecesPerOrder <= 1 ? count : `${count} / ${piecesPerOrder}`;
 }
 
 /**

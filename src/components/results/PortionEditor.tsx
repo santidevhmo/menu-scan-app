@@ -5,8 +5,10 @@ import { colors } from "@/constants/theme";
 import {
   parsePiecesInput,
   parsePortionInput,
+  portionFromUnitCount,
   sanitizeDecimalInput,
   sanitizeIntegerInput,
+  unitCount,
 } from "@/lib/portions";
 
 interface PortionEditorProps {
@@ -41,12 +43,39 @@ export function PortionEditor({
   onClose,
   onSubmit,
 }: PortionEditorProps) {
-  const [quantity, setQuantity] = useState(String(portion));
+  const fmt = (value: number) => String(Math.round(value * 100) / 100);
+  // The quantity field counts the dish's OWN unit - rolls for a roll, plates
+  // for a steak - so that typing 18 on a 12-roll plate means eighteen rolls,
+  // the way Santiago read it on 2026-08-11. `share` is the same number in
+  // orders, and it is the one the macros use.
+  const [quantity, setQuantity] = useState(
+    fmt(unitCount(portion, piecesPerOrder)),
+  );
   const [divisor, setDivisor] = useState(String(piecesPerOrder));
+  const [share, setShare] = useState(portion);
 
   const parsedQuantity = parsePortionInput(quantity);
   const parsedDivisor = parsePiecesInput(divisor);
   const canSave = parsedQuantity !== null && parsedDivisor !== null;
+  const pieces = parsedDivisor ?? piecesPerOrder;
+
+  const editQuantity = (text: string) => {
+    const clean = sanitizeDecimalInput(text);
+    setQuantity(clean);
+    const parsed = parsePortionInput(clean);
+    if (parsed !== null) setShare(portionFromUnitCount(parsed, pieces));
+  };
+
+  // Changing the divisor keeps the SHARE, never the count: 4 of 8 becomes
+  // 6 of 12, because the app is used before ordering (Santiago, 2026-08-11).
+  // Holding `share` in its own state is what makes this survive typing a
+  // two-digit divisor one keystroke at a time.
+  const editDivisor = (text: string) => {
+    const clean = sanitizeIntegerInput(text);
+    setDivisor(clean);
+    const next = parsePiecesInput(clean);
+    if (next !== null) setQuantity(fmt(unitCount(share, next)));
+  };
 
   // Reads off the DRAFT divisor so it moves while they type. Only meaningful
   // once a dish has pieces - "each piece" of a soup is the soup.
@@ -57,21 +86,22 @@ export function PortionEditor({
       : "Changing what it comes in never changes the nutrition.";
 
   const nudgeQuantity = (direction: 1 | -1) => {
-    const current = parsedQuantity ?? portion;
-    // Half an order per tap, whatever the dish comes in (Santiago, 2026-08-11).
-    // Stepping by one PIECE here meant an 8-piece dish moved this field by
-    // 0.125 and a 6-piece dish by 0.17 - the field counts orders, so a piece
-    // is not a round number in it. Pieces are still reachable one at a time
-    // from the row's own +/-, which counts in pieces.
-    const step = 0.5;
+    // One piece per tap where the dish has pieces, half an order where it does
+    // not. Both are whole numbers in the unit on screen, so 0.17 - which is
+    // what one piece looked like when this field counted orders - cannot
+    // appear (Santiago, 2026-08-11).
+    const step = pieces > 1 ? 1 : 0.5;
+    const current = parsedQuantity ?? unitCount(share, pieces);
     // The stepper floors at one step; only typing goes below it.
     const next = Math.max(step, current + direction * step);
-    setQuantity(String(Math.round(next * 100) / 100));
+    setQuantity(fmt(next));
+    setShare(portionFromUnitCount(next, pieces));
   };
 
   const nudgeDivisor = (direction: 1 | -1) => {
-    const current = parsedDivisor ?? piecesPerOrder;
-    setDivisor(String(Math.min(50, Math.max(1, current + direction))));
+    const next = Math.min(50, Math.max(1, pieces + direction));
+    setDivisor(String(next));
+    setQuantity(fmt(unitCount(share, next)));
   };
 
   return (
@@ -98,7 +128,7 @@ export function PortionEditor({
             value={quantity}
             valid={parsedQuantity !== null}
             keyboardType="decimal-pad"
-            onChangeText={(text) => setQuantity(sanitizeDecimalInput(text))}
+            onChangeText={editQuantity}
             onDecrease={() => nudgeQuantity(-1)}
             onIncrease={() => nudgeQuantity(1)}
           />
@@ -107,7 +137,7 @@ export function PortionEditor({
             value={divisor}
             valid={parsedDivisor !== null}
             keyboardType="number-pad"
-            onChangeText={(text) => setDivisor(sanitizeIntegerInput(text))}
+            onChangeText={editDivisor}
             onDecrease={() => nudgeDivisor(-1)}
             onIncrease={() => nudgeDivisor(1)}
           />
@@ -129,9 +159,13 @@ export function PortionEditor({
             <Pressable
               onPress={() => {
                 // Narrowed one at a time: `canSave` is a boolean, and TS will
-                // not narrow the two values through it.
+                // not narrow the two values through it. The typed count is in
+                // the dish's unit; the row and the macros want the share.
                 if (parsedQuantity !== null && parsedDivisor !== null) {
-                  onSubmit(parsedQuantity, parsedDivisor);
+                  onSubmit(
+                    portionFromUnitCount(parsedQuantity, parsedDivisor),
+                    parsedDivisor,
+                  );
                 }
               }}
               disabled={!canSave}

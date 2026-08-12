@@ -27,6 +27,16 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > oracle corrections, B21 (standard reference-amount servings), B24b (black-box detection). Seven
 > other hypotheses were falsified and each closed a direction — see the log.
 >
+> 🚨 **HIGHEST-PRIORITY OPEN DEFECT (2026-08-11) — BATCHING MAKES MACROS UNSTABLE IN PRODUCTION.**
+> Same dish, same unchanged pipeline, five draws: sent **alone** it returns 0–3% spread; sent in a
+> batch of fifteen it swings **39–88%** (OSTRICA 173→177 solo vs 205→525 batched; MEXICANA 0% vs
+> 62%). `ENRICH_BATCH_SIZE = 10`, so every shipped scan carries this, and the goal RANKING is built
+> on those numbers. **Code-only fix — no prompt, schema or model change.** Next measurement is the
+> batch-size curve (1/3/5/10) to find where stability arrives; one item per call multiplies prompt
+> tokens by the item count (~$0.03 → ~$0.30 per scan at the ceiling). This also retro-invalidates any
+> arm judged on batched runs. Evidence: `docs/superpowers/stage2-macro-benchmark.md`,
+> `scripts/probe-plate-arms.ts solo|noise`.
+>
 > 🚧 **OPEN BLOCKER (2026-08-11, Santiago's ruling) — SIZE IS A DEAD CHANNEL EXCEPT PRINTED GRAMS.**
 > Measured, 3 draws, one item per call, calories as the metric: a printed-grams control moves the
 > answer **2.14–2.37×** for a 2× weight, while **diameter (28→40 cm) moves it 1.06–1.36×, "for 2

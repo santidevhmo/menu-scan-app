@@ -3409,6 +3409,27 @@ more than it is worth on the weighted one, and the cause is prompt perturbation,
 | 1 | blinded fixtures | median **37.5%**, MAPE **50.1%** | 🔴 FAIL (target ≤25%) |
 | 5 | USDA-weighed dishes | **3/5 within 30%** — pizza 14.7%/24.3%, sushi 16.7%, taco 117%, wings 56% | ✅ PASS |
 
+### 🎯 DISAMBIGUATION — which sentence cost the fixtures? (2026-08-11, ~$0.20). **The anchor did.**
+
+The anchor arm changed two things at once. This arm reverts the `serving_pieces` half — prompt step 3
+back to its nullable wording, schema back to `["number","null"]` — and keeps the anchor sentence
+alone. 4 runs x 3 draws, same fixtures, same oracle.
+
+| arm | failed/96 | mean abs error |
+|---|---|---|
+| `macro-best-v8` (`iter-b4-w*`) | **2–3** | **14.3–14.5%** |
+| anchor + forced pieces (`iter-anchor-w*`) | 6–11 | 15.1–16.7% |
+| **anchor ONLY** (`iter-anchoronly-w*`) | **11–15** | **15.5–17.2%** |
+
+🔴 **Removing the piece change made it WORSE, not better. The anchor sentence carries the whole
+regression.** The forced-pieces field is exonerated — if anything the arm carrying it scored better,
+though the ranges nearly touch at 11 and one arm is not enough to claim it helps.
+
+**What this settles:** a sentence that never fires on these dishes still costs them ~9 failures per 96
+and ~2 points of error, purely by being in the prompt. So the anchor cannot share a prompt with
+weighted dishes for free, and the choice is architectural rather than editorial — see the two-call
+split in the spec's next-steps.
+
 🔑 **THE REGRESSION IS NOT THE CODE — IT IS THE PROMPT GETTING LONGER.** Checked in all 6 archived
 draws of w1 and w2: `printed_total_g` was read correctly on **8 of 8 dishes every time**, and
 `typical_total_g` came back **null on all 8**, which is exactly the design. The anchor never fired on

@@ -3387,3 +3387,39 @@ So the feature shipped for its MACRO gain, which is measured, and not for its st
 partial. A pizza still steps in halves. **Sushi counts also come back 8 where Santiago's own
 photographs of Nikkori show 10–12**, so the default is low for that restaurant — which is precisely
 what the editable stepper is for.
+
+### 🎛️ THE PORTION CONTROL — shipped client-side, needs build 7 (2026-08-11, $0)
+
+The stepper stops guessing what a dish is. Every item now carries **two** client-side numbers:
+`portion` (the share of one order, default 1) and `piecesPerOrder` (what the order is cut into,
+seeded from the model's `serving_pieces` and guarded to 1 for anything that is not an integer 1–50).
+A row with no pieces reads `1` and steps in halves; a row with pieces reads `8 / 8` and steps by one
+piece. Tapping the value opens one editor with both fields — `I'll have` and `comes in` — so the
+diner can cut a Margherita the model called whole into 8, or correct a Nikkori roll from 8 to 12.
+
+**What did NOT change: the edge function, the schema, the prompt, the model, and the macro maths.**
+This is UI and one pure module. Spec: `specs/2026-08-11-portion-control-design.md`. Plan:
+`plans/2026-08-11-portion-control.md`.
+
+🔑 **The invariant that makes the pizza defect survivable.** Macros are always `itemMacros × portion`
+— `piecesPerOrder` is arithmetically absent, so it can only format. Changing `comes in` therefore
+**cannot move a single calorie**, and that is enforced by a test, not by care. A wrong piece count
+costs the diner granularity (a steak shown as `3 / 3` steps in thirds) and never accuracy, which
+downgrades the 0-of-26 pizza result from a data defect to an ergonomics one.
+
+Changing the divisor **preserves the share, not the count**: `8/8` → 12 gives `12/12`, `4/8` → 12
+gives `6/12`. Justified by Santiago's ruling (2026-08-11) that the app is used **before** ordering,
+so nobody is reconciling against slices they have already eaten.
+
+**One spec conflict resolved during implementation.** The spec said the numerator shows to one
+decimal, and also that a typed `0.25` is accepted. Both cannot hold: `0.25` would display as `0.3`
+beside calories computed from `0.25`, which the diner can catch. Typed input is now rounded to **two**
+decimals and displayed at two, so the number shown is always the number the macros used.
+
+**11 tests guard `portions.ts`** — the divisor guard against every shape a model can return, the step
+for 1/3/8/12, floating-point accumulation (`1/3 + 1/3 + 1/3` must read `3 / 3`), no ceiling in either
+form (`16 / 8` is two pizzas), the input parsers, and the invariant itself.
+
+⚠️ **Not visible until TestFlight build 7.** Build 6 carries the old label and renders `3` / `8`.
+This is the app binary half of the 2026-08-11 split: v30 (the prompt) deployed in minutes, this waits
+for a build.

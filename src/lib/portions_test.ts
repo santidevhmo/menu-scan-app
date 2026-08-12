@@ -5,20 +5,21 @@ Deno.test("an item served in pieces steps by one piece", () => {
   const { step, label } = portionSteps(8);
 
   assertEquals(step, 1 / 8);
-  // The case the half-item stepper could not express at all: three slices of a
-  // pizza is 3/8, which is not a multiple of 0.5.
-  assertEquals(label(3 / 8), "3/8");
-  assertEquals(label(1 / 8), "1/8");
-  // A whole item reads as "all", not "8/8".
-  assertEquals(label(1), "all");
+  // Santiago, 2026-08-11: the stepper reads as a plain piece count - "3", not
+  // "3/8" - and opens at the whole order, so a pizza starts at 8. The case the
+  // half-item stepper could not express at all is still the point: three slices
+  // of a pizza is not a multiple of 0.5.
+  assertEquals(label(3 / 8), "3");
+  assertEquals(label(1 / 8), "1");
+  assertEquals(label(1), "8");
 });
 
 Deno.test("piece labels survive floating-point accumulation", () => {
-  // 1/3 + 1/3 + 1/3 is not exactly 1, and a diner must never see "2.9999/3".
+  // 1/3 + 1/3 + 1/3 is not exactly 1, and a diner must never see "2.9999".
   const { step, label } = portionSteps(3);
   const third = step;
-  assertEquals(label(third + third), "2/3");
-  assertEquals(label(third + third + third), "all");
+  assertEquals(label(third + third), "2");
+  assertEquals(label(third + third + third), "3");
 });
 
 Deno.test("anything not served in pieces keeps the half-item stepper", () => {
@@ -45,19 +46,18 @@ Deno.test("implausible piece counts fall back rather than produce nonsense", () 
 Deno.test("the real counts a menu states are handled", () => {
   // Observed on the archived menus: "(3 piezas)", "3 pzas", "orden de dos",
   // "Alitas 6 PZ", plus the conventional counts for pizza and nigiri.
-  assertEquals(portionSteps(2).label(1 / 2), "1/2");
-  assertEquals(portionSteps(3).label(2 / 3), "2/3");
-  assertEquals(portionSteps(6).label(2 / 6), "2/6");
-  assertEquals(portionSteps(12).label(5 / 12), "5/12");
+  assertEquals(portionSteps(2).label(1 / 2), "1");
+  assertEquals(portionSteps(3).label(2 / 3), "2");
+  assertEquals(portionSteps(6).label(2 / 6), "2");
+  assertEquals(portionSteps(12).label(5 / 12), "5");
 });
 
-Deno.test("a portion above a whole item does not read as a piece fraction", () => {
-  // CodeRabbit, 2026-08-09: the + button has no ceiling, so two whole pizzas
-  // rendered "16/8". Above one item the fraction stops meaning anything.
+Deno.test("the counter has no ceiling", () => {
+  // The + button never stops. Two whole pizzas is sixteen slices, and under a
+  // plain counter "16" is the right answer rather than the "16/8" CodeRabbit
+  // caught in the fraction form on 2026-08-09.
   const { label } = portionSteps(8);
-  assertEquals(label(2), "x2");
-  assertEquals(label(1.125), "x1.13");
-  // At or below a whole item the piece form is unchanged.
-  assertEquals(label(1), "all");
-  assertEquals(label(3 / 8), "3/8");
+  assertEquals(label(2), "16");
+  assertEquals(label(3), "24");
+  assertEquals(label(1.125), "9");
 });

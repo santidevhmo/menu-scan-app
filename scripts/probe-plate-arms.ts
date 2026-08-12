@@ -156,6 +156,66 @@ async function armA(items: Item[]) {
   return out;
 }
 
+// ------------------------------------------------- ARM A-CONDITIONAL
+
+/**
+ * Does the menu STATE a size or quantity for this item?
+ *
+ * The 2026-08-11 arms measured the anchor helping and hurting in different
+ * places: with a stated size it is the whole mechanism (28→40 cm moves 1.74×
+ * anchored, 1.12× not), and with nothing stated it overrides a better
+ * ingredient list with a worse guess (Salmón Roll 322 g of ingredients pushed
+ * down to a 250 g guess, against a cross-checked 397 g).
+ *
+ * Deterministic and food-agnostic - it matches UNITS and QUANTIFIERS, never a
+ * food name, the same discipline as parseItemGrams.
+ */
+export function statesSize(name: string, description: string): boolean {
+  const text = `${name} ${description}`.toLowerCase();
+  return [
+    /\d+\s*(cm|cms|pulgadas?|inch(es)?|")/, // a dimension
+    /\d+\s*(pz|pzas?|piezas?|pieces|pcs)\b/, // a piece count
+    /\d+\s*person/, // "para 2 personas"
+    /\b(chica|chico|grande|mediana|mediano|individual|compartir)\b/, // a size word
+    /\b(dos|tres|cuatro|seis|doce)\b/, // a count written out
+  ].some((re) => re.test(text));
+}
+
+async function armAConditional(items: Item[]) {
+  const weighted = items.filter((i) => i.grams != null);
+  const unweighted = items.filter((i) => i.grams == null);
+  // deno-lint-ignore no-explicit-any
+  const out: any[] = [];
+
+  if (weighted.length > 0) {
+    // deno-lint-ignore no-explicit-any
+    const { items: enriched } = await callGptEnrich(weighted as any, apiKey!);
+    out.push(...enriched);
+  }
+  if (unweighted.length > 0) {
+    const raw = await callOpenAI(ARM_A_PROMPT, ARM_A_SCHEMA, unweighted);
+    // deno-lint-ignore no-explicit-any
+    for (const it of raw.items ?? []) {
+      const source = unweighted.find((u) => u.name === it.name);
+      // The field is ALWAYS requested - asking for the plate improves the
+      // ingredient list either way. It is only APPLIED when the menu said
+      // something about size.
+      const anchored = source &&
+        statesSize(source.name, source.description);
+      const total = anchored
+        ? plausibleTotal(it.typical_total_g) ?? it.printed_total_g
+        : it.printed_total_g;
+      out.push({
+        ...it,
+        ...sumIngredientMacros(it.ingredients ?? [], total),
+        _plate_g: total,
+        _anchored: Boolean(anchored),
+      });
+    }
+  }
+  return out;
+}
+
 // ---------------------------------------------------------------- ARM C
 
 const PLATE_SCHEMA = {
@@ -270,7 +330,7 @@ const ARMS: Record<string, (items: Item[]) => Promise<unknown[]>> = {
   // deno-lint-ignore no-explicit-any
   baseline: async (items) => (await callGptEnrich(items as any, apiKey!)).items,
   A: armA,
-  C: armC,
+  "A-cond": armAConditional,
 };
 
 const archive: Record<string, unknown> = {};

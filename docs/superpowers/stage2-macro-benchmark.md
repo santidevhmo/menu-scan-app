@@ -3431,6 +3431,48 @@ column is not a comparison.)
 model state the dish's served FORM before it lists ingredients constrains the list. That is a
 hypothesis, not a finding — what is measured is the score.
 
+### 🌍 GENERALISATION A/B — 213 real items, five menus, both arms (2026-08-11, ~$1.30)
+
+Santiago's two conditions before shipping: **does it break other items, and does it interfere with an
+item that already prints grams?** Eight fixtures cannot answer either. This runs the same 213 archived
+items through `callGptEnrich` twice — once on the LIVE prompt, once on pieces-only — and diffs them
+item by item. Andaluz 36, Polloteria 55, Bistro 26, Guest House 48, Nikkori 48.
+
+| check | live | pieces-only |
+|---|---|---|
+| **printed weight kept** (items whose menu prints one) | **63/63** | **63/63** |
+| stated piece count honoured | 3/4 | 3/4 (same single miss) |
+| items dropped / reordered / renamed | 0 | 0 |
+| empty ingredient lists | 0 | 0 |
+| items with NO piece count | **199/213 (93%)** | **0** |
+
+✅ **NO INTERFERENCE, and it is stronger than the count suggests.** For the 69 items whose menu prints
+a weight, the **median calorie change is 2.2%** and only 3 move materially. The printed number is read
+identically, and the macros built on it barely shift.
+
+📊 **Whole corpus: median calorie change 3.3%. 19 items of 213 (9%) moved more than 25% and 50 kcal.**
+Hand-audited, they fall into two groups that point opposite ways:
+
+**16 food items moved because the ingredient list got MORE COMPLETE** — the direction this phase's
+own history calls right (B4, B15, B21 all fixed understatement):
+
+| item | live | pieces-only | what changed |
+|---|---|---|---|
+| Boneless de Pollo | 275 | 465 | gained `batter 50 g` — a boneless wing IS battered |
+| Parrillada Verduras | 96 | 186 | gained `olive oil 10 g` — grilled vegetables are oiled |
+| BISTRO pizzas (6 of them) | 641–838 | 848–1078 | cheese 50 → 100 g, pepperoni 30 → 50 g on a WHOLE pizza |
+| Sampler (3pz) | 999 | 653 | `buns 60 g` → `mini burger buns 30 g` — the menu says *mini* |
+
+🔴 **3 drinks moved the WRONG way.** `Horchata (400ml)` 135 → **66 kcal**, gaining `water 240 g`
+beside `rice milk 100 g`. Horchata is rice water, so the ingredient is not wrong in kind, but 66 kcal
+for 400 ml is understated. Same shape for `Uvola` and `Chile-Uvola`. **Drinks are deliberately out of
+the benchmark (post-launch) yet they still render in the app**, so this is a real, if bounded, cost.
+
+**The decisive comparison remains the oracle**: on the 8 dishes where truth exists, this arm scored
+**0–3/96 at 12.0–12.5%** against the live **2–3/96 at 14.3–14.5%**. Where we can check, the movement
+is toward truth. On the other 205 items we can see movement and reason about it, never score it —
+which is the unweighted-oracle gap again.
+
 ### 🔬 A METHOD NOTE THAT SAVES MONEY — repeated draws of a FIXED input tell you almost nothing here
 
 The blinded-fixture probe was re-run to replicate a single-draw result. **Draw 2 came back

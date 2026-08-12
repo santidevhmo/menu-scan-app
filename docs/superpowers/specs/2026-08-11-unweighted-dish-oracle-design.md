@@ -159,7 +159,11 @@ print no weight.
 
 ## 10. Out of scope
 
-- Implementing B or A. This spec makes them measurable; each gets its own spec if the data supports it.
+- **Shipping** B or A. Both arms run here as **probe scripts** — the pattern this repo already uses
+  (`probe-pieces-generalisation.ts`, `probe-anchor-calibration.ts`): a probe calls the model with an
+  altered prompt or payload and scores the result, while `enrich.ts` and the deployed function stay
+  untouched. Turning a winning arm into production behaviour is a separate spec, written only if the
+  data supports it.
 - The parked `typical_total_g` anchor on `feat/unweighted-portion-anchor`.
 - Drinks, which are out of the app for now.
 - Any runtime USDA lookup.

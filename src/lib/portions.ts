@@ -43,25 +43,21 @@ export function portionLabel(portion: number, piecesPerOrder: number): string {
   return `${formatQuantity(portion * piecesPerOrder)} / ${piecesPerOrder}`;
 }
 
-/** A typed quantity: any positive number, rounded to the 2dp the row can show. */
+/**
+ * A typed quantity: any positive number, rounded to the 2dp the row can show.
+ * `Number` trims and turns "" into 0, so empty input falls out as not positive.
+ */
 export function parsePortionInput(text: string): number | null {
-  const value = Number(text.trim());
-  if (text.trim() === "" || !Number.isFinite(value) || value <= 0) return null;
-  return round2(value);
+  const value = Number(text);
+  return Number.isFinite(value) && value > 0 ? round2(value) : null;
 }
 
 /** A typed divisor: a whole number of pieces, 1 to 50. */
 export function parsePiecesInput(text: string): number | null {
-  const value = Number(text.trim());
-  if (
-    text.trim() === "" ||
-    !Number.isInteger(value) ||
-    value < 1 ||
-    value > MAX_PIECES
-  ) {
-    return null;
-  }
-  return value;
+  const value = Number(text);
+  return Number.isInteger(value) && value >= 1 && value <= MAX_PIECES
+    ? value
+    : null;
 }
 
 /**

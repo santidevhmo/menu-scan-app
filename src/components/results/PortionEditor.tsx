@@ -166,9 +166,18 @@ function EditorField({
           onChangeText={onChangeText}
           keyboardType="decimal-pad"
           selectTextOnFocus
-          className={`w-16 h-8 text-center rounded-chip bg-card font-sans text-body ${
+          className={`w-16 h-8 rounded-chip bg-card font-sans text-body ${
             valid ? "text-foreground" : "text-danger"
           }`}
+          // NOT `text-center`. nativewind 5.0.0-preview.4 ships a TextInput
+          // whose nativeStyleMapping is `{ textAlign: true }`, while the code
+          // consuming it calls `path.split(".")` - so any class that sets
+          // textAlign crashes the render with "undefined is not a function".
+          // Button and ActivityIndicator use string paths and are fine; the
+          // bug is upstream and only TextInput and ImageBackground carry it.
+          // Per the AGENTS.md Style Exception List, style wins where className
+          // cannot go. Revisit when nativewind leaves preview.
+          style={{ textAlign: "center" }}
           accessibilityLabel={label}
         />
         <Pressable

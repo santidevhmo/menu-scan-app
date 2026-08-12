@@ -913,3 +913,23 @@ Deno.test("no source file fits grams to a raw printed weight", async () => {
     }`,
   );
 });
+
+Deno.test("serving_pieces cannot be declined - force the field, not the wording", () => {
+  // Asking for a conventional count when the menu prints none FAILED TWICE on
+  // two wordings, the pizza case failing both times, and the 2026-08-11
+  // diagnostic agreed: 2 of 48 real items answered. Prompt wording is 0 for 4 in
+  // this phase; schema force is 4 for 6 (B4, B10, B12, B21). So the model no
+  // longer has a null to hide in - "1" is the answer for a single plate.
+  const item = ENRICH_SCHEMA_OPENAI.properties.items.items as {
+    properties: Record<string, { type: unknown }>;
+    required: string[];
+  };
+  assertEquals(item.properties.serving_pieces.type, "number");
+  assertEquals(item.required.includes("serving_pieces"), true);
+});
+
+Deno.test("the piece step defines 1 and still prefers a printed count", () => {
+  // Without "1 = a single plate" a forced field has nowhere to put a steak.
+  assertEquals(ENRICH_PROMPT.includes("single plate"), true);
+  assertEquals(ENRICH_PROMPT.includes("the count the menu states"), true);
+});

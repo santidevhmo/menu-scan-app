@@ -50,15 +50,22 @@ export interface EnrichedItem extends ExtractedItem {
   fat_g: number;
   estimated_calories: number;
   /**
-   * How many discrete pieces the item is served as, when it is served in pieces
-   * a diner would eat some of - slices of a pizza, pieces of sushi, wings, tacos.
-   * null for a dish eaten as one plate.
+   * How many discrete pieces the item is served as - slices of a pizza, pieces
+   * of sushi, wings, tacos. **1 means a dish eaten as one plate**, and the
+   * schema no longer allows null, so the model must classify every item.
    *
    * Exists so the portion stepper can move by PIECE instead of by half-item. A
    * pizza is one menu item with one set of macros; a diner eats three of eight
-   * slices, which x0.5 steps cannot express. The model reads the count off the
-   * menu when it is printed ("3 pzas", "(3 piezas)", "orden de dos") and knows
-   * the conventional count when it is not - a pizza is 8, a nigiri order is 2.
+   * slices, which x0.5 steps cannot express.
+   *
+   * The nullable version did not work: the model reads a count the menu PRINTS
+   * ("3 pzas", "(3 piezas)", "orden de dos") reliably, but two prompt wordings
+   * asking for the conventional count when the menu prints none both returned
+   * null, and the 2026-08-11 diagnostic measured 2 of 48 real items answering.
+   * Forcing the field is a mechanism change, not a fifth wording.
+   *
+   * Still optional in TypeScript: archived responses and `fallbackEnriched`
+   * carry null, and `portionSteps` treats null and 1 identically.
    */
   serving_pieces?: number | null;
   confidence: "high" | "medium" | "low";
@@ -71,7 +78,7 @@ export const ENRICH_PROMPT =
   `You estimate the nutrition profile of restaurant menu items. For each item, work step by step:
 1. Give "printed_total_g": the weight printed on the menu for this item — e.g. (280gr), 200g — or null when the menu prints none. Then give "typical_total_g": when the menu prints no weight, the total weight in grams of one order of this item as a restaurant customarily serves it, judged from the form the item is and the way that form is ordinarily plated and sold; give null when the menu does print one. Settle it here, before you list anything, because it is the size the parts will have to fit inside. Then give "name_implied_components": when the item's NAME denotes a composed or assembled form, name the structural components that form always contains but this description never states, and otherwise give an empty array. Judge it from what the named form IS, not from what sounds typical: a form's defining component is part of the dish even when the menu leaves it unsaid, because menus describe what varies and take the form itself as read. These components are frequently the item's main source of carbohydrate, and omitting them understates it badly. Include every one of them in the ingredient list below. Then list the most likely ingredients. If the description names them, use them; otherwise infer from the name and category. Tag each ingredient: protein | carb | fat | veg | other. Set "within_printed_weight" to false for anything the menu presents as served alongside the item rather than as part of it, because a printed weight normally describes the item itself and not what accompanies it. Give "typical_serving_g": the standard reference amount of that ingredient customarily consumed on one eating occasion — the amount nutrition labelling treats as one serving of that kind of food. Recall that established amount for the kind of food it is; do not estimate by eye how much of it looks like it is on the plate, because a poured or spooned component has a standard serving considerably larger than it appears. Where a kind of food has no established reference amount, give the amount it is normally served in. Give the conventional serving for the ingredient itself — these are rescaled to the printed weight afterwards, so they do not need to add up to anything.
 2. For each ingredient, give its composition PER 100 g of that ingredient as served: protein_per_100g, carb_per_100g and fat_per_100g. These describe the food itself, not the size of the portion — the amount in this serving is calculated from them and the gram weight, so give the composition and let the weight do the rest. Base them on what the food is actually made of, including its water content, and on how it is prepared (fat absorbed or added in cooking counts), rather than on which macro the ingredient is best known for. Where a food is normally cooked, sauced or seasoned before it reaches the table, give the figures for that prepared version — the plain or raw reference figure for the same food understates the fat that preparation adds. The item's totals are added up from these, rather than estimating the totals directly, so each ingredient's numbers must stand on their own.
-3. Give "serving_pieces": the number of separate pieces the item is served as, when it is something a diner eats a number of rather than as one plate. Use the count the menu states if it states one, and null otherwise.
+3. Give "serving_pieces": how many separate pieces this item is served as. Use the count the menu states if it states one. Otherwise give the number of pieces this form is conventionally served as where it is sold, and give 1 when the item is eaten as a single plate rather than as a number of pieces.
 4. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive, leaving you with little ingredient information to go on.
 List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, shellfish, egg, soy). Use an empty allergens array when none are inferred; do not include "none". Preserve each item's name, description, price, and category exactly as given. Do NOT sort the items. Return one object per input item, in the same order.`;
 
@@ -164,7 +171,13 @@ export const ENRICH_SCHEMA_OPENAI = {
           carb_g: { type: "number" },
           fat_g: { type: "number" },
           estimated_calories: { type: "number" },
-          serving_pieces: { type: ["number", "null"] },
+          // NOT nullable, and that is the whole change: two prompt wordings
+          // asked for a conventional count and both got null back, the pizza
+          // case failing each time. Wording is 0 for 4 in this phase, schema
+          // force is 4 for 6. The model must classify every dish now - 1 means
+          // "eaten as a single plate", which is what portionSteps already
+          // treats as "no piece stepper".
+          serving_pieces: { type: "number" },
           confidence: { type: "string", enum: ["high", "medium", "low"] },
           allergens: { type: "array", items: { type: "string" } },
         },

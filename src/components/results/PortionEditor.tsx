@@ -2,11 +2,7 @@ import { useState } from "react";
 import { Modal, Pressable, Text, TextInput, View } from "react-native";
 import { Minus, Plus } from "lucide-react-native";
 import { colors } from "@/constants/theme";
-import {
-  parsePiecesInput,
-  parsePortionInput,
-  portionStep,
-} from "@/lib/portions";
+import { parsePiecesInput, parsePortionInput } from "@/lib/portions";
 
 interface PortionEditorProps {
   /** The dish name, so the diner knows which row they opened. */
@@ -57,7 +53,12 @@ export function PortionEditor({
 
   const nudgeQuantity = (direction: 1 | -1) => {
     const current = parsedQuantity ?? portion;
-    const step = portionStep(parsedDivisor ?? piecesPerOrder);
+    // Half an order per tap, whatever the dish comes in (Santiago, 2026-08-11).
+    // Stepping by one PIECE here meant an 8-piece dish moved this field by
+    // 0.125 and a 6-piece dish by 0.17 - the field counts orders, so a piece
+    // is not a round number in it. Pieces are still reachable one at a time
+    // from the row's own +/-, which counts in pieces.
+    const step = 0.5;
     // The stepper floors at one step; only typing goes below it.
     const next = Math.max(step, current + direction * step);
     setQuantity(String(Math.round(next * 100) / 100));

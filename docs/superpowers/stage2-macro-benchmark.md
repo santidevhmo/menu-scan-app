@@ -3395,6 +3395,44 @@ ingredients, and *Pastel de zanahoria* and *Red velvet* returned **identical mac
 0.8 threshold, and `isBlackBoxIngredient` compares a Spanish item name to an English ingredient name,
 so the name test cannot fire across a translation.
 
+### 🔴 ANCHOR ARM — measured 2026-08-11, ~$0.45. **REGRESSES the fixtures. Do not deploy.**
+
+`typical_total_g` + required `serving_pieces`, five tests, all run. Branch
+`feat/unweighted-portion-anchor`. **Verdict: the mechanism works on the unweighted path and costs
+more than it is worth on the weighted one, and the cause is prompt perturbation, not the code.**
+
+| # | test | result | verdict |
+|---|---|---|---|
+| 2 | **no-regression, 8 weighted fixtures, 4 runs x 3 draws** | **6–11/96 at 15.1–16.7%** vs `macro-best-v8`'s **2–3/96 at 14.3–14.5%** | 🔴 **REGRESSION** |
+| 3 | Nikkori slope, 48 items | r **0.74 → 0.38**, slope **32 → 7 g/ingredient**, median plate **375 → 250 g** | 🟡 slope PASS, r misses 0.3 |
+| 4 | piece counts | `serving_pieces > 1` on **2/48 → 42/48**; every dessert correctly 1 | ✅ PASS |
+| 1 | blinded fixtures | median **37.5%**, MAPE **50.1%** | 🔴 FAIL (target ≤25%) |
+| 5 | USDA-weighed dishes | **3/5 within 30%** — pizza 14.7%/24.3%, sushi 16.7%, taco 117%, wings 56% | ✅ PASS |
+
+🔑 **THE REGRESSION IS NOT THE CODE — IT IS THE PROMPT GETTING LONGER.** Checked in all 6 archived
+draws of w1 and w2: `printed_total_g` was read correctly on **8 of 8 dishes every time**, and
+`typical_total_g` came back **null on all 8**, which is exactly the design. The anchor never fired on
+a fixture. The macros still moved, because two sentences were added to a prompt and the model's
+ingredient lists moved with them. **A change can be a perfect no-op in the data path and still cost
+you the benchmark.** The two edits shipped together, so which sentence did it is unmeasured.
+
+⚠️ **Test 1's ground truth is contaminated, and it is the OPEN SCOPE QUESTION.** The three worst
+dishes are exactly the three the scope ruling already flags: ENFRIJOLADAS 159%, Salmone 75%, Gnocchi
+67% — where the printed weight is suspected to describe a component and not the plate. The model
+answered 350 g for ENFRIJOLADAS' 135 g and 300 g for Gnocchi's 180 g, which is the direction the
+scope question predicts. **Excluding those three the median is 25% and MAPE 20% — a pass.** Recorded
+both ways deliberately; re-defining a test after seeing its result is not a ruling, and the ruling is
+Santiago's.
+
+📌 **The anchor is a CONVENTION, not per-dish knowledge.** All 42 rolls got the same 250 g and the
+same 8 pieces. That is what kills the verbosity artefact — and it also means a big topped roll and a
+thin one now weigh the same. 250 g ÷ 8 = **31 g a piece, against USDA's measured 30 g** for a
+California roll piece, so the convention itself is well calibrated. Santiago's own Instagram evidence
+says Nikkori plates carry **10–12**, not 8, which is a 20–33% gap the editable stepper covers.
+
+📉 **The predicted direction held.** The prior-art research said LLMs under-estimate mass and that the
+bias grows with portion size. Plates SHRANK: median 375 → 250 g, max 520 → 340 g.
+
 **Design that came out of it:** `docs/superpowers/specs/2026-08-11-unweighted-dish-portion-anchor-design.md`
 (approved 2026-08-11, not implemented). Anchor the ingredient fit to a model-supplied
 `typical_total_g` when the menu prints nothing; force `serving_pieces` to be non-nullable rather than

@@ -3352,3 +3352,38 @@ thing from a food list in the prompt, and it was never covered by that ruling.
 **`portions.ts` is guarded by 5 tests** covering piece labelling, floating-point accumulation
 (1/3 + 1/3 + 1/3 must read "all", never "2.9999/3"), the half-item fallback, and every implausible
 count a model could return (0, 1.5, −3, 51, NaN, Infinity).
+
+### 🚀 FORCED `serving_pieces` — measured, shipped as v30 (2026-08-11, ~$2.35 for the day)
+
+`serving_pieces` stops being nullable. Prompt wording was 0 for 4 at getting a conventional count;
+schema force worked where wording could not, and **it also improved the macros**, which nobody
+predicted.
+
+| arm | failed/96 | mean abs error |
+|---|---|---|
+| `macro-best-v8` (was v29) | 2–3 | 14.3–14.5% |
+| **forced pieces (v30)** | **0–3** | **12.0–12.5%** |
+
+Two of four runs scored a perfect 0/96 and the error ranges do not overlap. **Why** it helps macros is
+NOT established — B15's mechanism (state the served form before listing ingredients) is a hypothesis.
+
+**Santiago's two pre-ship conditions, measured over 213 real items from five menus:**
+printed weight kept on **63/63** items that print one (and 96/96 fixture item-draws), median calorie
+change on those items **2.2%**; no drops, reorders, renames or empty ingredient lists; median change
+across all 213 items **3.3%**. Of the 19 items that moved >25% and >50 kcal, sixteen gained a missing
+preparation ingredient (batter on boneless chicken, oil on grilled vegetables, twice the cheese on a
+whole pizza) and three were drinks — **ruled out of the app by Santiago, so not a blocker**.
+
+🔴 **COVERAGE IS HALF THE STORY — the pizza case STILL FAILS.**
+
+| kind | count returned |
+|---|---|
+| stated on the menu (`3 pzas`, `Tres tortillas`) | ✅ honoured, 3 of 4 |
+| sushi rolls | 🟡 **32 of 42** got 8; ten got 1 |
+| **pizzas (Bistro)** | 🔴 **0 of 26** — every one returned 1 |
+| single-plate dishes, desserts | ✅ 1, correctly |
+
+So the feature shipped for its MACRO gain, which is measured, and not for its stepper gain, which is
+partial. A pizza still steps in halves. **Sushi counts also come back 8 where Santiago's own
+photographs of Nikkori show 10–12**, so the default is low for that restaurant — which is precisely
+what the editable stepper is for.

@@ -36,9 +36,31 @@ the explicit exception: it is the bounded Phase-9 workstream record, not a compe
 built and frozen; six prompt/schema iterations have been measured against it, and the fixture set was
 widened from 3 dishes to 8 on 2026-08-09. Phase spend to date: **~$2.52**.
 
-🚀 **B4 IS DEPLOYED (2026-08-09, Santiago authorised).** Edge function `analyze-menu` **v27 → v28**,
-still pinned to `gpt-4o-2024-08-06`. Production previously ran the original pre-B1 prompt — the
-worst version measured (39/96 failed, 37.7% error); it now runs B4 (**24–27/96, 21.0–21.2%**).
+🚀 **LIVE NOW: edge function `analyze-menu` v30, deployed 2026-08-11 (Santiago authorised).** It is
+`macro-best-v8` **plus the forced `serving_pieces` field** (this branch). Measured before shipping:
+**0–3/96 at 12.0–12.5%** against v29's **2–3/96 at 14.3–14.5%**, 4 runs × 3 draws, two runs perfect.
+Model pin unchanged. Smoke-tested live: printed weights read, stated counts honoured, allergens
+present. **Rollback = deploy from `origin/main`**, one command:
+`supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw`.
+
+⚠️ **The piece count only HALF works.** Sushi rolls get 8 (32 of 42), stated counts are honoured, and
+every single-plate dish correctly gets 1 — but **all 26 Bistro pizzas got 1**, so the pizza case that
+motivated the feature still fails. The MACRO gain is what justified the deploy; the stepper gain is
+partial.
+
+⚠️ **The app has NOT shipped the matching label.** `portions.ts` draws a count as a plain number
+(`10`) on this branch, but that is app code: until TestFlight **build 7**, build 6 draws a counted
+item as `3/8` / `all`. Working, not the intended form.
+
+🔍 **Never trust a doc for what is deployed — check the live function.** These docs claimed "v28 / B4
+/ not deployed" for two days while v29 served every scan; that was found on 2026-08-11 by comparing
+the live bundle against this repo's `ENRICH_PROMPT`, which is the only fingerprint that cannot lie.
+`mcp__supabase__list_edge_functions` gives version and `updated_at`. **When you deploy, edit these
+lines in the SAME commit** — the 35-minute gap is exactly how it happened.
+
+History, both superseded: **`macro-best-v8` as v29** (2026-08-09 15:46 MST) and **B4 as v28**
+(2026-08-09). Production before those ran the original pre-B1 prompt — the
+worst version measured (39/96 failed, 37.7% error); B4 measured (**24–27/96, 21.0–21.2%**).
 Verified live: `printed_total_g` read correctly on all three smoke-test dishes, allergens present,
 `model_id` = the pin. **Rollback = redeploy from `ce91e91`**:
 `git checkout ce91e91 -- supabase/functions/analyze-menu/ && supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw`.
@@ -53,7 +75,7 @@ every commit and whether it is deployed, the runs side by side, and what each pr
 Tasks 1–5 are COMPLETE. The USDA plan is the oracle/provenance reference:
 `docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
 
-**One-line state:** **`macro-best-v8` (B21 + B24b) is the best measured version. Production still runs B4 as edge function v28 — the newer work is NOT deployed.** On the 8-dish set, 4 runs x 3 draws: **baseline 24/96 at 34.2%, B21 0–3/96 at 12.1–14.1%**, with one perfect run and six of eight dishes at 0/48. Verified beyond the fixtures on **72 real items from all nine archived menus**: black-box ingredient 1.4%, undecomposable 2.8%. Drinks and alcohol are deliberately OUT (post-launch). **The biggest remaining unknown needs Santiago, not another run: the real-restaurant field test** — every scan to date is a photo of a screen. Always re-derive numbers with `deno run --allow-read scripts/rescore-history.ts`; figures written in prose are snapshots.
+**One-line state:** **`macro-best-v8` + forced `serving_pieces` is the best measured version at 0–3/96 and 12.0–12.5%, and it IS live as edge function v30 (2026-08-11).** On the 8-dish set, 4 runs x 3 draws: **baseline 24/96 at 34.2%, B21 0–3/96 at 12.1–14.1%**, with one perfect run and six of eight dishes at 0/48. Verified beyond the fixtures on **72 real items from all nine archived menus**: black-box ingredient 1.4%, undecomposable 2.8%. Drinks and alcohol are deliberately OUT (post-launch). **The biggest remaining unknown needs Santiago, not another run: the real-restaurant field test** — every scan to date is a photo of a screen. Always re-derive numbers with `deno run --allow-read scripts/rescore-history.ts`; figures written in prose are snapshots.
 
 🏁 **Fallback checkpoint: git tag `stage2-b4-checkpoint` → commit `22a1ac5`.** Restore from it if an
 evaluation regresses. `git show stage2-b4-checkpoint` prints the result;

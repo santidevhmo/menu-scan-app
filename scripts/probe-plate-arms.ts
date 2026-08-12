@@ -335,6 +335,65 @@ const ARMS: Record<string, (items: Item[]) => Promise<unknown[]>> = {
 
 const archive: Record<string, unknown> = {};
 
+// NOISE MODE (Santiago, 2026-08-11). The SAME dishes through the SAME
+// unchanged pipeline, five times. Nothing varies but the model's own sampling.
+// Until this number exists, no arm can be judged: a 30% "improvement" means
+// nothing if identical input already swings 40%.
+if (Deno.args[0] === "noise") {
+  const set: { name: string; description: string }[] = JSON.parse(
+    await Deno.readTextFile("scripts/fixtures/unweighted-guard-set.json"),
+  );
+  const items = set.map((d) => item(d.name, d.description));
+  const DRAWS_NOISE = 5;
+  const byName = new Map<string, number[]>();
+
+  for (let draw = 0; draw < DRAWS_NOISE; draw++) {
+    // deno-lint-ignore no-explicit-any
+    const out = await ARMS.baseline(items) as any[];
+    archive[`noise d${draw}`] = out;
+    for (const it of out) {
+      if (!byName.has(it.name)) byName.set(it.name, []);
+      byName.get(it.name)!.push(Math.round(it.estimated_calories ?? 0));
+    }
+  }
+
+  const spreads: number[] = [];
+  console.log(
+    `${"dish".padEnd(30)} ${"kcal across 5 identical runs".padEnd(30)} spread`,
+  );
+  for (const d of set) {
+    const xs = byName.get(d.name) ?? [];
+    if (xs.length === 0) {
+      console.log(`${d.name.slice(0, 28).padEnd(30)} MISSING`);
+      continue;
+    }
+    const low = Math.min(...xs);
+    const high = Math.max(...xs);
+    // Spread as a fraction of the midpoint: directly comparable with the
+    // "% change" an arm is credited with.
+    const spread = (high - low) / ((high + low) / 2);
+    spreads.push(spread);
+    console.log(
+      `${d.name.slice(0, 28).padEnd(30)} ${xs.join(", ").padEnd(30)} ${(spread * 100).toFixed(0)}%`,
+    );
+  }
+  spreads.sort((a, b) => a - b);
+  const median = spreads[Math.floor(spreads.length / 2)];
+  console.log(
+    `\nNOISE FLOOR: median ${(median * 100).toFixed(0)}%, ` +
+      `worst ${(spreads[spreads.length - 1] * 100).toFixed(0)}%, ` +
+      `best ${(spreads[0] * 100).toFixed(0)}% across ${spreads.length} dishes.`,
+  );
+  console.log(
+    "An arm must move a dish by MORE than this to have moved it at all.",
+  );
+  await Deno.writeTextFile(
+    "scripts/fixtures/caches/probe-noise-floor.raw.json",
+    JSON.stringify(archive, null, 2) + "\n",
+  );
+  Deno.exit(0);
+}
+
 // WIDE MODE (Santiago, 2026-08-11): fifteen real unweighted dishes with real
 // descriptions, spanning 60 g to 510 g across four menus, run BATCHED the way
 // production runs them. Four dishes and single-item calls decided A-conditional;

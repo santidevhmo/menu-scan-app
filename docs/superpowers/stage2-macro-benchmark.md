@@ -3423,3 +3423,24 @@ form (`16 / 8` is two pizzas), the input parsers, and the invariant itself.
 ⚠️ **Not visible until TestFlight build 7.** Build 6 carries the old label and renders `3` / `8`.
 This is the app binary half of the 2026-08-11 split: v30 (the prompt) deployed in minutes, this waits
 for a build.
+
+**Device testing the same evening changed four things** (see §10b of the spec for the
+side-by-side). The `TextInput` crashed on open — `nativewind@5.0.0-preview.4` ships a
+`nativeStyleMapping` of `{ textAlign: true }` against code that calls `path.split(".")`, so
+`text-center` was fatal; `textAlign` now goes through `style`. The editor's quantity field
+was counting **orders** while the row counted **pieces**, so typing `18` on a 12-roll plate
+meant eighteen plates — it now counts the dish's own unit, and `unitCount` /
+`portionFromUnitCount` own that conversion under a round-trip test. The editor gained a live
+`each piece about N cal` line, because §6's guarantee otherwise makes the divisor look inert.
+Both fields now sanitise non-numeric input. **15 tests.**
+
+📊 **A question worth keeping: does the model's mass estimate track its own piece count?**
+Measured on the 213-item forced-pieces run, over the 144 items with no printed weight:
+1 piece → 231 g (n=102), 2 → 203 g, 3 → 230 g, 4 → 230 g, 6 → 213 g, 8 → 392 g (n=35).
+**Flat from 1 to 6.** A 6-piece dish weighs what a 1-piece dish weighs, so the count is a claim
+about how an order is CUT, not how much food it holds — which is what makes §6's invariant
+correct rather than merely convenient. The 8-piece group is heavier because those 35 items are
+almost all sushi rolls, a heavier dish; that confound is the whole of the r=0.535 correlation.
+Corollary for Nikkori: a 397 g Salmón Roll plate is 50 g per piece at the model's 8 and 33 g at
+Santiago's observed 12 — **33 g is a normal sushi piece, so the plate mass looks right and only
+the count is low.**

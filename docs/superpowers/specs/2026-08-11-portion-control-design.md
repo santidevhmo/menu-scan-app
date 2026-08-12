@@ -150,6 +150,25 @@ behaves exactly as the app does today.
 - no ceiling: `16 / 8` and `2` both render
 - floor: the stepper stops at one step; a typed 0.25 is accepted; zero is rejected by both
 
+## 10b. As built — where the shipped control differs from this spec
+
+Written after device testing on 2026-08-11. The spec above is the design; this
+section is what exists, and it wins where the two disagree.
+
+| this spec said | what shipped | why |
+|---|---|---|
+| the numerator shows to one decimal (§4) | **two** decimals | one decimal displays a typed `0.25` as `0.3` beside calories computed from `0.25`, which the diner can catch. Two makes the number shown always the number used. |
+| §5's editor was silent on what its quantity counts | it counts the **dish's own unit** — rolls for a roll, plates for a steak | Santiago typed `18` on a 12-roll plate meaning eighteen rolls and got eighteen plates. The row counts pieces, so the editor must too, or one screen holds two units. `unitCount` / `portionFromUnitCount` own the conversion. |
+| one step = `1/N` of an order everywhere (§4) | the **row** steps by one piece; the **editor** steps by one piece where a dish has them and half an order where it does not | in a field counting orders, one piece of a 6-piece dish reads `0.17`. In a field counting pieces it reads `1`. |
+| nothing about per-piece feedback | the editor shows `Whole order 592 cal — each piece about 49 cal`, live off the draft divisor | §6's guarantee made the divisor look inert: correcting it changed nothing visible, which reads as a broken control rather than a working one. |
+| numeric fields, unspecified how | both fields sanitise input to digits (plus one dot for the quantity), and the divisor gets a digits-only pad | a decimal pad cannot produce letters, but a hardware keyboard, a paste and dictation all can. |
+
+**One implementation constraint, not a design choice:** the quantity `TextInput`
+sets `textAlign` through `style`, never `className`. `nativewind@5.0.0-preview.4`
+ships a `TextInput` whose `nativeStyleMapping` is `{ textAlign: true }` while the
+code consuming it calls `path.split(".")`, so any text-align class crashes the
+render. Revisit when nativewind leaves preview.
+
 ## 11. Out of scope
 
 - Logging divisor corrections to `scan_log` — its own spec, agreed 2026-08-11.

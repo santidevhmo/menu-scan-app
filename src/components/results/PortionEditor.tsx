@@ -13,6 +13,8 @@ interface PortionEditorProps {
   name: string;
   portion: number;
   piecesPerOrder: number;
+  /** Calories for the WHOLE order; null when the item could not be decomposed. */
+  caloriesPerOrder: number | null;
   onClose: () => void;
   onSubmit: (portion: number, piecesPerOrder: number) => void;
 }
@@ -34,6 +36,7 @@ export function PortionEditor({
   name,
   portion,
   piecesPerOrder,
+  caloriesPerOrder,
   onClose,
   onSubmit,
 }: PortionEditorProps) {
@@ -43,6 +46,14 @@ export function PortionEditor({
   const parsedQuantity = parsePortionInput(quantity);
   const parsedDivisor = parsePiecesInput(divisor);
   const canSave = parsedQuantity !== null && parsedDivisor !== null;
+
+  // Reads off the DRAFT divisor so it moves while they type. Only meaningful
+  // once a dish has pieces - "each piece" of a soup is the soup.
+  const footnote =
+    caloriesPerOrder !== null && parsedDivisor !== null && parsedDivisor > 1
+      ? `Whole order ${Math.round(caloriesPerOrder)} cal — each piece about ` +
+        `${Math.round(caloriesPerOrder / parsedDivisor)} cal.`
+      : "Changing what it comes in never changes the nutrition.";
 
   const nudgeQuantity = (direction: 1 | -1) => {
     const current = parsedQuantity ?? portion;
@@ -93,8 +104,12 @@ export function PortionEditor({
             onIncrease={() => nudgeDivisor(1)}
           />
 
-          <Text className="font-sans text-caption text-muted-foreground mt-3">
-            Changing what it comes in never changes the nutrition.
+          {/* The plate is what carries the calories, and it does not move when
+              the divisor does - which reads as "nothing happened" unless the
+              per-piece number is on screen to be seen changing. Santiago hit
+              exactly that doubt on a 397 kcal roll, 2026-08-11. */}
+          <Text className="font-sans text-caption text-muted-foreground mt-4">
+            {footnote}
           </Text>
 
           <View className="flex-row justify-end items-center mt-4 gap-4">

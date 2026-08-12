@@ -146,6 +146,7 @@ export function MenuItemRow({
           name={item.name}
           portion={portion}
           piecesPerOrder={piecesPerOrder}
+          caloriesPerOrder={unknownMacros ? null : item.estimated_calories}
           onClose={() => setEditing(false)}
           onSubmit={(nextPortion, nextPieces) => {
             onPortionEdit(nextPortion, nextPieces);

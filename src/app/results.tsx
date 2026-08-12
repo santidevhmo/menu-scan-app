@@ -17,6 +17,7 @@ import { useAllergensStore } from "@/store/allergens.store";
 import { AllergenSelector } from "@/components/results/AllergenSelector";
 import { GoalSelector } from "@/components/results/GoalSelector";
 import { MenuItemRow } from "@/components/results/MenuItemRow";
+import { resolvePiecesPerOrder } from "@/lib/portions";
 import { PhaseIndicator } from "@/components/results/PhaseIndicator";
 import { selectedMacros, sortItemsByGoals } from "@/lib/analyzeMenu";
 // import { squashZScore } from "@/lib/zScoreSort"; // used by the disabled ranked-items dump below
@@ -181,6 +182,9 @@ function ResultsPhase({
   const [noticeDismissed, setNoticeDismissed] = useState(false);
   const [revealHidden, setRevealHidden] = useState(false);
   const [portions, setPortions] = useState<Record<number, number>>({});
+  // What one order is cut into, once the diner has corrected it. Kept apart
+  // from `portions` so the model's count stays the default until they do.
+  const [pieces, setPieces] = useState<Record<number, number>>({});
   const hasAllergenFilter = selectedAllergens.length > 0;
   const sorted: ScoredResultItem[] = useMemo(() => {
     if (!result || result.error) return [];
@@ -208,6 +212,7 @@ function ResultsPhase({
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reset stale per-result UI state for a new scan result
     setPortions({});
+    setPieces({});
     setRevealHidden(false);
   }, [result]);
 
@@ -386,10 +391,14 @@ function ResultsPhase({
             rank={index + 1}
             highlight={highlight}
             portion={portions[id] ?? 1}
-            selectedAllergens={selectedAllergens}
-            onPortionChange={(portion) =>
-              setPortions((prev) => ({ ...prev, [id]: portion }))
+            piecesPerOrder={
+              pieces[id] ?? resolvePiecesPerOrder(item.serving_pieces)
             }
+            selectedAllergens={selectedAllergens}
+            onPortionEdit={(portion, piecesPerOrder) => {
+              setPortions((prev) => ({ ...prev, [id]: portion }));
+              setPieces((prev) => ({ ...prev, [id]: piecesPerOrder }));
+            }}
           />
         );
       }}

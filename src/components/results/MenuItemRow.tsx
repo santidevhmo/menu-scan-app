@@ -1,17 +1,20 @@
+import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { Minus, Plus } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 import { allergenLabel } from "@/data/allergens";
 import type { EnrichedItem } from "@/types/scan";
 import type { MacroField } from "@/data/goals";
-import { portionSteps } from "@/lib/portions";
+import { portionLabel, portionStep } from "@/lib/portions";
+import { PortionEditor } from "./PortionEditor";
 
 interface MenuItemRowProps {
   item: EnrichedItem;
   rank: number;
   highlight: Set<MacroField>;
   portion: number;
-  onPortionChange: (portion: number) => void;
+  piecesPerOrder: number;
+  onPortionEdit: (portion: number, piecesPerOrder: number) => void;
   selectedAllergens: string[];
 }
 
@@ -28,7 +31,8 @@ export function MenuItemRow({
   rank,
   highlight,
   portion,
-  onPortionChange,
+  piecesPerOrder,
+  onPortionEdit,
   selectedAllergens,
 }: MenuItemRowProps) {
   const matchingAllergens = item.allergens.filter((allergen) =>
@@ -41,7 +45,8 @@ export function MenuItemRow({
   // probe on evocative names ("El Capricho del Chef"), which are common on
   // exactly the menus this app targets.
   const unknownMacros = (item.ingredients?.length ?? 0) === 0;
-  const { step, label } = portionSteps(item.serving_pieces);
+  const [editing, setEditing] = useState(false);
+  const step = portionStep(piecesPerOrder);
 
   return (
     <View className="rounded-card bg-card border border-border p-4 mb-3">
@@ -92,7 +97,9 @@ export function MenuItemRow({
 
       <View className="flex-row items-center justify-end mt-3 gap-2">
         <Pressable
-          onPress={() => onPortionChange(Math.max(step, portion - step))}
+          onPress={() =>
+            onPortionEdit(Math.max(step, portion - step), piecesPerOrder)
+          }
           disabled={portion <= step}
           hitSlop={8}
           className={`w-7 h-7 items-center justify-center rounded-full border border-border ${
@@ -105,12 +112,25 @@ export function MenuItemRow({
           <Minus size={14} color={colors.mutedForeground} strokeWidth={2} />
         </Pressable>
 
-        <Text className="font-sans text-caption text-muted-foreground w-12 text-center">
-          {label(portion)}
-        </Text>
+        {/* The value must LOOK tappable - it is the only way anyone discovers
+            they can correct a wrong piece count. */}
+        <Pressable
+          onPress={() => setEditing(true)}
+          hitSlop={8}
+          className="min-w-16 px-2 py-0.5 rounded-chip bg-card"
+          accessibilityRole="button"
+          accessibilityLabel={`Edit portion, currently ${portionLabel(
+            portion,
+            piecesPerOrder,
+          )}`}
+        >
+          <Text className="font-sans text-caption text-foreground text-center">
+            {portionLabel(portion, piecesPerOrder)}
+          </Text>
+        </Pressable>
 
         <Pressable
-          onPress={() => onPortionChange(portion + step)}
+          onPress={() => onPortionEdit(portion + step, piecesPerOrder)}
           hitSlop={8}
           className="w-7 h-7 items-center justify-center rounded-full border border-border"
           accessibilityRole="button"
@@ -119,6 +139,20 @@ export function MenuItemRow({
           <Plus size={14} color={colors.mutedForeground} strokeWidth={2} />
         </Pressable>
       </View>
+
+      {/* Mounted only while open, so its draft always starts from this row. */}
+      {editing && (
+        <PortionEditor
+          name={item.name}
+          portion={portion}
+          piecesPerOrder={piecesPerOrder}
+          onClose={() => setEditing(false)}
+          onSubmit={(nextPortion, nextPieces) => {
+            onPortionEdit(nextPortion, nextPieces);
+            setEditing(false);
+          }}
+        />
+      )}
 
       {matchingAllergens.length > 0 && (
         <Text className="font-sans text-caption text-danger mt-2">

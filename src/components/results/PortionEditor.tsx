@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Modal, Pressable, Text, TextInput, View } from "react-native";
 import { Minus, Plus } from "lucide-react-native";
 import { colors } from "@/constants/theme";
@@ -9,7 +9,6 @@ import {
 } from "@/lib/portions";
 
 interface PortionEditorProps {
-  visible: boolean;
   /** The dish name, so the diner knows which row they opened. */
   name: string;
   portion: number;
@@ -26,9 +25,12 @@ interface PortionEditorProps {
  *
  * Both fields are numeric. Nothing typed here reaches a model, so there is no
  * prompt-injection surface (Santiago, 2026-08-11).
+ *
+ * The caller mounts this only while it is open, so the draft below seeds from
+ * the row's current values on every open - no effect, and no way for the last
+ * row's typing to show up on the next one.
  */
 export function PortionEditor({
-  visible,
   name,
   portion,
   piecesPerOrder,
@@ -37,16 +39,6 @@ export function PortionEditor({
 }: PortionEditorProps) {
   const [quantity, setQuantity] = useState(String(portion));
   const [divisor, setDivisor] = useState(String(piecesPerOrder));
-
-  useEffect(() => {
-    // Reopening on a different row - or after a cancel - must show that row's
-    // current values, not the last ones typed.
-    if (visible) {
-      setQuantity(String(portion));
-      setDivisor(String(piecesPerOrder));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- seed the draft on open only
-  }, [visible]);
 
   const parsedQuantity = parsePortionInput(quantity);
   const parsedDivisor = parsePiecesInput(divisor);
@@ -66,12 +58,7 @@ export function PortionEditor({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <Pressable
         className="flex-1 items-center justify-center px-6"
         style={{ backgroundColor: "rgba(0,0,0,0.35)" }}
@@ -132,7 +119,9 @@ export function PortionEditor({
               accessibilityRole="button"
               accessibilityState={{ disabled: !canSave }}
             >
-              <Text className="font-sans text-button text-background">Done</Text>
+              <Text className="font-sans text-button text-background">
+                Done
+              </Text>
             </Pressable>
           </View>
         </Pressable>

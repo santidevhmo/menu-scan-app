@@ -3618,3 +3618,40 @@ reconstruction.
 
 Probe: `scripts/probe-plate-arms.ts` (`statesSize` is the detector). Archives:
 `probe-plate-arms.raw.json`, `probe-plate-arms-guard.raw.json`.
+
+### 🛑 THE WIDER SET OVERTURNS A-CONDITIONAL (2026-08-11, ~$0.25) — do not ship it
+
+Fifteen real unweighted dishes with real descriptions, 60–510 g, four menus, run **batched** the way
+production runs them. Set frozen at `scripts/fixtures/unweighted-guard-set.json`.
+
+| direction | dishes | change vs baseline |
+|---|---|---|
+| up | Tiras de Pollo, Ensalada Griega, Caviar Service, Seafood Plateau, Braised Short-Rib, Mexicana, Scallop Ceviche, Flamenkuchen, Ostrica | **+13% to +64%** |
+| down | Unagui Masago, Amazonas Top, Cosmo de Pollo, Nico, Nikkori Dynamite | **−33% to −41%** |
+| flat | Nevada | −2% |
+
+🔴 **12 of 15 moved more than 25%, and the anchor fired on NONE of them** — no dish in the set states
+a size, so every bit of that movement came from the schema field alone. This is the parked anchor's
+failure mode repeating: **a required field perturbs every item, not only its target.** On four
+single-item dishes A-conditional looked surgical; across fifteen batched dishes it is not.
+
+**The split is systematic by dish type**, which is worse than noise: five of six sushi rolls fell
+~35% while nearly every non-sushi dish rose. The one fixed point we have — Santiago's independent
+cross-check putting the Salmón Roll at ~592 kcal — says the sushi drop is **wrong**. Meanwhile Tiras
+de Pollo rising 505–648 → 889–987 for breaded chicken with fries looks **right**. A-conditional
+trades one class of dish for another.
+
+⚠️ **Batching is implicated and was previously untested.** Single-item, A-conditional left the Salmón
+Roll at baseline (482–496). Batched with fourteen others, rolls fall by a third. Same code, different
+grouping. Every earlier arm result today used one item per call.
+
+📉 **Also visible: the baseline is very unstable in a batch** — Ostrica 215–498, Nico 655–854, Tiras
+de Pollo 505–648 across three draws of identical input. Some of the "movement" above is competing
+with noise of that size, and no conclusion here separates the two.
+
+**Directions this leaves** (not prohibitions): the plate-total idea still has the strongest mechanism
+evidence of anything tried — the model does know, and asking does change portioning. What is not
+established is that a required field can be added without perturbing everything else. Worth trying
+next: the field on a SEPARATE call keyed to items that state a size (a narrowed arm C, which never
+touches the enrichment request at all), and a batched-vs-single measurement of the baseline's own
+variance so future arms are judged against the right noise floor.

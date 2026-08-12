@@ -5,7 +5,34 @@ import {
   portionLabel,
   portionStep,
   resolvePiecesPerOrder,
+  sanitizeDecimalInput,
+  sanitizeIntegerInput,
 } from "./portions.ts";
+
+Deno.test("nothing but digits and one dot survives the quantity field", () => {
+  // A decimal-pad keyboard cannot produce letters, but a hardware keyboard, a
+  // paste, and a dictation can. The field must refuse them at the source.
+  assertEquals(sanitizeDecimalInput("18"), "18");
+  assertEquals(sanitizeDecimalInput("0.5"), "0.5");
+  assertEquals(sanitizeDecimalInput("1abc2"), "12");
+  assertEquals(sanitizeDecimalInput("abc"), "");
+  assertEquals(sanitizeDecimalInput("-3"), "3");
+  assertEquals(sanitizeDecimalInput("1e5"), "15");
+  // Only the FIRST dot is a decimal point; the rest are typos.
+  assertEquals(sanitizeDecimalInput("1.2.3"), "1.23");
+  assertEquals(sanitizeDecimalInput("."), ".");
+  // Mid-typing states must survive, or the field fights the diner.
+  assertEquals(sanitizeDecimalInput("0."), "0.");
+  assertEquals(sanitizeDecimalInput(""), "");
+});
+
+Deno.test("the divisor field takes digits only - a piece is never fractional", () => {
+  assertEquals(sanitizeIntegerInput("12"), "12");
+  assertEquals(sanitizeIntegerInput("1.5"), "15");
+  assertEquals(sanitizeIntegerInput("8abc"), "8");
+  assertEquals(sanitizeIntegerInput("-2"), "2");
+  assertEquals(sanitizeIntegerInput(""), "");
+});
 
 Deno.test("a model count the UI can trust is kept", () => {
   assertEquals(resolvePiecesPerOrder(8), 8);

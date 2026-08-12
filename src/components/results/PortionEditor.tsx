@@ -2,7 +2,12 @@ import { useState } from "react";
 import { Modal, Pressable, Text, TextInput, View } from "react-native";
 import { Minus, Plus } from "lucide-react-native";
 import { colors } from "@/constants/theme";
-import { parsePiecesInput, parsePortionInput } from "@/lib/portions";
+import {
+  parsePiecesInput,
+  parsePortionInput,
+  sanitizeDecimalInput,
+  sanitizeIntegerInput,
+} from "@/lib/portions";
 
 interface PortionEditorProps {
   /** The dish name, so the diner knows which row they opened. */
@@ -92,7 +97,8 @@ export function PortionEditor({
             label="I'll have"
             value={quantity}
             valid={parsedQuantity !== null}
-            onChangeText={setQuantity}
+            keyboardType="decimal-pad"
+            onChangeText={(text) => setQuantity(sanitizeDecimalInput(text))}
             onDecrease={() => nudgeQuantity(-1)}
             onIncrease={() => nudgeQuantity(1)}
           />
@@ -100,7 +106,8 @@ export function PortionEditor({
             label="comes in"
             value={divisor}
             valid={parsedDivisor !== null}
-            onChangeText={setDivisor}
+            keyboardType="number-pad"
+            onChangeText={(text) => setDivisor(sanitizeIntegerInput(text))}
             onDecrease={() => nudgeDivisor(-1)}
             onIncrease={() => nudgeDivisor(1)}
           />
@@ -151,6 +158,7 @@ function EditorField({
   label,
   value,
   valid,
+  keyboardType,
   onChangeText,
   onDecrease,
   onIncrease,
@@ -158,6 +166,8 @@ function EditorField({
   label: string;
   value: string;
   valid: boolean;
+  /** decimal-pad for a quantity, number-pad for a count of pieces. */
+  keyboardType: "decimal-pad" | "number-pad";
   onChangeText: (text: string) => void;
   onDecrease: () => void;
   onIncrease: () => void;
@@ -180,7 +190,7 @@ function EditorField({
         <TextInput
           value={value}
           onChangeText={onChangeText}
-          keyboardType="decimal-pad"
+          keyboardType={keyboardType}
           selectTextOnFocus
           className={`w-16 h-8 rounded-chip bg-card font-sans text-body ${
             valid ? "text-foreground" : "text-danger"

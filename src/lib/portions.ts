@@ -52,6 +52,27 @@ export function parsePortionInput(text: string): number | null {
   return Number.isFinite(value) && value > 0 ? round2(value) : null;
 }
 
+/**
+ * Keeps a quantity field to digits and at most one decimal point. The keyboard
+ * is a decimal pad, but a hardware keyboard, a paste and dictation all bypass
+ * it, and `Number("1e5")` is 100000 rather than the nonsense it looks like.
+ * Returns the text to display, so half-typed states like "0." survive.
+ */
+export function sanitizeDecimalInput(text: string): string {
+  const digitsAndDots = text.replace(/[^0-9.]/g, "");
+  const firstDot = digitsAndDots.indexOf(".");
+  if (firstDot === -1) return digitsAndDots;
+  return (
+    digitsAndDots.slice(0, firstDot + 1) +
+    digitsAndDots.slice(firstDot + 1).replace(/\./g, "")
+  );
+}
+
+/** Same, for a field that counts pieces: digits only, never a fraction. */
+export function sanitizeIntegerInput(text: string): string {
+  return text.replace(/[^0-9]/g, "");
+}
+
 /** A typed divisor: a whole number of pieces, 1 to 50. */
 export function parsePiecesInput(text: string): number | null {
   const value = Number(text);

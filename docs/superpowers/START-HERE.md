@@ -52,6 +52,88 @@ partial.
 (`10`) on this branch, but that is app code: until TestFlight **build 7**, build 6 draws a counted
 item as `3/8` / `all`. Working, not the intended form.
 
+---
+
+## 🆕 2026-08-11 SESSION — READ THIS BEFORE ANYTHING BELOW IT
+
+Two defects were found that change the priority order, and one product feature was built. Total
+spend for the day: **~$2.05** across seven probes. Everything below this block predates it.
+
+### 🚨 #1 PRIORITY — batching makes macros unstable IN PRODUCTION. Code-only fix.
+
+**What "batch" means here:** one user, one photo, one scan produces ~40 menu items. The edge
+function chunks them into groups of `ENRICH_BATCH_SIZE = 10` and makes ~4 model calls. A "batch" is
+one such group — it is INTERNAL to a single scan, nothing to do with multiple users or scans.
+
+Same dish, same unchanged pipeline, five draws each. The only variable is grouping:
+
+| dish | SOLO (1 item/call) | BATCHED (15/call) |
+|---|---|---|
+| OSTRICA | 173,172,172,172,177 → **3%** | 525,205,243,242,242 → **88%** |
+| MEXICANA | 358,359,359,358,359 → **0%** | 499,335,339,362,639 → **62%** |
+| BRAISED SHORT-RIB GF | 525,529,529,529,525 → **1%** | 500,379,501,501,653 → **53%** |
+
+Alone the model is essentially deterministic; batched, the same dish swings 39–88%. Two diners
+scanning the same menu get different calories, and the goal RANKING is sorted on those numbers.
+**Next measurement: the batch-size curve (1/3/5/10), ~$0.25** — does stability arrive at 3, at 5, or
+only at 1? One item per call multiplies prompt tokens by the item count (~$0.03 → ~$0.30 per scan).
+⚠️ `ENRICH_BATCH_SIZE` was already tuned DOWN to 10 for GPT-4o early-stopping, so the curve must
+record BOTH stability and whether items get dropped.
+Probe: `scripts/probe-plate-arms.ts solo|noise`.
+
+### 🚧 #2 — every statement of size EXCEPT printed grams is ignored
+
+3 draws, calories as the metric: printed grams 200→400 g moves the answer **2.14–2.37×**, while
+**28→40 cm moves 1.06–1.36×**, "6 pz"→"12 pz" **1.00×**, "for 2 people" **0.62–1.22×**, "chica"→
+"grande" **1.02–1.32×**. Not dish-specific — pizza, wings, pasta and salad are equally flat.
+
+**Why:** nothing in the pipeline estimates the PLATE. The model gives ingredients and a typical
+serving of each; the dish mass is whatever they SUM to (~231 g mean regardless of dish).
+`resolveGrams` is the only place the plate exists as a concept, which is why printed grams are the
+only channel that works. Asked plainly OUTSIDE the prompt, the same model says a 28 cm pizza is
+**750 g** where the pipeline says 250 g — **the knowledge is there and nobody asks for it.**
+
+### ❌ Measured and NOT shipped — do not re-run these
+
+| arm | what it was | outcome |
+|---|---|---|
+| **A** — split batch, required `typical_total_g` | weighted items keep today's request byte-identically | restores size response (1.68–1.81×) but pushed the Salmón Roll out of band |
+| **C** — separate parallel plate call | `ENRICH_PROMPT` untouched | worse than A everywhere; it asks COLD, A asks with decomposition context |
+| **A-conditional** — ask always, anchor only when the menu states a size | `statesSize()` detector, food-agnostic | looked best on 4 solo dishes; **the 15-dish BATCHED run then measured mostly batch noise** — re-judge on solo before believing it |
+
+⚠️ **The noise floor is median 25% / worst 88%** (batched). Any arm must beat **that dish's own**
+noise, not a flat threshold. Three draws is too few where spread approaches 90%.
+
+### ✅ Shipped this session (client only, no pipeline change)
+
+**The portion control** — every item carries `portion` (share of one order) and `piecesPerOrder`
+(what it is cut into). A row reads `1` or `8 / 12`; tapping opens an editor with `I'll have` and
+`comes in`. **Macros are always `itemMacros × portion` — the divisor never enters the arithmetic**,
+so correcting a wrong piece count cannot move a calorie. 15 tests in `src/lib/portions_test.ts`.
+Branch `feat/forced-serving-pieces`, **PR #17 open with an unread CodeRabbit review — Santiago's
+ruling: PR #17 is the LAST thing to work on, after all pipeline testing passes.**
+Needs **TestFlight build 7** to be visible; build 6 shows the old label.
+
+⚠️ One workaround worth knowing: the quantity `TextInput` sets `textAlign` via `style`, never
+`className` — `nativewind@5.0.0-preview.4` ships a `TextInput` whose `nativeStyleMapping` is
+`{ textAlign: true }` against code calling `path.split(".")`, so any text-align class crashes the
+render.
+
+### 📌 Rulings made this session
+
+- **The ingredient rule** — now in `AGENTS.md`: the DESCRIPTION is the source of truth above all
+  else; the NAME implies only what the dish form requires (a roll's rice, a burger's bun); nothing
+  else is ever invented. Settled by the Salmón Roll, whose 150 g of unlisted rice is 42 of its 54 g
+  of carbs and whose result an independent cross-check put at ~592 kcal.
+- **"Portions for 2 people" is not a model problem** — the user reduces it with the stepper.
+- **The unweighted-dish oracle is PARKED**, half-built (`scripts/macro-band-score.ts`,
+  `scripts/unweighted-oracle.ts`, `scripts/unweighted-candidates.ts`, 14 tests). It needs six
+  per-recipe rulings from Santiago and is NOT blocking. Its spec honestly records that official
+  databases publish ingredients and generic composites, **never restaurant plate weights** — so any
+  such oracle is a labelled *reconstruction*, good for catching gross errors, not fine grading.
+
+---
+
 🔍 **Never trust a doc for what is deployed — check the live function.** These docs claimed "v28 / B4
 / not deployed" for two days while v29 served every scan; that was found on 2026-08-11 by comparing
 the live bundle against this repo's `ENRICH_PROMPT`, which is the only fingerprint that cannot lie.
@@ -124,8 +206,13 @@ putting any food/dish/cuisine name in the prompt's nutrition step (measured harm
 
 ### 🎯 WHAT IS ACTUALLY LEFT (everything else on this page is history)
 
-**The benchmark work is finished and shipped.** Two items remain, and neither is a measurement
-question — both need Santiago, not another run:
+⛔ **THIS SECTION IS SUPERSEDED — read the 2026-08-11 block near the top first.** It said the
+benchmark work was finished; the 2026-08-11 session found two open defects (batching instability,
+and size being a dead channel), so it is not. The two items below are still real and still need
+Santiago, but they are **no longer the top of the list** — the batch-size curve is.
+
+**The benchmark work was believed finished as of 2026-08-09.** Two items remained, and neither is a
+measurement question — both need Santiago, not another run:
 
 1. 🔴 **The printed-weight SCOPE ruling — the one open technical finding.** Our oracle assumes "the
    printed weight = the whole plated dish" for all eight fixtures. The menus contradict that. Gnocchi

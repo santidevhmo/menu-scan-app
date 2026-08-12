@@ -335,6 +335,57 @@ const ARMS: Record<string, (items: Item[]) => Promise<unknown[]>> = {
 
 const archive: Record<string, unknown> = {};
 
+// SOLO MODE (Santiago, 2026-08-11). Is the instability the MODEL or the BATCH?
+// The noise run measured five batched draws; this measures five SOLO draws of
+// the same dishes, one item per call, nothing else changed. If solo is steady
+// and batched is not, the fix is in how items are grouped - code only, no
+// prompt change.
+if (Deno.args[0] === "solo") {
+  const all: { name: string; description: string }[] = JSON.parse(
+    await Deno.readTextFile("scripts/fixtures/unweighted-guard-set.json"),
+  );
+  // The three worst offenders, one mid, and the rock-steady control.
+  const PICK = [
+    "OSTRICA",
+    "MEXICANA",
+    "BRAISED SHORT-RIB GF",
+    "Nevada",
+    "ENSALADA GRIEGA",
+  ];
+  // Batched spreads from the noise run, so the two are directly comparable.
+  const BATCHED: Record<string, string> = {
+    "OSTRICA": "525,205,243,242,242 (88%)",
+    "MEXICANA": "499,335,339,362,639 (62%)",
+    "BRAISED SHORT-RIB GF": "500,379,501,501,653 (53%)",
+    "Nevada": "347,514,346,503,346 (39%)",
+    "ENSALADA GRIEGA": "195,196,196,196,196 (1%)",
+  };
+  const DRAWS_SOLO = 5;
+  console.log(`${"dish".padEnd(24)} ${"SOLO kcal".padEnd(32)} solo   batched`);
+  for (const name of PICK) {
+    const d = all.find((x) => x.name === name);
+    if (!d) continue;
+    const xs: number[] = [];
+    for (let draw = 0; draw < DRAWS_SOLO; draw++) {
+      // deno-lint-ignore no-explicit-any
+      const [out] = await ARMS.baseline([item(d.name, d.description)]) as any[];
+      archive[`solo ${name} d${draw}`] = out;
+      xs.push(Math.round(out?.estimated_calories ?? 0));
+    }
+    const low = Math.min(...xs), high = Math.max(...xs);
+    const spread = (high - low) / ((high + low) / 2);
+    console.log(
+      `${name.slice(0, 22).padEnd(24)} ${xs.join(",").padEnd(32)} ` +
+        `${(spread * 100).toFixed(0).padStart(4)}%   ${BATCHED[name]}`,
+    );
+  }
+  await Deno.writeTextFile(
+    "scripts/fixtures/caches/probe-solo-vs-batch.raw.json",
+    JSON.stringify(archive, null, 2) + "\n",
+  );
+  Deno.exit(0);
+}
+
 // NOISE MODE (Santiago, 2026-08-11). The SAME dishes through the SAME
 // unchanged pipeline, five times. Nothing varies but the model's own sampling.
 // Until this number exists, no arm can be judged: a 30% "improvement" means

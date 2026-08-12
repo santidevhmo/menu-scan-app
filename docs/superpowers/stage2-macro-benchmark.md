@@ -3694,3 +3694,37 @@ has nothing to do with the plate-total work, and is arguably the more urgent fin
 **Standing consequence for every future arm:** a change must beat **that dish's own** noise, not a
 flat threshold, and three draws is too few for dishes whose spread approaches 90%. Judge per-dish or
 do not judge.
+
+### 🚨 THE INSTABILITY IS THE BATCH, NOT THE MODEL (2026-08-11, ~$0.15) — production defect, code-only fix
+
+Same dishes, same unchanged pipeline, five draws each. The ONLY variable is whether the item was
+sent alone or in a batch of fifteen.
+
+| dish | SOLO, 1 item per call | BATCHED, 15 per call |
+|---|---|---|
+| OSTRICA | 173,172,172,172,177 → **3%** | 525,205,243,242,242 → **88%** |
+| MEXICANA | 358,359,359,358,359 → **0%** | 499,335,339,362,639 → **62%** |
+| BRAISED SHORT-RIB GF | 525,529,529,529,525 → **1%** | 500,379,501,501,653 → **53%** |
+| Nevada | 460,450,463,450,463 → **3%** | 347,514,346,503,346 → **39%** |
+| ENSALADA GRIEGA | 186,186,175,186,191 → 9% | 195,196,196,196,196 → 1% |
+
+🔑 **Asked alone the model is essentially deterministic (0–3%). Batched, the same dish swings
+39–88%.** Twenty to thirty times the spread, from grouping alone. `temperature: 0` and the fixed
+seed hold fine for a single item; they do not survive a fifteen-item request.
+
+🔴 **This ships today.** `ENRICH_BATCH_SIZE = 10`, so every real scan carries it. Two diners at the
+same table can see a dish differ by 2×, and the RANKING they came for is built on those numbers. It
+is a code-only fix — no prompt, no schema, no model change.
+
+⚠️ **It retro-invalidates part of the same day's work.** The 15-dish wide run was batched, so
+"A-conditional moved 12 of 15 dishes" was largely measuring this. The guard runs were solo and remain
+trustworthy. Any arm judged on batched runs must be re-judged.
+
+**Open question worth measuring next:** the batch-size curve. `ENRICH_BATCH_SIZE` is already tuned
+down to 10 for a different reason (GPT-4o early-stopping, see the comment in `enrich.ts`). Does
+stability arrive at 5, at 3, or only at 1? One item per call multiplies prompt tokens by the item
+count — enrichment is ~$0.03/scan today, so the ceiling is roughly $0.30/scan — and the knee of that
+curve is the whole decision.
+
+Probe: `scripts/probe-plate-arms.ts solo|noise`. Archives: `probe-solo-vs-batch.raw.json`,
+`probe-noise-floor.raw.json`.

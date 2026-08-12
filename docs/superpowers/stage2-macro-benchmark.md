@@ -3487,3 +3487,50 @@ two, a 12-piece order — come out badly wrong.
 
 Probe: `scripts/probe-size-sensitivity.ts`. Archive:
 `scripts/fixtures/caches/probe-size-sensitivity.raw.json`.
+
+### 🔑 THE KNOWLEDGE IS THERE — the pipeline never asks for the plate (2026-08-11, ~$0.05)
+
+Follow-up to the size-channel blocker, and the finding that turns it into a buildable fix. The same
+model, same version, same sampling, asked **outside** the enrichment prompt: *how many grams does
+this dish weigh as served?* Three draws.
+
+| dish | asked plainly | the pipeline | factor | best view of truth |
+|---|---|---|---|---|
+| **CAPRICCIOSA 28 cm** | **750 g** | 250 g | **3.00×** | ~500–700 g |
+| **Alitas 12 pz** | **360–480 g** | 130 g | **3.23×** | ~400–500 g |
+| CARBONARA | 450 g | 315 g | 1.43× | ~250–400 g |
+| Coliflor Roka | 150 g | 85 g | 1.76× | 80–160 g |
+| Salmón Roll | 350 g | 397 g | 0.88× | 300–400 g |
+| CESAR (200 g) — CONTROL | 200 g | 200 g | 1.00× | 200 g, stated |
+
+**The mechanism, stated plainly.** The model is asked for ingredients and a typical serving of each;
+the plate mass is whatever those happen to SUM to. No step ever asks whether 250 g is a believable
+28 cm pizza, because no step looks at the plate. That is why the ~231 g mean exists — it is the sum
+of per-ingredient reference servings, not anyone's estimate — and why no stated size moves it.
+`resolveGrams` is the only place in the pipeline where the plate exists as a concept, which is
+exactly why printed grams are the only channel that works.
+
+**The signature is the good one:** the direct answer is ~3× higher precisely where the pipeline is
+badly wrong, and agrees where the pipeline is already right (Salmón Roll 0.88×). A fix built on this
+should move what is broken and leave alone what is not.
+
+⚠️ **The direct answers run HOT** — 750 g against a 500–700 g reconstruction, carbonara 450 g against
+~400, cauliflower at the top of its band. Adopting them wholesale will likely overshoot. Overshooting
+10% is a different problem from being 3× low, but it must be measured, not assumed.
+
+🎯 **What three prior findings jointly direct** (Santiago's rule: old evals are directions, not
+prohibitions):
+
+| prior finding | direction |
+|---|---|
+| the `typical_total_g` anchor regressed printed-weight dishes — ONE prompt served every item | do NOT repeat single-prompt delivery; DO repeat the idea with a **split batch** so weighted items keep today's prompt byte-identically |
+| wording 0-for-4, schema/mechanism force 5-for-7 | make it a **required field plus code routing**, not an instruction |
+| printed grams move the answer 2.14–2.37× via `resolveGrams` | route the plate total through **that same code path** |
+
+**A bonus the probe settled for free:** asking for the PLATE total absorbs the count problem.
+"An order of 12 chicken wings" returned 360–480 g unprompted, so a quantity-type count needs no
+separate multiplier — it is simply a fact about the plate. The divisor-vs-multiplier distinction
+survives only in the UI portion control, not in the mass path.
+
+Probe: `scripts/probe-plate-knowledge.ts`. Archive:
+`scripts/fixtures/caches/probe-plate-knowledge.raw.json`.

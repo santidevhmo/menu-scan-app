@@ -30,15 +30,11 @@ export function portionSteps(servingPieces?: number | null): {
 
   return {
     step: 1 / servingPieces,
-    label: (portion) => {
-      // Rounded because 1/3 + 1/3 + 1/3 is not exactly 1 in floating point, and
-      // a diner must never see "2.9999/3".
-      const eaten = Math.round(portion * servingPieces);
-      if (eaten === servingPieces) return "all";
-      // Above a whole item the piece fraction stops meaning anything - "16/8"
-      // is not how anyone describes two pizzas. Fall back to the multiplier.
-      if (eaten > servingPieces) return `x${Math.round(portion * 100) / 100}`;
-      return `${eaten}/${servingPieces}`;
-    },
+    // A plain count of pieces, with no ceiling (Santiago, 2026-08-11): the
+    // stepper opens at the whole order - a 10-piece roll reads "10" - and the
+    // diner walks it down to what they ate, or up past a whole order. Rounded
+    // because 1/3 + 1/3 + 1/3 is not exactly 1 in floating point, and nobody
+    // should ever see "2.9999".
+    label: (portion) => `${Math.round(portion * servingPieces)}`,
   };
 }

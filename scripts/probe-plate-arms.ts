@@ -897,6 +897,146 @@ if (Deno.args[0] === "sauce") {
   Deno.exit(0);
 }
 
+// IN-DISH SAUCE MODE (2026-08-16). The probe the `sauce` mode could not do.
+//
+// `sauce` sent each sauce as its OWN item and chimichurri did not move (37-42
+// both arms) - because a sauce sent alone is ALREADY decomposed. Inside a real
+// menu the same sauce comes back at 15 g fat/100 g. So the failure belongs to
+// being ONE INGREDIENT INSIDE A DISH, and that is what this measures.
+//
+// Three columns, and the first is free:
+//   BATCHED  the archived b10 run - what production actually produced
+//   SOLO     the same dish alone, today's prompt - separates the BATCH effect
+//            from the INGREDIENT effect, since 2026-08-12 proved batch-mates move
+//            answers and a solo-only comparison would confound the two
+//   ARM S    the same dish alone, decomposition sentence added
+//
+// Dishes and descriptions are read from the archives, never retyped - a probe
+// that invents its own menu text measures the text (2026-08-09 lesson).
+//
+//   deno run --allow-net --allow-env --allow-read --allow-write \
+//     --env-file=.env.local scripts/probe-plate-arms.ts sauce-dish
+if (Deno.args[0] === "sauce-dish") {
+  const ARM_S_SENTENCE =
+    " Where an ingredient is itself a prepared mixture rather than a single food," +
+    " do not give figures for the mixture as a whole. List instead the single" +
+    " foods it is made from, each as its own ingredient with its own weight and" +
+    " its own composition, because a mixture's composition is an average over" +
+    " parts that differ enormously and stating it directly understates whichever" +
+    " part is most concentrated.";
+  const ARM_S_PROMPT = ENRICH_PROMPT + ARM_S_SENTENCE;
+
+  // usda = published fat/100 g of the sauce, for reference only: the metric here
+  // is the DISH's fat, because that is what reaches the user and the benchmark.
+  // control = no mixture in its ingredient list at all. If the arm inflates a
+  // control, it is pushing fat rather than decomposing anything, and the whole
+  // idea fails - the `sauce` mode's barbecue and soy controls held, and these
+  // are the same guard one level up.
+  const DISHES: {
+    menu: string;
+    name: string;
+    sauce: string;
+    usda: number | null;
+    control?: boolean;
+  }[] = [
+    { menu: "andaluz", name: "CESAR (200 g)", sauce: "caesar dressing", usda: 57.9 },
+    { menu: "casa-nostra", name: "Cesar", sauce: "Caesar dressing", usda: 57.9 },
+    { menu: "brasero", name: "PASTA AL PESTO", sauce: "Pesto", usda: 59.2 },
+    { menu: "polloteria", name: "Dedos De Queso (200gr)", sauce: "Ranch", usda: 44.5 },
+    { menu: "casa-nostra", name: "Salmone padella", sauce: "garlic sauce", usda: 74.0 },
+    { menu: "brasero", name: "PESCADO AL AJILLO", sauce: "garlic sauce", usda: 74.0 },
+    // House-named: no published record, observed only.
+    { menu: "brasero", name: "NEW YORK", sauce: "chimichurri", usda: null },
+    { menu: "brasero", name: "FILETE DISCORDIA", sauce: "salsa chemita", usda: null },
+    // CONTROLS - single foods throughout.
+    {
+      menu: "andaluz",
+      name: "PULPO A LA GALLEGA (200 g)",
+      sauce: "-",
+      usda: null,
+      control: true,
+    },
+    {
+      menu: "andaluz",
+      name: "CAMARONES EMPANIZADOS (200 g)",
+      sauce: "-",
+      usda: null,
+      control: true,
+    },
+  ];
+  const DRAWS_D = 3;
+
+  const menus = new Map<string, Record<string, unknown>[]>();
+  for (const m of new Set(DISHES.map((d) => d.menu))) {
+    const raw = JSON.parse(
+      await Deno.readTextFile(`scripts/fixtures/caches/pipeline.b10.${m}.raw.json`),
+    );
+    menus.set(m, raw.items ?? []);
+  }
+
+  const runS = async (items: Item[]) => {
+    const raw = await callOpenAI(ARM_S_PROMPT, ENRICH_SCHEMA_OPENAI, items);
+    return (raw.items ?? []).map((it: Record<string, unknown>) => ({
+      ...it,
+      ...sumIngredientMacros(
+        // deno-lint-ignore no-explicit-any
+        (it.ingredients ?? []) as any,
+        it.printed_total_g as number | null,
+      ),
+    }));
+  };
+
+  console.log(
+    `${"dish".padEnd(28)} ${"sauce".padEnd(16)} ${"batched".padStart(8)}` +
+      ` ${"SOLO base".padStart(11)} ${"ARM S".padStart(11)}   fat g`,
+  );
+  for (const d of DISHES) {
+    // deno-lint-ignore no-explicit-any
+    const src = (menus.get(d.menu) ?? []).find((x: any) => x.name === d.name) as any;
+    if (!src) {
+      console.log(`${d.name.padEnd(28)} NOT FOUND in pipeline.b10.${d.menu}`);
+      continue;
+    }
+    const it = item(src.name, src.description ?? "");
+    const fats: Record<string, number[]> = { base: [], S: [] };
+    let parts = "";
+    for (const arm of ["base", "S"] as const) {
+      for (let draw = 0; draw < DRAWS_D; draw++) {
+        // deno-lint-ignore no-explicit-any
+        const [out] = arm === "S"
+          ? await runS([it]) as any[]
+          : await ARMS.baseline([it]) as any[];
+        archive[`sauce-dish ${arm} ${d.name} d${draw}`] = out;
+        if (typeof out?.fat_g === "number") fats[arm].push(out.fat_g);
+        if (arm === "S" && draw === 0) {
+          parts = (out?.ingredients ?? [])
+            // deno-lint-ignore no-explicit-any
+            .map((i: any) => `${i.name} ${i.typical_serving_g}g/${i.fat_per_100g}f`)
+            .join(" ")
+            .slice(0, 72);
+        }
+      }
+    }
+    const span = (xs: number[]) =>
+      xs.length === 0 ? "-" : `${Math.min(...xs)}-${Math.max(...xs)}`;
+    console.log(
+      `${d.name.slice(0, 26).padEnd(28)} ${d.sauce.slice(0, 14).padEnd(16)}` +
+        ` ${String(src.fat_g ?? "-").padStart(8)} ${span(fats.base).padStart(11)}` +
+        ` ${span(fats.S).padStart(11)}   ${d.control ? "[CONTROL] " : ""}${parts}`,
+    );
+  }
+
+  await Deno.writeTextFile(
+    "scripts/fixtures/caches/probe-sauce-in-dish.raw.json",
+    JSON.stringify(archive, null, 2) + "\n",
+  );
+  console.log(
+    "\nArchived to scripts/fixtures/caches/probe-sauce-in-dish.raw.json" +
+      "\n⚠️  SOLO calls - not a production estimate. Batched column is the archive.",
+  );
+  Deno.exit(0);
+}
+
 if (Deno.args[0] === "guard") {
   const GUARDS = [
     {

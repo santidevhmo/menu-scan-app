@@ -4490,3 +4490,47 @@ comparing the sauce's fat as an ingredient. Cheap (~$0.10) and it is the next st
 ⚠️ **A weight fix ALONE makes sauces worse, and that is why these move together:** chimichurri's two
 errors currently cancel — 2x too heavy, 3.8x too lean. Halving the grams without fixing the
 composition takes it from 48 kcal to 24 against a ~79 kcal target.
+
+### ❌ ARM S IS IGNORED INSIDE A DISH — WORDING IS NOW 0 FOR 5 (2026-08-16, ~$0.15)
+
+**The sentence that fixed a standalone sauce does nothing when the sauce is an ingredient.**
+10 real dishes read from the archives, 3 draws, solo calls, `probe-plate-arms.ts sauce-dish`.
+
+The proof is one dish, and it is unambiguous:
+
+| | ingredients returned |
+|---|---|
+| baseline, NEW YORK | `beef steak 200 g / fat 20` + **`chimichurri sauce 30 g / fat 15`** |
+| **ARM S**, NEW YORK | `New York steak 250 g / fat 20` + **`Chimichurri sauce 30 g / fat 15`** |
+
+Identical treatment of the sauce. Same 30 g, same 15 g fat/100 g, no decomposition. CESAR likewise
+kept `aderezo cesar de la casa` whole; `Dedos De Queso` kept `ranch dressing 30 g / fat 40`.
+**The instruction is simply not followed when the item is a dish rather than the sauce itself.**
+
+📊 **This is the FIFTH prompt-wording arm to move nothing** (B11, B13, B23, the two `serving_pieces`
+wordings, now S). Against that, SCHEMA FORCE is 5 for 7 — forced `serving_pieces` succeeded on the
+exact case two wordings had failed. **That scoreboard, not a new sentence, is what the next arm
+should be built on:** a REQUIRED per-ingredient field the model cannot leave unanswered.
+
+⚠️ **CORRECTION — the control did NOT show fat inflation, and the first reading of this table said it
+did.** `CAMARONES EMPANIZADOS` moved 14 → 20 g fat with a byte-identical ingredient list. The cause
+was a single flag:
+
+| | frying oil |
+|---|---|
+| baseline | `within_printed_weight: false` -> passes through at 10 g |
+| ARM S | `within_printed_weight: **true**` -> fitted with the rest, 125 g -> 200 g, so 10 g becomes 16 g |
+
+🔑 **Side finding, unchased and worth more than this probe: `within_printed_weight` is UNSTABLE on
+ambiguous components, and it is worth 6 g of fat on one dish.** Frying oil is genuinely arguable, the
+model flips on it between calls, and the flag decides whether an ingredient is rescaled at all. It
+is the same switch that lets accompaniments escape `resolveGrams`.
+
+✅ **The standalone `sauce` result still stands and still means something** — the model CAN decompose
+a mixture correctly (pesto 0.22x -> 1.01x). It just will not do it unasked inside a dish. So the
+knowledge is there and the request is what is missing, which is the same shape as the 2026-08-11
+finding that the model knows a 28 cm pizza is 750 g and is never asked.
+
+**Batched vs solo, free from the archives, confirming the 2026-08-12 curve is still live:**
+FILETE DISCORDIA 70 g fat batched vs 29 solo; Salmone padella 26 vs 13; PULPO 9 vs 13.
+**Do not read any solo number here as a production figure.**

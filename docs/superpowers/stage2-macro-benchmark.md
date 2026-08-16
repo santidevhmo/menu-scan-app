@@ -4725,3 +4725,72 @@ disagrees with the menu wording, and on this set there is almost no headroom to 
 **The open part is not WHICH ingredients sit outside — it is what those ingredients WEIGH.** That is
 the label-serving defect (a 30 g dipping-cup portion for a spooned sauce) and Santiago's three
 rulings address exactly it. Spend the effort there.
+
+### ❌ ARMS S3 AND S4 ARE REJECTED ON BOTH BENCHMARKS (2026-08-16, ~$5)
+
+**The sauce thread ends here.** A probe that looked convincing did not survive the benchmark, on
+either set. Santiago approved the run and the resulting oracle change; both are recorded.
+
+#### The numbers
+
+| arm | weighted, failed/96 (4 runs x 3 draws) | unweighted /72 (3 draws) |
+|---|---|---|
+| **baseline (B21)** | **4-6** at 17.1-17.6% | **28** |
+| **Arm P** (best known) | — | **37** |
+| S3 — `parts` shares | **5-13** at 16.1-18.4% | **26** ❌ |
+| S4 — S3 + `amount_as_served_g` | **7-10** at 16.1-17.1% | not run, see below |
+
+**Neither arm beats baseline on failures anywhere.** Both are marginally better on mean error, which
+is not a reason to ship. On the unweighted set S3 is BELOW the baseline it was meant to lift.
+
+#### 🔑 S4 DID NOT FAIL — IT NEVER RAN. THE MODEL COPIED THE FIELD.
+
+| | |
+|---|---|
+| ingredients that answered `amount_as_served_g` | **364** |
+| where it differed from `typical_serving_g` | **0 — 0.0%** |
+| of the 36 ACCOMPANIMENTS, the only ones resolveGrams uses it for | **0 differed** |
+
+Salmone's baguette: `typical 50 g -> served 50 g`, where the ruling wants ~15.
+
+🔑 **THE RIDER THIS ADDS TO THE SCHEMA-FORCE SCOREBOARD: a required field whose meaning OVERLAPS an
+existing field returns a COPY.** Schema force reliably compels an answer — it does not compel a
+DIFFERENT answer. Asking "how much is served?" beside "what is a typical serving?" got the same
+number 364 times out of 364. The prompt's own *"otherwise repeat typical_serving_g"* invited it.
+A future arm must make the new field answer a question the old one cannot.
+
+#### 🔑 THE BIGGER LESSON — THE PROBE MEASURED THE SAUCE, THE BENCHMARK MEASURES THE DISH
+
+The `sauce-number` probe was a genuine result: chimichurri's fat went 15 -> 50 g/100 g, controls held,
+merging stopped. **All true, and all irrelevant to the score.** Per dish:
+
+| dish | baseline | S3 | S4 |
+|---|---|---|---|
+| CESAR | 11% of fields failed | **21%** | **25%** |
+| PASTEL AZTECA | 6% | **21%** | **17%** |
+| Salmone toscano, mean error | 49.4% | **36.8%** | **34.0%** ✅ |
+| NEW YORK + 4 others | 0 | 0 | 0 |
+
+**The composition fix helps where a mixture dominates and hurts where it does not.** Salmone — the
+dish the baguette ruling exposed — genuinely improved. CESAR and PASTEL, both previously solid, got
+materially worse. That trade is a loss.
+
+⚠️ **This is the SECOND time a promising arm died between probe and benchmark** (A-conditional was
+the first: best on 4 solo dishes, overturned by the 15-dish run). **A probe that isolates a mechanism
+cannot tell you what the mechanism costs elsewhere.** Budget the benchmark before believing a probe.
+
+#### What stands after this
+
+- **Arm P remains the best unweighted arm at 37/72**, unbeaten and still unshippable for the batch
+  reason recorded above.
+- **The accompaniment weights are Santiago's ruling and they stay applied.** The weighted headline is
+  **4-6/96, not 0-3/96** — he approved carrying that. It is a stricter oracle, not a worse pipeline.
+- **The label-serving defect is REAL and remains UNFIXED.** 24% of weighted items carry an
+  accompaniment, it is 12-20% of those dishes' calories, and the pipeline still sizes it from a
+  dipping-container serving. Two mechanisms have now failed to move it: prose, and a duplicate field.
+- S3's `parts` field is NOT worthless — it is the only thing that has ever moved a house sauce's
+  composition. It is rejected as a WHOLE-PIPELINE change, not as an idea.
+
+**Phase spend 2026-08-16: ~$5.5** (four probes ~$0.55, eight weighted runs, one unweighted run).
+S4 was deliberately NOT run on the unweighted set: without a printed weight nothing rescales, so
+`amount_as_served_g` is never read and S4 is identical to S3 there.

@@ -4591,3 +4591,61 @@ ambiguous components** (frying oil), and it decides whether `resolveGrams` resca
 all. Worth 6 g of fat on one dish. Unassigned.
 
 **Phase spend today: ~$0.40 across three probes** (sauce, sauce-dish, sauce-schema).
+
+### ✅ ARM S3 — THE REQUIRED NUMBER WORKS. CHIMICHURRI 15 → 50 (2026-08-16, ~$0.15)
+
+**The end of the sauce thread, and the arm the evidence pointed at.** A required per-ingredient
+`parts` ARRAY of `{name, share_pct}`, placed BEFORE the three per-100 g fields.
+`probe-plate-arms.ts sauce-number`. Same 10 archived dishes, 3 draws, solo.
+
+#### The case that started it, finally moved
+
+| | `Chimichurri`, 30 g, in NEW YORK |
+|---|---|
+| baseline / Arm S / Arm S2 | fat **15** g/100 g (unchanged by any of them) |
+| **ARM S3** | **fat 50** — `olive oil 50%, vinegar 20%, parsley 15%, garlic 10%, red pepper` |
+
+**50 sits inside the 45–57 the two independent estimates give** (a typical recipe works out ~47%; the
+oracle assumed 57%). No USDA record exists, so this is not scored — but 15 was never defensible for a
+sauce the model itself describes as half olive oil.
+
+#### 🔑 THE PROGRESSION IS THE FINDING — four arms, one request, escalating force
+
+| arm | what was asked | result |
+|---|---|---|
+| S | a sentence | **ignored** in-dish; sauce untouched |
+| S2 | a required STRING | always answered; helped ONLY where the model volunteered shares. Invited **MERGING** |
+| **S3** | a required ARRAY of `{name, share_pct}` | **shares always present, composition follows them** |
+
+**A structured array fixed the merging.** Under S2 the CAMARONES control collapsed
+`shrimp + breading + oil` into `breaded shrimp 150 g`; under S3 all three stay separate, each
+annotated `X 100%`. A number cannot be used to narrate a composite away, which is why the shape was
+chosen.
+
+#### ✅ Both controls held — and both moved for reasons that are NOT the arm
+
+| control | base | S3 | cause |
+|---|---|---|---|
+| PULPO A LA GALLEGA | 13 g fat | 9 | its olive oil drew 15 g then 10 g, paprika 5 g then 1 g — **sampling** |
+| CAMARONES EMPANIZADOS | 14 g fat | 20 | frying oil flipped `within_printed_weight` false → true — **the known flag defect, third sighting** |
+
+Ingredient lists are otherwise identical on both. **No inflation, no merging.**
+
+#### ⚠️ NOT fully reliable — the model still sometimes ignores its own parts
+
+| sauce | parts it gave | fat it then stated | USDA |
+|---|---|---|---|
+| garlic sauce | **oil 60%**, garlic 10%, water 30% | **20** | 74 |
+| caesar dressing | **oil 50%**, egg yolk 20%, vinegar 10%, parmesan 10% | **40** | 57.9 |
+
+Oil at 60% cannot yield 20 g fat/100 g. So `parts` constrains the answer but does not determine it,
+and the arm is an improvement rather than a fix. **Do not report S3 as "solved".**
+
+#### 🧭 Status: mechanism validated, NOT yet scored
+
+Everything above is 10 dishes on SOLO calls. **No benchmark number has been run on S3.** The next
+step is the real thing — the 96-point weighted and 72-point unweighted sets, ~$2.50 — and it should
+carry Santiago's three accompaniment rulings at the same time, since a weight fix alone regresses
+sauces (see the cancelling-errors note).
+
+**Phase spend today: ~$0.55 across four probes.**

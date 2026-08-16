@@ -1168,6 +1168,157 @@ if (Deno.args[0] === "sauce-schema") {
   Deno.exit(0);
 }
 
+// ARM S3 - the required NUMBER (Santiago, 2026-08-16). The last step of the
+// sauce thread, and the one the evidence actually points at.
+//
+// S  (a sentence)          ignored outright inside a dish.
+// S2 (a required STRING)   always answered, but only helped where the model
+//                          happened to volunteer shares: `ranch dressing` said
+//                          "mayonnaise 50%, buttermilk 30%" and landed on fat 40
+//                          against USDA 44.5, while `Chimichurri` said
+//                          "parsley, garlic, olive oil, vinegar" - no numbers -
+//                          and kept its placeholder fat 15.
+// S3 (a required NUMBER)   forces the share that S2 only sometimes got.
+//
+// `parts` is an ARRAY of {name, share_pct} rather than free text, for two
+// measured reasons: a string bought a description and left the number alone, and
+// a free-text field invited MERGING (shrimp + breading + oil collapsed into
+// `breaded shrimp 150 g`). A structured array cannot be used to narrate a
+// composite away.
+//
+// ⚠️ NOT the same as B1..B13, which asked for gram figures that had to SUM to a
+// printed weight and got arithmetic back-solved by rounding. These shares are
+// WITHIN one ingredient and fit to nothing external - no plate total, no printed
+// weight. Santiago's plate-share variant WOULD be that falsified shape, and is
+// deliberately not what this tests.
+//
+//   deno run --allow-net --allow-env --allow-read --allow-write \
+//     --env-file=.env.local scripts/probe-plate-arms.ts sauce-number
+if (Deno.args[0] === "sauce-number") {
+  const ARM_S3_SENTENCE =
+    ' Give "parts" for every ingredient: the single foods it is made from and the' +
+    " percentage of its weight each one accounts for. When the ingredient is" +
+    " already a single food, give that one food at 100. State the parts before" +
+    " the composition figures and let them determine those figures, because a" +
+    " mixture built largely from a concentrated component is far richer than its" +
+    " name suggests.";
+  const ARM_S3_PROMPT = ENRICH_PROMPT + ARM_S3_SENTENCE;
+
+  const base = structuredClone(ENRICH_SCHEMA_OPENAI);
+  // deno-lint-ignore no-explicit-any
+  const ing = (base as any).properties.items.items.properties.ingredients.items;
+  const p = ing.properties;
+  // Rebuilt, not spread: strict mode emits in KEY ORDER, so `parts` must precede
+  // the per-100 g fields for the parts to constrain them rather than follow them.
+  ing.properties = {
+    name: p.name,
+    category: p.category,
+    within_printed_weight: p.within_printed_weight,
+    typical_serving_g: p.typical_serving_g,
+    parts: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { name: { type: "string" }, share_pct: { type: "number" } },
+        required: ["name", "share_pct"],
+        additionalProperties: false,
+      },
+    },
+    protein_per_100g: p.protein_per_100g,
+    carb_per_100g: p.carb_per_100g,
+    fat_per_100g: p.fat_per_100g,
+  };
+  ing.required = [
+    "name",
+    "category",
+    "within_printed_weight",
+    "typical_serving_g",
+    "parts",
+    "protein_per_100g",
+    "carb_per_100g",
+    "fat_per_100g",
+  ];
+
+  const runS3 = async (items: Item[]) => {
+    const raw = await callOpenAI(ARM_S3_PROMPT, base, items);
+    return (raw.items ?? []).map((it: Record<string, unknown>) => ({
+      ...it,
+      ...sumIngredientMacros(
+        // deno-lint-ignore no-explicit-any
+        (it.ingredients ?? []) as any,
+        it.printed_total_g as number | null,
+      ),
+    }));
+  };
+
+  const menus = new Map<string, Record<string, unknown>[]>();
+  for (const m of new Set(SAUCE_DISHES.map((d) => d.menu))) {
+    const raw = JSON.parse(
+      await Deno.readTextFile(`scripts/fixtures/caches/pipeline.b10.${m}.raw.json`),
+    );
+    menus.set(m, raw.items ?? []);
+  }
+
+  const DRAWS_S3 = 3;
+  console.log(
+    `${"dish".padEnd(27)} ${"sauce".padEnd(14)} ${"base".padStart(7)}` +
+      ` ${"ARM S3".padStart(8)} ${"fat/100g".padStart(9)} ${"USDA".padStart(5)}  parts`,
+  );
+  for (const d of SAUCE_DISHES) {
+    // deno-lint-ignore no-explicit-any
+    const src = (menus.get(d.menu) ?? []).find((x: any) => x.name === d.name) as any;
+    if (!src) continue;
+    const it = item(src.name, src.description ?? "");
+    const fats: Record<string, number[]> = { base: [], S3: [] };
+    let sauceFat = "-";
+    let said = "";
+    for (const arm of ["base", "S3"] as const) {
+      for (let draw = 0; draw < DRAWS_S3; draw++) {
+        // deno-lint-ignore no-explicit-any
+        const [out] = arm === "S3"
+          ? await runS3([it]) as any[]
+          : await ARMS.baseline([it]) as any[];
+        archive[`sauce-number ${arm} ${d.name} d${draw}`] = out;
+        if (typeof out?.fat_g === "number") fats[arm].push(out.fat_g);
+        if (arm === "S3" && draw === 0 && !d.control) {
+          // deno-lint-ignore no-explicit-any
+          const hit = (out?.ingredients ?? []).find((i: any) =>
+            i.name.toLowerCase().includes(d.sauce.toLowerCase().split(" ")[0])
+          );
+          if (hit) {
+            sauceFat = String(hit.fat_per_100g);
+            said = (hit.parts ?? [])
+              // deno-lint-ignore no-explicit-any
+              .map((x: any) => `${x.name} ${x.share_pct}%`)
+              .join(" ")
+              .slice(0, 52);
+          } else {
+            said = "(sauce not listed)";
+          }
+        }
+      }
+    }
+    const span = (xs: number[]) =>
+      xs.length === 0 ? "-" : `${Math.min(...xs)}-${Math.max(...xs)}`;
+    console.log(
+      `${d.name.slice(0, 25).padEnd(27)} ${d.sauce.slice(0, 12).padEnd(14)}` +
+        ` ${span(fats.base).padStart(7)} ${span(fats.S3).padStart(8)}` +
+        ` ${sauceFat.padStart(9)} ${String(d.usda ?? "-").padStart(5)}  ` +
+        `${d.control ? "[CONTROL]" : said}`,
+    );
+  }
+
+  await Deno.writeTextFile(
+    "scripts/fixtures/caches/probe-sauce-number.raw.json",
+    JSON.stringify(archive, null, 2) + "\n",
+  );
+  console.log(
+    "\nArchived to scripts/fixtures/caches/probe-sauce-number.raw.json" +
+      "\n⚠️  SOLO calls - not a production estimate.",
+  );
+  Deno.exit(0);
+}
+
 if (Deno.args[0] === "guard") {
   const GUARDS = [
     {

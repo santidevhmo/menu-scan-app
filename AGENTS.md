@@ -159,6 +159,31 @@ verified weight band it is still 26% low on calories. Measured: 28/72 → 38/72 
 oracle. Do NOT ask an unweighted item for a plate total instead; that family of arms is retired
 (see the roadmap's `🎯 CURRENT PHASE`).
 
+**WORDING DOES NOT WORK HERE. SCHEMA FORCE DOES. (measured, 2026-08-16 — scoreboard, not a rule.)**
+Before designing any change to Stage 2, weigh this: **a new sentence in `ENRICH_PROMPT` is 0 for 5;
+a new REQUIRED FIELD in `ENRICH_SCHEMA_OPENAI` is 6 for 8.**
+
+| approach | record | cases |
+|---|---|---|
+| ask in prose | **0 for 5** | B11, B13, B23, two `serving_pieces` wordings, Arm S |
+| force a required field | **6 for 8** | B4 `printed_total_g`, B15 `name_implied_components`, forced `serving_pieces`, B24b, Arm S2 |
+
+The cleanest demonstration: two prompt wordings asked for a conventional piece count and both returned
+`null`; making the field required and non-nullable fixed it immediately. On 2026-08-16 the SAME request
+was tested both ways within one hour — as a sentence it was ignored outright (`chimichurri sauce 30 g
+/ fat 15` unchanged), as a required field it was answered on every ingredient of every draw.
+
+⚠️ **Two riders, both measured the same day.** (1) **Ask for a NUMBER, not a string.** A required string
+buys a description: ingredients that came back with a share ("mayonnaise 50%") got the right fat,
+ingredients that came back as a bare list ("parsley, garlic, olive oil, vinegar") kept their placeholder.
+(2) **A free-text field invites MERGING** — given somewhere to describe a mixture, the model stops
+decomposing and collapses ingredients (`shrimp` + `breading` + `oil` became `breaded shrimp 150 g`).
+(3) **Field ORDER is load-bearing**: strict mode emits in schema order, so a field must sit BEFORE the
+numbers it is meant to constrain.
+
+This is a prior for the next design, not a ban on prose — if a hypothesis says wording is the lever
+*for a different reason*, say what would falsify it and run it.
+
 **Price is NEVER evidence of grams (Santiago, 2026-08-13).** Not in an oracle, not in a prompt, not in
 code. Price reflects margin and scarcity, never mass — *"a menu can have an expensive pizza of 1k+
 dollars, doesn't mean it weighs 10x the size of a large pizza."* Price parity between items on one

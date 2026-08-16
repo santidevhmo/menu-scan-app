@@ -24,6 +24,19 @@ export interface EnrichedItem extends ExtractedItem {
     category: IngredientCategory;
     within_printed_weight: boolean;
     typical_serving_g: number;
+    /**
+     * ARM S4 ONLY, absent from the production schema and therefore never present
+     * in a production response. The amount of an ingredient served ALONGSIDE the
+     * item, as actually served rather than as a labelling serving.
+     *
+     * Why it exists: an ingredient outside the printed weight is the one class
+     * `resolveGrams` never rescales, so `typical_serving_g` reaches the total
+     * unfitted - and B21 asks for the standard REFERENCE amount, which for a
+     * spooned sauce is USDA's 30 g dipping container. Measured 2026-08-16: 24% of
+     * weighted items carry one, and the accompaniment is 12-20% of the dish's
+     * calories.
+     */
+    amount_as_served_g?: number;
     protein_per_100g: number;
     carb_per_100g: number;
     fat_per_100g: number;
@@ -241,6 +254,14 @@ export async function enrichBatch(
   // copy silently drifted and cost a wasted paid run (see the harness-defect
   // entry in the benchmark log). Production passes nothing.
   onRaw?: (raw: unknown) => void,
+  // Lets an ARM vary the request WITHOUT a second request builder. Same reason
+  // as onRaw: the one time this harness built its own request, every published
+  // macro number came from a shape production never sends. An arm that reaches
+  // the model by its own path is not evidence about the deployed one.
+  // Production passes nothing and gets the shipped prompt and schema.
+  prompt: string = ENRICH_PROMPT,
+  // deno-lint-ignore no-explicit-any
+  schema: any = ENRICH_SCHEMA_OPENAI,
 ): Promise<EnrichedItem[]> {
   const res = await fetchWithTimeout(
     "https://api.openai.com/v1/chat/completions",
@@ -254,17 +275,11 @@ export async function enrichBatch(
         model,
         messages: [{
           role: "user",
-          content: `${ENRICH_PROMPT}\n\nMenu items (JSON):\n${
-            JSON.stringify(items)
-          }`,
+          content: `${prompt}\n\nMenu items (JSON):\n${JSON.stringify(items)}`,
         }],
         response_format: {
           type: "json_schema",
-          json_schema: {
-            name: "menu_items",
-            strict: true,
-            schema: ENRICH_SCHEMA_OPENAI,
-          },
+          json_schema: { name: "menu_items", strict: true, schema },
         },
         ...samplingFor(model),
       }),
@@ -409,9 +424,15 @@ export function resolveGrams(
   // keeps an empty ingredient list from producing NaN.
   const scale = printedTotalG && inside > 0 ? printedTotalG / inside : 1;
 
-  return ingredients.map((i) =>
-    (i.typical_serving_g ?? 0) * (i.within_printed_weight ? scale : 1)
-  );
+  return ingredients.map((i) => {
+    if (i.within_printed_weight) return (i.typical_serving_g ?? 0) * scale;
+    // Outside the printed weight is the one path nothing rescales, so whatever
+    // number arrives here reaches the user's plate untouched. ARM S4 supplies an
+    // as-served amount for exactly this case; absent it - which is every
+    // production response, since the field is not in the shipped schema - the
+    // behaviour is unchanged.
+    return i.amount_as_served_g ?? i.typical_serving_g ?? 0;
+  });
 }
 
 /**

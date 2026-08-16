@@ -22,6 +22,7 @@ import {
   sumIngredientMacros,
 } from "../supabase/functions/analyze-menu/enrich.ts";
 import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
+import { ARM_S3, ARM_S4 } from "./arm-schemas.ts";
 
 const apiKey = Deno.env.get("OPENAI_API_KEY");
 if (!apiKey) throw new Error("OPENAI_API_KEY is required in .env.local");
@@ -436,6 +437,32 @@ const ARMS: Record<string, (items: Item[]) => Promise<unknown[]>> = {
 };
 
 const archive: Record<string, unknown> = {};
+
+// ARMS S3 and S4 - prompt and schema live in arm-schemas.ts so a harness that
+// only inspects them does not need an API key. Runners stay here with the other
+// arms, and go through enrichBatch, the DEPLOYED request builder.
+export async function armS3(items: Item[]) {
+  return await enrichBatch(
+    // deno-lint-ignore no-explicit-any
+    items as any,
+    apiKey!,
+    ENRICH_MODEL,
+    undefined,
+    ARM_S3.prompt,
+    ARM_S3.schema,
+  );
+}
+export async function armS4(items: Item[]) {
+  return await enrichBatch(
+    // deno-lint-ignore no-explicit-any
+    items as any,
+    apiKey!,
+    ENRICH_MODEL,
+    undefined,
+    ARM_S4.prompt,
+    ARM_S4.schema,
+  );
+}
 
 /**
  * The sauce probes' dish set, shared by `sauce-dish` and `sauce-schema` so the

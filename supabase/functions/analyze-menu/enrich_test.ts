@@ -921,3 +921,41 @@ Deno.test("the piece step defines 1 and still prefers a printed count", () => {
   assertEquals(ENRICH_PROMPT.includes("single plate"), true);
   assertEquals(ENRICH_PROMPT.includes("the count the menu states"), true);
 });
+
+Deno.test("resolveGrams prefers an as-served amount for an accompaniment (ARM S4)", () => {
+  // An ingredient OUTSIDE the printed weight is the one class nothing rescales,
+  // so whatever number arrives reaches the plate untouched. B21 asks for the
+  // standard REFERENCE amount, which for a spooned sauce is USDA's 30 g
+  // DIPPING-CONTAINER portion rather than the ~15 g actually served.
+  const ingredients = [
+    {
+      name: "steak",
+      category: "protein" as const,
+      within_printed_weight: true,
+      typical_serving_g: 250,
+      protein_per_100g: 26,
+      carb_per_100g: 0,
+      fat_per_100g: 19,
+    },
+    {
+      name: "sauce served alongside",
+      category: "fat" as const,
+      within_printed_weight: false,
+      typical_serving_g: 30,
+      amount_as_served_g: 15,
+      protein_per_100g: 1,
+      carb_per_100g: 2,
+      fat_per_100g: 50,
+    },
+  ];
+
+  // Inside is fitted to the printed weight; the accompaniment takes its
+  // AS-SERVED amount, not its reference serving.
+  assertEquals(resolveGrams(ingredients, 400), [400, 15]);
+
+  // Without the field - which is every production response, since it is not in
+  // the shipped schema - behaviour is unchanged. That is what keeps this arm
+  // inert until it is deliberately shipped.
+  const production = ingredients.map(({ amount_as_served_g: _drop, ...rest }) => rest);
+  assertEquals(resolveGrams(production, 400), [400, 30]);
+});

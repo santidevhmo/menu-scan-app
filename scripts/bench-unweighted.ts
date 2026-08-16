@@ -25,7 +25,15 @@ import {
   ENRICH_MODEL,
   type EnrichedItem,
 } from "../supabase/functions/analyze-menu/enrich.ts";
-import { armA, armAConditional, armP, armPD, armPF } from "./probe-plate-arms.ts";
+import {
+  armA,
+  armAConditional,
+  armP,
+  armPD,
+  armPF,
+  armS3,
+  armS4,
+} from "./probe-plate-arms.ts";
 import { scoreItemAgainstBand } from "./macro-band-score.ts";
 import type { UnweightedEntry } from "./unweighted-oracle.ts";
 import { isBackfilled, itemsFromArchive } from "./bench-pipeline.ts";
@@ -100,6 +108,8 @@ const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
   P: armP,
   PF: armPF,
   PD: armPD,
+  S3: armS3,
+  S4: armS4,
 };
 
 // A mistyped arm name would otherwise run the BASELINE and be written up as that

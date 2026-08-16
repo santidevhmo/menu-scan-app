@@ -8,6 +8,7 @@ import {
   type EnrichedItem,
 } from "../supabase/functions/analyze-menu/enrich.ts";
 import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
+import { ARM_S3, ARM_S4 } from "./arm-schemas.ts";
 import { type FieldVerdict, type MacroValues } from "./macro-score.ts";
 import {
   altOracle,
@@ -156,10 +157,28 @@ export async function enrich(
     return { items: result.items, raw: JSON.parse(result.raw_response) };
   }
 
+  // BENCH_ARM (2026-08-16). An arm varies the PROMPT and SCHEMA and nothing
+  // else, and it does so through this same enrichBatch call - the deployed
+  // request builder. An arm with its own request builder is exactly the defect
+  // that made every GPT-5.5 figure describe a shape production cannot send.
+  // Unset, the request is byte-identical to every archived run.
+  const arm = Deno.env.get("BENCH_ARM");
+  const armDef = arm === "S3" ? ARM_S3 : arm === "S4" ? ARM_S4 : null;
+  if (arm && !armDef) {
+    throw new Error(`unknown BENCH_ARM "${arm}" - expected S3 or S4`);
+  }
+
   let raw: unknown = null;
-  const enriched = await enrichBatch(items, apiKey, benchModel(), (r) => {
-    raw = r;
-  });
+  const enriched = await enrichBatch(
+    items,
+    apiKey,
+    benchModel(),
+    (r) => {
+      raw = r;
+    },
+    armDef?.prompt,
+    armDef?.schema,
+  );
   return { items: enriched, raw };
 }
 

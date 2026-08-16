@@ -437,6 +437,42 @@ const ARMS: Record<string, (items: Item[]) => Promise<unknown[]>> = {
 
 const archive: Record<string, unknown> = {};
 
+/**
+ * The sauce probes' dish set, shared by `sauce-dish` and `sauce-schema` so the
+ * two arms are judged on identical dishes - lesson 28, one definition only.
+ *
+ * usda = published FNDDS fat/100 g of the sauce, reference only: the metric is
+ * the DISH's fat, because that is what reaches the user and the benchmark.
+ * control = no mixture anywhere in its ingredient list. An arm that moves a
+ * control is pushing fat around rather than decomposing a mixture.
+ */
+const SAUCE_DISHES: {
+  menu: string;
+  name: string;
+  sauce: string;
+  usda: number | null;
+  control?: boolean;
+}[] = [
+  { menu: "andaluz", name: "CESAR (200 g)", sauce: "caesar dressing", usda: 57.9 },
+  { menu: "casa-nostra", name: "Cesar", sauce: "Caesar dressing", usda: 57.9 },
+  { menu: "brasero", name: "PASTA AL PESTO", sauce: "Pesto", usda: 59.2 },
+  { menu: "polloteria", name: "Dedos De Queso (200gr)", sauce: "Ranch", usda: 44.5 },
+  { menu: "casa-nostra", name: "Salmone padella", sauce: "garlic sauce", usda: 74.0 },
+  { menu: "brasero", name: "PESCADO AL AJILLO", sauce: "garlic sauce", usda: 74.0 },
+  // House-named: no published record exists, so observed and never scored.
+  { menu: "brasero", name: "NEW YORK", sauce: "chimichurri", usda: null },
+  { menu: "brasero", name: "FILETE DISCORDIA", sauce: "salsa chemita", usda: null },
+  // CONTROLS - single foods throughout.
+  { menu: "andaluz", name: "PULPO A LA GALLEGA (200 g)", sauce: "-", usda: null, control: true },
+  {
+    menu: "andaluz",
+    name: "CAMARONES EMPANIZADOS (200 g)",
+    sauce: "-",
+    usda: null,
+    control: true,
+  },
+];
+
 // SOLO MODE (Santiago, 2026-08-11). Is the instability the MODEL or the BATCH?
 // The noise run measured five batched draws; this measures five SOLO draws of
 // the same dishes, one item per call, nothing else changed. If solo is steady
@@ -926,44 +962,7 @@ if (Deno.args[0] === "sauce-dish") {
     " part is most concentrated.";
   const ARM_S_PROMPT = ENRICH_PROMPT + ARM_S_SENTENCE;
 
-  // usda = published fat/100 g of the sauce, for reference only: the metric here
-  // is the DISH's fat, because that is what reaches the user and the benchmark.
-  // control = no mixture in its ingredient list at all. If the arm inflates a
-  // control, it is pushing fat rather than decomposing anything, and the whole
-  // idea fails - the `sauce` mode's barbecue and soy controls held, and these
-  // are the same guard one level up.
-  const DISHES: {
-    menu: string;
-    name: string;
-    sauce: string;
-    usda: number | null;
-    control?: boolean;
-  }[] = [
-    { menu: "andaluz", name: "CESAR (200 g)", sauce: "caesar dressing", usda: 57.9 },
-    { menu: "casa-nostra", name: "Cesar", sauce: "Caesar dressing", usda: 57.9 },
-    { menu: "brasero", name: "PASTA AL PESTO", sauce: "Pesto", usda: 59.2 },
-    { menu: "polloteria", name: "Dedos De Queso (200gr)", sauce: "Ranch", usda: 44.5 },
-    { menu: "casa-nostra", name: "Salmone padella", sauce: "garlic sauce", usda: 74.0 },
-    { menu: "brasero", name: "PESCADO AL AJILLO", sauce: "garlic sauce", usda: 74.0 },
-    // House-named: no published record, observed only.
-    { menu: "brasero", name: "NEW YORK", sauce: "chimichurri", usda: null },
-    { menu: "brasero", name: "FILETE DISCORDIA", sauce: "salsa chemita", usda: null },
-    // CONTROLS - single foods throughout.
-    {
-      menu: "andaluz",
-      name: "PULPO A LA GALLEGA (200 g)",
-      sauce: "-",
-      usda: null,
-      control: true,
-    },
-    {
-      menu: "andaluz",
-      name: "CAMARONES EMPANIZADOS (200 g)",
-      sauce: "-",
-      usda: null,
-      control: true,
-    },
-  ];
+  const DISHES = SAUCE_DISHES;
   const DRAWS_D = 3;
 
   const menus = new Map<string, Record<string, unknown>[]>();
@@ -1033,6 +1032,138 @@ if (Deno.args[0] === "sauce-dish") {
   console.log(
     "\nArchived to scripts/fixtures/caches/probe-sauce-in-dish.raw.json" +
       "\n⚠️  SOLO calls - not a production estimate. Batched column is the archive.",
+  );
+  Deno.exit(0);
+}
+
+// SCHEMA-FORCED DECOMPOSITION (Santiago, 2026-08-16). ARM S2.
+//
+// Arm S asked in prose and was IGNORED inside a dish - NEW YORK returned
+// `chimichurri sauce 30 g / fat 15` under both arms. That made prompt wording
+// 0 for 5 in this phase (B11, B13, B23, two serving_pieces wordings, S), while
+// SCHEMA FORCE is 5 for 7 - forced `serving_pieces` succeeded on the exact case
+// two wordings had failed.
+//
+// So this asks for the same thing through the SCHEMA: one REQUIRED string per
+// ingredient, `composed_of`. Strict mode emits every required field, so the
+// model cannot decline it the way it declined the sentence.
+//
+// ⚠️ POSITION IS LOAD-BEARING, and this is the whole design. `composed_of` sits
+// BEFORE the three per-100 g fields, because strict-mode output is emitted in
+// schema order and enrich.ts already depends on that twice: printed_total_g and
+// name_implied_components precede `ingredients` so the model commits to them
+// before portioning. The model must name the parts BEFORE stating composition,
+// or it states the mixture average first and rationalises the parts after.
+//
+//   deno run --allow-net --allow-env --allow-read --allow-write \
+//     --env-file=.env.local scripts/probe-plate-arms.ts sauce-schema
+if (Deno.args[0] === "sauce-schema") {
+  // One sentence, and it only DEFINES the new field - a schema field with no
+  // definition is guessed at. The lever under test is the required field, not
+  // this text. Structural, never a food: the step-2 guard still applies.
+  const ARM_S2_SENTENCE =
+    ' Give "composed_of" for every ingredient: when the ingredient is a single' +
+    " food, repeat its name; when it is a prepared mixture of several foods, name" +
+    " those foods and the approximate share of the mixture each one accounts for" +
+    " by weight. State it before the composition figures, and let it decide them:" +
+    " a mixture carried by a concentrated component is far richer than its name" +
+    " suggests.";
+  const ARM_S2_PROMPT = ENRICH_PROMPT + ARM_S2_SENTENCE;
+
+  // Rebuilt rather than spread, because KEY ORDER is the mechanism here and a
+  // spread would append composed_of after the per-100 g fields.
+  const base = structuredClone(ENRICH_SCHEMA_OPENAI);
+  // deno-lint-ignore no-explicit-any
+  const ing = (base as any).properties.items.items.properties.ingredients.items;
+  const p = ing.properties;
+  ing.properties = {
+    name: p.name,
+    category: p.category,
+    within_printed_weight: p.within_printed_weight,
+    typical_serving_g: p.typical_serving_g,
+    composed_of: { type: "string" },
+    protein_per_100g: p.protein_per_100g,
+    carb_per_100g: p.carb_per_100g,
+    fat_per_100g: p.fat_per_100g,
+  };
+  ing.required = [
+    "name",
+    "category",
+    "within_printed_weight",
+    "typical_serving_g",
+    "composed_of",
+    "protein_per_100g",
+    "carb_per_100g",
+    "fat_per_100g",
+  ];
+
+  const runS2 = async (items: Item[]) => {
+    const raw = await callOpenAI(ARM_S2_PROMPT, base, items);
+    return (raw.items ?? []).map((it: Record<string, unknown>) => ({
+      ...it,
+      ...sumIngredientMacros(
+        // deno-lint-ignore no-explicit-any
+        (it.ingredients ?? []) as any,
+        it.printed_total_g as number | null,
+      ),
+    }));
+  };
+
+  const menus = new Map<string, Record<string, unknown>[]>();
+  for (const m of new Set(SAUCE_DISHES.map((d) => d.menu))) {
+    const raw = JSON.parse(
+      await Deno.readTextFile(`scripts/fixtures/caches/pipeline.b10.${m}.raw.json`),
+    );
+    menus.set(m, raw.items ?? []);
+  }
+
+  const DRAWS_S2 = 3;
+  console.log(
+    `${"dish".padEnd(28)} ${"sauce".padEnd(15)} ${"base".padStart(7)}` +
+      ` ${"ARM S2".padStart(9)}   what it said the sauce is made of`,
+  );
+  for (const d of SAUCE_DISHES) {
+    // deno-lint-ignore no-explicit-any
+    const src = (menus.get(d.menu) ?? []).find((x: any) => x.name === d.name) as any;
+    if (!src) continue;
+    const it = item(src.name, src.description ?? "");
+    const fats: Record<string, number[]> = { base: [], S2: [] };
+    let said = "";
+    for (const arm of ["base", "S2"] as const) {
+      for (let draw = 0; draw < DRAWS_S2; draw++) {
+        // deno-lint-ignore no-explicit-any
+        const [out] = arm === "S2"
+          ? await runS2([it]) as any[]
+          : await ARMS.baseline([it]) as any[];
+        archive[`sauce-schema ${arm} ${d.name} d${draw}`] = out;
+        if (typeof out?.fat_g === "number") fats[arm].push(out.fat_g);
+        if (arm === "S2" && draw === 0 && !d.control) {
+          // deno-lint-ignore no-explicit-any
+          const hit = (out?.ingredients ?? []).find((i: any) =>
+            i.name.toLowerCase().includes(d.sauce.toLowerCase().split(" ")[0])
+          );
+          said = hit
+            ? `${hit.name} f${hit.fat_per_100g} <- ${String(hit.composed_of).slice(0, 46)}`
+            : "(sauce not listed as an ingredient)";
+        }
+      }
+    }
+    const span = (xs: number[]) =>
+      xs.length === 0 ? "-" : `${Math.min(...xs)}-${Math.max(...xs)}`;
+    console.log(
+      `${d.name.slice(0, 26).padEnd(28)} ${d.sauce.slice(0, 13).padEnd(15)}` +
+        ` ${span(fats.base).padStart(7)} ${span(fats.S2).padStart(9)}   ` +
+        `${d.control ? "[CONTROL]" : said}`,
+    );
+  }
+
+  await Deno.writeTextFile(
+    "scripts/fixtures/caches/probe-sauce-schema.raw.json",
+    JSON.stringify(archive, null, 2) + "\n",
+  );
+  console.log(
+    "\nArchived to scripts/fixtures/caches/probe-sauce-schema.raw.json" +
+      "\n⚠️  SOLO calls - not a production estimate.",
   );
   Deno.exit(0);
 }

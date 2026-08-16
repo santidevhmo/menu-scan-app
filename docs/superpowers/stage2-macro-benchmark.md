@@ -4534,3 +4534,60 @@ finding that the model knows a 28 cm pizza is 750 g and is never asked.
 **Batched vs solo, free from the archives, confirming the 2026-08-12 curve is still live:**
 FILETE DISCORDIA 70 g fat batched vs 29 solo; Salmone padella 26 vs 13; PULPO 9 vs 13.
 **Do not read any solo number here as a production figure.**
+
+### 🟡 ARM S2 — SCHEMA FORCE GETS AN ANSWER, THE WRONG FIELD SHAPE WASTES IT (2026-08-16, ~$0.15)
+
+**A required per-ingredient string `composed_of`, placed BEFORE the three per-100 g fields** so the
+model names the parts before costing them (strict mode emits in schema order; `enrich.ts` already
+relies on this twice). Same 10 archived dishes as `sauce-dish`, 3 draws, solo.
+`probe-plate-arms.ts sauce-schema`.
+
+#### ✅ The mechanism works — schema force is now 6 for 8, wording still 0 for 5
+
+**Every ingredient answered, every draw.** The identical request in prose was ignored outright.
+And where the model volunteered SHARES, the composition came out right:
+
+| ingredient | what it said it is made of | fat/100 g | USDA |
+|---|---|---|---|
+| ranch dressing | **mayonnaise 50%, buttermilk 30%**, herbs | **40** | 44.5 ✅ |
+| pesto sauce | basil, olive oil, pine nuts, parmesan | 47 | 59.2 ✅ better |
+| caesar dressing | oil, egg, anchovy, parmesan, garlic, lemon | 40 | 57.9 🟡 |
+
+#### ❌ But the dish that started this is UNCHANGED
+
+| | |
+|---|---|
+| NEW YORK, `Chimichurri` 30 g | `composed_of` = **"parsley, garlic, olive oil, vinegar"** — and fat **STILL 15** |
+
+🔑 **The split is exact: shares present -> composition right; NAMES ONLY -> composition unmoved.**
+Ranch got percentages and landed at 40. Chimichurri got a bare list and kept its placeholder 15.
+Naming olive oil changed nothing, because nothing forced the model to say HOW MUCH of it there is.
+**A required STRING buys a description; the number needs a required NUMBER** — which is exactly the
+shape that worked for `serving_pieces` and never worked as prose.
+
+#### 🔴 THE SIDE EFFECT — the field invites the model to MERGE ingredients, the opposite of the goal
+
+A free-text `composed_of` gives a mixture somewhere to be *described*, so the model stops
+decomposing and starts collapsing:
+
+| dish | baseline ingredients | **under ARM S2** |
+|---|---|---|
+| CAMARONES EMPANIZADOS **(control)** | shrimp 85 g · breading 30 g · oil 10 g | **`breaded shrimp` 150 g** (`shrimp 60%, breading 40%`) + oil |
+| Dedos De Queso | mozzarella 30 g · breadcrumbs 30 g · … | **`mozzarella cheese sticks` 100 g** (`cheese 70%, breading 30%`) |
+
+The control's fat went **14 -> 30 g** for that reason alone. ⚠️ The other control (PULPO) moved
+13 -> 9 g from ordinary sampling — its olive oil drew 15 g then 10 g — **not** from the arm; the two
+control movements have different causes and neither is fat inflation.
+
+#### 🧭 What this says the next arm is
+
+Not another string, and not another sentence. **A required NUMBER**: the share of the ingredient's
+weight carried by its most energy-dense part. Evidence: every case where a share existed produced a
+believable fat, and every case without one produced the placeholder. It also removes the merging
+incentive, because a number cannot be used to describe a composite away.
+
+⚠️ Still unresolved and now twice-observed: **`within_printed_weight` flips between draws on
+ambiguous components** (frying oil), and it decides whether `resolveGrams` rescales an ingredient at
+all. Worth 6 g of fat on one dish. Unassigned.
+
+**Phase spend today: ~$0.40 across three probes** (sauce, sauce-dish, sauce-schema).

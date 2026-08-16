@@ -32,8 +32,21 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > `docs/superpowers/stage2-macro-benchmark.md`.**
 >
 > **The work is: unweighted dishes (no printed grams) score far worse than weighted ones, and they are
-> most of a real menu.** Weighted ~96% (0–4 of 96). Unweighted **best 37/72 (51%)** vs a 28/72
-> baseline, on the corrected 2026-08-16 pizza band. Never merge or substitute the two numbers.
+> most of a real menu.** Weighted **4–6 of 96** at 17.1–17.6%. Unweighted **best 37/72 (51%)** (Arm P)
+> vs a 28/72 baseline. Never merge or substitute the two numbers.
+>
+> ⚠️ **The weighted number moved from 0–3/96 to 4–6/96 on 2026-08-16 and that is a STRICTER ORACLE,
+> not a worse pipeline** — Santiago ruled the accompaniment weights down (chimichurri 30→15 g,
+> baguette 45→15 g, beans 80→30 g) and approved carrying the new figure. Do not quote 0–3/96.
+>
+> ❌ **ARMS S3 AND S4 ARE REJECTED (2026-08-16, ~$5).** S3 (required `parts` shares) scored 5–13/96
+> weighted and **26/72 unweighted, below the 28 baseline**. S4 (S3 + `amount_as_served_g`) scored
+> 7–10/96 — and **never actually ran: the model returned the new field identical to
+> `typical_serving_g` in 364 of 364 ingredients**, including all 36 accompaniments. 🔑 New rider on
+> the schema-force scoreboard: **a required field whose meaning OVERLAPS an existing field returns a
+> COPY.** 🔑 And the second arm to die between probe and benchmark: the probe measured the SAUCE
+> (chimichurri fat 15→50, real), the benchmark measures the DISH, and CESAR went 11%→25% of fields
+> failed while Salmone improved. **The label-serving defect is real and still UNFIXED.**
 >
 > ☠️ **SIZE WAS THE SYMPTOM; ASSEMBLY IS THE DISEASE. The plate-weight family is RETIRED** — Arm A
 > (15/72), A-conditional (30/72), Arm C (unscored), threshold variants (simulated, best 31/72). Proven

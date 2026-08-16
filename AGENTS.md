@@ -173,6 +173,11 @@ The cleanest demonstration: two prompt wordings asked for a conventional piece c
 was tested both ways within one hour — as a sentence it was ignored outright (`chimichurri sauce 30 g
 / fat 15` unchanged), as a required field it was answered on every ingredient of every draw.
 
+⚠️ **A required field whose meaning OVERLAPS an existing field returns a COPY.** Schema force compels
+an ANSWER, not a DIFFERENT answer. `amount_as_served_g` was added beside `typical_serving_g` and came
+back identical in **364 of 364** ingredients. Before adding a field, ask what question it answers that
+no existing field can.
+
 ⚠️ **Two riders, both measured the same day.** (1) **Ask for a NUMBER, not a string.** A required string
 buys a description: ingredients that came back with a share ("mayonnaise 50%") got the right fat,
 ingredients that came back as a bare list ("parsley, garlic, olive oil, vinegar") kept their placeholder.

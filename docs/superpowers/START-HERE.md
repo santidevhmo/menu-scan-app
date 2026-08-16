@@ -75,8 +75,13 @@ that do not**, and the second group is most of a real menu. That gap is the enti
 
 | score | dishes | points | result | harness |
 |---|---|---|---|---|
-| weighted | 8 | 96 | **~96% passing** (0–4 failed fields) | `scripts/bench-macros.ts` |
-| **unweighted** | 6 | 24 | **best 37/72 (51%)**, baseline 28/72 (corrected pizza band, 2026-08-16) | `scripts/bench-unweighted.ts` |
+| weighted | 8 | 96 | **4–6 failed of 96** at 17.1–17.6% | `scripts/bench-macros.ts` |
+| **unweighted** | 6 | 24 | **best 37/72 (51%)** (Arm P), baseline 28/72 | `scripts/bench-unweighted.ts` |
+
+⚠️ **The weighted figure changed on 2026-08-16 and it is NOT a regression.** It was 0–3/96 until
+Santiago ruled the accompaniment weights (chimichurri 30→15 g, baguette 45→15 g, beans 80→30 g).
+**The oracle got stricter; the pipeline did not get worse.** He approved carrying 4–6/96. Never quote
+0–3/96 as current.
 
 **Production: edge fn `analyze-menu` v31 (2026-08-16), `ENRICH_BATCH_SIZE = 10`. The two ZEROING BUG
 FIXES are live; NO accuracy change is — Arm P and everything else below is still unshipped. All of it

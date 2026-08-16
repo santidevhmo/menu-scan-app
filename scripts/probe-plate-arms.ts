@@ -14,6 +14,7 @@
 //     --env-file=.env.local scripts/probe-plate-arms.ts
 import {
   callGptEnrich,
+  enrichBatch,
   ENRICH_MODEL,
   ENRICH_PROMPT,
   ENRICH_SCHEMA_OPENAI,
@@ -129,7 +130,7 @@ async function callOpenAI(
   return JSON.parse(json.choices[0].message.content);
 }
 
-async function armA(items: Item[]) {
+export async function armA(items: Item[]) {
   const weighted = items.filter((i) => i.grams != null);
   const unweighted = items.filter((i) => i.grams == null);
   // deno-lint-ignore no-explicit-any
@@ -150,6 +151,107 @@ async function armA(items: Item[]) {
         ...it,
         ...sumIngredientMacros(it.ingredients ?? [], total),
         _plate_g: total,
+      });
+    }
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- ARM P
+//
+// PROPORTIONS, not size. The 2026-08-13 simulation proved no plate total can fix
+// the Capricciosa: at 450 g - the TOP of its verified band - it still returns
+// 812 kcal against a 1101-1238 band, because its decomposition is 1.81 kcal/g
+// where USDA thin-crust pizza is 2.75. Rescaling preserves proportions, so the
+// defect is the assembly: 30 g of cheese on a 28 cm pizza is a standalone
+// reference serving of cheese, not the amount on a pie.
+//
+// B21 asks for the standard reference amount and EXPLICITLY forbids estimating
+// what is on the plate. That is right where resolveGrams pins the total from a
+// printed weight - it took the weighted score to ~96% - and wrong where nothing
+// pins it, because then the same numbers set the total too.
+//
+// So this arm overrides that instruction for UNWEIGHTED items only. Weighted
+// items keep today's request byte-identically and cannot regress.
+//
+// ⚠️ Not the same as iter-b1..b13, which were falsified for asking a FITTED gram
+// figure: those had a printed weight to hit, and the model back-solved the
+// arithmetic (every gram a multiple of 5). There is no target here to fit to.
+// No food, dish or cuisine name - enrich_test.ts fails the build otherwise.
+const ARM_P_SENTENCE =
+  ' The items in this request print no weight. For them, give "typical_serving_g" as the amount of that ingredient actually present in one order of this item as it is served, rather than the amount that ingredient is served in on its own: a component that forms the body of an item is present in considerably greater quantity than a standalone serving of it, and using the standalone amount understates the item.';
+const ARM_P_PROMPT = ENRICH_PROMPT + ARM_P_SENTENCE;
+
+// ARM PF = ARM P + preparation fat. Every dish Arm P still fails is fat-low:
+// pizza 30 g against 58-65, chicken-and-fries 20 against 31-44, and a
+// battered deep-fried vegetable at 5 g against 14-19. The prompt already says
+// "fat absorbed or added in cooking counts" inside step 2's composition
+// instruction; this tests whether the model needs the FAT ITSELF listed as an
+// ingredient rather than folded into a composition figure it evidently reports
+// at the plain-food value.
+// No food, dish or cuisine name - the mechanical guard in enrich_test.ts.
+const ARM_PF_SENTENCE = ARM_P_SENTENCE +
+  " Where the item's form or preparation means fat is absorbed or added before it reaches the table, list that fat as its own ingredient with the quantity retained in the finished item, because it is part of what is eaten and no other ingredient accounts for it.";
+const ARM_PF_PROMPT = ENRICH_PROMPT + ARM_PF_SENTENCE;
+
+// ARM PD = ARM P + dominance. The 2026-08-13 diagnostic showed Arm P fixes the
+// TOTAL and leaves the PROPORTIONS wrong: with the pizza's mass inside its band,
+// a third of it is near-zero-calorie vegetables because every topping gets a
+// ~30-50 g standalone serving regardless of what the dish carries. The roll's
+// rice is 38% where the form is nearer 50%, and its carb is what fails.
+//
+// Arm P's sentence pushes every ingredient UP from its standalone serving. This
+// splits that: the structural body goes up, the components scattered over it go
+// DOWN. Food-agnostic - it names a role in a dish, never a food.
+const ARM_PD_SENTENCE = ARM_P_SENTENCE +
+  " Keep the quantities in proportion to one another as the item is actually composed: the component that forms the body of the item accounts for most of its weight, while components distributed over or through that body are present in smaller quantity than they would be served in on their own, however many of them the description lists.";
+const ARM_PD_PROMPT = ENRICH_PROMPT + ARM_PD_SENTENCE;
+
+export const armPD = (items: Item[]) => splitArm(items, ARM_PD_PROMPT);
+
+/** Shared by P and PF: weighted items byte-identical, unweighted get `prompt`. */
+async function splitArm(items: Item[], prompt: string) {
+  const weighted = items.filter((i) => i.grams != null);
+  const unweighted = items.filter((i) => i.grams == null);
+  // deno-lint-ignore no-explicit-any
+  const out: any[] = [];
+  if (weighted.length > 0) {
+    // deno-lint-ignore no-explicit-any
+    const { items: enriched } = await callGptEnrich(weighted as any, apiKey!);
+    out.push(...enriched);
+  }
+  if (unweighted.length > 0) {
+    const raw = await callOpenAI(prompt, ENRICH_SCHEMA_OPENAI, unweighted);
+    for (const it of raw.items ?? []) {
+      out.push({
+        ...it,
+        ...sumIngredientMacros(it.ingredients ?? [], it.printed_total_g),
+      });
+    }
+  }
+  return out;
+}
+
+export const armPF = (items: Item[]) => splitArm(items, ARM_PF_PROMPT);
+
+export async function armP(items: Item[]) {
+  const weighted = items.filter((i) => i.grams != null);
+  const unweighted = items.filter((i) => i.grams == null);
+  // deno-lint-ignore no-explicit-any
+  const out: any[] = [];
+
+  if (weighted.length > 0) {
+    // deno-lint-ignore no-explicit-any
+    const { items: enriched } = await callGptEnrich(weighted as any, apiKey!);
+    out.push(...enriched);
+  }
+  if (unweighted.length > 0) {
+    // The SCHEMA is untouched - this changes what a number means, not its shape.
+    const raw = await callOpenAI(ARM_P_PROMPT, ENRICH_SCHEMA_OPENAI, unweighted);
+    for (const it of raw.items ?? []) {
+      out.push({
+        ...it,
+        ...sumIngredientMacros(it.ingredients ?? [], it.printed_total_g),
       });
     }
   }
@@ -181,7 +283,7 @@ export function statesSize(name: string, description: string): boolean {
   ].some((re) => re.test(text));
 }
 
-async function armAConditional(items: Item[]) {
+export async function armAConditional(items: Item[]) {
   const weighted = items.filter((i) => i.grams != null);
   const unweighted = items.filter((i) => i.grams == null);
   // deno-lint-ignore no-explicit-any
@@ -445,6 +547,161 @@ if (Deno.args[0] === "noise") {
   Deno.exit(0);
 }
 
+// CURVE MODE (Santiago, 2026-08-12). THE BATCH-SIZE CURVE. Solo is stable and
+// batched is not; this finds the knee. Where does stability arrive - at 10, at
+// 5, at 3, or only at 1? And because ENRICH_BATCH_SIZE was tuned DOWN to 10 to
+// stop GPT-4o early-stopping, it must record BOTH numbers: a batch size that
+// fixes stability by reintroducing dropped items is not a fix.
+//
+// Calls enrichBatch DIRECTLY, one call per group, deliberately WITHOUT
+// enrichBatchWithRetry: production re-asks whenever the model returns fewer
+// items than it was sent, which both hides the drop and substitutes a second
+// draw's numbers into the first draw's result. This measures the raw call.
+//
+// Group size is recorded as the size the dish ACTUALLY sat in, and the median
+// counts only dishes that sat in a FULL group of the nominal size - fifteen
+// dishes at a nominal 10 is one group of 10 plus a remainder of 5, and calling
+// that "15 per call" is exactly how the earlier figures got mislabelled.
+if (Deno.args[0] === "curve") {
+  const set: { name: string; description: string }[] = JSON.parse(
+    await Deno.readTextFile("scripts/fixtures/unweighted-guard-set.json"),
+  );
+  const items = set.map((d) => item(d.name, d.description));
+  const DRAWS_CURVE = 5;
+  const NOMINAL = [1, 3, 5, 10];
+
+  // nominal -> dish -> kcal per draw, plus the group size the dish sat in.
+  const kcal = new Map<number, Map<string, number[]>>();
+  const grpOf = new Map<number, Map<string, number>>();
+  const drops: Record<
+    number,
+    { calls: number; short: number; missing: number; failed: number }
+  > = {};
+  // A 429 would otherwise blank a whole column: b1 fires 15 calls per draw and
+  // a thrown call is a lost data point, not a retried one.
+  const CONCURRENCY = 5;
+
+  for (const nominal of NOMINAL) {
+    kcal.set(nominal, new Map());
+    grpOf.set(nominal, new Map());
+    drops[nominal] = { calls: 0, short: 0, missing: 0, failed: 0 };
+
+    for (let draw = 0; draw < DRAWS_CURVE; draw++) {
+      const groups: Item[][] = [];
+      for (let i = 0; i < items.length; i += nominal) {
+        groups.push(items.slice(i, i + nominal));
+      }
+      // Parallel within a draw, the way production fires its batches, but capped
+      // so a rate limit does not eat data points. Each call is independent, so
+      // this changes wall-clock only.
+      // deno-lint-ignore no-explicit-any
+      const outs: { out: any[]; failed: boolean }[] = [];
+      for (let w = 0; w < groups.length; w += CONCURRENCY) {
+        outs.push(
+          ...await Promise.all(groups.slice(w, w + CONCURRENCY).map(async (group) => {
+            try {
+              // deno-lint-ignore no-explicit-any
+              return { out: await enrichBatch(group as any, apiKey!) as any[], failed: false };
+            } catch (err) {
+              console.error(
+                `[curve] b${nominal} d${draw} call FAILED (not a drop):`,
+                err instanceof Error ? err.message : err,
+              );
+              return { out: [], failed: true };
+            }
+          })),
+        );
+      }
+
+      outs.forEach(({ out, failed }, g) => {
+        const group = groups[g];
+        drops[nominal].calls++;
+        // A thrown call is an API error, NOT the model stopping early. Counting
+        // the two together would credit early-stopping with every 429.
+        if (failed) drops[nominal].failed++;
+        else if (out.length < group.length) {
+          drops[nominal].short++;
+          drops[nominal].missing += group.length - out.length;
+        }
+        archive[`curve b${nominal} d${draw} g${g}`] = out;
+        for (const it of out) {
+          const byName = kcal.get(nominal)!;
+          if (!byName.has(it.name)) byName.set(it.name, []);
+          byName.get(it.name)!.push(Math.round(it.estimated_calories ?? 0));
+        }
+        for (const src of group) grpOf.get(nominal)!.set(src.name, group.length);
+      });
+    }
+  }
+
+  const spreadOf = (xs: number[]) => {
+    if (xs.length === 0) return null;
+    const low = Math.min(...xs), high = Math.max(...xs);
+    return (high - low) / ((high + low) / 2);
+  };
+
+  console.log(
+    `\nBATCH-SIZE CURVE - ${set.length} dishes, ${DRAWS_CURVE} draws each, kcal spread\n`,
+  );
+  console.log(
+    `${"dish".padEnd(30)}${NOMINAL.map((n) => `b${n}`.padStart(9)).join("")}`,
+  );
+  const perNominal: Record<number, number[]> = {};
+  for (const n of NOMINAL) perNominal[n] = [];
+  for (const d of set) {
+    const cells = NOMINAL.map((n) => {
+      const s = spreadOf(kcal.get(n)!.get(d.name) ?? []);
+      if (s === null) return "MISSING".padStart(9);
+      const full = grpOf.get(n)!.get(d.name) === n;
+      // Only a dish that sat in a full group of n describes batch size n.
+      if (full) perNominal[n].push(s);
+      return `${(s * 100).toFixed(0)}%${full ? "" : "*"}`.padStart(9);
+    });
+    console.log(`${d.name.slice(0, 28).padEnd(30)}${cells.join("")}`);
+  }
+
+  const median = (xs: number[]) => {
+    if (xs.length === 0) return null;
+    const s = [...xs].sort((a, b) => a - b);
+    return s[Math.floor(s.length / 2)];
+  };
+  const row = (label: string, pick: (xs: number[]) => number | null) =>
+    console.log(
+      `${label.padEnd(30)}${
+        NOMINAL.map((n) => {
+          const v = pick(perNominal[n]);
+          return (v === null ? "-" : `${(v * 100).toFixed(0)}%`).padStart(9);
+        }).join("")
+      }`,
+    );
+  console.log("");
+  row("MEDIAN spread (full groups)", median);
+  row("WORST spread (full groups)", (xs) => xs.length ? Math.max(...xs) : null);
+  console.log(
+    `\n* dish did not sit in a full group of that size (remainder) - excluded from the median.`,
+  );
+
+  console.log(`\nITEM DROPS - the reason ENRICH_BATCH_SIZE is 10, not larger:`);
+  for (const n of NOMINAL) {
+    const d = drops[n];
+    console.log(
+      `  b${String(n).padEnd(3)} ${d.short}/${d.calls} calls returned short, ` +
+        `${d.missing} item(s) missing in total` +
+        (d.failed ? `  (+${d.failed} API failures, not drops)` : ""),
+    );
+  }
+  console.log(
+    `\nToday's production setting is ENRICH_BATCH_SIZE = 10. ` +
+      `A smaller batch multiplies prompt tokens: enrichment is ~$0.03/scan at 10, ~$0.30 at 1.`,
+  );
+
+  await Deno.writeTextFile(
+    "scripts/fixtures/caches/probe-batch-curve.raw.json",
+    JSON.stringify(archive, null, 2) + "\n",
+  );
+  Deno.exit(0);
+}
+
 // WIDE MODE (Santiago, 2026-08-11): fifteen real unweighted dishes with real
 // descriptions, spanning 60 g to 510 g across four menus, run BATCHED the way
 // production runs them. Four dishes and single-item calls decided A-conditional;
@@ -562,6 +819,13 @@ if (Deno.args[0] === "guard") {
   Deno.exit(0);
 }
 
+// import.meta.main so bench-unweighted.ts can import armA rather than keeping a
+// copy of it - lesson 23. Without this guard, importing this file would fire the
+// paid size-sensitivity probe below at module scope.
+if (!import.meta.main) {
+  // Nothing else in this file executes on import; the mode blocks above all
+  // require an exact Deno.args[0] match.
+} else {
 for (const [armName, run] of Object.entries(ARMS)) {
   console.log(`\n=== ARM ${armName}`);
   for (const pair of PAIRS) {
@@ -597,3 +861,4 @@ await Deno.writeTextFile(
   JSON.stringify(archive, null, 2) + "\n",
 );
 console.log("\nArchived to scripts/fixtures/caches/probe-plate-arms.raw.json");
+}

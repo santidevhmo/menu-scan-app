@@ -762,6 +762,141 @@ if (Deno.args[0] === "wide") {
 // of them prints a weight, so they all take the byte-identical path and the
 // changed path is never exercised. The dishes actually at risk are the
 // unweighted ones the pipeline already gets RIGHT.
+// SAUCE MODE (Santiago, 2026-08-16). Does asking the model to DECOMPOSE a
+// prepared mixture move its fat toward the published value?
+//
+// The 2026-08-16 $0 audit of 10 real menus found the pattern this tests:
+//
+//   single food   (olive oil, butter, mayonnaise)  model / USDA = 1.00x  n=16
+//   MIXTURE       (pesto, caesar, ranch, garlic)   model / USDA = 0.69x  n=21
+//   house-named   (chimichurri, chemita, aderezo)  flat 15-20 g fat, protein 1
+//
+// So the model is not weak on sauces - it is weak on MIXTURES, because a
+// mixture's per-100 g figure is a calculation over its parts, and this pipeline
+// has measured four times that the model supplies knowledge well and arithmetic
+// badly (B10, B12, B4, B21). The parts themselves it gets exactly right.
+//
+// Each sauce is sent as its OWN item, one per call. That is the only way the
+// number is comparable to a published record: inside a dish the sauce's mass
+// share is a second unknown, and batch-mates move the answer (2026-08-12 curve).
+// ⚠️ SYNTHETIC ITEMS. This measures the model's treatment of a named mixture,
+// NOT menu behaviour - do not quote it as a menu-level rate (2026-08-09 lesson).
+//
+//   deno run --allow-net --allow-env --allow-read --allow-write \
+//     --env-file=.env.local scripts/probe-plate-arms.ts sauce
+if (Deno.args[0] === "sauce") {
+  // Structural, never a food: enrich_test.ts bans food names in the nutrition
+  // step, and the standing rule is broader than the test. This names a KIND of
+  // component ("a prepared mixture rather than a single food"), which is the
+  // same move as B15's name_implied_components and Arm PD's "body of the item".
+  const ARM_S_SENTENCE =
+    " Where an ingredient is itself a prepared mixture rather than a single food," +
+    " do not give figures for the mixture as a whole. List instead the single" +
+    " foods it is made from, each as its own ingredient with its own weight and" +
+    " its own composition, because a mixture's composition is an average over" +
+    " parts that differ enormously and stating it directly understates whichever" +
+    " part is most concentrated.";
+  const ARM_S_PROMPT = ENRICH_PROMPT + ARM_S_SENTENCE;
+
+  // Published FNDDS fat per 100 g. null = house-named, NO record exists, so it
+  // is observed and never scored - inventing a target for it is what put a
+  // frozen-pizza band in the oracle for four days.
+  const SAUCES: { name: string; usda: number | null }[] = [
+    { name: "Garlic sauce", usda: 74.0 },
+    { name: "Pesto", usda: 59.2 },
+    { name: "Caesar dressing", usda: 57.9 },
+    { name: "Ranch dressing", usda: 44.5 },
+    { name: "Alfredo sauce", usda: 15.0 },
+    // CONTROLS. A sentence that simply inflates every fat would raise these too,
+    // and they have almost none. Without them a uniform push reads as a win.
+    { name: "Barbecue sauce", usda: 0.63 },
+    { name: "Soy sauce", usda: 0.57 },
+    // OBSERVED ONLY - the dishes that started this.
+    { name: "Chimichurri", usda: null },
+    { name: "Salsa chemita", usda: null },
+    { name: "Aderezo de la casa", usda: null },
+  ];
+  const DRAWS_S = 3;
+
+  /** Fat per 100 g of the whole item, from the model's OWN parts. */
+  // deno-lint-ignore no-explicit-any
+  function fatPer100g(out: any): number | null {
+    const ings = out?.ingredients ?? [];
+    const grams = resolveGrams(ings, out?.printed_total_g ?? null);
+    const total = grams.reduce((a: number, b: number) => a + b, 0);
+    if (!(total > 0)) return null;
+    const fat = ings.reduce(
+      (s: number, i: { fat_per_100g?: number }, n: number) =>
+        s + (i.fat_per_100g ?? 0) * grams[n] / 100,
+      0,
+    );
+    return 100 * fat / total;
+  }
+
+  const runS = async (items: Item[]) => {
+    const raw = await callOpenAI(ARM_S_PROMPT, ENRICH_SCHEMA_OPENAI, items);
+    return (raw.items ?? []).map((it: Record<string, unknown>) => ({
+      ...it,
+      ...sumIngredientMacros(
+        // deno-lint-ignore no-explicit-any
+        (it.ingredients ?? []) as any,
+        it.printed_total_g as number | null,
+      ),
+    }));
+  };
+
+  console.log(
+    `${"sauce".padEnd(20)} ${"USDA".padStart(6)} ${"baseline".padStart(14)}` +
+      ` ${"decomposed".padStart(14)}   parts the arm named`,
+  );
+  for (const s of SAUCES) {
+    const got: Record<string, number[]> = { baseline: [], S: [] };
+    let parts = "";
+    for (const arm of ["baseline", "S"] as const) {
+      for (let draw = 0; draw < DRAWS_S; draw++) {
+        const it = item(s.name, "");
+        // deno-lint-ignore no-explicit-any
+        const [out] = arm === "S"
+          ? await runS([it]) as any[]
+          : await ARMS.baseline([it]) as any[];
+        archive[`sauce ${arm} ${s.name} d${draw}`] = out;
+        const f = fatPer100g(out);
+        if (f != null) got[arm].push(f);
+        if (arm === "S" && draw === 0) {
+          parts = (out?.ingredients ?? [])
+            // deno-lint-ignore no-explicit-any
+            .map((i: any) => `${i.name} ${i.typical_serving_g}g`)
+            .join(", ")
+            .slice(0, 60);
+        }
+      }
+    }
+    const span = (xs: number[]) =>
+      xs.length === 0
+        ? "  no data"
+        : `${Math.min(...xs).toFixed(0)}-${Math.max(...xs).toFixed(0)}`;
+    const mid = (xs: number[]) =>
+      xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : NaN;
+    const ratio = (xs: number[]) =>
+      s.usda ? ` (${(mid(xs) / s.usda).toFixed(2)}x)` : "";
+    console.log(
+      `${s.name.padEnd(20)} ${(s.usda ?? "-").toString().padStart(6)}` +
+        ` ${(span(got.baseline) + ratio(got.baseline)).padStart(14)}` +
+        ` ${(span(got.S) + ratio(got.S)).padStart(14)}   ${parts}`,
+    );
+  }
+
+  await Deno.writeTextFile(
+    "scripts/fixtures/caches/probe-sauce-decomposition.raw.json",
+    JSON.stringify(archive, null, 2) + "\n",
+  );
+  console.log(
+    "\nArchived to scripts/fixtures/caches/probe-sauce-decomposition.raw.json" +
+      "\n⚠️  Synthetic single-sauce items - not a menu-level rate.",
+  );
+  Deno.exit(0);
+}
+
 if (Deno.args[0] === "guard") {
   const GUARDS = [
     {

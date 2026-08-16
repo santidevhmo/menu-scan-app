@@ -4420,3 +4420,73 @@ quote. `scripts/tile-cut_test.ts` is the known-ignorable one. The second,
 guard exists to prevent. Both files arrived with the 2026-08-13 unweighted oracle and the failure has
 been red since; nobody recorded it. **Left red deliberately: narrowing a measurement guard is a
 judgement call (lesson 28) and belongs to Santiago, not to a session doing something else.**
+
+### 🧪 SAUCE DECOMPOSITION PROBE — IT WORKS, AND THE INSTRUMENT CANNOT SEE THE REAL BUG (2026-08-16, ~$0.10)
+
+**Origin: Santiago, reading a raw dump — "chimichurri you returned as 30 g but in reality it's 3 to 5 g."**
+Chasing that found a defect the 96-point benchmark is structurally blind to, and then a second one.
+
+#### 🔍 THE $0 AUDIT THAT CAME FIRST — the model is not weak on sauces, it is weak on MIXTURES
+
+10 real menus, 444 enriched items, every ingredient matched against its FNDDS record:
+
+| kind of ingredient | model / USDA | n |
+|---|---|---|
+| a SINGLE food (olive oil, butter, mayonnaise) | **1.00x — exact** | 6 names, 16 obs |
+| a MIXTURE (pesto, caesar, ranch, garlic sauce) | **0.69x** | 11 names, 21 obs |
+| HOUSE-named (chimichurri, chemita, aderezo) | flat 15–20 g fat, **protein = 1 on 8 of 12** | 12 names |
+
+A mixture's per-100 g figure is a CALCULATION over its parts; a single food's is knowledge. This
+pipeline has measured four times (B4, B10, B12, B21) that the model supplies knowledge well and
+arithmetic badly. `protein = 1` on eight house sauces is the filler tell.
+
+#### THE ARM: list the single foods, do not state the mixture
+
+Food-agnostic by construction — it names a KIND of component, never a food, so the step-2 guard in
+`enrich_test.ts` stays satisfied. `scripts/probe-plate-arms.ts sauce`. Each sauce sent as its OWN
+item, one per call, 3 draws, both arms.
+
+| sauce | USDA fat/100 g | baseline | **decomposed** | |
+|---|---|---|---|---|
+| Pesto | 59.2 | 12–13 (0.22x) | **56–61 (1.01x)** | ✅ 4.6x correction, near exact |
+| Caesar dressing | 57.9 | 28–41 (0.56x) | **54–55 (0.94x)** | ✅ |
+| Ranch dressing | 44.5 | 21–23 (0.50x) | **36–37 (0.81x)** | ✅ |
+| Garlic sauce | 74.0 | 58 (0.78x) | **42 (0.56x)** | ❌ regressed |
+| Alfredo sauce | 15.0 | 16–47 (2.46x) | **45 (3.00x)** | ❌ but see below |
+| **Barbecue sauce** (control) | 0.63 | 0–1 | **0–1** | ✅ held |
+| **Soy sauce** (control) | 0.57 | 0 | **0** | ✅ held |
+
+🔑 **THE CONTROLS ARE THE POINT.** A sentence that merely inflated fat would have raised barbecue
+and soy too. They did not move, so the arm is discriminating, not pushing.
+
+⚠️ **Alfredo's "regression" is probably the TARGET's fault, not the arm's** — FNDDS `Alfredo sauce`
+is 15 g fat/100 g, which is a diluted as-eaten record; a restaurant alfredo is butter + cream +
+parmesan and the arm's 45 is the more believable number. **Not corrected: picking a different record
+is Santiago's ruling.** This is the sixth time a variant has been suspect (see the pizza).
+
+#### 🔴 THE INSTRUMENT'S BLIND SPOT — the finding that matters most
+
+**Chimichurri did not move: 37–42 baseline, 36–41 decomposed.** But inside a real menu it returns
+**15 g fat/100 g with protein 1**. Same model, same prompt, same sauce.
+
+🔑 **A sauce sent as its OWN item already gets decomposed — the failure only appears when the sauce is
+ONE INGREDIENT INSIDE A DISH.** So this probe validated the sentence on sauces that were already
+being decomposed, and could not test the case that motivated it. Standalone-vs-in-dish is the same
+context effect the 2026-08-12 batch curve found, one level down.
+
+**The arm is NOT yet judged.** What it needs is a probe on real menu items that CONTAIN these sauces,
+comparing the sauce's fat as an ingredient. Cheap (~$0.10) and it is the next step.
+
+⚠️ **SYNTHETIC ITEMS — do not quote any figure here as a menu-level rate** (the 2026-08-09 lesson).
+
+#### Accompaniment rulings recorded this session (Santiago)
+
+| accompaniment | was | **ruled** | basis |
+|---|---|---|---|
+| chimichurri | 30 g | **15 g** | USDA spooned-on-food amounts (tablespoon 16–17 g, sandwich guideline 17 g). The 30 g the model returns is USDA's **dipping-container** portion |
+| baguette | 45 g | **15 g** | one slice, from USDA's 324 g / 22" baguette = ~15 g per inch |
+| beans | 80 g | **25–35 g** | **Santiago's judgement.** USDA publishes 130 g but that is beans AS THE FOOD; there is no published side-of-a-plate portion, and the composite recipes give none either. Recorded as judgement, NOT as USDA-backed |
+
+⚠️ **A weight fix ALONE makes sauces worse, and that is why these move together:** chimichurri's two
+errors currently cancel — 2x too heavy, 3.8x too lean. Halving the grams without fixing the
+composition takes it from 48 kcal to 24 against a ~79 kcal target.

@@ -4649,3 +4649,29 @@ carry Santiago's three accompaniment rulings at the same time, since a weight fi
 sauces (see the cancelling-errors note).
 
 **Phase spend today: ~$0.55 across four probes.**
+
+### ⛔ CORRECTION — `within_printed_weight` IS NOT UNSTABLE. I BROKE THE DENOMINATOR RULE (2026-08-16, $0)
+
+**Three entries above call this flag "unstable", "flips between draws", "the known flag defect, third
+sighting", and the last one recommends it might jump the queue. THAT IS WRONG.** It was asserted from
+three anecdotes without ever counting the denominator — the exact failure Santiago's standing rule
+exists to prevent, and which has already cost this project two sessions (evals 139 and 140).
+
+Counted across all four sauce probes, 2026-08-16:
+
+| question | result |
+|---|---|
+| **same prompt, different draw** (genuine instability) | **2 of 420 = 0.5%** |
+| different prompt (a prompt change moved it) | 5 of 141 = 3.5% |
+
+**The flag is stable under repetition.** What I actually observed was the flag differing between
+BASELINE and an ARM — which is a prompt change doing its job, not a coin flip. Conflating those two
+is what produced the false claim.
+
+🔑 **The flag still matters, for a completely different reason, and that reason survives:** it is the
+switch that decides whether `resolveGrams` corrects an ingredient's weight at all, and it is where
+the printed-weight SCOPE question is actually being answered — per ingredient, by the model, on every
+scan. **That is a DESIGN question for Santiago, not a bug to fix.** It is not urgent on stability
+grounds and should not displace the benchmark run.
+
+⚠️ **Anyone quoting the three "unstable flag" notes above: they are superseded by this entry.**

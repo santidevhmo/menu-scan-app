@@ -37,7 +37,18 @@ below; it is written so a zero-context session can take over from it alone.** Ev
 and that block is older context that it supersedes where they disagree. Phase spend to date:
 **~$27** (~$2.52 to 2026-08-09, ~$19 on 2026-08-12, ~$6 on 2026-08-13).
 
-🚀 **LIVE NOW: edge function `analyze-menu` v30, deployed 2026-08-11 (Santiago authorised).** It is
+🚀 **LIVE NOW: edge function `analyze-menu` v31, deployed 2026-08-16 (Santiago authorised).**
+**v31 = v30 + the two ZEROING BUG FIXES, and nothing else.** Verified before shipping: the delta
+against v30 is `enrich.ts` + its tests only — `ENRICH_PROMPT`, `ENRICH_SCHEMA_OPENAI`, the model pin
+and `ENRICH_BATCH_SIZE = 10` are all byte-identical, so **macro accuracy is unchanged by design**
+and no re-baseline is owed. 212 edge-function tests pass, 0 failed.
+What it fixes: a dropped batch item and a 120 s timeout both used to reach `fallbackEnriched` and
+show the user **0 kcal** (Polloteria lost 16 of 95 items). `enrichBatchWithRetry` now re-asks for
+only the missing items in batches of 3, plus `MAX_CONCURRENT_BATCHES = 5`.
+**Rollback = `git checkout abe5e12 -- supabase/functions/analyze-menu/ && supabase functions deploy
+analyze-menu --project-ref uonuiadueykynbetxxrw`.**
+
+History — **v30, deployed 2026-08-11**, superseded by the above. It is
 `macro-best-v8` **plus the forced `serving_pieces` field** (this branch). Measured before shipping:
 **0–3/96 at 12.0–12.5%** against v29's **2–3/96 at 14.3–14.5%**, 4 runs × 3 draws, two runs perfect.
 Model pin unchanged. Smoke-tested live: printed weights read, stated counts honoured, allergens
@@ -67,8 +78,9 @@ that do not**, and the second group is most of a real menu. That gap is the enti
 | weighted | 8 | 96 | **~96% passing** (0–4 failed fields) | `scripts/bench-macros.ts` |
 | **unweighted** | 6 | 24 | **best 37/72 (51%)**, baseline 28/72 (corrected pizza band, 2026-08-16) | `scripts/bench-unweighted.ts` |
 
-**Production is unchanged and has been for 3 days: edge fn `analyze-menu` v30, `ENRICH_BATCH_SIZE = 10`.
-Nothing below is deployed. Everything is uncommitted on branch `feat/forced-serving-pieces`.**
+**Production: edge fn `analyze-menu` v31 (2026-08-16), `ENRICH_BATCH_SIZE = 10`. The two ZEROING BUG
+FIXES are live; NO accuracy change is — Arm P and everything else below is still unshipped. All of it
+is now COMMITTED on `feat/forced-serving-pieces`.**
 
 ### The one insight that matters most — SIZE WAS THE SYMPTOM, ASSEMBLY IS THE DISEASE
 

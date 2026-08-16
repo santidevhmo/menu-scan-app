@@ -63,14 +63,18 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > 30–46%). **Two of the first unweighted run's four "pipeline defects" were the oracle's fault.**
 > Re-source before believing a single-dish failure. **Price is NEVER evidence of grams** (Santiago).
 >
-> 🐛 **Two zeroing bugs are FIXED IN CODE, not deployed:** dropped batch items and 120 s timeouts both
+> ✅ **Two zeroing bugs are FIXED AND DEPLOYED as edge fn v31 (2026-08-16, Santiago authorised).**
+> **v31 = v30 + these fixes and nothing else** — the prompt, schema, model pin and
+> `ENRICH_BATCH_SIZE` are byte-identical to v30, so macro accuracy is unchanged by design and no
+> re-baseline is owed. Rollback target `abe5e12`. Dropped batch items and 120 s timeouts both
 > used to reach `fallbackEnriched` and show the user **0 kcal** (Polloteria lost 16 of 95 items).
 > `enrichBatchWithRetry` now rescues only the missing items in batches of 3, plus
 > `MAX_CONCURRENT_BATCHES = 5`. 32 tests pass, both new tests verified to fail without the fix.
 > ⚠️ This is NOT licence to lower `ENRICH_BATCH_SIZE` — batch 3 is measurably worse for accuracy.
 >
-> **Production unchanged for 3 days: edge fn v30, `ENRICH_BATCH_SIZE = 10`. All work uncommitted on
-> `feat/forced-serving-pieces`.**
+> **Production: edge fn v31 (2026-08-16), `ENRICH_BATCH_SIZE = 10`. The zeroing fixes ARE live; no
+> accuracy work is. All of it is now COMMITTED on `feat/forced-serving-pieces` (it sat uncommitted
+> for three days until 2026-08-16).**
 >
 > 🟢 **THE UNWEIGHTED ORACLE EXISTS (2026-08-13). THERE ARE NOW TWO SCORES — NEVER MERGE THEM.**
 > The 96-point benchmark only ever described dishes that PRINT A WEIGHT (all 8 fixtures print one, so

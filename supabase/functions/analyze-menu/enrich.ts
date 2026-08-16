@@ -499,15 +499,63 @@ export function reassembleEnriched(
 
 export const ENRICH_BATCH_SIZE = 10; // ponytail: small batches stop GPT-4o early-stopping; tune if drops persist
 
-/** Enriches a batch, retrying once if the model returns fewer items than sent. */
+/** How many enrichment requests may be in flight at once, across all batches. */
+export const MAX_CONCURRENT_BATCHES = 5;
+
+/**
+ * Batch size for the rescue pass. Measured 2026-08-13: zero drops across 30
+ * menu-runs and 1,380 item enrichments at 3, against 16 dropped items on a
+ * single 95-item menu at 10.
+ *
+ * ponytail: 3 is also measurably WORSE for macro accuracy than 10 (13-15/96 vs
+ * 0-4/96), which is why the main path stays at 10 — but a rescued item's
+ * alternative is fallbackEnriched's ZEROES, and slightly-off beats 0 kcal.
+ */
+const ENRICH_RESCUE_BATCH_SIZE = 3;
+
+/**
+ * Inputs the model did not return, matched the way reassembleEnriched matches:
+ * by name, one enriched item consumed per input, so a menu listing the same name
+ * twice needs two responses and not one.
+ */
+function missingFrom(
+  inputs: ExtractedItem[],
+  got: EnrichedItem[],
+): ExtractedItem[] {
+  const counts = new Map<string, number>();
+  for (const e of got) counts.set(e.name, (counts.get(e.name) ?? 0) + 1);
+  return inputs.filter((src) => {
+    const left = counts.get(src.name) ?? 0;
+    if (left === 0) return true;
+    counts.set(src.name, left - 1);
+    return false;
+  });
+}
+
+/**
+ * Enriches a batch, then RESCUES whatever the model still failed to return by
+ * re-asking for only those items in small batches.
+ *
+ * Why the rescue exists: a whole-batch retry re-rolls the same dice. Polloteria
+ * lost the same 16 wing sauces on both attempts and shipped them to users as
+ * 0 kcal — `fallbackEnriched` zeroes every macro, which is not a near-miss but a
+ * visibly broken row that also corrupts the goal ranking. The same 16 come back
+ * correct in a batch of 3 (BBQ 39 kcal, Buffalo 107, Ranch 88), because these
+ * items are droppable only in company: short, near-identical option names that a
+ * large batch collapses.
+ *
+ * It covers the timeout path too. A batch that times out at MODEL_TIMEOUT_MS
+ * leaves every item missing, and a third of a batch answers well inside the
+ * window that the whole batch blew.
+ */
 async function enrichBatchWithRetry(
   batch: ExtractedItem[],
   apiKey: string,
   model: string,
 ): Promise<EnrichedItem[]> {
+  let got: EnrichedItem[] = [];
   try {
-    const first = await enrichBatch(batch, apiKey, model);
-    if (first.length >= batch.length) return first;
+    got = await enrichBatch(batch, apiKey, model);
   } catch (err) {
     console.error(
       "[enrich] batch failed, retrying:",
@@ -515,15 +563,40 @@ async function enrichBatchWithRetry(
     );
   }
 
-  try {
-    return await enrichBatch(batch, apiKey, model);
-  } catch (err) {
-    console.error(
-      "[enrich] batch failed twice, backfilling:",
-      err instanceof Error ? err.message : err,
-    );
-    return [];
+  if (got.length < batch.length) {
+    try {
+      const second = await enrichBatch(batch, apiKey, model);
+      // Keep whichever attempt returned more; a short retry must not discard a
+      // fuller first answer.
+      if (second.length > got.length) got = second;
+    } catch (err) {
+      console.error(
+        "[enrich] batch failed twice, rescuing individually:",
+        err instanceof Error ? err.message : err,
+      );
+    }
   }
+
+  const missing = missingFrom(batch, got);
+  if (missing.length === 0) return got;
+
+  console.error(
+    `[enrich] ${missing.length} item(s) still missing, rescuing in batches of ` +
+      `${ENRICH_RESCUE_BATCH_SIZE}: ${missing.map((m) => m.name).join(", ")}`,
+  );
+  for (const group of chunk(missing, ENRICH_RESCUE_BATCH_SIZE)) {
+    try {
+      got = got.concat(await enrichBatch(group, apiKey, model));
+    } catch (err) {
+      // Out of options for this group; reassembleEnriched backfills it. Logged
+      // so a zeroed row in production is traceable to a cause.
+      console.error(
+        `[enrich] rescue failed, backfilling ${group.length}:`,
+        err instanceof Error ? err.message : err,
+      );
+    }
+  }
+  return got;
 }
 
 /**
@@ -539,11 +612,29 @@ export async function callGptEnrich(
   items: ExtractedItem[],
   apiKey: string,
   model: string = ENRICH_MODEL,
+  // Lets the integrity harness sweep batch sizes through THIS function instead
+  // of keeping a private copy of the batching — lesson 23. Production passes
+  // nothing and gets ENRICH_BATCH_SIZE.
+  batchSize: number = ENRICH_BATCH_SIZE,
 ): Promise<{ items: EnrichedItem[]; raw_response: string }> {
-  const batches = chunk(items, ENRICH_BATCH_SIZE);
-  const settled = await Promise.all(
-    batches.map((batch) => enrichBatchWithRetry(batch, apiKey, model)),
-  );
+  const batches = chunk(items, batchSize);
+  // Capped waves, not one big Promise.all. A smaller batchSize means MORE
+  // batches, and a 55-item menu at batchSize 3 is 19 simultaneous requests —
+  // enough to draw a rate limit, whose cost here is not a slow scan but a
+  // WRONG one: enrichBatchWithRetry gives up after two attempts and
+  // fallbackEnriched backfills the item with zeroed macros.
+  // ponytail: fixed waves, not a work queue — a queue earns its keep when
+  // tasks differ wildly in cost, and these are all one request of <=10 items.
+  const settled: EnrichedItem[][] = [];
+  for (let i = 0; i < batches.length; i += MAX_CONCURRENT_BATCHES) {
+    settled.push(
+      ...await Promise.all(
+        batches.slice(i, i + MAX_CONCURRENT_BATCHES).map((batch) =>
+          enrichBatchWithRetry(batch, apiKey, model)
+        ),
+      ),
+    );
+  }
   const enriched = reassembleEnriched(items, settled.flat());
   return { items: enriched, raw_response: JSON.stringify({ items: enriched }) };
 }

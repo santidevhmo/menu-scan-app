@@ -1,4 +1,5 @@
 import {
+  assert,
   assertEquals,
   assertRejects,
   assertThrows,
@@ -7,6 +8,7 @@ import {
   callGptEnrich,
   chunk,
   ENRICH_MODEL,
+  MAX_CONCURRENT_BATCHES,
   ENRICH_PROMPT,
   ENRICH_SCHEMA_OPENAI,
   enrichBatch,
@@ -649,6 +651,146 @@ Deno.test("callGptEnrich batches at the production size and returns one item per
     assertEquals(out.items.length, 23);
     // Order is the contract the client re-ranks against.
     assertEquals(out.items.map((i) => i.name), items.map((i) => i.name));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("a dropped item is rescued in a small batch, not backfilled with zeroes", async () => {
+  // Polloteria, reduced: a batch where the model consistently omits the same
+  // short option names on BOTH attempts. Before the rescue these shipped as
+  // 0 kcal.
+  const items = Array.from({ length: 10 }, (_, i) => extracted(`item-${i}`));
+  const ALWAYS_DROPPED = ["item-7", "item-8", "item-9"];
+  const sizesSeen: number[] = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (_input, init) => {
+    const body = JSON.parse(init?.body as string) as {
+      messages: { content: string }[];
+    };
+    const sent = JSON.parse(
+      body.messages[0].content.split("Menu items (JSON):\n")[1],
+    ) as { name: string }[];
+    sizesSeen.push(sent.length);
+    // The defect: these names come back only when the batch is small.
+    const returned = sent.length > 3
+      ? sent.filter((s) => !ALWAYS_DROPPED.includes(s.name))
+      : sent;
+    return new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: {
+          content: JSON.stringify({ items: returned.map((s) => enriched(s.name)) }),
+        },
+      }],
+    }));
+  };
+
+  try {
+    const out = await callGptEnrich(items, "test-key");
+    assertEquals(out.items.length, 10);
+    assertEquals(out.items.map((i) => i.name), items.map((i) => i.name));
+    // The point: every item carries real macros. fallbackEnriched would leave
+    // 0 calories and an empty ingredient list.
+    for (const name of ALWAYS_DROPPED) {
+      const item = out.items.find((i) => i.name === name)!;
+      assert(
+        item.estimated_calories > 0,
+        `${name} was backfilled with zeroes instead of rescued`,
+      );
+    }
+    // And it rescued in SMALL batches rather than re-rolling the same 10.
+    assert(
+      sizesSeen.some((n) => n <= 3),
+      `expected a small rescue batch, saw sizes ${sizesSeen.join(",")}`,
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("a timed-out batch is rescued rather than zeroed", async () => {
+  // Both whole-batch attempts fail; only smaller requests succeed. This is the
+  // 120s MODEL_TIMEOUT_MS path that zeroed a dish twice during the 2026-08-13
+  // benchmark runs.
+  const items = Array.from({ length: 6 }, (_, i) => extracted(`item-${i}`));
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (_input, init) => {
+    const body = JSON.parse(init?.body as string) as {
+      messages: { content: string }[];
+    };
+    const sent = JSON.parse(
+      body.messages[0].content.split("Menu items (JSON):\n")[1],
+    ) as { name: string }[];
+    if (sent.length > 3) throw new Error("Model request timed out after 120s");
+    return new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: {
+          content: JSON.stringify({ items: sent.map((s) => enriched(s.name)) }),
+        },
+      }],
+    }));
+  };
+
+  try {
+    const out = await callGptEnrich(items, "test-key");
+    assertEquals(out.items.length, 6);
+    for (const item of out.items) {
+      assert(
+        item.estimated_calories > 0,
+        `${item.name} was zeroed by the timeout instead of rescued`,
+      );
+    }
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+Deno.test("callGptEnrich never exceeds MAX_CONCURRENT_BATCHES in flight", async () => {
+  // 55 items at batchSize 3 is 19 batches — the Polloteria menu, the worst real
+  // case. Uncapped this fired all 19 at once; a rate limit there does not slow a
+  // scan down, it zeroes an item's macros via fallbackEnriched.
+  const items = Array.from({ length: 55 }, (_, i) => extracted(`item-${i}`));
+  let inFlight = 0;
+  let peak = 0;
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (_input, init) => {
+    inFlight++;
+    peak = Math.max(peak, inFlight);
+    // Yield so overlapping calls actually overlap - without an await the
+    // counter would return to 0 before the next call ever started and the
+    // assertion would pass on a serial implementation too.
+    await new Promise((r) => setTimeout(r, 1));
+    const body = JSON.parse(init?.body as string) as {
+      messages: { content: string }[];
+    };
+    const sent = JSON.parse(
+      body.messages[0].content.split("Menu items (JSON):\n")[1],
+    ) as { name: string }[];
+    inFlight--;
+    return new Response(JSON.stringify({
+      choices: [{
+        finish_reason: "stop",
+        message: {
+          content: JSON.stringify({ items: sent.map((s) => enriched(s.name)) }),
+        },
+      }],
+    }));
+  };
+
+  try {
+    const out = await callGptEnrich(items, "test-key", ENRICH_MODEL, 3);
+    assertEquals(out.items.length, 55);
+    assertEquals(out.items.map((i) => i.name), items.map((i) => i.name));
+    // The point of the test. 19 batches, never more than 5 at once.
+    assert(
+      peak <= MAX_CONCURRENT_BATCHES,
+      `peak concurrency ${peak} exceeded MAX_CONCURRENT_BATCHES ${MAX_CONCURRENT_BATCHES}`,
+    );
+    // And it must still be parallel - a serial loop would peak at 1 and would
+    // make every scan batches-times slower.
+    assert(peak > 1, `expected parallel batches, peaked at ${peak}`);
   } finally {
     globalThis.fetch = originalFetch;
   }

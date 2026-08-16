@@ -27,15 +27,94 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > oracle corrections, B21 (standard reference-amount servings), B24b (black-box detection). Seven
 > other hypotheses were falsified and each closed a direction — see the log.
 >
+> 🎯 **CURRENT STATE (2026-08-14). Full takeover briefing: the 2026-08-13/14 block at the top of
+> `docs/superpowers/START-HERE.md`. Full evidence: the last ~6 entries of
+> `docs/superpowers/stage2-macro-benchmark.md`.**
+>
+> **The work is: unweighted dishes (no printed grams) score far worse than weighted ones, and they are
+> most of a real menu.** Weighted ~96% (0–4 of 96). Unweighted **best 37/72 (51%)** vs a 28/72
+> baseline, on the corrected 2026-08-16 pizza band. Never merge or substitute the two numbers.
+>
+> ☠️ **SIZE WAS THE SYMPTOM; ASSEMBLY IS THE DISEASE. The plate-weight family is RETIRED** — Arm A
+> (15/72), A-conditional (30/72), Arm C (unscored), threshold variants (simulated, best 31/72). Proven
+> at $0: set the pizza's mass to the TOP of its verified band and it is still 26% low, because
+> rescaling preserves proportions. `scripts/sim-plate-rescale.ts`.
+>
+> ✅ **BEST ARM = "P" (`armP` in `scripts/probe-plate-arms.ts`), 28/72 → 37/72, tied with PF.** One sentence, for
+> UNWEIGHTED items only: give each ingredient's amount *as actually present in one order as served*
+> rather than its standalone reference serving. Two dishes go 12/12. Weighted items keep a
+> byte-identical request, so **B21 is not falsified** — it stays correct wherever `resolveGrams` pins
+> the total. Falsified follow-ups: **PF** (+cooking fat, 37/72, a wash) and **PD** (+dominance, 30/72;
+> it pushed a sushi roll to 0/12 because its "garnishes" are the substance).
+>
+> ✅ **(a) THE PIZZA BAND IS FIXED — RULED AND APPLIED 2026-08-16.** Composition moved from the FROZEN
+> record to the RESTAURANT one (FDC 2708660 → 2708663), verified against the FDC API, whole FNDDS grid
+> listed first. Band: 1101–1238 kcal / F 58–65 → **967–1087 / F 39–44**. Every arm re-scored at $0 via
+> the new `--replay` mode. 🔴 **It did NOT rescue the pizza and it cost Arm P a point: P 38→37, and P
+> is now TIED WITH PF at 37/72.** P's lead was inside the oracle's own error. Last entry of the log.
+>
+> 🔴 **STILL NEEDS SANTIAGO, NOT A RUN: Arm P is not safely shippable** — it splits enrichment in two,
+> changing weighted dishes' batch composition, and all 8 weighted fixtures already batch together so
+> the 96-point score is blind to it. ✅ **The "real-restaurant field test" is CLOSED as a false
+> premise** (2026-08-16): the fixture menus are real phone photos of real paper menus.
+>
+> ⚠️ **THE ORACLE HAS BEEN WRONG FIVE TIMES, ALWAYS THE SAME WAY:** right food, wrong FNDDS *variant*
+> (venue / crust / preparation / topping class are separate records, and the wrong axis moves a band
+> 30–46%). **Two of the first unweighted run's four "pipeline defects" were the oracle's fault.**
+> Re-source before believing a single-dish failure. **Price is NEVER evidence of grams** (Santiago).
+>
+> 🐛 **Two zeroing bugs are FIXED IN CODE, not deployed:** dropped batch items and 120 s timeouts both
+> used to reach `fallbackEnriched` and show the user **0 kcal** (Polloteria lost 16 of 95 items).
+> `enrichBatchWithRetry` now rescues only the missing items in batches of 3, plus
+> `MAX_CONCURRENT_BATCHES = 5`. 32 tests pass, both new tests verified to fail without the fix.
+> ⚠️ This is NOT licence to lower `ENRICH_BATCH_SIZE` — batch 3 is measurably worse for accuracy.
+>
+> **Production unchanged for 3 days: edge fn v30, `ENRICH_BATCH_SIZE = 10`. All work uncommitted on
+> `feat/forced-serving-pieces`.**
+>
+> 🟢 **THE UNWEIGHTED ORACLE EXISTS (2026-08-13). THERE ARE NOW TWO SCORES — NEVER MERGE THEM.**
+> The 96-point benchmark only ever described dishes that PRINT A WEIGHT (all 8 fixtures print one, so
+> `resolveGrams` pins their grams and the plate is never guessed). A 6-dish, 24-point band oracle now
+> covers the unweighted case: **weighted ~96% passing vs unweighted 28/72 = 39%** (that 28/72 is the
+> BASELINE — Arm P later reached 38/72, see the CURRENT STATE block above). That gap is the
+> real state of macro enrichment. `scripts/unweighted-oracle-build.ts`, `scripts/bench-unweighted.ts`.
+> 🔑 **PRICE IS NOT EVIDENCE OF GRAMS** (Santiago, 2026-08-13) — never in an oracle, a prompt, or code.
+> ⚠️ **A generic USDA record will fail a pipeline that is right:** two of the first run's four
+> "defects" were the oracle's own fault. Re-source before believing a single-dish failure.
+> 🔴 **COLIFLOR ROKA scores 0/4 with the mass RIGHT** — 25 kcal and 0 g fat for a battered fried
+> sauced dish, because its description is empty and *"Roka"* is defined only on another line of the
+> same menu. **This points the OPPOSITE way from the batching defect: cross-item context would have
+> helped here.** 🔴 **Fat is wrong on 5 of 6 dishes.** Full detail: last entry of the benchmark log.
+>
 > 🚨 **HIGHEST-PRIORITY OPEN DEFECT (2026-08-11) — BATCHING MAKES MACROS UNSTABLE IN PRODUCTION.**
 > Same dish, same unchanged pipeline, five draws: sent **alone** it returns 0–3% spread; sent in a
 > batch of fifteen it swings **39–88%** (OSTRICA 173→177 solo vs 205→525 batched; MEXICANA 0% vs
 > 62%). `ENRICH_BATCH_SIZE = 10`, so every shipped scan carries this, and the goal RANKING is built
-> on those numbers. **Code-only fix — no prompt, schema or model change.** Next measurement is the
-> batch-size curve (1/3/5/10) to find where stability arrives; one item per call multiplies prompt
-> tokens by the item count (~$0.03 → ~$0.30 per scan at the ceiling). This also retro-invalidates any
-> arm judged on batched runs. Evidence: `docs/superpowers/stage2-macro-benchmark.md`,
-> `scripts/probe-plate-arms.ts solo|noise`.
+> on those numbers. This also retro-invalidates any arm judged on batched runs.
+> ⚠️ **STILL OPEN, but "code-only fix" is now KNOWN WRONG.**
+>
+> ✅ **THE BATCH-SIZE CURVE IS MEASURED (2026-08-12, ~$11.50) AND IT KILLED ITS OWN FIX. Do not
+> re-run it. Nothing was changed — `ENRICH_BATCH_SIZE` is still 10 and nothing was deployed.**
+> Small batches fix the instability (median spread 35% → 7–12%) AND fix a real drop bug — and cost
+> **4× the accuracy on dishes that print a weight: 0–4/96 at 12.3–13.9% (batch 8) vs 13–15/96 at
+> 17.9–18.9% (batch 3)**, 4 runs × 3 draws each. A control run at batch 8 through the same
+> `callGptEnrich` path reproduced B21 exactly, so the code path is innocent and batch size is the
+> cause. **A single global batch size cannot win both dish types; this was never a tuning problem.**
+>
+> 🔴 **A LIVE PRODUCTION BUG WAS FOUND AND IS UNFIXED: Polloteria loses 16 of its 95 items at
+> `ENRICH_BATCH_SIZE = 10`** — the wing sauces come back with zeroed macros (`fallbackEnriched`'s
+> signature) and come back correct at batch 3. Lowering the batch size is not an available fix.
+>
+> 🔑 **Prior for the next arm, NOT a finding: the two open defects are probably one defect.** The model
+> appears to calibrate across the items sharing a call — where a printed weight pins the grams that
+> helps, where the plate is guessed it makes the guess depend on batch-mates. If so both reduce to
+> **nothing pins the plate for an unweighted dish**, and Arm A (required `typical_total_g`) is the shape
+> of a fix for both; re-judge it SOLO. ⚠️ **`0–3/96 at 12%` describes ONLY weighted dishes** —
+> `bench-macros.ts` sends all 8 fixtures in one call and all 8 print weights, so the benchmark is
+> structurally blind to the instability. ⚠️ **"Solo is stable" was a 5-dish selection artifact** (5 of
+> 15 dishes swing ≥19% sent alone). ⚠️ **Every "15 per call" figure was really 10 + 5.**
+> Evidence: last entry of `docs/superpowers/stage2-macro-benchmark.md`;
+> `scripts/probe-plate-arms.ts curve`, `scripts/bench-pipeline.ts sweep`, `BENCH_BATCH_SIZE`.
 >
 > 🚧 **OPEN BLOCKER (2026-08-11, Santiago's ruling) — SIZE IS A DEAD CHANNEL EXCEPT PRINTED GRAMS.**
 > Measured, 3 draws, one item per call, calories as the metric: a printed-grams control moves the
@@ -59,9 +138,12 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > **Deliberately out of scope:** drinks and alcohol (Santiago, post-launch). An `alcohol_per_100g`
 > term was built, measured and REVERTED for that reason; the finding is preserved in the log.
 >
-> 🎯 **THE BIGGEST REMAINING UNKNOWN IS NOT MEASURABLE HERE: the real-restaurant field test.** Every
-> scan in this project's history is a photo of a screen or a gallery import. Paper, real lighting,
-> angles and glare are untested. It needs Santiago and a phone, and it is unblocked.
+> ✅ **CORRECTED 2026-08-16 (Santiago): THE FIXTURE PHOTOS ARE REAL.** Every doc under this one used
+> to claim "every scan in this project's history is a photo of a screen or a gallery import" and
+> call a real-restaurant field test the biggest remaining unknown. **That was false.** The fixture
+> menus are real pictures of real paper menus, taken with a real phone — not screenshots of a PDF.
+> Real lighting, angles and glare are therefore already in the measured set. Do not reintroduce this
+> as an open unknown, and do not gate anything behind it.
 >
 > ⚠️ **Two French Fries re-freezes were made and then REVERTED on 2026-08-09** (raw-potato 409 kcal,
 > frozen-par-fried 594 kcal). Both changed a researched dish's USDA composition, which is Santiago's
@@ -75,8 +157,7 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > PRE-COOK weight, and Stage 2 has no concept of weighing basis — it fits ingredients to every printed
 > number as though it were finished food. Same shape as the SCOPE question (a printed weight may name
 > one component, not the plate; Casa Nostra prints 180 g on five pastas and 200 g on three salmons,
-> El Marcos prints *"el gramaje se refiere a los ingredientes principales"*). **Both remain OPEN**,
-> alongside the real-restaurant field test.
+> El Marcos prints *"el gramaje se refiere a los ingredientes principales"*). **Both remain OPEN.**
 >
 > ⚠️ **Everything between here and "NEXT ACTIONS" is the historical record of how that was reached,
 > written progressively as it happened.** Individual blocks contradict each other on purpose — later

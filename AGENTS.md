@@ -144,6 +144,33 @@ must precede the macro fields, or the chain-of-thought silently stops working) a
 or cuisine name in the prompt's nutrition step** (measured harmful — a food list leaked the test set
 into a prompt that ships to every menu on earth).
 
+**The portion rule — a printed weight decides WHICH question to ask (measured 2026-08-13).** These
+two are not interchangeable and each is wrong in the other's place:
+
+| the item | ask for | why |
+|---|---|---|
+| **prints a weight** | each ingredient's **standard reference amount** (B21 / 21 CFR 101.12 RACC) | `resolveGrams` pins the total from the printed weight, so only the PROPORTIONS matter. This is what took the weighted score to ~96% |
+| **prints no weight** | the amount **actually present in one order as served** | nothing pins the total, so the same numbers set the dish's WEIGHT too — and reference servings assemble a dish that is far too lean per gram |
+
+Worked example: a 28 cm pizza built from reference servings is 1.81 kcal/g where a real one is
+~2.4–2.75, because 30 g is a standalone serving of cheese and not the amount on a pie. **Correcting
+the total cannot fix this** — rescaling preserves proportions, so at the very top of the pizza's
+verified weight band it is still 26% low on calories. Measured: 28/72 → 38/72 on the unweighted
+oracle. Do NOT ask an unweighted item for a plate total instead; that family of arms is retired
+(see the roadmap's `🎯 CURRENT PHASE`).
+
+**Price is NEVER evidence of grams (Santiago, 2026-08-13).** Not in an oracle, not in a prompt, not in
+code. Price reflects margin and scarcity, never mass — *"a menu can have an expensive pizza of 1k+
+dollars, doesn't mean it weighs 10x the size of a large pizza."* Price parity between items on one
+menu is the same fallacy at smaller scale.
+
+**Sourcing a USDA record: the food is not enough, the VARIANT decides the number.** FNDDS stores
+venue, crust, preparation and topping class as SEPARATE records, and picking the wrong axis moves a
+value 30–46% — restaurant vs *from frozen* pizza differs by 46% in fat. The oracle has been wrong
+five times this way, and twice the "pipeline defect" was the oracle's own error. **Search every
+variant before choosing one** (`scripts/unweighted-portions.ts --search <terms>`), record the axis in
+the entry's `assumed` field, and re-source before believing any single-dish failure.
+
 Do not introduce new major libraries unless there is a strong reason.
 Ask before installing anything new.
 
@@ -362,6 +389,11 @@ Be concise. Explain what changed and how to test it.
 Track here anything that blocks testing or shipping. Update as items resolve.
 
 - **Apple Developer Program — ✅ PAID (confirmed 2026-07-11).** Physical-device testing works — first on-device verification ran 2026-07-12 (auto-cutter 3-scan checklist, all passed).
+- **Macro-enrichment blockers are NOT restated here** — status lives in exactly one place, the
+  `🎯 CURRENT PHASE` block of `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`,
+  with the takeover briefing at the top of `docs/superpowers/START-HERE.md`. As of 2026-08-14 three
+  items there need Santiago rather than another run, and unshipped code is sitting on
+  `feat/forced-serving-pieces`. Read those, not a copy.
 
 ---
 

@@ -32,9 +32,10 @@ the edge function → ②.** If a phase or priority is asserted anywhere other t
 it is stale — fix it or ignore it, never believe it. The active Stage-2 macro handoff below is
 the explicit exception: it is the bounded Phase-9 workstream record, not a competing roadmap.
 
-**Stage-2 macro-enrichment handoff (2026-08-09) — THIS IS THE ACTIVE WORK.** The benchmark is
-built and frozen; six prompt/schema iterations have been measured against it, and the fixture set was
-widened from 3 dishes to 8 on 2026-08-09. Phase spend to date: **~$2.52**.
+**Stage-2 macro enrichment IS THE ACTIVE WORK. → Start at the `🆕 2026-08-13/14 HANDOFF` block
+below; it is written so a zero-context session can take over from it alone.** Everything between here
+and that block is older context that it supersedes where they disagree. Phase spend to date:
+**~$27** (~$2.52 to 2026-08-09, ~$19 on 2026-08-12, ~$6 on 2026-08-13).
 
 🚀 **LIVE NOW: edge function `analyze-menu` v30, deployed 2026-08-11 (Santiago authorised).** It is
 `macro-best-v8` **plus the forced `serving_pieces` field** (this branch). Measured before shipping:
@@ -54,12 +55,235 @@ item as `3/8` / `all`. Working, not the intended form.
 
 ---
 
-## 🆕 2026-08-11 SESSION — READ THIS BEFORE ANYTHING BELOW IT
+## 🆕 2026-08-13/14 HANDOFF — A ZERO-CONTEXT SESSION CAN TAKE OVER FROM THIS BLOCK ALONE
+
+### The 60-second version
+
+The app estimates macros for menu items. It is **good at dishes that print a weight and bad at dishes
+that do not**, and the second group is most of a real menu. That gap is the entire current workstream.
+
+| score | dishes | points | result | harness |
+|---|---|---|---|---|
+| weighted | 8 | 96 | **~96% passing** (0–4 failed fields) | `scripts/bench-macros.ts` |
+| **unweighted** | 6 | 24 | **best 37/72 (51%)**, baseline 28/72 (corrected pizza band, 2026-08-16) | `scripts/bench-unweighted.ts` |
+
+**Production is unchanged and has been for 3 days: edge fn `analyze-menu` v30, `ENRICH_BATCH_SIZE = 10`.
+Nothing below is deployed. Everything is uncommitted on branch `feat/forced-serving-pieces`.**
+
+### The one insight that matters most — SIZE WAS THE SYMPTOM, ASSEMBLY IS THE DISEASE
+
+The phase began because unweighted dishes came out far too small — a 28 cm pizza at ~520 kcal.
+The obvious fix is to estimate the average plate weight. **That was tried four ways and it does not
+work.** Proven at $0 by `scripts/sim-plate-rescale.ts`: set the pizza's mass to **450 g, the TOP of its
+verified band, and it still returns 812 kcal against a 1101–1238 band**, because its decomposition is
+1.81 kcal/g where real pizza is ~2.4–2.75. **Rescaling preserves proportions, so no total can fix
+wrong proportions.**
+
+☠️ **RETIRED — do not open another plate-weight arm:** Arm A (15/72), A-conditional (30/72), Arm C
+(never scored), every threshold variant (simulated, best 31/72).
+
+### What actually worked: ARM P
+
+One sentence appended **for unweighted items only**: give `typical_serving_g` as *the amount of that
+ingredient actually present in one order as it is served*, not the standalone reference serving.
+Weighted items keep a byte-identical request. `scripts/probe-plate-arms.ts` → `armP`.
+
+Scores below are on the **corrected pizza band (2026-08-16)**. P and PF are **tied**; P's old
+one-point lead lived inside the oracle's own error.
+
+| dish | baseline | **Arm P** | Arm PF | Arm PD |
+|---|---|---|---|---|
+| CARBONARA | 9/12 | **12/12** | 12/12 | 11/12 |
+| ENSALADA GRIEGA | 10/12 | **12/12** | 8/12 | 10/12 |
+| Salmón Roll | 6/12 | **5/12** | 4/12 | 0/12 |
+| CAPRICCIOSA | 0/12 | 2/12 | 3/12 | 3/12 |
+| COLIFLOR ROKA | 0/12 | 3/12 | 3/12 | 3/12 |
+| TIRAS DE POLLO | 3/12 | 3/12 | **7/12** | 3/12 |
+| **TOTAL** | **28/72** | **37/72** | **37/72** | 30/72 |
+
+**B21's standard-reference-amount rule is NOT falsified** — it is what took the weighted score to
+~96%, where `resolveGrams` pins the total. Arm P overrides it only where nothing pins the total.
+Run any arm with `deno run --allow-net --allow-env --allow-read --allow-write --env-file=.env.local
+scripts/bench-unweighted.ts 3 <baseline|P|PF|PD|A|A-cond>`. **Add `--replay` to score the ARCHIVED
+responses instead of buying new ones — that is what makes an oracle correction cost $0.**
+
+### 🔴 ONE THING STILL NEEDS SANTIAGO, NOT ANOTHER RUN
+
+1. ✅ **DONE 2026-08-16 — the pizza's band was re-sourced from the FROZEN USDA record to the
+   RESTAURANT one** (FDC 2708660 → 2708663), Santiago's ruling, verified against the FDC API.
+   Band 1101–1238 kcal / F 58–65 → **967–1087 / F 39–44**. Every arm re-scored at $0 with the new
+   `--replay` mode. ⚠️ **It did NOT rescue the pizza** (still the worst dish, 766–869 kcal against a
+   967–1087 band) **and it cost Arm P a point — P 38→37, now TIED with PF.** The prediction that "the
+   pipeline's carb lands in band" was read off the wrong arm. Last entry of the benchmark log.
+2. **Arm P is not safely shippable, for a reason the benchmark cannot see.** It splits enrichment into
+   two requests, so a weighted dish's **batch composition** changes — today it rides in a batch of 10
+   mixed items, under Arm P only with other weighted items. The 2026-08-12 curve proved composition
+   moves answers. All 8 weighted fixtures already batch together, so **a clean 96-point score after
+   this change would prove nothing.** Verifying it needs a weighted dish scored inside a real mixed
+   menu, which no harness does.
+3. ~~The real-restaurant field test.~~ ✅ **CLOSED 2026-08-16 (Santiago) — THE PREMISE WAS FALSE.**
+   These docs repeatedly claimed "every scan in this project's history is a photo of a screen or a
+   gallery import". It is not true: **the fixture menus are real photographs of real paper menus,
+   taken with a real phone**, not screenshots of a PDF. Real lighting, angles and glare are already
+   in the measured set. Do not reintroduce this as an unknown or gate anything behind it.
+
+### ⚠️ THE ORACLE HAS BEEN WRONG FIVE TIMES, ALL THE SAME WAY
+
+Every one is the right FOOD and the wrong **variant**. FNDDS encodes venue, crust, preparation and
+topping class as SEPARATE records, and the wrong axis moves a band 30–46%.
+
+| entry | wrong record | wrong axis | outcome |
+|---|---|---|---|
+| CARBONARA | pasta with cream sauce | **no meat** (menu says *tocino*) | fixed → pipeline went FAILING→PASSING |
+| ENSALADA GRIEGA | salad dressing NFS | **creamy** not *vinagreta* | fixed → FAILING→PASSING |
+| CAPRICCIOSA | 14" cheese-only | topping class | fixed |
+| CAPRICCIOSA | chain regular crust | crust | fixed |
+| CAPRICCIOSA | thin crust from frozen | **venue** | **OPEN, see above** |
+
+🔑 **Two of the four "pipeline defects" in the first unweighted run were the ORACLE's fault.
+Re-source before believing any single-dish failure**, and search FDC for every variant of the food
+(`scripts/unweighted-portions.ts --search <terms>`) before choosing one. **PRICE IS NEVER EVIDENCE OF
+GRAMS** (Santiago, 2026-08-12) — not in an oracle, a prompt, or code.
+
+### 🐛 TWO PRODUCTION BUGS FIXED IN CODE (not deployed)
+
+Both used to end in `fallbackEnriched` zeroing every macro, so the user saw **0 kcal** — worse than a
+wrong number, because it also corrupts the goal ranking.
+
+| bug | before |
+|---|---|
+| model drops items from a large batch | Polloteria lost **16 of 95** (the wing sauces) on BOTH attempts |
+| batch exceeds `MODEL_TIMEOUT_MS` (120 s) | whole batch zeroed; fired twice during this session |
+
+`enrichBatchWithRetry` now **re-asks for only the still-missing items in batches of 3**
+(`ENRICH_RESCUE_BATCH_SIZE`) instead of re-rolling the whole batch. Also added
+`MAX_CONCURRENT_BATCHES = 5`, because the old code fired every batch at once. 32 tests pass; the
+rescue and cap tests were each verified to FAIL when the fix is removed.
+⚠️ **Batch 3 is WORSE for accuracy than 10 (13–15/96 vs 0–4/96) — this is NOT licence to lower
+`ENRICH_BATCH_SIZE`.** The rescue's alternative is zeroes, and slightly-off beats 0 kcal.
+
+### 📊 Two dishes no arm has fixed, and they fail for DIFFERENT reasons
+
+- **COLIFLOR ROKA (3/12)** — its mass is fine; its **identity** is wrong. The pipeline returns 25–110
+  kcal and near-zero fat for a **battered, deep-fried, sauced** dish, because its description is EMPTY
+  and *"Roka"* is defined only on another line of the menu (`CAMARÓN ROKA … capeado y bañado`). **No
+  prompt sentence fixes this** — three arms tried. It needs cross-item menu context. Measured
+  background: undescribed macro-relevant items get **1.93 ingredients vs 4.87**, and 76% get ≤2
+  ingredients vs 8%. ~28% of macro-relevant items are undescribed (food 10%, **sides 85%, desserts
+  100%**) — correlational, not proof of error.
+- **TIRAS DE POLLO (3/12)** — only Arm PF moved it (to 7/12) by adding cooking fat, and PF regressed
+  the salad by the same amount.
+
+### 🧭 Suggested next steps, in order
+
+1. Get ruling #1 (pizza band), apply it, **re-score every arm for $0** by replaying archives.
+2. Build the harness gap in #2 — a weighted dish scored inside a mixed menu — so Arm P can be judged
+   for shipping.
+3. Only then consider new arms. **Do not** try another plate-weight arm, another cooking-fat arm
+   (PF: wash), or another dominance arm (PD: pushed the roll to 0/12 — its "garnishes" ARE the substance).
+
+---
+
+## 2026-08-13 — the unweighted oracle, detail
+
+**The 96-point benchmark only ever described dishes that PRINT A WEIGHT.** All 8 fixtures print one,
+so `resolveGrams` pins their grams and the plate is never guessed. There are now **TWO scores, and
+they must never be merged or quoted for each other:**
+
+| score | dishes | points | result |
+|---|---|---|---|
+| weighted (existing) | 8 | 96 | **~96% passing** |
+| **unweighted (NEW)** | 6 | 24 | **28/72 = 39%** over 3 draws ← this is the BASELINE. Arm P later reached **38/72**; see the handoff block at the top |
+
+That gap is the real state of macro enrichment. Build: `scripts/unweighted-oracle-build.ts` →
+`scripts/fixtures/unweighted-oracle.json`. Score: `scripts/bench-unweighted.ts`.
+
+🔑 **PRICE IS NOT EVIDENCE OF GRAMS** (Santiago, 2026-08-13, rejecting a band argued from price
+parity): *"A menu can have an expensive pizza of 1k+ dollars, doesn't mean it weighs 10x the size of
+a large pizza."* Never use price in an oracle, a prompt, or code.
+
+⚠️ **An oracle built from GENERIC USDA records will fail a pipeline that is right.** Two of the first
+run's four "pipeline defects" were the oracle's own fault — a cream-sauce pasta record with no meat
+where the menu says *tocino*, a creamy dressing where the menu says *vinagreta*. **Re-source before
+believing any single-dish failure.** Four such errors are tabulated in the ledger.
+
+🔴 **The headline finding — a right mass with the wrong FOOD.** COLIFLOR ROKA scores 0/4: the
+pipeline returns 25 kcal and **0 g fat for a battered, deep-fried, sauced dish**. Its description is
+empty, and *"Roka"* is defined only on ANOTHER LINE of the same menu (`CAMARÓN ROKA … capeado y
+bañado`). Enrichment never sees it. **This points the opposite way from the batching defect** —
+there, isolating items helped; here, cross-item context would have. Any arm that isolates items
+further makes this dish worse.
+
+🔴 **Fat is the weakest macro — wrong on 5 of 6 dishes** (0 g vs 14–19, 20 vs 58–65, 20–22 vs 31–44,
+25–29 vs 35–63; high on the Salmón Roll). Carbs pass almost everywhere.
+
+⚠️ **Arm A cannot fix COLIFLOR ROKA** — it supplies a plate WEIGHT, and that dish's weight is already
+right. Judge Arm A on Capricciosa and Tiras de Pollo, never on the set total.
+
+---
+
+## 2026-08-12 SESSION — the batch-size curve. Still valid.
+
+Spend: **~$11.50**. **Nothing was changed in production. `ENRICH_BATCH_SIZE` is still 10, nothing
+was deployed, and the code below is uncommitted on `feat/forced-serving-pieces`.**
+
+**The batch-size curve was measured and it killed its own fix.** Small batches fix the instability
+AND fix a real drop bug — and cost 4× the accuracy on dishes that print a weight:
+
+| | b10 (production) | b3 |
+|---|---|---|
+| macro spread, unweighted dishes (median) | 35% | 7–12% |
+| genuine item drops, all 10 menus | **16** (Polloteria) | **0** in 30 runs |
+| **accuracy, 8 weighted fixtures** | **0–4/96 at 12.3–13.9%** | **13–15/96 at 17.9–18.9%** |
+| wall-clock, 10 menus | 521 s | 304–353 s |
+
+**So a single global batch size cannot win both, and this was never a tuning problem.** A control run
+(batch 8 through `callGptEnrich`) reproduced B21 exactly, so the code path is innocent and batch size
+is genuinely the cause. Full numbers, the OSTRICA/TAYLOR BAY worked examples, and the
+"what this does NOT establish" list are the last entry in
+`docs/superpowers/stage2-macro-benchmark.md`.
+
+🔑 **Read this before designing the next arm: the two open defects are probably ONE defect.** Offered
+as a prior, not a finding — the model appears to calibrate across the items sharing a call. Where a
+printed weight pins the grams, that context HELPS; where the plate is guessed, it makes the guess
+depend on batch-mates, which is the instability. If so, both defects reduce to **nothing pins the
+plate for a dish that prints no weight**, and Arm A (required `typical_total_g`) is the shape of a fix
+for both — re-judge it SOLO, since batched runs are now known to be untrustworthy.
+
+🔴 **A REAL PRODUCTION BUG WAS FOUND AND IS STILL LIVE: Polloteria loses 16 of its 95 items at
+`ENRICH_BATCH_SIZE = 10`.** The wing sauces (BBQ, Ranch, Buffalo, +13) come back with zeroed macros —
+`fallbackEnriched`'s signature — and come back correct at b3. Lowering the batch size is not the way to
+fix it, because of the accuracy cost above. **Unfixed and unassigned.**
+
+⚠️ **`ENRICH_BATCH_SIZE` was pinned at 10 to stop early-stopping. That fear did not reproduce**: zero
+short returns across 125 calls at sizes 1/3/5/10. The comment in `enrich.ts` is stale as a
+justification.
+
+✅ **Shipped in code (not deployed): `MAX_CONCURRENT_BATCHES = 5`.** `callGptEnrich` used to fire every
+batch at once; Polloteria at batch 3 is 19 simultaneous requests, and a rate-limited call that fails
+twice gets its item ZEROED rather than merely delayed. Capped in waves, with a test verified to fail
+without the cap. 30 tests pass.
+
+⚠️ **Correction, applies to every figure below: "15 per call" was really 10 + 5.** `callGptEnrich`
+chunks internally at `ENRICH_BATCH_SIZE`, so the 15-dish batched runs were a group of 10 plus a
+remainder of 5.
+
+⚠️ **`0–3/96 at 12%` describes ONLY dishes that print a weight.** `bench-macros.ts` sends all 8
+fixtures in one call and all 8 print weights, so `resolveGrams` pins their grams and the plate is never
+guessed. The benchmark is structurally blind to the instability defect. Most real menu items are
+unweighted, and they are ungated.
+
+⚠️ **"Solo is stable" was a 5-dish selection artifact.** Across 15 dishes, five swing ≥19% sent ALONE
+(Tiras de Pollo 505–796 kcal at batch 1). Batch size is not the whole fix.
+
+---
+
+## 2026-08-11 SESSION — still valid except where the block above corrects it
 
 Two defects were found that change the priority order, and one product feature was built. Total
 spend for the day: **~$2.05** across seven probes. Everything below this block predates it.
 
-### 🚨 #1 PRIORITY — batching makes macros unstable IN PRODUCTION. Code-only fix.
+### 🚨 #1 PRIORITY — batching makes macros unstable IN PRODUCTION. ⚠️ "Code-only fix" is now KNOWN WRONG — see the 2026-08-12 block.
 
 **What "batch" means here:** one user, one photo, one scan produces ~40 menu items. The edge
 function chunks them into groups of `ENRICH_BATCH_SIZE = 10` and makes ~4 model calls. A "batch" is
@@ -75,11 +299,10 @@ Same dish, same unchanged pipeline, five draws each. The only variable is groupi
 
 Alone the model is essentially deterministic; batched, the same dish swings 39–88%. Two diners
 scanning the same menu get different calories, and the goal RANKING is sorted on those numbers.
-**Next measurement: the batch-size curve (1/3/5/10), ~$0.25** — does stability arrive at 3, at 5, or
-only at 1? One item per call multiplies prompt tokens by the item count (~$0.03 → ~$0.30 per scan).
-⚠️ `ENRICH_BATCH_SIZE` was already tuned DOWN to 10 for GPT-4o early-stopping, so the curve must
-record BOTH stability and whether items get dropped.
-Probe: `scripts/probe-plate-arms.ts solo|noise`.
+Probe: `scripts/probe-plate-arms.ts solo|noise|curve`.
+✅ **The curve was MEASURED on 2026-08-12 — see the top block. Do not re-run it.** Its verdict: small
+batches fix this and cost 4× the accuracy on weighted dishes, so a batch-size change is NOT the fix.
+⚠️ Both figures in the table above are "15 items submitted", which `callGptEnrich` ran as 10 + 5.
 
 ### 🚧 #2 — every statement of size EXCEPT printed grams is ignored
 
@@ -157,7 +380,7 @@ every commit and whether it is deployed, the runs side by side, and what each pr
 Tasks 1–5 are COMPLETE. The USDA plan is the oracle/provenance reference:
 `docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
 
-**One-line state:** **`macro-best-v8` + forced `serving_pieces` is the best measured version at 0–3/96 and 12.0–12.5%, and it IS live as edge function v30 (2026-08-11).** On the 8-dish set, 4 runs x 3 draws: **baseline 24/96 at 34.2%, B21 0–3/96 at 12.1–14.1%**, with one perfect run and six of eight dishes at 0/48. Verified beyond the fixtures on **72 real items from all nine archived menus**: black-box ingredient 1.4%, undecomposable 2.8%. Drinks and alcohol are deliberately OUT (post-launch). **The biggest remaining unknown needs Santiago, not another run: the real-restaurant field test** — every scan to date is a photo of a screen. Always re-derive numbers with `deno run --allow-read scripts/rescore-history.ts`; figures written in prose are snapshots.
+**One-line state:** **`macro-best-v8` + forced `serving_pieces` is the best measured version at 0–3/96 and 12.0–12.5%, and it IS live as edge function v30 (2026-08-11).** On the 8-dish set, 4 runs x 3 draws: **baseline 24/96 at 34.2%, B21 0–3/96 at 12.1–14.1%**, with one perfect run and six of eight dishes at 0/48. Verified beyond the fixtures on **72 real items from all nine archived menus**: black-box ingredient 1.4%, undecomposable 2.8%. Drinks and alcohol are deliberately OUT (post-launch). ~~The biggest remaining unknown is the real-restaurant field test — every scan to date is a photo of a screen.~~ **FALSE, corrected by Santiago 2026-08-16: the fixture photos ARE real phone photos of real paper menus.** Always re-derive numbers with `deno run --allow-read scripts/rescore-history.ts`; figures written in prose are snapshots.
 
 🏁 **Fallback checkpoint: git tag `stage2-b4-checkpoint` → commit `22a1ac5`.** Restore from it if an
 evaluation regresses. `git show stage2-b4-checkpoint` prints the result;
@@ -206,10 +429,10 @@ putting any food/dish/cuisine name in the prompt's nutrition step (measured harm
 
 ### 🎯 WHAT IS ACTUALLY LEFT (everything else on this page is history)
 
-⛔ **THIS SECTION IS SUPERSEDED — read the 2026-08-11 block near the top first.** It said the
-benchmark work was finished; the 2026-08-11 session found two open defects (batching instability,
-and size being a dead channel), so it is not. The two items below are still real and still need
-Santiago, but they are **no longer the top of the list** — the batch-size curve is.
+⛔ **THIS SECTION IS SUPERSEDED — read the 2026-08-12 block at the top first.** It said the
+benchmark work was finished; two open defects (batching instability, and size being a dead channel)
+mean it is not. The two items below are still real and still need Santiago. **The batch-size curve is
+now MEASURED and closed as a fix** — it is no longer the next action.
 
 **The benchmark work was believed finished as of 2026-08-09.** Two items remained, and neither is a
 measurement question — both need Santiago, not another run:
@@ -226,10 +449,9 @@ measurement question — both need Santiago, not another run:
    NEW ruling. Nothing has been changed.** Suggested first step, $0: classify all eight fixtures'
    printed weights against the menu photos before touching any one dish — a per-dish patch would
    recreate the inconsistency the PASTEL re-freeze just fixed.
-2. 📱 **The real-restaurant field test — never done, and now the highest-value unknown.** Every scan
-   in this project's history has been a photo of a screen or a gallery import. Paper, real lighting,
-   angles and glare are untested. B4 is live, so this is finally worth doing. It is unblocked
-   (TestFlight build 5 carries the crash fix).
+2. 📱 ~~The real-restaurant field test — never done, and now the highest-value unknown.~~
+   ✅ **CLOSED 2026-08-16 (Santiago): its premise was false.** The fixture menus are real phone
+   photos of real paper menus, so paper, lighting, angle and glare are already measured.
 
 **Also open, lower value:** Coleslaw-type small dressed side dishes regressed under B4 (0/48 → 22/48)
 and USDA has confirmed the oracle right about that dressing — so it is a genuine model error and a

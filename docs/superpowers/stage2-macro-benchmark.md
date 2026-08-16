@@ -4675,3 +4675,53 @@ scan. **That is a DESIGN question for Santiago, not a bug to fix.** It is not ur
 grounds and should not displace the benchmark run.
 
 ⚠️ **Anyone quoting the three "unstable flag" notes above: they are superseded by this entry.**
+
+### ⚖️ THE PRINTED-WEIGHT SCOPE RULE — SIMULATED AT $0, AND OPTION A IS FALSIFIED (2026-08-16)
+
+The scope question ("does a menu's printed 200 g already include the bread and beans?") has been
+open for months. It is not unanswered in code — it is answered per ingredient, per scan, by
+`within_printed_weight`, which decides whether `resolveGrams` corrects that ingredient at all.
+**24% of weighted items carry at least one ingredient marked outside.**
+
+`scripts/sim-scope-rule.ts` re-scores the archived B21 runs under each candidate rule through
+`macro-measure.ts` — the same path as every published figure. No model calls.
+
+| rule | failed fields | mean abs error |
+|---|---|---|
+| **C — the model decides per ingredient (today)** | **7/288** | **13.1%** |
+| A — printed weight covers the WHOLE plate | **31/288** | 16.5% |
+
+**Option A is 4.4x worse and the damage is concentrated:** `Salmone toscano` goes 3 -> 26 failed
+fields, because forcing its baguette inside the printed 200 g squeezes the salmon down to make room.
+
+⚠️ **Read this before quoting the comparison: it is PARTLY CIRCULAR.** The 8-dish oracle was built
+on the convention that an accompaniment sits OUTSIDE the printed weight (`Salmone toscano`'s entry
+says so explicitly: *"the baguette ... sits OUTSIDE the printed weight at 45 g, but is eaten and
+counted. Total eaten 245 g"*). A rule asserting the opposite was always going to score worse against
+it. **What rescues the test is independent evidence from the menus themselves** — El Marcos prints
+*"el gramaje se refiere a los ingredientes principales"*, which says the printed number covers the
+main ingredients and not the sides. Oracle convention and printed menu text agree, and A contradicts
+both.
+
+#### ✅ Santiago's refinement is already how it behaves — "main ingredientS", plural
+
+He raised the risk that "main ingredients" gets read as ONE ingredient — a 200 g salad becoming 200 g
+of chicken. **It does not happen.** Across 117 weighted dishes with 2+ ingredients:
+
+| ingredients inside the printed weight | share |
+|---|---|
+| 2 or more | **94%** |
+| exactly 1 | 6% (7 dishes) |
+
+And all 7 are legitimately single-component dishes — NEW YORK, RIB EYE, the 20 oz ribeye, a chicken
+breast — where the printed weight IS that one item and the rest is served alongside.
+
+#### 🧭 What this reframes
+
+**The scope question is largely settled by evidence, and it is NOT the defect.** C already scores
+7/288. Option B (decide from the menu's own words in code) would differ from C only where the model
+disagrees with the menu wording, and on this set there is almost no headroom to win.
+
+**The open part is not WHICH ingredients sit outside — it is what those ingredients WEIGH.** That is
+the label-serving defect (a 30 g dipping-cup portion for a spooned sauce) and Santiago's three
+rulings address exactly it. Spend the effort there.

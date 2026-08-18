@@ -1829,3 +1829,28 @@ Rules:
 - **Wiring note for whoever implements it:** on the harness P-10 does NOT go through `enrichWithArm`, because that pre-chunks and P-10 partitions the WHOLE list before chunking each side — pre-chunking rebuilds Arm P's undersized batches and silently re-measures it. Its focused-batch selection reads the **unweighted-only** list for the same reason.
 - Gates: suite **372 passed | 2 failed** (the two known-noise failures).
 - **⛔ NEXT:** (1) **Santiago's ruling on the trade.** (2) if yes: confirmation run (~$1), then implement in `callGptEnrich` with tests, then a deployment ruling. (3) if no: the accompaniment-weight defect.
+
+## Eval 150 — 🔴 P-10's weighted cost CONFIRMED over 3 runs; the DUAL-PASS plan is written (~$0.8)
+
+- Date: 2026-08-18 | Branch `feat/forced-serving-pieces`, COMMITTED, not pushed. **Phase total ~$39.8. Day total ~$3.3.**
+- **Santiago was skeptical of spending the weighted result** and asked for the cost to be confirmed before any product decision. One run became three. **The ranges do not overlap.**
+
+| | runs | range | dishes correct |
+|---|---|---|---|
+| production today | 16, 18 | **16–18/96** | **81–83%** |
+| Arm P-10 | 22, 21, 25 | **21–25/96** | **74–78%** |
+
+- **Every P-10 run is worse than every baseline run — six pairwise comparisons, one direction.** 45 archived menu-draws, 0 backfilled, all $0-replay verified. **The trade is REAL at −5 to −8 points.** The previous entry's hedge that it "may be noise" is **retracted**; the unweighted 38-vs-37 tie stands.
+- **🔑 A MISCONCEPTION CLEARED, and it is the one a new session is most likely to repeat.** Santiago asked why his design — *split the JSON, run two isolated processes* — could not use "the process that is ~93% right" for the weighted half. **That design IS Arm P-10, and there is no 93% process:**
+
+| what a weighted dish travels with | score |
+|---|---|
+| the other 7 fixtures (`bench-macros.ts`, all 8 alone together) | 6–9/96 ≈ **93%** ← *not a real situation* |
+| a mixed group of 10 real menu items — **production today** | **16–18/96 ≈ 82%** |
+| a group of 10 other WEIGHTED dishes — Arm P-10 | 21–25/96 ≈ 76% |
+
+  **The 93% is an artifact of the eight fixtures being batched with each other**, a grouping the app never builds. It cannot be recovered by splitting. **Never quote it as what weighted extraction achieves.**
+- **🔧 `--run <label>` added to `bench-mixed-menu.ts`** so a repeat run stops overwriting its predecessor. Twice this phase a re-run silently replaced its own archives and the earlier numbers survived only because they were already committed — which leaves them un-re-scorable when the oracle changes.
+- **📋 THE DUAL-PASS PLAN IS WRITTEN: `docs/superpowers/plans/2026-08-18-dual-pass-enrichment.md`.** It is the only shape measured to have **no trade**: pass 1 is today's call over the whole menu (byte-identical, answers used for weighted items), pass 2 re-sends only the unweighted items with the Arm P sentence. **Both its numbers already exist** — weighted 16–18/96 by construction, unweighted 38/72 from eval 149. Cost is money (~$0.03 → ~$0.05/scan) and latency (~1.5–2×), not accuracy.
+- Gates: suite **372 passed | 2 failed** (the two known-noise failures).
+- **⛔ NEXT: EXECUTE THAT PLAN.** Nothing in `supabase/functions/` has been touched. Its Task 5 pre-registers the pass/fail bar (weighted must land inside 16–18/96 or STOP) and treats Stage-2 latency as a decision input, because GPT-5.5 was declined on latency alone.

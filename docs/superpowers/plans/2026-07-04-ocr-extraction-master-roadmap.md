@@ -47,30 +47,30 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > propagated to ENFRIJOLADAS**, whose *salsa de frijol* is a sauce the dish is bathed in rather than a
 > scoop beside it. `scripts/apply-bean-composition-ruling.ts`.
 >
-> 🧪 **THE MIXED-MENU HARNESS NOW EXISTS — `scripts/bench-mixed-menu.ts` — and it already suggests the
-> 96-point benchmark is not representative.** It scores the same 8 weighted dishes **inside their own
-> real menus** (227 archived items across 5 menus) through `callGptEnrich` at batch 10, which is the
-> regime production runs and the one `bench-macros.ts` structurally cannot reach. All 8 fixtures carry
-> byte-identical name and description between those archives and the frozen oracle, so **only the
-> neighbours differ** (asserted at runtime, 5 $0 tests).
+> 🔴 **ARM P IS REJECTED FOR SHIPPING (2026-08-18, ~$0.85). THE BLOCKING QUESTION IS CLOSED.**
+> `scripts/bench-mixed-menu.ts` scores the 8 weighted dishes **inside their own real menus** — the
+> regime production runs and the one `bench-macros.ts` is structurally blind to. Both arms, 3 clean
+> draws, no exclusions, $0-replay verified: **production today 16/96 vs Arm P 27/96, 69% worse.**
+> Arm P's unweighted gain (28/72 → 37/72) is **not** falsified — only its **current split form** is.
 >
-> ⏸️ **ITS FIRST RUN IS PARTIAL — THE OPENAI ACCOUNT RAN OUT OF CREDITS, and ARM P NEVER RAN.** 56 of
-> 96 field-draws are valid; backfilled items were excluded and reported, not scored. **Provisional,
-> ONE run, so NOT a quality claim:** isolated **22/288 = 7.6%** of fields failed against **10/56 =
-> 17.9%** inside the real menus — **and it REDISTRIBUTES**: Gnocchi and ENFRIJOLADAS are perfect in
-> isolation and fail in their own menus (0% → 50% and 25%), while PASTEL and CESAR do the reverse.
-> **Do not quote 10/56 as a result** — the noise floor is median 25%, and there is no range.
-> 🔴 **BLOCKED ON CREDITS, not on a measurement question.** Then: finish `mixed` to 3 draws, and run
-> arm `P` — the question the harness was built to answer is still open. Archives replay at $0.
+> 🔑 **INTERNAL CONTROL, not one noisy run: the two fixtures whose batch-mates did NOT change scored
+> IDENTICALLY** (NEW YORK 0/12 → 0/12 at 10 mates; Salmone 6/12 → 6/12 at 3). Every regression is a
+> dish whose batch SHRANK — CESAR 10→5 mates (1→5), PASTEL 10→6 (0→5), Coleslaw 10→6 (0→4).
+> **Corroborates the 2026-08-12 curve** (small batches hurt weighted dishes), so **Arm P's defect is
+> the batch shrinkage its split causes, not its sentence.**
 >
-> ❌ **ARMS S3 AND S4 ARE REJECTED (2026-08-16, ~$5).** S3 (required `parts` shares) scored 5–13/96
-> weighted and **26/72 unweighted, below the 28 baseline**. S4 (S3 + `amount_as_served_g`) scored
-> 7–10/96 — and **never actually ran: the model returned the new field identical to
-> `typical_serving_g` in 364 of 364 ingredients**, including all 36 accompaniments. 🔑 New rider on
-> the schema-force scoreboard: **a required field whose meaning OVERLAPS an existing field returns a
-> COPY.** 🔑 And the second arm to die between probe and benchmark: the probe measured the SAUCE
-> (chimichurri fat 15→50, real), the benchmark measures the DISH, and CESAR went 11%→25% of fields
-> failed while Salmone improved. **The label-serving defect is real and still UNFIXED.**
+> 🔴 **THE 96-POINT BENCHMARK FLATTERS THE PIPELINE BY ~2× — reproduced across two run modes: 7.6% of
+> fields fail isolated vs 16.7% inside real menus.** Its per-dish verdicts do not survive either.
+> **Report the mixed-menu number alongside it from now on.**
+>
+> 🧭 **NEXT ARM — "P-10", a BATCHING change (the 0-for-5 prompt scoreboard does not apply):** partition
+> the menu into weighted/unweighted FIRST, then chunk each at 10, so a weighted dish keeps 10 mates
+> instead of 5–8 while unweighted items keep Arm P's sentence. ~$0.40 on this harness.
+>
+> 💸 **RUNS ARE ~$0.40/ARM NOW, NOT ~$2.** The bill is almost entirely OUTPUT tokens, and only the ≤9
+> items sharing a dish's batch can affect it, so the harness enriches just those batches — 227 → 53
+> items, byte-identical requests, pinned by a test. **Do not add `--full-menu` to "be thorough":
+> 4.5× the cost, no change to the score.**
 >
 > ☠️ **SIZE WAS THE SYMPTOM; ASSEMBLY IS THE DISEASE. The plate-weight family is RETIRED** — Arm A
 > (15/72), A-conditional (30/72), Arm C (unscored), threshold variants (simulated, best 31/72). Proven

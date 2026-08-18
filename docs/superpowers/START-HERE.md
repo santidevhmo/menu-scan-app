@@ -78,7 +78,7 @@ dishes that print a weight and bad at dishes that do not, and the second group i
 |---|---|---|---|---|
 | weighted (prints grams) | 8 | 96 | **6–9 failed** at 17.6–18.0% | `scripts/bench-macros.ts` |
 | **unweighted (no grams)** | 6 | 24 | **best 37/72 (51%)** (Arm P) vs **28/72** baseline | `scripts/bench-unweighted.ts` |
-| weighted, INSIDE ITS REAL MENU | 8 | 96 | **partial: 10/56, provisional** | `scripts/bench-mixed-menu.ts` |
+| **weighted, INSIDE ITS REAL MENU** | 8 | 96 | **16/96 today · Arm P 27/96** | `scripts/bench-mixed-menu.ts` |
 
 **Never merge or substitute these numbers.**
 
@@ -91,12 +91,30 @@ each. **Quote 6–9/96. Never quote 0–3/96 or 4–6/96 as current.**
 the 30 g weight unchanged. **All 3 points of the move are that one dish.** Deliberately NOT applied to
 ENFRIJOLADAS, whose bean SAUCE is a different food. `scripts/apply-bean-composition-ruling.ts`.
 
-🧪 **THE MIXED-MENU HARNESS EXISTS NOW (`scripts/bench-mixed-menu.ts`) — the thing that was blocking
-Arm P.** It scores the same 8 weighted dishes **inside their own real menus** (227 items, 5 menus)
-through the deployed path at batch 10. ⏸️ **Its first run is PARTIAL: the OpenAI account RAN OUT OF
-CREDITS and ARM P NEVER RAN.** Provisional, one run, **not a quality claim**: 7.6% of fields failed in
-isolation vs **17.9% inside the real menus**, and it REDISTRIBUTES — Gnocchi and ENFRIJOLADAS are
-perfect alone and fail in their menus; PASTEL and CESAR do the opposite. 🔴 **BLOCKED ON CREDITS.**
+🔴 **ARM P IS REJECTED FOR SHIPPING (2026-08-18). THE QUESTION IS CLOSED.** The mixed-menu harness
+(`scripts/bench-mixed-menu.ts`) scored the 8 weighted dishes **inside their own real menus**, both
+arms, 3 clean draws, ~$0.85 total: **production today 16/96 vs Arm P 27/96 — 69% worse.** Arm P's
+unweighted gain (28/72 → 37/72) is NOT falsified; what is rejected is shipping it in its **current
+split form**.
+
+🔑 **AN INTERNAL CONTROL MAKES THAT MORE THAN ONE NOISY RUN.** Arm P only changes a weighted dish's
+batch-mates, and **the two fixtures whose batches did not change scored IDENTICALLY** — NEW YORK
+0/12 → 0/12 (10 mates either way), Salmone 6/12 → 6/12 (3 either way). Every regression is a dish
+whose batch SHRANK: CESAR 10→5 mates (1→5 failed), PASTEL 10→6 (0→5), Coleslaw 10→6 (0→4).
+**Batch untouched, score untouched.** It also corroborates the 2026-08-12 batch-size curve, which
+already found small batches hurt weighted dishes. **Arm P's defect is the batch shrinkage its split
+causes, NOT its sentence.**
+
+🔴 **THE 96-POINT BENCHMARK FLATTERS THE PIPELINE BY ~2×, and this reproduced across two run modes:**
+fields failing **7.6% isolated vs 16.7% inside real menus**. Its PER-DISH verdicts do not survive
+either — Gnocchi and ENFRIJOLADAS are perfect alone and fail in their own menus (0% → 50%, 25%);
+PASTEL and CESAR do the reverse. **Quote the mixed-menu number alongside the 96-point one from now on.**
+
+🧭 **THE ARM THIS POINTS TO: "P-10".** Arm P chunks at 10 and *then* splits, so both halves come out
+undersized. **Partition the menu into weighted/unweighted FIRST, then chunk each at 10** — a weighted
+dish rides with 10 weighted items instead of 5–8, restoring the batch size while keeping Arm P's
+sentence. ~$0.40 to test. **This is a BATCHING change, so the 0-for-5 prompt scoreboard does not
+apply to it.**
 
 🚀 **PRODUCTION: edge fn `analyze-menu` v31, deployed 2026-08-16, `ENRICH_BATCH_SIZE = 10`.** It
 carries the two zeroing bug fixes and **no accuracy change whatsoever**. Everything else below is
@@ -135,14 +153,12 @@ Weighted items keep a byte-identical request, so B21 is not falsified. `armP` in
 2026-08-16. They fail differently — P wins the salad, PF wins the chicken strips — so there is a real
 choice there, not a winner.
 
-### 🔴 THE ONE THING THAT NEEDS SANTIAGO, NOT ANOTHER RUN
+### ✅ THAT BLOCKER IS CLEARED — ARM P WAS JUDGED AND REJECTED (2026-08-18)
 
-**Arm P is not safely shippable, for a reason the benchmark cannot see.** It splits enrichment into
-two requests, so a weighted dish's **batch composition** changes — today it rides in a batch of 10
-mixed items, under Arm P only with other weighted items. The 2026-08-12 curve proved composition
-moves answers. **All 8 weighted fixtures already batch together, so a clean 96-point score after this
-change would prove nothing.** Verifying it needs a weighted dish scored inside a real mixed menu,
-which no harness does. **Building that harness is the highest-value next step in the phase.**
+This section used to read "Arm P is not safely shippable, for a reason the benchmark cannot see —
+building that harness is the highest-value next step in the phase." **The harness was built, it ran,
+and the fear was correct: Arm P costs weighted dishes 16/96 → 27/96.** See the block at the top.
+**Nothing here is waiting on Santiago any more; the next step is the P-10 arm.**
 
 ### ❌ FALSIFIED 2026-08-16 — do not re-run these
 
@@ -268,13 +284,14 @@ reproduces every stored oracle total from the shipped file.
 
 ### 🧭 Suggested next steps, in order
 
-0. 🔴 **ADD CREDITS TO THE OPENAI ACCOUNT. Nothing paid can run until then** — the 2026-08-17 run
-   halted on `You have no credits remaining`, the same halt as 2026-08-13.
-1. ✅ ~~Build the mixed-menu harness~~ **BUILT (`scripts/bench-mixed-menu.ts`).** What is left is to
-   RUN it: finish arm `mixed` to 3 full draws, then run **arm `P`** — *the question it was built to
-   answer is still open*, because Arm P never ran. Its archives replay at $0.
-2. ✅ ~~Get the PASTEL AZTECA bean-composition ruling~~ **RULED AND APPLIED 2026-08-17**, every arm
-   re-scored at $0.
+1. **Test the "P-10" arm (~$0.40).** Arm P chunks at 10 and *then* splits, leaving both halves
+   undersized; partition the menu into weighted/unweighted **first**, then chunk each at 10. A
+   weighted dish keeps 10 batch-mates instead of 5–8 while unweighted items keep Arm P's sentence.
+   **It is a BATCHING change, so the 0-for-5 prompt scoreboard does not apply.** Score it on BOTH
+   `scripts/bench-mixed-menu.ts` (must not regress 16/96) and `scripts/bench-unweighted.ts` (must
+   hold Arm P's 37/72).
+2. **Re-run both mixed-menu arms for a RANGE** (~$0.85). Each arm has ONE run of 3 draws so far.
+   The internal control makes the verdict solid, but the standing rule is a range across runs.
 3. Only then a new arm for the accompaniment-weight defect. **Do not** try: another plate-weight arm,
    another cooking-fat arm (PF: a wash), another dominance arm (PD: pushed the roll to 0/12), another
    prompt SENTENCE (0 for 5), or another field that duplicates an existing one (S4: 364/364 copies).

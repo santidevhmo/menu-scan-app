@@ -4951,3 +4951,72 @@ the menus, not in the item count.**
 call — cheap precisely because of the blind spot that motivated the mixed-menu harness);
 `bench-unweighted.ts` ~**$2** (whole menus); `bench-mixed-menu.ts` ~**$0.4/arm** focused, ~$1.8
 `--full-menu`.
+
+### 🔴 ARM P IS REJECTED FOR SHIPPING — IT COSTS WEIGHTED DISHES 16/96 → 27/96 (2026-08-18, ~$0.85)
+
+**The question the mixed-menu harness was built to answer is ANSWERED.** Both arms ran to 3 full
+draws on the ~$0.40 focused path, **all 15 menu-draws clean on both, zero backfilled items, zero
+exclusions.** Verified by $0 replay.
+
+| arm | weighted dishes, inside their real menus |
+|---|---|
+| `mixed` — production today | **16/96** |
+| `P` — Arm P as it would ship | **27/96** ❌ |
+
+**Arm P makes weighted dishes 69% worse.** Set against its unweighted gain of 28/72 → 37/72, the
+trade in percentage-point terms is nearly symmetric — **unweighted fields failing 61% → 49%
+(−12 pts), weighted fields failing 16.7% → 28.1% (+11.4 pts)** — so this was never going to be
+visible as a free win, and the 96-point benchmark could not see the cost at all.
+
+#### 🔑 THE INTERNAL CONTROL — THIS IS WHY IT IS NOT JUST ONE NOISY RUN
+
+Arm P only changes a weighted dish's **batch-mates**. Two fixtures' batches happen not to change at
+all, and **both scored IDENTICALLY across the arms:**
+
+| dish | batch-mates today | under Arm P | `mixed` | `P` |
+|---|---|---|---|---|
+| **NEW YORK** | 10 | **10 — unchanged** | 0/12 | **0/12** ✅ identical |
+| **Salmone toscano** | 3 | **3 — unchanged** | 6/12 | **6/12** ✅ identical |
+| Gnocchi | 10 | 8 | 6/12 | 4/12 |
+| ENFRIJOLADAS | 10 | 6 | 3/12 | 3/12 |
+| French Fries | 10 | 6 | 0/12 | 0/12 |
+| **Coleslaw** | 10 | 6 | 0/12 | **4/12** |
+| **PASTEL AZTECA** | 10 | 6 | 0/12 | **5/12** |
+| **CESAR** | 10 | **5** | 1/12 | **5/12** |
+
+**Where the batch is untouched the score is untouched; every regression is a dish whose batch shrank.**
+That is a control, not a correlation, and it means the harness is measuring exactly what it claims.
+
+🔑 **AND IT CORROBORATES A PRIOR, INDEPENDENT MEASUREMENT.** The 2026-08-12 batch-size curve already
+established that **small batches are WORSE for dishes that print a weight** (batch 3 scored 13–15/96
+against batch 8–10's 0–4/96). Arm P shrinks the weighted batch from 10 to **5–8**, and weighted
+accuracy degrades. Two experiments, different designs, same mechanism. **Arm P's defect is not its
+sentence — it is the batch shrinkage its split causes.**
+
+#### ✅ AND THE HARNESS'S OWN HEADLINE FINDING REPRODUCED
+
+The 2026-08-17 partial whole-menu run and this focused run agree closely, which independently
+validates the 77% cost cut:
+
+| | isolated (`bench-macros`) | partial whole-menu (2026-08-17, $1.8) | focused (2026-08-18, $0.40) |
+|---|---|---|---|
+| fields failed | **7.6%** | 17.9% | **16.7%** |
+| Gnocchi | 0% | 50% | 50% |
+| ENFRIJOLADAS | 0% | 25% | 25% |
+| PASTEL | 25% | 0% | 0% |
+
+🔴 **THE 96-POINT WEIGHTED BENCHMARK FLATTERS THE PIPELINE BY ~2×, and its per-dish verdicts do not
+survive contact with production.** Two dishes that are perfect in isolation fail inside their own
+menu; two that fail in isolation pass. **Report the mixed-menu number alongside it from now on.**
+
+#### 🧭 THE ARM THIS POINTS TO NEXT — "P-10", NOT ANOTHER PROMPT
+
+Arm P's split chunks the menu at 10 and *then* divides each chunk, so both halves come out
+undersized. **Partition the whole menu into weighted and unweighted FIRST, then chunk each at 10**,
+and a weighted dish rides with 10 weighted items instead of 5–8 — restoring the batch size the
+2026-08-12 curve says it needs while keeping Arm P's sentence for unweighted items. ~$0.40 to test on
+this harness, and the unweighted set can be re-scored the same way. **This is a batching change, not
+a wording change — the 0-for-5 prompt scoreboard does not apply to it.**
+
+⚠️ **Do NOT read this as "Arm P is falsified".** Its unweighted gain (28/72 → 37/72) stands and was
+never in question. What is rejected is **shipping it in its current split form**.

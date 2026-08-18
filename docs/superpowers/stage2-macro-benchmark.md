@@ -4903,3 +4903,51 @@ deno run --allow-read scripts/bench-mixed-menu.ts 3 mixed --replay
 **Nothing further can run until credits are added to the OpenAI account.** Outstanding, in order:
 1. Re-run `mixed` to a full 3 draws (and ideally 4 runs, for a range).
 2. Run arm `P` — **the question the harness was built to answer is still open.**
+
+### 💸 WHERE THE MONEY ACTUALLY GOES — AND A 77% CUT THAT COSTS NOTHING (2026-08-18, $0)
+
+Santiago flagged that a run eats ~$2 of a $10 reload. **Measured, not estimated.**
+
+| | |
+|---|---|
+| fixed `ENRICH_PROMPT` + schema per call | **~1,265 tokens** — *not* the driver |
+| enriched output, one draw of 5 whole menus | 218 items, ~51,000 tokens |
+| output cost, 3 draws @ $10/1M | **~$1.53** |
+| + input | ~$0.25 → **~$1.8 per arm** |
+
+**The bill is almost entirely OUTPUT**, because every item returns a full ingredient list with
+per-100 g composition. Nothing about the prompt is wasteful.
+
+🔑 **BUT MOST OF THAT OUTPUT WAS NEVER MEASURED.** `callGptEnrich` chunks sequentially and fires each
+batch as its **own HTTP request**, so a scored dish is influenced only by the ≤9 items sharing **its**
+call. The other batches cannot touch it. We were enriching **227 items to measure 8 dishes that only
+ever meet 53 of them.**
+
+| menu | items | the fixtures' own batches |
+|---|---|---|
+| andaluz | 36 | 10 |
+| casa-nostra | 23 | 13 (two fixtures, two batches) |
+| el-marcos | 45 | 10 (both fixtures share a batch) |
+| brasero | 28 | 10 |
+| polloteria | 95 | 10 (both fixtures share a batch) |
+| **total** | **227** | **53 — a 77% cut** |
+
+**`scripts/bench-mixed-menu.ts` now sends only those batches by default: ~$1.8 → ~$0.4 per arm.**
+Batches are located in the **WHOLE** menu first, so the chunk boundaries are exactly production's, and
+the request bytes for a scored dish are **byte-identical** either way. That equivalence is the entire
+basis of the saving, so it is pinned by a test: every kept batch must be a **verbatim, in-order slice**
+of the whole menu, or the run would be measuring a composition that never occurs.
+
+⚠️ **What `--full-menu` is still for, and it is NOT the score:** whole-menu behaviour under load —
+concurrency, the rescue path, the Polloteria drop. That is `bench-pipeline.ts`'s job. The existing
+2026-08-17 archives are whole-menu runs, replay under `--full-menu`, and still reproduce **10/56**
+exactly; focused runs archive under a `-f` suffix so the two can never be confused.
+
+✅ **Nothing that makes this generalise was traded away:** all 5 menus, all 8 dishes, all-real
+neighbours, the deployed path, the deployed batch size. **The generalisation lives in the DIVERSITY of
+the menus, not in the item count.**
+
+📌 **For reference, what each harness costs (3 draws):** `bench-macros.ts` ~**$0.05** (8 items, one
+call — cheap precisely because of the blind spot that motivated the mixed-menu harness);
+`bench-unweighted.ts` ~**$2** (whole menus); `bench-mixed-menu.ts` ~**$0.4/arm** focused, ~$1.8
+`--full-menu`.

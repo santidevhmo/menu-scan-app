@@ -33,7 +33,7 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 >
 > **The work is: unweighted dishes (no printed grams) score far worse than weighted ones, and they are
 > most of a real menu.** Weighted **6–9 of 96** at 17.6–18.0%. Unweighted **best 37/72 (51%)** (Arm P)
-> vs a 28/72 baseline. Never merge or substitute the two numbers.
+> vs a **25–28/72** baseline. Inside real menus the weighted set is **16–18/96**. Never merge them.
 >
 > ⚠️ **The weighted number has moved TWICE for ORACLE reasons and never for a pipeline reason:
 > 0–3/96 → 4–6/96 (2026-08-16, accompaniment weights) → 6–9/96 (2026-08-17, PASTEL's bean
@@ -63,17 +63,26 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > fields fail isolated vs 16.7% inside real menus.** Its per-dish verdicts do not survive either.
 > **Report the mixed-menu number alongside it from now on.**
 >
-> 🟡 **P-10 RAN AND IS ALSO REJECTED (~$0.40): 22/96.** Partitioning weighted/unweighted FIRST and
-> chunking each at 10 restores every fixture to 9–10 mates (from 5–8) and recovers **5 of Arm P's 11**
-> lost field-draws — still short of today's 16. ☠️ **The split ITSELF is the problem, not the chunking
-> order: this retires a DELIVERY MECHANISM.** P-10 holds SIZE at 10 and varies only WHO is in the
-> batch, and weighted dishes still degrade — so **expect any arm that separates weighted from
-> unweighted items into different calls to cost weighted dishes.** CESAR tracks size exactly
-> (1→5→0 as mates go 10→5→10), but **Salmone's 3→10 moved nothing** and **Coleslaw got WORSE with size
-> restored** (0→4→6). Supports the 2026-08-12 prior that the model calibrates across batch-mates.
-> 🧭 **OPEN:** can Arm P's instruction reach unweighted items with **NO split** — one mixed batch, the
-> sentence made conditional per item? Wording is 0 for 5, but Arm P's sentence works when the batch is
-> homogeneous, so the question is whether it survives being conditional. Score BOTH benchmarks.
+> ❌ **P-INLINE FAILS TOO — WORDING IS 0 FOR 6 (2026-08-18, ~$1.8, four runs).** Arm P's idea with
+> **no split**: one mixed batch, a conditional sentence in the shared prompt. Clears the weighted gate
+> (**15/96** vs a 16–18 baseline) and **fails the real one: 29/72, inside the 25–28 baseline band,**
+> 8 short of Arm P's 37. A $0 diagnostic fixed BEFORE the run showed why — the condition landed on the
+> **wrong group**: unweighted servings did not move (median 1.00×) while weighted ones it excluded were
+> shuffled (4.00×, 1.94×, 1.87×). **A per-item condition in prose is not read as one.**
+>
+> 🔑 **THE REFRAME, AND IT IS THE THREAD'S MOST USEFUL RESULT: ARM P'S GAIN IS PROBABLY THE BATCH, NOT
+> THE SENTENCE.** Same words, same items, mixed batch → 29; all-unweighted batch → 37. Direct evidence
+> for the 2026-08-12 prior that the model calibrates across the items sharing a call.
+> 🧭 **NEXT (~$0.50): the control never run — SPLIT WITH THE UNCHANGED PROMPT on the unweighted set.**
+> If it lands near 37/72 the lever is batch composition and every prompt arm here measured it by
+> accident. Then Arm P-10's unweighted score (~$0.50), never measured, without which its 22/96 weighted
+> cost cannot be traded off.
+>
+> 🟡 **P-10: 22/96, also rejected on the weighted gate.** It recovered 5 of Arm P's 11 lost field-draws
+> by restoring batch size (9–10 mates vs 5–8). ☠️ **The split ITSELF is the defect, not the chunking
+> order** — P-10 held SIZE at 10, varied only WHO shared the call, and weighted dishes still degraded.
+> CESAR tracks size exactly (1→5→0 as mates go 10→5→10); **Salmone's 3→10 moved nothing** and
+> **Coleslaw got WORSE with size restored**.
 >
 > 💸 **RUNS ARE ~$0.40/ARM NOW, NOT ~$2.** The bill is almost entirely OUTPUT tokens, and only the ≤9
 > items sharing a dish's batch can affect it, so the harness enriches just those batches — 227 → 53

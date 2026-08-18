@@ -77,8 +77,8 @@ dishes that print a weight and bad at dishes that do not, and the second group i
 | score | dishes | points | current result | harness |
 |---|---|---|---|---|
 | weighted (prints grams) | 8 | 96 | **6–9 failed** at 17.6–18.0% | `scripts/bench-macros.ts` |
-| **unweighted (no grams)** | 6 | 24 | **best 37/72 (51%)** (Arm P) vs **28/72** baseline | `scripts/bench-unweighted.ts` |
-| **weighted, INSIDE ITS REAL MENU** | 8 | 96 | **16/96 today · P-10 22 · Arm P 27** | `scripts/bench-mixed-menu.ts` |
+| **unweighted (no grams)** | 6 | 24 | **best 37/72** (Arm P) vs **25–28/72** baseline · P-inline 29 | `scripts/bench-unweighted.ts` |
+| **weighted, INSIDE ITS REAL MENU** | 8 | 96 | **16–18/96 today** · P-inline 15 · P-10 22 · P 27 | `scripts/bench-mixed-menu.ts` |
 
 **Never merge or substitute these numbers.**
 
@@ -110,9 +110,28 @@ fields failing **7.6% isolated vs 16.7% inside real menus**. Its PER-DISH verdic
 either — Gnocchi and ENFRIJOLADAS are perfect alone and fail in their own menus (0% → 50%, 25%);
 PASTEL and CESAR do the reverse. **Quote the mixed-menu number alongside the 96-point one from now on.**
 
-🟡 **P-10 WAS RUN AND IT IS ALSO REJECTED (2026-08-18, ~$0.40): 22/96.** It partitions the menu
-weighted/unweighted FIRST then chunks each at 10, restoring every fixture to 9–10 batch-mates from
-Arm P's 5–8. It recovers **5 of Arm P's 11** lost field-draws and stops short of today's 16.
+❌ **P-INLINE FAILS TOO (2026-08-18, ~$1.8 for four runs). PROMPT WORDING IS NOW 0 FOR 6.** It
+delivers Arm P's idea with **no split at all** — one mixed batch, a conditional sentence in the shared
+prompt. It clears the weighted gate (**15/96** against a 16–18 baseline) and **fails the one that
+matters: 29/72 unweighted, inside the 25–28 baseline band and 8 short of Arm P's 37.**
+
+🔑 **AND THAT FAILURE IS THE MOST USEFUL RESULT OF THE THREAD: ARM P'S GAIN IS PROBABLY THE BATCH,
+NOT THE SENTENCE.** P-inline gives the **same words to the same items** and scores 29 where Arm P
+scores 37 — the only difference is that Arm P's unweighted items travel in an **all-unweighted
+batch**. Direct evidence for the 2026-08-12 prior that *the model calibrates across the items sharing
+a call*. **Arm P may never have been a prompt win.**
+
+🧪 **A $0 DIAGNOSTIC, written down before the run, showed the condition landed on the WRONG GROUP:**
+the unweighted items it was scoped to did not move (median **1.00×**), while weighted items it
+explicitly excluded were shuffled (**4.00×, 1.94×, 1.87×**; only 4 of 38 unchanged). **A per-item
+condition in prose is not read as one.** That is also why French Fries went 0/12 → 6/12.
+
+🟡 **P-10 (2026-08-18, ~$0.40): 22/96 — also rejected on the weighted gate**, though it recovered 5 of
+Arm P's 11 lost field-draws by restoring batch size (9–10 mates vs Arm P's 5–8). ☠️ **The split ITSELF
+is the defect, not the chunking order** — P-10 held SIZE at 10 and varied only WHO shared the call and
+weighted dishes still degraded. CESAR tracks size exactly (1→5→0 as mates go 10→5→10), but
+**Salmone's 3→10 moved nothing** and **Coleslaw got WORSE with size restored**.
+⚠️ **P-10's UNWEIGHTED score was never measured** — its trade-off cannot be put to Santiago without it.
 
 ☠️ **SO THE PROBLEM IS THE SPLIT ITSELF, NOT THE CHUNKING ORDER — this retires a DELIVERY MECHANISM.**
 P-10 holds batch SIZE at 10 and changes only WHO is in it (all-weighted vs today's realistic mix), and
@@ -290,21 +309,24 @@ reproduces every stored oracle total from the shipped file.
 
 ### 🧭 Suggested next steps, in order
 
-1. **Repeat the three mixed-menu arms for a RANGE** (~$1.20). Each has ONE run of 3 draws.
-   The controls are strong (batch unchanged → score unchanged; CESAR tracking its batch size), but
-   **Coleslaw's 0 → 4 → 6 is the swing that needs a repeat before it is load-bearing**, and Santiago's
-   standing rule is a range across runs.
-2. **"P-inline" — Arm P's instruction with NO split** (~$0.40 mixed-menu, ~$2 unweighted). One mixed
-   batch, one call, the sentence made conditional per item, so weighted dishes stay in exactly today's
-   context. ⚠️ It is a prompt SENTENCE and wording is **0 for 5** — but Arm P's sentence demonstrably
-   works on a homogeneous batch (37/72), so the specific open question is whether it survives being
-   conditional. **State the falsifier before running.** Must hold **16/96** weighted AND **37/72**
-   unweighted.
+**Both baselines now have a tight RANGE: weighted 16–18/96, unweighted 25–28/72.** Runs are ~$0.40–0.50
+per arm on BOTH harnesses now.
+
+1. 🔑 **THE CONTROL THAT WAS NEVER RUN (~$0.50) — split with the UNCHANGED prompt**, scored on the
+   unweighted set. P-inline proved the words alone give 29; Arm P's split gives 37. **If the split
+   alone lands near 37, the lever is BATCH COMPOSITION and every prompt arm in this thread was
+   measuring it by accident.** This is the highest-information experiment left and it reframes
+   everything before it.
+2. **Arm P-10 on the unweighted set (~$0.50).** We know its weighted cost (22/96) and nothing about
+   its gain. It keeps unweighted items in homogeneous batches of 10, so it should carry Arm P's gain —
+   and its trade-off cannot be judged without the number.
 3. Only then a new arm for the accompaniment-weight defect. **Do not** try: another plate-weight arm,
-   another cooking-fat arm (PF: a wash), another dominance arm (PD: pushed the roll to 0/12), another
-   prompt SENTENCE for a *different* purpose (0 for 5), another field that duplicates an existing one
-   (S4: 364/364 copies), or **another SPLIT arm — that mechanism is now retired (P 27/96, P-10 22/96,
-   both short of 16).**
+   another cooking-fat arm (PF), another dominance arm (PD), **another prompt SENTENCE (now 0 for 6)**,
+   another field duplicating an existing one (S4: 364/364 copies), or **another SPLIT arm judged on the
+   weighted gate — P 27, P-10 22, both short of 16–18.**
+
+⚠️ **Coleslaw is the noisiest dish (0 / 2 / 4 / 6 across four arms). Distrust any single-dish claim
+about it.**
 
 ---
 

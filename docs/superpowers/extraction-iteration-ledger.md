@@ -1769,3 +1769,23 @@ Rules:
 - ⚠️ **Arm P's UNWEIGHTED gain (28/72 → 37/72) is STILL not falsified. Its DELIVERY is.**
 - Gates: suite **369 passed | 2 failed** (+1 test pinning that P-10 batches on the weighted-only list — computing it on the mixed menu would silently re-measure arm P).
 - **⛔ NEXT:** (1) **repeat all three arms for a RANGE (~$1.20)** — one run each so far, and Coleslaw's 0→4→6 needs a repeat before it is load-bearing. (2) **"P-inline": Arm P's instruction with NO split** — one mixed batch, sentence conditional per item, so weighted dishes stay in today's exact context; wording is 0 for 5 but Arm P's sentence works on a homogeneous batch, so the question is whether it survives being conditional. Must hold 16/96 AND 37/72. (3) **Do NOT open another SPLIT arm.**
+
+## Eval 147 — ❌ P-INLINE FAILS: wording 0 for 6, and Arm P's gain is probably the BATCH (~$1.8)
+
+- Date: 2026-08-18 | Branch `feat/forced-serving-pieces`, COMMITTED, not pushed. **Phase total ~$38.** Full evidence: last entry of `docs/superpowers/stage2-macro-benchmark.md`.
+- **Four runs** — a second baseline on EACH benchmark (for the RANGE Santiago's rule requires) plus P-inline on both. **Zero backfills anywhere, all four $0-replay verified.**
+
+| arm | weighted, in real menus | unweighted |
+|---|---|---|
+| **production today** | **16–18/96** (2 runs) | **25–28/72** (2 runs) |
+| Arm P — split | 27/96 | **37/72** |
+| Arm P-10 — split, full batches | 22/96 | ⚠️ never measured |
+| **P-inline — NO split** | **15/96** ✅ | **29/72** ❌ |
+
+- **❌ P-INLINE CLEARS THE WEIGHTED GATE AND FAILS THE ONE THAT MATTERS.** 29/72 is inside the 25–28 baseline band and 8 short of Arm P. **PROMPT WORDING IS NOW 0 FOR 6.**
+- **🧪 THE $0 DIAGNOSTIC WAS WRITTEN INTO THE SOURCE BEFORE THE RUN AND IT CALLED IT.** Comparing archived serving sums: the **unweighted** items the sentence was scoped to **did not move** (median 1.00×), while **weighted** items it explicitly EXCLUDED were shuffled — 4.00×, 1.94×, 1.87× on individual dishes, only **4 of 38** unchanged. **A per-item condition in prose is not read as a per-item condition; the model applies it indiscriminately.** That is also why French Fries went 0/12 → 6/12 on the weighted gate. **New rule in `AGENTS.md`: if a change must apply to some items and not others, the separation has to be STRUCTURAL, not a clause.**
+- **🔑 THE REFRAME — THE THREAD'S MOST USEFUL RESULT: ARM P'S GAIN IS PROBABLY THE BATCH, NOT THE SENTENCE.** P-inline gives the **same words to the same items** and scores **29** where Arm P scores **37**. The only difference: Arm P's unweighted items travel in an **all-unweighted batch**. Direct evidence for the 2026-08-12 prior that *the model calibrates across the items sharing a call*. **Arm P may never have been a prompt win at all.**
+- **🔧 A HARNESS BUG WAS FOUND AND FIXED MID-RUN:** the prompt-arms call `enrichBatch` directly (to vary the prompt) and it has **no retry**, where production wraps every batch in `enrichBatchWithRetry` — so **one 120 s timeout killed a whole paid run**. `retryOnce` now wraps `armPInline`. `armS3`/`armS4` share the fragility and are deliberately left (rejected arms nothing re-runs).
+- **💸 ~$1.80 for four runs, where the old whole-menu path would have been ~$8.** `bench-unweighted.ts` now carries the same focused-batch saving (~$2 → ~$0.5/arm), with a `-f` archive segment so a cheap run **cannot overwrite the whole-menu evidence** — verified after the change that the published archives still replay to **28/72** and **37/72**.
+- Gates: suite **369 passed | 2 failed** (the two known-noise failures).
+- **⛔ NEXT:** (1) 🔑 **THE CONTROL NEVER RUN (~$0.50): split with the UNCHANGED prompt on the unweighted set.** Words alone = 29; Arm P's split = 37. **If the split alone lands near 37, the lever is BATCH COMPOSITION and every prompt arm in this thread measured it by accident.** Highest-information experiment left. (2) **Arm P-10 on the unweighted set (~$0.50)** — its 22/96 weighted cost cannot be traded off without its gain. (3) Only then the accompaniment-weight defect. **Do NOT** open another prompt sentence (0 for 6) or another split arm judged on the weighted gate.

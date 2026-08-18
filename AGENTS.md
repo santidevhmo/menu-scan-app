@@ -169,12 +169,12 @@ have both failed at it. ⚠️ **Do not fix the weight alone** — chimichurri i
 lean, the two errors currently cancel, and halving the grams makes the dish worse.
 
 **WORDING DOES NOT WORK HERE. SCHEMA FORCE DOES. (measured, 2026-08-16 — scoreboard, not a rule.)**
-Before designing any change to Stage 2, weigh this: **a new sentence in `ENRICH_PROMPT` is 0 for 5;
+Before designing any change to Stage 2, weigh this: **a new sentence in `ENRICH_PROMPT` is 0 for 6;
 a new REQUIRED FIELD in `ENRICH_SCHEMA_OPENAI` is 6 for 8.**
 
 | approach | record | cases |
 |---|---|---|
-| ask in prose | **0 for 5** | B11, B13, B23, two `serving_pieces` wordings, Arm S |
+| ask in prose | **0 for 6** | B11, B13, B23, two `serving_pieces` wordings, Arm S, **Arm P-inline** |
 | force a required field | **6 for 8** | B4 `printed_total_g`, B15 `name_implied_components`, forced `serving_pieces`, B24b, Arm S2 |
 
 The cleanest demonstration: two prompt wordings asked for a conventional piece count and both returned
@@ -217,6 +217,19 @@ mixed-menu harness — it scores a regime production never runs. **Generalisatio
 of the menus and the realism of the neighbours, not in the item count.** Cut arithmetic that changes
 nothing; never cut a menu, a dish, a draw, or a real neighbour. Do not add `--full-menu` to "be
 thorough": 4.5× the cost, no change to the score.
+
+⚠️ **A PER-ITEM CONDITION IN PROSE IS NOT READ AS ONE (measured 2026-08-18).** Arm P-inline scoped a
+sentence to items whose `printed_total_g` is null. Measured against the archives: the items it was
+scoped to **did not move** (median serving-sum 1.00×), while the items it explicitly EXCLUDED were
+shuffled (4.00×, 1.94×, 1.87× on individual dishes; only 4 of 38 unchanged). **The model applied it
+indiscriminately.** If a change must apply to some items and not others, the separation has to be
+structural, not a clause.
+
+🔑 **AND THE LIKELIER LEVER IS THE BATCH, NOT THE WORDS.** Arm P's unweighted gain (25–28 → 37/72)
+came with its items in an ALL-UNWEIGHTED batch. Given the same words in a MIXED batch, P-inline scored
+29 — inside the baseline band. **Batch composition moves answers more than any wording tried here**
+(see also the 2026-08-12 batch-size curve, and the mixed-menu harness, where the same 8 dishes fail
+~2× as often inside a real menu as they do alone).
 
 **Price is NEVER evidence of grams (Santiago, 2026-08-13).** Not in an oracle, not in a prompt, not in
 code. Price reflects margin and scarcity, never mass — *"a menu can have an expensive pizza of 1k+

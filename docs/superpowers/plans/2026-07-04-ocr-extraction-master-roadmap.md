@@ -32,12 +32,36 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > `docs/superpowers/stage2-macro-benchmark.md`.**
 >
 > **The work is: unweighted dishes (no printed grams) score far worse than weighted ones, and they are
-> most of a real menu.** Weighted **4–6 of 96** at 17.1–17.6%. Unweighted **best 37/72 (51%)** (Arm P)
+> most of a real menu.** Weighted **6–9 of 96** at 17.6–18.0%. Unweighted **best 37/72 (51%)** (Arm P)
 > vs a 28/72 baseline. Never merge or substitute the two numbers.
 >
-> ⚠️ **The weighted number moved from 0–3/96 to 4–6/96 on 2026-08-16 and that is a STRICTER ORACLE,
-> not a worse pipeline** — Santiago ruled the accompaniment weights down (chimichurri 30→15 g,
-> baguette 45→15 g, beans 80→30 g) and approved carrying the new figure. Do not quote 0–3/96.
+> ⚠️ **The weighted number has moved TWICE for ORACLE reasons and never for a pipeline reason:
+> 0–3/96 → 4–6/96 (2026-08-16, accompaniment weights) → 6–9/96 (2026-08-17, PASTEL's bean
+> COMPOSITION). Both are a STRICTER ORACLE, not a worse pipeline, and Santiago approved carrying
+> each. Quote 6–9/96. Do not quote 0–3/96 or 4–6/96.**
+>
+> ⚖️ **RULED 2026-08-17 (Santiago): PASTEL AZTECA's beans are FDC 2707397 `Refried beans, from fast
+> food / restaurant`** (177 kcal/100 g, fat 9.48), not `Pinto beans, from canned, no added fat` (137,
+> 0.93). Verified live against the FDC API; the ruled 30 g weight is unchanged. **All 3 points of the
+> move are that one dish** (2/36 → 9/36). The sixth right-food/wrong-VENUE oracle error. **Not
+> propagated to ENFRIJOLADAS**, whose *salsa de frijol* is a sauce the dish is bathed in rather than a
+> scoop beside it. `scripts/apply-bean-composition-ruling.ts`.
+>
+> 🧪 **THE MIXED-MENU HARNESS NOW EXISTS — `scripts/bench-mixed-menu.ts` — and it already suggests the
+> 96-point benchmark is not representative.** It scores the same 8 weighted dishes **inside their own
+> real menus** (227 archived items across 5 menus) through `callGptEnrich` at batch 10, which is the
+> regime production runs and the one `bench-macros.ts` structurally cannot reach. All 8 fixtures carry
+> byte-identical name and description between those archives and the frozen oracle, so **only the
+> neighbours differ** (asserted at runtime, 5 $0 tests).
+>
+> ⏸️ **ITS FIRST RUN IS PARTIAL — THE OPENAI ACCOUNT RAN OUT OF CREDITS, and ARM P NEVER RAN.** 56 of
+> 96 field-draws are valid; backfilled items were excluded and reported, not scored. **Provisional,
+> ONE run, so NOT a quality claim:** isolated **22/288 = 7.6%** of fields failed against **10/56 =
+> 17.9%** inside the real menus — **and it REDISTRIBUTES**: Gnocchi and ENFRIJOLADAS are perfect in
+> isolation and fail in their own menus (0% → 50% and 25%), while PASTEL and CESAR do the reverse.
+> **Do not quote 10/56 as a result** — the noise floor is median 25%, and there is no range.
+> 🔴 **BLOCKED ON CREDITS, not on a measurement question.** Then: finish `mixed` to 3 draws, and run
+> arm `P` — the question the harness was built to answer is still open. Archives replay at $0.
 >
 > ❌ **ARMS S3 AND S4 ARE REJECTED (2026-08-16, ~$5).** S3 (required `parts` shares) scored 5–13/96
 > weighted and **26/72 unweighted, below the 28 baseline**. S4 (S3 + `amount_as_served_g`) scored

@@ -76,14 +76,27 @@ dishes that print a weight and bad at dishes that do not, and the second group i
 
 | score | dishes | points | current result | harness |
 |---|---|---|---|---|
-| weighted (prints grams) | 8 | 96 | **4–6 failed** at 17.1–17.6% | `scripts/bench-macros.ts` |
+| weighted (prints grams) | 8 | 96 | **6–9 failed** at 17.6–18.0% | `scripts/bench-macros.ts` |
 | **unweighted (no grams)** | 6 | 24 | **best 37/72 (51%)** (Arm P) vs **28/72** baseline | `scripts/bench-unweighted.ts` |
+| weighted, INSIDE ITS REAL MENU | 8 | 96 | **partial: 10/56, provisional** | `scripts/bench-mixed-menu.ts` |
 
-**Never merge or substitute the two numbers.**
+**Never merge or substitute these numbers.**
 
-⚠️ **The weighted figure was 0–3/96 until 2026-08-16 and is now 4–6/96. THAT IS NOT A REGRESSION** —
-Santiago ruled three accompaniment weights DOWN, so the oracle got stricter while the pipeline stayed
-the same. He approved carrying it. **Never quote 0–3/96 as current.**
+⚠️ **The weighted figure has moved TWICE and BOTH times the ORACLE got stricter while the pipeline
+stayed the same: 0–3/96 → 4–6/96 (2026-08-16) → 6–9/96 (2026-08-17).** Santiago approved carrying
+each. **Quote 6–9/96. Never quote 0–3/96 or 4–6/96 as current.**
+
+⚖️ **2026-08-17: PASTEL AZTECA's beans are now restaurant REFRIED** (FDC 2707397, 177 kcal/100 g, fat
+9.48) instead of plain canned pinto (137, 0.93) — Santiago's ruling, verified against the FDC API,
+the 30 g weight unchanged. **All 3 points of the move are that one dish.** Deliberately NOT applied to
+ENFRIJOLADAS, whose bean SAUCE is a different food. `scripts/apply-bean-composition-ruling.ts`.
+
+🧪 **THE MIXED-MENU HARNESS EXISTS NOW (`scripts/bench-mixed-menu.ts`) — the thing that was blocking
+Arm P.** It scores the same 8 weighted dishes **inside their own real menus** (227 items, 5 menus)
+through the deployed path at batch 10. ⏸️ **Its first run is PARTIAL: the OpenAI account RAN OUT OF
+CREDITS and ARM P NEVER RAN.** Provisional, one run, **not a quality claim**: 7.6% of fields failed in
+isolation vs **17.9% inside the real menus**, and it REDISTRIBUTES — Gnocchi and ENFRIJOLADAS are
+perfect alone and fail in their menus; PASTEL and CESAR do the opposite. 🔴 **BLOCKED ON CREDITS.**
 
 🚀 **PRODUCTION: edge fn `analyze-menu` v31, deployed 2026-08-16, `ENRICH_BATCH_SIZE = 10`.** It
 carries the two zeroing bug fixes and **no accuracy change whatsoever**. Everything else below is
@@ -221,10 +234,15 @@ topping class as SEPARATE records, and the wrong axis moves a band 30–46%.
 Re-source before believing any single-dish failure**, and search FDC for every variant
 (`scripts/unweighted-portions.ts --search <terms>`) before choosing one.
 
-🔴 **THE ONE OPEN ORACLE RULING:** PASTEL AZTECA's beans use `Pinto beans, from canned, no added fat`
-(137 kcal/100 g) where a restaurant serves refried beans — **FDC 2707397 `Refried beans, from fast
-food / restaurant`, 177 kcal/100 g at 9.48 g fat**. Santiago ruled the WEIGHT on 2026-08-16 and this
-COMPOSITION change was deliberately left for a separate ruling.
+✅ **THAT LAST OPEN RULING IS CLOSED (2026-08-17).** PASTEL AZTECA's beans moved to **FDC 2707397
+`Refried beans, from fast food / restaurant`** (177 kcal/100 g, fat 9.48) from `Pinto beans, from
+canned, no added fat` (137, 0.93). Santiago's ruling; the 30 g weight he set on 2026-08-16 is
+unchanged. It cost 3 points on the weighted set, all of them that dish (2/36 → 9/36).
+⚠️ Recorded tension worth knowing before the next sourcing decision: 2707397 IS the richest of the
+FNDDS refried family (90 / 99 / 89 / 119 / 177), which the standing "prefer the median, never the
+richest" rule would reject. It is taken because it is the **only entry at this dish's venue** — the
+newer, more specific rule wins over the older one. **Not propagated to ENFRIJOLADAS**, whose *salsa de
+frijol* is a sauce the dish is bathed in, a genuinely thinner food than a scoop beside a plate.
 
 ### 📌 Santiago's accompaniment rulings, APPLIED 2026-08-16
 
@@ -250,9 +268,13 @@ reproduces every stored oracle total from the shipped file.
 
 ### 🧭 Suggested next steps, in order
 
-1. **Build the mixed-menu harness** — a weighted dish scored inside a real menu — so Arm P can finally
-   be judged for shipping. It is the only thing blocking a change already worth 9 points.
-2. **Get the PASTEL AZTECA bean-composition ruling** (above), then re-score every arm for $0.
+0. 🔴 **ADD CREDITS TO THE OPENAI ACCOUNT. Nothing paid can run until then** — the 2026-08-17 run
+   halted on `You have no credits remaining`, the same halt as 2026-08-13.
+1. ✅ ~~Build the mixed-menu harness~~ **BUILT (`scripts/bench-mixed-menu.ts`).** What is left is to
+   RUN it: finish arm `mixed` to 3 full draws, then run **arm `P`** — *the question it was built to
+   answer is still open*, because Arm P never ran. Its archives replay at $0.
+2. ✅ ~~Get the PASTEL AZTECA bean-composition ruling~~ **RULED AND APPLIED 2026-08-17**, every arm
+   re-scored at $0.
 3. Only then a new arm for the accompaniment-weight defect. **Do not** try: another plate-weight arm,
    another cooking-fat arm (PF: a wash), another dominance arm (PD: pushed the roll to 0/12), another
    prompt SENTENCE (0 for 5), or another field that duplicates an existing one (S4: 364/364 copies).

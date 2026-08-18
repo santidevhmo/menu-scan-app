@@ -4794,3 +4794,112 @@ cannot tell you what the mechanism costs elsewhere.** Budget the benchmark befor
 **Phase spend 2026-08-16: ~$5.5** (four probes ~$0.55, eight weighted runs, one unweighted run).
 S4 was deliberately NOT run on the unweighted set: without a printed weight nothing rescales, so
 `amount_as_served_g` is never read and S4 is identical to S3 there.
+
+### ⚖️ PASTEL AZTECA'S BEANS ARE RESTAURANT REFRIED — RULED AND APPLIED (2026-08-17, $0)
+
+Santiago closed the composition half that the 2026-08-16 weight ruling deliberately left open.
+The **sixth** right-food/wrong-variant oracle error, and the axis is **venue** again.
+
+| | record | kcal/100 g | fat |
+|---|---|---|---|
+| was | FDC 2707375 `Pinto beans, from canned, no added fat` | 137 | 0.93 |
+| **now** | **FDC 2707397 `Refried beans, from fast food / restaurant`** | **177** | **9.48** |
+
+Values verified live against the FDC API before the change. The ruled **30 g weight is unchanged**.
+Applied by `scripts/apply-accompaniment-rulings.ts`'s sibling
+`scripts/apply-bean-composition-ruling.ts`, which imports `sumRecipe` from `usda-oracle.ts` rather
+than re-implementing it (lesson 28) and **refuses to write** unless it first reproduces all 8 stored
+oracle totals from their own ingredients.
+
+**Effect, $0 re-score of the current best arm (B21, `iter-b21-w2/w3/w4`):**
+
+| | weighted | mean abs error |
+|---|---|---|
+| before | **4–6/96** | 17.1–17.6% |
+| **after** | **6–9/96** | 17.6–18.0% |
+
+**Every point of it is PASTEL AZTECA (2/36 → 9/36); the other seven dishes are unchanged.**
+⚠️ **STRICTER ORACLE, NOT A WORSE PIPELINE** — the same shape as the accompaniment rulings.
+**Do not quote 4–6/96 as current.**
+
+⚠️ **NOT PROPAGATED, and deliberately.** ENFRIJOLADAS (same menu) keeps FDC 2707396 `Refried beans`
+at 90 kcal for its *salsa de frijol*: a bean sauce a dish is **bathed in** is a thinner food than a
+scoop of refried beans **beside** it. That entry was not re-ruled. ⚠️ Recorded tension: the standing
+"prefer the median, never the richest" rule (born of the Caesar dressing) would have rejected 2707397,
+which IS the richest of the FNDDS refried family (90 / 99 / 89 / 119 / **177**). It is taken anyway
+because it is the **only entry at this dish's venue** — not a pick among defensible same-venue
+records, which is what that rule guards against. The newer venue rule is the more specific one.
+
+### 🧪 THE MIXED-MENU HARNESS EXISTS — AND ITS FIRST RUN WAS HALTED BY CREDITS (2026-08-17, ~$2)
+
+**The blind spot it closes.** `bench-macros.ts` sends all 8 weighted fixtures in a SINGLE call and
+all 8 print a weight. Production sends a whole menu through `callGptEnrich`, chunked into
+`ENRICH_BATCH_SIZE` groups of mostly-unweighted neighbours. The 2026-08-12 curve proved batch
+composition MOVES the answer rather than merely scattering it, so **every weighted figure this phase
+has published describes a regime production never runs.** That is what has blocked Arm P.
+
+`scripts/bench-mixed-menu.ts` scores the same 8 dishes **inside their own real menus** — andaluz,
+casa-nostra, el-marcos, brasero, polloteria, 227 archived extraction items — through the deployed
+path at batch 10. Two arms, one variable:
+
+| arm | what it is |
+|---|---|
+| `mixed` | production today — `callGptEnrich(whole menu, batch 10)` |
+| `P` | Arm P as it would ship — chunk at 10, then `armP` per chunk |
+
+🔑 **A free property that makes the comparison valid:** all 8 fixtures appear in those archives with
+**BYTE-IDENTICAL name and description** to the frozen oracle, so a scored dish's own request text is
+unchanged from `bench-macros.ts` and **only its neighbours differ**. Asserted at runtime and covered
+by 5 $0 tests — a re-extraction that reworded one description would otherwise turn a
+batch-composition result into a prompt-text result with nothing to show it.
+
+#### ⏸️ THE RUN IS PARTIAL. ARM P NEVER RAN.
+
+**The OpenAI account ran out of credits** during draw 2 of polloteria (`You have no credits
+remaining`) — the same halt as 2026-08-13. Valid data: **2 clean draws for 6 dishes, 1 for the
+polloteria pair = 56 of 96 field-draws.** Backfilled items were EXCLUDED and reported, never scored
+as model error.
+
+| menu | draw 1 | draw 2 | draw 3 |
+|---|---|---|---|
+| andaluz, casa-nostra, el-marcos, brasero | clean | clean | all backfilled |
+| polloteria | clean (both fixtures) | 92/95 backfilled | all backfilled |
+
+#### 🔴 THE PROVISIONAL SIGNAL — ONE RUN, SO NOT A QUALITY CLAIM
+
+| | failed field/draws | rate |
+|---|---|---|
+| isolated (`iter-b21-w2/w3/w4`, 9 draws) | 22/288 | **7.6%** |
+| **inside their real menus** (partial) | 10/56 | **17.9%** |
+
+**And it REDISTRIBUTES rather than uniformly worsening** — which is the more interesting half:
+
+| dish | isolated | inside its menu |
+|---|---|---|
+| Gnocchi alla sorrentina | 0/36 — **0%** | 4/8 — **50%** |
+| ENFRIJOLADAS | 0/36 — **0%** | 2/8 — **25%** |
+| Salmone toscano | 9/36 — 25% | 4/8 — 50% |
+| PASTEL AZTECA | 9/36 — 25% | 0/8 — **0%** |
+| CESAR | 4/36 — 11% | 0/8 — **0%** |
+| NEW YORK, French Fries, Coleslaw | 0 | 0 |
+
+**Two dishes that are perfect in isolation fail inside their own menu, and two that fail in isolation
+pass.** If this holds up, the 96-point benchmark's per-dish verdicts do not survive contact with
+production, and that matters well beyond Arm P.
+
+⚠️ **DO NOT QUOTE 10/56 AS A RESULT.** It is ONE run of two draws against a documented noise floor of
+median 25% / worst 88%. Santiago's standing rule is a RANGE across runs, and there is no range here.
+What is established is that **the harness works, its exclusion discipline works, and its archives
+replay for $0**; what is measured is a first look.
+
+**Every draw re-scores for $0 against any future oracle, calling no API:**
+
+```bash
+deno run --allow-read scripts/bench-mixed-menu.ts 3 mixed --replay
+```
+
+#### ⛔ BLOCKED, AND IT IS NOT A MEASUREMENT QUESTION
+
+**Nothing further can run until credits are added to the OpenAI account.** Outstanding, in order:
+1. Re-run `mixed` to a full 3 draws (and ideally 4 runs, for a range).
+2. Run arm `P` — **the question the harness was built to answer is still open.**

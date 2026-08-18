@@ -155,9 +155,18 @@ two are not interchangeable and each is wrong in the other's place:
 Worked example: a 28 cm pizza built from reference servings is 1.81 kcal/g where a real one is
 ~2.4–2.75, because 30 g is a standalone serving of cheese and not the amount on a pie. **Correcting
 the total cannot fix this** — rescaling preserves proportions, so at the very top of the pizza's
-verified weight band it is still 26% low on calories. Measured: 28/72 → 38/72 on the unweighted
-oracle. Do NOT ask an unweighted item for a plate total instead; that family of arms is retired
-(see the roadmap's `🎯 CURRENT PHASE`).
+verified weight band it is still 26% low on calories. Measured: 28/72 → **37/72** on the unweighted
+oracle (Arm P; it read 38/72 before the pizza's band was corrected on 2026-08-16). Do NOT ask an
+unweighted item for a plate total instead; that family of arms is retired (see the roadmap's
+`🎯 CURRENT PHASE`).
+
+⚠️ **THE THIRD CASE, and it is a DEFECT rather than a rule — an ingredient served ALONGSIDE the item.**
+`resolveGrams` never rescales anything marked `within_printed_weight: false`, so a reference serving
+reaches the plate untouched — and for a spooned sauce the reference serving is USDA's **30 g dipping
+container** rather than the ~15 g actually served. It affects **24% of weighted items** and is
+**12–20% of those dishes' calories**. Unfixed as of 2026-08-16; prose and a duplicate schema field
+have both failed at it. ⚠️ **Do not fix the weight alone** — chimichurri is 2× too heavy AND ~3× too
+lean, the two errors currently cancel, and halving the grams makes the dish worse.
 
 **WORDING DOES NOT WORK HERE. SCHEMA FORCE DOES. (measured, 2026-08-16 — scoreboard, not a rule.)**
 Before designing any change to Stage 2, weigh this: **a new sentence in `ENRICH_PROMPT` is 0 for 5;
@@ -421,9 +430,10 @@ Track here anything that blocks testing or shipping. Update as items resolve.
 - **Apple Developer Program — ✅ PAID (confirmed 2026-07-11).** Physical-device testing works — first on-device verification ran 2026-07-12 (auto-cutter 3-scan checklist, all passed).
 - **Macro-enrichment blockers are NOT restated here** — status lives in exactly one place, the
   `🎯 CURRENT PHASE` block of `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`,
-  with the takeover briefing at the top of `docs/superpowers/START-HERE.md`. As of 2026-08-14 three
-  items there need Santiago rather than another run, and unshipped code is sitting on
-  `feat/forced-serving-pieces`. Read those, not a copy.
+  with the takeover briefing in the `🆕 2026-08-16 HANDOFF` block of
+  `docs/superpowers/START-HERE.md`. Read those, not a copy. As of 2026-08-16: **production is edge fn
+  v31** (the 0-kcal fix, no accuracy change), all work is committed but unpushed on
+  `feat/forced-serving-pieces`, and the next step is a harness that can judge Arm P for shipping.
 
 ---
 

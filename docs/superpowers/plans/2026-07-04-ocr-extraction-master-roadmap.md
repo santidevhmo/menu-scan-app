@@ -93,7 +93,7 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > The 96-point benchmark only ever described dishes that PRINT A WEIGHT (all 8 fixtures print one, so
 > `resolveGrams` pins their grams and the plate is never guessed). A 6-dish, 24-point band oracle now
 > covers the unweighted case: **weighted ~96% passing vs unweighted 28/72 = 39%** (that 28/72 is the
-> BASELINE — Arm P later reached 38/72, see the CURRENT STATE block above). That gap is the
+> BASELINE — Arm P later reached 37/72 on the corrected band, see the CURRENT STATE block above). That gap is the
 > real state of macro enrichment. `scripts/unweighted-oracle-build.ts`, `scripts/bench-unweighted.ts`.
 > 🔑 **PRICE IS NOT EVIDENCE OF GRAMS** (Santiago, 2026-08-13) — never in an oracle, a prompt, or code.
 > ⚠️ **A generic USDA record will fail a pipeline that is right:** two of the first run's four

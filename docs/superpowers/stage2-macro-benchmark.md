@@ -5206,3 +5206,55 @@ every prior result is not thereby true; the control is $0.50.**
   it should keep Arm P's gain at a smaller weighted cost. If it scores ~37/72, the trade becomes
   concrete and Santiago's: **+9 to +12 unweighted for −4 to −6 weighted.** Without it, nothing can be
   put to him.
+
+### 🟢 ARM P-10 SCORES 38/72 — THE BEST UNWEIGHTED RESULT EVER, AT A SMALLER WEIGHTED COST (2026-08-18, ~$0.5)
+
+The missing number exists. 3 draws, 9/9 menu-draws clean, 0 backfilled, $0-replay verified.
+
+| arm | unweighted (higher better) | weighted, in real menus (lower better) |
+|---|---|---|
+| production today | 25–28/72 | **16–18/96** |
+| Arm P | 37/72 | 27/96 |
+| **Arm P-10** | **38/72** 🥇 | **22/96** |
+| P-inline | 29/72 | 15/96 |
+| SplitOnly | 21/72 | — |
+
+**P-10 DOMINATES Arm P on both axes** — equal-or-better unweighted (38 vs 37, a tie within noise) at a
+materially smaller weighted cost (22 vs 27). **Arm P is superseded; P-10 is the candidate.**
+
+#### Per dish, unweighted
+
+| dish | baseline | Arm P | **P-10** |
+|---|---|---|---|
+| **CAPRICCIOSA** (the pizza that started this) | 0 | 2 | **6** 🎯 |
+| CARBONARA | 10 | 12 | 12 |
+| ENSALADA GRIEGA | 7 | **12** | 9 |
+| TIRAS DE POLLO | 3 | 3 | **5** |
+| COLIFLOR ROKA | 0 | 3 | 3 |
+| Salmón Roll | 5 | **5** | 3 |
+| **TOTAL** | **25** | **37** | **38** |
+
+🎯 **CAPRICCIOSA finally moves.** The 28 cm pizza has scored 0/12 through every arm of this phase — it
+is the dish that motivated the whole plate-weight thread, the one proven at $0 to be unfixable by any
+total. **P-10 gets it to 6/12.**
+
+#### ⚖️ THE TRADE, AND IT IS SANTIAGO'S
+
+| | today | under P-10 | change |
+|---|---|---|---|
+| unweighted dishes correct | 35–39% | **53%** | **+14 to +18 pts** |
+| weighted dishes correct | 81–83% | **77%** | −4 to −6 pts |
+
+**Unweighted items are the majority of a real menu, and their errors are enormous** (a 28 cm pizza at
+half its calories) where weighted errors sit near their band edges. **The recommendation is to take
+it** — but it is a product call, not a measurement one.
+
+⚠️ **ONE RUN OF 3 DRAWS ON EACH SIDE.** The per-draw spread is wide (CAPRICCIOSA 1–4/4, Salmón Roll
+0–3/4), so **38 vs 37 is a tie, not a win** — the load-bearing claims are "P-10 ≈ Arm P on unweighted"
+and "P-10 costs less than Arm P on weighted". **A confirmation run of both sides (~$1) is owed before
+shipping**, per the standing range rule.
+
+⚠️ **AND SHIPPING IS A REAL CODE CHANGE, NOT A PROMPT EDIT.** P-10 restructures `callGptEnrich`:
+partition the menu weighted/unweighted, chunk each side at `ENRICH_BATCH_SIZE`, send the unweighted
+side with Arm P's sentence. That touches the deployed enrichment path, so it needs its own tests and a
+deployment ruling. Nothing has been changed in `supabase/functions/`.

@@ -31,6 +31,7 @@ import {
   armP,
   armPD,
   armPF,
+  armP10,
   armPInline,
   armSplitOnly,
   armS3,
@@ -83,6 +84,33 @@ function fixtureBatches(
   }
   return [...wanted].sort((a, b) => a - b).flatMap((b) =>
     items.slice(b * ENRICH_BATCH_SIZE, (b + 1) * ENRICH_BATCH_SIZE)
+  );
+}
+
+/**
+ * The same idea for Arm P-10, whose batches form AFTER the weighted/unweighted
+ * partition — so a scored dish's mates are its neighbours in the UNWEIGHTED-only
+ * list, not in the mixed menu. Selecting with the mixed boundaries would send a
+ * composition P-10 never builds, and the run would quietly measure Arm P.
+ *
+ * Only unweighted items are returned: every dish in this oracle is unweighted by
+ * definition, and under P-10 the weighted half is a separate set of calls that
+ * cannot influence them.
+ */
+function fixtureBatchesP10(
+  // deno-lint-ignore no-explicit-any
+  items: any[],
+  names: string[],
+  // deno-lint-ignore no-explicit-any
+): any[] {
+  const unweighted = items.filter((i) => i.grams == null);
+  const wanted = new Set<number>();
+  for (const name of names) {
+    const idx = unweighted.findIndex((i) => i.name === name);
+    if (idx >= 0) wanted.add(Math.floor(idx / ENRICH_BATCH_SIZE));
+  }
+  return [...wanted].sort((a, b) => a - b).flatMap((b) =>
+    unweighted.slice(b * ENRICH_BATCH_SIZE, (b + 1) * ENRICH_BATCH_SIZE)
   );
 }
 
@@ -155,9 +183,9 @@ const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
 
 // A mistyped arm name would otherwise run the BASELINE and be written up as that
 // arm's result - a paid run reported as something it is not.
-if (arm !== "baseline" && !(arm in ARM_RUNNERS)) {
+if (arm !== "baseline" && arm !== "P10" && !(arm in ARM_RUNNERS)) {
   throw new Error(
-    `unknown arm "${arm}" - expected baseline, ${Object.keys(ARM_RUNNERS).join(", ")}`,
+    `unknown arm "${arm}" - expected baseline, P10, ${Object.keys(ARM_RUNNERS).join(", ")}`,
   );
 }
 const oracle: UnweightedEntry[] = JSON.parse(await Deno.readTextFile(ORACLE));
@@ -182,12 +210,17 @@ for (let draw = 0; draw < draws; draw++) {
       const whole = itemsFromArchive(
         await Deno.readTextFile(`${CACHE_DIR}/${MENU_ARCHIVE[menu]}`),
       );
-      const items = fullMenu ? whole : fixtureBatches(
-        whole,
-        oracle.filter((e) => e.menu === menu).map((e) => e.name),
-      );
+      const names = oracle.filter((e) => e.menu === menu).map((e) => e.name);
+      const select = arm === "P10" ? fixtureBatchesP10 : fixtureBatches;
+      const items = fullMenu ? whole : select(whole, names);
       const runner = ARM_RUNNERS[arm];
-      enriched = runner
+      enriched = arm === "P10"
+        // NOT through enrichWithArm: that pre-chunks, and P-10 partitions the
+        // WHOLE list before chunking each side. Pre-chunking would rebuild Arm
+        // P's undersized batches and silently re-measure it.
+        // deno-lint-ignore no-explicit-any
+        ? await armP10(items as any) as EnrichedItem[]
+        : runner
         // deno-lint-ignore no-explicit-any
         ? await enrichWithArm(items, runner as any)
         // deno-lint-ignore no-explicit-any

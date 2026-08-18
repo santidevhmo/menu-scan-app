@@ -39,8 +39,14 @@
 //   deno run --allow-read --allow-write --allow-env --allow-net \
 //     --env-file=.env.local scripts/bench-mixed-menu.ts [draws] [mixed|P] [--full-menu]
 //
+//   --run <label> keeps a repeat run in its OWN archives instead of overwriting
+//   the previous one. The standing rule is a RANGE across runs, and a range needs
+//   the earlier run to still exist:
+//     ... scripts/bench-mixed-menu.ts 3 P10 --run r2
+//
 //   $0 — re-score an archived run against the CURRENT oracle, calls no API:
 //   deno run --allow-read scripts/bench-mixed-menu.ts 3 mixed --replay
+//   deno run --allow-read scripts/bench-mixed-menu.ts 3 P10 --replay --run r2
 import {
   callGptEnrich,
   chunk,
@@ -214,7 +220,19 @@ async function main(): Promise<void> {
   // Default is FOCUSED: send only the batches the fixtures land in. See the COST
   // note at the top — equivalent for the score, 77% cheaper.
   const fullMenu = Deno.args.includes("--full-menu");
-  const positional = Deno.args.filter((a) => !a.startsWith("--"));
+  // Repeat runs need their own archives or a range is impossible: a re-run of the
+  // same arm silently replaced its predecessor twice during this phase, and the
+  // earlier numbers survived only because they had already been committed.
+  const runIdx = Deno.args.indexOf("--run");
+  const runLabel = runIdx >= 0 ? Deno.args[runIdx + 1] : "";
+  if (runIdx >= 0 && (!runLabel || runLabel.startsWith("--"))) {
+    throw new Error("--run needs a label, e.g. --run r2");
+  }
+  // Drops flags AND the value that follows --run, or the label would be read as
+  // the arm name and the run would be reported as something it is not.
+  const positional = Deno.args.filter((a, i) =>
+    !a.startsWith("--") && Deno.args[i - 1] !== "--run"
+  );
   const draws = Number(positional[0] ?? "3");
   const arm = (positional[1] ?? "mixed") as Arm;
 
@@ -242,7 +260,7 @@ async function main(): Promise<void> {
 
   for (let draw = 0; draw < draws; draw++) {
     for (const menu of menus) {
-      const suffix = fullMenu ? "" : "-f";
+      const suffix = `${fullMenu ? "" : "-f"}${runLabel ? `-${runLabel}` : ""}`;
       const archive = `${CACHE_DIR}/mixed.${arm}${suffix}.${menu}-d${draw}.raw.json`;
     let enriched: EnrichedItem[];
     let sent: ReturnType<typeof itemsFromArchive>;
@@ -311,7 +329,8 @@ async function main(): Promise<void> {
   let fails = 0, fieldDraws = 0;
   console.log(
     `arm ${arm}, ${draws} draws, ${menus.length} menus, batch ${ENRICH_BATCH_SIZE}, ` +
-      `${fullMenu ? "WHOLE MENUS" : "fixture batches only"}\n`,
+      `${fullMenu ? "WHOLE MENUS" : "fixture batches only"}` +
+      `${runLabel ? `, run ${runLabel}` : ""}\n`,
   );
   console.log("dish                           failed");
   for (const e of entries) {

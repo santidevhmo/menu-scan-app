@@ -261,6 +261,57 @@ export async function armP(items: Item[]) {
   return out;
 }
 
+// ------------------------------------------------------------ ARM P-INLINE
+//
+// ARM P'S INSTRUCTION WITH NO SPLIT AT ALL.
+//
+// Both split arms are rejected: Arm P 27/96 and Arm P-10 22/96 against a 16/96
+// baseline, inside real menus. P-10 held batch SIZE at 10 and varied only WHO
+// shared the call, and weighted dishes still degraded - so the split ITSELF is
+// the defect, not the chunking order. That retires the whole family.
+//
+// This delivers the same idea through the SHARED prompt on ONE mixed batch:
+// weighted items keep today's exact batch-mates and today's exact request
+// EXCEPT for this appended text, so there is no composition to disturb.
+//
+// The condition is keyed on "printed_total_g", which the schema emits BEFORE
+// "ingredients" (B4 put it there deliberately), so by the time the model writes
+// a typical_serving_g it has already committed to whether that item has a
+// printed weight. Field order is load-bearing and it works in our favour here.
+//
+// It also repairs a clause that is FALSE for unweighted items: the shipped
+// prompt ends "these are rescaled to the printed weight afterwards, so they do
+// not need to add up to anything." Nothing rescales when there is no printed
+// weight - the same numbers set the item's total mass.
+//
+// ⚠️ THIS IS A PROMPT SENTENCE, AND WORDING IS 0 FOR 5. It is run anyway for a
+// stated reason: Arm P's sentence demonstrably WORKS on a homogeneous batch
+// (28/72 -> 37/72), so the open question is not whether the idea lands but
+// whether it survives being CONDITIONAL. Falsifiers, fixed before the run:
+//   - unweighted stays ~28/72  -> the condition never fired; wording 0 for 6.
+//   - weighted drops below the baseline range -> the sentence disturbs weighted
+//     items even with no split, and this direction is finished.
+// No food, dish or cuisine name - enrich_test.ts fails the build otherwise.
+const ARM_P_INLINE_SENTENCE =
+  ' The instruction above to give the standard reference amount, and the note that these are rescaled afterwards, both apply to an item for which you gave a number for "printed_total_g". For an item where you instead gave null, nothing rescales those amounts and the very same numbers also decide the item\'s total weight. For those items only, give "typical_serving_g" as the amount of that ingredient actually present in one order of the item as it is served, rather than the amount that ingredient is served in on its own: a component that forms the body of an item is present in considerably greater quantity than a standalone serving of it, and using the standalone amount understates the item.';
+export const ARM_P_INLINE_PROMPT = ENRICH_PROMPT + ARM_P_INLINE_SENTENCE;
+
+/**
+ * One call per batch, mixed items, shipped schema — identical to production's
+ * request but for the appended sentence. Through enrichBatch, the deployed
+ * request builder, so this measures the real path (lesson 23).
+ */
+export async function armPInline(items: Item[]) {
+  return await enrichBatch(
+    // deno-lint-ignore no-explicit-any
+    items as any,
+    apiKey!,
+    ENRICH_MODEL,
+    undefined,
+    ARM_P_INLINE_PROMPT,
+  );
+}
+
 // ---------------------------------------------------------------- ARM P-10
 //
 // ARM P's SENTENCE, WITHOUT ARM P'S BATCH SHRINKAGE.

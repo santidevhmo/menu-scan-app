@@ -19,6 +19,8 @@
 //   arm `P`      chunk at ENRICH_BATCH_SIZE, then armP per chunk = Arm P shipped
 //   arm `P10`    partition weighted/unweighted FIRST, then chunk  = Arm P without
 //                each side at ENRICH_BATCH_SIZE                     the shrinkage
+//   arm `Pinline` ONE mixed batch, shared prompt + a conditional   = Arm P with no
+//                sentence; NO split anywhere                         split at all
 //
 // The eight dishes' name and description are BYTE-IDENTICAL between the frozen
 // oracle and these archived extractions (asserted below, and the run aborts
@@ -65,7 +67,7 @@ export const MENU_ARCHIVE: Record<string, string> = {
   polloteria: "polloteria.eval103c-m41-r1.raw.json",
 };
 
-export const ARMS = ["mixed", "P", "P10"] as const;
+export const ARMS = ["mixed", "P", "P10", "Pinline"] as const;
 type Arm = typeof ARMS[number];
 
 /**
@@ -80,6 +82,21 @@ type Arm = typeof ARMS[number];
  * Arm P-10 partitions before chunking, so it must receive the WHOLE list and
  * must NOT be pre-chunked here - pre-chunking is exactly the defect it undoes.
  */
+/**
+ * Arm P-inline never splits, so its batches are today's mixed ones and the only
+ * difference from the `mixed` arm is the appended sentence. Chunked here for the
+ * same reason enrichSplit is: the arm helper takes one batch.
+ */
+async function enrichPInline(items: unknown[]): Promise<EnrichedItem[]> {
+  const { armPInline } = await import("./probe-plate-arms.ts");
+  const out: EnrichedItem[] = [];
+  for (const batch of chunk(items, ENRICH_BATCH_SIZE)) {
+    // deno-lint-ignore no-explicit-any
+    out.push(...await armPInline(batch as any) as EnrichedItem[]);
+  }
+  return out;
+}
+
 async function enrichP10(items: unknown[]): Promise<EnrichedItem[]> {
   const { armP10 } = await import("./probe-plate-arms.ts");
   // deno-lint-ignore no-explicit-any
@@ -243,6 +260,8 @@ async function main(): Promise<void> {
         ? await enrichP10(sent)
         : arm === "P"
         ? await enrichSplit(sent)
+        : arm === "Pinline"
+        ? await enrichPInline(sent)
         // deno-lint-ignore no-explicit-any
         : (await callGptEnrich(sent as any, apiKey!, ENRICH_MODEL)).items;
       await Deno.writeTextFile(archive, JSON.stringify({ items: enriched }, null, 2) + "\n");

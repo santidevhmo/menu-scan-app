@@ -31,6 +31,7 @@ import {
   armP,
   armPD,
   armPF,
+  armPInline,
   armS3,
   armS4,
 } from "./probe-plate-arms.ts";
@@ -49,6 +50,37 @@ const MENU_ARCHIVE: Record<string, string> = {
   polloteria: "polloteria.eval117-r1.raw.json",
 };
 
+/**
+ * Only the batches the scored dishes land in.
+ *
+ * Same reasoning and same $0 saving as scripts/bench-mixed-menu.ts: callGptEnrich
+ * chunks sequentially and fires each batch as its OWN request, so a scored dish
+ * is influenced only by the <=9 items sharing its call. Batches are located in
+ * the WHOLE menu first, so the chunk boundaries stay exactly production's, and
+ * the request bytes for a scored dish are identical either way.
+ *
+ * --full-menu restores whole menus for load behaviour (concurrency, rescue),
+ * which is bench-pipeline.ts's job rather than this harness's.
+ */
+function fixtureBatches(
+  // deno-lint-ignore no-explicit-any
+  items: any[],
+  names: string[],
+  // deno-lint-ignore no-explicit-any
+): any[] {
+  const wanted = new Set<number>();
+  for (const name of names) {
+    const idx = items.findIndex((i) => i.name === name);
+    // A dish absent from its own archived extraction is a real defect, and the
+    // per-dish loop below already reports it as ABSENT - so skip rather than
+    // throw, and let the score record it.
+    if (idx >= 0) wanted.add(Math.floor(idx / ENRICH_BATCH_SIZE));
+  }
+  return [...wanted].sort((a, b) => a - b).flatMap((b) =>
+    items.slice(b * ENRICH_BATCH_SIZE, (b + 1) * ENRICH_BATCH_SIZE)
+  );
+}
+
 const macros = (item: EnrichedItem) => ({
   calories: item.estimated_calories ?? 0,
   protein_g: item.protein_g ?? 0,
@@ -57,6 +89,8 @@ const macros = (item: EnrichedItem) => ({
 });
 
 const replay = Deno.args.includes("--replay");
+// Default is FOCUSED - see fixtureBatches. ~$2 -> ~$0.5 per arm, same measurement.
+const fullMenu = Deno.args.includes("--full-menu");
 const positional = Deno.args.filter((a) => a !== "--replay");
 
 const apiKey = Deno.env.get("OPENAI_API_KEY");
@@ -108,6 +142,7 @@ const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
   P: armP,
   PF: armPF,
   PD: armPD,
+  Pinline: armPInline,
   S3: armS3,
   S4: armS4,
 };
@@ -128,14 +163,22 @@ for (const e of oracle) results.set(e.name, { points: [], detail: [] });
 
 for (let draw = 0; draw < draws; draw++) {
   for (const menu of menus) {
-    const archive = `${CACHE_DIR}/unweighted.${arm}.${menu}-d${draw}.raw.json`;
+    // The `-f` segment keeps a ~$0.5 focused run from OVERWRITING the whole-menu
+    // archives that hold this phase's published evidence (the 28/72 baseline and
+    // Arm P's 37/72). Replaying those needs --full-menu.
+    const archive =
+      `${CACHE_DIR}/unweighted.${arm}${fullMenu ? "" : "-f"}.${menu}-d${draw}.raw.json`;
     let enriched: EnrichedItem[];
     if (replay) {
       enriched = JSON.parse(await Deno.readTextFile(await replayPath(arm, archive)))
         .items;
     } else {
-      const items = itemsFromArchive(
+      const whole = itemsFromArchive(
         await Deno.readTextFile(`${CACHE_DIR}/${MENU_ARCHIVE[menu]}`),
+      );
+      const items = fullMenu ? whole : fixtureBatches(
+        whole,
+        oracle.filter((e) => e.menu === menu).map((e) => e.name),
       );
       const runner = ARM_RUNNERS[arm];
       enriched = runner

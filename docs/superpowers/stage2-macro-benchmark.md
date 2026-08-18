@@ -5080,3 +5080,83 @@ must hold 16/96 weighted and 37/72 unweighted.
 
 ⚠️ **ONE RUN OF 3 DRAWS PER ARM.** CESAR's recovery tracks its batch cleanly, but Coleslaw's 0 → 6 is
 the size of swing that needs a repeat before it is load-bearing. **A range across runs is still owed.**
+
+### ❌ ARM P-INLINE FAILS — WORDING IS 0 FOR 6, AND THE GAIN LOOKS LIKE THE BATCH (2026-08-18, ~$1.8)
+
+Four runs: a second baseline on each benchmark (for the RANGE Santiago's rule requires) plus P-inline
+on both. Zero backfilled items anywhere; all four $0-replay verified.
+
+| arm | weighted, in real menus | unweighted | shippable? |
+|---|---|---|---|
+| **production today** | **16–18/96** (2 runs) | **25–28/72** (2 runs) | — |
+| Arm P — split | 27/96 ❌ | **37/72** ✅ | no |
+| Arm P-10 — split, full batches | 22/96 ❌ | *never measured* | no |
+| **P-inline — no split** | **15/96** ✅ | **29/72** ❌ | **no** |
+
+**P-inline clears the weighted gate and fails the one that matters.** 29/72 against a 25–28 baseline
+is inside the noise; Arm P's 37 is 8 points away. **It bought nothing.**
+
+🔑 **PROMPT WORDING IS NOW 0 FOR 6** (B11, B13, B23, two `serving_pieces` wordings, Arm S, P-inline).
+
+#### 🧪 THE $0 DIAGNOSTIC PREDICTED IT, AND IT WAS WRITTEN DOWN BEFORE THE RUN
+
+The falsifier was fixed in the source before spending: *"unweighted stays ~28/72 → the condition never
+fired."* Comparing archived serving sums, P-inline vs baseline, same draw:
+
+| group | should | median change | unchanged (±2%) |
+|---|---|---|---|
+| **unweighted** — the target | grow | **1.00× — did not move** | 6/15 |
+| **weighted** — must be untouched | 1.00× | 1.01× median, but **4.00×, 1.94×, 1.87×** on individual dishes | **4/38** |
+
+**The conditional landed on the wrong group.** Items it was scoped to barely moved; items it
+explicitly excluded were shuffled — which is why French Fries went 0/12 → 6/12 on the weighted gate.
+A per-item condition in prose is not read as a per-item condition.
+
+#### 🔑 THE FINDING THAT MATTERS — ARM P'S GAIN IS PROBABLY THE BATCH, NOT THE SENTENCE
+
+Per dish, unweighted:
+
+| dish | baseline | P-inline | **Arm P** |
+|---|---|---|---|
+| CARBONARA | 10 | **12** | 12 |
+| ENSALADA GRIEGA | 7 | 10 | **12** |
+| CAPRICCIOSA | 0 | 0 | **2** |
+| COLIFLOR ROKA | 0 | 0 | **3** |
+| Salmón Roll | 5 | 3 | **5** |
+| TIRAS DE POLLO | 3 | 4 | 3 |
+| **TOTAL** | **25** | **29** | **37** |
+
+**P-inline gives the SAME WORDS to the SAME items and gets 29 where Arm P gets 37. The only
+difference between them is that Arm P's unweighted items travel in a batch containing nothing but
+unweighted items.** That is direct evidence for the 2026-08-12 prior — *the model calibrates across
+the items sharing a call* — and it reframes the whole thread: **Arm P may never have been a prompt
+win at all.**
+
+⚠️ **THE CONTROL THAT WAS NEVER RUN, and it is now the cheapest informative experiment (~$0.50):**
+split weighted/unweighted into separate calls with the **UNCHANGED** prompt, scored on the unweighted
+set. If that alone lands near 37/72, **the lever is BATCH COMPOSITION and every prompt arm in this
+thread was measuring it by accident.**
+
+⚠️ **A SECOND GAP: Arm P-10's UNWEIGHTED score was never measured.** We know its weighted cost
+(22/96 against 16–18) and nothing about its gain. It keeps unweighted items in homogeneous batches of
+10, so it should carry Arm P's gain — and without that number its trade-off cannot be put to Santiago.
+~$0.50.
+
+#### 🔧 A HARNESS BUG WAS FOUND AND FIXED MID-RUN
+
+The first P-inline unweighted run **crashed on a single 120 s timeout**: the prompt-arms call
+`enrichBatch` directly (to vary the prompt) and it has no retry, where production wraps every batch in
+`enrichBatchWithRetry`. One slow request killed a paid run. `retryOnce` now wraps `armPInline` in
+`scripts/probe-plate-arms.ts`. ⚠️ `armS3`/`armS4` share the fragility and are deliberately NOT wrapped
+— both are rejected arms nothing re-runs.
+
+#### 📌 Cost and ranges
+
+**~$1.80 for four runs** (~$0.40 × 2 weighted, ~$0.50 × 2 unweighted). Under the old whole-menu path
+this was ~$8. The unweighted harness now carries the same focused-batch saving, with a `-f` archive
+segment so a cheap run can never overwrite the whole-menu evidence — verified after the change that
+the published archives still replay to **28/72** (baseline) and **37/72** (Arm P).
+
+⚠️ **Both baselines now have a RANGE and it is tight: weighted 16–18/96, unweighted 25–28/72.**
+Coleslaw remains the noisiest dish (0 / 2 / 4 / 6 across four arms) — treat any single-dish claim
+about it with suspicion.

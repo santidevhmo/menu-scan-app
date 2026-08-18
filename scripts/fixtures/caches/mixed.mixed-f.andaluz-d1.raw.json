@@ -32,16 +32,14 @@
       "price": 280,
       "category": "food",
       "printed_total_g": 200,
-      "name_implied_components": [
-        "skewer"
-      ],
+      "name_implied_components": [],
       "ingredients": [
         {
-          "name": "chicken breast",
+          "name": "chicken",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 85,
-          "protein_per_100g": 31,
+          "protein_per_100g": 27,
           "carb_per_100g": 0,
           "fat_per_100g": 3.6
         },
@@ -55,10 +53,10 @@
           "fat_per_100g": 0.2
         }
       ],
-      "protein_g": 33,
+      "protein_g": 29,
       "carb_g": 8,
       "fat_g": 4,
-      "estimated_calories": 198,
+      "estimated_calories": 182,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": []
@@ -69,16 +67,14 @@
       "price": 220,
       "category": "food",
       "printed_total_g": 200,
-      "name_implied_components": [
-        "breading"
-      ],
+      "name_implied_components": [],
       "ingredients": [
         {
-          "name": "chicken breast",
+          "name": "chicken",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 85,
-          "protein_per_100g": 31,
+          "protein_per_100g": 27,
           "carb_per_100g": 0,
           "fat_per_100g": 3.6
         },
@@ -90,12 +86,21 @@
           "protein_per_100g": 8,
           "carb_per_100g": 60,
           "fat_per_100g": 5
+        },
+        {
+          "name": "sauce",
+          "category": "other",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 20,
+          "fat_per_100g": 5
         }
       ],
-      "protein_g": 50,
-      "carb_g": 31,
-      "fat_g": 8,
-      "estimated_calories": 397,
+      "protein_g": 44,
+      "carb_g": 37,
+      "fat_g": 9,
+      "estimated_calories": 412,
       "serving_pieces": 1,
       "confidence": "medium",
       "allergens": [
@@ -108,9 +113,7 @@
       "price": 300,
       "category": "food",
       "printed_total_g": 200,
-      "name_implied_components": [
-        "breading"
-      ],
+      "name_implied_components": [],
       "ingredients": [
         {
           "name": "shrimp",
@@ -158,12 +161,21 @@
           "protein_per_100g": 23,
           "carb_per_100g": 0,
           "fat_per_100g": 16
+        },
+        {
+          "name": "sauce",
+          "category": "other",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 20,
+          "fat_per_100g": 5
         }
       ],
       "protein_g": 92,
-      "carb_g": 0,
-      "fat_g": 64,
-      "estimated_calories": 944,
+      "carb_g": 6,
+      "fat_g": 66,
+      "estimated_calories": 983,
       "serving_pieces": 1,
       "confidence": "medium",
       "allergens": []
@@ -182,15 +194,15 @@
           "within_printed_weight": true,
           "typical_serving_g": 30,
           "protein_per_100g": 20,
-          "carb_per_100g": 1.5,
+          "carb_per_100g": 1,
           "fat_per_100g": 15
         },
         {
           "name": "chicken",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
-          "protein_per_100g": 31,
+          "typical_serving_g": 85,
+          "protein_per_100g": 27,
           "carb_per_100g": 0,
           "fat_per_100g": 3.6
         },
@@ -200,7 +212,7 @@
           "within_printed_weight": true,
           "typical_serving_g": 30,
           "protein_per_100g": 25,
-          "carb_per_100g": 1.3,
+          "carb_per_100g": 1,
           "fat_per_100g": 33
         },
         {
@@ -211,37 +223,6 @@
           "protein_per_100g": 3,
           "carb_per_100g": 6,
           "fat_per_100g": 10
-        }
-      ],
-      "protein_g": 24,
-      "carb_g": 4,
-      "fat_g": 20,
-      "estimated_calories": 297,
-      "serving_pieces": 8,
-      "confidence": "medium",
-      "allergens": [
-        "dairy",
-        "gluten"
-      ]
-    },
-    {
-      "name": "TIRAS DE POLLO",
-      "description": "Acompañadas de papas fritas.",
-      "price": 185,
-      "category": "food",
-      "printed_total_g": null,
-      "name_implied_components": [
-        "breading"
-      ],
-      "ingredients": [
-        {
-          "name": "chicken breast",
-          "category": "protein",
-          "within_printed_weight": true,
-          "typical_serving_g": 85,
-          "protein_per_100g": 31,
-          "carb_per_100g": 0,
-          "fat_per_100g": 3.6
         },
         {
           "name": "breading",
@@ -251,26 +232,53 @@
           "protein_per_100g": 8,
           "carb_per_100g": 60,
           "fat_per_100g": 5
+        }
+      ],
+      "protein_g": 40,
+      "carb_g": 22,
+      "fat_g": 24,
+      "estimated_calories": 463,
+      "serving_pieces": 8,
+      "confidence": "medium",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ]
+    },
+    {
+      "name": "TIRAS DE POLLO",
+      "description": "Acompañadas de papas fritas.",
+      "price": 185,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "chicken strips",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 85,
+          "protein_per_100g": 27,
+          "carb_per_100g": 0,
+          "fat_per_100g": 3.6
         },
         {
           "name": "french fries",
           "category": "carb",
           "within_printed_weight": false,
           "typical_serving_g": 100,
-          "protein_per_100g": 3.4,
-          "carb_per_100g": 41,
+          "protein_per_100g": 3,
+          "carb_per_100g": 37,
           "fat_per_100g": 15
         }
       ],
-      "protein_g": 32,
-      "carb_g": 59,
-      "fat_g": 20,
-      "estimated_calories": 541,
+      "protein_g": 26,
+      "carb_g": 37,
+      "fat_g": 18,
+      "estimated_calories": 414,
       "serving_pieces": 1,
       "confidence": "medium",
-      "allergens": [
-        "gluten"
-      ]
+      "allergens": []
     },
     {
       "name": "MEDITERRÁNEA",
@@ -304,7 +312,7 @@
           "within_printed_weight": true,
           "typical_serving_g": 30,
           "protein_per_100g": 18,
-          "carb_per_100g": 3.5,
+          "carb_per_100g": 2,
           "fat_per_100g": 20
         },
         {
@@ -321,7 +329,7 @@
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 85,
-          "protein_per_100g": 1.2,
+          "protein_per_100g": 1,
           "carb_per_100g": 3.9,
           "fat_per_100g": 0.2
         },
@@ -356,7 +364,7 @@
       "protein_g": 15,
       "carb_g": 20,
       "fat_g": 44,
-      "estimated_calories": 538,
+      "estimated_calories": 536,
       "serving_pieces": 1,
       "confidence": "medium",
       "allergens": [
@@ -397,14 +405,14 @@
           "typical_serving_g": 30,
           "protein_per_100g": 12,
           "carb_per_100g": 72,
-          "fat_per_100g": 5
+          "fat_per_100g": 10
         },
         {
           "name": "grilled chicken",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 85,
-          "protein_per_100g": 31,
+          "protein_per_100g": 27,
           "carb_per_100g": 0,
           "fat_per_100g": 3.6
         },
@@ -418,12 +426,12 @@
           "fat_per_100g": 30
         }
       ],
-      "protein_g": 32,
+      "protein_g": 30,
       "carb_g": 21,
-      "fat_g": 16,
+      "fat_g": 17,
       "estimated_calories": 361,
       "serving_pieces": 1,
-      "confidence": "medium",
+      "confidence": "high",
       "allergens": [
         "dairy",
         "gluten"
@@ -435,9 +443,7 @@
       "price": 275,
       "category": "food",
       "printed_total_g": null,
-      "name_implied_components": [
-        "rice"
-      ],
+      "name_implied_components": [],
       "ingredients": [
         {
           "name": "shrimp",
@@ -447,6 +453,15 @@
           "protein_per_100g": 24,
           "carb_per_100g": 0,
           "fat_per_100g": 0.3
+        },
+        {
+          "name": "breading",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 8,
+          "carb_per_100g": 60,
+          "fat_per_100g": 5
         },
         {
           "name": "cucumber",
@@ -468,31 +483,41 @@
         },
         {
           "name": "seaweed",
-          "category": "veg",
+          "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 5,
           "protein_per_100g": 5,
-          "carb_per_100g": 8,
+          "carb_per_100g": 5,
           "fat_per_100g": 0.5
         },
         {
-          "name": "rice",
-          "category": "carb",
+          "name": "green onion",
+          "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 150,
-          "protein_per_100g": 2.7,
-          "carb_per_100g": 28,
-          "fat_per_100g": 0.3
+          "typical_serving_g": 15,
+          "protein_per_100g": 1.8,
+          "carb_per_100g": 7.3,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "sesame seeds",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 9,
+          "protein_per_100g": 17,
+          "carb_per_100g": 23,
+          "fat_per_100g": 50
         }
       ],
       "protein_g": 26,
-      "carb_g": 49,
-      "fat_g": 8,
-      "estimated_calories": 374,
+      "carb_g": 28,
+      "fat_g": 14,
+      "estimated_calories": 341,
       "serving_pieces": 1,
       "confidence": "medium",
       "allergens": [
-        "shellfish"
+        "shellfish",
+        "gluten"
       ]
     }
   ]

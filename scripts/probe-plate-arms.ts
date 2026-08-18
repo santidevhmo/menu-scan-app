@@ -261,6 +261,27 @@ export async function armP(items: Item[]) {
   return out;
 }
 
+/**
+ * One retry, because a single 120 s timeout otherwise kills a whole paid run.
+ *
+ * Production does not have this problem: callGptEnrich wraps every batch in
+ * enrichBatchWithRetry. The arms call enrichBatch directly to vary the prompt,
+ * and enrichBatchWithRetry is neither exported nor prompt-aware - so the retry
+ * lives here rather than in enrich.ts, which is deployed code and should not
+ * grow a parameter for a harness's benefit.
+ *
+ * ⚠️ armS3 and armS4 share the same fragility and are NOT wrapped: both are
+ * rejected arms that nothing re-runs. Wrap them if that ever changes.
+ */
+async function retryOnce<T>(call: () => Promise<T>): Promise<T> {
+  try {
+    return await call();
+  } catch (error) {
+    console.warn(`[arm] retrying after: ${(error as Error).message}`);
+    return await call();
+  }
+}
+
 // ------------------------------------------------------------ ARM P-INLINE
 //
 // ARM P'S INSTRUCTION WITH NO SPLIT AT ALL.
@@ -302,13 +323,15 @@ export const ARM_P_INLINE_PROMPT = ENRICH_PROMPT + ARM_P_INLINE_SENTENCE;
  * request builder, so this measures the real path (lesson 23).
  */
 export async function armPInline(items: Item[]) {
-  return await enrichBatch(
-    // deno-lint-ignore no-explicit-any
-    items as any,
-    apiKey!,
-    ENRICH_MODEL,
-    undefined,
-    ARM_P_INLINE_PROMPT,
+  return await retryOnce(() =>
+    enrichBatch(
+      // deno-lint-ignore no-explicit-any
+      items as any,
+      apiKey!,
+      ENRICH_MODEL,
+      undefined,
+      ARM_P_INLINE_PROMPT,
+    )
   );
 }
 

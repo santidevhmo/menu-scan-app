@@ -41,7 +41,7 @@
           "typical_serving_g": 30,
           "protein_per_100g": 1,
           "carb_per_100g": 5,
-          "fat_per_100g": 40
+          "fat_per_100g": 30
         },
         {
           "name": "Habanero Pepper",
@@ -55,8 +55,8 @@
       ],
       "protein_g": 0,
       "carb_g": 2,
-      "fat_g": 12,
-      "estimated_calories": 117,
+      "fat_g": 9,
+      "estimated_calories": 90,
       "serving_pieces": 1,
       "confidence": "medium",
       "allergens": [
@@ -78,7 +78,7 @@
           "typical_serving_g": 30,
           "protein_per_100g": 1,
           "carb_per_100g": 5,
-          "fat_per_100g": 40
+          "fat_per_100g": 30
         },
         {
           "name": "Buffalo Sauce",
@@ -86,14 +86,14 @@
           "within_printed_weight": true,
           "typical_serving_g": 15,
           "protein_per_100g": 1,
-          "carb_per_100g": 10,
-          "fat_per_100g": 5
+          "carb_per_100g": 5,
+          "fat_per_100g": 10
         }
       ],
       "protein_g": 0,
-      "carb_g": 3,
-      "fat_g": 13,
-      "estimated_calories": 129,
+      "carb_g": 2,
+      "fat_g": 11,
+      "estimated_calories": 105,
       "serving_pieces": 1,
       "confidence": "medium",
       "allergens": [
@@ -115,7 +115,7 @@
           "typical_serving_g": 30,
           "protein_per_100g": 1,
           "carb_per_100g": 5,
-          "fat_per_100g": 40
+          "fat_per_100g": 30
         },
         {
           "name": "Sriracha Sauce",
@@ -123,14 +123,14 @@
           "within_printed_weight": true,
           "typical_serving_g": 15,
           "protein_per_100g": 1,
-          "carb_per_100g": 10,
-          "fat_per_100g": 5
+          "carb_per_100g": 5,
+          "fat_per_100g": 0.5
         }
       ],
       "protein_g": 0,
-      "carb_g": 3,
-      "fat_g": 13,
-      "estimated_calories": 129,
+      "carb_g": 2,
+      "fat_g": 9,
+      "estimated_calories": 92,
       "serving_pieces": 1,
       "confidence": "medium",
       "allergens": [
@@ -146,7 +146,7 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Seasoned Potato Wedges",
+          "name": "Seasoned Potatoes",
           "category": "carb",
           "within_printed_weight": true,
           "typical_serving_g": 150,
@@ -184,16 +184,16 @@
           "name": "Parsley",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 1,
+          "typical_serving_g": 5,
           "protein_per_100g": 3,
           "carb_per_100g": 6,
           "fat_per_100g": 0.8
         }
       ],
       "protein_g": 9,
-      "carb_g": 104,
-      "fat_g": 45,
-      "estimated_calories": 856,
+      "carb_g": 102,
+      "fat_g": 44,
+      "estimated_calories": 837,
       "serving_pieces": 1,
       "confidence": "low",
       "allergens": []
@@ -220,7 +220,7 @@
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 30,
-          "protein_per_100g": 1.4,
+          "protein_per_100g": 1.3,
           "carb_per_100g": 6,
           "fat_per_100g": 0.1
         },
@@ -266,7 +266,7 @@
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 50,
-          "protein_per_100g": 1.4,
+          "protein_per_100g": 1.3,
           "carb_per_100g": 6,
           "fat_per_100g": 0.1
         },
@@ -276,7 +276,7 @@
           "within_printed_weight": true,
           "typical_serving_g": 50,
           "protein_per_100g": 1.3,
-          "carb_per_100g": 5.8,
+          "carb_per_100g": 6,
           "fat_per_100g": 0.1
         },
         {
@@ -295,13 +295,13 @@
           "typical_serving_g": 20,
           "protein_per_100g": 1,
           "carb_per_100g": 5,
-          "fat_per_100g": 40
+          "fat_per_100g": 30
         }
       ],
       "protein_g": 2,
       "carb_g": 10,
-      "fat_g": 8,
-      "estimated_calories": 120,
+      "fat_g": 6,
+      "estimated_calories": 103,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [

@@ -138,7 +138,7 @@
       "fat_g": 70,
       "estimated_calories": 1118,
       "serving_pieces": 1,
-      "confidence": "medium",
+      "confidence": "high",
       "allergens": [
         "shellfish"
       ]
@@ -185,7 +185,9 @@
       "estimated_calories": 701,
       "serving_pieces": 1,
       "confidence": "high",
-      "allergens": []
+      "allergens": [
+        "dairy"
+      ]
     },
     {
       "name": "HAMBURGUESA CALAFATE",
@@ -493,8 +495,8 @@
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [
-        "gluten",
-        "fish"
+        "fish",
+        "gluten"
       ]
     },
     {
@@ -515,13 +517,13 @@
           "fat_per_100g": 5
         },
         {
-          "name": "zucchini",
+          "name": "pumpkin",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 85,
-          "protein_per_100g": 1.2,
-          "carb_per_100g": 3.1,
-          "fat_per_100g": 0.2
+          "protein_per_100g": 1,
+          "carb_per_100g": 7,
+          "fat_per_100g": 0.1
         },
         {
           "name": "asparagus",
@@ -544,22 +546,22 @@
         {
           "name": "shrimp",
           "category": "protein",
-          "within_printed_weight": false,
+          "within_printed_weight": true,
           "typical_serving_g": 85,
           "protein_per_100g": 20,
           "carb_per_100g": 0,
           "fat_per_100g": 1
         }
       ],
-      "protein_g": 38,
-      "carb_g": 4,
-      "fat_g": 7,
-      "estimated_calories": 231,
+      "protein_g": 24,
+      "carb_g": 5,
+      "fat_g": 5,
+      "estimated_calories": 165,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [
-        "shellfish",
-        "fish"
+        "fish",
+        "shellfish"
       ]
     },
     {
@@ -589,28 +591,28 @@
           "fat_per_100g": 5
         },
         {
-          "name": "onions",
+          "name": "grilled onions",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 85,
-          "protein_per_100g": 1.1,
-          "carb_per_100g": 9.3,
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
           "fat_per_100g": 0.1
         },
         {
-          "name": "roasted chiles",
+          "name": "grilled chiles",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 30,
-          "protein_per_100g": 1.9,
-          "carb_per_100g": 6.5,
-          "fat_per_100g": 0.4
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0.3
         }
       ],
       "protein_g": 57,
       "carb_g": 14,
       "fat_g": 46,
-      "estimated_calories": 698,
+      "estimated_calories": 695,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": []

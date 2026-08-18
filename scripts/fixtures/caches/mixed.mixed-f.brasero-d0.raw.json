@@ -9,28 +9,28 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "New York steak",
+          "name": "beef steak",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 250,
-          "protein_per_100g": 25,
+          "typical_serving_g": 200,
+          "protein_per_100g": 26,
           "carb_per_100g": 0,
           "fat_per_100g": 20
         },
         {
-          "name": "Chimichurri",
+          "name": "chimichurri",
           "category": "fat",
           "within_printed_weight": false,
           "typical_serving_g": 30,
           "protein_per_100g": 1,
-          "carb_per_100g": 5,
+          "carb_per_100g": 2,
           "fat_per_100g": 15
         }
       ],
-      "protein_g": 100,
-      "carb_g": 2,
+      "protein_g": 104,
+      "carb_g": 1,
       "fat_g": 85,
-      "estimated_calories": 1168,
+      "estimated_calories": 1180,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": []
@@ -44,28 +44,28 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Rib eye steak",
+          "name": "rib eye steak",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 250,
+          "typical_serving_g": 200,
           "protein_per_100g": 25,
           "carb_per_100g": 0,
           "fat_per_100g": 22
         },
         {
-          "name": "Chimichurri",
+          "name": "chimichurri",
           "category": "fat",
           "within_printed_weight": false,
           "typical_serving_g": 30,
           "protein_per_100g": 1,
-          "carb_per_100g": 5,
+          "carb_per_100g": 2,
           "fat_per_100g": 15
         }
       ],
       "protein_g": 100,
-      "carb_g": 2,
+      "carb_g": 1,
       "fat_g": 93,
-      "estimated_calories": 1240,
+      "estimated_calories": 1236,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": []
@@ -79,16 +79,16 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Beef filet",
+          "name": "beef filet",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 150,
           "protein_per_100g": 26,
           "carb_per_100g": 0,
-          "fat_per_100g": 15
+          "fat_per_100g": 20
         },
         {
-          "name": "Mashed potatoes",
+          "name": "mashed potatoes",
           "category": "carb",
           "within_printed_weight": false,
           "typical_serving_g": 150,
@@ -97,34 +97,34 @@
           "fat_per_100g": 5
         },
         {
-          "name": "Spinach",
+          "name": "spinach",
           "category": "veg",
           "within_printed_weight": false,
           "typical_serving_g": 85,
           "protein_per_100g": 3,
           "carb_per_100g": 4,
-          "fat_per_100g": 0.5
+          "fat_per_100g": 0.4
         },
         {
-          "name": "Shrimp",
+          "name": "shrimp",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 50,
-          "protein_per_100g": 20,
+          "protein_per_100g": 24,
           "carb_per_100g": 0,
           "fat_per_100g": 1
         },
         {
-          "name": "Bacon",
+          "name": "bacon",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 30,
           "protein_per_100g": 12,
-          "carb_per_100g": 0,
+          "carb_per_100g": 1,
           "fat_per_100g": 42
         },
         {
-          "name": "Salsa chemita",
+          "name": "salsa chemita",
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 30,
@@ -133,10 +133,10 @@
           "fat_per_100g": 10
         }
       ],
-      "protein_g": 52,
+      "protein_g": 54,
       "carb_g": 35,
-      "fat_g": 42,
-      "estimated_calories": 727,
+      "fat_g": 49,
+      "estimated_calories": 794,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [
@@ -152,25 +152,25 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Beef medallions",
+          "name": "beef medallions",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 150,
           "protein_per_100g": 26,
           "carb_per_100g": 0,
-          "fat_per_100g": 15
+          "fat_per_100g": 20
         },
         {
-          "name": "Lemon butter sauce",
+          "name": "lemon butter sauce",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 30,
           "protein_per_100g": 1,
           "carb_per_100g": 2,
-          "fat_per_100g": 20
+          "fat_per_100g": 15
         },
         {
-          "name": "Capers",
+          "name": "capers",
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 10,
@@ -181,8 +181,8 @@
       ],
       "protein_g": 48,
       "carb_g": 1,
-      "fat_g": 35,
-      "estimated_calories": 508,
+      "fat_g": 42,
+      "estimated_calories": 573,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [
@@ -200,7 +200,7 @@
       ],
       "ingredients": [
         {
-          "name": "Beef patty",
+          "name": "beef patty",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 100,
@@ -209,34 +209,34 @@
           "fat_per_100g": 20
         },
         {
-          "name": "Sesame bun",
+          "name": "sesame bun",
           "category": "carb",
           "within_printed_weight": true,
           "typical_serving_g": 70,
-          "protein_per_100g": 8,
+          "protein_per_100g": 9,
           "carb_per_100g": 50,
-          "fat_per_100g": 5
+          "fat_per_100g": 4
         },
         {
-          "name": "Cheddar cheese",
+          "name": "cheddar cheese",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 30,
           "protein_per_100g": 25,
-          "carb_per_100g": 2,
+          "carb_per_100g": 1,
           "fat_per_100g": 33
         },
         {
-          "name": "Roasted red pepper",
+          "name": "roasted red pepper",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 30,
           "protein_per_100g": 1,
           "carb_per_100g": 6,
-          "fat_per_100g": 0.5
+          "fat_per_100g": 0.3
         },
         {
-          "name": "Argentinian chorizo",
+          "name": "argentinian chorizo",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 50,
@@ -245,25 +245,25 @@
           "fat_per_100g": 30
         },
         {
-          "name": "Chimichurri",
+          "name": "chimichurri",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 20,
           "protein_per_100g": 1,
-          "carb_per_100g": 5,
+          "carb_per_100g": 2,
           "fat_per_100g": 15
         },
         {
-          "name": "Arugula",
+          "name": "arugula",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 10,
-          "protein_per_100g": 2,
-          "carb_per_100g": 4,
-          "fat_per_100g": 0.5
+          "protein_per_100g": 2.6,
+          "carb_per_100g": 3.7,
+          "fat_per_100g": 0.7
         },
         {
-          "name": "Red onion",
+          "name": "red onion",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 10,
@@ -272,19 +272,19 @@
           "fat_per_100g": 0.1
         },
         {
-          "name": "Dijon mayonnaise",
+          "name": "dijon mayonnaise",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 15,
           "protein_per_100g": 1,
-          "carb_per_100g": 5,
-          "fat_per_100g": 30
+          "carb_per_100g": 2,
+          "fat_per_100g": 75
         }
       ],
       "protein_g": 30,
       "carb_g": 24,
-      "fat_g": 33,
-      "estimated_calories": 519,
+      "fat_g": 37,
+      "estimated_calories": 550,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [
@@ -304,7 +304,7 @@
       ],
       "ingredients": [
         {
-          "name": "Beef patty",
+          "name": "beef patty",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 100,
@@ -313,43 +313,43 @@
           "fat_per_100g": 20
         },
         {
-          "name": "Sesame bun",
+          "name": "sesame bun",
           "category": "carb",
           "within_printed_weight": true,
           "typical_serving_g": 70,
-          "protein_per_100g": 8,
+          "protein_per_100g": 9,
           "carb_per_100g": 50,
-          "fat_per_100g": 5
+          "fat_per_100g": 4
         },
         {
-          "name": "Cheddar cheese",
+          "name": "cheddar cheese",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 30,
           "protein_per_100g": 25,
-          "carb_per_100g": 2,
+          "carb_per_100g": 1,
           "fat_per_100g": 33
         },
         {
-          "name": "Bacon",
+          "name": "bacon",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 30,
           "protein_per_100g": 12,
-          "carb_per_100g": 0,
+          "carb_per_100g": 1,
           "fat_per_100g": 42
         },
         {
-          "name": "Tomato",
+          "name": "tomato",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 20,
+          "typical_serving_g": 30,
           "protein_per_100g": 1,
           "carb_per_100g": 4,
           "fat_per_100g": 0.2
         },
         {
-          "name": "Red onion",
+          "name": "red onion",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 10,
@@ -358,28 +358,28 @@
           "fat_per_100g": 0.1
         },
         {
-          "name": "Mixed greens",
+          "name": "mixed greens",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 10,
-          "protein_per_100g": 2,
-          "carb_per_100g": 4,
-          "fat_per_100g": 0.5
+          "protein_per_100g": 2.6,
+          "carb_per_100g": 3.7,
+          "fat_per_100g": 0.7
         },
         {
-          "name": "Dijon mayonnaise",
+          "name": "dijon mayonnaise",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 15,
           "protein_per_100g": 1,
-          "carb_per_100g": 5,
-          "fat_per_100g": 30
+          "carb_per_100g": 2,
+          "fat_per_100g": 75
         }
       ],
       "protein_g": 30,
-      "carb_g": 27,
-      "fat_g": 36,
-      "estimated_calories": 549,
+      "carb_g": 26,
+      "fat_g": 38,
+      "estimated_calories": 570,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [
@@ -397,7 +397,7 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Grilled octopus",
+          "name": "grilled octopus",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 150,
@@ -406,7 +406,7 @@
           "fat_per_100g": 2
         },
         {
-          "name": "Chili adobo",
+          "name": "chile adobo",
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 30,
@@ -415,28 +415,28 @@
           "fat_per_100g": 5
         },
         {
-          "name": "Asparagus",
+          "name": "asparagus",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 60,
-          "protein_per_100g": 2,
-          "carb_per_100g": 4,
+          "typical_serving_g": 85,
+          "protein_per_100g": 2.2,
+          "carb_per_100g": 3.9,
           "fat_per_100g": 0.2
         },
         {
-          "name": "Mushrooms",
+          "name": "mushrooms",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 40,
-          "protein_per_100g": 3,
-          "carb_per_100g": 4,
-          "fat_per_100g": 0.5
+          "typical_serving_g": 85,
+          "protein_per_100g": 3.1,
+          "carb_per_100g": 3.3,
+          "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 41,
+      "protein_g": 34,
       "carb_g": 7,
-      "fat_g": 5,
-      "estimated_calories": 233,
+      "fat_g": 4,
+      "estimated_calories": 201,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [
@@ -452,25 +452,25 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Salmon fillet",
+          "name": "salmon filet",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 200,
+          "typical_serving_g": 150,
           "protein_per_100g": 25,
           "carb_per_100g": 0,
           "fat_per_100g": 13
         },
         {
-          "name": "Pasta al burro",
+          "name": "pasta al burro",
           "category": "carb",
           "within_printed_weight": true,
-          "typical_serving_g": 100,
+          "typical_serving_g": 150,
           "protein_per_100g": 5,
           "carb_per_100g": 30,
           "fat_per_100g": 5
         },
         {
-          "name": "Mediterranean sauce",
+          "name": "mediterranean sauce",
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 30,
@@ -479,19 +479,19 @@
           "fat_per_100g": 10
         },
         {
-          "name": "Basil",
+          "name": "basil",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 20,
-          "protein_per_100g": 3,
-          "carb_per_100g": 5,
+          "typical_serving_g": 5,
+          "protein_per_100g": 3.2,
+          "carb_per_100g": 2.7,
           "fat_per_100g": 0.6
         }
       ],
-      "protein_g": 56,
-      "carb_g": 33,
-      "fat_g": 34,
-      "estimated_calories": 661,
+      "protein_g": 47,
+      "carb_g": 49,
+      "fat_g": 31,
+      "estimated_calories": 667,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [
@@ -508,7 +508,7 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Fish fillet",
+          "name": "fish filet",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 150,
@@ -517,25 +517,25 @@
           "fat_per_100g": 5
         },
         {
-          "name": "Pumpkin",
+          "name": "pumpkin",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
+          "typical_serving_g": 85,
           "protein_per_100g": 1,
-          "carb_per_100g": 12,
+          "carb_per_100g": 7,
           "fat_per_100g": 0.1
         },
         {
-          "name": "Asparagus",
+          "name": "asparagus",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 60,
-          "protein_per_100g": 2,
-          "carb_per_100g": 4,
+          "typical_serving_g": 85,
+          "protein_per_100g": 2.2,
+          "carb_per_100g": 3.9,
           "fat_per_100g": 0.2
         },
         {
-          "name": "Garlic sauce",
+          "name": "garlic sauce",
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 30,
@@ -544,19 +544,19 @@
           "fat_per_100g": 10
         },
         {
-          "name": "Shrimp",
+          "name": "shrimp",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 50,
-          "protein_per_100g": 20,
+          "protein_per_100g": 24,
           "carb_per_100g": 0,
           "fat_per_100g": 1
         }
       ],
-      "protein_g": 26,
-      "carb_g": 6,
-      "fat_g": 7,
-      "estimated_calories": 188,
+      "protein_g": 24,
+      "carb_g": 5,
+      "fat_g": 6,
+      "estimated_calories": 168,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [
@@ -573,46 +573,46 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Pork tomahawk",
+          "name": "pork tomahawk",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 250,
-          "protein_per_100g": 20,
+          "typical_serving_g": 200,
+          "protein_per_100g": 25,
           "carb_per_100g": 0,
-          "fat_per_100g": 25
+          "fat_per_100g": 20
         },
         {
-          "name": "Oriental sauce",
+          "name": "oriental sauce",
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 30,
           "protein_per_100g": 1,
-          "carb_per_100g": 10,
-          "fat_per_100g": 5
+          "carb_per_100g": 5,
+          "fat_per_100g": 10
         },
         {
-          "name": "Grilled onions",
+          "name": "onions",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
+          "typical_serving_g": 30,
           "protein_per_100g": 1,
           "carb_per_100g": 9,
           "fat_per_100g": 0.1
         },
         {
-          "name": "Grilled chiles",
+          "name": "roasted chiles",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
-          "protein_per_100g": 2,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
           "carb_per_100g": 6,
-          "fat_per_100g": 0.5
+          "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 52,
-      "carb_g": 11,
-      "fat_g": 64,
-      "estimated_calories": 828,
+      "protein_g": 67,
+      "carb_g": 8,
+      "fat_g": 57,
+      "estimated_calories": 807,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": []

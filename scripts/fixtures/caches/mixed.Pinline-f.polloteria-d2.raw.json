@@ -9,7 +9,7 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Cilantro",
+          "name": "cilantro",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 5,
@@ -35,28 +35,28 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Ranch Dressing",
+          "name": "ranch dressing",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 30,
-          "protein_per_100g": 1,
-          "carb_per_100g": 3,
-          "fat_per_100g": 30
+          "protein_per_100g": 1.5,
+          "carb_per_100g": 5,
+          "fat_per_100g": 40
         },
         {
-          "name": "Habanero Pepper",
+          "name": "habanero pepper",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 5,
           "protein_per_100g": 2,
-          "carb_per_100g": 8,
+          "carb_per_100g": 9,
           "fat_per_100g": 0.4
         }
       ],
-      "protein_g": 0,
-      "carb_g": 1,
-      "fat_g": 9,
-      "estimated_calories": 88,
+      "protein_g": 1,
+      "carb_g": 2,
+      "fat_g": 12,
+      "estimated_calories": 118,
       "serving_pieces": 1,
       "confidence": "medium",
       "allergens": [
@@ -72,28 +72,28 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Ranch Dressing",
+          "name": "ranch dressing",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 30,
-          "protein_per_100g": 1,
-          "carb_per_100g": 3,
-          "fat_per_100g": 30
+          "protein_per_100g": 1.5,
+          "carb_per_100g": 5,
+          "fat_per_100g": 40
         },
         {
-          "name": "Buffalo Sauce",
+          "name": "buffalo sauce",
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 15,
           "protein_per_100g": 1,
-          "carb_per_100g": 5,
-          "fat_per_100g": 10
+          "carb_per_100g": 10,
+          "fat_per_100g": 5
         }
       ],
-      "protein_g": 0,
-      "carb_g": 2,
-      "fat_g": 11,
-      "estimated_calories": 103,
+      "protein_g": 1,
+      "carb_g": 3,
+      "fat_g": 13,
+      "estimated_calories": 129,
       "serving_pieces": 1,
       "confidence": "medium",
       "allergens": [
@@ -109,28 +109,28 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Ranch Dressing",
+          "name": "ranch dressing",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 30,
-          "protein_per_100g": 1,
-          "carb_per_100g": 3,
-          "fat_per_100g": 30
+          "protein_per_100g": 1.5,
+          "carb_per_100g": 5,
+          "fat_per_100g": 40
         },
         {
-          "name": "Sriracha Sauce",
+          "name": "sriracha sauce",
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 15,
           "protein_per_100g": 1,
-          "carb_per_100g": 5,
-          "fat_per_100g": 0
+          "carb_per_100g": 10,
+          "fat_per_100g": 1
         }
       ],
-      "protein_g": 0,
-      "carb_g": 2,
-      "fat_g": 9,
-      "estimated_calories": 89,
+      "protein_g": 1,
+      "carb_g": 3,
+      "fat_g": 12,
+      "estimated_calories": 124,
       "serving_pieces": 1,
       "confidence": "medium",
       "allergens": [
@@ -146,19 +146,28 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Seasoned Potato Wedges",
+          "name": "potatoes",
           "category": "carb",
           "within_printed_weight": true,
-          "typical_serving_g": 150,
+          "typical_serving_g": 300,
           "protein_per_100g": 2,
-          "carb_per_100g": 30,
-          "fat_per_100g": 10
+          "carb_per_100g": 17,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "seasoning",
+          "category": "other",
+          "within_printed_weight": true,
+          "typical_serving_g": 5,
+          "protein_per_100g": 0,
+          "carb_per_100g": 0,
+          "fat_per_100g": 0
         }
       ],
       "protein_g": 6,
-      "carb_g": 90,
-      "fat_g": 30,
-      "estimated_calories": 654,
+      "carb_g": 50,
+      "fat_g": 0,
+      "estimated_calories": 227,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": []
@@ -172,30 +181,30 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "French Fries",
+          "name": "potatoes",
           "category": "carb",
           "within_printed_weight": true,
-          "typical_serving_g": 150,
-          "protein_per_100g": 3,
-          "carb_per_100g": 35,
-          "fat_per_100g": 15
+          "typical_serving_g": 300,
+          "protein_per_100g": 2,
+          "carb_per_100g": 17,
+          "fat_per_100g": 0.1
         },
         {
-          "name": "Parsley",
+          "name": "parsley",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 5,
           "protein_per_100g": 3,
           "carb_per_100g": 6,
-          "fat_per_100g": 0.5
+          "fat_per_100g": 0.8
         }
       ],
-      "protein_g": 9,
-      "carb_g": 102,
-      "fat_g": 44,
-      "estimated_calories": 837,
+      "protein_g": 6,
+      "carb_g": 50,
+      "fat_g": 0,
+      "estimated_calories": 229,
       "serving_pieces": 1,
-      "confidence": "low",
+      "confidence": "high",
       "allergens": []
     },
     {
@@ -207,7 +216,7 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Lettuce Mix",
+          "name": "lettuce",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 50,
@@ -216,7 +225,7 @@
           "fat_per_100g": 0.2
         },
         {
-          "name": "Purple Cabbage",
+          "name": "purple cabbage",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 30,
@@ -225,7 +234,7 @@
           "fat_per_100g": 0.1
         },
         {
-          "name": "Carrot",
+          "name": "carrot",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 30,
@@ -234,19 +243,19 @@
           "fat_per_100g": 0.2
         },
         {
-          "name": "Croutons",
+          "name": "croutons",
           "category": "carb",
           "within_printed_weight": true,
-          "typical_serving_g": 20,
-          "protein_per_100g": 10,
-          "carb_per_100g": 70,
+          "typical_serving_g": 40,
+          "protein_per_100g": 12,
+          "carb_per_100g": 72,
           "fat_per_100g": 5
         }
       ],
-      "protein_g": 4,
-      "carb_g": 23,
-      "fat_g": 1,
-      "estimated_calories": 121,
+      "protein_g": 6,
+      "carb_g": 35,
+      "fat_g": 2,
+      "estimated_calories": 185,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [
@@ -262,7 +271,7 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Purple Cabbage",
+          "name": "purple cabbage",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 50,
@@ -271,7 +280,7 @@
           "fat_per_100g": 0.1
         },
         {
-          "name": "White Cabbage",
+          "name": "white cabbage",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 50,
@@ -280,7 +289,7 @@
           "fat_per_100g": 0.1
         },
         {
-          "name": "Carrot",
+          "name": "carrot",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 30,
@@ -289,19 +298,19 @@
           "fat_per_100g": 0.2
         },
         {
-          "name": "Creamy Dressing",
+          "name": "creamy dressing",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 20,
           "protein_per_100g": 1,
           "carb_per_100g": 5,
-          "fat_per_100g": 30
+          "fat_per_100g": 40
         }
       ],
       "protein_g": 2,
       "carb_g": 10,
-      "fat_g": 6,
-      "estimated_calories": 103,
+      "fat_g": 8,
+      "estimated_calories": 121,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [
@@ -317,37 +326,55 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Breaded Chicken Breast",
+          "name": "chicken breast",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 150,
-          "protein_per_100g": 20,
-          "carb_per_100g": 15,
-          "fat_per_100g": 10
+          "protein_per_100g": 31,
+          "carb_per_100g": 0,
+          "fat_per_100g": 3.6
         },
         {
-          "name": "Celery",
+          "name": "breading",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 8,
+          "carb_per_100g": 60,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "sauce",
+          "category": "other",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 10,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "celery",
           "category": "veg",
           "within_printed_weight": false,
-          "typical_serving_g": 10,
+          "typical_serving_g": 20,
           "protein_per_100g": 0.7,
           "carb_per_100g": 3,
           "fat_per_100g": 0.2
         },
         {
-          "name": "Carrot",
+          "name": "carrot",
           "category": "veg",
           "within_printed_weight": false,
-          "typical_serving_g": 10,
+          "typical_serving_g": 20,
           "protein_per_100g": 0.9,
           "carb_per_100g": 10,
           "fat_per_100g": 0.2
         }
       ],
-      "protein_g": 40,
-      "carb_g": 31,
-      "fat_g": 20,
-      "estimated_calories": 466,
+      "protein_g": 51,
+      "carb_g": 36,
+      "fat_g": 9,
+      "estimated_calories": 432,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [
@@ -363,37 +390,37 @@
       "name_implied_components": [],
       "ingredients": [
         {
-          "name": "Chicken Nuggets",
+          "name": "chicken nuggets",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 100,
+          "typical_serving_g": 150,
           "protein_per_100g": 15,
           "carb_per_100g": 20,
           "fat_per_100g": 15
         },
         {
-          "name": "French Fries",
+          "name": "french fries",
           "category": "carb",
           "within_printed_weight": true,
-          "typical_serving_g": 100,
-          "protein_per_100g": 3,
-          "carb_per_100g": 35,
-          "fat_per_100g": 15
+          "typical_serving_g": 50,
+          "protein_per_100g": 2,
+          "carb_per_100g": 17,
+          "fat_per_100g": 10
         },
         {
-          "name": "Ketchup",
+          "name": "ketchup",
           "category": "other",
           "within_printed_weight": false,
-          "typical_serving_g": 15,
+          "typical_serving_g": 20,
           "protein_per_100g": 1,
           "carb_per_100g": 25,
           "fat_per_100g": 0.1
         }
       ],
-      "protein_g": 18,
-      "carb_g": 59,
-      "fat_g": 30,
-      "estimated_calories": 578,
+      "protein_g": 24,
+      "carb_g": 44,
+      "fat_g": 28,
+      "estimated_calories": 516,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [

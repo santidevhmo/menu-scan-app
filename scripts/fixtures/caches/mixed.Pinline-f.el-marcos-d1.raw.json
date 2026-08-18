@@ -21,7 +21,7 @@
           "name": "onion",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
+          "typical_serving_g": 30,
           "protein_per_100g": 1.1,
           "carb_per_100g": 9.3,
           "fat_per_100g": 0.1
@@ -30,7 +30,7 @@
           "name": "mushroom",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 70,
+          "typical_serving_g": 50,
           "protein_per_100g": 3.1,
           "carb_per_100g": 3.3,
           "fat_per_100g": 0.3
@@ -39,8 +39,8 @@
           "name": "bacon",
           "category": "fat",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
-          "protein_per_100g": 12.5,
+          "typical_serving_g": 20,
+          "protein_per_100g": 12,
           "carb_per_100g": 1.4,
           "fat_per_100g": 42
         },
@@ -48,18 +48,18 @@
           "name": "green chili",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
+          "typical_serving_g": 20,
           "protein_per_100g": 1.9,
           "carb_per_100g": 8.8,
           "fat_per_100g": 0.2
         }
       ],
-      "protein_g": 20,
-      "carb_g": 11,
-      "fat_g": 24,
-      "estimated_calories": 340,
+      "protein_g": 18,
+      "carb_g": 8,
+      "fat_g": 20,
+      "estimated_calories": 278,
       "serving_pieces": 1,
-      "confidence": "high",
+      "confidence": "medium",
       "allergens": [
         "egg"
       ]
@@ -85,7 +85,7 @@
           "name": "onion",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
+          "typical_serving_g": 30,
           "protein_per_100g": 1.1,
           "carb_per_100g": 9.3,
           "fat_per_100g": 0.1
@@ -94,7 +94,7 @@
           "name": "scallion",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
+          "typical_serving_g": 20,
           "protein_per_100g": 1.8,
           "carb_per_100g": 7.3,
           "fat_per_100g": 0.2
@@ -112,7 +112,7 @@
           "name": "mushroom",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 70,
+          "typical_serving_g": 50,
           "protein_per_100g": 3.1,
           "carb_per_100g": 3.3,
           "fat_per_100g": 0.3
@@ -127,12 +127,12 @@
           "fat_per_100g": 33
         }
       ],
-      "protein_g": 24,
-      "carb_g": 11,
+      "protein_g": 23,
+      "carb_g": 8,
       "fat_g": 21,
-      "estimated_calories": 331,
+      "estimated_calories": 313,
       "serving_pieces": 1,
-      "confidence": "high",
+      "confidence": "medium",
       "allergens": [
         "egg",
         "dairy"
@@ -159,7 +159,7 @@
           "name": "chorizo",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
+          "typical_serving_g": 30,
           "protein_per_100g": 20,
           "carb_per_100g": 2.6,
           "fat_per_100g": 38
@@ -168,7 +168,7 @@
           "name": "ham",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
+          "typical_serving_g": 30,
           "protein_per_100g": 19,
           "carb_per_100g": 1.5,
           "fat_per_100g": 5
@@ -177,8 +177,8 @@
           "name": "bacon",
           "category": "fat",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
-          "protein_per_100g": 12.5,
+          "typical_serving_g": 20,
+          "protein_per_100g": 12,
           "carb_per_100g": 1.4,
           "fat_per_100g": 42
         },
@@ -195,7 +195,7 @@
           "name": "onion",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
+          "typical_serving_g": 30,
           "protein_per_100g": 1.1,
           "carb_per_100g": 9.3,
           "fat_per_100g": 0.1
@@ -204,18 +204,18 @@
           "name": "green pepper",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
+          "typical_serving_g": 30,
           "protein_per_100g": 1.2,
           "carb_per_100g": 6,
           "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 45,
-      "carb_g": 12,
-      "fat_g": 55,
-      "estimated_calories": 723,
+      "protein_g": 35,
+      "carb_g": 8,
+      "fat_g": 42,
+      "estimated_calories": 552,
       "serving_pieces": 1,
-      "confidence": "high",
+      "confidence": "medium",
       "allergens": [
         "egg",
         "dairy"
@@ -227,9 +227,7 @@
       "price": 94,
       "category": "food",
       "printed_total_g": null,
-      "name_implied_components": [
-        "huarache"
-      ],
+      "name_implied_components": [],
       "ingredients": [
         {
           "name": "egg",
@@ -244,19 +242,19 @@
           "name": "corn huarache",
           "category": "carb",
           "within_printed_weight": true,
-          "typical_serving_g": 150,
+          "typical_serving_g": 100,
           "protein_per_100g": 6.9,
-          "carb_per_100g": 50.5,
-          "fat_per_100g": 5.8
+          "carb_per_100g": 72,
+          "fat_per_100g": 4.5
         },
         {
           "name": "refried beans",
-          "category": "carb",
+          "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 100,
-          "protein_per_100g": 5.5,
-          "carb_per_100g": 20.5,
-          "fat_per_100g": 5.5
+          "typical_serving_g": 50,
+          "protein_per_100g": 6.9,
+          "carb_per_100g": 20.1,
+          "fat_per_100g": 3.3
         },
         {
           "name": "green salsa",
@@ -271,16 +269,16 @@
           "name": "cream",
           "category": "fat",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
+          "typical_serving_g": 20,
           "protein_per_100g": 2.1,
-          "carb_per_100g": 4.5,
+          "carb_per_100g": 4.3,
           "fat_per_100g": 19
         },
         {
           "name": "onion",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
+          "typical_serving_g": 30,
           "protein_per_100g": 1.1,
           "carb_per_100g": 9.3,
           "fat_per_100g": 0.1
@@ -295,12 +293,12 @@
           "fat_per_100g": 0.5
         }
       ],
-      "protein_g": 31,
-      "carb_g": 105,
-      "fat_g": 31,
-      "estimated_calories": 825,
+      "protein_g": 25,
+      "carb_g": 89,
+      "fat_g": 21,
+      "estimated_calories": 645,
       "serving_pieces": 1,
-      "confidence": "high",
+      "confidence": "medium",
       "allergens": [
         "egg",
         "dairy",
@@ -323,14 +321,14 @@
           "within_printed_weight": true,
           "typical_serving_g": 50,
           "protein_per_100g": 7.8,
-          "carb_per_100g": 65.5,
-          "fat_per_100g": 23.5
+          "carb_per_100g": 65,
+          "fat_per_100g": 25
         },
         {
           "name": "chicken",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 100,
+          "typical_serving_g": 50,
           "protein_per_100g": 27,
           "carb_per_100g": 0,
           "fat_per_100g": 3.6
@@ -339,9 +337,9 @@
           "name": "cream",
           "category": "fat",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
+          "typical_serving_g": 20,
           "protein_per_100g": 2.1,
-          "carb_per_100g": 4.5,
+          "carb_per_100g": 4.3,
           "fat_per_100g": 19
         },
         {
@@ -354,7 +352,7 @@
           "fat_per_100g": 33
         },
         {
-          "name": "salsa (suiza or verde)",
+          "name": "salsa",
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 30,
@@ -363,12 +361,12 @@
           "fat_per_100g": 0.5
         }
       ],
-      "protein_g": 12,
-      "carb_g": 11,
-      "fat_g": 9,
-      "estimated_calories": 170,
+      "protein_g": 10,
+      "carb_g": 14,
+      "fat_g": 11,
+      "estimated_calories": 194,
       "serving_pieces": 1,
-      "confidence": "high",
+      "confidence": "medium",
       "allergens": [
         "dairy",
         "gluten"
@@ -390,14 +388,14 @@
           "within_printed_weight": true,
           "typical_serving_g": 50,
           "protein_per_100g": 7.8,
-          "carb_per_100g": 65.5,
-          "fat_per_100g": 23.5
+          "carb_per_100g": 65,
+          "fat_per_100g": 25
         },
         {
           "name": "chicken",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 100,
+          "typical_serving_g": 50,
           "protein_per_100g": 27,
           "carb_per_100g": 0,
           "fat_per_100g": 3.6
@@ -406,19 +404,19 @@
           "name": "cream",
           "category": "fat",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
+          "typical_serving_g": 20,
           "protein_per_100g": 2.1,
-          "carb_per_100g": 4.5,
+          "carb_per_100g": 4.3,
           "fat_per_100g": 19
         },
         {
-          "name": "queso panela or cheese mix",
+          "name": "queso panela",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 30,
-          "protein_per_100g": 25,
-          "carb_per_100g": 1.3,
-          "fat_per_100g": 33
+          "protein_per_100g": 18,
+          "carb_per_100g": 3.5,
+          "fat_per_100g": 20
         },
         {
           "name": "chile colorado salsa",
@@ -430,12 +428,12 @@
           "fat_per_100g": 0.5
         }
       ],
-      "protein_g": 12,
-      "carb_g": 11,
+      "protein_g": 9,
+      "carb_g": 14,
       "fat_g": 9,
-      "estimated_calories": 170,
+      "estimated_calories": 178,
       "serving_pieces": 1,
-      "confidence": "high",
+      "confidence": "medium",
       "allergens": [
         "dairy",
         "gluten"
@@ -457,8 +455,8 @@
           "within_printed_weight": true,
           "typical_serving_g": 50,
           "protein_per_100g": 7.8,
-          "carb_per_100g": 65.5,
-          "fat_per_100g": 23.5
+          "carb_per_100g": 65,
+          "fat_per_100g": 25
         },
         {
           "name": "red salsa",
@@ -477,15 +475,34 @@
           "protein_per_100g": 1.5,
           "carb_per_100g": 5.5,
           "fat_per_100g": 0.5
+        },
+        {
+          "name": "cream",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 2.1,
+          "carb_per_100g": 4.3,
+          "fat_per_100g": 19
+        },
+        {
+          "name": "grated cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 25,
+          "carb_per_100g": 1.3,
+          "fat_per_100g": 33
         }
       ],
-      "protein_g": 3,
-      "carb_g": 23,
-      "fat_g": 8,
-      "estimated_calories": 173,
+      "protein_g": 6,
+      "carb_g": 16,
+      "fat_g": 12,
+      "estimated_calories": 191,
       "serving_pieces": 1,
       "confidence": "medium",
       "allergens": [
+        "dairy",
         "gluten"
       ]
     },
@@ -507,22 +524,33 @@
           "fat_per_100g": 8
         },
         {
-          "name": "egg or vegetable",
+          "name": "egg",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 100,
           "protein_per_100g": 13,
           "carb_per_100g": 1.1,
           "fat_per_100g": 11
+        },
+        {
+          "name": "vegetables",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 2,
+          "carb_per_100g": 10,
+          "fat_per_100g": 0.5
         }
       ],
-      "protein_g": 5,
-      "carb_g": 0,
-      "fat_g": 3,
-      "estimated_calories": 50,
+      "protein_g": 4,
+      "carb_g": 1,
+      "fat_g": 2,
+      "estimated_calories": 40,
       "serving_pieces": 1,
       "confidence": "medium",
-      "allergens": []
+      "allergens": [
+        "egg"
+      ]
     },
     {
       "name": "ENFRIJOLADAS (135gr.)",
@@ -538,52 +566,52 @@
           "within_printed_weight": true,
           "typical_serving_g": 60,
           "protein_per_100g": 6.9,
-          "carb_per_100g": 50.5,
-          "fat_per_100g": 5.8
+          "carb_per_100g": 72,
+          "fat_per_100g": 4.5
         },
         {
           "name": "chicken",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 100,
+          "typical_serving_g": 50,
           "protein_per_100g": 27,
           "carb_per_100g": 0,
           "fat_per_100g": 3.6
         },
         {
           "name": "bean sauce",
-          "category": "carb",
+          "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 50,
-          "protein_per_100g": 5.5,
-          "carb_per_100g": 20.5,
-          "fat_per_100g": 5.5
+          "protein_per_100g": 6.9,
+          "carb_per_100g": 20.1,
+          "fat_per_100g": 3.3
         },
         {
           "name": "cream",
           "category": "fat",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
+          "typical_serving_g": 20,
           "protein_per_100g": 2.1,
-          "carb_per_100g": 4.5,
+          "carb_per_100g": 4.3,
           "fat_per_100g": 19
         },
         {
           "name": "cotija cheese",
           "category": "fat",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
-          "protein_per_100g": 25,
-          "carb_per_100g": 1.3,
+          "typical_serving_g": 20,
+          "protein_per_100g": 23,
+          "carb_per_100g": 2.3,
           "fat_per_100g": 33
         }
       ],
-      "protein_g": 21,
-      "carb_g": 21,
-      "fat_g": 13,
-      "estimated_calories": 283,
+      "protein_g": 18,
+      "carb_g": 37,
+      "fat_g": 11,
+      "estimated_calories": 318,
       "serving_pieces": 3,
-      "confidence": "high",
+      "confidence": "medium",
       "allergens": [
         "dairy",
         "gluten"
@@ -601,7 +629,7 @@
           "name": "chicken",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 100,
+          "typical_serving_g": 50,
           "protein_per_100g": 27,
           "carb_per_100g": 0,
           "fat_per_100g": 3.6
@@ -612,14 +640,14 @@
           "within_printed_weight": true,
           "typical_serving_g": 50,
           "protein_per_100g": 1.2,
-          "carb_per_100g": 4.5,
+          "carb_per_100g": 4.2,
           "fat_per_100g": 0.2
         },
         {
           "name": "green chili",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
+          "typical_serving_g": 20,
           "protein_per_100g": 1.9,
           "carb_per_100g": 8.8,
           "fat_per_100g": 0.2
@@ -628,7 +656,7 @@
           "name": "onion",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
+          "typical_serving_g": 30,
           "protein_per_100g": 1.1,
           "carb_per_100g": 9.3,
           "fat_per_100g": 0.1
@@ -643,7 +671,7 @@
           "fat_per_100g": 1.2
         },
         {
-          "name": "cheese mix",
+          "name": "cheese blend",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 30,
@@ -653,20 +681,20 @@
         },
         {
           "name": "beans",
-          "category": "carb",
+          "category": "protein",
           "within_printed_weight": false,
-          "typical_serving_g": 100,
-          "protein_per_100g": 5.5,
-          "carb_per_100g": 20.5,
-          "fat_per_100g": 5.5
+          "typical_serving_g": 50,
+          "protein_per_100g": 6.9,
+          "carb_per_100g": 20.1,
+          "fat_per_100g": 3.3
         }
       ],
-      "protein_g": 42,
-      "carb_g": 39,
-      "fat_g": 19,
-      "estimated_calories": 500,
+      "protein_g": 35,
+      "carb_g": 32,
+      "fat_g": 18,
+      "estimated_calories": 426,
       "serving_pieces": 1,
-      "confidence": "high",
+      "confidence": "medium",
       "allergens": [
         "dairy"
       ]

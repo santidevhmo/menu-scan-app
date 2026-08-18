@@ -642,9 +642,21 @@ deno run --allow-read scripts/sim-scope-rule.ts   # $0: the printed-weight scope
 deno run --allow-read --allow-env --env-file=.env.local \
   scripts/bench-unweighted.ts 3 <baseline|P|PF|PD|A|A-cond|S3> --replay
 
-# PAID. Weighted set, one run of 3 draws. BENCH_ARM is optional (S3 | S4).
+# PAID. Weighted set, one run of 3 draws. BENCH_ARM is optional (S3 | S4). ~$0.05.
 BENCH_RUN_ID=iter-<name>-w1 [BENCH_ARM=S3] deno run --allow-read --allow-write \
   --allow-env --allow-net --env-file=.env.local scripts/bench-macros.ts
+
+# PAID, ~$0.40 per arm. The MIXED-MENU harness: the same 8 weighted dishes scored
+# INSIDE their own real menus, which is the regime production runs and the one
+# bench-macros.ts is structurally blind to. Arms: mixed (today) | P.
+# It sends ONLY the batches the fixtures land in - equivalent by construction,
+# 77% cheaper. DO NOT add --full-menu to "be thorough": it costs 4.5x and buys
+# nothing for the score (see the cost entry in the benchmark log).
+deno run --allow-read --allow-write --allow-env --allow-net \
+  --env-file=.env.local scripts/bench-mixed-menu.ts 3 <mixed|P>
+
+# $0 replay of the above. Add --full-menu to replay the 2026-08-17 whole-menu run.
+deno run --allow-read scripts/bench-mixed-menu.ts 3 <mixed|P> --replay
 ```
 
 `rescore-history.ts` is the **source of truth for every number in these docs.** Any figure written

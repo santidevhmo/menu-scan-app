@@ -198,6 +198,26 @@ numbers it is meant to constrain.
 This is a prior for the next design, not a ban on prose — if a hypothesis says wording is the lever
 *for a different reason*, say what would falsify it and run it.
 
+**A BENCHMARK MUST BE REALISTIC, NOT BIG (Santiago, 2026-08-18).** He reloads the OpenAI account in
+$10 increments and a whole-menu run was eating $2 of it. Measured: the prompt+schema is only ~1,265
+tokens per call, so the bill is almost entirely OUTPUT — a full ingredient list with per-100 g
+composition for every item. **The lever is therefore how many items you ENRICH, never how you word the
+prompt.**
+
+🔑 **`callGptEnrich` chunks sequentially and fires each batch as its OWN request, so a scored dish is
+influenced only by the ≤9 items sharing ITS call.** Enriching a whole 95-item menu to measure two
+dishes pays for 8 batches that cannot touch the result. `scripts/bench-mixed-menu.ts` therefore sends
+only the batches its fixtures land in — located in the WHOLE menu first, so the chunk boundaries are
+exactly production's — and costs **~$0.40 per arm instead of ~$1.8, measuring the identical request
+bytes.** A test pins the equivalence: every kept batch must be a verbatim, in-order slice.
+
+⚠️ **This is NOT licence to shrink a benchmark's SCOPE.** Cost is not a constraint (below), and the
+8-dish weighted benchmark is cheap ($0.05) precisely *because* of the blind spot that motivated the
+mixed-menu harness — it scores a regime production never runs. **Generalisation lives in the DIVERSITY
+of the menus and the realism of the neighbours, not in the item count.** Cut arithmetic that changes
+nothing; never cut a menu, a dish, a draw, or a real neighbour. Do not add `--full-menu` to "be
+thorough": 4.5× the cost, no change to the score.
+
 **Price is NEVER evidence of grams (Santiago, 2026-08-13).** Not in an oracle, not in a prompt, not in
 code. Price reflects margin and scarcity, never mass — *"a menu can have an expensive pizza of 1k+
 dollars, doesn't mean it weighs 10x the size of a large pizza."* Price parity between items on one

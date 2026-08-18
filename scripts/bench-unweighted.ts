@@ -32,12 +32,17 @@ import {
   armPD,
   armPF,
   armPInline,
+  armSplitOnly,
   armS3,
   armS4,
 } from "./probe-plate-arms.ts";
 import { scoreItemAgainstBand } from "./macro-band-score.ts";
 import type { UnweightedEntry } from "./unweighted-oracle.ts";
-import { isBackfilled, itemsFromArchive } from "./bench-pipeline.ts";
+import {
+  assertRunIsProducingData,
+  isBackfilled,
+  itemsFromArchive,
+} from "./bench-pipeline.ts";
 
 const ORACLE = "scripts/fixtures/unweighted-oracle.json";
 const CACHE_DIR = "scripts/fixtures/caches";
@@ -143,6 +148,7 @@ const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
   PF: armPF,
   PD: armPD,
   Pinline: armPInline,
+  SplitOnly: armSplitOnly,
   S3: armS3,
   S4: armS4,
 };
@@ -186,6 +192,7 @@ for (let draw = 0; draw < draws; draw++) {
         ? await enrichWithArm(items, runner as any)
         // deno-lint-ignore no-explicit-any
         : (await callGptEnrich(items as any, apiKey!, ENRICH_MODEL)).items;
+      assertRunIsProducingData(`${arm} / ${menu} / draw ${draw + 1}`, enriched);
       await Deno.writeTextFile(
         archive,
         JSON.stringify({ items: enriched }, null, 2) + "\n",

@@ -103,6 +103,34 @@ export function isBackfilled(item: EnrichedItem): boolean {
     item.estimated_calories === 0 && item.confidence === "low";
 }
 
+/**
+ * Stop a paid run the moment it stops producing data.
+ *
+ * WHY THIS EXISTS: on 2026-08-17 the OpenAI balance ran out mid-run and the
+ * harness carried on to completion, writing 15 menu-draws in which EVERY item
+ * was backfilled zeros. It cost real money and produced archives that look like
+ * results. A fully-backfilled batch is never a model opinion - it is a dead key,
+ * an exhausted balance, or a network floor - so fail loudly and immediately.
+ *
+ * Deliberately NOT triggered by a partial backfill: dropping a few items is a
+ * real production behaviour the scoring path already excludes and reports.
+ */
+export function assertRunIsProducingData(
+  label: string,
+  items: EnrichedItem[],
+): void {
+  if (items.length === 0) return;
+  const backfilled = items.filter(isBackfilled).length;
+  if (backfilled === items.length) {
+    throw new Error(
+      `${label}: EVERY item came back backfilled (${backfilled}/${items.length}). ` +
+        `Stopping rather than paying for more of it — a whole batch of zeros means ` +
+        `an exhausted API balance, a dead key or a network floor, never a model ` +
+        `answer. Check the account before re-running.`,
+    );
+  }
+}
+
 export function inspect(
   menu: string,
   model: string,

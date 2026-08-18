@@ -235,6 +235,22 @@ async function splitArm(items: Item[], prompt: string) {
   return out;
 }
 
+/**
+ * THE CONTROL ARM P NEVER HAD.
+ *
+ * Arm P = the split + a sentence, and it scores 37/72 unweighted. P-inline =
+ * the SAME sentence with NO split, and it scores 29 against a 25-28 baseline.
+ * That gap says the sentence is not doing the work - so this is the split with
+ * the prompt left BYTE-IDENTICAL to production.
+ *
+ * If it lands near 37/72, the lever is BATCH COMPOSITION (an unweighted item
+ * calibrating against other unweighted items) and every prompt arm in this
+ * thread has been measuring batching by accident. If it lands near 25-28, the
+ * sentence really is the active ingredient and only its delivery is the problem.
+ * Either answer redirects the phase, which is why it is worth $0.50.
+ */
+export const armSplitOnly = (items: Item[]) => splitArm(items, ENRICH_PROMPT);
+
 export const armPF = (items: Item[]) => splitArm(items, ARM_PF_PROMPT);
 
 export async function armP(items: Item[]) {
@@ -270,8 +286,9 @@ export async function armP(items: Item[]) {
  * lives here rather than in enrich.ts, which is deployed code and should not
  * grow a parameter for a harness's benefit.
  *
- * ⚠️ armS3 and armS4 share the same fragility and are NOT wrapped: both are
- * rejected arms that nothing re-runs. Wrap them if that ever changes.
+ * Applied to EVERY arm that calls enrichBatch directly. It was armPInline-only
+ * for one commit, which is exactly the "patch the path the ticket names and
+ * leave the siblings broken" mistake - S3/S4 had the identical defect.
  */
 async function retryOnce<T>(call: () => Promise<T>): Promise<T> {
   try {
@@ -568,25 +585,29 @@ const archive: Record<string, unknown> = {};
 // only inspects them does not need an API key. Runners stay here with the other
 // arms, and go through enrichBatch, the DEPLOYED request builder.
 export async function armS3(items: Item[]) {
-  return await enrichBatch(
-    // deno-lint-ignore no-explicit-any
-    items as any,
-    apiKey!,
-    ENRICH_MODEL,
-    undefined,
-    ARM_S3.prompt,
-    ARM_S3.schema,
+  return await retryOnce(() =>
+    enrichBatch(
+      // deno-lint-ignore no-explicit-any
+      items as any,
+      apiKey!,
+      ENRICH_MODEL,
+      undefined,
+      ARM_S3.prompt,
+      ARM_S3.schema,
+    )
   );
 }
 export async function armS4(items: Item[]) {
-  return await enrichBatch(
-    // deno-lint-ignore no-explicit-any
-    items as any,
-    apiKey!,
-    ENRICH_MODEL,
-    undefined,
-    ARM_S4.prompt,
-    ARM_S4.schema,
+  return await retryOnce(() =>
+    enrichBatch(
+      // deno-lint-ignore no-explicit-any
+      items as any,
+      apiKey!,
+      ENRICH_MODEL,
+      undefined,
+      ARM_S4.prompt,
+      ARM_S4.schema,
+    )
   );
 }
 

@@ -32,7 +32,7 @@ export const ORACLE_PATH = (() => {
     return FROZEN_ORACLE_PATH;
   }
 })();
-const CACHE_DIR = "scripts/fixtures/caches";
+export const CACHE_DIR = "scripts/fixtures/caches";
 
 type OracleValues = MacroValues & {
   assumed: string;

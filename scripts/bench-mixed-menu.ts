@@ -48,7 +48,11 @@ import {
   ENRICH_MODEL,
   type EnrichedItem,
 } from "../supabase/functions/analyze-menu/enrich.ts";
-import { isBackfilled, itemsFromArchive } from "./bench-pipeline.ts";
+import {
+  assertRunIsProducingData,
+  isBackfilled,
+  itemsFromArchive,
+} from "./bench-pipeline.ts";
 import { loadOracle, ORACLE_PATH } from "./bench-macros.ts";
 import { altOracle, pairWithOracle, scoreDish, toMacroValues } from "./macro-measure.ts";
 
@@ -264,6 +268,7 @@ async function main(): Promise<void> {
         ? await enrichPInline(sent)
         // deno-lint-ignore no-explicit-any
         : (await callGptEnrich(sent as any, apiKey!, ENRICH_MODEL)).items;
+      assertRunIsProducingData(`${arm} / ${menu} / draw ${draw + 1}`, enriched);
       await Deno.writeTextFile(archive, JSON.stringify({ items: enriched }, null, 2) + "\n");
     }
 

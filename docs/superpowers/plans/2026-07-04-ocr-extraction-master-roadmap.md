@@ -70,13 +70,17 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > **wrong group**: unweighted servings did not move (median 1.00×) while weighted ones it excluded were
 > shuffled (4.00×, 1.94×, 1.87×). **A per-item condition in prose is not read as one.**
 >
-> 🔑 **THE REFRAME, AND IT IS THE THREAD'S MOST USEFUL RESULT: ARM P'S GAIN IS PROBABLY THE BATCH, NOT
-> THE SENTENCE.** Same words, same items, mixed batch → 29; all-unweighted batch → 37. Direct evidence
-> for the 2026-08-12 prior that the model calibrates across the items sharing a call.
-> 🧭 **NEXT (~$0.50): the control never run — SPLIT WITH THE UNCHANGED PROMPT on the unweighted set.**
-> If it lands near 37/72 the lever is batch composition and every prompt arm here measured it by
-> accident. Then Arm P-10's unweighted score (~$0.50), never measured, without which its 22/96 weighted
-> cost cannot be traded off.
+> 🔬 **THE CONTROL RAN AND FALSIFIED THAT REFRAME (~$0.5). ARM P IS AN INTERACTION, NOT A LEVER.**
+> `SplitOnly` — the split with the prompt byte-identical to production — scores **21/72, BELOW the
+> 25–28 baseline.** Full 2×2: mixed+shipped **25–28**, mixed+sentence **29**, split+shipped **21**,
+> split+sentence **37**. **Neither half works alone; together they are worth 9–12 points.**
+> 🔑 Arm P's sentence opens *"The items in this request print no weight"* — true of the WHOLE request
+> only when the batch is homogeneous. **The model honours an unconditional fact about the request far
+> better than a per-item condition inside it.** The split is not valuable in itself; it is what makes
+> the instruction statable as a fact. ⚠️ Third arm to die between a plausible story and a measurement.
+> 🔴 **NEXT, and it is the only number that lets Santiago decide: ARM P-10 ON THE UNWEIGHTED SET
+> (~$0.50).** It carries BOTH halves while restoring full batches, so it should keep the gain at a
+> smaller weighted cost (its 22/96 is known, its gain is not).
 >
 > 🟡 **P-10: 22/96, also rejected on the weighted gate.** It recovered 5 of Arm P's 11 lost field-draws
 > by restoring batch size (9–10 mates vs 5–8). ☠️ **The split ITSELF is the defect, not the chunking

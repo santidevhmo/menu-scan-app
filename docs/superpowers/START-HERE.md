@@ -115,11 +115,21 @@ delivers Arm P's idea with **no split at all** — one mixed batch, a conditiona
 prompt. It clears the weighted gate (**15/96** against a 16–18 baseline) and **fails the one that
 matters: 29/72 unweighted, inside the 25–28 baseline band and 8 short of Arm P's 37.**
 
-🔑 **AND THAT FAILURE IS THE MOST USEFUL RESULT OF THE THREAD: ARM P'S GAIN IS PROBABLY THE BATCH,
-NOT THE SENTENCE.** P-inline gives the **same words to the same items** and scores 29 where Arm P
-scores 37 — the only difference is that Arm P's unweighted items travel in an **all-unweighted
-batch**. Direct evidence for the 2026-08-12 prior that *the model calibrates across the items sharing
-a call*. **Arm P may never have been a prompt win.**
+🔬 **THE CONTROL RAN AND FALSIFIED MY OWN REFRAME (2026-08-18, ~$0.5). IT IS AN INTERACTION.**
+I proposed that Arm P's gain was the batch rather than the sentence, and named the control that would
+settle it. `SplitOnly` — Arm P's split with the prompt byte-identical to production — scores
+**21/72, BELOW the 25–28 baseline.** The full 2×2:
+
+| | shipped prompt | + Arm P's sentence |
+|---|---|---|
+| **mixed batch** | 25–28 baseline | **29** (P-inline) |
+| **split batch** | **21** (SplitOnly ❌) | **37** (Arm P ✅) |
+
+**The split alone is worse than doing nothing; the sentence alone is worth nothing; together they are
+worth 9–12 points.** 🔑 **Why:** Arm P's sentence opens *"The items in this request print no weight"* —
+true of the WHOLE request only when the batch is homogeneous. **The model honours an unconditional
+fact about the request far better than a per-item condition inside it.** The split is not valuable in
+itself; it is what makes the instruction statable as a fact.
 
 🧪 **A $0 DIAGNOSTIC, written down before the run, showed the condition landed on the WRONG GROUP:**
 the unweighted items it was scoped to did not move (median **1.00×**), while weighted items it
@@ -309,21 +319,20 @@ reproduces every stored oracle total from the shipped file.
 
 ### 🧭 Suggested next steps, in order
 
-**Both baselines now have a tight RANGE: weighted 16–18/96, unweighted 25–28/72.** Runs are ~$0.40–0.50
-per arm on BOTH harnesses now.
+**Baselines both carry a RANGE now: weighted 16–18/96, unweighted 25–28/72.** Runs are ~$0.40–0.50 per
+arm on both harnesses.
 
-1. 🔑 **THE CONTROL THAT WAS NEVER RUN (~$0.50) — split with the UNCHANGED prompt**, scored on the
-   unweighted set. P-inline proved the words alone give 29; Arm P's split gives 37. **If the split
-   alone lands near 37, the lever is BATCH COMPOSITION and every prompt arm in this thread was
-   measuring it by accident.** This is the highest-information experiment left and it reframes
-   everything before it.
-2. **Arm P-10 on the unweighted set (~$0.50).** We know its weighted cost (22/96) and nothing about
-   its gain. It keeps unweighted items in homogeneous batches of 10, so it should carry Arm P's gain —
-   and its trade-off cannot be judged without the number.
-3. Only then a new arm for the accompaniment-weight defect. **Do not** try: another plate-weight arm,
-   another cooking-fat arm (PF), another dominance arm (PD), **another prompt SENTENCE (now 0 for 6)**,
-   another field duplicating an existing one (S4: 364/364 copies), or **another SPLIT arm judged on the
-   weighted gate — P 27, P-10 22, both short of 16–18.**
+1. 🔴 **ARM P-10 ON THE UNWEIGHTED SET (~$0.50) — the single most decision-relevant missing number.**
+   P-10 carries **both halves of the interaction** (split + sentence) while restoring full batches, so
+   it should keep Arm P's gain at a smaller weighted cost. Its weighted cost is known (22/96 against
+   16–18); its gain is not. **If it scores near 37/72 the trade becomes concrete and Santiago's:
+   roughly +9 to +12 unweighted for −4 to −6 weighted. Until it exists, nothing can be put to him.**
+2. Only then a new arm for the accompaniment-weight defect (24% of weighted items, 12–20% of their
+   calories, still unfixed).
+3. **Do not** try: another plate-weight arm, another cooking-fat arm (PF), another dominance arm (PD),
+   **another prompt SENTENCE (0 for 6)**, a field duplicating an existing one (S4: 364/364 copies),
+   **a split WITHOUT the sentence (SplitOnly: 21/72, worse than baseline)**, or **a sentence without
+   the split (P-inline: 29/72)**. The two only work together.
 
 ⚠️ **Coleslaw is the noisiest dish (0 / 2 / 4 / 6 across four arms). Distrust any single-dish claim
 about it.**

@@ -5160,3 +5160,49 @@ the published archives still replay to **28/72** (baseline) and **37/72** (Arm P
 ⚠️ **Both baselines now have a RANGE and it is tight: weighted 16–18/96, unweighted 25–28/72.**
 Coleslaw remains the noisiest dish (0 / 2 / 4 / 6 across four arms) — treat any single-dish claim
 about it with suspicion.
+
+### 🔬 THE SPLIT-ONLY CONTROL — MY OWN REFRAME IS FALSIFIED. IT IS AN INTERACTION (2026-08-18, ~$0.5)
+
+Yesterday's entry proposed that **Arm P's gain is probably the batch, not the sentence**, and named the
+control that would settle it. The control ran. **The proposal is wrong and is retracted here.**
+
+`armSplitOnly` = Arm P's split with the prompt left **byte-identical to production**. 3 draws, 9/9
+menu-draws clean, 0 backfilled, $0-replay verified. **21/72 — BELOW the 25–28 baseline.**
+
+#### The 2×2, and neither ingredient works alone
+
+| | shipped prompt | + Arm P's sentence |
+|---|---|---|
+| **mixed batch** | **25–28** — baseline | **29** — P-inline |
+| **split batch** | **21** — SplitOnly ❌ | **37** — Arm P ✅ |
+
+**The split ALONE is worse than doing nothing. The sentence ALONE is worth nothing. Together they are
+worth 9–12 points.** There is no main effect here to chase — the effect is the interaction, and every
+arm that tried to isolate one half has now failed: P-inline (words, no split) 29, SplitOnly (split, no
+words) 21.
+
+🔑 **THE MECHANISM THIS POINTS TO, AND IT IS ACTIONABLE.** Arm P's sentence opens *"The items in this
+request print no weight"* — a statement that is **TRUE OF THE WHOLE REQUEST** only when the batch is
+homogeneous. P-inline had to phrase the same idea as a per-item condition, and the 2026-08-18
+diagnostic measured the model applying it **indiscriminately** — the targeted items did not move while
+excluded ones were shuffled. **The model honours an unconditional fact about the request far better
+than a per-item condition inside it.** The split is not valuable in itself; it is what makes the
+instruction statable as a fact. And on its own it costs accuracy, because it disturbs the calibration
+context (the same reason weighted dishes degrade under Arm P).
+
+⚠️ **THIS IS THE THIRD ARM TO DIE BETWEEN A PLAUSIBLE STORY AND A MEASUREMENT** (after A-conditional
+and S3). The story — "batch composition is the lever" — was consistent with the batch-size curve, the
+mixed-menu 2× finding, and P-inline's shortfall. It was still wrong. **A hypothesis that explains
+every prior result is not thereby true; the control is $0.50.**
+
+#### What actually stands now
+
+- **Arm P remains the ONLY thing that has ever moved the unweighted score** (25–28 → 37/72), and it
+  needs BOTH halves. It is not a prompt win and it is not a batching win; it is both.
+- **Its weighted cost is unchanged and still blocks it:** 27/96 against a 16–18 baseline, with P-10
+  recovering part of that (22/96).
+- 🔴 **THE SINGLE MOST DECISION-RELEVANT MISSING NUMBER IS ARM P-10 ON THE UNWEIGHTED SET (~$0.50).**
+  P-10 carries **both** halves of the interaction (split + sentence) while restoring full batches, so
+  it should keep Arm P's gain at a smaller weighted cost. If it scores ~37/72, the trade becomes
+  concrete and Santiago's: **+9 to +12 unweighted for −4 to −6 weighted.** Without it, nothing can be
+  put to him.

@@ -225,11 +225,21 @@ shuffled (4.00×, 1.94×, 1.87× on individual dishes; only 4 of 38 unchanged). 
 indiscriminately.** If a change must apply to some items and not others, the separation has to be
 structural, not a clause.
 
-🔑 **AND THE LIKELIER LEVER IS THE BATCH, NOT THE WORDS.** Arm P's unweighted gain (25–28 → 37/72)
-came with its items in an ALL-UNWEIGHTED batch. Given the same words in a MIXED batch, P-inline scored
-29 — inside the baseline band. **Batch composition moves answers more than any wording tried here**
-(see also the 2026-08-12 batch-size curve, and the mixed-menu harness, where the same 8 dishes fail
-~2× as often inside a real menu as they do alone).
+🔑 **THE ONE THING THAT HAS EVER MOVED THE UNWEIGHTED SCORE IS AN INTERACTION, NOT A LEVER
+(measured 2026-08-18, a full 2×2).** Arm P = a split batch + a sentence, and it is worth 25–28 → 37/72.
+**Neither half works alone:**
+
+| | shipped prompt | + Arm P's sentence |
+|---|---|---|
+| **mixed batch** | 25–28 (baseline) | **29** (P-inline) |
+| **split batch** | **21** (SplitOnly — *worse than doing nothing*) | **37** (Arm P) |
+
+⚠️ **An earlier version of this file said "batch composition moves answers more than any wording".
+That was a hypothesis, the $0.50 control falsified it, and it is retracted.** The split is not
+valuable in itself — it is what lets the instruction be stated as an **unconditional fact about the
+whole request** (*"The items in this request print no weight"*). Phrased as a per-item condition in a
+mixed batch, the same idea was applied indiscriminately. **Prefer a homogeneous request plus a flat
+statement over a heterogeneous request plus a condition.**
 
 **Price is NEVER evidence of grams (Santiago, 2026-08-13).** Not in an oracle, not in a prompt, not in
 code. Price reflects margin and scarcity, never mass — *"a menu can have an expensive pizza of 1k+

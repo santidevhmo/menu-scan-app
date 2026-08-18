@@ -66,7 +66,13 @@ item as `3/8` / `all`. Working, not the intended form.
 
 ---
 
-## 🆕 2026-08-16 HANDOFF — A ZERO-CONTEXT SESSION CAN TAKE OVER FROM THIS BLOCK ALONE
+## 🆕 2026-08-18 HANDOFF — A ZERO-CONTEXT SESSION CAN TAKE OVER FROM THIS BLOCK ALONE
+
+### ⛔ THE NEXT ACTION, IN ONE LINE
+
+**Execute `docs/superpowers/plans/2026-08-18-dual-pass-enrichment.md`.** It is written for a worker
+with no context, TDD throughout, six tasks. **Do not design a new arm — read that plan and the
+"already tried" table below first.** Nothing in `supabase/functions/` has been touched.
 
 ### The 60-second version
 
@@ -74,104 +80,133 @@ The app estimates macros for menu items. It breaks each dish into ingredients, a
 each ingredient IS (composition per 100 g), and **the code does all the arithmetic**. It is good at
 dishes that print a weight and bad at dishes that do not, and the second group is most of a real menu.
 
-| score | dishes | points | current result | harness |
+| score | dishes | points | current | harness |
 |---|---|---|---|---|
-| weighted (prints grams) | 8 | 96 | **6–9 failed** at 17.6–18.0% | `scripts/bench-macros.ts` |
-| **unweighted (no grams)** | 6 | 24 | **best 38/72 (Arm P-10)** vs **25–28/72** baseline | `scripts/bench-unweighted.ts` |
-| **weighted, INSIDE ITS REAL MENU** | 8 | 96 | **16–18/96 today** · P-10 **22** · P 27 | `scripts/bench-mixed-menu.ts` |
+| weighted, sent ALONE together | 8 | 96 | 6–9 failed | `scripts/bench-macros.ts` |
+| **weighted, INSIDE ITS REAL MENU** | 8 | 96 | **16–18 failed (2 runs)** | `scripts/bench-mixed-menu.ts` |
+| **unweighted (no grams)** | 6 | 24 | **25–28/72 (2 runs)**; best arm **38/72** | `scripts/bench-unweighted.ts` |
 
-**Never merge or substitute these numbers.**
+**Never merge these numbers.**
 
-⚠️ **The weighted figure has moved TWICE and BOTH times the ORACLE got stricter while the pipeline
-stayed the same: 0–3/96 → 4–6/96 (2026-08-16) → 6–9/96 (2026-08-17).** Santiago approved carrying
-each. **Quote 6–9/96. Never quote 0–3/96 or 4–6/96 as current.**
+🔴 **THE MOST IMPORTANT THING TO GET RIGHT, AND THE EASIEST TO GET WRONG: THERE IS NO "93% WEIGHTED
+PIPELINE".** That figure is `bench-macros.ts` sending the 8 fixtures **alone, together** — a grouping
+production never builds. In real menus weighted scores **16–18/96 ≈ 82%**.
 
-⚖️ **2026-08-17: PASTEL AZTECA's beans are now restaurant REFRIED** (FDC 2707397, 177 kcal/100 g, fat
-9.48) instead of plain canned pinto (137, 0.93) — Santiago's ruling, verified against the FDC API,
-the 30 g weight unchanged. **All 3 points of the move are that one dish.** Deliberately NOT applied to
-ENFRIJOLADAS, whose bean SAUCE is a different food. `scripts/apply-bean-composition-ruling.ts`.
+| what a weighted dish travels with | score |
+|---|---|
+| the other 7 fixtures (the old benchmark) | 6–9/96 ≈ **93%** ← *not a real situation* |
+| a mixed group of 10 real items — **production today** | **16–18/96 ≈ 82%** |
+| a group of 10 other WEIGHTED dishes (Arm P-10) | 21–25/96 ≈ 76% |
 
-🔴 **ARM P IS REJECTED FOR SHIPPING (2026-08-18). THE QUESTION IS CLOSED.** The mixed-menu harness
-(`scripts/bench-mixed-menu.ts`) scored the 8 weighted dishes **inside their own real menus**, both
-arms, 3 clean draws, ~$0.85 total: **production today 16/96 vs Arm P 27/96 — 69% worse.** Arm P's
-unweighted gain (28/72 → 37/72) is NOT falsified; what is rejected is shipping it in its **current
-split form**.
+**Splitting the menu does not recover 93% — it moves away from it.** Santiago asked this directly on
+2026-08-18; it is the single likeliest thing for a new session to get wrong.
 
-🔑 **AN INTERNAL CONTROL MAKES THAT MORE THAN ONE NOISY RUN.** Arm P only changes a weighted dish's
-batch-mates, and **the two fixtures whose batches did not change scored IDENTICALLY** — NEW YORK
-0/12 → 0/12 (10 mates either way), Salmone 6/12 → 6/12 (3 either way). Every regression is a dish
-whose batch SHRANK: CESAR 10→5 mates (1→5 failed), PASTEL 10→6 (0→5), Coleslaw 10→6 (0→4).
-**Batch untouched, score untouched.** It also corroborates the 2026-08-12 batch-size curve, which
-already found small batches hurt weighted dishes. **Arm P's defect is the batch shrinkage its split
-causes, NOT its sentence.**
+⚠️ **The weighted figure has moved TWICE and BOTH times because the ORACLE got stricter, never because
+the pipeline got worse: 0–3/96 → 4–6/96 (accompaniment weights) → 6–9/96 (PASTEL's bean composition).**
+Santiago approved carrying each.
 
-🔴 **THE 96-POINT BENCHMARK FLATTERS THE PIPELINE BY ~2×, and this reproduced across two run modes:**
-fields failing **7.6% isolated vs 16.7% inside real menus**. Its PER-DISH verdicts do not survive
-either — Gnocchi and ENFRIJOLADAS are perfect alone and fail in their own menus (0% → 50%, 25%);
-PASTEL and CESAR do the reverse. **Quote the mixed-menu number alongside the 96-point one from now on.**
+🚀 **PRODUCTION: edge fn `analyze-menu` v31 (2026-08-16), `ENRICH_BATCH_SIZE = 10`.** It carries two
+zeroing bug fixes and **no accuracy change**. Everything since is unshipped and COMMITTED on branch
+`feat/forced-serving-pieces`, **not pushed** (PR #17 is open there and Santiago ruled it the LAST
+thing to work on).
 
-❌ **P-INLINE FAILS TOO (2026-08-18, ~$1.8 for four runs). PROMPT WORDING IS NOW 0 FOR 6.** It
-delivers Arm P's idea with **no split at all** — one mixed batch, a conditional sentence in the shared
-prompt. It clears the weighted gate (**15/96** against a 16–18 baseline) and **fails the one that
-matters: 29/72 unweighted, inside the 25–28 baseline band and 8 short of Arm P's 37.**
+### 📋 WHAT THE PLAN BUILDS, AND WHY IT IS THE ONLY SHAPE LEFT
 
-🟢 **ARM P-10 IS THE CANDIDATE, AND THE TRADE IS NOW SANTIAGO'S (2026-08-18).** Its missing number
-came in at **38/72 unweighted — the best ever recorded — at 22/96 weighted.** It **dominates Arm P on
-both axes** (38 vs 37 unweighted, a tie within noise; 22 vs 27 weighted, a real gap). **Arm P is
-superseded.**
-
-| | today | under P-10 |
+| pass | sends | answers used for |
 |---|---|---|
-| unweighted dishes correct | 35–39% | **53%** (+14 to +18 pts) |
-| weighted dishes correct | 81–83% | **77%** (−4 to −6 pts) |
+| **1** | the whole menu — **today's call, byte-identical** | weighted items |
+| **2** | unweighted items only, with the Arm P sentence | unweighted items |
 
-🎯 **CAPRICCIOSA finally moves: 0 → 6/12.** The 28 cm pizza scored 0 through every arm of this phase,
-motivated the entire plate-weight thread, and was proven at $0 to be unfixable by any total.
+**Both of its numbers already exist**: weighted **16–18/96 by construction** (pass 1 is unchanged),
+unweighted **38/72** (measured as Arm P-10's pass 2). The cost is **money and latency, not accuracy** —
+~$0.03 → ~$0.05 per scan, Stage 2 ~1.5–2× slower.
 
-⚠️ **ONE RUN OF 3 DRAWS EACH SIDE, wide per-draw spread — a confirmation run (~$1) is owed** before
-shipping. ⚠️ **And shipping is a REAL CODE CHANGE to `callGptEnrich`, not a prompt edit** (partition
-weighted/unweighted, chunk each at `ENRICH_BATCH_SIZE`, send the unweighted side with Arm P's
-sentence). Nothing in `supabase/functions/` has been touched.
+🔑 **WHY UNWEIGHTED ITEMS ARE SENT TWICE** — the question a new session will ask. Not to retry them.
+**Their PRESENCE in pass 1 is what holds the weighted items' batches at today's composition.** Remove
+them and the weighted score moves: that is exactly Arm P-10, measured at 21–25/96 over three runs.
 
-🔬 **HOW WE GOT HERE — THE FULL 2×2, and neither half works alone.** `SplitOnly` (the split with the
-prompt byte-identical to production) scores **21/72, BELOW baseline**; P-inline (the sentence with no
-split) scores **29**. Together: 37–38.
+⚠️ **Latency can still sink this.** GPT-5.5 was declined for production on a 2.4× Stage-2 latency
+alone. The plan's Task 5 measures the ratio and treats it as a decision input.
+
+### ☠️ ALREADY TRIED AND REJECTED — DO NOT RE-RUN ANY OF THESE
+
+Every row was paid for. A session that "discovers" one of these is repeating spend.
+
+| arm | what it was | weighted (real menus) | unweighted | verdict |
+|---|---|---|---|---|
+| **P** | split each batch of 10, sentence on the unweighted half | 27/96 | 37/72 | ❌ costs weighted |
+| **P-10** | partition FIRST, then chunk each side at 10 | **21–25/96** (3 runs) | **38/72** | ❌ real trade, Santiago declined this shape |
+| **P-inline** | the sentence as a per-item condition, NO split | 15/96 | **29/72** | ❌ no gain |
+| **SplitOnly** | the split with the prompt UNCHANGED | — | **21/72** | ❌ worse than baseline |
+| **S, S2, S3, S4** | the sauce-decomposition thread | 5–13/96 | 26/72 | ❌ all rejected |
+| **A, A-conditional, C, thresholds** | plate-weight family | — | 12–31/72 | ☠️ retired |
+
+🔑 **THE 2×2 THAT EXPLAINS ALL OF IT — Arm P is an INTERACTION, not a lever:**
 
 | | shipped prompt | + Arm P's sentence |
 |---|---|---|
 | **mixed batch** | 25–28 baseline | **29** (P-inline) |
-| **split batch** | **21** (SplitOnly ❌) | **37–38** (P / P-10 ✅) |
+| **split batch** | **21** (SplitOnly — *worse than nothing*) | **37–38** (P / P-10) |
 
-🔑 **Why:** the sentence opens *"The items in this request print no weight"* — true of the WHOLE
-request only when the batch is homogeneous. **The model honours an unconditional fact about the
-request far better than a per-item condition inside it.** The split is not valuable in itself; it is
-what makes the instruction statable as a fact. ⚠️ An earlier claim that "the batch is the lever, not
-the words" was **my hypothesis, and the $0.50 control falsified it** — it is an interaction.
+**Neither half works alone.** The sentence opens *"The items in this request print no weight"* — true
+of the WHOLE request only when the batch is homogeneous. **The model honours an unconditional fact
+about the request far better than a per-item condition inside it.** The split is not valuable in
+itself; it is what makes the instruction statable as a fact.
 
-🧪 **A $0 DIAGNOSTIC, written down before the run, showed the condition landed on the WRONG GROUP:**
-the unweighted items it was scoped to did not move (median **1.00×**), while weighted items it
-explicitly excluded were shuffled (**4.00×, 1.94×, 1.87×**; only 4 of 38 unchanged). **A per-item
-condition in prose is not read as one.** That is also why French Fries went 0/12 → 6/12.
+⚠️ **A claim that "batch composition is the lever, not the words" was MY hypothesis and the $0.50
+control FALSIFIED it.** Third arm in this phase to die between a plausible story and a measurement
+(after A-conditional and S3). **A hypothesis that explains every prior result is not thereby true.**
 
-🟡 **P-10 (2026-08-18, ~$0.40): 22/96 — also rejected on the weighted gate**, though it recovered 5 of
-Arm P's 11 lost field-draws by restoring batch size (9–10 mates vs Arm P's 5–8). ☠️ **The split ITSELF
-is the defect, not the chunking order** — P-10 held SIZE at 10 and varied only WHO shared the call and
-weighted dishes still degraded. CESAR tracks size exactly (1→5→0 as mates go 10→5→10), but
-**Salmone's 3→10 moved nothing** and **Coleslaw got WORSE with size restored**.
-⚠️ **P-10's UNWEIGHTED score was never measured** — its trade-off cannot be put to Santiago without it.
+### 📊 THE SCOREBOARD THAT PREDICTS ARMS — read before designing one
 
-☠️ **SO THE PROBLEM IS THE SPLIT ITSELF, NOT THE CHUNKING ORDER — this retires a DELIVERY MECHANISM.**
-P-10 holds batch SIZE at 10 and changes only WHO is in it (all-weighted vs today's realistic mix), and
-weighted dishes still degrade. **Expect ANY arm that separates weighted from unweighted items into
-different calls to cost weighted dishes.** Evidence at the dish level: CESAR is textbook for size
-(10→5 mates = 1→5 failed; back to 10 = 0 failed), but **Salmone's batch went 3→10 with its score
-completely unmoved**, and **Coleslaw got WORSE with its size restored** (0→4→6). Arm P's unweighted
-gain (28/72 → 37/72) is still not falsified — **its delivery is.**
+**Prompt wording is 0 for 6. Schema force is 6 for 8.** Full detail and riders in `AGENTS.md`.
 
-🚀 **PRODUCTION: edge fn `analyze-menu` v31, deployed 2026-08-16, `ENRICH_BATCH_SIZE = 10`.** It
-carries the two zeroing bug fixes and **no accuracy change whatsoever**. Everything else below is
-unshipped. All work is COMMITTED on branch `feat/forced-serving-pieces` and **not pushed** (PR #17 is
-open on that branch and Santiago ruled it the LAST thing to work on).
+| approach | record | cases |
+|---|---|---|
+| a sentence in `ENRICH_PROMPT` | **0 for 6** | B11, B13, B23, two `serving_pieces` wordings, Arm S, P-inline |
+| a required field in the schema | **6 for 8** | B4, B15, forced `serving_pieces`, B24b, S2, S3 |
+
+Riders: ask for a **number**, not a string; **free text invites merging**; **field ORDER is
+load-bearing**; a field that **overlaps** an existing one returns a copy; and **a per-item condition in
+prose is applied indiscriminately**.
+
+### 💸 RUNS ARE ~$0.40–0.50 PER ARM NOW, NOT ~$2
+
+The bill is almost entirely **OUTPUT** tokens (~1,265 tokens of prompt+schema per call), so **the lever
+is how many items you ENRICH, never how you word the prompt.** `callGptEnrich` fires each batch as its
+**own request**, so a scored dish is influenced only by the ≤9 items sharing its call — both harnesses
+therefore send only the batches their fixtures land in. **Do not add `--full-menu` to "be thorough":
+4.5× the cost, no change to the score.** Santiago reloads in $10 increments and asked for this
+explicitly (2026-08-18). ⚠️ **Cut arithmetic that changes nothing; NEVER cut a menu, a dish, a draw or
+a real neighbour.**
+
+### 🧾 EVERY RUN IS LOGGED AND RE-SCORABLE FOR $0 — KEEP IT THAT WAY
+
+- **`docs/superpowers/extraction-iteration-ledger.md`** — one entry per eval, newest last, with scores
+  and cost. **Currently at eval 150.** Add one before your session ends.
+- **`docs/superpowers/stage2-macro-benchmark.md`** — the full evidence for each run.
+- **Raw responses are COMMITTED** (`scripts/fixtures/caches/`, 204 files), so any oracle correction
+  re-scores history for **$0**: `--replay` on either harness, and `scripts/rescore-history.ts` for the
+  weighted archive (it DISCOVERS its runs — do not reintroduce a hand-maintained list).
+- **Use `--run <label>`** on a repeat run or it overwrites its predecessor and the range is lost.
+
+### 🚧 STILL OPEN, AND NOT ADDRESSED BY THE PLAN
+
+**Accompaniments are sized from a nutrition-LABEL serving instead of what is served** — 24% of weighted
+items, **12–20% of those dishes' calories**. Prose (Arm S) and a duplicate field (S4) have both failed
+at it. ⚠️ **A weight fix ALONE makes sauces WORSE**: chimichurri is 2× too heavy AND ~3× too lean and
+the errors currently cancel. This is the largest known weighted defect and the natural next target
+after the plan ships.
+
+---
+
+## ⚠️ EVERYTHING BELOW THIS LINE IS THE SUPERSEDED 2026-08-16 HANDOFF
+
+It is kept because parts of it are still the only record of an oracle ruling or a falsified
+direction. **Where it disagrees with the 2026-08-18 block above, the block above wins.** Two things
+in here are now STALE and are corrected at their own headings: its prompt-wording scoreboard says
+"0 for 5" (it is **0 for 6**), and its "Suggested next steps" predates the P-10 result.
+**Do not take a next action from below this line.**
 
 ### The one insight that matters most — SIZE WAS THE SYMPTOM, ASSEMBLY IS THE DISEASE
 
@@ -234,13 +269,13 @@ The whole "fix the sauces" thread. It is closed, and each step closed a directio
    49% → 34% error. **This is the SECOND arm to die between probe and benchmark** (A-conditional was
    the first). Budget the benchmark before believing a probe.
 
-### 📊 THE SCOREBOARD THAT PREDICTS ARMS — read before designing one
+### 📊 ⚠️ STALE SCOREBOARD — superseded, wording is now 0 for 6 (P-inline, 2026-08-18)
 
-**Prompt wording is 0 for 5. Schema force is 6 for 8.** Full detail and the riders are in `AGENTS.md`.
+**Prompt wording is ~~0 for 5~~ 0 for 6. Schema force is 6 for 8.** Full detail and the riders are in `AGENTS.md`.
 
 | approach | record | cases |
 |---|---|---|
-| a sentence in `ENRICH_PROMPT` | **0 for 5** | B11, B13, B23, two `serving_pieces` wordings, Arm S |
+| a sentence in `ENRICH_PROMPT` | **0 for 6** | B11, B13, B23, two `serving_pieces` wordings, Arm S, **P-inline** |
 | a required field in the schema | **6 for 8** | B4, B15, forced `serving_pieces`, B24b, S2, S3 |
 
 Riders: ask for a **number**, not a string; a **free-text** field invites merging; **field ORDER is
@@ -334,24 +369,14 @@ reproduces every stored oracle total from the shipped file.
 - **TIRAS DE POLLO (3/12)** — only Arm PF moved it (to 7/12) by adding cooking fat, and PF regressed
   the salad by the same amount.
 
-### 🧭 Suggested next steps, in order
+### 🧭 ⚠️ SUPERSEDED — do not take a next action from here
 
-**Baselines both carry a RANGE: weighted 16–18/96, unweighted 25–28/72.** Runs are ~$0.40–0.50/arm.
+This section used to rank the next experiments. **All of it has been run.** Arm P, Arm P-10,
+P-inline and the split-only control are measured and rejected; the accompaniment-weight defect is the
+only item that survives, and it is recorded under "STILL OPEN" in the 2026-08-18 block at the top.
 
-1. 🔴 **SANTIAGO'S CALL: take the P-10 trade or not** (unweighted 35–39% → 53%, weighted 81–83% → 77%).
-   Recommendation is to take it — unweighted items are most of a real menu and their errors are
-   enormous, where weighted errors sit near their band edges. **It is a product call, not a
-   measurement one.**
-2. **If yes: a confirmation run of both sides first (~$1)** — one run of 3 draws each so far, and the
-   per-draw spread is wide. Then implement it in `callGptEnrich` (partition, chunk each side, Arm P's
-   sentence on the unweighted half) with its own tests, then a deployment ruling.
-3. **If no:** go after the accompaniment-weight defect (24% of weighted items, 12–20% of their
-   calories, still unfixed after prose and a duplicate field both failed).
-4. **Do not** try: another plate-weight arm, another cooking-fat arm (PF), another dominance arm (PD),
-   **another prompt SENTENCE (0 for 6)**, a field duplicating an existing one (S4: 364/364 copies),
-   **a split WITHOUT the sentence (21/72)**, or **a sentence without the split (29/72)**.
-
-⚠️ **Coleslaw is the noisiest dish (0 / 2 / 4 / 6 across arms). Distrust any single-dish claim about it.**
+**→ The current next action is the first line of the 2026-08-18 handoff: execute
+`docs/superpowers/plans/2026-08-18-dual-pass-enrichment.md`.**
 
 ---
 

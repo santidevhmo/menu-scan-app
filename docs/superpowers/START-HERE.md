@@ -77,8 +77,8 @@ dishes that print a weight and bad at dishes that do not, and the second group i
 | score | dishes | points | current result | harness |
 |---|---|---|---|---|
 | weighted (prints grams) | 8 | 96 | **6–9 failed** at 17.6–18.0% | `scripts/bench-macros.ts` |
-| **unweighted (no grams)** | 6 | 24 | **best 37/72** (Arm P) vs **25–28/72** baseline · P-inline 29 | `scripts/bench-unweighted.ts` |
-| **weighted, INSIDE ITS REAL MENU** | 8 | 96 | **16–18/96 today** · P-inline 15 · P-10 22 · P 27 | `scripts/bench-mixed-menu.ts` |
+| **unweighted (no grams)** | 6 | 24 | **best 38/72 (Arm P-10)** vs **25–28/72** baseline | `scripts/bench-unweighted.ts` |
+| **weighted, INSIDE ITS REAL MENU** | 8 | 96 | **16–18/96 today** · P-10 **22** · P 27 | `scripts/bench-mixed-menu.ts` |
 
 **Never merge or substitute these numbers.**
 
@@ -115,21 +115,38 @@ delivers Arm P's idea with **no split at all** — one mixed batch, a conditiona
 prompt. It clears the weighted gate (**15/96** against a 16–18 baseline) and **fails the one that
 matters: 29/72 unweighted, inside the 25–28 baseline band and 8 short of Arm P's 37.**
 
-🔬 **THE CONTROL RAN AND FALSIFIED MY OWN REFRAME (2026-08-18, ~$0.5). IT IS AN INTERACTION.**
-I proposed that Arm P's gain was the batch rather than the sentence, and named the control that would
-settle it. `SplitOnly` — Arm P's split with the prompt byte-identical to production — scores
-**21/72, BELOW the 25–28 baseline.** The full 2×2:
+🟢 **ARM P-10 IS THE CANDIDATE, AND THE TRADE IS NOW SANTIAGO'S (2026-08-18).** Its missing number
+came in at **38/72 unweighted — the best ever recorded — at 22/96 weighted.** It **dominates Arm P on
+both axes** (38 vs 37 unweighted, a tie within noise; 22 vs 27 weighted, a real gap). **Arm P is
+superseded.**
+
+| | today | under P-10 |
+|---|---|---|
+| unweighted dishes correct | 35–39% | **53%** (+14 to +18 pts) |
+| weighted dishes correct | 81–83% | **77%** (−4 to −6 pts) |
+
+🎯 **CAPRICCIOSA finally moves: 0 → 6/12.** The 28 cm pizza scored 0 through every arm of this phase,
+motivated the entire plate-weight thread, and was proven at $0 to be unfixable by any total.
+
+⚠️ **ONE RUN OF 3 DRAWS EACH SIDE, wide per-draw spread — a confirmation run (~$1) is owed** before
+shipping. ⚠️ **And shipping is a REAL CODE CHANGE to `callGptEnrich`, not a prompt edit** (partition
+weighted/unweighted, chunk each at `ENRICH_BATCH_SIZE`, send the unweighted side with Arm P's
+sentence). Nothing in `supabase/functions/` has been touched.
+
+🔬 **HOW WE GOT HERE — THE FULL 2×2, and neither half works alone.** `SplitOnly` (the split with the
+prompt byte-identical to production) scores **21/72, BELOW baseline**; P-inline (the sentence with no
+split) scores **29**. Together: 37–38.
 
 | | shipped prompt | + Arm P's sentence |
 |---|---|---|
 | **mixed batch** | 25–28 baseline | **29** (P-inline) |
-| **split batch** | **21** (SplitOnly ❌) | **37** (Arm P ✅) |
+| **split batch** | **21** (SplitOnly ❌) | **37–38** (P / P-10 ✅) |
 
-**The split alone is worse than doing nothing; the sentence alone is worth nothing; together they are
-worth 9–12 points.** 🔑 **Why:** Arm P's sentence opens *"The items in this request print no weight"* —
-true of the WHOLE request only when the batch is homogeneous. **The model honours an unconditional
-fact about the request far better than a per-item condition inside it.** The split is not valuable in
-itself; it is what makes the instruction statable as a fact.
+🔑 **Why:** the sentence opens *"The items in this request print no weight"* — true of the WHOLE
+request only when the batch is homogeneous. **The model honours an unconditional fact about the
+request far better than a per-item condition inside it.** The split is not valuable in itself; it is
+what makes the instruction statable as a fact. ⚠️ An earlier claim that "the batch is the lever, not
+the words" was **my hypothesis, and the $0.50 control falsified it** — it is an interaction.
 
 🧪 **A $0 DIAGNOSTIC, written down before the run, showed the condition landed on the WRONG GROUP:**
 the unweighted items it was scoped to did not move (median **1.00×**), while weighted items it
@@ -319,23 +336,22 @@ reproduces every stored oracle total from the shipped file.
 
 ### 🧭 Suggested next steps, in order
 
-**Baselines both carry a RANGE now: weighted 16–18/96, unweighted 25–28/72.** Runs are ~$0.40–0.50 per
-arm on both harnesses.
+**Baselines both carry a RANGE: weighted 16–18/96, unweighted 25–28/72.** Runs are ~$0.40–0.50/arm.
 
-1. 🔴 **ARM P-10 ON THE UNWEIGHTED SET (~$0.50) — the single most decision-relevant missing number.**
-   P-10 carries **both halves of the interaction** (split + sentence) while restoring full batches, so
-   it should keep Arm P's gain at a smaller weighted cost. Its weighted cost is known (22/96 against
-   16–18); its gain is not. **If it scores near 37/72 the trade becomes concrete and Santiago's:
-   roughly +9 to +12 unweighted for −4 to −6 weighted. Until it exists, nothing can be put to him.**
-2. Only then a new arm for the accompaniment-weight defect (24% of weighted items, 12–20% of their
-   calories, still unfixed).
-3. **Do not** try: another plate-weight arm, another cooking-fat arm (PF), another dominance arm (PD),
+1. 🔴 **SANTIAGO'S CALL: take the P-10 trade or not** (unweighted 35–39% → 53%, weighted 81–83% → 77%).
+   Recommendation is to take it — unweighted items are most of a real menu and their errors are
+   enormous, where weighted errors sit near their band edges. **It is a product call, not a
+   measurement one.**
+2. **If yes: a confirmation run of both sides first (~$1)** — one run of 3 draws each so far, and the
+   per-draw spread is wide. Then implement it in `callGptEnrich` (partition, chunk each side, Arm P's
+   sentence on the unweighted half) with its own tests, then a deployment ruling.
+3. **If no:** go after the accompaniment-weight defect (24% of weighted items, 12–20% of their
+   calories, still unfixed after prose and a duplicate field both failed).
+4. **Do not** try: another plate-weight arm, another cooking-fat arm (PF), another dominance arm (PD),
    **another prompt SENTENCE (0 for 6)**, a field duplicating an existing one (S4: 364/364 copies),
-   **a split WITHOUT the sentence (SplitOnly: 21/72, worse than baseline)**, or **a sentence without
-   the split (P-inline: 29/72)**. The two only work together.
+   **a split WITHOUT the sentence (21/72)**, or **a sentence without the split (29/72)**.
 
-⚠️ **Coleslaw is the noisiest dish (0 / 2 / 4 / 6 across four arms). Distrust any single-dish claim
-about it.**
+⚠️ **Coleslaw is the noisiest dish (0 / 2 / 4 / 6 across arms). Distrust any single-dish claim about it.**
 
 ---
 

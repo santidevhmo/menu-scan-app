@@ -1807,3 +1807,25 @@ Rules:
 - **🔧 HOUSEKEEPING — three guards against the ways this session actually lost money and time.** (1) **A dead API balance is no longer archived as data**: `assertRunIsProducingData` aborts the moment a whole batch returns backfilled, after the 2026-08-17 credit exhaustion ran to completion and wrote 15 menu-draws of zeros that looked like results; a PARTIAL backfill still passes, since that is real production behaviour the scorer already excludes. (2) **`retryOnce` now covers EVERY arm calling `enrichBatch` bare**, not just the one that crashed — armS3/armS4 had the identical defect, and wrapping only armPInline was the "patch the named path, leave the siblings broken" mistake. (3) **`rescore-history.ts` DISCOVERS its runs** instead of a hand-maintained list that had gone stale and was hiding B21/S3/S4 from the bare command — it now reads the cache, requires 3 draws, and excludes `-probe`.
 - Gates: suite **372 passed | 2 failed** (the two known-noise failures).
 - **⛔ NEXT:** 🔴 **ARM P-10 ON THE UNWEIGHTED SET (~$0.50) — the only number that lets Santiago decide.** P-10 carries BOTH halves of the interaction while restoring full batches, so it should keep Arm P's gain at a smaller weighted cost; its 22/96 weighted is known and its gain is not. If it lands near 37/72 the trade is concrete: **+9 to +12 unweighted for −4 to −6 weighted.** **Do NOT** run: a split without the sentence (21/72), a sentence without the split (29/72), or another prompt sentence (0 for 6).
+
+## Eval 149 — 🟢 ARM P-10 = 38/72, the best unweighted result ever, at a smaller weighted cost (~$0.5)
+
+- Date: 2026-08-18 | Branch `feat/forced-serving-pieces`, COMMITTED, not pushed. **Phase total ~$39.**
+- **The missing number exists.** 3 draws, 9/9 menu-draws clean, 0 backfilled, $0-replay verified.
+
+| arm | unweighted (higher better) | weighted, in real menus (lower better) |
+|---|---|---|
+| production today | 25–28/72 | **16–18/96** |
+| Arm P | 37/72 | 27/96 |
+| **Arm P-10** | **38/72** 🥇 | **22/96** |
+| P-inline | 29/72 | 15/96 |
+| SplitOnly | 21/72 | — |
+
+- **🟢 P-10 DOMINATES ARM P ON BOTH AXES** — equal-or-better unweighted (38 vs 37, a tie within noise) at a materially smaller weighted cost (22 vs 27). **Arm P is superseded; P-10 is the candidate.**
+- **🎯 CAPRICCIOSA FINALLY MOVES: 0 → 6/12.** The 28 cm pizza scored 0 through every arm of this phase, motivated the entire plate-weight thread, and was proven at $0 to be unfixable by any plate total. It is the single clearest sign the mechanism is right.
+- **⚖️ THE TRADE, AND IT IS SANTIAGO'S:** unweighted dishes **35–39% → 53% correct (+14 to +18 pts)**, weighted **81–83% → 77% (−4 to −6 pts)**. **Recommendation: take it** — unweighted items are the majority of a real menu and their errors are enormous (a pizza at half its calories), where weighted errors sit near their band edges. **A product call, not a measurement one.**
+- ⚠️ **ONE RUN OF 3 DRAWS ON EACH SIDE**, wide per-draw spread (CAPRICCIOSA 1–4/4, Salmón Roll 0–3/4). **38 vs 37 is a TIE, not a win.** The load-bearing claims are "P-10 ≈ Arm P on unweighted" and "P-10 costs less on weighted". **A confirmation run of both sides (~$1) is owed before shipping.**
+- ⚠️ **SHIPPING IS A REAL CODE CHANGE, NOT A PROMPT EDIT.** It restructures `callGptEnrich`: partition the menu weighted/unweighted, chunk each side at `ENRICH_BATCH_SIZE`, send the unweighted side with Arm P's sentence. That touches the deployed enrichment path and needs its own tests plus a deployment ruling. **Nothing in `supabase/functions/` has been changed.**
+- **Wiring note for whoever implements it:** on the harness P-10 does NOT go through `enrichWithArm`, because that pre-chunks and P-10 partitions the WHOLE list before chunking each side — pre-chunking rebuilds Arm P's undersized batches and silently re-measures it. Its focused-batch selection reads the **unweighted-only** list for the same reason.
+- Gates: suite **372 passed | 2 failed** (the two known-noise failures).
+- **⛔ NEXT:** (1) **Santiago's ruling on the trade.** (2) if yes: confirmation run (~$1), then implement in `callGptEnrich` with tests, then a deployment ruling. (3) if no: the accompaniment-weight defect.

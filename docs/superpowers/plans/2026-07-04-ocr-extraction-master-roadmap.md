@@ -70,17 +70,21 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > **wrong group**: unweighted servings did not move (median 1.00×) while weighted ones it excluded were
 > shuffled (4.00×, 1.94×, 1.87×). **A per-item condition in prose is not read as one.**
 >
-> 🔬 **THE CONTROL RAN AND FALSIFIED THAT REFRAME (~$0.5). ARM P IS AN INTERACTION, NOT A LEVER.**
-> `SplitOnly` — the split with the prompt byte-identical to production — scores **21/72, BELOW the
-> 25–28 baseline.** Full 2×2: mixed+shipped **25–28**, mixed+sentence **29**, split+shipped **21**,
-> split+sentence **37**. **Neither half works alone; together they are worth 9–12 points.**
-> 🔑 Arm P's sentence opens *"The items in this request print no weight"* — true of the WHOLE request
-> only when the batch is homogeneous. **The model honours an unconditional fact about the request far
-> better than a per-item condition inside it.** The split is not valuable in itself; it is what makes
-> the instruction statable as a fact. ⚠️ Third arm to die between a plausible story and a measurement.
-> 🔴 **NEXT, and it is the only number that lets Santiago decide: ARM P-10 ON THE UNWEIGHTED SET
-> (~$0.50).** It carries BOTH halves while restoring full batches, so it should keep the gain at a
-> smaller weighted cost (its 22/96 is known, its gain is not).
+> 🟢 **ARM P-10 IS THE CANDIDATE AND THE TRADE IS SANTIAGO'S (2026-08-18).** **38/72 unweighted — the
+> best ever recorded — at 22/96 weighted.** It **dominates Arm P on both axes** (38 vs 37 unweighted,
+> a tie within noise; 22 vs 27 weighted, a real gap), so **Arm P is superseded.** The trade:
+> **unweighted dishes 35–39% → 53% correct, weighted 81–83% → 77%.** 🎯 **CAPRICCIOSA finally moves,
+> 0 → 6/12** — the pizza that motivated the whole plate-weight thread and was proven unfixable by any
+> total. ⚠️ ONE run of 3 draws each side; a confirmation run (~$1) is owed. ⚠️ Shipping is a REAL CODE
+> CHANGE to `callGptEnrich`, not a prompt edit; nothing in `supabase/functions/` is touched.
+>
+> 🔬 **THE FULL 2×2 — NEITHER HALF WORKS ALONE.** SplitOnly (split, shipped prompt) **21/72, below
+> baseline**; P-inline (sentence, no split) **29**; together **37–38**. 🔑 The sentence opens *"The
+> items in this request print no weight"* — true of the WHOLE request only when the batch is
+> homogeneous. **The model honours an unconditional fact about the request far better than a per-item
+> condition inside it.** ⚠️ "The batch is the lever, not the words" was a hypothesis and the $0.50
+> control **falsified** it; it is an interaction. Third arm to die between a plausible story and a
+> measurement.
 >
 > 🟡 **P-10: 22/96, also rejected on the weighted gate.** It recovered 5 of Arm P's 11 lost field-draws
 > by restoring batch size (9–10 mates vs 5–8). ☠️ **The split ITSELF is the defect, not the chunking

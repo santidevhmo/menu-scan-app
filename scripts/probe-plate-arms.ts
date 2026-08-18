@@ -14,7 +14,9 @@
 //     --env-file=.env.local scripts/probe-plate-arms.ts
 import {
   callGptEnrich,
+  chunk,
   enrichBatch,
+  ENRICH_BATCH_SIZE,
   ENRICH_MODEL,
   ENRICH_PROMPT,
   ENRICH_SCHEMA_OPENAI,
@@ -249,6 +251,56 @@ export async function armP(items: Item[]) {
   if (unweighted.length > 0) {
     // The SCHEMA is untouched - this changes what a number means, not its shape.
     const raw = await callOpenAI(ARM_P_PROMPT, ENRICH_SCHEMA_OPENAI, unweighted);
+    for (const it of raw.items ?? []) {
+      out.push({
+        ...it,
+        ...sumIngredientMacros(it.ingredients ?? [], it.printed_total_g),
+      });
+    }
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- ARM P-10
+//
+// ARM P's SENTENCE, WITHOUT ARM P'S BATCH SHRINKAGE.
+//
+// The 2026-08-18 mixed-menu run rejected Arm P for shipping: weighted dishes
+// went 16/96 -> 27/96 inside their real menus. The cause was isolated by an
+// internal control - the two fixtures whose batch-mates did NOT change scored
+// IDENTICALLY across arms, and every regression was a dish whose batch shrank
+// (CESAR 10 -> 5 mates, PASTEL and Coleslaw 10 -> 6). That matches the
+// 2026-08-12 batch-size curve, which already found small batches cost weighted
+// dishes 4x their accuracy. So Arm P's defect is its BATCHING, not its wording.
+//
+// splitArm/armP chunk the menu at 10 and split each chunk, so BOTH halves come
+// out undersized. This partitions the WHOLE menu first and chunks each side at
+// ENRICH_BATCH_SIZE, so a weighted dish rides with 10 weighted items instead of
+// 5-8 while unweighted items keep Arm P's sentence.
+//
+// ⚠️ Takes the WHOLE menu. Do NOT pre-chunk it - that is precisely what armP
+// does and what this arm exists to undo.
+//
+// Weighted items still go through callGptEnrich with the UNCHANGED prompt, so
+// their request is byte-identical to production and only their neighbours
+// differ. B21 is not touched.
+export async function armP10(items: Item[]) {
+  const weighted = items.filter((i) => i.grams != null);
+  const unweighted = items.filter((i) => i.grams == null);
+  // deno-lint-ignore no-explicit-any
+  const out: any[] = [];
+
+  if (weighted.length > 0) {
+    // callGptEnrich chunks internally at ENRICH_BATCH_SIZE - that is the point.
+    // deno-lint-ignore no-explicit-any
+    const { items: enriched } = await callGptEnrich(weighted as any, apiKey!);
+    out.push(...enriched);
+  }
+  // Chunked here because callOpenAI would otherwise send every unweighted item
+  // in one call - the same undersizing defect in reverse, and a 61-item request
+  // on a dense menu.
+  for (const batch of chunk(unweighted, ENRICH_BATCH_SIZE)) {
+    const raw = await callOpenAI(ARM_P_PROMPT, ENRICH_SCHEMA_OPENAI, batch);
     for (const it of raw.items ?? []) {
       out.push({
         ...it,

@@ -17,6 +17,8 @@
 //
 //   arm `mixed`  callGptEnrich(whole menu, ENRICH_BATCH_SIZE)   = production today
 //   arm `P`      chunk at ENRICH_BATCH_SIZE, then armP per chunk = Arm P shipped
+//   arm `P10`    partition weighted/unweighted FIRST, then chunk  = Arm P without
+//                each side at ENRICH_BATCH_SIZE                     the shrinkage
 //
 // The eight dishes' name and description are BYTE-IDENTICAL between the frozen
 // oracle and these archived extractions (asserted below, and the run aborts
@@ -63,7 +65,7 @@ export const MENU_ARCHIVE: Record<string, string> = {
   polloteria: "polloteria.eval103c-m41-r1.raw.json",
 };
 
-export const ARMS = ["mixed", "P"] as const;
+export const ARMS = ["mixed", "P", "P10"] as const;
 type Arm = typeof ARMS[number];
 
 /**
@@ -74,6 +76,16 @@ type Arm = typeof ARMS[number];
  * This is deliberately identical to bench-unweighted.ts's enrichWithArm, so
  * Arm P means the same thing on both benchmarks.
  */
+/**
+ * Arm P-10 partitions before chunking, so it must receive the WHOLE list and
+ * must NOT be pre-chunked here - pre-chunking is exactly the defect it undoes.
+ */
+async function enrichP10(items: unknown[]): Promise<EnrichedItem[]> {
+  const { armP10 } = await import("./probe-plate-arms.ts");
+  // deno-lint-ignore no-explicit-any
+  return await armP10(items as any) as EnrichedItem[];
+}
+
 async function enrichSplit(items: unknown[]): Promise<EnrichedItem[]> {
   // Imported HERE, not at module scope: probe-plate-arms.ts throws on import
   // without OPENAI_API_KEY, which would break both `--replay` (documented as $0,
@@ -130,6 +142,35 @@ export function assertFixtureTextMatches(
  * touched the score. What IS lost is whole-menu behaviour under load — which is
  * bench-pipeline.ts's job, not this harness's.
  */
+/**
+ * The same idea for Arm P-10, whose batches form AFTER the weighted/unweighted
+ * partition - so a fixture's mates are its neighbours in the WEIGHTED-ONLY
+ * list, not in the mixed menu. Using the mixed boundaries here would send a
+ * composition P-10 never builds.
+ *
+ * Returns weighted items only: all 8 fixtures print a weight, and under P-10
+ * the unweighted half is a separate set of calls that cannot influence them.
+ */
+export function fixtureBatchesP10(
+  // deno-lint-ignore no-explicit-any
+  items: any[],
+  names: string[],
+  // deno-lint-ignore no-explicit-any
+): any[] {
+  const weighted = items.filter((i) => i.grams != null);
+  const wanted = new Set<number>();
+  for (const name of names) {
+    const idx = weighted.findIndex((i) => i.name === name);
+    if (idx < 0) {
+      throw new Error(`fixture "${name}" is not weighted - cannot locate its P-10 batch`);
+    }
+    wanted.add(Math.floor(idx / ENRICH_BATCH_SIZE));
+  }
+  return [...wanted].sort((a, b) => a - b).flatMap((b) =>
+    weighted.slice(b * ENRICH_BATCH_SIZE, (b + 1) * ENRICH_BATCH_SIZE)
+  );
+}
+
 export function fixtureBatches(
   // deno-lint-ignore no-explicit-any
   items: any[],
@@ -195,11 +236,12 @@ async function main(): Promise<void> {
       assertFixtureTextMatches(menu, whole, entries);
       // Batches are located in the WHOLE menu, so the chunk boundaries a fixture
       // sits on are exactly production's, then only those chunks are sent.
-      sent = fullMenu ? whole : fixtureBatches(
-        whole,
-        entries.filter((e) => e.menu === menu).map((e) => e.name),
-      );
-      enriched = arm === "P"
+      const names = entries.filter((e) => e.menu === menu).map((e) => e.name);
+      const select = arm === "P10" ? fixtureBatchesP10 : fixtureBatches;
+      sent = fullMenu ? whole : select(whole, names);
+      enriched = arm === "P10"
+        ? await enrichP10(sent)
+        : arm === "P"
         ? await enrichSplit(sent)
         // deno-lint-ignore no-explicit-any
         : (await callGptEnrich(sent as any, apiKey!, ENRICH_MODEL)).items;

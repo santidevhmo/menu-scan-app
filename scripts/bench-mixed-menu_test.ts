@@ -3,7 +3,12 @@
 // a re-extraction that reworded one description turns a batch-composition result
 // into a prompt-text result, silently.
 import { assertEquals, assertThrows } from "jsr:@std/assert@1";
-import { assertFixtureTextMatches, fixtureBatches, MENU_ARCHIVE } from "./bench-mixed-menu.ts";
+import {
+  assertFixtureTextMatches,
+  fixtureBatches,
+  fixtureBatchesP10,
+  MENU_ARCHIVE,
+} from "./bench-mixed-menu.ts";
 import { ENRICH_BATCH_SIZE } from "../supabase/functions/analyze-menu/enrich.ts";
 import { itemsFromArchive } from "./bench-pipeline.ts";
 import { loadOracle, ORACLE_PATH } from "./bench-macros.ts";
@@ -100,4 +105,42 @@ Deno.test("fixtureBatches refuses a fixture it cannot locate", () => {
     Deno.readTextFileSync(`scripts/fixtures/caches/${MENU_ARCHIVE[menu]}`),
   );
   assertThrows(() => fixtureBatches(whole, ["NOT ON THIS MENU"]), Error, "cannot locate its batch");
+});
+
+// Arm P-10's whole claim is that a weighted dish keeps a FULL batch. If its
+// selection were computed on the mixed menu (as arm P's is) it would rebuild
+// exactly the undersized composition P-10 exists to undo, and the run would
+// silently re-measure arm P.
+Deno.test("fixtureBatchesP10 batches on the weighted-only list, at full size", () => {
+  for (const menu of [...new Set(entries.map((e) => e.menu))]) {
+    const whole = itemsFromArchive(
+      Deno.readTextFileSync(`scripts/fixtures/caches/${MENU_ARCHIVE[menu]}`),
+    );
+    const names = entries.filter((e) => e.menu === menu).map((e) => e.name);
+    const kept = fixtureBatchesP10(whole, names);
+    // deno-lint-ignore no-explicit-any
+    const weighted = whole.filter((i: any) => i.grams != null);
+
+    // nothing unweighted leaks in — it would change the composition under test
+    for (const i of kept) {
+      assertEquals(
+        (i as { grams?: number | null }).grams != null,
+        true,
+        `${menu}: unweighted item "${i.name}" leaked into a P-10 batch`,
+      );
+    }
+    for (const name of names) {
+      assertEquals(kept.some((i) => i.name === name), true, `${menu}: dropped ${name}`);
+      // and each kept batch is a verbatim slice of the WEIGHTED list
+      const wi = weighted.findIndex((i) => i.name === name);
+      const b = Math.floor(wi / ENRICH_BATCH_SIZE);
+      const expected = weighted.slice(b * ENRICH_BATCH_SIZE, (b + 1) * ENRICH_BATCH_SIZE);
+      const at = kept.findIndex((i) => i.name === expected[0].name);
+      assertEquals(
+        kept.slice(at, at + expected.length).map((i) => i.name),
+        expected.map((i) => i.name),
+        `${menu}: ${name}'s P-10 batch was regrouped`,
+      );
+    }
+  }
 });

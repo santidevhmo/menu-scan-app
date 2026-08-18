@@ -5020,3 +5020,63 @@ a wording change — the 0-for-5 prompt scoreboard does not apply to it.**
 
 ⚠️ **Do NOT read this as "Arm P is falsified".** Its unweighted gain (28/72 → 37/72) stands and was
 never in question. What is rejected is **shipping it in its current split form**.
+
+### 🟡 ARM P-10 — BATCH SIZE WAS HALF THE STORY. 27/96 → 22/96, STILL SHORT OF 16 (2026-08-18, ~$0.40)
+
+The P-10 hypothesis: Arm P chunks at 10 and *then* splits, leaving both halves undersized, so
+**partition the menu weighted/unweighted FIRST and chunk each side at 10.** Verified before spending
+that it restores the batch — every fixture goes back to **9–10 mates** from Arm P's 5–8.
+`armP10` in `scripts/probe-plate-arms.ts`; 3 draws, 15/15 menu-draws clean, 0 backfilled, $0-replay
+verified.
+
+| arm | weighted, inside real menus |
+|---|---|
+| `mixed` — production today | **16/96** |
+| `P10` | **22/96** |
+| `P` | 27/96 |
+
+**It recovers 5 of Arm P's 11 lost field-draws and stops there. It does NOT clear the bar (16/96), so
+it is not shippable either.**
+
+#### 🔑 THE PER-DISH RESULT IS WHERE THE FINDING IS
+
+| dish | batch-mates today → P → P10 | today | P | P10 |
+|---|---|---|---|---|
+| **CESAR** | 10 → **5** → **10** | 1/12 | 5/12 | **0/12** ✅ fully recovered |
+| PASTEL AZTECA | 10 → 6 → 9 | 0/12 | 5/12 | 3/12 🟡 partly |
+| ENFRIJOLADAS | 10 → 6 → 9 | 3/12 | 3/12 | **1/12** ✅ better than today |
+| Gnocchi | 10 → 8 → 10 | 6/12 | 4/12 | 6/12 |
+| **Salmone toscano** | **3 → 3 → 10** | 6/12 | 6/12 | **6/12** ⬅ size tripled, score IDENTICAL |
+| **Coleslaw** | 10 → 6 → **10** | 0/12 | 4/12 | **6/12** ⬅ size restored, got WORSE |
+| NEW YORK | 10 → 10 → 10 | 0/12 | 0/12 | 0/12 |
+| French Fries | 10 → 6 → 10 | 0/12 | 0/12 | 0/12 |
+
+**CESAR is textbook** — 5 mates cost it 5 field-draws, 10 mates give them all back and then some. That
+is the batch-size mechanism confirmed at the dish level.
+
+🔴 **BUT TWO DISHES FALSIFY "SIZE IS THE WHOLE STORY":** Salmone's batch went **3 → 10** and its score
+did not move by a single field, and **Coleslaw got WORSE (4 → 6) with its batch size restored.**
+
+🔑 **THE CONCLUSION THAT MATTERS, AND IT IS BIGGER THAN ONE ARM.** P-10 holds batch SIZE at 10 and
+changes only WHO is in it — today's mates are a realistic mix, P-10's are all weighted. Weighted
+dishes still degrade (16 → 22). So **splitting the request disturbs weighted dishes independently of
+batch size**, which supports the 2026-08-12 prior that *the model calibrates across the items sharing
+a call*: an all-weighted batch is an unrealistic calibration context, and B21's proportions were tuned
+inside a mixed one.
+
+☠️ **THIS RETIRES A DELIVERY MECHANISM, NOT JUST AN ARM. Any arm that separates weighted from
+unweighted items into different calls should be expected to cost weighted dishes** — the chunking
+order only changes how much. Arm P (27/96) and P-10 (22/96) are two points on that; neither reaches 16.
+
+⚠️ **Arm P's UNWEIGHTED gain (28/72 → 37/72) is still not falsified.** What is now doubly established
+is that **its delivery mechanism is the problem.**
+
+🧭 **THE QUESTION THIS LEAVES:** can Arm P's instruction reach unweighted items **without a split** —
+one mixed batch, one call, the sentence made conditional per item? That keeps weighted dishes in
+exactly today's context. ⚠️ It is a prompt SENTENCE, and wording is **0 for 5** — but Arm P's sentence
+demonstrably works when the batch is homogeneous (37/72), so the open question is specifically whether
+it survives being conditional. State the falsifier before running it, and score BOTH benchmarks: it
+must hold 16/96 weighted and 37/72 unweighted.
+
+⚠️ **ONE RUN OF 3 DRAWS PER ARM.** CESAR's recovery tracks its batch cleanly, but Coleslaw's 0 → 6 is
+the size of swing that needs a repeat before it is load-bearing. **A range across runs is still owed.**

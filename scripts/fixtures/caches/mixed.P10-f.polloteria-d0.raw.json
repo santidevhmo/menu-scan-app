@@ -1,0 +1,616 @@
+{
+  "items": [
+    {
+      "name": "Fresh (300gr)",
+      "description": "Pan brioche, pechuga de pollo a la plancha, aguacate, pepino, tomate y lechuga romana con aderezo de cilantro. Agrega queso a tus papas por $10.",
+      "price": 150,
+      "category": "food",
+      "printed_total_g": 300,
+      "name_implied_components": [
+        "brioche bun"
+      ],
+      "ingredients": [
+        {
+          "name": "brioche bun",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 70,
+          "protein_per_100g": 8,
+          "carb_per_100g": 50,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "grilled chicken breast",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 31,
+          "carb_per_100g": 0,
+          "fat_per_100g": 3.6
+        },
+        {
+          "name": "avocado",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 2,
+          "carb_per_100g": 9,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "cucumber",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 0.7,
+          "carb_per_100g": 3.6,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "tomato",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 0.9,
+          "carb_per_100g": 3.9,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "romaine lettuce",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1.2,
+          "carb_per_100g": 3.3,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "cilantro dressing",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 20
+        }
+      ],
+      "protein_g": 31,
+      "carb_g": 36,
+      "fat_g": 19,
+      "estimated_calories": 441,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten"
+      ]
+    },
+    {
+      "name": "Dallas (350gr)",
+      "description": "Pan brioche, tender de pechuga de pollo empanizado, cebolla caramelizada, queso cheddar, tocino, salsa bbq y aderezo de chipotle. Agrega queso a tus papas por $10.",
+      "price": 159,
+      "category": "food",
+      "printed_total_g": 350,
+      "name_implied_components": [
+        "brioche bun"
+      ],
+      "ingredients": [
+        {
+          "name": "brioche bun",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 70,
+          "protein_per_100g": 8,
+          "carb_per_100g": 50,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "breaded chicken tender",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 20,
+          "carb_per_100g": 15,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "caramelized onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1.1,
+          "carb_per_100g": 9.6,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "cheddar cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 25,
+          "carb_per_100g": 1.3,
+          "fat_per_100g": 33
+        },
+        {
+          "name": "bacon",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 37,
+          "carb_per_100g": 1.4,
+          "fat_per_100g": 42
+        },
+        {
+          "name": "bbq sauce",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 30,
+          "fat_per_100g": 0.5
+        },
+        {
+          "name": "chipotle dressing",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 20
+        }
+      ],
+      "protein_g": 47,
+      "carb_g": 72,
+      "fat_g": 47,
+      "estimated_calories": 898,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ]
+    },
+    {
+      "name": "Cheesey Bacon (300gr)",
+      "description": "Pan brioche dorado con mantequilla, fajitas de pollo a la plancha, tocino, queso cheddar y suizo acompañado de aderezo chipotle. Agrega queso a tus papas por $10.",
+      "price": 155,
+      "category": "food",
+      "printed_total_g": 300,
+      "name_implied_components": [
+        "brioche bun"
+      ],
+      "ingredients": [
+        {
+          "name": "brioche bun",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 70,
+          "protein_per_100g": 8,
+          "carb_per_100g": 50,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "grilled chicken strips",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 31,
+          "carb_per_100g": 0,
+          "fat_per_100g": 3.6
+        },
+        {
+          "name": "bacon",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 37,
+          "carb_per_100g": 1.4,
+          "fat_per_100g": 42
+        },
+        {
+          "name": "cheddar cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 25,
+          "carb_per_100g": 1.3,
+          "fat_per_100g": 33
+        },
+        {
+          "name": "swiss cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 27,
+          "carb_per_100g": 1.5,
+          "fat_per_100g": 28
+        },
+        {
+          "name": "chipotle dressing",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 20
+        }
+      ],
+      "protein_g": 64,
+      "carb_g": 40,
+      "fat_g": 46,
+      "estimated_calories": 835,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ]
+    },
+    {
+      "name": "Nashville (300gr)",
+      "description": "Pan brioche, tender de pechuga de pollo empanizado, sobre una cama de pepinillos, bañado en nuestra picosta salsa Nashville (mezcla de aceites y chiles), y una ensalada de repollo con cebolla morada y pepinillos. Agrega queso a tus papas por $10.",
+      "price": 155,
+      "category": "food",
+      "printed_total_g": 300,
+      "name_implied_components": [
+        "brioche bun"
+      ],
+      "ingredients": [
+        {
+          "name": "brioche bun",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 70,
+          "protein_per_100g": 8,
+          "carb_per_100g": 50,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "breaded chicken tender",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 20,
+          "carb_per_100g": 15,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "pickles",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 0.5,
+          "carb_per_100g": 2.4,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "Nashville sauce",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 20
+        },
+        {
+          "name": "coleslaw",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1.2,
+          "carb_per_100g": 6.1,
+          "fat_per_100g": 4.5
+        }
+      ],
+      "protein_g": 29,
+      "carb_g": 59,
+      "fat_g": 27,
+      "estimated_calories": 595,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten"
+      ]
+    },
+    {
+      "name": "Waffle Cheese Sandwich (350gr)",
+      "description": "Dos piezas de waffle, tender de pechuga de pollo empanizado, queso mozzarella y tocino. Acompañado de Buffalo Cheese. Agrega queso a tus papas por $10.",
+      "price": 185,
+      "category": "food",
+      "printed_total_g": 350,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "waffle",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 6,
+          "carb_per_100g": 50,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "breaded chicken tender",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 20,
+          "carb_per_100g": 15,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "mozzarella cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 22,
+          "carb_per_100g": 2.2,
+          "fat_per_100g": 22
+        },
+        {
+          "name": "bacon",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 37,
+          "carb_per_100g": 1.4,
+          "fat_per_100g": 42
+        },
+        {
+          "name": "Buffalo Cheese",
+          "category": "fat",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 5,
+          "carb_per_100g": 10,
+          "fat_per_100g": 25
+        }
+      ],
+      "protein_g": 58,
+      "carb_g": 95,
+      "fat_g": 57,
+      "estimated_calories": 1120,
+      "serving_pieces": 2,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ]
+    },
+    {
+      "name": "Chicken & Waffles Sandwich (350gr)",
+      "description": "Dos piezas de waffle, tender de pechuga de pollo empanizado, mantequilla y miel de maple. +$15 tocino. Agrega queso a tus papas por $10.",
+      "price": 185,
+      "category": "food",
+      "printed_total_g": 350,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "waffle",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 6,
+          "carb_per_100g": 50,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "breaded chicken tender",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 20,
+          "carb_per_100g": 15,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "butter",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 10,
+          "protein_per_100g": 0.9,
+          "carb_per_100g": 0.1,
+          "fat_per_100g": 81
+        },
+        {
+          "name": "maple syrup",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 0,
+          "carb_per_100g": 67,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "bacon",
+          "category": "fat",
+          "within_printed_weight": false,
+          "typical_serving_g": 20,
+          "protein_per_100g": 37,
+          "carb_per_100g": 1.4,
+          "fat_per_100g": 42
+        }
+      ],
+      "protein_g": 45,
+      "carb_g": 124,
+      "fat_g": 49,
+      "estimated_calories": 1124,
+      "serving_pieces": 2,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ]
+    },
+    {
+      "name": "Papas Sazonadas (300gr)",
+      "description": "Gajos de papas sazonadas.",
+      "price": 70,
+      "category": "side",
+      "printed_total_g": 300,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "seasoned potato wedges",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 30,
+          "fat_per_100g": 10
+        }
+      ],
+      "protein_g": 8,
+      "carb_g": 90,
+      "fat_g": 30,
+      "estimated_calories": 660,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": []
+    },
+    {
+      "name": "French Fries (300gr)",
+      "description": "Papas a la francesa con un toque de perejil.",
+      "price": 60,
+      "category": "side",
+      "printed_total_g": 300,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "french fries",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 3.4,
+          "carb_per_100g": 41,
+          "fat_per_100g": 15
+        }
+      ],
+      "protein_g": 10,
+      "carb_g": 123,
+      "fat_g": 45,
+      "estimated_calories": 938,
+      "serving_pieces": 1,
+      "confidence": "low",
+      "allergens": []
+    },
+    {
+      "name": "Ensalada Verde (150gr)",
+      "description": "Mezcla de lechugas, col morada, zanahoria, crotones y tu aderezo favorito.",
+      "price": 52,
+      "category": "side",
+      "printed_total_g": 150,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "mixed greens",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1.2,
+          "carb_per_100g": 3.3,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "purple cabbage",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1.3,
+          "carb_per_100g": 6.1,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "carrot",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 0.9,
+          "carb_per_100g": 9.6,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "croutons",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 10,
+          "carb_per_100g": 70,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "favorite dressing",
+          "category": "fat",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 20
+        }
+      ],
+      "protein_g": 4,
+      "carb_g": 25,
+      "fat_g": 7,
+      "estimated_calories": 183,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "gluten"
+      ]
+    },
+    {
+      "name": "Coleslaw (150gr)",
+      "description": "Ensalada de col morada, repollo y zanahoria con un delicioso aderezo cremoso.",
+      "price": 52,
+      "category": "side",
+      "printed_total_g": 150,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "purple cabbage",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1.3,
+          "carb_per_100g": 6.1,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "green cabbage",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1.3,
+          "carb_per_100g": 6.1,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "carrot",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 0.9,
+          "carb_per_100g": 9.6,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "creamy dressing",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 20
+        }
+      ],
+      "protein_g": 2,
+      "carb_g": 10,
+      "fat_g": 4,
+      "estimated_calories": 84,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy"
+      ]
+    }
+  ]
+}

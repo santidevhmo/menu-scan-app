@@ -78,7 +78,7 @@ dishes that print a weight and bad at dishes that do not, and the second group i
 |---|---|---|---|---|
 | weighted (prints grams) | 8 | 96 | **6–9 failed** at 17.6–18.0% | `scripts/bench-macros.ts` |
 | **unweighted (no grams)** | 6 | 24 | **best 37/72 (51%)** (Arm P) vs **28/72** baseline | `scripts/bench-unweighted.ts` |
-| **weighted, INSIDE ITS REAL MENU** | 8 | 96 | **16/96 today · Arm P 27/96** | `scripts/bench-mixed-menu.ts` |
+| **weighted, INSIDE ITS REAL MENU** | 8 | 96 | **16/96 today · P-10 22 · Arm P 27** | `scripts/bench-mixed-menu.ts` |
 
 **Never merge or substitute these numbers.**
 
@@ -110,11 +110,17 @@ fields failing **7.6% isolated vs 16.7% inside real menus**. Its PER-DISH verdic
 either — Gnocchi and ENFRIJOLADAS are perfect alone and fail in their own menus (0% → 50%, 25%);
 PASTEL and CESAR do the reverse. **Quote the mixed-menu number alongside the 96-point one from now on.**
 
-🧭 **THE ARM THIS POINTS TO: "P-10".** Arm P chunks at 10 and *then* splits, so both halves come out
-undersized. **Partition the menu into weighted/unweighted FIRST, then chunk each at 10** — a weighted
-dish rides with 10 weighted items instead of 5–8, restoring the batch size while keeping Arm P's
-sentence. ~$0.40 to test. **This is a BATCHING change, so the 0-for-5 prompt scoreboard does not
-apply to it.**
+🟡 **P-10 WAS RUN AND IT IS ALSO REJECTED (2026-08-18, ~$0.40): 22/96.** It partitions the menu
+weighted/unweighted FIRST then chunks each at 10, restoring every fixture to 9–10 batch-mates from
+Arm P's 5–8. It recovers **5 of Arm P's 11** lost field-draws and stops short of today's 16.
+
+☠️ **SO THE PROBLEM IS THE SPLIT ITSELF, NOT THE CHUNKING ORDER — this retires a DELIVERY MECHANISM.**
+P-10 holds batch SIZE at 10 and changes only WHO is in it (all-weighted vs today's realistic mix), and
+weighted dishes still degrade. **Expect ANY arm that separates weighted from unweighted items into
+different calls to cost weighted dishes.** Evidence at the dish level: CESAR is textbook for size
+(10→5 mates = 1→5 failed; back to 10 = 0 failed), but **Salmone's batch went 3→10 with its score
+completely unmoved**, and **Coleslaw got WORSE with its size restored** (0→4→6). Arm P's unweighted
+gain (28/72 → 37/72) is still not falsified — **its delivery is.**
 
 🚀 **PRODUCTION: edge fn `analyze-menu` v31, deployed 2026-08-16, `ENRICH_BATCH_SIZE = 10`.** It
 carries the two zeroing bug fixes and **no accuracy change whatsoever**. Everything else below is
@@ -284,17 +290,21 @@ reproduces every stored oracle total from the shipped file.
 
 ### 🧭 Suggested next steps, in order
 
-1. **Test the "P-10" arm (~$0.40).** Arm P chunks at 10 and *then* splits, leaving both halves
-   undersized; partition the menu into weighted/unweighted **first**, then chunk each at 10. A
-   weighted dish keeps 10 batch-mates instead of 5–8 while unweighted items keep Arm P's sentence.
-   **It is a BATCHING change, so the 0-for-5 prompt scoreboard does not apply.** Score it on BOTH
-   `scripts/bench-mixed-menu.ts` (must not regress 16/96) and `scripts/bench-unweighted.ts` (must
-   hold Arm P's 37/72).
-2. **Re-run both mixed-menu arms for a RANGE** (~$0.85). Each arm has ONE run of 3 draws so far.
-   The internal control makes the verdict solid, but the standing rule is a range across runs.
+1. **Repeat the three mixed-menu arms for a RANGE** (~$1.20). Each has ONE run of 3 draws.
+   The controls are strong (batch unchanged → score unchanged; CESAR tracking its batch size), but
+   **Coleslaw's 0 → 4 → 6 is the swing that needs a repeat before it is load-bearing**, and Santiago's
+   standing rule is a range across runs.
+2. **"P-inline" — Arm P's instruction with NO split** (~$0.40 mixed-menu, ~$2 unweighted). One mixed
+   batch, one call, the sentence made conditional per item, so weighted dishes stay in exactly today's
+   context. ⚠️ It is a prompt SENTENCE and wording is **0 for 5** — but Arm P's sentence demonstrably
+   works on a homogeneous batch (37/72), so the specific open question is whether it survives being
+   conditional. **State the falsifier before running.** Must hold **16/96** weighted AND **37/72**
+   unweighted.
 3. Only then a new arm for the accompaniment-weight defect. **Do not** try: another plate-weight arm,
    another cooking-fat arm (PF: a wash), another dominance arm (PD: pushed the roll to 0/12), another
-   prompt SENTENCE (0 for 5), or another field that duplicates an existing one (S4: 364/364 copies).
+   prompt SENTENCE for a *different* purpose (0 for 5), another field that duplicates an existing one
+   (S4: 364/364 copies), or **another SPLIT arm — that mechanism is now retired (P 27/96, P-10 22/96,
+   both short of 16).**
 
 ---
 

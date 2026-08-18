@@ -63,9 +63,17 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > fields fail isolated vs 16.7% inside real menus.** Its per-dish verdicts do not survive either.
 > **Report the mixed-menu number alongside it from now on.**
 >
-> 🧭 **NEXT ARM — "P-10", a BATCHING change (the 0-for-5 prompt scoreboard does not apply):** partition
-> the menu into weighted/unweighted FIRST, then chunk each at 10, so a weighted dish keeps 10 mates
-> instead of 5–8 while unweighted items keep Arm P's sentence. ~$0.40 on this harness.
+> 🟡 **P-10 RAN AND IS ALSO REJECTED (~$0.40): 22/96.** Partitioning weighted/unweighted FIRST and
+> chunking each at 10 restores every fixture to 9–10 mates (from 5–8) and recovers **5 of Arm P's 11**
+> lost field-draws — still short of today's 16. ☠️ **The split ITSELF is the problem, not the chunking
+> order: this retires a DELIVERY MECHANISM.** P-10 holds SIZE at 10 and varies only WHO is in the
+> batch, and weighted dishes still degrade — so **expect any arm that separates weighted from
+> unweighted items into different calls to cost weighted dishes.** CESAR tracks size exactly
+> (1→5→0 as mates go 10→5→10), but **Salmone's 3→10 moved nothing** and **Coleslaw got WORSE with size
+> restored** (0→4→6). Supports the 2026-08-12 prior that the model calibrates across batch-mates.
+> 🧭 **OPEN:** can Arm P's instruction reach unweighted items with **NO split** — one mixed batch, the
+> sentence made conditional per item? Wording is 0 for 5, but Arm P's sentence works when the batch is
+> homogeneous, so the question is whether it survives being conditional. Score BOTH benchmarks.
 >
 > 💸 **RUNS ARE ~$0.40/ARM NOW, NOT ~$2.** The bill is almost entirely OUTPUT tokens, and only the ≤9
 > items sharing a dish's batch can affect it, so the harness enriches just those batches — 227 → 53

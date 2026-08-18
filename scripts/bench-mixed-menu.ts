@@ -24,9 +24,16 @@
 // bench-macros.ts. Only its neighbours differ. 8 dishes x 4 fields x 3 draws = 96,
 // the same denominator as the weighted benchmark, so the numbers compare directly.
 //
-//   PAID:
+// COST. Only the 9 items sharing a fixture's BATCH can influence it — every
+// other batch is an independent HTTP request. So by default this sends just the
+// batches the fixtures land in (53 of 227 items, a 77% saving) with the request
+// bytes for a scored dish byte-identical either way. --full-menu sends whole
+// menus, which buys nothing for the SCORE and is only for exercising the
+// whole-menu path (concurrency, rescue) that bench-pipeline.ts already covers.
+//
+//   PAID (~$0.4/arm focused, ~$1.8/arm --full-menu):
 //   deno run --allow-read --allow-write --allow-env --allow-net \
-//     --env-file=.env.local scripts/bench-mixed-menu.ts [draws] [mixed|P]
+//     --env-file=.env.local scripts/bench-mixed-menu.ts [draws] [mixed|P] [--full-menu]
 //
 //   $0 — re-score an archived run against the CURRENT oracle, calls no API:
 //   deno run --allow-read scripts/bench-mixed-menu.ts 3 mixed --replay
@@ -112,8 +119,39 @@ export function assertFixtureTextMatches(
   }
 }
 
+/**
+ * The batches the scored fixtures actually land in, taken from the FULL menu so
+ * chunk boundaries are exactly production's, then sliced out.
+ *
+ * Equivalent by construction, not by approximation: callGptEnrich chunks
+ * sequentially and fires each batch as its own request, so a dish is influenced
+ * only by the <=9 items sharing its call. Passing that same slice back in
+ * reproduces the identical request bytes; the batches we drop could not have
+ * touched the score. What IS lost is whole-menu behaviour under load — which is
+ * bench-pipeline.ts's job, not this harness's.
+ */
+export function fixtureBatches(
+  // deno-lint-ignore no-explicit-any
+  items: any[],
+  names: string[],
+  // deno-lint-ignore no-explicit-any
+): any[] {
+  const wanted = new Set<number>();
+  for (const name of names) {
+    const idx = items.findIndex((i) => i.name === name);
+    if (idx < 0) throw new Error(`fixture "${name}" not in its menu - cannot locate its batch`);
+    wanted.add(Math.floor(idx / ENRICH_BATCH_SIZE));
+  }
+  return [...wanted].sort((a, b) => a - b).flatMap((b) =>
+    items.slice(b * ENRICH_BATCH_SIZE, (b + 1) * ENRICH_BATCH_SIZE)
+  );
+}
+
 async function main(): Promise<void> {
   const replay = Deno.args.includes("--replay");
+  // Default is FOCUSED: send only the batches the fixtures land in. See the COST
+  // note at the top — equivalent for the score, 77% cheaper.
+  const fullMenu = Deno.args.includes("--full-menu");
   const positional = Deno.args.filter((a) => !a.startsWith("--"));
   const draws = Number(positional[0] ?? "3");
   const arm = (positional[1] ?? "mixed") as Arm;
@@ -142,7 +180,8 @@ async function main(): Promise<void> {
 
   for (let draw = 0; draw < draws; draw++) {
     for (const menu of menus) {
-      const archive = `${CACHE_DIR}/mixed.${arm}.${menu}-d${draw}.raw.json`;
+      const suffix = fullMenu ? "" : "-f";
+      const archive = `${CACHE_DIR}/mixed.${arm}${suffix}.${menu}-d${draw}.raw.json`;
     let enriched: EnrichedItem[];
     let sent: ReturnType<typeof itemsFromArchive>;
 
@@ -150,8 +189,16 @@ async function main(): Promise<void> {
       enriched = JSON.parse(await Deno.readTextFile(archive)).items;
       sent = itemsFromArchive(await Deno.readTextFile(`${CACHE_DIR}/${MENU_ARCHIVE[menu]}`));
     } else {
-      sent = itemsFromArchive(await Deno.readTextFile(`${CACHE_DIR}/${MENU_ARCHIVE[menu]}`));
-      assertFixtureTextMatches(menu, sent, entries);
+      const whole = itemsFromArchive(
+        await Deno.readTextFile(`${CACHE_DIR}/${MENU_ARCHIVE[menu]}`),
+      );
+      assertFixtureTextMatches(menu, whole, entries);
+      // Batches are located in the WHOLE menu, so the chunk boundaries a fixture
+      // sits on are exactly production's, then only those chunks are sent.
+      sent = fullMenu ? whole : fixtureBatches(
+        whole,
+        entries.filter((e) => e.menu === menu).map((e) => e.name),
+      );
       enriched = arm === "P"
         ? await enrichSplit(sent)
         // deno-lint-ignore no-explicit-any
@@ -196,7 +243,10 @@ async function main(): Promise<void> {
   }
 
   let fails = 0, fieldDraws = 0;
-  console.log(`arm ${arm}, ${draws} draws, ${menus.length} menus, batch ${ENRICH_BATCH_SIZE}\n`);
+  console.log(
+    `arm ${arm}, ${draws} draws, ${menus.length} menus, batch ${ENRICH_BATCH_SIZE}, ` +
+      `${fullMenu ? "WHOLE MENUS" : "fixture batches only"}\n`,
+  );
   console.log("dish                           failed");
   for (const e of entries) {
     const r = results.get(e.name)!;

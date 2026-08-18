@@ -1,0 +1,529 @@
+{
+  "items": [
+    {
+      "name": "COSTRA DE CHAMORRO (80 g)",
+      "description": "con cebolla morada y aguacate",
+      "price": 265,
+      "category": "food",
+      "printed_total_g": 80,
+      "name_implied_components": [
+        "tortilla"
+      ],
+      "ingredients": [
+        {
+          "name": "chamorro",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "tortilla",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 5,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "cebolla morada",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 15,
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "aguacate",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 2,
+          "carb_per_100g": 9,
+          "fat_per_100g": 15
+        }
+      ],
+      "protein_g": 12,
+      "carb_g": 9,
+      "fat_g": 10,
+      "estimated_calories": 171,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "gluten"
+      ]
+    },
+    {
+      "name": "COSTRA DE CHAMORRO Y PULPO (80 g)",
+      "description": "con cebolla morada y aguacate",
+      "price": 275,
+      "category": "food",
+      "printed_total_g": 80,
+      "name_implied_components": [
+        "tortilla"
+      ],
+      "ingredients": [
+        {
+          "name": "chamorro",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "pulpo",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 85,
+          "protein_per_100g": 18,
+          "carb_per_100g": 0,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "tortilla",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 5,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "cebolla morada",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 15,
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "aguacate",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 2,
+          "carb_per_100g": 9,
+          "fat_per_100g": 15
+        }
+      ],
+      "protein_g": 13,
+      "carb_g": 6,
+      "fat_g": 7,
+      "estimated_calories": 136,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "gluten",
+        "shellfish"
+      ]
+    },
+    {
+      "name": "ESPÁRRAGOS CON JAMÓN SERRANO (20 g)",
+      "description": "",
+      "price": 240,
+      "category": "food",
+      "printed_total_g": 20,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "espárragos",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 60,
+          "protein_per_100g": 2,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "jamón serrano",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 30,
+          "carb_per_100g": 0,
+          "fat_per_100g": 15
+        }
+      ],
+      "protein_g": 2,
+      "carb_g": 1,
+      "fat_g": 1,
+      "estimated_calories": 20,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "pork"
+      ]
+    },
+    {
+      "name": "PANELA PLUS ASADA (30 g)",
+      "description": "A la plancha con champiñones,\nchile verde, jamón serrano y chistorra",
+      "price": 250,
+      "category": "food",
+      "printed_total_g": 30,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "panela cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 18,
+          "carb_per_100g": 3,
+          "fat_per_100g": 20
+        },
+        {
+          "name": "champiñones",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "chile verde",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "jamón serrano",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 30,
+          "carb_per_100g": 0,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "chistorra",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 20,
+          "carb_per_100g": 0,
+          "fat_per_100g": 30
+        }
+      ],
+      "protein_g": 4,
+      "carb_g": 1,
+      "fat_g": 3,
+      "estimated_calories": 50,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "dairy",
+        "pork"
+      ]
+    },
+    {
+      "name": "QUESO FUNDIDO",
+      "description": "Con chistorra y champía (90 g)",
+      "price": 235,
+      "category": "food",
+      "printed_total_g": 90,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "queso",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 25,
+          "carb_per_100g": 2,
+          "fat_per_100g": 30
+        },
+        {
+          "name": "chistorra",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 20,
+          "carb_per_100g": 0,
+          "fat_per_100g": 30
+        },
+        {
+          "name": "champiñones",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0
+        }
+      ],
+      "protein_g": 12,
+      "carb_g": 2,
+      "fat_g": 15,
+      "estimated_calories": 190,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "dairy",
+        "pork"
+      ]
+    },
+    {
+      "name": "BROCHETA DE POLLO ABIERTA CON\nVERDURAS (200 g)",
+      "description": "",
+      "price": 280,
+      "category": "food",
+      "printed_total_g": 200,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "pollo",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "verduras",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 2,
+          "carb_per_100g": 8,
+          "fat_per_100g": 0
+        }
+      ],
+      "protein_g": 27,
+      "carb_g": 8,
+      "fat_g": 5,
+      "estimated_calories": 185,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": []
+    },
+    {
+      "name": "BONELESS DE POLLO (200 g)",
+      "description": "Buffalo, BBQ, mango habanero, cookies.",
+      "price": 220,
+      "category": "food",
+      "printed_total_g": 200,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "pollo",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "buffalo sauce",
+          "category": "other",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 10,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "BBQ sauce",
+          "category": "other",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 20,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "mango habanero sauce",
+          "category": "other",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 15,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "cookies",
+          "category": "carb",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 5,
+          "carb_per_100g": 70,
+          "fat_per_100g": 20
+        }
+      ],
+      "protein_g": 52,
+      "carb_g": 35,
+      "fat_g": 24,
+      "estimated_calories": 559,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": []
+    },
+    {
+      "name": "BONELESS DE CAMARÓN (200 g)",
+      "description": "",
+      "price": 300,
+      "category": "food",
+      "printed_total_g": 200,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "camarón",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 20,
+          "carb_per_100g": 0,
+          "fat_per_100g": 2
+        }
+      ],
+      "protein_g": 40,
+      "carb_g": 0,
+      "fat_g": 4,
+      "estimated_calories": 196,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "shellfish"
+      ]
+    },
+    {
+      "name": "ALITAS DE POLLO (400 g)",
+      "description": "BBQ, mango, buffalo, cookies.",
+      "price": 245,
+      "category": "food",
+      "printed_total_g": 400,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "alitas de pollo",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "BBQ sauce",
+          "category": "other",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 20,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "mango sauce",
+          "category": "other",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 15,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "buffalo sauce",
+          "category": "other",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 10,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "cookies",
+          "category": "carb",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 5,
+          "carb_per_100g": 70,
+          "fat_per_100g": 20
+        }
+      ],
+      "protein_g": 102,
+      "carb_g": 35,
+      "fat_g": 74,
+      "estimated_calories": 1209,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": []
+    },
+    {
+      "name": "CESAR (200 g)",
+      "description": "Lechuga, queso parmesano rallado, croutones,\npollo a la plancha y aderezo cesar de la casa.",
+      "price": 275,
+      "category": "food",
+      "printed_total_g": 200,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "lechuga",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1,
+          "carb_per_100g": 3,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "queso parmesano",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 35,
+          "carb_per_100g": 4,
+          "fat_per_100g": 28
+        },
+        {
+          "name": "croutones",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 10,
+          "carb_per_100g": 70,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "pollo a la plancha",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "aderezo cesar",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 2,
+          "carb_per_100g": 5,
+          "fat_per_100g": 40
+        }
+      ],
+      "protein_g": 31,
+      "carb_g": 22,
+      "fat_g": 22,
+      "estimated_calories": 412,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ]
+    }
+  ]
+}

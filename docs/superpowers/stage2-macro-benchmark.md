@@ -5258,3 +5258,56 @@ shipping**, per the standing range rule.
 partition the menu weighted/unweighted, chunk each side at `ENRICH_BATCH_SIZE`, send the unweighted
 side with Arm P's sentence. That touches the deployed enrichment path, so it needs its own tests and a
 deployment ruling. Nothing has been changed in `supabase/functions/`.
+
+### 🔴 CONFIRMED: P-10'S WEIGHTED COST IS REAL, NOT NOISE (2026-08-18, ~$0.8). SANTIAGO WAS RIGHT.
+
+He was **skeptical of spending the weighted result** and asked for the cost to be confirmed before any
+product decision. It was one run; it is now three. **The ranges do not overlap.**
+
+| | runs | range | dishes correct |
+|---|---|---|---|
+| **production today** | 16, 18 | **16–18/96** | **81–83%** |
+| **Arm P-10** | 22, 21, 25 | **21–25/96** | **74–78%** |
+
+**Every P-10 run is worse than every baseline run — six pairwise comparisons, all the same
+direction.** 45 archived menu-draws, **0 backfilled**, all three runs $0-replay verified.
+**The trade is real: roughly −5 to −8 points of weighted accuracy.**
+
+⚠️ **This also retires the hedge in the previous entry.** That entry said "38 vs 37 is a tie" and
+"−4 to −6 may be noise". The unweighted tie stands; **the weighted cost does not — it is confirmed and
+slightly larger than first measured.**
+
+#### 🔑 THE MISCONCEPTION THIS CLEARED UP, AND IT IS THE IMPORTANT PART
+
+Santiago asked why his design — *split the JSON into weighted and unweighted, run two separate
+processes, keep them isolated* — could not simply use "the process that is ~93% right" for the
+weighted half. **That design IS Arm P-10, and there is no 93% process.**
+
+| what a weighted dish travels with | score |
+|---|---|
+| **the other 7 fixtures** — `bench-macros.ts`, all 8 sent alone together | **6–9/96 ≈ 93%** |
+| a mixed group of 10 real menu items — **production today** | **16–18/96 ≈ 82%** |
+| a group of 10 other WEIGHTED dishes — Arm P-10 | **21–25/96 ≈ 76%** |
+
+**The 93% is an artifact of the eight fixtures being batched with each other**, which is a grouping the
+app never produces. It is not a pipeline capability and it cannot be recovered by splitting. **Never
+quote it as what weighted extraction achieves** — quote 16–18/96 in real menus.
+
+#### ⚖️ WHERE THIS LEAVES THE DECISION
+
+**P-10 as designed is a genuine trade and Santiago has declined that shape of trade.** Two options
+remain:
+
+1. 🟢 **THE DUAL-PASS — the trade disappears.** Send the menu **unchanged** (pass 1) and use its
+   answers for weighted dishes; send the unweighted items **again** in their own batches with Arm P's
+   sentence (pass 2) and use those for unweighted dishes. **Weighted requests are byte-identical to
+   today by construction, so 16–18/96 is preserved by design rather than by hope**, while unweighted
+   gets P-10's 38/72 — *both numbers already measured, nothing new to prove*. Unweighted items are
+   enriched twice and one copy is discarded; **the cost is money, not accuracy: ~1.5× enrichment
+   (~$0.03 → ~$0.05 per scan)** since unweighted items are ~54% of a real menu.
+   ⚠️ **Why twice:** the unweighted items' PRESENCE in pass 1 is what holds the weighted batches at
+   today's composition. Remove them and the weighted score moves — that is exactly what P-10 measured.
+2. **Ship nothing here and go after the accompaniment-weight defect instead** (24% of weighted items,
+   12–20% of their calories, still unfixed).
+
+**Nothing in `supabase/functions/` has been touched.**

@@ -1947,5 +1947,5 @@ Rules:
   working profile exactly. ⛔ **NOT submitted; distribution is Santiago's call.**
 - ⚠️ **`main.jsbundle` is Hermes BYTECODE — use `grep -a`.** A bare `grep -c` returns 0 for strings
   that are present, and concatenated template literals are split across the string pool.
-- **⛔ NEXT: submit build 7 (Santiago's call), then the ACCOMPANIMENT defect** — 24% of weighted items,
+- **✅ BUILD 7 SUBMITTED** by Santiago (`eas submit --platform ios --latest`, accepted by App Store Connect). 🔑 The macro gain is SERVER-SIDE and already reaches every user including build 6; build 7 adds only the portion UI. **⛔ NEXT: the ACCOMPANIMENT defect** — 24% of weighted items,
   12–20% of their calories, the largest known weighted defect and still unfixed.

@@ -90,9 +90,16 @@ item as `3/8` / `all`. Working, not the intended form.
 
 ### ⛔ THE NEXT ACTION, IN ONE LINE
 
-**Ship a TestFlight build.** The edge function is live as v32 and `main` is in sync — but the APP
-binary is still **build 6**, which predates the portion control entirely. Everything else in this
-phase is done: nothing is unmerged, undeployed, or owed a run.
+**Go after the ACCOMPANIMENT defect** — sides and sauces are sized from a nutrition-LABEL serving
+rather than what is served: **24% of weighted items, 12–20% of those dishes' calories.** It is the
+largest known weighted defect and the only substantial one left. ⚠️ **A weight fix ALONE makes sauces
+WORSE**: chimichurri is 2× too heavy AND ~3× too lean, and the errors currently cancel. Prose (Arm S)
+and a duplicate schema field (S4) have both failed at it.
+
+✅ **Everything else in this phase is CLOSED**: v32 deployed and verified against the server, PRs #17
+and #18 merged, `main` byte-matching production, TestFlight build 7 submitted. **Nothing is unmerged,
+undeployed, unbuilt, or owed a run.** Before starting the accompaniment work, invoke
+`superpowers:brainstorming` — it is a new solution design, and Santiago's standing rule requires it.
 
 ### ✅ WHAT WAS BUILT AND MEASURED (2026-08-19, evals 151–152, ~$5.2)
 
@@ -126,10 +133,16 @@ merging moves code into `main`. Neither triggers the other, and merging ships no
 12 app commits since it include the editor, the per-piece line, the input sanitisers, the
 "18 means 18 rolls" unit fix, the nativewind `textAlign` crash fix, and the zero-portion parser fix.
 
-✅ **BUILD 7 IS BUILT AND VERIFIED (2026-08-19)** — id `cf7b5088-9280-4bac-a2e8-a97744e217fd`, commit
-`9745c39`, version 1.0.0 / build 7 (EAS `autoIncrement` + `appVersionSource: "remote"` — the number is
-NOT in `app.json`). ⛔ **NOT SUBMITTED to TestFlight — that step distributes to testers and is
-Santiago's call.** Submit with `eas submit --platform ios --latest`.
+✅ **BUILD 7 IS BUILT, VERIFIED AND SUBMITTED (2026-08-19)** — id
+`cf7b5088-9280-4bac-a2e8-a97744e217fd`, commit `9745c39`, version 1.0.0 / build 7 (EAS
+`autoIncrement` + `appVersionSource: "remote"` — the number is NOT in `app.json`). Santiago ran
+`eas submit --platform ios --latest`; App Store Connect accepted the upload.
+**TestFlight:** https://appstoreconnect.apple.com/apps/6798478137/testflight/ios
+
+🔑 **THE TWO HALVES SHIP ON DIFFERENT CLOCKS, and confusing them wastes a session.** The macro
+improvement is **server-side (edge fn v32) and already reaches EVERY user, including build 6** — no
+app update needed. **Build 7 adds only the portion-editor UI.** So "did the dual pass work?" is
+answerable from any build; "does the portion control work?" needs build 7.
 
 🔬 **VERIFIED BY UNPACKING THE `.ipa`, not by trusting the build status** — the same three-row check
 that diagnosed the build-3 crash, run against `Payload/menuscanapp.app/main.jsbundle`:

@@ -125,9 +125,15 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > that ran from v30 to v32 is closed. 🔑 **Deploying and merging are independent**: deploying uploads
 > the working directory, merging moves code into `main`, and merging ships nothing to users.
 >
-> ⛔ **THE NEXT ACTION: TestFlight build 7** (started 2026-08-19, id `cf7b5088`). Build 6 is commit
-> `ccd3b04` and predates the whole portion control. After that, the **accompaniment defect** is the
-> largest known weighted defect: 24% of weighted items, 12–20% of their calories, still unfixed.
+> ✅ **TESTFLIGHT BUILD 7 IS SUBMITTED (2026-08-19, id `cf7b5088`, commit `9745c39`)** — verified by
+> unpacking the `.ipa` before submission, not by trusting the build status. Build 6 was `ccd3b04` and
+> predated the whole portion control. 🔑 **The macro gain is SERVER-SIDE and already reaches every
+> user including build 6; build 7 adds only the portion-editor UI.**
+>
+> ⛔ **THE NEXT ACTION: the ACCOMPANIMENT defect** — 24% of weighted items, 12–20% of their calories,
+> the largest known weighted defect and the only substantial one left. ⚠️ A weight fix ALONE makes
+> sauces WORSE (chimichurri is 2× too heavy AND ~3× too lean; the errors cancel today). Prose and a
+> duplicate schema field have both failed. **Brainstorm before building — Santiago's standing rule.**
 >
 > **THE DUAL PASS, and why it is the only shape left.** Pass 1 = today's call over the whole menu,
 > byte-identical, answers used for WEIGHTED items. Pass 2 = the unweighted items re-sent in their own

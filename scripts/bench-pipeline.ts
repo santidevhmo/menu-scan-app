@@ -16,6 +16,7 @@ import {
   ENRICH_MODEL,
   type EnrichedItem,
   type ExtractedItem,
+  isFallbackEnriched,
 } from "../supabase/functions/analyze-menu/enrich.ts";
 import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
 import type { ExtractedMenuItem } from "../supabase/functions/analyze-menu/extract.ts";
@@ -95,13 +96,13 @@ export interface IntegrityReport {
  * An item is backfilled when the model failed to return it: fallbackEnriched
  * emits confidence "low" with no ingredients and zeroed macros. That exact
  * shape is the drop signal.
+ *
+ * Re-exported from the deployed module rather than kept as a second copy, so the
+ * harness and production cannot disagree about what a failed item looks like -
+ * the dual pass reads the same predicate to decide whether pass 2's answer is
+ * usable, and a detector that drifts from the thing it detects is worse than none.
  */
-export function isBackfilled(item: EnrichedItem): boolean {
-  // `?? []` because an archived or malformed item may carry no ingredients key
-  // at all, and this must report a drop rather than throw mid-sweep.
-  return (item.ingredients ?? []).length === 0 &&
-    item.estimated_calories === 0 && item.confidence === "low";
-}
+export { isFallbackEnriched as isBackfilled };
 
 /**
  * Stop a paid run the moment it stops producing data.
@@ -120,7 +121,7 @@ export function assertRunIsProducingData(
   items: EnrichedItem[],
 ): void {
   if (items.length === 0) return;
-  const backfilled = items.filter(isBackfilled).length;
+  const backfilled = items.filter(isFallbackEnriched).length;
   if (backfilled === items.length) {
     throw new Error(
       `${label}: EVERY item came back backfilled (${backfilled}/${items.length}). ` +
@@ -146,10 +147,10 @@ export function inspect(
     sent: sent.length,
     returned: got.length,
     orderPreserved: got.every((item, i) => item.name === sent[i]?.name),
-    backfilled: got.filter(isBackfilled).map((i) => i.name),
+    backfilled: got.filter(isFallbackEnriched).map((i) => i.name),
     withAllergens: got.filter((i) => (i.allergens ?? []).length > 0).length,
     withIngredients: got.filter((i) => (i.ingredients ?? []).length > 0).length,
-    emptyMacros: got.filter((i) => !isBackfilled(i) && i.estimated_calories === 0)
+    emptyMacros: got.filter((i) => !isFallbackEnriched(i) && i.estimated_calories === 0)
       .map((i) => i.name),
     ms,
   };

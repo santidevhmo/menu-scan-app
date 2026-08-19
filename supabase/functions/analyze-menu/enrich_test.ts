@@ -11,12 +11,15 @@ import {
   ENRICH_MODEL,
   MAX_CONCURRENT_BATCHES,
   ENRICH_PROMPT,
+  ENRICH_PROMPT_UNWEIGHTED,
   ENRICH_SCHEMA_OPENAI,
   enrichBatch,
   type EnrichedItem,
   type ExtractedItem,
   fallbackEnriched,
   isBlackBoxed,
+  isFallbackEnriched,
+  isUnweighted,
   isBlackBoxIngredient,
   reassembleEnriched,
   resolveGrams,
@@ -1056,4 +1059,46 @@ Deno.test("an explicit prompt survives the RETRY and the RESCUE, not just the fi
   for (const body of bodies) {
     assertStringIncludes(JSON.parse(body).messages[0].content, "CUSTOM PROMPT");
   }
+});
+
+Deno.test("the unweighted prompt is the shipped one plus the measured sentence", () => {
+  assertStringIncludes(ENRICH_PROMPT_UNWEIGHTED, ENRICH_PROMPT);
+  assertStringIncludes(ENRICH_PROMPT_UNWEIGHTED, "print no weight");
+  // Never the other way round: the shipped prompt must stay clean.
+  assertEquals(ENRICH_PROMPT.includes("print no weight"), false);
+});
+
+Deno.test("isUnweighted reads the code-parsed grams, not the model's answer", () => {
+  const base = extracted("A");
+  assertEquals(isUnweighted(base), true); // no grams field at all
+  assertEquals(isUnweighted({ ...base, grams: null } as ExtractedItem), true);
+  assertEquals(isUnweighted({ ...base, grams: 200 } as ExtractedItem), false);
+  // 0 is not "no weight" - it is a parsed value, and treating it as absent
+  // would route a real item into the wrong pass.
+  assertEquals(isUnweighted({ ...base, grams: 0 } as ExtractedItem), false);
+});
+
+Deno.test("isFallbackEnriched spots a zeroed item and nothing else", () => {
+  const live = {
+    name: "A",
+    ingredients: [{ name: "x" }],
+    estimated_calories: 100,
+    confidence: "high",
+    // deno-lint-ignore no-explicit-any
+  } as any;
+  const dead = {
+    name: "A",
+    ingredients: [],
+    estimated_calories: 0,
+    confidence: "low",
+    // deno-lint-ignore no-explicit-any
+  } as any;
+  assertEquals(isFallbackEnriched(live), false);
+  assertEquals(isFallbackEnriched(dead), true);
+  // A real item that genuinely has no calories (mineral water) must NOT be
+  // mistaken for a failure - it has ingredients and is not low-confidence.
+  assertEquals(isFallbackEnriched({ ...live, estimated_calories: 0 }), false);
+  // fallbackEnriched IS the thing this detects - pinned against the real
+  // producer so the two cannot drift apart.
+  assertEquals(isFallbackEnriched(fallbackEnriched(extracted("A"))), true);
 });

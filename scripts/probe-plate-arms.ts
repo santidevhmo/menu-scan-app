@@ -19,6 +19,7 @@ import {
   ENRICH_BATCH_SIZE,
   ENRICH_MODEL,
   ENRICH_PROMPT,
+  ENRICH_PROMPT_UNWEIGHTED,
   ENRICH_SCHEMA_OPENAI,
   resolveGrams,
   sumIngredientMacros,
@@ -181,9 +182,12 @@ export async function armA(items: Item[]) {
 // figure: those had a printed weight to hit, and the model back-solved the
 // arithmetic (every gram a multiple of 5). There is no target here to fit to.
 // No food, dish or cuisine name - enrich_test.ts fails the build otherwise.
-const ARM_P_SENTENCE =
-  ' The items in this request print no weight. For them, give "typical_serving_g" as the amount of that ingredient actually present in one order of this item as it is served, rather than the amount that ingredient is served in on its own: a component that forms the body of an item is present in considerably greater quantity than a standalone serving of it, and using the standalone amount understates the item.';
-const ARM_P_PROMPT = ENRICH_PROMPT + ARM_P_SENTENCE;
+//
+// Taken FROM enrich.ts rather than restated here: the dual pass ships this exact
+// string, and a harness copy that drifted would mean the 38/72 on record no
+// longer describes the prompt in production.
+const ARM_P_PROMPT = ENRICH_PROMPT_UNWEIGHTED;
+const ARM_P_SENTENCE = ENRICH_PROMPT_UNWEIGHTED.slice(ENRICH_PROMPT.length);
 
 // ARM PF = ARM P + preparation fat. Every dish Arm P still fails is fat-low:
 // pizza 30 g against 58-65, chicken-and-fries 20 against 31-44, and a

@@ -80,6 +80,61 @@ export const ENRICH_PROMPT =
 4. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive, leaving you with little ingredient information to go on.
 List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, shellfish, egg, soy). Use an empty allergens array when none are inferred; do not include "none". Preserve each item's name, description, price, and category exactly as given. Do NOT sort the items. Return one object per input item, in the same order.`;
 
+/**
+ * Pass 2's prompt: the shipped prompt plus one sentence, for items that print
+ * no weight.
+ *
+ * MEASURED, not styled. Weighted items keep the shipped prompt, so B21 - which
+ * took the weighted score to its current level - is untouched. This sentence was
+ * 25-28/72 -> 38/72 on the unweighted oracle, and it only works when the batch it
+ * is sent with contains nothing but unweighted items: phrased as a per-item
+ * condition inside a mixed batch it scored 29/72 and the model applied it
+ * indiscriminately. The opening clause is a statement about the WHOLE request,
+ * which is exactly why pass 2 exists as a separate call.
+ *
+ * The shipped prompt ends "these are rescaled to the printed weight afterwards,
+ * so they do not need to add up to anything" - a clause that is FALSE here,
+ * because nothing rescales when there is no printed weight and the same numbers
+ * also set the item's total mass.
+ *
+ * Exported for the same reason ENRICH_PROMPT is: probe-plate-arms.ts builds Arm
+ * P from THIS string rather than its own copy, so the arm that measured 38/72
+ * and the prompt that ships cannot drift apart.
+ *
+ * No food, dish or cuisine name - enrich_test.ts fails the build otherwise.
+ */
+export const ENRICH_PROMPT_UNWEIGHTED = ENRICH_PROMPT +
+  ' The items in this request print no weight. For them, give "typical_serving_g" as the amount of that ingredient actually present in one order of this item as it is served, rather than the amount that ingredient is served in on its own: a component that forms the body of an item is present in considerably greater quantity than a standalone serving of it, and using the standalone amount understates the item.';
+
+/**
+ * Does the MENU print a weight for this item?
+ *
+ * Reads the grams `parseItemGrams` parsed during extraction, NOT the model's
+ * `printed_total_g` - the partition has to be known before pass 2 is built, and
+ * a code-parsed value cannot vary between draws the way a model answer can.
+ * `grams` is absent from the ExtractedItem type but present at runtime on every
+ * item the client posts, which is why this reads through a cast rather than
+ * widening a type three call sites share.
+ */
+export function isUnweighted(item: ExtractedItem): boolean {
+  return (item as { grams?: number | null }).grams == null;
+}
+
+/**
+ * Is this the zeroed placeholder `fallbackEnriched` returns when a batch failed?
+ *
+ * All three conditions are required. An item can legitimately have 0 calories
+ * (mineral water); what marks a failure is 0 calories with NO ingredients and
+ * low confidence together.
+ */
+export function isFallbackEnriched(item: EnrichedItem): boolean {
+  // `?? []` because an archived or malformed item may carry no ingredients key
+  // at all, and this must report a drop rather than throw mid-sweep.
+  return (item.ingredients ?? []).length === 0 &&
+    item.estimated_calories === 0 &&
+    item.confidence === "low";
+}
+
 const ENRICH_INGREDIENT_PROPS = {
   name: { type: "string" },
   category: {

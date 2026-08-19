@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "name": "Lasagne al forno",
+      "description": "La tradicional cocinada al horno. 250g",
+      "price": 220,
+      "category": "food",
+      "printed_total_g": 250,
+      "name_implied_components": [
+        "pasta sheets",
+        "béchamel sauce",
+        "meat sauce"
+      ],
+      "ingredients": [
+        {
+          "name": "pasta sheets",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 5,
+          "carb_per_100g": 75,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "béchamel sauce",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 3,
+          "carb_per_100g": 6,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "meat sauce",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 10,
+          "carb_per_100g": 5,
+          "fat_per_100g": 8
+        }
+      ],
+      "protein_g": 17,
+      "carb_g": 83,
+      "fat_g": 14,
+      "estimated_calories": 524,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ]
+    },
+    {
+      "name": "Fettuccine CasaNostra",
+      "description": "Fettuccini fresco en salsa de parmesano flameado con vino blanco, tomate deshidratado salteado con pancetta. 180g.",
+      "price": 300,
+      "category": "food",
+      "printed_total_g": 180,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "fettuccine",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 6,
+          "carb_per_100g": 72,
+          "fat_per_100g": 2
+        },
+        {
+          "name": "parmesan sauce",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 8,
+          "carb_per_100g": 4,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "pancetta",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 14,
+          "carb_per_100g": 0,
+          "fat_per_100g": 30
+        },
+        {
+          "name": "sun-dried tomatoes",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 10,
+          "protein_per_100g": 5,
+          "carb_per_100g": 55,
+          "fat_per_100g": 1
+        }
+      ],
+      "protein_g": 14,
+      "carb_g": 75,
+      "fat_g": 18,
+      "estimated_calories": 516,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ]
+    },
+    {
+      "name": "Pasta alla romana",
+      "description": "Pasta rigatone en salsa de tomate machacado al momento, pancetta y toque de vino chianti tinto. 180g",
+      "price": 275,
+      "category": "food",
+      "printed_total_g": 180,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "rigatoni",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 6,
+          "carb_per_100g": 72,
+          "fat_per_100g": 2
+        },
+        {
+          "name": "tomato sauce",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 2,
+          "carb_per_100g": 10,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "pancetta",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 14,
+          "carb_per_100g": 0,
+          "fat_per_100g": 30
+        }
+      ],
+      "protein_g": 11,
+      "carb_g": 77,
+      "fat_g": 12,
+      "estimated_calories": 456,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten"
+      ]
+    },
+    {
+      "name": "Gnocchi alla sorrentina",
+      "description": "Gnocchi fresco en salsa preparada de tomate italiano con mozzarella fresco gratinado y parmesano. 180g",
+      "price": 250,
+      "category": "food",
+      "printed_total_g": 180,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "gnocchi",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 3,
+          "carb_per_100g": 70,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "tomato sauce",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 2,
+          "carb_per_100g": 10,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "mozzarella",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 18,
+          "carb_per_100g": 2,
+          "fat_per_100g": 22
+        }
+      ],
+      "protein_g": 9,
+      "carb_g": 76,
+      "fat_g": 8,
+      "estimated_calories": 413,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ]
+    },
+    {
+      "name": "Gnocchi toscano",
+      "description": "Gnocchi fresco en crema toscana blanca con espinaca, tomate deshidratado y pancetta salteada. 180g",
+      "price": 265,
+      "category": "food",
+      "printed_total_g": 180,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "gnocchi",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 3,
+          "carb_per_100g": 70,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "creamy sauce",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 3,
+          "carb_per_100g": 5,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "spinach",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "sun-dried tomatoes",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 10,
+          "protein_per_100g": 5,
+          "carb_per_100g": 55,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "pancetta",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 14,
+          "carb_per_100g": 0,
+          "fat_per_100g": 30
+        }
+      ],
+      "protein_g": 8,
+      "carb_g": 68,
+      "fat_g": 15,
+      "estimated_calories": 440,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ]
+    },
+    {
+      "name": "Ravioli",
+      "description": "Ravioli fresco rellenos de crema de espinaca, bañados y salteados en crema blanca con champiñones. 180g",
+      "price": 250,
+      "category": "food",
+      "printed_total_g": 180,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "ravioli",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 6,
+          "carb_per_100g": 70,
+          "fat_per_100g": 2
+        },
+        {
+          "name": "spinach cream filling",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 40,
+          "protein_per_100g": 3,
+          "carb_per_100g": 5,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "mushrooms",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 40,
+          "protein_per_100g": 3,
+          "carb_per_100g": 5,
+          "fat_per_100g": 0
+        }
+      ],
+      "protein_g": 8,
+      "carb_g": 74,
+      "fat_g": 6,
+      "estimated_calories": 384,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ]
+    },
+    {
+      "name": "Spaghetti ai frutti di mare ubriaca",
+      "description": "Spaghetti fresco con camarón y pulpo horneados con licores, tomate cherry, morrones y hierbas.",
+      "price": 325,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "spaghetti"
+      ],
+      "ingredients": [
+        {
+          "name": "spaghetti",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 5,
+          "carb_per_100g": 31,
+          "fat_per_100g": 1.5
+        },
+        {
+          "name": "shrimp",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 24,
+          "carb_per_100g": 0,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "octopus",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "cherry tomatoes",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 3.9,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "bell peppers",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0.3
+        },
+        {
+          "name": "herbs",
+          "category": "other",
+          "within_printed_weight": true,
+          "typical_serving_g": 5,
+          "protein_per_100g": 3,
+          "carb_per_100g": 5,
+          "fat_per_100g": 0.5
+        },
+        {
+          "name": "liqueurs",
+          "category": "other",
+          "within_printed_weight": true,
+          "typical_serving_g": 10,
+          "protein_per_100g": 0,
+          "carb_per_100g": 20,
+          "fat_per_100g": 0
+        }
+      ],
+      "protein_g": 33,
+      "carb_g": 52,
+      "fat_g": 3,
+      "estimated_calories": 369,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "gluten",
+        "shellfish"
+      ]
+    },
+    {
+      "name": "Risotto Caprese",
+      "description": "Risotto fresco en salsa cremosa de tomate y quesos. 200g",
+      "price": 330,
+      "category": "food",
+      "printed_total_g": 200,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "risotto",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 3,
+          "carb_per_100g": 80,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "creamy tomato sauce",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 3,
+          "carb_per_100g": 5,
+          "fat_per_100g": 10
+        }
+      ],
+      "protein_g": 6,
+      "carb_g": 123,
+      "fat_g": 7,
+      "estimated_calories": 573,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ]
+    },
+    {
+      "name": "Spaghetti Pettine di mare",
+      "description": "Spaghetti fresco con vieras, salteado en aceite de oliva, ajo y alcaparra acompañado con baguette. 80g",
+      "price": 250,
+      "category": "food",
+      "printed_total_g": 80,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "spaghetti",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 6,
+          "carb_per_100g": 72,
+          "fat_per_100g": 2
+        },
+        {
+          "name": "scallops",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 20,
+          "carb_per_100g": 0,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "olive oil",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 10,
+          "protein_per_100g": 0,
+          "carb_per_100g": 0,
+          "fat_per_100g": 100
+        },
+        {
+          "name": "garlic",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 5,
+          "protein_per_100g": 6,
+          "carb_per_100g": 33,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "capers",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 5,
+          "protein_per_100g": 2,
+          "carb_per_100g": 4,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "baguette",
+          "category": "carb",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 8,
+          "carb_per_100g": 55,
+          "fat_per_100g": 2
+        }
+      ],
+      "protein_g": 10,
+      "carb_g": 47,
+      "fat_g": 10,
+      "estimated_calories": 314,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "shellfish"
+      ]
+    },
+    {
+      "name": "Insalata CasaNostra",
+      "description": "Mix de lechugas con betabel rostizado, queso feta, cebolla morada, almendra tostada, arándanos y vinagreta italiana de la casa.",
+      "price": 190,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "mixed lettuce",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1.4,
+          "carb_per_100g": 2.9,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "roasted beetroot",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 40,
+          "protein_per_100g": 1.6,
+          "carb_per_100g": 10,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "feta cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 14,
+          "carb_per_100g": 4,
+          "fat_per_100g": 21
+        },
+        {
+          "name": "red onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "toasted almonds",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 15,
+          "protein_per_100g": 21,
+          "carb_per_100g": 22,
+          "fat_per_100g": 50
+        },
+        {
+          "name": "cranberries",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 10,
+          "protein_per_100g": 0.4,
+          "carb_per_100g": 82,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "Italian vinaigrette",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 0,
+          "carb_per_100g": 5,
+          "fat_per_100g": 30
+        }
+      ],
+      "protein_g": 9,
+      "carb_g": 21,
+      "fat_g": 20,
+      "estimated_calories": 300,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "dairy",
+        "nuts"
+      ]
+    },
+    {
+      "name": "Salmone toscano",
+      "description": "Salmon al horno bañado en crema toscana blanca con ajo, espinaca, alcachofa, tomate deshidratado y alcaparra, acompañado con baguette. 200g",
+      "price": 330,
+      "category": "food",
+      "printed_total_g": 200,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "Salmon",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 13
+        },
+        {
+          "name": "Crema toscana blanca",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 2,
+          "carb_per_100g": 4,
+          "fat_per_100g": 20
+        },
+        {
+          "name": "Ajo",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 5,
+          "protein_per_100g": 6,
+          "carb_per_100g": 33,
+          "fat_per_100g": 0.5
+        },
+        {
+          "name": "Espinaca",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.4
+        },
+        {
+          "name": "Alcachofa",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 3,
+          "carb_per_100g": 11,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "Tomate deshidratado",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 10,
+          "protein_per_100g": 5,
+          "carb_per_100g": 55,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "Alcaparra",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 5,
+          "protein_per_100g": 2,
+          "carb_per_100g": 5,
+          "fat_per_100g": 0.5
+        },
+        {
+          "name": "Baguette",
+          "category": "carb",
+          "within_printed_weight": false,
+          "typical_serving_g": 60,
+          "protein_per_100g": 8,
+          "carb_per_100g": 50,
+          "fat_per_100g": 3
+        }
+      ],
+      "protein_g": 34,
+      "carb_g": 40,
+      "fat_g": 23,
+      "estimated_calories": 505,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten",
+        "fish"
+      ]
+    },
+    {
+      "name": "Salmone al pesto",
+      "description": "Salmón horneado coronado ligeramente con pesto de nuez en cama de spaghetti. 200g",
+      "price": 300,
+      "category": "food",
+      "printed_total_g": 200,
+      "name_implied_components": [
+        "spaghetti"
+      ],
+      "ingredients": [
+        {
+          "name": "Salmon",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 13
+        },
+        {
+          "name": "Pesto de nuez",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 4,
+          "carb_per_100g": 6,
+          "fat_per_100g": 50
+        },
+        {
+          "name": "Spaghetti",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 5,
+          "carb_per_100g": 30,
+          "fat_per_100g": 1
+        }
+      ],
+      "protein_g": 32,
+      "carb_g": 23,
+      "fat_g": 23,
+      "estimated_calories": 424,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "nuts",
+        "gluten",
+        "fish"
+      ]
+    },
+    {
+      "name": "Langosta al forno",
+      "description": "Cola de langosta al horno con salsa de mantequilla, hierbas italianas y ajo. Acompañada de espinacas a la crema.\n\nPeso según existencia. Peso promedio 750 gr.",
+      "price": 7.25,
+      "category": "food",
+      "printed_total_g": 750,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "Langosta",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 200,
+          "protein_per_100g": 19,
+          "carb_per_100g": 0,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "Salsa de mantequilla",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1,
+          "carb_per_100g": 1,
+          "fat_per_100g": 80
+        },
+        {
+          "name": "Hierbas italianas",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 5,
+          "protein_per_100g": 3,
+          "carb_per_100g": 5,
+          "fat_per_100g": 0.5
+        },
+        {
+          "name": "Ajo",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 5,
+          "protein_per_100g": 6,
+          "carb_per_100g": 33,
+          "fat_per_100g": 0.5
+        },
+        {
+          "name": "Espinacas a la crema",
+          "category": "veg",
+          "within_printed_weight": false,
+          "typical_serving_g": 100,
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 10
+        }
+      ],
+      "protein_g": 115,
+      "carb_g": 11,
+      "fat_g": 131,
+      "estimated_calories": 1687,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "dairy",
+        "shellfish"
+      ]
+    }
+  ]
+}

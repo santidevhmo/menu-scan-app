@@ -22,6 +22,7 @@ import {
   callGptEnrich,
   chunk,
   ENRICH_BATCH_SIZE,
+  callGptEnrichDualPass,
   ENRICH_MODEL,
   type EnrichedItem,
 } from "../supabase/functions/analyze-menu/enrich.ts";
@@ -183,9 +184,13 @@ const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
 
 // A mistyped arm name would otherwise run the BASELINE and be written up as that
 // arm's result - a paid run reported as something it is not.
-if (arm !== "baseline" && arm !== "P10" && !(arm in ARM_RUNNERS)) {
+if (
+  arm !== "baseline" && arm !== "P10" && arm !== "dual" && !(arm in ARM_RUNNERS)
+) {
   throw new Error(
-    `unknown arm "${arm}" - expected baseline, P10, ${Object.keys(ARM_RUNNERS).join(", ")}`,
+    `unknown arm "${arm}" - expected baseline, P10, dual, ${
+      Object.keys(ARM_RUNNERS).join(", ")
+    }`,
   );
 }
 const oracle: UnweightedEntry[] = JSON.parse(await Deno.readTextFile(ORACLE));
@@ -211,7 +216,22 @@ for (let draw = 0; draw < draws; draw++) {
         await Deno.readTextFile(`${CACHE_DIR}/${MENU_ARCHIVE[menu]}`),
       );
       const names = oracle.filter((e) => e.menu === menu).map((e) => e.name);
-      const select = arm === "P10" ? fixtureBatchesP10 : fixtureBatches;
+      // `dual` selects like P-10 ON PURPOSE. Every dish in this oracle is
+      // unweighted, so its answer comes ENTIRELY from pass 2 and pass 1's copy is
+      // discarded - and pass 2 chunks the unweighted-only list at
+      // ENRICH_BATCH_SIZE, which is exactly what fixtureBatchesP10 builds. Using
+      // the mixed selection would hand pass 2 a SMALLER batch than production
+      // sends, and batch size is known to move this score.
+      //
+      // That makes `dual` vs `P10` a clean one-variable comparison: same prompt
+      // (md5-identical), same batch composition, differing only in the REQUEST
+      // ENVELOPE - probe-plate-arms.ts's callOpenAI puts the prompt in a `system`
+      // message and wraps the items as {"items":[...]}, while enrichBatch (this
+      // arm, and production) sends ONE `user` message with the items appended.
+      // The 38/72 on record was measured through the former, never the latter.
+      const select = arm === "P10" || arm === "dual"
+        ? fixtureBatchesP10
+        : fixtureBatches;
       const items = fullMenu ? whole : select(whole, names);
       const runner = ARM_RUNNERS[arm];
       enriched = arm === "P10"
@@ -220,6 +240,12 @@ for (let draw = 0; draw < draws; draw++) {
         // P's undersized batches and silently re-measure it.
         // deno-lint-ignore no-explicit-any
         ? await armP10(items as any) as EnrichedItem[]
+        : arm === "dual"
+        // The SHIPPED entry point, end to end. Pass 1 over an all-unweighted
+        // selection is redundant work whose answers are then discarded - that is
+        // the price of exercising the real function rather than a stand-in.
+        // deno-lint-ignore no-explicit-any
+        ? (await callGptEnrichDualPass(items as any, apiKey!, ENRICH_MODEL)).items
         : runner
         // deno-lint-ignore no-explicit-any
         ? await enrichWithArm(items, runner as any)

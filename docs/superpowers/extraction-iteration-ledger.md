@@ -1949,3 +1949,56 @@ Rules:
   that are present, and concatenated template literals are split across the string pool.
 - **✅ BUILD 7 SUBMITTED** by Santiago (`eas submit --platform ios --latest`, accepted by App Store Connect). 🔑 The macro gain is SERVER-SIDE and already reaches every user including build 6; build 7 adds only the portion UI. **⛔ NEXT: the ACCOMPANIMENT defect** — 24% of weighted items,
   12–20% of their calories, the largest known weighted defect and still unfixed.
+
+## Eval 155 — ☠️ the ACCOMPANIMENT defect is FALSIFIED at $0, and so is its successor; the real defect is UNDER-DECOMPOSITION ($0 API)
+
+- **⛔ THE ACCOMPANIMENT FIX IS DEAD. Correcting the side weights makes the app WORSE, and the
+  measurement is free and repeatable:** `deno run --allow-read scripts/sim-accompaniment-ceiling.ts`.
+  Substituting **Santiago's own ruled weights** (chimichurri 15 g, baguette 15 g, beans 30 g) into every
+  archived response moves the weighted score **46 → 66 failed of 288 (43% worse)**; the unweighted score
+  does not move at all (36/72 under every variant). A 0.75×/0.50×/0.35× sweep is monotonic in the same
+  direction. **The control row reproduces the published score exactly**, so the arithmetic is the
+  harnesses'.
+- **🔑 WHY, AND THIS IS THE TRANSFERABLE LESSON: the oversized side is LOAD-BEARING.** Shrinking a side
+  can only remove calories, and **6 of 8 weighted dishes are already too LOW**. Measured on Salmone
+  toscano, one macro at a time, with the ruled 15 g baguette: carbs **173% → 19% off (fixed)** while
+  calories go **4% → 26% off (broken)**, protein and fat both worse. The bread was holding the total up
+  because **the salmon is 32% short on fat**. The published "chimichurri's two errors cancel" note was
+  right about the mechanism and **far too narrow about the scope — it is the whole benchmark, not one
+  sauce.**
+- **✅ SANTIAGO'S SAFETY QUESTION ANSWERED WITH DENOMINATORS** (would a side rule break a pizza or a
+  roll?). `within_printed_weight: false` is **not** contaminated: **pizza 0 of 310 ingredients ever
+  flagged** (80 items), **sushi rolls 37 of 3,034 = 1.2%** (450 items) and all 37 are mango/strawberry
+  *dressings*. **0 of 8,635 archived items had every ingredient flagged.** Dough, cheese, tomato, rice,
+  nori and fish are never mistaken for a side. One genuine miss found: `Waffle Cheese Sandwich` →
+  buffalo cheese, 14 occurrences.
+- **☠️ THE OBVIOUS SUCCESSOR IS ALSO DEAD, same $0 method:**
+  `deno run --allow-read scripts/sim-decomposition-ceiling.ts`. Lifting every implausibly lean item to
+  the pipeline's own described-item density **via fat** scores **46 → 80 weighted** and **36 → 31
+  unweighted**. **COLIFLOR ROKA does not move at all (3/12 → 3/12)**: forcing its calories in band takes
+  fat to **29 against a 14–19 band** while carbs stay at **11 against 17–24**. The dish is *capeado* —
+  **batter is flour AND oil**, so **a missing INGREDIENT cannot be fixed by scaling a MACRO**. That is
+  also why **Arm PF ("add cooking fat", 37/72) could never have won**; it was read as "cooking fat is
+  not the lever" and the truer reading is that a macro knob cannot replace a component.
+- **🔴 THE REAL DEFECT, MEASURED ON 5,779 ARCHIVED FOOD ITEMS ACROSS 10 MENUS AND NEEDING NO ORACLE:**
+  items the menu **describes** come back with **5.34 ingredients at 1.90 kcal/g (8% implausible)**;
+  items it does **not** describe come back with **2.37 ingredients at 1.43 kcal/g (44% implausible)**.
+  **The menu's own words, not the model, decide whether a dish gets decomposed.**
+- ⚠️ **THE "BLACK BOX IS 1.4%" FIGURE UNDERSTATES THIS AND SHOULD NOT BE QUOTED AS THE RATE OF THE
+  DEFECT.** `isBlackBoxIngredient` fires only when an ingredient RESTATES the dish name. Across the
+  archives there are **1,573 single-ingredient items; it fires on 63 and misses 1,510.** `COLIFLOR
+  ROKA → cauliflower` is missed because "cauliflower" is not "coliflor roka". B24 measured a narrow
+  form of the problem through a detector blind to the wide one.
+- **✅ WHAT SURVIVED, AND IT GENERALISES: the menu explains itself on another line.** COLIFLOR ROKA's
+  description is empty, but the same menu prints `DE CAMARÓN ROKA — "Por dentro camarón capeado…"`.
+  Measured over **10 archived menus in 5 languages: 27 of 85 undescribed food/side/dessert items (32%)
+  share a distinctive word with a DESCRIBED item on the SAME menu** — andaluz 80%, guest-house 45%,
+  brasero 43%, el-marcos 24%, nikkori and bistro 0%. Real pairs: `PAPAS BRAVAS`↔`PAPAS FRITAS`,
+  `MAC AND CHEESE`↔`queso cheddar`, `ARRACHERA DE LA CASA`↔`FAJITAS DE ARRACHERA`.
+  ⚠️ **An opportunity, NOT a result** — no arm has been run and it is not known to convert to points.
+- **📊 A CONFIDENCE GATE WOULD NOT PROTECT USERS; A DESCRIPTION GATE WOULD.** `confidence: low` is
+  **53 of 5,779 items = 1%** (though when it fires it is right: 74% implausible, 1.72 ingredients).
+  `high` is 57% of items and **still 9% implausible**. The menu-description split is the far stronger
+  predictor (8% vs 44%) and **keeps 90% of items instead of 57%**.
+- **Spend: $0 API.** Two re-runnable $0 simulators added, both with a control row that must reproduce
+  the published score. Nothing deployed, no prompt changed, production remains edge fn v32.

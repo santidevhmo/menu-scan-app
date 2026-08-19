@@ -317,7 +317,26 @@ export async function enrichBatch(
   prompt: string = ENRICH_PROMPT,
   // deno-lint-ignore no-explicit-any
   schema: any = ENRICH_SCHEMA_OPENAI,
+  // WHICH REQUEST SHAPE to send. "user" is what has always shipped: one message,
+  // prompt and items concatenated. "system" is the shape every ARM in this phase
+  // was measured through (probe-plate-arms.ts's callOpenAI) - prompt in a system
+  // message, items wrapped as an object.
+  //
+  // It is a variable, not a style choice: the SAME prompt through the two shapes
+  // scored 38/72 and 31/72 on the unweighted oracle, and CAPRICCIOSA went 6 -> 0.
+  // Defaulted to "user" so pass 1 - and every existing caller - is byte-identical.
+  envelope: "user" | "system" = "user",
 ): Promise<EnrichedItem[]> {
+  const messages = envelope === "system"
+    ? [
+      { role: "system", content: prompt },
+      { role: "user", content: JSON.stringify({ items }) },
+    ]
+    : [{
+      role: "user",
+      content: `${prompt}\n\nMenu items (JSON):\n${JSON.stringify(items)}`,
+    }];
+
   const res = await fetchWithTimeout(
     "https://api.openai.com/v1/chat/completions",
     {
@@ -328,10 +347,7 @@ export async function enrichBatch(
       },
       body: JSON.stringify({
         model,
-        messages: [{
-          role: "user",
-          content: `${prompt}\n\nMenu items (JSON):\n${JSON.stringify(items)}`,
-        }],
+        messages,
         response_format: {
           type: "json_schema",
           json_schema: { name: "menu_items", strict: true, schema },
@@ -635,10 +651,20 @@ async function enrichBatchWithRetry(
   // unweighted item that needed the retry or the rescue would otherwise come
   // back with TODAY's prompt while looking like it got pass 2's.
   prompt: string = ENRICH_PROMPT,
+  // Forwarded to all three enrichBatch calls for the same reason `prompt` is.
+  envelope: "user" | "system" = "user",
 ): Promise<EnrichedItem[]> {
   let got: EnrichedItem[] = [];
   try {
-    got = await enrichBatch(batch, apiKey, model, undefined, prompt);
+    got = await enrichBatch(
+      batch,
+      apiKey,
+      model,
+      undefined,
+      prompt,
+      undefined,
+      envelope,
+    );
   } catch (err) {
     console.error(
       "[enrich] batch failed, retrying:",
@@ -648,7 +674,15 @@ async function enrichBatchWithRetry(
 
   if (got.length < batch.length) {
     try {
-      const second = await enrichBatch(batch, apiKey, model, undefined, prompt);
+      const second = await enrichBatch(
+        batch,
+        apiKey,
+        model,
+        undefined,
+        prompt,
+        undefined,
+        envelope,
+      );
       // Keep whichever attempt returned more; a short retry must not discard a
       // fuller first answer.
       if (second.length > got.length) got = second;
@@ -670,7 +704,15 @@ async function enrichBatchWithRetry(
   for (const group of chunk(missing, ENRICH_RESCUE_BATCH_SIZE)) {
     try {
       got = got.concat(
-        await enrichBatch(group, apiKey, model, undefined, prompt),
+        await enrichBatch(
+          group,
+          apiKey,
+          model,
+          undefined,
+          prompt,
+          undefined,
+          envelope,
+        ),
       );
     } catch (err) {
       // Out of options for this group; reassembleEnriched backfills it. Logged
@@ -704,6 +746,8 @@ export async function callGptEnrich(
   // Pass 2 of the dual pass. Defaulted, so pass 1's request is byte-identical to
   // what shipped before this parameter existed - pinned by enrich_test.ts.
   prompt: string = ENRICH_PROMPT,
+  // See enrichBatch. Defaulted to what has always shipped.
+  envelope: "user" | "system" = "user",
 ): Promise<{ items: EnrichedItem[]; raw_response: string }> {
   const batches = chunk(items, batchSize);
   // Capped waves, not one big Promise.all. A smaller batchSize means MORE
@@ -718,7 +762,7 @@ export async function callGptEnrich(
     settled.push(
       ...await Promise.all(
         batches.slice(i, i + MAX_CONCURRENT_BATCHES).map((batch) =>
-          enrichBatchWithRetry(batch, apiKey, model, prompt)
+          enrichBatchWithRetry(batch, apiKey, model, prompt, envelope)
         ),
       ),
     );
@@ -772,6 +816,12 @@ export async function callGptEnrichDualPass(
       model,
       batchSize,
       ENRICH_PROMPT_UNWEIGHTED,
+      // The SYSTEM envelope, and pass 2 only. The unweighted numbers this change
+      // rests on were all measured through it; sending the same sentence in a
+      // user message scored 31/72 against that shape's 38/72, with CAPRICCIOSA
+      // at 0 instead of 6. Pass 1 above keeps "user" - its bytes are the
+      // weighted result's whole guarantee.
+      "system",
     );
     pass2 = result.items;
   } catch (error) {

@@ -11,6 +11,15 @@
       ],
       "ingredients": [
         {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3
+        },
+        {
           "name": "queso crema",
           "category": "fat",
           "within_printed_weight": true,
@@ -51,31 +60,21 @@
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 40,
-          "protein_per_100g": 20,
+          "protein_per_100g": 25,
           "carb_per_100g": 0,
           "fat_per_100g": 13
-        },
-        {
-          "name": "arroz",
-          "category": "carb",
-          "within_printed_weight": true,
-          "typical_serving_g": 60,
-          "protein_per_100g": 2.7,
-          "carb_per_100g": 28,
-          "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 15,
-      "carb_g": 26,
-      "fat_g": 20,
-      "estimated_calories": 348,
+      "protein_g": 18,
+      "carb_g": 37,
+      "fat_g": 21,
+      "estimated_calories": 405,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "dairy",
         "fish",
         "shellfish",
-        "soy",
         "gluten"
       ]
     },
@@ -90,13 +89,22 @@
       ],
       "ingredients": [
         {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3
+        },
+        {
           "name": "tampico",
-          "category": "other",
+          "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 30,
-          "protein_per_100g": 5,
-          "carb_per_100g": 10,
-          "fat_per_100g": 15
+          "protein_per_100g": 10,
+          "carb_per_100g": 15,
+          "fat_per_100g": 5
         },
         {
           "name": "aguacate",
@@ -130,7 +138,7 @@
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 40,
-          "protein_per_100g": 20,
+          "protein_per_100g": 24,
           "carb_per_100g": 0,
           "fat_per_100g": 0.5
         },
@@ -139,31 +147,21 @@
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 40,
-          "protein_per_100g": 20,
+          "protein_per_100g": 25,
           "carb_per_100g": 0,
           "fat_per_100g": 13
-        },
-        {
-          "name": "arroz",
-          "category": "carb",
-          "within_printed_weight": true,
-          "typical_serving_g": 60,
-          "protein_per_100g": 2.7,
-          "carb_per_100g": 28,
-          "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 22,
-      "carb_g": 24,
-      "fat_g": 25,
-      "estimated_calories": 408,
+      "protein_g": 28,
+      "carb_g": 37,
+      "fat_g": 22,
+      "estimated_calories": 456,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "dairy",
         "fish",
         "shellfish",
-        "soy",
         "gluten"
       ]
     },
@@ -178,20 +176,29 @@
       ],
       "ingredients": [
         {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3
+        },
+        {
           "name": "atún spicy",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 40,
           "protein_per_100g": 25,
           "carb_per_100g": 0,
-          "fat_per_100g": 5
+          "fat_per_100g": 13
         },
         {
           "name": "camarón",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 40,
-          "protein_per_100g": 20,
+          "protein_per_100g": 24,
           "carb_per_100g": 0,
           "fat_per_100g": 0.5
         },
@@ -209,31 +216,22 @@
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 20,
-          "protein_per_100g": 2,
+          "protein_per_100g": 5,
           "carb_per_100g": 20,
-          "fat_per_100g": 0.5
-        },
-        {
-          "name": "arroz",
-          "category": "carb",
-          "within_printed_weight": true,
-          "typical_serving_g": 60,
-          "protein_per_100g": 2.7,
-          "carb_per_100g": 28,
-          "fat_per_100g": 0.3
+          "fat_per_100g": 1
         }
       ],
-      "protein_g": 21,
-      "carb_g": 24,
-      "fat_g": 7,
-      "estimated_calories": 239,
+      "protein_g": 24,
+      "carb_g": 35,
+      "fat_g": 10,
+      "estimated_calories": 327,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "fish",
         "shellfish",
-        "soy",
-        "gluten"
+        "gluten",
+        "soy"
       ]
     },
     {
@@ -247,11 +245,20 @@
       ],
       "ingredients": [
         {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3
+        },
+        {
           "name": "salmón",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 40,
-          "protein_per_100g": 20,
+          "protein_per_100g": 25,
           "carb_per_100g": 0,
           "fat_per_100g": 13
         },
@@ -281,29 +288,19 @@
           "protein_per_100g": 17,
           "carb_per_100g": 23,
           "fat_per_100g": 49
-        },
-        {
-          "name": "arroz",
-          "category": "carb",
-          "within_printed_weight": true,
-          "typical_serving_g": 60,
-          "protein_per_100g": 2.7,
-          "carb_per_100g": 28,
-          "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 13,
-      "carb_g": 21,
+      "protein_g": 16,
+      "carb_g": 32,
       "fat_g": 21,
-      "estimated_calories": 322,
+      "estimated_calories": 379,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "dairy",
         "fish",
-        "sesame",
-        "soy",
-        "gluten"
+        "gluten",
+        "sesame"
       ]
     },
     {
@@ -312,8 +309,19 @@
       "price": 129,
       "category": "food",
       "printed_total_g": null,
-      "name_implied_components": [],
+      "name_implied_components": [
+        "arroz"
+      ],
       "ingredients": [
+        {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3
+        },
         {
           "name": "tofu",
           "category": "protein",
@@ -347,23 +355,14 @@
           "within_printed_weight": true,
           "typical_serving_g": 20,
           "protein_per_100g": 0.9,
-          "carb_per_100g": 10,
+          "carb_per_100g": 9.6,
           "fat_per_100g": 0.2
-        },
-        {
-          "name": "arroz",
-          "category": "carb",
-          "within_printed_weight": true,
-          "typical_serving_g": 60,
-          "protein_per_100g": 2.7,
-          "carb_per_100g": 28,
-          "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 6,
-      "carb_g": 23,
+      "protein_g": 7,
+      "carb_g": 34,
       "fat_g": 6,
-      "estimated_calories": 172,
+      "estimated_calories": 221,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
@@ -382,13 +381,22 @@
       ],
       "ingredients": [
         {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3
+        },
+        {
           "name": "tampico",
-          "category": "other",
+          "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 30,
-          "protein_per_100g": 5,
-          "carb_per_100g": 10,
-          "fat_per_100g": 15
+          "protein_per_100g": 10,
+          "carb_per_100g": 15,
+          "fat_per_100g": 5
         },
         {
           "name": "atún picado",
@@ -397,16 +405,16 @@
           "typical_serving_g": 40,
           "protein_per_100g": 25,
           "carb_per_100g": 0,
-          "fat_per_100g": 5
+          "fat_per_100g": 13
         },
         {
           "name": "salsa spicy",
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 20,
-          "protein_per_100g": 2,
+          "protein_per_100g": 5,
           "carb_per_100g": 20,
-          "fat_per_100g": 0.5
+          "fat_per_100g": 1
         },
         {
           "name": "masago",
@@ -415,28 +423,20 @@
           "typical_serving_g": 10,
           "protein_per_100g": 13,
           "carb_per_100g": 3,
-          "fat_per_100g": 2
-        },
-        {
-          "name": "arroz",
-          "category": "carb",
-          "within_printed_weight": true,
-          "typical_serving_g": 60,
-          "protein_per_100g": 2.7,
-          "carb_per_100g": 28,
-          "fat_per_100g": 0.3
+          "fat_per_100g": 5
         }
       ],
-      "protein_g": 15,
-      "carb_g": 24,
-      "fat_g": 7,
-      "estimated_calories": 219,
+      "protein_g": 18,
+      "carb_g": 37,
+      "fat_g": 8,
+      "estimated_calories": 288,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "fish",
-        "soy",
-        "gluten"
+        "shellfish",
+        "gluten",
+        "soy"
       ]
     },
     {
@@ -450,11 +450,20 @@
       ],
       "ingredients": [
         {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3
+        },
+        {
           "name": "camarón",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 40,
-          "protein_per_100g": 20,
+          "protein_per_100g": 24,
           "carb_per_100g": 0,
           "fat_per_100g": 0.5
         },
@@ -480,31 +489,21 @@
           "name": "aguacate",
           "category": "fat",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
+          "typical_serving_g": 40,
           "protein_per_100g": 2,
           "carb_per_100g": 9,
           "fat_per_100g": 15
-        },
-        {
-          "name": "arroz",
-          "category": "carb",
-          "within_printed_weight": true,
-          "typical_serving_g": 60,
-          "protein_per_100g": 2.7,
-          "carb_per_100g": 28,
-          "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 12,
-      "carb_g": 21,
-      "fat_g": 15,
-      "estimated_calories": 270,
+      "protein_g": 15,
+      "carb_g": 34,
+      "fat_g": 17,
+      "estimated_calories": 344,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "dairy",
         "shellfish",
-        "soy",
         "gluten"
       ]
     },
@@ -518,6 +517,15 @@
         "arroz"
       ],
       "ingredients": [
+        {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3
+        },
         {
           "name": "queso crema",
           "category": "fat",
@@ -543,7 +551,7 @@
           "typical_serving_g": 40,
           "protein_per_100g": 25,
           "carb_per_100g": 0,
-          "fat_per_100g": 5
+          "fat_per_100g": 13
         },
         {
           "name": "masago",
@@ -552,38 +560,29 @@
           "typical_serving_g": 10,
           "protein_per_100g": 13,
           "carb_per_100g": 3,
-          "fat_per_100g": 2
+          "fat_per_100g": 5
         },
         {
           "name": "mayonesa",
           "category": "fat",
           "within_printed_weight": true,
-          "typical_serving_g": 10,
+          "typical_serving_g": 20,
           "protein_per_100g": 1,
           "carb_per_100g": 0,
           "fat_per_100g": 75
-        },
-        {
-          "name": "arroz",
-          "category": "carb",
-          "within_printed_weight": true,
-          "typical_serving_g": 60,
-          "protein_per_100g": 2.7,
-          "carb_per_100g": 28,
-          "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 15,
-      "carb_g": 21,
-      "fat_g": 25,
-      "estimated_calories": 367,
+      "protein_g": 16,
+      "carb_g": 32,
+      "fat_g": 36,
+      "estimated_calories": 516,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "dairy",
         "fish",
-        "soy",
-        "gluten"
+        "gluten",
+        "egg"
       ]
     },
     {
@@ -596,6 +595,15 @@
         "arroz"
       ],
       "ingredients": [
+        {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3
+        },
         {
           "name": "queso crema",
           "category": "fat",
@@ -628,7 +636,7 @@
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 40,
-          "protein_per_100g": 20,
+          "protein_per_100g": 24,
           "carb_per_100g": 0,
           "fat_per_100g": 0.5
         },
@@ -640,27 +648,17 @@
           "protein_per_100g": 10,
           "carb_per_100g": 15,
           "fat_per_100g": 1
-        },
-        {
-          "name": "arroz",
-          "category": "carb",
-          "within_printed_weight": true,
-          "typical_serving_g": 60,
-          "protein_per_100g": 2.7,
-          "carb_per_100g": 28,
-          "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 15,
-      "carb_g": 26,
-      "fat_g": 15,
-      "estimated_calories": 303,
+      "protein_g": 18,
+      "carb_g": 37,
+      "fat_g": 16,
+      "estimated_calories": 359,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "dairy",
         "shellfish",
-        "soy",
         "gluten"
       ]
     },
@@ -675,13 +673,22 @@
       ],
       "ingredients": [
         {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3
+        },
+        {
           "name": "atún spicy",
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 40,
           "protein_per_100g": 25,
           "carb_per_100g": 0,
-          "fat_per_100g": 5
+          "fat_per_100g": 13
         },
         {
           "name": "aguacate",
@@ -697,7 +704,7 @@
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 40,
-          "protein_per_100g": 20,
+          "protein_per_100g": 25,
           "carb_per_100g": 0,
           "fat_per_100g": 13
         },
@@ -706,30 +713,21 @@
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 20,
-          "protein_per_100g": 2,
+          "protein_per_100g": 5,
           "carb_per_100g": 20,
-          "fat_per_100g": 0.5
-        },
-        {
-          "name": "arroz",
-          "category": "carb",
-          "within_printed_weight": true,
-          "typical_serving_g": 60,
-          "protein_per_100g": 2.7,
-          "carb_per_100g": 28,
-          "fat_per_100g": 0.3
+          "fat_per_100g": 1
         }
       ],
-      "protein_g": 21,
-      "carb_g": 24,
-      "fat_g": 12,
-      "estimated_calories": 284,
+      "protein_g": 24,
+      "carb_g": 35,
+      "fat_g": 15,
+      "estimated_calories": 374,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "fish",
-        "soy",
-        "gluten"
+        "gluten",
+        "soy"
       ]
     }
   ]

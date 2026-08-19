@@ -967,6 +967,12 @@ Deno.test("resolveGrams prefers an as-served amount for an accompaniment (ARM S4
 
 // ── Dual pass ───────────────────────────────────────────────────────────────
 
+/** Every message's content, so a stub works under either request envelope. */
+function allContent(body: string): string {
+  return (JSON.parse(body).messages as { content: string }[])
+    .map((m) => m.content).join("\n");
+}
+
 /**
  * Echoes back one minimal enriched item per item in the request, so
  * enrichBatchWithRetry sees a COMPLETE batch and neither retries nor rescues.
@@ -975,7 +981,10 @@ Deno.test("resolveGrams prefers an as-served amount for an accompaniment (ARM S4
 function stubEcho(bodies: string[]) {
   return ((_url: string, init: RequestInit) => {
     bodies.push(String(init.body));
-    const content = JSON.parse(String(init.body)).messages[0].content as string;
+    // Every message, not messages[0]: under the system envelope the items are in
+    // messages[1], and a stub that only reads the first would silently echo an
+    // EMPTY batch and make the retry path look like the thing under test.
+    const content = allContent(String(init.body));
     const names = [...content.matchAll(/"name":"([^"]+)"/g)].map((m) => m[1]);
     return Promise.resolve(
       new Response(
@@ -1107,8 +1116,7 @@ Deno.test("isFallbackEnriched spots a zeroed item and nothing else", () => {
 /** Answers each batch with a full item per input, tagging which prompt it saw. */
 function stubOpenAI(seen: { prompt: string; names: string[] }[]) {
   return ((_url: string, init: RequestInit) => {
-    const body = JSON.parse(String(init.body));
-    const content = body.messages[0].content as string;
+    const content = allContent(String(init.body));
     const names = [...content.matchAll(/"name":"([^"]+)"/g)].map((m) => m[1]);
     const unweightedPass = content.includes("print no weight");
     seen.push({ prompt: unweightedPass ? "unweighted" : "shipped", names });
@@ -1301,6 +1309,74 @@ Deno.test("dual pass: pass 2 waits for pass 1 - they are never in flight togethe
   assertEquals(sawPass2, true);
   // Pass 1 is 2 requests; pass 2 is 1. If they overlapped this would reach 3.
   assertEquals(maxInFlight, 2);
+});
+
+Deno.test("the SYSTEM envelope is opt-in: pass 1's request shape is untouched", async () => {
+  // The 38/72 on record was measured with the prompt in a SYSTEM message and the
+  // items wrapped {"items":[...]} - probe-plate-arms.ts's callOpenAI. Production
+  // sends ONE user message. Same prompt through the two shapes scored 38 vs 31,
+  // so the envelope is a variable, and pass 2 needs to be able to vary it.
+  //
+  // Pass 1 must NEVER move: the whole weighted result rests on its bytes being
+  // today's. Defaulted off, and pinned here.
+  const bodies: string[] = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = stubEcho(bodies);
+  try {
+    await callGptEnrich([extracted("A")], "k");
+  } finally {
+    globalThis.fetch = original;
+  }
+  const sent = JSON.parse(bodies[0]).messages;
+  assertEquals(sent.length, 1);
+  assertEquals(sent[0].role, "user");
+  assertStringIncludes(sent[0].content, "Menu items (JSON):");
+});
+
+Deno.test("the system envelope puts the prompt in a system message and wraps the items", async () => {
+  const bodies: string[] = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = stubEcho(bodies);
+  try {
+    await enrichBatch(
+      [extracted("A")],
+      "k",
+      ENRICH_MODEL,
+      undefined,
+      "THE PROMPT",
+      undefined,
+      "system",
+    );
+  } finally {
+    globalThis.fetch = original;
+  }
+  const sent = JSON.parse(bodies[0]).messages;
+  assertEquals(sent.length, 2);
+  assertEquals(sent[0].role, "system");
+  assertEquals(sent[0].content, "THE PROMPT");
+  assertEquals(sent[1].role, "user");
+  // Wrapped as an OBJECT, matching callOpenAI - the shape the 38/72 was measured
+  // through. A bare array here would be a third envelope nobody has measured.
+  assertEquals(JSON.parse(sent[1].content).items.length, 1);
+});
+
+Deno.test("dual pass: pass 2 carries the system envelope, pass 1 does not", async () => {
+  const bodies: string[] = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = stubEcho(bodies);
+  try {
+    await callGptEnrichDualPass([WEIGHTED, UNWEIGHTED], "k");
+  } finally {
+    globalThis.fetch = original;
+  }
+  assertEquals(bodies.length, 2);
+  const pass1 = JSON.parse(bodies[0]).messages;
+  const pass2 = JSON.parse(bodies[1]).messages;
+  assertEquals(pass1.length, 1);
+  assertEquals(pass1[0].role, "user");
+  assertEquals(pass2.length, 2);
+  assertEquals(pass2[0].role, "system");
+  assertStringIncludes(pass2[0].content, "print no weight");
 });
 
 Deno.test("index.ts calls the DUAL PASS, not the single pass", async () => {

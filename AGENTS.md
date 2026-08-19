@@ -473,10 +473,12 @@ Track here anything that blocks testing or shipping. Update as items resolve.
 - **Apple Developer Program — ✅ PAID (confirmed 2026-07-11).** Physical-device testing works — first on-device verification ran 2026-07-12 (auto-cutter 3-scan checklist, all passed).
 - **Macro-enrichment blockers are NOT restated here** — status lives in exactly one place, the
   `🎯 CURRENT PHASE` block of `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`,
-  with the takeover briefing in the `🆕 2026-08-16 HANDOFF` block of
-  `docs/superpowers/START-HERE.md`. Read those, not a copy. As of 2026-08-16: **production is edge fn
-  v31** (the 0-kcal fix, no accuracy change), all work is committed but unpushed on
-  `feat/forced-serving-pieces`, and the next step is a harness that can judge Arm P for shipping.
+  with the takeover briefing in the newest `HANDOFF` block of
+  `docs/superpowers/START-HERE.md`. Read those, not a copy. As of 2026-08-19: **production is edge fn
+  v32** (the dual pass — unweighted dishes 25 → 35–36/72, weighted unchanged), PRs #17 and #18 are
+  **merged**, `main` byte-matches the deployed function, and the next step is TestFlight build 7.
+  ⚠️ **This line is a dated snapshot and nothing should be believed from it** — verify the live version
+  against the SERVER with `mcp__supabase__list_edge_functions`.
 
 ---
 

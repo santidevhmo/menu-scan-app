@@ -38,7 +38,19 @@ and that block is older context that it supersedes where they disagree. Phase sp
 **~$35.7** (~$2.52 to 2026-08-09, ~$19 on 2026-08-12, ~$6 on 2026-08-13, ~$5.5 on 2026-08-16,
 ~$5.2 on 2026-08-19).
 
-🚀 **LIVE NOW: edge function `analyze-menu` v31, deployed 2026-08-16 (Santiago authorised).**
+🚀 **LIVE NOW: edge function `analyze-menu` v32, deployed 2026-08-19 (Santiago authorised).**
+**v32 = v31 + the DUAL PASS + pass 2's SYSTEM envelope.** Unweighted dishes went **25 → 35–36/72**;
+weighted dishes are unchanged (**14–17/96** vs a fresh **15/96** control) because pass 1's request body
+is byte-identical (5491 bytes, verified). Stage 2 is **1.56–1.92× slower**, ~$0.03 → ~$0.05 per scan.
+Full detail: the `🆕 2026-08-19 HANDOFF` block below. **Rollback to v31:**
+```bash
+git checkout dbf3f79 -- supabase/functions/analyze-menu/ && \
+  supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw
+```
+✅ **`main` now contains it** — PRs #18 → #17 → `main` merged 2026-08-19, and `main`'s
+`supabase/functions/analyze-menu/` byte-matches what is deployed.
+
+History — **v31, deployed 2026-08-16**, superseded by the above.
 **v31 = v30 + the two ZEROING BUG FIXES, and nothing else.** Verified before shipping: the delta
 against v30 is `enrich.ts` + its tests only — `ENRICH_PROMPT`, `ENRICH_SCHEMA_OPENAI`, the model pin
 and `ENRICH_BATCH_SIZE = 10` are all byte-identical, so **macro accuracy is unchanged by design**
@@ -78,9 +90,9 @@ item as `3/8` / `all`. Working, not the intended form.
 
 ### ⛔ THE NEXT ACTION, IN ONE LINE
 
-**Merge PR #18 → PR #17 → `main`.** The dual pass is **DEPLOYED and LIVE as edge fn v32**; the only
-thing outstanding is that `main` does not yet contain it. See "MERGE STATE" below — `main` was
-ALREADY behind production before this deploy.
+**Ship a TestFlight build.** The edge function is live as v32 and `main` is in sync — but the APP
+binary is still **build 6**, which predates the portion control entirely. Everything else in this
+phase is done: nothing is unmerged, undeployed, or owed a run.
 
 ### ✅ WHAT WAS BUILT AND MEASURED (2026-08-19, evals 151–152, ~$5.2)
 
@@ -98,18 +110,33 @@ git checkout dbf3f79 -- supabase/functions/analyze-menu/ && \
 
 ### 🔀 MERGE STATE — read before touching the PRs
 
-| PR | branch | base | contains |
-|---|---|---|---|
-| **#18** | `feat/dual-pass-enrichment` | `feat/forced-serving-pieces` | the dual pass — **live as v32** |
-| **#17** | `feat/forced-serving-pieces` | `main` | forced `serving_pieces` + portion control — **its edge-fn half has been live since v30** |
+✅ **BOTH PRs ARE MERGED (2026-08-19).** #18 → `feat/forced-serving-pieces`, then #17 → `main`, 87
+commits. **`main`'s `supabase/functions/analyze-menu/` now byte-matches what is deployed** — verified
+with `git diff origin/main HEAD -- supabase/functions/analyze-menu/`, which is empty.
 
-⚠️ **`main` WAS ALREADY BEHIND PRODUCTION BEFORE THIS DEPLOY** — v31 ran unmerged code from
-`feat/forced-serving-pieces`, and `main`'s edge function differs from it by ~533 lines. Deploying v32
-extended that drift; it did not create it.
+⚠️ **HISTORICAL, and worth knowing because it lasted weeks:** `main` was behind production from v30
+until this merge. v30/v31 both ran unmerged branch code, ~533 lines adrift, so **anyone deploying from
+`main` would have silently rolled back two versions of macro work.** Closed now; re-check with that
+same `git diff` before trusting it again.
 🔑 **DEPLOYING AND MERGING ARE INDEPENDENT.** Deploying uploads the working directory to Supabase;
 merging moves code into `main`. Neither triggers the other, and merging ships nothing to users.
-⚠️ **#17 also carries APP code** (`portions.ts`) that is NOT in any shipped TestFlight build. Merging
-it records reality for the edge function but lands unshipped app changes on `main`.
+### 📱 THE APP BINARY — build 7
+
+**TestFlight build 6 is commit `ccd3b04` (2026-08-09) and predates the ENTIRE portion control.** The
+12 app commits since it include the editor, the per-piece line, the input sanitisers, the
+"18 means 18 rolls" unit fix, the nativewind `textAlign` crash fix, and the zero-portion parser fix.
+
+🏗️ **Build 7 started 2026-08-19** — `eas build --platform ios --profile production`, build id
+`cf7b5088-9280-4bac-a2e8-a97744e217fd`. Version 1.0.0, build number 7 (EAS `autoIncrement`, and
+`appVersionSource: "remote"` — the number is NOT in `app.json`).
+
+✅ **The env-var trap that broke build 3 is CLOSED.** `eas env:list --environment production` carries
+both `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` against project ref
+`uonuiadueykynbetxxrw`. Build 3 shipped with them undefined; the minifier constant-folded the guard so
+the ONLY surviving string was `"Missing Supabase env vars"`. **Verify a shipped bundle carries the
+project ref before trusting a build** — see `plans/2026-08-05-testflight-photo-crash-handoff.md`.
+ℹ️ Its traps 1–3 (iCloud `xattr`, Metro's compiled-in port, device reachability) are **LOCAL-build
+only** and do not apply to an EAS cloud build.
 
 | measure | today | dual pass + system envelope |
 |---|---|---|
@@ -191,10 +218,10 @@ production never builds. In real menus weighted scores **16–18/96 ≈ 82%**.
 the pipeline got worse: 0–3/96 → 4–6/96 (accompaniment weights) → 6–9/96 (PASTEL's bean composition).**
 Santiago approved carrying each.
 
-🚀 **PRODUCTION: edge fn `analyze-menu` v31 (2026-08-16), `ENRICH_BATCH_SIZE = 10`.** It carries two
-zeroing bug fixes and **no accuracy change**. Everything since is unshipped and COMMITTED on branch
-`feat/forced-serving-pieces`, **not pushed** (PR #17 is open there and Santiago ruled it the LAST
-thing to work on).
+🚀 ~~**PRODUCTION: edge fn `analyze-menu` v31 (2026-08-16).** Everything since is unshipped and
+COMMITTED on `feat/forced-serving-pieces`, not pushed (PR #17 open, Santiago ruled it the LAST thing
+to work on).~~ ⚠️ **STALE — all three clauses. Production is v32 (2026-08-19), PRs #17 and #18 are
+MERGED, and `main` byte-matches the deployed function.** `ENRICH_BATCH_SIZE = 10` is still true.
 
 ### 📋 WHAT THE PLAN BUILDS, AND WHY IT IS THE ONLY SHAPE LEFT
 
@@ -617,9 +644,10 @@ noise, not a flat threshold. Three draws is too few where spread approaches 90%.
 (what it is cut into). A row reads `1` or `8 / 12`; tapping opens an editor with `I'll have` and
 `comes in`. **Macros are always `itemMacros × portion` — the divisor never enters the arithmetic**,
 so correcting a wrong piece count cannot move a calorie. 15 tests in `src/lib/portions_test.ts`.
-Branch `feat/forced-serving-pieces`, **PR #17 open with an unread CodeRabbit review — Santiago's
-ruling: PR #17 is the LAST thing to work on, after all pipeline testing passes.**
-Needs **TestFlight build 7** to be visible; build 6 shows the old label.
+~~Branch `feat/forced-serving-pieces`, PR #17 open with an unread CodeRabbit review — Santiago's
+ruling: PR #17 is the LAST thing to work on.~~ ✅ **DONE 2026-08-19: the CodeRabbit review was worked
+(one real bug — `parsePortionInput("0.001")` returned 0, not null, which prices a row at 0 kcal), and
+PR #17 is MERGED to `main`.** 🏗️ **TestFlight build 7 is building**; build 6 shows the old label.
 
 ⚠️ One workaround worth knowing: the quantity `TextInput` sets `textAlign` via `style`, never
 `className` — `nativewind@5.0.0-preview.4` ships a `TextInput` whose `nativeStyleMapping` is
@@ -664,7 +692,7 @@ every commit and whether it is deployed, the runs side by side, and what each pr
 Tasks 1–5 are COMPLETE. The USDA plan is the oracle/provenance reference:
 `docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
 
-**One-line state (⚠️ SUPERSEDED — current numbers are in the 2026-08-16 handoff block at the top; production is v31 and the weighted score is 4–6/96 against a stricter oracle):** **`macro-best-v8` + forced `serving_pieces` is the best measured version at 0–3/96 and 12.0–12.5%, and it IS live as edge function v30 (2026-08-11).** On the 8-dish set, 4 runs x 3 draws: **baseline 24/96 at 34.2%, B21 0–3/96 at 12.1–14.1%**, with one perfect run and six of eight dishes at 0/48. Verified beyond the fixtures on **72 real items from all nine archived menus**: black-box ingredient 1.4%, undecomposable 2.8%. Drinks and alcohol are deliberately OUT (post-launch). ~~The biggest remaining unknown is the real-restaurant field test — every scan to date is a photo of a screen.~~ **FALSE, corrected by Santiago 2026-08-16: the fixture photos ARE real phone photos of real paper menus.** Always re-derive numbers with `deno run --allow-read scripts/rescore-history.ts`; figures written in prose are snapshots.
+**One-line state (⚠️ SUPERSEDED — current numbers are in the 2026-08-16 handoff block at the top; production is v32 (dual pass) and the weighted score is 6–9/96 isolated, 14–17/96 in real menus):** **`macro-best-v8` + forced `serving_pieces` is the best measured version at 0–3/96 and 12.0–12.5%, and it IS live as edge function v30 (2026-08-11).** On the 8-dish set, 4 runs x 3 draws: **baseline 24/96 at 34.2%, B21 0–3/96 at 12.1–14.1%**, with one perfect run and six of eight dishes at 0/48. Verified beyond the fixtures on **72 real items from all nine archived menus**: black-box ingredient 1.4%, undecomposable 2.8%. Drinks and alcohol are deliberately OUT (post-launch). ~~The biggest remaining unknown is the real-restaurant field test — every scan to date is a photo of a screen.~~ **FALSE, corrected by Santiago 2026-08-16: the fixture photos ARE real phone photos of real paper menus.** Always re-derive numbers with `deno run --allow-read scripts/rescore-history.ts`; figures written in prose are snapshots.
 
 🏁 **Fallback checkpoint: git tag `stage2-b4-checkpoint` → commit `22a1ac5`.** Restore from it if an
 evaluation regresses. `git show stage2-b4-checkpoint` prints the result;

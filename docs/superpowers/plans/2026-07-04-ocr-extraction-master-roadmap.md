@@ -17,7 +17,9 @@ missing is a measured benchmark, including printed-weight items so P2's "prefer 
 rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope detail: item #5 of
 "Release scope decision" below.
 
-> 🚀 **PRODUCTION IS EDGE FN `analyze-menu` v31 (2026-08-16), `ENRICH_BATCH_SIZE = 10`.** It is
+> 🚀 **PRODUCTION IS EDGE FN `analyze-menu` v32 (2026-08-19), `ENRICH_BATCH_SIZE = 10`** — the DUAL
+> PASS with pass 2 on the system envelope. `main` byte-matches it. History below describes v31, which it
+> supersedes: **v31 (2026-08-16)** is
 > `macro-best-v8` (B21 + B24b) + forced `serving_pieces` + two zeroing bug fixes. **Verify against the
 > server, never against this file** — `mcp__supabase__list_edge_functions` gives version and
 > `updated_at`. Rollback: `git checkout abe5e12 -- supabase/functions/analyze-menu/ && supabase
@@ -79,8 +81,8 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > shuffled (4.00×, 1.94×, 1.87×). **A per-item condition in prose is not read as one.**
 >
 > ✅ **THE DUAL-PASS PLAN IS EXECUTED (2026-08-19, eval 151, ~$3.2). Tasks 1–5 done; Task 6 —
-> deployment — is Santiago's and is OPEN.** Branch `feat/dual-pass-enrichment`, **PR #18**, based on
-> `feat/forced-serving-pieces`. **PRODUCTION IS STILL EDGE FN v31 — nothing here is live.**
+> deployment — was Santiago's and is now DONE.** ✅ **DEPLOYED as v32 and MERGED to `main`
+> (2026-08-19): PR #18 → PR #17 → `main`, 87 commits.**
 >
 > ✅ **WEIGHTED IS FREE, and a FRESH control says so:** dual **14, 15, 17/96** against a same-day
 > `mixed --run ctrl` at **15/96**. Ranges overlap, control inside them, 60/60 menu-draws clean, all
@@ -118,9 +120,14 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > **Rollback:** `git checkout dbf3f79 -- supabase/functions/analyze-menu/ && supabase functions deploy
 > analyze-menu --project-ref uonuiadueykynbetxxrw`.
 >
-> ⛔ **THE NEXT ACTION: merge PR #18 → PR #17 → `main`.** ⚠️ `main` was ALREADY behind production
-> before this deploy (v31 ran unmerged branch code); **deploying and merging are independent** and
-> merging ships nothing to users. #17 also carries app code absent from any TestFlight build.
+> ✅ **MERGED 2026-08-19: PR #18 → PR #17 → `main`** (87 commits). `git diff origin/main HEAD --
+> supabase/functions/analyze-menu/` is EMPTY, so `main` and the deployed function now agree — the drift
+> that ran from v30 to v32 is closed. 🔑 **Deploying and merging are independent**: deploying uploads
+> the working directory, merging moves code into `main`, and merging ships nothing to users.
+>
+> ⛔ **THE NEXT ACTION: TestFlight build 7** (started 2026-08-19, id `cf7b5088`). Build 6 is commit
+> `ccd3b04` and predates the whole portion control. After that, the **accompaniment defect** is the
+> largest known weighted defect: 24% of weighted items, 12–20% of their calories, still unfixed.
 >
 > **THE DUAL PASS, and why it is the only shape left.** Pass 1 = today's call over the whole menu,
 > byte-identical, answers used for WEIGHTED items. Pass 2 = the unweighted items re-sent in their own

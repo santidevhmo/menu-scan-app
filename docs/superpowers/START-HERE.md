@@ -32,10 +32,11 @@ the edge function → ②.** If a phase or priority is asserted anywhere other t
 it is stale — fix it or ignore it, never believe it. The active Stage-2 macro handoff below is
 the explicit exception: it is the bounded Phase-9 workstream record, not a competing roadmap.
 
-**Stage-2 macro enrichment IS THE ACTIVE WORK. → Start at the `🆕 2026-08-16 HANDOFF` block
+**Stage-2 macro enrichment IS THE ACTIVE WORK. → Start at the `🆕 2026-08-19 HANDOFF` block
 below; it is written so a zero-context session can take over from it alone.** Everything between here
 and that block is older context that it supersedes where they disagree. Phase spend to date:
-**~$32.5** (~$2.52 to 2026-08-09, ~$19 on 2026-08-12, ~$6 on 2026-08-13, ~$5.5 on 2026-08-16).
+**~$35.7** (~$2.52 to 2026-08-09, ~$19 on 2026-08-12, ~$6 on 2026-08-13, ~$5.5 on 2026-08-16,
+~$3.2 on 2026-08-19).
 
 🚀 **LIVE NOW: edge function `analyze-menu` v31, deployed 2026-08-16 (Santiago authorised).**
 **v31 = v30 + the two ZEROING BUG FIXES, and nothing else.** Verified before shipping: the delta
@@ -66,13 +67,56 @@ item as `3/8` / `all`. Working, not the intended form.
 
 ---
 
-## 🆕 2026-08-18 HANDOFF — A ZERO-CONTEXT SESSION CAN TAKE OVER FROM THIS BLOCK ALONE
+## 🆕 2026-08-19 HANDOFF — A ZERO-CONTEXT SESSION CAN TAKE OVER FROM THIS BLOCK ALONE
 
 ### ⛔ THE NEXT ACTION, IN ONE LINE
 
-**Execute `docs/superpowers/plans/2026-08-18-dual-pass-enrichment.md`.** It is written for a worker
-with no context, TDD throughout, six tasks. **Do not design a new arm — read that plan and the
-"already tried" table below first.** Nothing in `supabase/functions/` has been touched.
+**Test the request ENVELOPE as a pass-2-only change (~$1)** — see "THE ENVELOPE FINDING" below. The
+dual-pass plan is **already executed** (eval 151); do not re-execute it.
+
+### ✅ WHAT WAS BUILT AND MEASURED (2026-08-19, eval 151, ~$3.2)
+
+The dual pass is implemented, tested and open as **PR #18** on branch `feat/dual-pass-enrichment`
+(based on `feat/forced-serving-pieces`, so it does not swallow PR #17).
+🚀 **PRODUCTION IS STILL EDGE FN v31 — nothing is live. Deployment is Santiago's and is OPEN.**
+
+| measure | result |
+|---|---|
+| weighted, dual ×3 | **14, 15, 17 /96** |
+| weighted, fresh same-day control | **15/96** → **no detectable cost** |
+| unweighted | 25 → **31/72** (+6, *not* the +13 predicted) |
+| latency | **1.92×** / **1.56×** — below the 2.4× that declined GPT-5.5 |
+| cost per scan | ~$0.03 → ~$0.05 |
+
+⚠️ **The "16–18/96" baseline on record could NOT be fully re-derived.** Only one focused `mixed`
+archive survives and it replays to 18/96 — the "16" was lost to the overwrite hazard `--run` fixes.
+**Quote the 15/96 fresh control.**
+
+### 🔴 THE ENVELOPE FINDING — the most important thing on this page
+
+**The plan claimed the unweighted gain transferred BY CONSTRUCTION. It does not.**
+
+| | how the request is actually built |
+|---|---|
+| `callOpenAI` — **every ARM this phase** | **two** messages: prompt as **`system`**, items as `user`, `{"items":[…]}` |
+| `enrichBatch` — **production, and pass 2** | **one** `user` message with the items appended |
+
+Same prompt (md5-verified), same batching, envelope the only difference: **38/72 → 31/72**, and
+**CAPRICCIOSA — the 28 cm pizza that motivated the entire plate-weight thread — goes 6 → 0.**
+
+🔑 **This retro-taints every arm scored through `callOpenAI` against a `callGptEnrich` baseline** —
+Arm P (37), P-inline (29), SplitOnly (21). Some rejections may have been rejections of an ENVELOPE
+rather than an idea. **A prior for the next brainstorm, NOT a to-do list** — re-running rejected arms
+is expensive and none of them are shipping candidates.
+
+⚠️ **The +6 is NOT "the sentence alone"**: `baseline` selects mixed batches, `dual` unweighted-only,
+so it bundles sentence WITH batching. Correct as a shipping number, unsound as a mechanism claim.
+⚠️ **One run per cell** — 31 vs 38 is one run each. Direction is corroborated (pass 2 moved unweighted
+calories by a median 0.99× across 45 neighbours); the SIZE of the gap is not.
+
+**The next experiment:** `enrichBatch` gains a defaulted envelope option, pass 2 sends the `system`
+shape, pass 1 keeps today's **exactly** — touching the shared path destroys the byte-identical
+guarantee the whole weighted result rests on. ~$1. Lands ~38 → ship the full gain; ~31 → falsified.
 
 ### The 60-second version
 
@@ -203,9 +247,11 @@ after the plan ships.
 ## ⚠️ EVERYTHING BELOW THIS LINE IS THE SUPERSEDED 2026-08-16 HANDOFF
 
 It is kept because parts of it are still the only record of an oracle ruling or a falsified
-direction. **Where it disagrees with the 2026-08-18 block above, the block above wins.** Two things
+direction. **Where it disagrees with the 2026-08-19 block above, the block above wins.** Three things
 in here are now STALE and are corrected at their own headings: its prompt-wording scoreboard says
-"0 for 5" (it is **0 for 6**), and its "Suggested next steps" predates the P-10 result.
+"0 for 5" (it is **0 for 6**), its "Suggested next steps" predates the P-10 result, and **every
+unweighted arm figure it quotes was measured through `callOpenAI`'s envelope, not production's** —
+see THE ENVELOPE FINDING above before trusting any of them.
 **Do not take a next action from below this line.**
 
 ### The one insight that matters most — SIZE WAS THE SYMPTOM, ASSEMBLY IS THE DISEASE

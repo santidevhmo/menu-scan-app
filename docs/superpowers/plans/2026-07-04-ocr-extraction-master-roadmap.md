@@ -78,10 +78,33 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > **wrong group**: unweighted servings did not move (median 1.00×) while weighted ones it excluded were
 > shuffled (4.00×, 1.94×, 1.87×). **A per-item condition in prose is not read as one.**
 >
-> ⛔ **THE NEXT ACTION: EXECUTE `docs/superpowers/plans/2026-08-18-dual-pass-enrichment.md`.**
-> Six tasks, TDD, written for a worker with no context. **Nothing in `supabase/functions/` has been
-> touched.** Do not design a new arm — the plan and START-HERE's "ALREADY TRIED AND REJECTED" table
-> exist so that paid work is not repeated.
+> ✅ **THE DUAL-PASS PLAN IS EXECUTED (2026-08-19, eval 151, ~$3.2). Tasks 1–5 done; Task 6 —
+> deployment — is Santiago's and is OPEN.** Branch `feat/dual-pass-enrichment`, **PR #18**, based on
+> `feat/forced-serving-pieces`. **PRODUCTION IS STILL EDGE FN v31 — nothing here is live.**
+>
+> ✅ **WEIGHTED IS FREE, and a FRESH control says so:** dual **14, 15, 17/96** against a same-day
+> `mixed --run ctrl` at **15/96**. Ranges overlap, control inside them, 60/60 menu-draws clean, all
+> runs `--replay` verified. ⚠️ **The "16–18/96" on record could NOT be fully re-derived** — one focused
+> `mixed` archive survives and replays to 18/96. **Quote the 15/96 control.**
+>
+> 🔴 **THE PLAN'S CENTRAL CLAIM WAS FALSE — the unweighted gain does NOT transfer by construction.**
+> `probe-plate-arms.ts`'s `callOpenAI` sends the prompt as a **`system`** message with items wrapped
+> `{"items":[…]}`; `enrichBatch` — production, and pass 2 — sends **ONE `user` message**. Same prompt
+> (md5-identical), same batching, envelope the only difference: **38/72 → 31/72**, and **CAPRICCIOSA,
+> the dish that motivated the whole plate-weight thread, goes 6 → 0.** The shipped code captures
+> **+6 of the advertised +13**. ⚠️ That +6 bundles the sentence WITH the batching (the `baseline` arm
+> selects mixed batches, `dual` unweighted-only) — correct as a shipping number, unsound as mechanism.
+>
+> 🔑 **THIS RETRO-TAINTS EVERY ARM SCORED THROUGH `callOpenAI` AGAINST A `callGptEnrich` BASELINE** —
+> Arm P (37), P-inline (29), SplitOnly (21). **A prior for the next brainstorm, NOT a to-do list.**
+>
+> ✅ **LATENCY PASSES: 1.92× (Andaluz), 1.56× (Polloteria)** — below the **2.4× that declined GPT-5.5**.
+> ⚠️ `bench-pipeline.ts` cannot produce this ratio; it only calls `callGptEnrich`.
+>
+> ⛔ **THE NEXT ACTION: test the envelope as a PASS-2-ONLY change (~$1).** `enrichBatch` gains a
+> defaulted envelope option; **pass 1 must keep today's exactly** or the byte-identical guarantee the
+> weighted result rests on is gone. Lands ~38 → ship the full gain; lands ~31 → the envelope story is
+> falsified, ship 31 and stop.
 >
 > **THE DUAL PASS, and why it is the only shape left.** Pass 1 = today's call over the whole menu,
 > byte-identical, answers used for WEIGHTED items. Pass 2 = the unweighted items re-sent in their own

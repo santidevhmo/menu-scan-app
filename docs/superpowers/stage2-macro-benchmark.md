@@ -5311,3 +5311,99 @@ remain:
    12–20% of their calories, still unfixed).
 
 **Nothing in `supabase/functions/` has been touched.**
+
+### 🟡 THE DUAL PASS IS BUILT AND MEASURED — WEIGHTED IS FREE, UNWEIGHTED IS 31/72 NOT 38 (2026-08-19, ~$3.2)
+
+`docs/superpowers/plans/2026-08-18-dual-pass-enrichment.md` executed, Tasks 1–5. **Deployed code is
+still edge fn v31** — nothing here is live. Branch `feat/dual-pass-enrichment`, PR #18, based on
+`feat/forced-serving-pieces` so it does not swallow PR #17.
+
+#### ✅ THE WEIGHTED SIDE IS FREE, AND THIS TIME A FRESH CONTROL SAYS SO
+
+| run | weighted (lower better) |
+|---|---|
+| **fresh baseline control, same day** (`mixed --run ctrl`) | **15/96** |
+| dual run 1 | 17/96 |
+| dual run 2 | 14/96 |
+| dual run 3 | 15/96 |
+
+**The ranges overlap and the control sits inside them: no detectable weighted cost.** Contrast P-10,
+where every run was worse than every baseline run over six pairwise comparisons. 60/60 menu-draws
+clean, **0 backfilled, 0 absent**, all four runs `--replay` verified.
+
+⚠️ **THE "16–18/96" BASELINE ON RECORD COULD NOT BE FULLY RE-DERIVED.** Only ONE focused `mixed` run
+is archived and it replays to **18/96**; the "16" has no surviving archive — almost certainly lost to
+the overwrite hazard `--run` was added to fix. The fresh control (15/96) is now the number to quote.
+
+☠️ **THE PRE-REGISTERED BAR WAS "INSIDE 16–18/96" AND TWO RUNS LANDED BELOW IT.** Called a PASS, and
+the reasoning is recorded rather than quietly assumed: the bar existed to catch weighted
+DEGRADATION, pass 1's request bytes are unchanged, and the fresh control shows the band was stale.
+
+#### 🔴 THE PLAN'S CENTRAL CLAIM WAS FALSE: THE UNWEIGHTED GAIN DOES NOT TRANSFER BY CONSTRUCTION
+
+The plan said both numbers already existed. **`probe-plate-arms.ts` reaches the model through its own
+request builder and production does not:**
+
+| | how the request is built |
+|---|---|
+| `callOpenAI` — every ARM this phase | **two** messages: prompt as **`system`**, items as `user`, serialized `{"items":[…]}` |
+| `enrichBatch` — production, and pass 2 | **one** `user` message: `` `${prompt}\n\nMenu items (JSON):\n${JSON.stringify(items)}` `` |
+
+Same prompt (md5-verified identical), same batch composition (`fixtureBatchesP10`), **envelope the
+only difference:**
+
+| dish | baseline<br>(user env, shipped prompt) | **dual**<br>(user env, P sentence) | P-10<br>(system env, P sentence) |
+|---|---|---|---|
+| **CAPRICCIOSA** | 0 | **0** 🔴 | **6** |
+| CARBONARA | 10 | 11 | 12 |
+| ENSALADA GRIEGA | 7 | **11** | 9 |
+| TIRAS DE POLLO | 3 | 3 | 5 |
+| COLIFLOR ROKA | 0 | **3** | 3 |
+| Salmón Roll | 5 | 3 | 3 |
+| **TOTAL** | **25/72** | **31/72** | **38/72** |
+
+**The shipped code captures +6 of the advertised +13**, and **CAPRICCIOSA — the 28 cm pizza that
+motivated the entire plate-weight thread — goes 6 → 0.**
+
+⚠️ **THE +6 IS NOT "THE SENTENCE ALONE".** The `baseline` arm selects MIXED batches, `dual` selects
+unweighted-only ones, so +6 bundles the sentence WITH the batching. It is the correct SHIPPING number
+(end-to-end vs today) and an unsound MECHANISM claim. Corrected here after being stated wrongly once.
+
+⚠️ **ONE RUN PER CELL.** 31 vs 38 rests on one run each and the per-draw spread is wide. Direction is
+corroborated independently — pass 2 moved unweighted calories by a **median 0.99×** (17 up, 28 down)
+across 45 unweighted neighbours in the weighted menus — but the SIZE of the gap is unconfirmed.
+
+🔑 **THIS RETRO-TAINTS EVERY ARM SCORED THROUGH `callOpenAI` AGAINST A `callGptEnrich` BASELINE** —
+Arm P (37), P-inline (29), SplitOnly (21). Some rejections may have been rejections of an ENVELOPE
+rather than an idea. `enrich.ts`'s own comment warned about exactly this: *"an arm that reaches the
+model by its own path is not evidence about the deployed one."* **A prior for the next brainstorm,
+not a to-do list** — re-running rejected arms is expensive and none are shipping candidates.
+
+#### ✅ LATENCY PASSES — the thing that declined GPT-5.5
+
+Timed back to back on the SAME menu, single pass first so the dual pass cannot ride a warmed
+connection:
+
+| menu | items | single | dual | ratio |
+|---|---|---|---|---|
+| Andaluz | 36 (36% unweighted) | 31.0s | 59.5s | **1.92×** |
+| Polloteria | 55 (31% unweighted) | 38.7s | 60.4s | **1.56×** |
+
+Inside the plan's expected 1.5–2×, **below the 2.4× that got GPT-5.5 declined.**
+⚠️ `bench-pipeline.ts` CANNOT produce this ratio — it only calls `callGptEnrich`. Measured with a
+throwaway probe, which is also why it is contemporaneous rather than against a different day.
+
+#### 🔧 Three defects in the plan, found by implementing it
+
+| plan said | source actually does |
+|---|---|
+| forward the prompt to *the* `enrichBatch` call in `enrichBatchWithRetry` | there are **three** (first try, retry, rescue) — one-only would serve a retried pass-2 item TODAY's prompt while looking like it got the new one. Test verified to fail without the fix |
+| define `ENRICH_PROMPT_UNWEIGHTED` in `enrich.ts` | leaves the sentence in TWO places; `probe-plate-arms.ts` now builds `ARM_P_PROMPT` from it |
+| `export { … } from` in `bench-pipeline.ts` | a bare re-export creates no local binding and three call sites need one |
+
+#### 🧭 NEXT
+
+**Test the envelope as a PASS-2-ONLY change (~$1).** `enrichBatch` gains a defaulted envelope option;
+pass 1 keeps today's exactly — touching the shared path destroys the byte-identical guarantee the
+whole weighted result rests on. Lands ~38 → ship the full gain; lands ~31 → the envelope story is
+falsified, ship 31 and stop.

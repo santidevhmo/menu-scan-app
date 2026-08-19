@@ -1854,3 +1854,33 @@ Rules:
 - **📋 THE DUAL-PASS PLAN IS WRITTEN: `docs/superpowers/plans/2026-08-18-dual-pass-enrichment.md`.** It is the only shape measured to have **no trade**: pass 1 is today's call over the whole menu (byte-identical, answers used for weighted items), pass 2 re-sends only the unweighted items with the Arm P sentence. **Both its numbers already exist** — weighted 16–18/96 by construction, unweighted 38/72 from eval 149. Cost is money (~$0.03 → ~$0.05/scan) and latency (~1.5–2×), not accuracy.
 - Gates: suite **372 passed | 2 failed** (the two known-noise failures).
 - **⛔ NEXT: EXECUTE THAT PLAN.** Nothing in `supabase/functions/` has been touched. Its Task 5 pre-registers the pass/fail bar (weighted must land inside 16–18/96 or STOP) and treats Stage-2 latency as a decision input, because GPT-5.5 was declined on latency alone.
+
+## Eval 151 — 🟡 the DUAL PASS is built: weighted is FREE, unweighted is 31/72 not the 38 on record (~$3.2)
+
+- **✅ THE PLAN IS EXECUTED, Tasks 1–5.** `docs/superpowers/plans/2026-08-18-dual-pass-enrichment.md`,
+  TDD throughout, 14 new tests, suite **386 passed | 2 failed** (the two known-noise failures).
+  Branch `feat/dual-pass-enrichment`, **PR #18** based on `feat/forced-serving-pieces`.
+  **NOTHING IS DEPLOYED — production is still edge fn v31.**
+- **✅ WEIGHTED IS FREE, against a FRESH control:** dual **14, 15, 17/96** vs a same-day
+  `mixed --run ctrl` at **15/96**. Ranges overlap, control sits inside them. 60/60 menu-draws clean,
+  0 backfilled, all four runs `--replay` verified.
+- ⚠️ **The "16–18/96" on record could not be fully re-derived** — only ONE focused `mixed` archive
+  survives and it replays to 18/96. Quote the fresh **15/96** control from now on.
+- **🔴 THE PLAN'S CENTRAL CLAIM WAS FALSE.** It said the unweighted gain transferred BY CONSTRUCTION.
+  `probe-plate-arms.ts`'s `callOpenAI` sends the prompt as a **`system`** message with items wrapped
+  `{"items":[…]}`; `enrichBatch` — production, and pass 2 — sends **one `user` message**. Same prompt
+  (md5-identical), same batching, envelope the only difference: **38/72 → 31/72**, and
+  **CAPRICCIOSA, the dish that motivated the whole plate-weight thread, goes 6 → 0.**
+- ⚠️ **The +6 is NOT "the sentence alone"** — `baseline` selects mixed batches, `dual` unweighted-only,
+  so it bundles sentence WITH batching. Correct as a shipping number, unsound as a mechanism claim.
+  Stated wrongly once and corrected in the log.
+- **🔑 Retro-taints every arm scored through `callOpenAI` against a `callGptEnrich` baseline** — Arm P
+  (37), P-inline (29), SplitOnly (21). **A prior for the next brainstorm, not a to-do list.**
+- **✅ LATENCY PASSES:** 1.92× (Andaluz) and 1.56× (Polloteria), below the **2.4× that declined
+  GPT-5.5**. ⚠️ `bench-pipeline.ts` cannot measure this — it only calls `callGptEnrich`.
+- **🔧 Three defects in the plan, found by implementing it:** the prompt had to reach **all three**
+  `enrichBatch` calls (retry and rescue included); `ENRICH_PROMPT_UNWEIGHTED` had to be imported by
+  `probe-plate-arms.ts` rather than duplicated; a bare `export … from` creates no local binding.
+- **⛔ NEXT: test the envelope as a PASS-2-ONLY change (~$1).** Lands ~38 → ship the full gain;
+  lands ~31 → the envelope story is falsified, ship 31 and stop. **Pass 1 must keep today's envelope**
+  or the byte-identical guarantee the weighted result rests on is gone.

@@ -1302,3 +1302,12 @@ Deno.test("dual pass: pass 2 waits for pass 1 - they are never in flight togethe
   // Pass 1 is 2 requests; pass 2 is 1. If they overlapped this would reach 3.
   assertEquals(maxInFlight, 2);
 });
+
+Deno.test("index.ts calls the DUAL PASS, not the single pass", async () => {
+  // The risk is a half-finished wiring - the import swapped but the call site
+  // left, or vice versa. Pinned mechanically because neither half fails loudly.
+  const source = await Deno.readTextFile(new URL("./index.ts", import.meta.url));
+  assertStringIncludes(source, "callGptEnrichDualPass(");
+  // The single-pass entry point must not remain as the enrichment call site.
+  assertEquals(/[^a-zA-Z]callGptEnrich\(/.test(source), false);
+});

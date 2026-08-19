@@ -101,10 +101,18 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > ✅ **LATENCY PASSES: 1.92× (Andaluz), 1.56× (Polloteria)** — below the **2.4× that declined GPT-5.5**.
 > ⚠️ `bench-pipeline.ts` cannot produce this ratio; it only calls `callGptEnrich`.
 >
-> ⛔ **THE NEXT ACTION: test the envelope as a PASS-2-ONLY change (~$1).** `enrichBatch` gains a
-> defaulted envelope option; **pass 1 must keep today's exactly** or the byte-identical guarantee the
-> weighted result rests on is gone. Lands ~38 → ship the full gain; lands ~31 → the envelope story is
-> falsified, ship 31 and stop.
+> ✅ **THE ENVELOPE FIX LANDED AND IS CONFIRMED (eval 152, ~$2): 31 → 35, 36/72 over two runs.**
+> Pass 2 now sends the `system` envelope via a defaulted `envelope` option on `enrichBatch`, and
+> **pass 1's request body is byte-identical — 5491 bytes before and after, verified.** The ladder, all
+> same-oracle: user+shipped **25** → user+sentence **31** → **system+sentence 35–36** →
+> `callOpenAI`+sentence 38 (one run). **The envelope alone is worth 4–5 points of 72.**
+>
+> 📊 **THE CHANGE END TO END:** weighted **14–17/96** against a fresh **15/96** control (no detectable
+> cost) · unweighted **25 → 35–36/72** (35% → 49–50%) · latency **1.56–1.92×** · **~$0.03 → ~$0.05**
+> per scan. ⚠️ Pass 2 now sends a shape **production has never sent**; ⚠️ the accompaniment defect
+> (24% of weighted items) is untouched.
+>
+> ⛔ **THE NEXT ACTION: SANTIAGO RULES ON DEPLOYING PR #18** (Task 6). No further run is owed.
 >
 > **THE DUAL PASS, and why it is the only shape left.** Pass 1 = today's call over the whole menu,
 > byte-identical, answers used for WEIGHTED items. Pass 2 = the unweighted items re-sent in their own

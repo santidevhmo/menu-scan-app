@@ -1884,3 +1884,22 @@ Rules:
 - **⛔ NEXT: test the envelope as a PASS-2-ONLY change (~$1).** Lands ~38 → ship the full gain;
   lands ~31 → the envelope story is falsified, ship 31 and stop. **Pass 1 must keep today's envelope**
   or the byte-identical guarantee the weighted result rests on is gone.
+
+## Eval 152 — ✅ the ENVELOPE was most of the gap: 31 → 35–36/72, confirmed over two runs (~$2)
+
+- **✅ THE FIX AND ITS CONFIRMATION.** Pass 2 now sends the **system** envelope — prompt in a `system`
+  message, items wrapped `{"items":[…]}` — the shape every arm this phase was measured through.
+  **35/72 and 36/72 over two runs** (`--run sysenv`, `sysenv2`), both `--replay` verified, 0 backfilled.
+- **The ladder, all same-oracle:** user+shipped **25** → user+sentence **31** → **system+sentence 35–36**
+  → `callOpenAI`+sentence 38 (one run). **The envelope alone is worth 4–5 points of 72.**
+- **✅ PASS 1 IS BYTE-IDENTICAL, VERIFIED:** 5491-byte request body before and after the parameter
+  existed. The weighted result (**14–17/96** vs a fresh **15/96** control) is untouched.
+- **⚠️ A test-stub defect this almost hid:** the stubs read `messages[0]`, which under the system
+  envelope is the PROMPT. They would have echoed an EMPTY batch and sent every test down the retry
+  path while appearing to pass.
+- **📊 END TO END:** weighted **no detectable cost**, unweighted **25 → 35–36/72 (35% → 49–50%)**,
+  latency **1.56–1.92×** (below the 2.4× that declined GPT-5.5), cost **~$0.03 → ~$0.05** per scan.
+- **⚠️ Pass 2 now sends a request shape PRODUCTION HAS NEVER SENT** — measured, tested, but a harness
+  is not a deployment. **⚠️ The accompaniment defect is still unfixed** (24% of weighted items).
+- **⛔ NEXT: Task 6 — DEPLOYMENT IS SANTIAGO'S RULING.** PR #18 on `feat/dual-pass-enrichment`.
+  Production is still **edge fn v31**.

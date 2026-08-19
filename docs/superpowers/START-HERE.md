@@ -36,7 +36,7 @@ the explicit exception: it is the bounded Phase-9 workstream record, not a compe
 below; it is written so a zero-context session can take over from it alone.** Everything between here
 and that block is older context that it supersedes where they disagree. Phase spend to date:
 **~$35.7** (~$2.52 to 2026-08-09, ~$19 on 2026-08-12, ~$6 on 2026-08-13, ~$5.5 on 2026-08-16,
-~$3.2 on 2026-08-19).
+~$5.2 on 2026-08-19).
 
 🚀 **LIVE NOW: edge function `analyze-menu` v31, deployed 2026-08-16 (Santiago authorised).**
 **v31 = v30 + the two ZEROING BUG FIXES, and nothing else.** Verified before shipping: the delta
@@ -71,22 +71,27 @@ item as `3/8` / `all`. Working, not the intended form.
 
 ### ⛔ THE NEXT ACTION, IN ONE LINE
 
-**Test the request ENVELOPE as a pass-2-only change (~$1)** — see "THE ENVELOPE FINDING" below. The
-dual-pass plan is **already executed** (eval 151); do not re-execute it.
+**Santiago rules on DEPLOYING PR #18** (Task 6 of the dual-pass plan). The work is built, measured and
+confirmed over two runs; **no further run is owed.**
 
-### ✅ WHAT WAS BUILT AND MEASURED (2026-08-19, eval 151, ~$3.2)
+### ✅ WHAT WAS BUILT AND MEASURED (2026-08-19, evals 151–152, ~$5.2)
 
 The dual pass is implemented, tested and open as **PR #18** on branch `feat/dual-pass-enrichment`
 (based on `feat/forced-serving-pieces`, so it does not swallow PR #17).
 🚀 **PRODUCTION IS STILL EDGE FN v31 — nothing is live. Deployment is Santiago's and is OPEN.**
 
-| measure | result |
-|---|---|
-| weighted, dual ×3 | **14, 15, 17 /96** |
-| weighted, fresh same-day control | **15/96** → **no detectable cost** |
-| unweighted | 25 → **31/72** (+6, *not* the +13 predicted) |
-| latency | **1.92×** / **1.56×** — below the 2.4× that declined GPT-5.5 |
-| cost per scan | ~$0.03 → ~$0.05 |
+| measure | today | dual pass + system envelope |
+|---|---|---|
+| **weighted** | **15/96** (fresh same-day control) | **14, 15, 17 /96** — no detectable cost |
+| **unweighted** | **25/72** (35%) | **35, 36 /72** (49–50%) — two runs |
+| **latency** | 1× | **1.56–1.92×** — below the 2.4× that declined GPT-5.5 |
+| **cost per scan** | ~$0.03 | ~$0.05 |
+
+✅ **Pass 1's request body is BYTE-IDENTICAL — 5491 bytes before and after** the envelope parameter
+existed. The weighted guarantee is verified, not merely argued.
+⚠️ **Pass 2 now sends a request shape PRODUCTION HAS NEVER SENT** (the `system` envelope) — the shape
+every arm in this phase was measured through, and covered by tests, but a harness is not a deployment.
+⚠️ **The accompaniment defect is untouched** (24% of weighted items, 12–20% of their calories).
 
 ⚠️ **The "16–18/96" baseline on record could NOT be fully re-derived.** Only one focused `mixed`
 archive survives and it replays to 18/96 — the "16" was lost to the overwrite hazard `--run` fixes.
@@ -103,6 +108,12 @@ archive survives and it replays to 18/96 — the "16" was lost to the overwrite 
 
 Same prompt (md5-verified), same batching, envelope the only difference: **38/72 → 31/72**, and
 **CAPRICCIOSA — the 28 cm pizza that motivated the entire plate-weight thread — goes 6 → 0.**
+
+✅ **FIXED AND CONFIRMED (eval 152): pass 2 now sends the `system` envelope, and it recovered most of
+the gap — 31 → 35, 36/72 over two runs.** The ladder, all same-oracle: user+shipped **25** →
+user+sentence **31** → **system+sentence 35–36** → `callOpenAI`+sentence 38 (one run). **The envelope
+alone is worth 4–5 points of 72.** `enrichBatch` takes a defaulted `envelope` option and **pass 2 is
+its only caller** — pass 1's bytes are unchanged and verified.
 
 🔑 **This retro-taints every arm scored through `callOpenAI` against a `callGptEnrich` baseline** —
 Arm P (37), P-inline (29), SplitOnly (21). Some rejections may have been rejections of an ENVELOPE

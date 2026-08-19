@@ -5407,3 +5407,55 @@ throwaway probe, which is also why it is contemporaneous rather than against a d
 pass 1 keeps today's exactly — touching the shared path destroys the byte-identical guarantee the
 whole weighted result rests on. Lands ~38 → ship the full gain; lands ~31 → the envelope story is
 falsified, ship 31 and stop.
+
+### ✅ THE ENVELOPE WAS MOST OF THE GAP — 31 → 35–36/72, CONFIRMED OVER TWO RUNS (2026-08-19, ~$2)
+
+The pass-2-only envelope change, and its confirmation run. **`--run sysenv` / `sysenv2`, both
+`--replay` verified, 0 backfilled.**
+
+| envelope | prompt | unweighted |
+|---|---|---|
+| user | shipped | **25/72** ← production today |
+| user | + P sentence | **31/72** |
+| **system** | **+ P sentence** ← **THE SHIPPED CODE** | **35, 36/72** |
+| system | + P sentence, via `callOpenAI` | 38/72 ← the number on record, ONE run |
+
+**The envelope recovered 4–5 of the 7 missing points, and two runs agree.** The residual 2–3 against
+P-10 is inside the per-draw spread and is not worth another run: P-10 is not a shipping candidate and
+the code has now adopted its envelope.
+
+| dish | baseline | dual, user env | **dual, system env** | P-10 |
+|---|---|---|---|---|
+| CAPRICCIOSA | 0 | 0 | **2, 3** | 6 |
+| CARBONARA | 10 | 11 | **12, 12** | 12 |
+| ENSALADA GRIEGA | 7 | 11 | **10, 8** | 9 |
+| TIRAS DE POLLO | 3 | 3 | **3, 3** | 5 |
+| COLIFLOR ROKA | 0 | 3 | **3, 3** | 3 |
+| Salmón Roll | 5 | 3 | **5, 7** | 3 |
+| **TOTAL** | **25** | **31** | **35, 36** | **38** |
+
+🔑 **THE ENVELOPE IS A MEASURED VARIABLE, NOT A STYLE CHOICE.** The same prompt, same batching, same
+model, differing only in whether it arrives as a `system` message or appended to a `user` one, is
+worth **4–5 points of 72**. `enrichBatch` now takes a defaulted `envelope` option and **pass 2 is the
+only caller that sets it.**
+
+✅ **PASS 1 IS BYTE-IDENTICAL — VERIFIED, NOT ASSUMED.** The single-pass request body is **5491 bytes
+before and after** the parameter existed, so the weighted result (14–17/96 against a 15/96 control) is
+untouched by this change.
+
+⚠️ **A TEST-STUB DEFECT THIS ALMOST HID:** the stubs read `messages[0]`, which under the system
+envelope is the PROMPT, not the items. They would have echoed an EMPTY batch, sending every test down
+the retry path while appearing to pass. Fixed to read every message.
+
+#### 📊 THE CHANGE, END TO END
+
+| measure | today | dual pass + system envelope |
+|---|---|---|
+| weighted | 15/96 (fresh control) | **14–17/96** — no detectable cost |
+| unweighted | 25/72 (35%) | **35–36/72 (49–50%)** |
+| Stage-2 latency | 1× | **1.56–1.92×** |
+| cost per scan | ~$0.03 | ~$0.05 |
+
+⚠️ **Pass 2 now sends a request shape PRODUCTION HAS NEVER SENT.** It is the shape every arm in this
+phase was measured through and it is covered by tests, but a harness is not a deployment.
+⚠️ **STILL UNFIXED: the accompaniment defect** — 24% of weighted items, 12–20% of their calories.

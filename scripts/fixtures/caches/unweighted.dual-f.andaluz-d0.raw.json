@@ -36,19 +36,19 @@
           "fat_per_100g": 28
         },
         {
-          "name": "bacon",
+          "name": "bacon bits",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 20,
+          "typical_serving_g": 10,
           "protein_per_100g": 37,
           "carb_per_100g": 1,
           "fat_per_100g": 42
         }
       ],
-      "protein_g": 14,
+      "protein_g": 10,
       "carb_g": 57,
-      "fat_g": 34,
-      "estimated_calories": 588,
+      "fat_g": 30,
+      "estimated_calories": 535,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [
@@ -296,19 +296,19 @@
           "fat_per_100g": 33
         },
         {
-          "name": "béchamel sauce",
+          "name": "bechamel sauce",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 50,
           "protein_per_100g": 3,
           "carb_per_100g": 10,
-          "fat_per_100g": 15
+          "fat_per_100g": 10
         }
       ],
       "protein_g": 26,
       "carb_g": 29,
-      "fat_g": 24,
-      "estimated_calories": 434,
+      "fat_g": 21,
+      "estimated_calories": 412,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
@@ -435,7 +435,7 @@
           "name": "almonds",
           "category": "fat",
           "within_printed_weight": true,
-          "typical_serving_g": 20,
+          "typical_serving_g": 10,
           "protein_per_100g": 21,
           "carb_per_100g": 22,
           "fat_per_100g": 50
@@ -459,10 +459,10 @@
           "fat_per_100g": 0
         }
       ],
-      "protein_g": 13,
-      "carb_g": 19,
-      "fat_g": 37,
-      "estimated_calories": 458,
+      "protein_g": 11,
+      "carb_g": 17,
+      "fat_g": 32,
+      "estimated_calories": 396,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [
@@ -481,22 +481,13 @@
       ],
       "ingredients": [
         {
-          "name": "shrimp",
+          "name": "shrimp tempura",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 60,
-          "protein_per_100g": 24,
-          "carb_per_100g": 0,
-          "fat_per_100g": 1
-        },
-        {
-          "name": "battered shrimp",
-          "category": "protein",
-          "within_printed_weight": true,
-          "typical_serving_g": 60,
+          "typical_serving_g": 50,
           "protein_per_100g": 20,
-          "carb_per_100g": 15,
-          "fat_per_100g": 10
+          "carb_per_100g": 10,
+          "fat_per_100g": 15
         },
         {
           "name": "cucumber",
@@ -518,27 +509,27 @@
         },
         {
           "name": "seaweed",
-          "category": "veg",
+          "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 5,
           "protein_per_100g": 5,
-          "carb_per_100g": 8,
-          "fat_per_100g": 1
+          "carb_per_100g": 5,
+          "fat_per_100g": 0
         },
         {
-          "name": "rice",
-          "category": "carb",
+          "name": "shrimp roka",
+          "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 100,
-          "protein_per_100g": 2,
-          "carb_per_100g": 28,
-          "fat_per_100g": 0
+          "typical_serving_g": 50,
+          "protein_per_100g": 20,
+          "carb_per_100g": 10,
+          "fat_per_100g": 15
         },
         {
           "name": "green onion",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 5,
+          "typical_serving_g": 10,
           "protein_per_100g": 1,
           "carb_per_100g": 7,
           "fat_per_100g": 0
@@ -551,18 +542,27 @@
           "protein_per_100g": 18,
           "carb_per_100g": 11,
           "fat_per_100g": 50
+        },
+        {
+          "name": "rice",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 2,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0
         }
       ],
-      "protein_g": 30,
-      "carb_g": 42,
-      "fat_g": 14,
-      "estimated_calories": 412,
+      "protein_g": 24,
+      "carb_g": 43,
+      "fat_g": 22,
+      "estimated_calories": 466,
       "serving_pieces": 1,
       "confidence": "high",
       "allergens": [
         "shellfish",
-        "gluten",
-        "soy"
+        "soy",
+        "gluten"
       ]
     }
   ]

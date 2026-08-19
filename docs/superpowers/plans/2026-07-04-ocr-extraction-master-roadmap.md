@@ -112,7 +112,15 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > per scan. ⚠️ Pass 2 now sends a shape **production has never sent**; ⚠️ the accompaniment defect
 > (24% of weighted items) is untouched.
 >
-> ⛔ **THE NEXT ACTION: SANTIAGO RULES ON DEPLOYING PR #18** (Task 6). No further run is owed.
+> 🚀 **DEPLOYED 2026-08-19 (Santiago authorised): edge fn `analyze-menu` v32.** Verified against the
+> SERVER. **v32 = v31 + the dual pass + pass 2's system envelope, nothing else** — prompt, schema,
+> model pin and `ENRICH_BATCH_SIZE` untouched; pass 1's body byte-identical at 5491 bytes.
+> **Rollback:** `git checkout dbf3f79 -- supabase/functions/analyze-menu/ && supabase functions deploy
+> analyze-menu --project-ref uonuiadueykynbetxxrw`.
+>
+> ⛔ **THE NEXT ACTION: merge PR #18 → PR #17 → `main`.** ⚠️ `main` was ALREADY behind production
+> before this deploy (v31 ran unmerged branch code); **deploying and merging are independent** and
+> merging ships nothing to users. #17 also carries app code absent from any TestFlight build.
 >
 > **THE DUAL PASS, and why it is the only shape left.** Pass 1 = today's call over the whole menu,
 > byte-identical, answers used for WEIGHTED items. Pass 2 = the unweighted items re-sent in their own

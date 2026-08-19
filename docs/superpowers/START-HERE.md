@@ -71,14 +71,38 @@ item as `3/8` / `all`. Working, not the intended form.
 
 ### ⛔ THE NEXT ACTION, IN ONE LINE
 
-**Santiago rules on DEPLOYING PR #18** (Task 6 of the dual-pass plan). The work is built, measured and
-confirmed over two runs; **no further run is owed.**
+**Merge PR #18 → PR #17 → `main`.** The dual pass is **DEPLOYED and LIVE as edge fn v32**; the only
+thing outstanding is that `main` does not yet contain it. See "MERGE STATE" below — `main` was
+ALREADY behind production before this deploy.
 
 ### ✅ WHAT WAS BUILT AND MEASURED (2026-08-19, evals 151–152, ~$5.2)
 
-The dual pass is implemented, tested and open as **PR #18** on branch `feat/dual-pass-enrichment`
-(based on `feat/forced-serving-pieces`, so it does not swallow PR #17).
-🚀 **PRODUCTION IS STILL EDGE FN v31 — nothing is live. Deployment is Santiago's and is OPEN.**
+🚀 **DEPLOYED 2026-08-19, Santiago authorised: edge fn `analyze-menu` v32.** Verified against the
+server (`mcp__supabase__list_edge_functions`), not against this file. **v32 = v31 + the dual pass +
+pass 2's system envelope, and nothing else** — `ENRICH_PROMPT`, `ENRICH_SCHEMA_OPENAI`, the model pin
+and `ENRICH_BATCH_SIZE = 10` are all untouched, and pass 1's request body is byte-identical (5491
+bytes, verified).
+
+**ROLLBACK TO v31, one command:**
+```bash
+git checkout dbf3f79 -- supabase/functions/analyze-menu/ && \
+  supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw
+```
+
+### 🔀 MERGE STATE — read before touching the PRs
+
+| PR | branch | base | contains |
+|---|---|---|---|
+| **#18** | `feat/dual-pass-enrichment` | `feat/forced-serving-pieces` | the dual pass — **live as v32** |
+| **#17** | `feat/forced-serving-pieces` | `main` | forced `serving_pieces` + portion control — **its edge-fn half has been live since v30** |
+
+⚠️ **`main` WAS ALREADY BEHIND PRODUCTION BEFORE THIS DEPLOY** — v31 ran unmerged code from
+`feat/forced-serving-pieces`, and `main`'s edge function differs from it by ~533 lines. Deploying v32
+extended that drift; it did not create it.
+🔑 **DEPLOYING AND MERGING ARE INDEPENDENT.** Deploying uploads the working directory to Supabase;
+merging moves code into `main`. Neither triggers the other, and merging ships nothing to users.
+⚠️ **#17 also carries APP code** (`portions.ts`) that is NOT in any shipped TestFlight build. Merging
+it records reality for the edge function but lands unshipped app changes on `main`.
 
 | measure | today | dual pass + system envelope |
 |---|---|---|

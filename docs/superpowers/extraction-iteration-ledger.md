@@ -1903,3 +1903,23 @@ Rules:
   is not a deployment. **⚠️ The accompaniment defect is still unfixed** (24% of weighted items).
 - **⛔ NEXT: Task 6 — DEPLOYMENT IS SANTIAGO'S RULING.** PR #18 on `feat/dual-pass-enrichment`.
   Production is still **edge fn v31**.
+
+## Eval 153 — 🚀 THE DUAL PASS IS DEPLOYED: edge fn v32 (Santiago authorised, $0)
+
+- **🚀 LIVE: `analyze-menu` v32**, deployed 2026-08-19 and **verified against the SERVER**
+  (`mcp__supabase__list_edge_functions`, `ezbr_sha256` changed), never against a doc.
+- **v32 = v31 + the dual pass + pass 2's system envelope, and nothing else.** `ENRICH_PROMPT`,
+  `ENRICH_SCHEMA_OPENAI`, the model pin and `ENRICH_BATCH_SIZE = 10` are untouched; **pass 1's request
+  body is byte-identical at 5491 bytes**, so weighted accuracy is unchanged by construction.
+- **What users get:** unweighted dishes (no printed grams — most of a real menu) go from **25/72 (35%)
+  to 35–36/72 (49–50%)**. Weighted dishes unchanged (**14–17/96** vs a fresh **15/96** control).
+  Stage 2 is **1.56–1.92× slower** and costs **~$0.03 → ~$0.05** per scan.
+- **ROLLBACK:** `git checkout dbf3f79 -- supabase/functions/analyze-menu/ && supabase functions deploy
+  analyze-menu --project-ref uonuiadueykynbetxxrw`.
+- ⚠️ **`main` WAS ALREADY BEHIND PRODUCTION BEFORE THIS DEPLOY** — v31 ran unmerged code from
+  `feat/forced-serving-pieces` and main's edge fn differs by ~533 lines. v32 extends that drift; it did
+  not create it. **Deploying and merging are independent** — merging ships nothing to users.
+- ⚠️ **Pass 2 now sends a request shape production had never sent** until this deploy. Watch a real
+  scan before assuming the harness transferred.
+- **⛔ NEXT: merge PR #18 → PR #17 → `main`**, and the **accompaniment defect** remains the largest
+  known weighted defect (24% of weighted items, 12–20% of their calories).

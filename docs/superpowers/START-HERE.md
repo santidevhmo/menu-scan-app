@@ -53,8 +53,15 @@ History — **v30, deployed 2026-08-11**, superseded by the above. It is
 `macro-best-v8` **plus the forced `serving_pieces` field** (this branch). Measured before shipping:
 **0–3/96 at 12.0–12.5%** against v29's **2–3/96 at 14.3–14.5%**, 4 runs × 3 draws, two runs perfect.
 Model pin unchanged. Smoke-tested live: printed weights read, stated counts honoured, allergens
-present. **Rollback = deploy from `origin/main`**, one command:
-`supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw`.
+present. **Rollback (HISTORICAL — v30 is two versions behind; the live rollback is the v32 one above):**
+```bash
+git checkout ce91e91 -- supabase/functions/analyze-menu/ && \
+  supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw
+```
+⚠️ This used to read *"deploy from `origin/main`"*, which is not an executable instruction: **`supabase
+functions deploy` uploads the WORKING DIRECTORY**, so the pinned code has to be checked out first.
+Every rollback line in these docs takes the `git checkout <sha> -- <path> && deploy` form for that
+reason.
 
 ⚠️ **The piece count only HALF works.** Sushi rolls get 8 (32 of 42), stated counts are honoured, and
 every single-plate dish correctly gets 1 — but **all 26 Bistro pizzas got 1**, so the pizza case that

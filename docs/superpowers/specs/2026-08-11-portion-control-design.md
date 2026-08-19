@@ -1,6 +1,8 @@
 # Design — the portion control
 
-**Date:** 2026-08-11 · **Branch:** `feat/forced-serving-pieces` · **Status:** approved in brainstorm, not implemented
+**Date:** 2026-08-11 · **Branch:** `feat/forced-serving-pieces` · **Status:** ✅ IMPLEMENTED — historical record
+(`src/lib/portions.ts`, `src/components/results/PortionEditor.tsx`; see §10b for the shipped behaviour).
+⚠️ Shipped in the app CODE, not yet in a TestFlight build — build 6 predates it.
 **Supersedes:** the bare piece-counter label decided earlier the same day (written in `src/lib/portions.ts`, never shipped to a build)
 
 ---
@@ -34,7 +36,7 @@ the diner's goals, so rows must stay scannable.
 Two values per item, both client-side, both reset when a new scan produces new results — exactly how
 `portions` already resets in `src/app/results.tsx`.
 
-```
+```text
 portion         number   how much of ONE ORDER the diner will eat.  Default 1.
 piecesPerOrder  integer  what one order is cut into.                Default from the model.
 ```
@@ -68,7 +70,7 @@ and only then is it worth deciding whether `slices` justifies a model field.
 
 Tapping the value opens one small editor with both fields, whatever form the row is in:
 
-```
+```text
    I'll have   ⊖   4   ⊕
    comes in    ⊖   8   ⊕
 ```

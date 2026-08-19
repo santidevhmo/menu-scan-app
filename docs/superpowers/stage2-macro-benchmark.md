@@ -3376,6 +3376,9 @@ whole pizza) and three were drinks — **ruled out of the app by Santiago, so no
 
 🔴 **COVERAGE IS HALF THE STORY — the pizza case STILL FAILS.**
 
+Source: the **213-item forced-`serving_pieces` run over five real menus** described immediately above
+(the same run as the 63/63 printed-weight check), not the 8-dish weighted fixture set.
+
 | kind | count returned |
 |---|---|
 | stated on the menu (`3 pzas`, `Tres tortillas`) | ✅ honoured, 3 of 4 |
@@ -3397,15 +3400,22 @@ A row with no pieces reads `1` and steps in halves; a row with pieces reads `8 /
 piece. Tapping the value opens one editor with both fields — `I'll have` and `comes in` — so the
 diner can cut a Margherita the model called whole into 8, or correct a Nikkori roll from 8 to 12.
 
-**What did NOT change: the edge function, the schema, the prompt, the model, and the macro maths.**
-This is UI and one pure module. Spec: `specs/2026-08-11-portion-control-design.md`. Plan:
+**What did NOT change IN THIS PHASE: the edge function, the schema, the prompt, the model, and the
+macro maths.** This phase is UI and one pure module. ⚠️ Scoped deliberately — the same branch's
+EARLIER phase did change the edge function (forced `serving_pieces`, deployed as v30), so this is not
+a claim about the whole PR. Spec: `specs/2026-08-11-portion-control-design.md`. Plan:
 `plans/2026-08-11-portion-control.md`.
 
-🔑 **The invariant that makes the pizza defect survivable.** Macros are always `itemMacros × portion`
-— `piecesPerOrder` is arithmetically absent, so it can only format. Changing `comes in` therefore
-**cannot move a single calorie**, and that is enforced by a test, not by care. A wrong piece count
-costs the diner granularity (a steak shown as `3 / 3` steps in thirds) and never accuracy, which
-downgrades the 0-of-26 pizza result from a data defect to an ergonomics one.
+🔑 **The invariant that makes the pizza defect survivable — and its ONE exception.** **WHOLE-ORDER**
+macros are always `itemMacros × portion`; `piecesPerOrder` is arithmetically absent there, so it can
+only format. Changing `comes in` **cannot move a single whole-order calorie**, and that is enforced by
+a test, not by care.
+⚠️ **The exception, added LATER the same evening and not covered by the sentence as first written:**
+`PortionEditor.tsx` displays *"each piece about N cal"* computed as `caloriesPerOrder / parsedDivisor`,
+so a wrong `piecesPerOrder` DOES make that per-piece figure wrong. A wrong count therefore costs the
+diner granularity (a steak shown as `3 / 3` steps in thirds) **and the accuracy of the per-piece line**
+— but never the whole-order macros the ranking uses. That still downgrades the 0-of-26 pizza result
+from a ranking defect to a display one.
 
 Changing the divisor **preserves the share, not the count**: `8/8` → 12 gives `12/12`, `4/8` → 12
 gives `6/12`. Justified by Santiago's ruling (2026-08-11) that the app is used **before** ordering,
@@ -3416,9 +3426,11 @@ decimal, and also that a typed `0.25` is accepted. Both cannot hold: `0.25` woul
 beside calories computed from `0.25`, which the diner can catch. Typed input is now rounded to **two**
 decimals and displayed at two, so the number shown is always the number the macros used.
 
-**11 tests guard `portions.ts`** — the divisor guard against every shape a model can return, the step
-for 1/3/8/12, floating-point accumulation (`1/3 + 1/3 + 1/3` must read `3 / 3`), no ceiling in either
-form (`16 / 8` is two pizzas), the input parsers, and the invariant itself.
+**11 tests guard `portions.ts` AT THIS POINT** — the divisor guard against every shape a model can
+return, the step for 1/3/8/12, floating-point accumulation (`1/3 + 1/3 + 1/3` must read `3 / 3`), no
+ceiling in either form (`16 / 8` is two pizzas), the input parsers, and the invariant itself.
+ℹ️ **This count GROWS to 15 later in this same entry** — the device-testing paragraph below adds the
+sanitisers and the unit round-trip. Both numbers are correct at their own moment; **15 is current.**
 
 ⚠️ **Not visible until TestFlight build 7.** Build 6 carries the old label and renders `3` / `8`.
 This is the app binary half of the 2026-08-11 split: v30 (the prompt) deployed in minutes, this waits

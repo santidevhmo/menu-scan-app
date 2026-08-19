@@ -66,8 +66,11 @@ export function portionLabel(portion: number, piecesPerOrder: number): string {
  * `Number` trims and turns "" into 0, so empty input falls out as not positive.
  */
 export function parsePortionInput(text: string): number | null {
-  const value = Number(text);
-  return Number.isFinite(value) && value > 0 ? round2(value) : null;
+  // Rounded FIRST, then checked: "0.001" is positive but rounds to 0, and a
+  // zero portion is not a small order - it is a row priced at 0 kcal that the
+  // editor accepts because 0 is not null.
+  const rounded = round2(Number(text));
+  return Number.isFinite(rounded) && rounded > 0 ? rounded : null;
 }
 
 /**

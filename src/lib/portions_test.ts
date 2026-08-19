@@ -145,7 +145,23 @@ Deno.test("a typed quantity is accepted down to a quarter and rounded to 2dp", (
 });
 
 Deno.test("a typed quantity that is not a positive number is rejected", () => {
-  for (const bad of ["", " ", "0", "-1", "abc", "1.2.3", "NaN", "Infinity"]) {
+  for (
+    const bad of [
+      "",
+      " ",
+      "0",
+      "-1",
+      "abc",
+      "1.2.3",
+      "NaN",
+      "Infinity",
+      // Positive but rounds to zero. It used to pass the > 0 check BEFORE
+      // rounding and return 0, which the editor accepts (0 is not null) and
+      // prices as a 0-calorie row.
+      "0.001",
+      "0.004",
+    ]
+  ) {
     assertEquals(parsePortionInput(bad), null, `"${bad}" must be rejected`);
   }
 });

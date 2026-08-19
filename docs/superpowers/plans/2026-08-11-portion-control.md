@@ -297,6 +297,15 @@ own draft state, and `MenuItemRow` is already the longest component in `src/comp
 
 Create `src/components/results/PortionEditor.tsx`:
 
+> ⚠️ **SUPERSEDED BY THE SHIPPED FILE — read `src/components/results/PortionEditor.tsx`, not this
+> block.** This is the plan as written BEFORE device testing, kept as a historical record. Four things
+> changed the same evening and are NOT reflected below: the quantity field counts the dish's own unit
+> rather than orders (`unitCount` / `portionFromUnitCount` own that conversion), both fields sanitise
+> non-numeric input, the editor gained the live *"each piece about N cal"* line, and **`textAlign`
+> moved out of `className` into `style`** — `nativewind@5.0.0-preview.4` ships a `nativeStyleMapping`
+> of `{ textAlign: true }` against code that calls `path.split(".")`, so **`text-center` on a
+> `TextInput` is a hard crash on open.** Do not copy the styling below.
+
 ```tsx
 import { useEffect, useState } from "react";
 import { Modal, Pressable, Text, TextInput, View } from "react-native";
@@ -477,7 +486,11 @@ function EditorField({
           onChangeText={onChangeText}
           keyboardType="decimal-pad"
           selectTextOnFocus
-          className={`w-16 h-8 text-center rounded-chip bg-card font-sans text-body ${
+          // `text-center` REMOVED - it crashes on open under
+          // nativewind@5.0.0-preview.4. The shipped file passes
+          // style={{ textAlign: "center" }} instead.
+          style={{ textAlign: "center" }}
+          className={`w-16 h-8 rounded-chip bg-card font-sans text-body ${
             valid ? "text-foreground" : "text-danger"
           }`}
           accessibilityLabel={label}
@@ -499,7 +512,7 @@ function EditorField({
 
 - [ ] **Step 2: Verify it type-checks**
 
-Run: `npx tsc --noEmit`
+Run: `pnpm exec tsc --noEmit`
 Expected: no errors in `src/components/results/PortionEditor.tsx`. (Pre-existing errors elsewhere,
 if any, are not this task's to fix — note them and move on.)
 
@@ -643,7 +656,7 @@ Replace the `<MenuItemRow ... />` call (line 384) with:
 
 - [ ] **Step 3: Verify the whole thing type-checks and lints**
 
-Run: `npx tsc --noEmit && pnpm lint`
+Run: `pnpm exec tsc --noEmit && pnpm lint`
 Expected: no new errors. The old `onPortionChange` prop and the `portionSteps` import must both be
 gone — if `tsc` still mentions either, the edit is incomplete.
 
@@ -690,7 +703,7 @@ Run before declaring done:
 | Check | Command | Expected |
 |---|---|---|
 | Conversions | `deno test --allow-read src/lib/portions_test.ts` | 11 passed |
-| Types | `npx tsc --noEmit` | no new errors |
+| Types | `pnpm exec tsc --noEmit` | no new errors |
 | Lint | `pnpm lint` | no new errors |
 | No stale caller | `grep -rn "portionSteps\|onPortionChange" src/` | no matches |
 

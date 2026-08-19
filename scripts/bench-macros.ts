@@ -2,11 +2,13 @@
 //        scripts/bench-macros.ts
 import type { ExtractedMenuItem } from "../supabase/functions/analyze-menu/extract.ts";
 import {
+  callGptEnrich,
   enrichBatch,
   ENRICH_MODEL,
   type EnrichedItem,
 } from "../supabase/functions/analyze-menu/enrich.ts";
 import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
+import { ARM_S3, ARM_S4 } from "./arm-schemas.ts";
 import { type FieldVerdict, type MacroValues } from "./macro-score.ts";
 import {
   altOracle,
@@ -30,7 +32,7 @@ export const ORACLE_PATH = (() => {
     return FROZEN_ORACLE_PATH;
   }
 })();
-const CACHE_DIR = "scripts/fixtures/caches";
+export const CACHE_DIR = "scripts/fixtures/caches";
 
 type OracleValues = MacroValues & {
   assumed: string;
@@ -139,10 +141,44 @@ export async function enrich(
   // was invisible, and B20 wasted a paid run discovering it. The `temperature: 0`
   // incident was the same defect in bench-pipeline.ts; a9fce10 fixed that copy
   // and left this one. bench-macros_test.ts now fails the build if it returns.
+  // BENCH_BATCH_SIZE (2026-08-12). This harness has always sent all 8 fixtures in
+  // ONE call - effectively batch 8 - while production chunks a real menu into
+  // ENRICH_BATCH_SIZE groups. That was harmless until the batch-size curve
+  // measured that batch size SHIFTS the answer and not just its scatter, which
+  // makes "one call of 8" a regime production never runs. Set this to score the
+  // fixtures at a real batch size, through callGptEnrich - the deployed path,
+  // including its retry, reassembly and concurrency cap. Unset, the request is
+  // byte-identical to every archived run and the numbers stay comparable.
+  const batchSize = Number(Deno.env.get("BENCH_BATCH_SIZE") ?? "0");
+  if (batchSize > 0) {
+    const result = await callGptEnrich(items, apiKey, benchModel(), batchSize);
+    // raw_response carries the reassembled items, which is all replayDraw needs
+    // to re-score this run for $0 later.
+    return { items: result.items, raw: JSON.parse(result.raw_response) };
+  }
+
+  // BENCH_ARM (2026-08-16). An arm varies the PROMPT and SCHEMA and nothing
+  // else, and it does so through this same enrichBatch call - the deployed
+  // request builder. An arm with its own request builder is exactly the defect
+  // that made every GPT-5.5 figure describe a shape production cannot send.
+  // Unset, the request is byte-identical to every archived run.
+  const arm = Deno.env.get("BENCH_ARM");
+  const armDef = arm === "S3" ? ARM_S3 : arm === "S4" ? ARM_S4 : null;
+  if (arm && !armDef) {
+    throw new Error(`unknown BENCH_ARM "${arm}" - expected S3 or S4`);
+  }
+
   let raw: unknown = null;
-  const enriched = await enrichBatch(items, apiKey, benchModel(), (r) => {
-    raw = r;
-  });
+  const enriched = await enrichBatch(
+    items,
+    apiKey,
+    benchModel(),
+    (r) => {
+      raw = r;
+    },
+    armDef?.prompt,
+    armDef?.schema,
+  );
   return { items: enriched, raw };
 }
 
@@ -162,6 +198,10 @@ export async function replayDraw(
   const raw: unknown = JSON.parse(
     await Deno.readTextFile(`${CACHE_DIR}/macro-bench.${runId}-d${draw}.raw.json`),
   );
+  // A BENCH_BATCH_SIZE run archives the reassembled items instead of one chat
+  // completion, because at batch 3 there is no single completion to archive.
+  const reassembled = (raw as { items?: EnrichedItem[] })?.items;
+  if (Array.isArray(reassembled)) return reassembled;
   const content = (raw as {
     choices?: { message?: { content?: string } }[];
   })?.choices?.[0]?.message?.content;

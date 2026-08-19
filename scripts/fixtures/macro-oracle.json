@@ -90,11 +90,11 @@
     "options": [],
     "printed_weight": "200g",
     "oracle": {
-      "calories": 606.573,
-      "protein_g": 42.74998000000001,
-      "carb_g": 30.19571,
-      "fat_g": 34.4669,
-      "assumed": "USDA FDC recipe. Printed 200g = the plated dish (salmon 140g main-course portion + 60g Tuscan cream sauce and vegetables). The baguette is an accompaniment (\"acompañado con baguette\") and sits OUTSIDE the printed weight at 45g, but is eaten and counted. Total eaten 245g. Casa Nostra states no weighing basis; cooked/as-served is an assumption under Santiago's 2026-08-09 basis ruling. The unadopted raw-salmon reading would be 486.2 kcal.",
+      "calories": 524.973,
+      "protein_g": 39.509980000000006,
+      "carb_g": 14.62571,
+      "fat_g": 33.7409,
+      "assumed": "USDA FDC recipe. Printed 200g = the plated dish (salmon 140g main-course portion + 60g Tuscan cream sauce and vegetables). The baguette is an accompaniment (\"acompañado con baguette\") and sits OUTSIDE the printed weight at 45g, but is eaten and counted. Total eaten 245g. Casa Nostra states no weighing basis; cooked/as-served is an assumption under Santiago's 2026-08-09 basis ruling. The unadopted raw-salmon reading would be 486.2 kcal. RE-RULED 2026-08-16 (Santiago): the baguette was 45 g and is now 15 g. USDA publishes a 22-inch baguette at 324 g, so ~15 g per inch - one slice. 45 g was about three slices. Total eaten 215 g.",
       "source": "USDA FoodData Central",
       "retrieved_at": "2026-08-08",
       "ingredients": [
@@ -185,7 +185,7 @@
         {
           "name": "French or Vienna bread",
           "fdc_id": 2707610,
-          "grams": 45,
+          "grams": 15,
           "basis": "prepared",
           "per_100g": {
             "calories": 272,
@@ -207,11 +207,11 @@
     "options": [],
     "printed_weight": "300gr.",
     "oracle": {
-      "calories": 623.5500000000001,
-      "protein_g": 44.290099999999995,
-      "carb_g": 65.1591,
-      "fat_g": 22.440199999999997,
-      "assumed": "USDA FDC recipe. Printed 300gr. = the plated casserole. The beans are an accompaniment (\"servido con frijoles\") and sit OUTSIDE the printed weight at 80g, but are eaten and counted. Total eaten 380g. TORTILLA ADDED 2026-08-09 (Santiago), superseding this dish's original \"do not infer tortilla, oil, or cream\" note. Refined convention: an ingredient ENTAILED BY THE DISH NAME is not an inference - a pastel azteca is a layered tortilla casserole, as a cheeseburger has a bun. Oil and cream remain excluded because the name does not entail them. Why it mattered: holding 300g while excluding the tortilla inflated every other ingredient (cheese reached 20.5% of plate weight), and B9 measured the cost - gpt-5.5-2026-04-23 listed tortillas at 90g and was scored 13/48 failed for being right, where gpt-4o-2024-08-06, which omits them, scored 0/48. The fixture was rewarding the weaker reading. Tortilla at 75g is ~25% of the casserole, from layered-casserole ratios, NOT from the model's 90g - fitting the oracle to what it measures would be circular. Menu citation: \"El gramaje se refiere a los ingredientes principales.\"",
+      "calories": 567.0500000000001,
+      "protein_g": 40.17209999999999,
+      "carb_g": 49.8091,
+      "fat_g": 24.5402,
+      "assumed": "USDA FDC recipe. Printed 300gr. = the plated casserole. The beans are an accompaniment (\"servido con frijoles\") and sit OUTSIDE the printed weight at 80g, but are eaten and counted. Total eaten 380g. TORTILLA ADDED 2026-08-09 (Santiago), superseding this dish's original \"do not infer tortilla, oil, or cream\" note. Refined convention: an ingredient ENTAILED BY THE DISH NAME is not an inference - a pastel azteca is a layered tortilla casserole, as a cheeseburger has a bun. Oil and cream remain excluded because the name does not entail them. Why it mattered: holding 300g while excluding the tortilla inflated every other ingredient (cheese reached 20.5% of plate weight), and B9 measured the cost - gpt-5.5-2026-04-23 listed tortillas at 90g and was scored 13/48 failed for being right, where gpt-4o-2024-08-06, which omits them, scored 0/48. The fixture was rewarding the weaker reading. Tortilla at 75g is ~25% of the casserole, from layered-casserole ratios, NOT from the model's 90g - fitting the oracle to what it measures would be circular. Menu citation: \"El gramaje se refiere a los ingredientes principales.\" RE-RULED 2026-08-16 (Santiago): the beans were 80 g and are now 30 g, the midpoint of his ruled 25-35 g. ⚠️ THIS IS A JUDGEMENT, NOT USDA-BACKED: USDA publishes 130 g for this record, but that is beans AS THE FOOD, and there is no published side-of-a-plate portion (the composite recipes give none either). Santiago: USDA is describing a main dish, not a side. ⚠️ STILL OPEN, separate ruling: the record is `Pinto beans, from canned, no added fat` (137 kcal/100 g) where a restaurant serves refried beans - FDC 2707397 `Refried beans, from fast food / restaurant` is 177 kcal/100 g at 9.48 g fat. Composition was NOT changed here; only the weight was ruled. BEAN COMPOSITION RE-RULED 2026-08-17 (Santiago), closing the question the 2026-08-16 weight ruling left open. The record was FDC 2707375 `Pinto beans, from canned, no added fat` (137 kcal/100 g, fat 0.93) and is now FDC 2707397 `Refried beans, from fast food / restaurant` (177 kcal/100 g, protein 6.7, carb 16.3, fat 9.48), verified live against the FDC API. A restaurant does not spoon plain canned pinto beans onto a plate. The 30 g weight is unchanged. AXIS: venue - the same axis that has made this oracle wrong six times. Of the FNDDS refried family (generic 90, with meat 99, reduced-sodium 89, bean dip 119, restaurant 177) this is the richest, which the standing rule warns about; it is taken anyway because it is the ONLY entry at this dish's venue, not a pick among defensible same-venue records. ⚠️ NOT PROPAGATED: ENFRIJOLADAS (same menu) keeps FDC 2707396 `Refried beans` at 90 kcal for its `salsa de frijol`, because a bean sauce a dish is bathed in is a thinner food than a scoop of refried beans beside it. That entry was NOT re-ruled and remains as shipped.",
       "source": "USDA FoodData Central",
       "retrieved_at": "2026-08-09",
       "ingredients": [
@@ -300,15 +300,15 @@
           }
         },
         {
-          "name": "Pinto beans, canned without fat",
-          "fdc_id": 2707375,
-          "grams": 80,
+          "name": "Refried beans, from fast food / restaurant",
+          "fdc_id": 2707397,
+          "grams": 30,
           "basis": "prepared",
           "per_100g": {
-            "calories": 137,
-            "protein_g": 7.66,
-            "carb_g": 25.3,
-            "fat_g": 0.93
+            "calories": 177,
+            "protein_g": 6.7,
+            "carb_g": 16.3,
+            "fat_g": 9.48
           }
         }
       ]
@@ -324,11 +324,11 @@
     "options": [],
     "printed_weight": "400gr",
     "oracle": {
-      "calories": 1257.68,
-      "protein_g": 103.1461,
-      "carb_g": 0.8229000000000001,
-      "fat_g": 93.8627,
-      "assumed": "USDA FDC recipe. Printed 400gr = the plated steak, read as the COOKED portion, the same convention the Salmone toscano oracle uses for its printed 200g. The chimichurri is an accompaniment (\"acompañado de chimichurri\") and sits OUTSIDE the printed weight at 30g, but is eaten and counted. Total eaten 430g. Cut: \"calidad choice\" is stated, so the choice-grade top loin (New York strip) entries were surveyed; the three that are lean-and-fat, choice and grilled read 233, 275 and 278 kcal/100g and FDC 174712 is the MEDIAN, not the richest. Chimichurri has no USDA entry, so it is built from its two macro-carrying parts at a restaurant ratio (~57% oil): olive oil 17g + fresh parsley 13g. Garlic, vinegar, oregano and chilli are omitted as macro-negligible. Brasero states no weighing basis; cooked/as-served is an assumption under Santiago's 2026-08-09 basis ruling. The unadopted 400g-raw, 280g-cooked reading would be 927.7 kcal.",
+      "calories": 1178.84,
+      "protein_g": 102.95305,
+      "carb_g": 0.41145000000000004,
+      "fat_g": 85.31135,
+      "assumed": "USDA FDC recipe. Printed 400gr = the plated steak, read as the COOKED portion, the same convention the Salmone toscano oracle uses for its printed 200g. The chimichurri is an accompaniment (\"acompañado de chimichurri\") and sits OUTSIDE the printed weight at 30g, but is eaten and counted. Total eaten 430g. Cut: \"calidad choice\" is stated, so the choice-grade top loin (New York strip) entries were surveyed; the three that are lean-and-fat, choice and grilled read 233, 275 and 278 kcal/100g and FDC 174712 is the MEDIAN, not the richest. Chimichurri has no USDA entry, so it is built from its two macro-carrying parts at a restaurant ratio (~57% oil): olive oil 17g + fresh parsley 13g. Garlic, vinegar, oregano and chilli are omitted as macro-negligible. Brasero states no weighing basis; cooked/as-served is an assumption under Santiago's 2026-08-09 basis ruling. The unadopted 400g-raw, 280g-cooked reading would be 927.7 kcal. RE-RULED 2026-08-16 (Santiago): the chimichurri was 30 g and is now 15 g. 30 g is USDA's DIPPING-CONTAINER portion; a sauce spooned onto food is published at 9-17 g (1 tbsp 16-17 g, guideline amount on a regular sandwich 17 g). Held at 57% oil, so 8.5 g oil + 6.5 g parsley. Total eaten 415 g.",
       "source": "USDA FoodData Central",
       "retrieved_at": "2026-08-09",
       "ingredients": [
@@ -347,7 +347,7 @@
         {
           "name": "Olive oil (chimichurri base)",
           "fdc_id": 2710186,
-          "grams": 17,
+          "grams": 8.5,
           "basis": "prepared",
           "per_100g": {
             "calories": 900,
@@ -359,7 +359,7 @@
         {
           "name": "Parsley, fresh (chimichurri)",
           "fdc_id": 2709796,
-          "grams": 13,
+          "grams": 6.5,
           "basis": "raw",
           "per_100g": {
             "calories": 36,
@@ -428,7 +428,7 @@
           "grams": 110,
           "basis": "prepared",
           "per_100g": {
-            "calories": 158.0,
+            "calories": 158,
             "protein_g": 4.8,
             "carb_g": 33.6,
             "fat_g": 0.24

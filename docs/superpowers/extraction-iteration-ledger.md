@@ -1716,3 +1716,210 @@ Rules:
 - **⚠️ A CLAIM OF MINE WAS WRONG AND IS CORRECTED HERE.** I told Santiago Andaluz prints a `20 g` dish. **The photo says 30 g** (`ESPÁRRAGOS con jamón serrano`), and `QUESO FUNDIDO con chistorra y champis` is **50 g**, not the 90 g I quoted. I had read `find-weighted-dishes.ts` output — which parses archived *extraction* text — instead of the photo, breaking this project's own adjudicate-from-the-photo rule (lesson 4). The argument survives (30 g and 50 g are not plates either, and the photo shows the weight attached to the accompaniment clause — `ESPÁRRAGOS **con jamón serrano** (30 g)`, `QUESO FUNDIDO **Con chistorra y champis** (50 g)` / `**Con chile verde + diezmillo** (100 g)`) but the specific numbers did not. **Side finding: extraction misread 30→20 and 50→90 on this menu.** Not chased.
 - Gates: suite **337 passed | 1 failed** (`tile-cut_test.ts`, the known noise). No oracle, fixture or scoring change. Client untouched — `supabase functions deploy` ships only the server half, and B4 needs no client change (`src/types/scan.ts` reads the same four macro fields and does not validate-and-strip).
 - **⛔ NEXT, and both are Santiago's:** (1) the printed-weight **scope** ruling above; (2) the real-restaurant field test — **still never done**, every scan to date has been a photo of a screen, and B4 is now live so this is the highest-value unknown remaining.
+
+## Eval 143 — 🚀 v31 SHIPS THE 0-KCAL FIX; four sauce arms REJECTED; two of my own claims retracted (~$5.5)
+
+- Date: 2026-08-16 | Branch `feat/forced-serving-pieces`, all COMMITTED, not pushed. Commits `b17af18` `59a6649` `508c879` `cd1557a` `5bcb818` `959ef7b` `c17ca3f` `41fb1e4` `3c3dc31` `05ad206` `f2dabc3` `a63ad1f` `1cc0484`. **Phase total ~$32.5.** Full evidence: last ~6 entries of `docs/superpowers/stage2-macro-benchmark.md`.
+- **🚀 DEPLOYED: `analyze-menu` v30 → v31 (Santiago authorised).** **v31 = v30 + the two zeroing fixes and NOTHING else** — verified before shipping that the diff touches `enrich.ts` and its tests only, with `ENRICH_PROMPT`, `ENRICH_SCHEMA_OPENAI`, the model pin and `ENRICH_BATCH_SIZE = 10` byte-identical, so **macro accuracy is unchanged by design and no re-baseline is owed.** Users on some items were seeing **0 kcal** — `fallbackEnriched` zeroes every macro, which also corrupts the goal ranking the whole app is built on; Polloteria lost 16 of its 95 items that way on both attempts. `enrichBatchWithRetry` now rescues only the missing items in batches of 3, plus `MAX_CONCURRENT_BATCHES = 5`. Rollback target `abe5e12`. Docs updated in the SAME commit.
+- **⚖️ SANTIAGO RULED THE ACCOMPANIMENT WEIGHTS, AND APPROVED THE SCORE THEY COST.** chimichurri 30 → **15 g**, baguette 45 → **15 g** (both USDA-backed: a spooned sauce is published at 9–17 g while 30 g is USDA's DIPPING-CONTAINER portion; a 22" baguette is 324 g ≈ 15 g/inch), beans 80 → **30 g** (his judgement — USDA publishes 130 g but that is beans AS THE FOOD and no side-of-a-plate portion exists). **The weighted headline is therefore 4–6/96, not 0–3/96. That is a stricter oracle, not a worse pipeline**, and he approved carrying it. Applied by `scripts/apply-accompaniment-rulings.ts`, which refuses to write unless it first reproduces every stored total from the shipped oracle.
+- **❌ FOUR ARMS REJECTED, and the thread is closed.** S (a sentence) was **ignored inside a dish** — NEW YORK returned `chimichurri 30 g / fat 15` identically under both arms. S2 (a required STRING) was always answered but only helped where the model volunteered shares, and **invited MERGING** (`shrimp + breading + oil` → `breaded shrimp 150 g`). S3 (a required ARRAY of shares) moved chimichurri's fat **15 → 50** in a probe with controls holding — and scored **5–13/96 weighted and 26/72 unweighted, below the 28 baseline**. S4 (S3 + `amount_as_served_g`) scored 7–10/96.
+- **🔑 S4 DID NOT FAIL, IT NEVER RAN: the model returned the new field IDENTICAL to `typical_serving_g` in 364 of 364 ingredients**, including all 36 accompaniments — the only ones `resolveGrams` reads it for. Salmone's baguette came back 50 g → 50 g against a 15 g ruling. **NEW RULE FOR THE NEXT ARM: a required field whose meaning OVERLAPS an existing field returns a COPY. Schema force compels an ANSWER, not a DIFFERENT answer.** In `AGENTS.md`.
+- **🔑 GENERAL LESSON: a probe measures the mechanism, the benchmark measures the dish.** S3's probe result was real and still lost, because the composition fix helps where a mixture dominates and hurts where it does not — CESAR went 11% → 25% of fields failed while Salmone's error improved 49% → 34%. **Second arm to die between probe and benchmark** (A-conditional was the first). **Budget the benchmark before believing a probe.**
+- **📊 The scoreboard that now predicts arms, in `AGENTS.md`: prompt wording 0 for 5, schema force 6 for 8.** Riders: ask for a NUMBER not a string; free text invites merging; field ORDER is load-bearing; an overlapping field returns a copy.
+- **⚖️ THE PRINTED-WEIGHT SCOPE QUESTION IS EFFECTIVELY SETTLED, at $0.** `scripts/sim-scope-rule.ts` re-scores the archived runs under each candidate rule: today's rule (the model decides per ingredient) **7/288**, versus "the printed weight covers the whole plate" **31/288 — 4.4× worse**, almost all of it Salmone going 3 → 26 as its baguette is forced inside the 200 g. **Option A is falsified.** Independently supported by El Marcos printing *"el gramaje se refiere a los ingredientes principales"*. ⚠️ Recorded as partly circular, since the oracle encodes the convention. Santiago's worry that "main ingredients" collapses to ONE ingredient does not occur: **94% of weighted dishes put 2+ ingredients inside**, and all 7 that put exactly one are steaks or a chicken breast.
+- **⛔ TWO OF MY OWN CLAIMS WERE WRONG AND ARE RETRACTED HERE.** (1) I called `within_printed_weight` "unstable" three times and suggested it jump the queue; counted properly it differs across draws of the same prompt in **2 of 420 = 0.5%**. I had conflated "changed when I changed the prompt" (3.5%) with random flipping — asserted from three anecdotes with **no denominator**, the exact failure Santiago's standing rule exists to prevent, which has already cost this project two sessions. (2) I told him USDA's 130 g contradicted his bean estimate; it does not — that record describes beans as the FOOD, not as a side, and he was right to reject it.
+- **✅ THE "REAL-RESTAURANT FIELD TEST" IS CLOSED AS A FALSE PREMISE (Santiago).** These docs claimed for weeks that every scan was "a photo of a screen"; **the fixture menus are real phone photos of real paper menus.** It had been ranked the biggest remaining unknown, above real defects, purely because it was copied between docs instead of checked once.
+- **🔴 THE DEFECT THAT MOTIVATED ALL OF THIS IS STILL UNFIXED.** Accompaniments are sized from a nutrition-LABEL serving: 24% of weighted items carry one, it is 12–20% of those dishes' calories, and 21 of 48 came back at exactly 30 g (46 of 48 a multiple of 5). ⚠️ **A weight fix ALONE makes sauces worse** — chimichurri is 2× too heavy and ~3× too lean, and the errors currently cancel.
+- **🔴 ONE ORACLE RULING LEFT OPEN:** PASTEL AZTECA's beans use `Pinto beans, from canned, no added fat` (137 kcal/100 g) where a restaurant serves refried — FDC 2707397 is 177 kcal/100 g at 9.48 g fat. The **sixth** right-food/wrong-variant error. Weight ruled, composition deliberately not.
+- Gates: suite **361 passed | 2 failed**. `tile-cut_test.ts` is the known noise; the second, `macro-measure_test.ts` → *"only macro-measure.ts knows the archive eras"*, is a **pre-existing FALSE POSITIVE** — the guard bans the string `protein_per_100g` outside `macro-measure.ts` and the unweighted-oracle files use it as a composition field. Red since 2026-08-13, recorded rather than silently fixed: narrowing a measurement guard is Santiago's call.
+- **⛔ NEXT:** (1) **build the mixed-menu harness** — a weighted dish scored inside a real menu — so **Arm P (37/72 vs 28 baseline) can finally be judged for shipping**; it is the only thing blocking a change already worth 9 points. (2) the bean-composition ruling, then re-score every arm for $0. (3) Do NOT try: another plate-weight arm, another cooking-fat arm, another dominance arm, another prompt sentence, or another field that duplicates an existing one.
+
+## Eval 144 — 🧪 the MIXED-MENU harness is built; bean ruling applied; run halted by CREDITS (~$2)
+
+- Date: 2026-08-17 | Branch `feat/forced-serving-pieces`, COMMITTED, not pushed. Commits `d2ae8f7` `59eb39a`. **Phase total ~$34.5.** Full evidence: last 2 entries of `docs/superpowers/stage2-macro-benchmark.md`.
+- **⚖️ SANTIAGO RULED PASTEL AZTECA'S BEAN COMPOSITION** — the half deliberately left open on 2026-08-16. FDC 2707375 `Pinto beans, from canned, no added fat` (137 kcal/100 g, fat 0.93) → **FDC 2707397 `Refried beans, from fast food / restaurant`** (177, fat 9.48), verified live against the FDC API; the ruled **30 g weight unchanged**. Applied by `scripts/apply-bean-composition-ruling.ts`, which imports `sumRecipe` from `usda-oracle.ts` rather than re-implementing it and **refuses to write** unless it first reproduces all 8 stored oracle totals. **Weighted 4–6/96 → 6–9/96, and all 3 points are that one dish (2/36 → 9/36).** ⚠️ **Stricter oracle, NOT a worse pipeline** — second time this phase. **Quote 6–9/96.**
+- **⚠️ A RULE TENSION IS RECORDED RATHER THAN HIDDEN:** 2707397 is the RICHEST of the FNDDS refried family (90/99/89/119/**177**), which the standing "prefer the median, never the richest" rule (born of the Caesar dressing) would reject. Taken because it is the **only record at this dish's VENUE** — not a pick among defensible same-venue records, which is what that rule guards. **Not propagated to ENFRIJOLADAS**: a bean SAUCE the dish is bathed in is genuinely thinner than a scoop beside a plate.
+- **🧪 THE MIXED-MENU HARNESS EXISTS — `scripts/bench-mixed-menu.ts`.** It closes the blind spot that has blocked Arm P for days: `bench-macros.ts` sends all 8 weighted fixtures in ONE call and all 8 print a weight, so **no weighted figure this phase has published describes the regime production runs.** The new harness scores the same 8 dishes **inside their own real menus** (andaluz, casa-nostra, el-marcos, brasero, polloteria — 227 archived items) through `callGptEnrich` at batch 10. Arms: `mixed` (production today) vs `P` (chunk at 10, then `armP` per chunk — Arm P as it would actually ship).
+- **🔑 A FREE PROPERTY MAKES THE COMPARISON VALID:** all 8 fixtures appear in those archives with **byte-identical name AND description** to the frozen oracle, so a scored dish's own request text is unchanged and **only its neighbours differ**. Asserted at runtime (`assertFixtureTextMatches`) and covered by **5 $0 tests** — a re-extraction that reworded one description would otherwise silently turn a batch-composition result into a prompt-text result.
+- **⏸️ THE RUN IS PARTIAL AND ARM P NEVER RAN. The OpenAI account ran out of credits** (`You have no credits remaining`) during draw 2 of polloteria — the same halt as 2026-08-13. Valid: **2 clean draws for 6 dishes, 1 for the polloteria pair = 56 of 96 field-draws.** Backfilled items were EXCLUDED and reported, never scored as model error.
+- **🔴 PROVISIONAL SIGNAL, ONE RUN — NOT A QUALITY CLAIM (no range, and the noise floor is median 25%):** isolated **22/288 = 7.6%** of fields failed vs **10/56 = 17.9%** inside the real menus. **And it REDISTRIBUTES rather than uniformly worsening** — Gnocchi (0% → **50%**) and ENFRIJOLADAS (0% → **25%**) are perfect in isolation and fail in their own menus, while PASTEL (25% → **0%**) and CESAR (11% → **0%**) do the reverse. **If it holds, the 96-point benchmark's per-dish verdicts do not survive contact with production** — which matters well beyond Arm P. **Do not quote 10/56 as a result.**
+- Archives are committed, so every draw re-scores for $0 against any future oracle: `deno run --allow-read scripts/bench-mixed-menu.ts 3 mixed --replay`. Verified: replay reproduces the live run exactly.
+- Gates: suite **366 passed | 2 failed** (+5 new tests; the 2 are the known `tile-cut_test.ts` noise and the pre-existing `macro-measure_test.ts` false positive).
+- **⛔ NEXT:** (0) **ADD CREDITS — nothing paid can run.** (1) finish arm `mixed` to 3 draws, ideally 4 runs for a RANGE. (2) **run arm `P` — the question the harness was built to answer is STILL OPEN.** (3) only then a new arm for the accompaniment-weight defect.
+
+## Eval 145 — 🔴 ARM P REJECTED FOR SHIPPING; runs cut to ~$0.40; the 96-pt benchmark flatters by 2× (~$0.85)
+
+- Date: 2026-08-18 | Branch `feat/forced-serving-pieces`, COMMITTED, not pushed. Commits `cda1be3` `5a59d42` `cb8dc25` `a2b92f3`. **Phase total ~$35.5.** Full evidence: last 3 entries of `docs/superpowers/stage2-macro-benchmark.md`.
+- **🔴 THE BLOCKING QUESTION IS ANSWERED AND THE ANSWER IS NO.** `scripts/bench-mixed-menu.ts` scored the 8 weighted fixtures **inside their own real menus** — both arms, 3 full draws, **all 15 menu-draws clean on both, zero backfilled, zero exclusions**, $0-replay verified. **Production today 16/96 vs Arm P 27/96 — 69% worse.** Arm P's unweighted gain (28/72 → 37/72) is **NOT falsified**; what is rejected is shipping it in its **current split form**.
+- **🔑 AN INTERNAL CONTROL, NOT ONE NOISY RUN.** Arm P only changes a weighted dish's batch-mates, and **the two fixtures whose batches did NOT change scored IDENTICALLY**: NEW YORK 0/12 → 0/12 (10 mates either way), Salmone 6/12 → 6/12 (3 either way). **Every regression is a dish whose batch SHRANK** — CESAR 10→5 mates (1→5 failed), PASTEL 10→6 (0→5), Coleslaw 10→6 (0→4). Batch untouched, score untouched.
+- **🔑 IT CORROBORATES AN INDEPENDENT PRIOR RESULT.** The 2026-08-12 batch-size curve already found small batches are worse for weighted dishes (batch 3: 13–15/96 vs batch 8–10: 0–4/96). Arm P shrinks the weighted batch to 5–8. Two experiments, different designs, same mechanism. **Arm P's defect is the BATCH SHRINKAGE its split causes, not its sentence** — which is why the next arm is a batching change, not a wording one.
+- **🔴 THE 96-POINT WEIGHTED BENCHMARK FLATTERS THE PIPELINE BY ~2×, and it REPRODUCED across two run modes** (whole-menu $1.8 partial, and focused $0.40): **7.6% of fields fail in isolation vs 16.7–17.9% inside real menus.** Its PER-DISH verdicts do not survive either — Gnocchi and ENFRIJOLADAS are perfect alone and fail in their own menus (0% → 50%, 25%), while PASTEL and CESAR do the reverse. **Report the mixed-menu number alongside the 96-point one from now on.**
+- **💸 SANTIAGO FLAGGED THE BURN RATE ($2 a run against $10 reloads) AND IT WAS 77% WASTE.** Measured: prompt+schema is only ~1,265 tokens/call, so the bill is almost entirely **OUTPUT** — the lever is how many items you ENRICH, never prompt wording. `callGptEnrich` fires each batch as its **own request**, so a scored dish is influenced only by the ≤9 items sharing its call. The harness now sends only the batches its fixtures land in (**227 → 53 items, ~$1.8 → ~$0.40/arm**), located in the WHOLE menu so chunk boundaries stay production's. **Byte-identical requests, pinned by a test** (every kept batch must be a verbatim in-order slice). `--full-menu` keeps the old path for load behaviour only. **Rule added to `AGENTS.md`: cut arithmetic that changes nothing, NEVER cut a menu, a dish, a draw or a real neighbour.**
+- Gates: suite **368 passed | 2 failed** (+7 harness tests; the 2 are the known `tile-cut_test.ts` noise and the pre-existing `macro-measure_test.ts` false positive).
+- **⛔ NEXT:** (1) **the "P-10" arm (~$0.40)** — partition the menu into weighted/unweighted FIRST, *then* chunk each at 10, so a weighted dish keeps 10 mates instead of 5–8 while unweighted items keep Arm P's sentence; must hold 16/96 on the mixed-menu harness AND 37/72 unweighted. (2) re-run both mixed-menu arms for a RANGE (~$0.85) — each has one run so far. (3) only then the accompaniment-weight defect.
+
+## Eval 146 — 🟡 ARM P-10: batch size was HALF the story; the SPLIT mechanism is retired (~$0.40)
+
+- Date: 2026-08-18 | Branch `feat/forced-serving-pieces`, COMMITTED, not pushed. **Phase total ~$36.** Full evidence: last entry of `docs/superpowers/stage2-macro-benchmark.md`.
+- **Hypothesis:** Arm P chunks at 10 and *then* splits, so both halves come out undersized. `armP10` partitions the menu weighted/unweighted **FIRST** and chunks each side at `ENRICH_BATCH_SIZE`. Verified at $0 before spending that it restores every fixture to **9–10 mates** from Arm P's 5–8.
+- **Result, 3 draws, 15/15 menu-draws clean, 0 backfilled, $0-replay verified: `mixed` (today) 16/96 · `P10` 22/96 · `P` 27/96.** P-10 recovers **5 of Arm P's 11** lost field-draws and stops. **It does not clear the bar, so it is not shippable either.**
+- **🔑 CESAR IS TEXTBOOK FOR BATCH SIZE:** mates 10 → 5 → 10 gives 1 → 5 → **0** failed field-draws. The size mechanism is confirmed at the dish level.
+- **🔴 BUT TWO DISHES FALSIFY "SIZE IS THE WHOLE STORY":** **Salmone's batch went 3 → 10 and its score did not move by a single field** (6/12 in all three arms), and **Coleslaw got WORSE with its size restored** (0 → 4 → **6**).
+- **☠️ THE CONCLUSION RETIRES A DELIVERY MECHANISM, NOT JUST AN ARM.** P-10 holds batch SIZE at 10 and changes only **WHO** is in it — a realistic mix today, all-weighted under P-10 — and weighted dishes still degrade. **So splitting the request disturbs weighted dishes INDEPENDENTLY of batch size.** Supports the 2026-08-12 prior that *the model calibrates across the items sharing a call*: an all-weighted batch is an unrealistic calibration context and B21's proportions were tuned inside a mixed one. **Expect ANY arm that separates weighted from unweighted items into different calls to cost weighted dishes; chunking order only changes how much.**
+- ⚠️ **Arm P's UNWEIGHTED gain (28/72 → 37/72) is STILL not falsified. Its DELIVERY is.**
+- Gates: suite **369 passed | 2 failed** (+1 test pinning that P-10 batches on the weighted-only list — computing it on the mixed menu would silently re-measure arm P).
+- **⛔ NEXT:** (1) **repeat all three arms for a RANGE (~$1.20)** — one run each so far, and Coleslaw's 0→4→6 needs a repeat before it is load-bearing. (2) **"P-inline": Arm P's instruction with NO split** — one mixed batch, sentence conditional per item, so weighted dishes stay in today's exact context; wording is 0 for 5 but Arm P's sentence works on a homogeneous batch, so the question is whether it survives being conditional. Must hold 16/96 AND 37/72. (3) **Do NOT open another SPLIT arm.**
+
+## Eval 147 — ❌ P-INLINE FAILS: wording 0 for 6, and Arm P's gain is probably the BATCH (~$1.8)
+
+- Date: 2026-08-18 | Branch `feat/forced-serving-pieces`, COMMITTED, not pushed. **Phase total ~$38.** Full evidence: last entry of `docs/superpowers/stage2-macro-benchmark.md`.
+- **Four runs** — a second baseline on EACH benchmark (for the RANGE Santiago's rule requires) plus P-inline on both. **Zero backfills anywhere, all four $0-replay verified.**
+
+| arm | weighted, in real menus | unweighted |
+|---|---|---|
+| **production today** | **16–18/96** (2 runs) | **25–28/72** (2 runs) |
+| Arm P — split | 27/96 | **37/72** |
+| Arm P-10 — split, full batches | 22/96 | ⚠️ never measured |
+| **P-inline — NO split** | **15/96** ✅ | **29/72** ❌ |
+
+- **❌ P-INLINE CLEARS THE WEIGHTED GATE AND FAILS THE ONE THAT MATTERS.** 29/72 is inside the 25–28 baseline band and 8 short of Arm P. **PROMPT WORDING IS NOW 0 FOR 6.**
+- **🧪 THE $0 DIAGNOSTIC WAS WRITTEN INTO THE SOURCE BEFORE THE RUN AND IT CALLED IT.** Comparing archived serving sums: the **unweighted** items the sentence was scoped to **did not move** (median 1.00×), while **weighted** items it explicitly EXCLUDED were shuffled — 4.00×, 1.94×, 1.87× on individual dishes, only **4 of 38** unchanged. **A per-item condition in prose is not read as a per-item condition; the model applies it indiscriminately.** That is also why French Fries went 0/12 → 6/12 on the weighted gate. **New rule in `AGENTS.md`: if a change must apply to some items and not others, the separation has to be STRUCTURAL, not a clause.**
+- **🔑 THE REFRAME — THE THREAD'S MOST USEFUL RESULT: ARM P'S GAIN IS PROBABLY THE BATCH, NOT THE SENTENCE.** P-inline gives the **same words to the same items** and scores **29** where Arm P scores **37**. The only difference: Arm P's unweighted items travel in an **all-unweighted batch**. Direct evidence for the 2026-08-12 prior that *the model calibrates across the items sharing a call*. **Arm P may never have been a prompt win at all.**
+- **🔧 A HARNESS BUG WAS FOUND AND FIXED MID-RUN:** the prompt-arms call `enrichBatch` directly (to vary the prompt) and it has **no retry**, where production wraps every batch in `enrichBatchWithRetry` — so **one 120 s timeout killed a whole paid run**. `retryOnce` now wraps `armPInline`. `armS3`/`armS4` share the fragility and are deliberately left (rejected arms nothing re-runs).
+- **💸 ~$1.80 for four runs, where the old whole-menu path would have been ~$8.** `bench-unweighted.ts` now carries the same focused-batch saving (~$2 → ~$0.5/arm), with a `-f` archive segment so a cheap run **cannot overwrite the whole-menu evidence** — verified after the change that the published archives still replay to **28/72** and **37/72**.
+- Gates: suite **369 passed | 2 failed** (the two known-noise failures).
+- **⛔ NEXT:** (1) 🔑 **THE CONTROL NEVER RUN (~$0.50): split with the UNCHANGED prompt on the unweighted set.** Words alone = 29; Arm P's split = 37. **If the split alone lands near 37, the lever is BATCH COMPOSITION and every prompt arm in this thread measured it by accident.** Highest-information experiment left. (2) **Arm P-10 on the unweighted set (~$0.50)** — its 22/96 weighted cost cannot be traded off without its gain. (3) Only then the accompaniment-weight defect. **Do NOT** open another prompt sentence (0 for 6) or another split arm judged on the weighted gate.
+
+## Eval 148 — 🔬 the SPLIT-ONLY control falsifies my own reframe: Arm P is an INTERACTION (~$0.5)
+
+- Date: 2026-08-18 | Branch `feat/forced-serving-pieces`, COMMITTED, not pushed. **Phase total ~$38.5.**
+- **Eval 147 proposed that "Arm P's gain is probably the batch, not the sentence" and named the control that would settle it. The control ran. THE PROPOSAL IS WRONG AND IS RETRACTED** — in the ledger, in `AGENTS.md`, in START-HERE and in the roadmap, because a falsified hypothesis left standing in the rules is how this project has rotted docs before.
+- **`armSplitOnly` = Arm P's split with the prompt BYTE-IDENTICAL to production.** 3 draws, 9/9 menu-draws clean, 0 backfilled, $0-replay verified: **21/72 — BELOW the 25–28 baseline.**
+
+| | shipped prompt | + Arm P's sentence |
+|---|---|---|
+| **mixed batch** | **25–28** baseline | **29** (P-inline) |
+| **split batch** | **21** (SplitOnly) ❌ | **37** (Arm P) ✅ |
+
+- **🔑 NEITHER HALF WORKS ALONE. The split alone is WORSE than doing nothing; the sentence alone is worth nothing; together they are worth 9–12 points.** There is no main effect to chase — the effect is the interaction, and both arms that tried to isolate one half have now failed.
+- **🔑 THE MECHANISM, AND IT IS ACTIONABLE:** Arm P's sentence opens *"The items in this request print no weight"* — a statement true of the **WHOLE REQUEST** only when the batch is homogeneous. P-inline had to phrase it as a per-item condition and the diagnostic measured the model applying it **indiscriminately**. **The model honours an unconditional fact about the request far better than a per-item condition inside it. Prefer a homogeneous request + a flat statement over a heterogeneous request + a condition.** In `AGENTS.md`.
+- ⚠️ **THIRD ARM TO DIE BETWEEN A PLAUSIBLE STORY AND A MEASUREMENT** (after A-conditional and S3). The story was consistent with the batch-size curve, the mixed-menu 2× finding AND P-inline's shortfall — and was still wrong. **A hypothesis that explains every prior result is not thereby true; the control was $0.50.**
+- **🔧 HOUSEKEEPING — three guards against the ways this session actually lost money and time.** (1) **A dead API balance is no longer archived as data**: `assertRunIsProducingData` aborts the moment a whole batch returns backfilled, after the 2026-08-17 credit exhaustion ran to completion and wrote 15 menu-draws of zeros that looked like results; a PARTIAL backfill still passes, since that is real production behaviour the scorer already excludes. (2) **`retryOnce` now covers EVERY arm calling `enrichBatch` bare**, not just the one that crashed — armS3/armS4 had the identical defect, and wrapping only armPInline was the "patch the named path, leave the siblings broken" mistake. (3) **`rescore-history.ts` DISCOVERS its runs** instead of a hand-maintained list that had gone stale and was hiding B21/S3/S4 from the bare command — it now reads the cache, requires 3 draws, and excludes `-probe`.
+- Gates: suite **372 passed | 2 failed** (the two known-noise failures).
+- **⛔ NEXT:** 🔴 **ARM P-10 ON THE UNWEIGHTED SET (~$0.50) — the only number that lets Santiago decide.** P-10 carries BOTH halves of the interaction while restoring full batches, so it should keep Arm P's gain at a smaller weighted cost; its 22/96 weighted is known and its gain is not. If it lands near 37/72 the trade is concrete: **+9 to +12 unweighted for −4 to −6 weighted.** **Do NOT** run: a split without the sentence (21/72), a sentence without the split (29/72), or another prompt sentence (0 for 6).
+
+## Eval 149 — 🟢 ARM P-10 = 38/72, the best unweighted result ever, at a smaller weighted cost (~$0.5)
+
+- Date: 2026-08-18 | Branch `feat/forced-serving-pieces`, COMMITTED, not pushed. **Phase total ~$39.**
+- **The missing number exists.** 3 draws, 9/9 menu-draws clean, 0 backfilled, $0-replay verified.
+
+| arm | unweighted (higher better) | weighted, in real menus (lower better) |
+|---|---|---|
+| production today | 25–28/72 | **16–18/96** |
+| Arm P | 37/72 | 27/96 |
+| **Arm P-10** | **38/72** 🥇 | **22/96** |
+| P-inline | 29/72 | 15/96 |
+| SplitOnly | 21/72 | — |
+
+- **🟢 P-10 DOMINATES ARM P ON BOTH AXES** — equal-or-better unweighted (38 vs 37, a tie within noise) at a materially smaller weighted cost (22 vs 27). **Arm P is superseded; P-10 is the candidate.**
+- **🎯 CAPRICCIOSA FINALLY MOVES: 0 → 6/12.** The 28 cm pizza scored 0 through every arm of this phase, motivated the entire plate-weight thread, and was proven at $0 to be unfixable by any plate total. It is the single clearest sign the mechanism is right.
+- **⚖️ THE TRADE, AND IT IS SANTIAGO'S:** unweighted dishes **35–39% → 53% correct (+14 to +18 pts)**, weighted **81–83% → 77% (−4 to −6 pts)**. **Recommendation: take it** — unweighted items are the majority of a real menu and their errors are enormous (a pizza at half its calories), where weighted errors sit near their band edges. **A product call, not a measurement one.**
+- ⚠️ **ONE RUN OF 3 DRAWS ON EACH SIDE**, wide per-draw spread (CAPRICCIOSA 1–4/4, Salmón Roll 0–3/4). **38 vs 37 is a TIE, not a win.** The load-bearing claims are "P-10 ≈ Arm P on unweighted" and "P-10 costs less on weighted". **A confirmation run of both sides (~$1) is owed before shipping.**
+- ⚠️ **SHIPPING IS A REAL CODE CHANGE, NOT A PROMPT EDIT.** It restructures `callGptEnrich`: partition the menu weighted/unweighted, chunk each side at `ENRICH_BATCH_SIZE`, send the unweighted side with Arm P's sentence. That touches the deployed enrichment path and needs its own tests plus a deployment ruling. **Nothing in `supabase/functions/` has been changed.**
+- **Wiring note for whoever implements it:** on the harness P-10 does NOT go through `enrichWithArm`, because that pre-chunks and P-10 partitions the WHOLE list before chunking each side — pre-chunking rebuilds Arm P's undersized batches and silently re-measures it. Its focused-batch selection reads the **unweighted-only** list for the same reason.
+- Gates: suite **372 passed | 2 failed** (the two known-noise failures).
+- **⛔ NEXT:** (1) **Santiago's ruling on the trade.** (2) if yes: confirmation run (~$1), then implement in `callGptEnrich` with tests, then a deployment ruling. (3) if no: the accompaniment-weight defect.
+
+## Eval 150 — 🔴 P-10's weighted cost CONFIRMED over 3 runs; the DUAL-PASS plan is written (~$0.8)
+
+- Date: 2026-08-18 | Branch `feat/forced-serving-pieces`, COMMITTED, not pushed. **Phase total ~$39.8. Day total ~$3.3.**
+- **Santiago was skeptical of spending the weighted result** and asked for the cost to be confirmed before any product decision. One run became three. **The ranges do not overlap.**
+
+| | runs | range | dishes correct |
+|---|---|---|---|
+| production today | 16, 18 | **16–18/96** | **81–83%** |
+| Arm P-10 | 22, 21, 25 | **21–25/96** | **74–78%** |
+
+- **Every P-10 run is worse than every baseline run — six pairwise comparisons, one direction.** 45 archived menu-draws, 0 backfilled, all $0-replay verified. **The trade is REAL at −5 to −8 points.** The previous entry's hedge that it "may be noise" is **retracted**; the unweighted 38-vs-37 tie stands.
+- **🔑 A MISCONCEPTION CLEARED, and it is the one a new session is most likely to repeat.** Santiago asked why his design — *split the JSON, run two isolated processes* — could not use "the process that is ~93% right" for the weighted half. **That design IS Arm P-10, and there is no 93% process:**
+
+| what a weighted dish travels with | score |
+|---|---|
+| the other 7 fixtures (`bench-macros.ts`, all 8 alone together) | 6–9/96 ≈ **93%** ← *not a real situation* |
+| a mixed group of 10 real menu items — **production today** | **16–18/96 ≈ 82%** |
+| a group of 10 other WEIGHTED dishes — Arm P-10 | 21–25/96 ≈ 76% |
+
+  **The 93% is an artifact of the eight fixtures being batched with each other**, a grouping the app never builds. It cannot be recovered by splitting. **Never quote it as what weighted extraction achieves.**
+- **🔧 `--run <label>` added to `bench-mixed-menu.ts`** so a repeat run stops overwriting its predecessor. Twice this phase a re-run silently replaced its own archives and the earlier numbers survived only because they were already committed — which leaves them un-re-scorable when the oracle changes.
+- **📋 THE DUAL-PASS PLAN IS WRITTEN: `docs/superpowers/plans/2026-08-18-dual-pass-enrichment.md`.** It is the only shape measured to have **no trade**: pass 1 is today's call over the whole menu (byte-identical, answers used for weighted items), pass 2 re-sends only the unweighted items with the Arm P sentence. **Both its numbers already exist** — weighted 16–18/96 by construction, unweighted 38/72 from eval 149. Cost is money (~$0.03 → ~$0.05/scan) and latency (~1.5–2×), not accuracy.
+- Gates: suite **372 passed | 2 failed** (the two known-noise failures).
+- **⛔ NEXT: EXECUTE THAT PLAN.** Nothing in `supabase/functions/` has been touched. Its Task 5 pre-registers the pass/fail bar (weighted must land inside 16–18/96 or STOP) and treats Stage-2 latency as a decision input, because GPT-5.5 was declined on latency alone.
+
+## Eval 151 — 🟡 the DUAL PASS is built: weighted is FREE, unweighted is 31/72 not the 38 on record (~$3.2)
+
+- **✅ THE PLAN IS EXECUTED, Tasks 1–5.** `docs/superpowers/plans/2026-08-18-dual-pass-enrichment.md`,
+  TDD throughout, 14 new tests, suite **386 passed | 2 failed** (the two known-noise failures).
+  Branch `feat/dual-pass-enrichment`, **PR #18** based on `feat/forced-serving-pieces`.
+  **NOTHING IS DEPLOYED — production is still edge fn v31.**
+- **✅ WEIGHTED IS FREE, against a FRESH control:** dual **14, 15, 17/96** vs a same-day
+  `mixed --run ctrl` at **15/96**. Ranges overlap, control sits inside them. 60/60 menu-draws clean,
+  0 backfilled, all four runs `--replay` verified.
+- ⚠️ **The "16–18/96" on record could not be fully re-derived** — only ONE focused `mixed` archive
+  survives and it replays to 18/96. Quote the fresh **15/96** control from now on.
+- **🔴 THE PLAN'S CENTRAL CLAIM WAS FALSE.** It said the unweighted gain transferred BY CONSTRUCTION.
+  `probe-plate-arms.ts`'s `callOpenAI` sends the prompt as a **`system`** message with items wrapped
+  `{"items":[…]}`; `enrichBatch` — production, and pass 2 — sends **one `user` message**. Same prompt
+  (md5-identical), same batching, envelope the only difference: **38/72 → 31/72**, and
+  **CAPRICCIOSA, the dish that motivated the whole plate-weight thread, goes 6 → 0.**
+- ⚠️ **The +6 is NOT "the sentence alone"** — `baseline` selects mixed batches, `dual` unweighted-only,
+  so it bundles sentence WITH batching. Correct as a shipping number, unsound as a mechanism claim.
+  Stated wrongly once and corrected in the log.
+- **🔑 Retro-taints every arm scored through `callOpenAI` against a `callGptEnrich` baseline** — Arm P
+  (37), P-inline (29), SplitOnly (21). **A prior for the next brainstorm, not a to-do list.**
+- **✅ LATENCY PASSES:** 1.92× (Andaluz) and 1.56× (Polloteria), below the **2.4× that declined
+  GPT-5.5**. ⚠️ `bench-pipeline.ts` cannot measure this — it only calls `callGptEnrich`.
+- **🔧 Three defects in the plan, found by implementing it:** the prompt had to reach **all three**
+  `enrichBatch` calls (retry and rescue included); `ENRICH_PROMPT_UNWEIGHTED` had to be imported by
+  `probe-plate-arms.ts` rather than duplicated; a bare `export … from` creates no local binding.
+- **⛔ NEXT: test the envelope as a PASS-2-ONLY change (~$1).** Lands ~38 → ship the full gain;
+  lands ~31 → the envelope story is falsified, ship 31 and stop. **Pass 1 must keep today's envelope**
+  or the byte-identical guarantee the weighted result rests on is gone.
+
+## Eval 152 — ✅ the ENVELOPE was most of the gap: 31 → 35–36/72, confirmed over two runs (~$2)
+
+- **✅ THE FIX AND ITS CONFIRMATION.** Pass 2 now sends the **system** envelope — prompt in a `system`
+  message, items wrapped `{"items":[…]}` — the shape every arm this phase was measured through.
+  **35/72 and 36/72 over two runs** (`--run sysenv`, `sysenv2`), both `--replay` verified, 0 backfilled.
+- **The ladder, all same-oracle:** user+shipped **25** → user+sentence **31** → **system+sentence 35–36**
+  → `callOpenAI`+sentence 38 (one run). **The envelope alone is worth 4–5 points of 72.**
+- **✅ PASS 1 IS BYTE-IDENTICAL, VERIFIED:** 5491-byte request body before and after the parameter
+  existed. The weighted result (**14–17/96** vs a fresh **15/96** control) is untouched.
+- **⚠️ A test-stub defect this almost hid:** the stubs read `messages[0]`, which under the system
+  envelope is the PROMPT. They would have echoed an EMPTY batch and sent every test down the retry
+  path while appearing to pass.
+- **📊 END TO END:** weighted **no detectable cost**, unweighted **25 → 35–36/72 (35% → 49–50%)**,
+  latency **1.56–1.92×** (below the 2.4× that declined GPT-5.5), cost **~$0.03 → ~$0.05** per scan.
+- **⚠️ Pass 2 now sends a request shape PRODUCTION HAS NEVER SENT** — measured, tested, but a harness
+  is not a deployment. **⚠️ The accompaniment defect is still unfixed** (24% of weighted items).
+- **⛔ NEXT: Task 6 — DEPLOYMENT IS SANTIAGO'S RULING.** PR #18 on `feat/dual-pass-enrichment`.
+  Production is still **edge fn v31**.
+
+## Eval 153 — 🚀 THE DUAL PASS IS DEPLOYED: edge fn v32 (Santiago authorised, $0)
+
+- **🚀 LIVE: `analyze-menu` v32**, deployed 2026-08-19 and **verified against the SERVER**
+  (`mcp__supabase__list_edge_functions`, `ezbr_sha256` changed), never against a doc.
+- **v32 = v31 + the dual pass + pass 2's system envelope, and nothing else.** `ENRICH_PROMPT`,
+  `ENRICH_SCHEMA_OPENAI`, the model pin and `ENRICH_BATCH_SIZE = 10` are untouched; **pass 1's request
+  body is byte-identical at 5491 bytes**, so weighted accuracy is unchanged by construction.
+- **What users get:** unweighted dishes (no printed grams — most of a real menu) go from **25/72 (35%)
+  to 35–36/72 (49–50%)**. Weighted dishes unchanged (**14–17/96** vs a fresh **15/96** control).
+  Stage 2 is **1.56–1.92× slower** and costs **~$0.03 → ~$0.05** per scan.
+- **ROLLBACK:** `git checkout dbf3f79 -- supabase/functions/analyze-menu/ && supabase functions deploy
+  analyze-menu --project-ref uonuiadueykynbetxxrw`.
+- ⚠️ **`main` WAS ALREADY BEHIND PRODUCTION BEFORE THIS DEPLOY** — v31 ran unmerged code from
+  `feat/forced-serving-pieces` and main's edge fn differs by ~533 lines. v32 extends that drift; it did
+  not create it. **Deploying and merging are independent** — merging ships nothing to users.
+- ⚠️ **Pass 2 now sends a request shape production had never sent** until this deploy. Watch a real
+  scan before assuming the harness transferred.
+- **⛔ NEXT: merge PR #18 → PR #17 → `main`**, and the **accompaniment defect** remains the largest
+  known weighted defect (24% of weighted items, 12–20% of their calories).

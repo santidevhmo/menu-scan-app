@@ -1,0 +1,404 @@
+{
+  "items": [
+    {
+      "name": "Cilantro",
+      "description": "",
+      "price": null,
+      "category": "other",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "Cilantro",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 5,
+          "protein_per_100g": 2.1,
+          "carb_per_100g": 3.7,
+          "fat_per_100g": 0.5
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 1,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": []
+    },
+    {
+      "name": "Ranch Habanero",
+      "description": "",
+      "price": null,
+      "category": "other",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "Ranch Dressing",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 3,
+          "fat_per_100g": 30
+        },
+        {
+          "name": "Habanero Pepper",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 5,
+          "protein_per_100g": 2,
+          "carb_per_100g": 8,
+          "fat_per_100g": 0.4
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 1,
+      "fat_g": 9,
+      "estimated_calories": 88,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "dairy"
+      ]
+    },
+    {
+      "name": "Ranch Buffalo",
+      "description": "",
+      "price": null,
+      "category": "other",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "Ranch Dressing",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 3,
+          "fat_per_100g": 30
+        },
+        {
+          "name": "Buffalo Sauce",
+          "category": "other",
+          "within_printed_weight": true,
+          "typical_serving_g": 15,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 10
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 2,
+      "fat_g": 11,
+      "estimated_calories": 103,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "dairy"
+      ]
+    },
+    {
+      "name": "Ranch Sriracha",
+      "description": "",
+      "price": null,
+      "category": "other",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "Ranch Dressing",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 3,
+          "fat_per_100g": 30
+        },
+        {
+          "name": "Sriracha Sauce",
+          "category": "other",
+          "within_printed_weight": true,
+          "typical_serving_g": 15,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 0
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 2,
+      "fat_g": 9,
+      "estimated_calories": 89,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "dairy"
+      ]
+    },
+    {
+      "name": "Papas Sazonadas (300gr)",
+      "description": "Gajos de papas sazonadas.",
+      "price": 70,
+      "category": "side",
+      "printed_total_g": 300,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "Seasoned Potato Wedges",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 2,
+          "carb_per_100g": 30,
+          "fat_per_100g": 10
+        }
+      ],
+      "protein_g": 6,
+      "carb_g": 90,
+      "fat_g": 30,
+      "estimated_calories": 654,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": []
+    },
+    {
+      "name": "French Fries (300gr)",
+      "description": "Papas a la francesa con un toque de perejil.",
+      "price": 60,
+      "category": "side",
+      "printed_total_g": 300,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "French Fries",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 3,
+          "carb_per_100g": 35,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "Parsley",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 5,
+          "protein_per_100g": 3,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0.5
+        }
+      ],
+      "protein_g": 9,
+      "carb_g": 102,
+      "fat_g": 44,
+      "estimated_calories": 837,
+      "serving_pieces": 1,
+      "confidence": "low",
+      "allergens": []
+    },
+    {
+      "name": "Ensalada Verde (150gr)",
+      "description": "Mezcla de lechugas, col morada, zanahoria, crotones y tu aderezo favorito.",
+      "price": 52,
+      "category": "side",
+      "printed_total_g": 150,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "Lettuce Mix",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1.4,
+          "carb_per_100g": 2.9,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "Purple Cabbage",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1.3,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "Carrot",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 0.9,
+          "carb_per_100g": 10,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "Croutons",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 10,
+          "carb_per_100g": 70,
+          "fat_per_100g": 5
+        }
+      ],
+      "protein_g": 4,
+      "carb_g": 23,
+      "fat_g": 1,
+      "estimated_calories": 121,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten"
+      ]
+    },
+    {
+      "name": "Coleslaw (150gr)",
+      "description": "Ensalada de col morada, repollo y zanahoria con un delicioso aderezo cremoso.",
+      "price": 52,
+      "category": "side",
+      "printed_total_g": 150,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "Purple Cabbage",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1.3,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "White Cabbage",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1.3,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "Carrot",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 0.9,
+          "carb_per_100g": 10,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "Creamy Dressing",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 30
+        }
+      ],
+      "protein_g": 2,
+      "carb_g": 10,
+      "fat_g": 6,
+      "estimated_calories": 103,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy"
+      ]
+    },
+    {
+      "name": "Boneless Jr(200gr)",
+      "description": "Trozos de pechuga de pollo empanizados y bañados en la salsa de tu elección acompañados con apio y zanahoria. ¡Elige tu aderezo!",
+      "price": 132,
+      "category": "food",
+      "printed_total_g": 200,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "Breaded Chicken Breast",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 20,
+          "carb_per_100g": 15,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "Celery",
+          "category": "veg",
+          "within_printed_weight": false,
+          "typical_serving_g": 10,
+          "protein_per_100g": 0.7,
+          "carb_per_100g": 3,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "Carrot",
+          "category": "veg",
+          "within_printed_weight": false,
+          "typical_serving_g": 10,
+          "protein_per_100g": 0.9,
+          "carb_per_100g": 10,
+          "fat_per_100g": 0.2
+        }
+      ],
+      "protein_g": 40,
+      "carb_g": 31,
+      "fat_g": 20,
+      "estimated_calories": 466,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten"
+      ]
+    },
+    {
+      "name": "Nuggets (200gr)",
+      "description": "Nuggets de pollo y papas fritas acompañadas de cátsup.",
+      "price": 89,
+      "category": "food",
+      "printed_total_g": 200,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "Chicken Nuggets",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 15,
+          "carb_per_100g": 20,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "French Fries",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 3,
+          "carb_per_100g": 35,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "Ketchup",
+          "category": "other",
+          "within_printed_weight": false,
+          "typical_serving_g": 15,
+          "protein_per_100g": 1,
+          "carb_per_100g": 25,
+          "fat_per_100g": 0.1
+        }
+      ],
+      "protein_g": 18,
+      "carb_g": 59,
+      "fat_g": 30,
+      "estimated_calories": 578,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten"
+      ]
+    }
+  ]
+}

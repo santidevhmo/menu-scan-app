@@ -15,7 +15,7 @@
 // numbers someone once printed.
 //
 // Run: deno run --allow-read scripts/rescore-history.ts
-import { ORACLE_PATH, replayDraw } from "./bench-macros.ts";
+import { CACHE_DIR, ORACLE_PATH, replayDraw } from "./bench-macros.ts";
 import { altOracle, pairWithOracle, scoreDish, toMacroValues } from "./macro-measure.ts";
 import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
 
@@ -24,30 +24,36 @@ const oracleFile = JSON.parse(await Deno.readTextFile(ORACLE_PATH));
 // but stay here so their history re-scores under the same path. The -w runs are the
 // live 8-dish set, and they are in the default list so the bare command reports
 // CURRENT numbers instead of only the retired ones.
-const RUNS = [
-  "baseline-002",
-  "iter-b1-001",
-  "iter-b10-001",
-  "iter-b11-001",
-  "iter-b12-001",
-  "iter-b13-001",
-  "iter-b4-001",
-  "iter-b4-002",
-  "iter-b4-003",
-  "iter-b4-004",
-  "baseline-w1",
-  "baseline-w2",
-  "baseline-w3",
-  "baseline-w4",
-  "iter-b4-w1",
-  "iter-b4-w2",
-  "iter-b4-w3",
-  "iter-b4-w4",
-  "b9-gpt55-w1",
-  "b9-gpt55-w2",
-  "b9-gpt55-w3",
-  "b9-gpt55-w4",
-];
+/**
+ * Every archived weighted run, DISCOVERED from the cache rather than listed.
+ *
+ * WHY: this used to be a hand-maintained array and it went stale — on
+ * 2026-08-18 the bare command still reported b4 and b9 as the newest arms while
+ * B21, S3 and S4 sat unlisted in the same directory, so the "source of truth for
+ * every number in these docs" was quietly hiding the current ones. A list that
+ * must be edited to stay true is a list that will be wrong.
+ *
+ * Rules: a run qualifies when it has all THREE draws archived. `-probe` runs are
+ * excluded — they are one-off shape checks, not scored runs, and a probe row in
+ * this table reads as a result. The 3-dish era stays included so its history
+ * re-scores under the same path (its /36 figures must never be quoted as
+ * current).
+ */
+function discoverRuns(dir = CACHE_DIR): string[] {
+  const draws = new Map<string, Set<string>>();
+  for (const entry of Deno.readDirSync(dir)) {
+    const m = entry.name.match(/^macro-bench\.(.+)-d(\d)\.raw\.json$/);
+    if (!m) continue;
+    const [, id, draw] = m;
+    if (id.includes("probe")) continue;
+    if (!draws.has(id)) draws.set(id, new Set());
+    draws.get(id)!.add(draw);
+  }
+  return [...draws.entries()]
+    .filter(([, d]) => d.size >= DRAWS)
+    .map(([id]) => id)
+    .sort();
+}
 
 // Run IDs may be supplied on the command line, so a new arm is scored by the
 // SAME path as the history it will be compared against.
@@ -55,8 +61,8 @@ const RUNS = [
 // `--allow-read`-only command, and a flag is discoverable where an env var is not.
 const BY_DISH = Deno.args.includes("--by-dish");
 const runArgs = Deno.args.filter((a) => !a.startsWith("--"));
-const runs = runArgs.length ? runArgs : RUNS;
 const DRAWS = 3;
+const runs = runArgs.length ? runArgs : discoverRuns();
 const byDish = new Map<string, { fails: number; errSum: number; n: number; fieldDraws: number }>();
 
 const out = ["run              failed        mean|err|   abs-floor"];

@@ -24,6 +24,19 @@ export interface EnrichedItem extends ExtractedItem {
     category: IngredientCategory;
     within_printed_weight: boolean;
     typical_serving_g: number;
+    /**
+     * ARM S4 ONLY, absent from the production schema and therefore never present
+     * in a production response. The amount of an ingredient served ALONGSIDE the
+     * item, as actually served rather than as a labelling serving.
+     *
+     * Why it exists: an ingredient outside the printed weight is the one class
+     * `resolveGrams` never rescales, so `typical_serving_g` reaches the total
+     * unfitted - and B21 asks for the standard REFERENCE amount, which for a
+     * spooned sauce is USDA's 30 g dipping container. Measured 2026-08-16: 24% of
+     * weighted items carry one, and the accompaniment is 12-20% of the dish's
+     * calories.
+     */
+    amount_as_served_g?: number;
     protein_per_100g: number;
     carb_per_100g: number;
     fat_per_100g: number;
@@ -66,6 +79,61 @@ export const ENRICH_PROMPT =
 3. Give "serving_pieces": how many separate pieces this item is served as. Use the count the menu states if it states one. Otherwise give the number of pieces this form is conventionally served as where it is sold, and give 1 when the item is eaten as a single plate rather than as a number of pieces.
 4. Set "confidence" to "low" only when the name and description are evocative or promotional rather than descriptive, leaving you with little ingredient information to go on.
 List "allergens" you can infer from the ingredients (e.g. dairy, nuts, gluten, shellfish, egg, soy). Use an empty allergens array when none are inferred; do not include "none". Preserve each item's name, description, price, and category exactly as given. Do NOT sort the items. Return one object per input item, in the same order.`;
+
+/**
+ * Pass 2's prompt: the shipped prompt plus one sentence, for items that print
+ * no weight.
+ *
+ * MEASURED, not styled. Weighted items keep the shipped prompt, so B21 - which
+ * took the weighted score to its current level - is untouched. This sentence was
+ * 25-28/72 -> 38/72 on the unweighted oracle, and it only works when the batch it
+ * is sent with contains nothing but unweighted items: phrased as a per-item
+ * condition inside a mixed batch it scored 29/72 and the model applied it
+ * indiscriminately. The opening clause is a statement about the WHOLE request,
+ * which is exactly why pass 2 exists as a separate call.
+ *
+ * The shipped prompt ends "these are rescaled to the printed weight afterwards,
+ * so they do not need to add up to anything" - a clause that is FALSE here,
+ * because nothing rescales when there is no printed weight and the same numbers
+ * also set the item's total mass.
+ *
+ * Exported for the same reason ENRICH_PROMPT is: probe-plate-arms.ts builds Arm
+ * P from THIS string rather than its own copy, so the arm that measured 38/72
+ * and the prompt that ships cannot drift apart.
+ *
+ * No food, dish or cuisine name - enrich_test.ts fails the build otherwise.
+ */
+export const ENRICH_PROMPT_UNWEIGHTED = ENRICH_PROMPT +
+  ' The items in this request print no weight. For them, give "typical_serving_g" as the amount of that ingredient actually present in one order of this item as it is served, rather than the amount that ingredient is served in on its own: a component that forms the body of an item is present in considerably greater quantity than a standalone serving of it, and using the standalone amount understates the item.';
+
+/**
+ * Does the MENU print a weight for this item?
+ *
+ * Reads the grams `parseItemGrams` parsed during extraction, NOT the model's
+ * `printed_total_g` - the partition has to be known before pass 2 is built, and
+ * a code-parsed value cannot vary between draws the way a model answer can.
+ * `grams` is absent from the ExtractedItem type but present at runtime on every
+ * item the client posts, which is why this reads through a cast rather than
+ * widening a type three call sites share.
+ */
+export function isUnweighted(item: ExtractedItem): boolean {
+  return (item as { grams?: number | null }).grams == null;
+}
+
+/**
+ * Is this the zeroed placeholder `fallbackEnriched` returns when a batch failed?
+ *
+ * All three conditions are required. An item can legitimately have 0 calories
+ * (mineral water); what marks a failure is 0 calories with NO ingredients and
+ * low confidence together.
+ */
+export function isFallbackEnriched(item: EnrichedItem): boolean {
+  // `?? []` because an archived or malformed item may carry no ingredients key
+  // at all, and this must report a drop rather than throw mid-sweep.
+  return (item.ingredients ?? []).length === 0 &&
+    item.estimated_calories === 0 &&
+    item.confidence === "low";
+}
 
 const ENRICH_INGREDIENT_PROPS = {
   name: { type: "string" },
@@ -241,7 +309,34 @@ export async function enrichBatch(
   // copy silently drifted and cost a wasted paid run (see the harness-defect
   // entry in the benchmark log). Production passes nothing.
   onRaw?: (raw: unknown) => void,
+  // Lets an ARM vary the request WITHOUT a second request builder. Same reason
+  // as onRaw: the one time this harness built its own request, every published
+  // macro number came from a shape production never sends. An arm that reaches
+  // the model by its own path is not evidence about the deployed one.
+  // Production passes nothing and gets the shipped prompt and schema.
+  prompt: string = ENRICH_PROMPT,
+  // deno-lint-ignore no-explicit-any
+  schema: any = ENRICH_SCHEMA_OPENAI,
+  // WHICH REQUEST SHAPE to send. "user" is what has always shipped: one message,
+  // prompt and items concatenated. "system" is the shape every ARM in this phase
+  // was measured through (probe-plate-arms.ts's callOpenAI) - prompt in a system
+  // message, items wrapped as an object.
+  //
+  // It is a variable, not a style choice: the SAME prompt through the two shapes
+  // scored 38/72 and 31/72 on the unweighted oracle, and CAPRICCIOSA went 6 -> 0.
+  // Defaulted to "user" so pass 1 - and every existing caller - is byte-identical.
+  envelope: "user" | "system" = "user",
 ): Promise<EnrichedItem[]> {
+  const messages = envelope === "system"
+    ? [
+      { role: "system", content: prompt },
+      { role: "user", content: JSON.stringify({ items }) },
+    ]
+    : [{
+      role: "user",
+      content: `${prompt}\n\nMenu items (JSON):\n${JSON.stringify(items)}`,
+    }];
+
   const res = await fetchWithTimeout(
     "https://api.openai.com/v1/chat/completions",
     {
@@ -252,19 +347,10 @@ export async function enrichBatch(
       },
       body: JSON.stringify({
         model,
-        messages: [{
-          role: "user",
-          content: `${ENRICH_PROMPT}\n\nMenu items (JSON):\n${
-            JSON.stringify(items)
-          }`,
-        }],
+        messages,
         response_format: {
           type: "json_schema",
-          json_schema: {
-            name: "menu_items",
-            strict: true,
-            schema: ENRICH_SCHEMA_OPENAI,
-          },
+          json_schema: { name: "menu_items", strict: true, schema },
         },
         ...samplingFor(model),
       }),
@@ -409,9 +495,15 @@ export function resolveGrams(
   // keeps an empty ingredient list from producing NaN.
   const scale = printedTotalG && inside > 0 ? printedTotalG / inside : 1;
 
-  return ingredients.map((i) =>
-    (i.typical_serving_g ?? 0) * (i.within_printed_weight ? scale : 1)
-  );
+  return ingredients.map((i) => {
+    if (i.within_printed_weight) return (i.typical_serving_g ?? 0) * scale;
+    // Outside the printed weight is the one path nothing rescales, so whatever
+    // number arrives here reaches the user's plate untouched. ARM S4 supplies an
+    // as-served amount for exactly this case; absent it - which is every
+    // production response, since the field is not in the shipped schema - the
+    // behaviour is unchanged.
+    return i.amount_as_served_g ?? i.typical_serving_g ?? 0;
+  });
 }
 
 /**
@@ -499,15 +591,80 @@ export function reassembleEnriched(
 
 export const ENRICH_BATCH_SIZE = 10; // ponytail: small batches stop GPT-4o early-stopping; tune if drops persist
 
-/** Enriches a batch, retrying once if the model returns fewer items than sent. */
+/** How many enrichment requests may be in flight at once, across all batches. */
+export const MAX_CONCURRENT_BATCHES = 5;
+
+/**
+ * Batch size for the rescue pass. Measured 2026-08-13: zero drops across 30
+ * menu-runs and 1,380 item enrichments at 3, against 16 dropped items on a
+ * single 95-item menu at 10.
+ *
+ * ponytail: 3 is also measurably WORSE for macro accuracy than 10 (13-15/96 vs
+ * 0-4/96), which is why the main path stays at 10 — but a rescued item's
+ * alternative is fallbackEnriched's ZEROES, and slightly-off beats 0 kcal.
+ */
+const ENRICH_RESCUE_BATCH_SIZE = 3;
+
+/**
+ * Inputs the model did not return, matched the way reassembleEnriched matches:
+ * by name, one enriched item consumed per input, so a menu listing the same name
+ * twice needs two responses and not one.
+ */
+function missingFrom(
+  inputs: ExtractedItem[],
+  got: EnrichedItem[],
+): ExtractedItem[] {
+  const counts = new Map<string, number>();
+  for (const e of got) counts.set(e.name, (counts.get(e.name) ?? 0) + 1);
+  return inputs.filter((src) => {
+    const left = counts.get(src.name) ?? 0;
+    if (left === 0) return true;
+    counts.set(src.name, left - 1);
+    return false;
+  });
+}
+
+/**
+ * Enriches a batch, then RESCUES whatever the model still failed to return by
+ * re-asking for only those items in small batches.
+ *
+ * Why the rescue exists: a whole-batch retry re-rolls the same dice. Polloteria
+ * lost the same 16 wing sauces on both attempts and shipped them to users as
+ * 0 kcal — `fallbackEnriched` zeroes every macro, which is not a near-miss but a
+ * visibly broken row that also corrupts the goal ranking. The same 16 come back
+ * correct in a batch of 3 (BBQ 39 kcal, Buffalo 107, Ranch 88), because these
+ * items are droppable only in company: short, near-identical option names that a
+ * large batch collapses.
+ *
+ * It covers the timeout path too. A batch that times out at MODEL_TIMEOUT_MS
+ * leaves every item missing, and a third of a batch answers well inside the
+ * window that the whole batch blew.
+ */
 async function enrichBatchWithRetry(
   batch: ExtractedItem[],
   apiKey: string,
   model: string,
+  // Pass 2 of the dual pass varies the PROMPT and nothing else. Defaulted so
+  // pass 1 and every existing caller send exactly what they sent before.
+  //
+  // Forwarded to ALL THREE enrichBatch calls below, not just the first: an
+  // unweighted item that needed the retry or the rescue would otherwise come
+  // back with TODAY's prompt while looking like it got pass 2's.
+  prompt: string = ENRICH_PROMPT,
+  // Forwarded to all three enrichBatch calls for the same reason `prompt` is.
+  envelope: "user" | "system" = "user",
 ): Promise<EnrichedItem[]> {
+  let got: EnrichedItem[] = [];
   try {
-    const first = await enrichBatch(batch, apiKey, model);
-    if (first.length >= batch.length) return first;
+    got = await enrichBatch(
+      batch,
+      apiKey,
+      model,
+      undefined,
+      prompt,
+      undefined,
+      envelope,
+    );
   } catch (err) {
     console.error(
       "[enrich] batch failed, retrying:",
@@ -515,15 +672,58 @@ async function enrichBatchWithRetry(
     );
   }
 
-  try {
-    return await enrichBatch(batch, apiKey, model);
-  } catch (err) {
-    console.error(
-      "[enrich] batch failed twice, backfilling:",
-      err instanceof Error ? err.message : err,
-    );
-    return [];
+  if (got.length < batch.length) {
+    try {
+      const second = await enrichBatch(
+        batch,
+        apiKey,
+        model,
+        undefined,
+        prompt,
+        undefined,
+        envelope,
+      );
+      // Keep whichever attempt returned more; a short retry must not discard a
+      // fuller first answer.
+      if (second.length > got.length) got = second;
+    } catch (err) {
+      console.error(
+        "[enrich] batch failed twice, rescuing individually:",
+        err instanceof Error ? err.message : err,
+      );
+    }
   }
+
+  const missing = missingFrom(batch, got);
+  if (missing.length === 0) return got;
+
+  console.error(
+    `[enrich] ${missing.length} item(s) still missing, rescuing in batches of ` +
+      `${ENRICH_RESCUE_BATCH_SIZE}: ${missing.map((m) => m.name).join(", ")}`,
+  );
+  for (const group of chunk(missing, ENRICH_RESCUE_BATCH_SIZE)) {
+    try {
+      got = got.concat(
+        await enrichBatch(
+          group,
+          apiKey,
+          model,
+          undefined,
+          prompt,
+          undefined,
+          envelope,
+        ),
+      );
+    } catch (err) {
+      // Out of options for this group; reassembleEnriched backfills it. Logged
+      // so a zeroed row in production is traceable to a cause.
+      console.error(
+        `[enrich] rescue failed, backfilling ${group.length}:`,
+        err instanceof Error ? err.message : err,
+      );
+    }
+  }
+  return got;
 }
 
 /**
@@ -539,11 +739,107 @@ export async function callGptEnrich(
   items: ExtractedItem[],
   apiKey: string,
   model: string = ENRICH_MODEL,
+  // Lets the integrity harness sweep batch sizes through THIS function instead
+  // of keeping a private copy of the batching — lesson 23. Production passes
+  // nothing and gets ENRICH_BATCH_SIZE.
+  batchSize: number = ENRICH_BATCH_SIZE,
+  // Pass 2 of the dual pass. Defaulted, so pass 1's request is byte-identical to
+  // what shipped before this parameter existed - pinned by enrich_test.ts.
+  prompt: string = ENRICH_PROMPT,
+  // See enrichBatch. Defaulted to what has always shipped.
+  envelope: "user" | "system" = "user",
 ): Promise<{ items: EnrichedItem[]; raw_response: string }> {
-  const batches = chunk(items, ENRICH_BATCH_SIZE);
-  const settled = await Promise.all(
-    batches.map((batch) => enrichBatchWithRetry(batch, apiKey, model)),
-  );
+  const batches = chunk(items, batchSize);
+  // Capped waves, not one big Promise.all. A smaller batchSize means MORE
+  // batches, and a 55-item menu at batchSize 3 is 19 simultaneous requests —
+  // enough to draw a rate limit, whose cost here is not a slow scan but a
+  // WRONG one: enrichBatchWithRetry gives up after two attempts and
+  // fallbackEnriched backfills the item with zeroed macros.
+  // ponytail: fixed waves, not a work queue — a queue earns its keep when
+  // tasks differ wildly in cost, and these are all one request of <=10 items.
+  const settled: EnrichedItem[][] = [];
+  for (let i = 0; i < batches.length; i += MAX_CONCURRENT_BATCHES) {
+    settled.push(
+      ...await Promise.all(
+        batches.slice(i, i + MAX_CONCURRENT_BATCHES).map((batch) =>
+          enrichBatchWithRetry(batch, apiKey, model, prompt, envelope)
+        ),
+      ),
+    );
+  }
   const enriched = reassembleEnriched(items, settled.flat());
   return { items: enriched, raw_response: JSON.stringify({ items: enriched }) };
+}
+
+/**
+ * Stage 2 in two passes, so unweighted items get a better answer and weighted
+ * items get today's.
+ *
+ * PASS 1 is `callGptEnrich` over the WHOLE menu with the shipped prompt - the
+ * exact call that ships today, byte for byte. Its answers are kept for every
+ * item that prints a weight.
+ *
+ * PASS 2 re-sends only the items that print no weight, in their own batches,
+ * with ENRICH_PROMPT_UNWEIGHTED. Its answers replace pass 1's for those items.
+ *
+ * ⚠️ WHY UNWEIGHTED ITEMS ARE SENT TWICE. Not to retry them - their PRESENCE in
+ * pass 1 is what keeps the weighted items' batches at today's composition.
+ * Removing them measurably moves the weighted score: that is Arm P-10, which
+ * scored 21-25/96 against this baseline's 16-18/96 over three runs.
+ *
+ * ⚠️ SEQUENTIAL ON PURPOSE. Running the passes together would put ~1.5x the
+ * requests in flight against the same rate limit, and a rate-limited batch does
+ * not merely arrive late - enrichBatchWithRetry gives up after two attempts and
+ * the item comes back with ZEROED macros. Pass 2 waits so it can never compete
+ * with pass 1 for the concurrency budget. The cost is latency; see the plan.
+ *
+ * ⚠️ PASS 2 IS BEST-EFFORT. Any throw, and any item it returns zeroed, falls
+ * back to pass 1's answer. The worst case of this whole change is today's app.
+ */
+export async function callGptEnrichDualPass(
+  items: ExtractedItem[],
+  apiKey: string,
+  model: string = ENRICH_MODEL,
+  batchSize: number = ENRICH_BATCH_SIZE,
+): Promise<{ items: EnrichedItem[]; raw_response: string }> {
+  // PASS 1 - untouched. Nothing above this line may reshape `items`.
+  const pass1 = await callGptEnrich(items, apiKey, model, batchSize);
+
+  const unweighted = items.filter(isUnweighted);
+  if (unweighted.length === 0) return pass1;
+
+  let pass2: EnrichedItem[];
+  try {
+    const result = await callGptEnrich(
+      unweighted,
+      apiKey,
+      model,
+      batchSize,
+      ENRICH_PROMPT_UNWEIGHTED,
+      // The SYSTEM envelope, and pass 2 only. The unweighted numbers this change
+      // rests on were all measured through it; sending the same sentence in a
+      // user message scored 31/72 against that shape's 38/72, with CAPRICCIOSA
+      // at 0 instead of 6. Pass 1 above keeps "user" - its bytes are the
+      // weighted result's whole guarantee.
+      "system",
+    );
+    pass2 = result.items;
+  } catch (error) {
+    console.error(`[enrich] pass 2 failed, keeping pass 1: ${error}`);
+    return pass1;
+  }
+
+  // Merged BY POSITION within the unweighted subsequence, never by name:
+  // callGptEnrich returns items aligned to the array it was given, and menus do
+  // repeat a name across sections.
+  let next = 0;
+  const merged = items.map((item, index) => {
+    const fromPass1 = pass1.items[index];
+    if (!isUnweighted(item)) return fromPass1;
+    const candidate = pass2[next++];
+    // A missing or zeroed pass-2 answer is a failure, not an estimate.
+    return !candidate || isFallbackEnriched(candidate) ? fromPass1 : candidate;
+  });
+
+  return { items: merged, raw_response: JSON.stringify({ items: merged }) };
 }

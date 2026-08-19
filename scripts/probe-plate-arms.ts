@@ -14,13 +14,18 @@
 //     --env-file=.env.local scripts/probe-plate-arms.ts
 import {
   callGptEnrich,
+  chunk,
+  enrichBatch,
+  ENRICH_BATCH_SIZE,
   ENRICH_MODEL,
   ENRICH_PROMPT,
+  ENRICH_PROMPT_UNWEIGHTED,
   ENRICH_SCHEMA_OPENAI,
   resolveGrams,
   sumIngredientMacros,
 } from "../supabase/functions/analyze-menu/enrich.ts";
 import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
+import { ARM_S3, ARM_S4 } from "./arm-schemas.ts";
 
 const apiKey = Deno.env.get("OPENAI_API_KEY");
 if (!apiKey) throw new Error("OPENAI_API_KEY is required in .env.local");
@@ -129,7 +134,7 @@ async function callOpenAI(
   return JSON.parse(json.choices[0].message.content);
 }
 
-async function armA(items: Item[]) {
+export async function armA(items: Item[]) {
   const weighted = items.filter((i) => i.grams != null);
   const unweighted = items.filter((i) => i.grams == null);
   // deno-lint-ignore no-explicit-any
@@ -150,6 +155,251 @@ async function armA(items: Item[]) {
         ...it,
         ...sumIngredientMacros(it.ingredients ?? [], total),
         _plate_g: total,
+      });
+    }
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- ARM P
+//
+// PROPORTIONS, not size. The 2026-08-13 simulation proved no plate total can fix
+// the Capricciosa: at 450 g - the TOP of its verified band - it still returns
+// 812 kcal against a 1101-1238 band, because its decomposition is 1.81 kcal/g
+// where USDA thin-crust pizza is 2.75. Rescaling preserves proportions, so the
+// defect is the assembly: 30 g of cheese on a 28 cm pizza is a standalone
+// reference serving of cheese, not the amount on a pie.
+//
+// B21 asks for the standard reference amount and EXPLICITLY forbids estimating
+// what is on the plate. That is right where resolveGrams pins the total from a
+// printed weight - it took the weighted score to ~96% - and wrong where nothing
+// pins it, because then the same numbers set the total too.
+//
+// So this arm overrides that instruction for UNWEIGHTED items only. Weighted
+// items keep today's request byte-identically and cannot regress.
+//
+// ⚠️ Not the same as iter-b1..b13, which were falsified for asking a FITTED gram
+// figure: those had a printed weight to hit, and the model back-solved the
+// arithmetic (every gram a multiple of 5). There is no target here to fit to.
+// No food, dish or cuisine name - enrich_test.ts fails the build otherwise.
+//
+// Taken FROM enrich.ts rather than restated here: the dual pass ships this exact
+// string, and a harness copy that drifted would mean the 38/72 on record no
+// longer describes the prompt in production.
+const ARM_P_PROMPT = ENRICH_PROMPT_UNWEIGHTED;
+const ARM_P_SENTENCE = ENRICH_PROMPT_UNWEIGHTED.slice(ENRICH_PROMPT.length);
+
+// ARM PF = ARM P + preparation fat. Every dish Arm P still fails is fat-low:
+// pizza 30 g against 58-65, chicken-and-fries 20 against 31-44, and a
+// battered deep-fried vegetable at 5 g against 14-19. The prompt already says
+// "fat absorbed or added in cooking counts" inside step 2's composition
+// instruction; this tests whether the model needs the FAT ITSELF listed as an
+// ingredient rather than folded into a composition figure it evidently reports
+// at the plain-food value.
+// No food, dish or cuisine name - the mechanical guard in enrich_test.ts.
+const ARM_PF_SENTENCE = ARM_P_SENTENCE +
+  " Where the item's form or preparation means fat is absorbed or added before it reaches the table, list that fat as its own ingredient with the quantity retained in the finished item, because it is part of what is eaten and no other ingredient accounts for it.";
+const ARM_PF_PROMPT = ENRICH_PROMPT + ARM_PF_SENTENCE;
+
+// ARM PD = ARM P + dominance. The 2026-08-13 diagnostic showed Arm P fixes the
+// TOTAL and leaves the PROPORTIONS wrong: with the pizza's mass inside its band,
+// a third of it is near-zero-calorie vegetables because every topping gets a
+// ~30-50 g standalone serving regardless of what the dish carries. The roll's
+// rice is 38% where the form is nearer 50%, and its carb is what fails.
+//
+// Arm P's sentence pushes every ingredient UP from its standalone serving. This
+// splits that: the structural body goes up, the components scattered over it go
+// DOWN. Food-agnostic - it names a role in a dish, never a food.
+const ARM_PD_SENTENCE = ARM_P_SENTENCE +
+  " Keep the quantities in proportion to one another as the item is actually composed: the component that forms the body of the item accounts for most of its weight, while components distributed over or through that body are present in smaller quantity than they would be served in on their own, however many of them the description lists.";
+const ARM_PD_PROMPT = ENRICH_PROMPT + ARM_PD_SENTENCE;
+
+export const armPD = (items: Item[]) => splitArm(items, ARM_PD_PROMPT);
+
+/** Shared by P and PF: weighted items byte-identical, unweighted get `prompt`. */
+async function splitArm(items: Item[], prompt: string) {
+  const weighted = items.filter((i) => i.grams != null);
+  const unweighted = items.filter((i) => i.grams == null);
+  // deno-lint-ignore no-explicit-any
+  const out: any[] = [];
+  if (weighted.length > 0) {
+    // deno-lint-ignore no-explicit-any
+    const { items: enriched } = await callGptEnrich(weighted as any, apiKey!);
+    out.push(...enriched);
+  }
+  if (unweighted.length > 0) {
+    const raw = await callOpenAI(prompt, ENRICH_SCHEMA_OPENAI, unweighted);
+    for (const it of raw.items ?? []) {
+      out.push({
+        ...it,
+        ...sumIngredientMacros(it.ingredients ?? [], it.printed_total_g),
+      });
+    }
+  }
+  return out;
+}
+
+/**
+ * THE CONTROL ARM P NEVER HAD.
+ *
+ * Arm P = the split + a sentence, and it scores 37/72 unweighted. P-inline =
+ * the SAME sentence with NO split, and it scores 29 against a 25-28 baseline.
+ * That gap says the sentence is not doing the work - so this is the split with
+ * the prompt left BYTE-IDENTICAL to production.
+ *
+ * If it lands near 37/72, the lever is BATCH COMPOSITION (an unweighted item
+ * calibrating against other unweighted items) and every prompt arm in this
+ * thread has been measuring batching by accident. If it lands near 25-28, the
+ * sentence really is the active ingredient and only its delivery is the problem.
+ * Either answer redirects the phase, which is why it is worth $0.50.
+ */
+export const armSplitOnly = (items: Item[]) => splitArm(items, ENRICH_PROMPT);
+
+export const armPF = (items: Item[]) => splitArm(items, ARM_PF_PROMPT);
+
+export async function armP(items: Item[]) {
+  const weighted = items.filter((i) => i.grams != null);
+  const unweighted = items.filter((i) => i.grams == null);
+  // deno-lint-ignore no-explicit-any
+  const out: any[] = [];
+
+  if (weighted.length > 0) {
+    // deno-lint-ignore no-explicit-any
+    const { items: enriched } = await callGptEnrich(weighted as any, apiKey!);
+    out.push(...enriched);
+  }
+  if (unweighted.length > 0) {
+    // The SCHEMA is untouched - this changes what a number means, not its shape.
+    const raw = await callOpenAI(ARM_P_PROMPT, ENRICH_SCHEMA_OPENAI, unweighted);
+    for (const it of raw.items ?? []) {
+      out.push({
+        ...it,
+        ...sumIngredientMacros(it.ingredients ?? [], it.printed_total_g),
+      });
+    }
+  }
+  return out;
+}
+
+/**
+ * One retry, because a single 120 s timeout otherwise kills a whole paid run.
+ *
+ * Production does not have this problem: callGptEnrich wraps every batch in
+ * enrichBatchWithRetry. The arms call enrichBatch directly to vary the prompt,
+ * and enrichBatchWithRetry is neither exported nor prompt-aware - so the retry
+ * lives here rather than in enrich.ts, which is deployed code and should not
+ * grow a parameter for a harness's benefit.
+ *
+ * Applied to EVERY arm that calls enrichBatch directly. It was armPInline-only
+ * for one commit, which is exactly the "patch the path the ticket names and
+ * leave the siblings broken" mistake - S3/S4 had the identical defect.
+ */
+async function retryOnce<T>(call: () => Promise<T>): Promise<T> {
+  try {
+    return await call();
+  } catch (error) {
+    console.warn(`[arm] retrying after: ${(error as Error).message}`);
+    return await call();
+  }
+}
+
+// ------------------------------------------------------------ ARM P-INLINE
+//
+// ARM P'S INSTRUCTION WITH NO SPLIT AT ALL.
+//
+// Both split arms are rejected: Arm P 27/96 and Arm P-10 22/96 against a 16/96
+// baseline, inside real menus. P-10 held batch SIZE at 10 and varied only WHO
+// shared the call, and weighted dishes still degraded - so the split ITSELF is
+// the defect, not the chunking order. That retires the whole family.
+//
+// This delivers the same idea through the SHARED prompt on ONE mixed batch:
+// weighted items keep today's exact batch-mates and today's exact request
+// EXCEPT for this appended text, so there is no composition to disturb.
+//
+// The condition is keyed on "printed_total_g", which the schema emits BEFORE
+// "ingredients" (B4 put it there deliberately), so by the time the model writes
+// a typical_serving_g it has already committed to whether that item has a
+// printed weight. Field order is load-bearing and it works in our favour here.
+//
+// It also repairs a clause that is FALSE for unweighted items: the shipped
+// prompt ends "these are rescaled to the printed weight afterwards, so they do
+// not need to add up to anything." Nothing rescales when there is no printed
+// weight - the same numbers set the item's total mass.
+//
+// ⚠️ THIS IS A PROMPT SENTENCE, AND WORDING IS 0 FOR 5. It is run anyway for a
+// stated reason: Arm P's sentence demonstrably WORKS on a homogeneous batch
+// (28/72 -> 37/72), so the open question is not whether the idea lands but
+// whether it survives being CONDITIONAL. Falsifiers, fixed before the run:
+//   - unweighted stays ~28/72  -> the condition never fired; wording 0 for 6.
+//   - weighted drops below the baseline range -> the sentence disturbs weighted
+//     items even with no split, and this direction is finished.
+// No food, dish or cuisine name - enrich_test.ts fails the build otherwise.
+const ARM_P_INLINE_SENTENCE =
+  ' The instruction above to give the standard reference amount, and the note that these are rescaled afterwards, both apply to an item for which you gave a number for "printed_total_g". For an item where you instead gave null, nothing rescales those amounts and the very same numbers also decide the item\'s total weight. For those items only, give "typical_serving_g" as the amount of that ingredient actually present in one order of the item as it is served, rather than the amount that ingredient is served in on its own: a component that forms the body of an item is present in considerably greater quantity than a standalone serving of it, and using the standalone amount understates the item.';
+export const ARM_P_INLINE_PROMPT = ENRICH_PROMPT + ARM_P_INLINE_SENTENCE;
+
+/**
+ * One call per batch, mixed items, shipped schema — identical to production's
+ * request but for the appended sentence. Through enrichBatch, the deployed
+ * request builder, so this measures the real path (lesson 23).
+ */
+export async function armPInline(items: Item[]) {
+  return await retryOnce(() =>
+    enrichBatch(
+      // deno-lint-ignore no-explicit-any
+      items as any,
+      apiKey!,
+      ENRICH_MODEL,
+      undefined,
+      ARM_P_INLINE_PROMPT,
+    )
+  );
+}
+
+// ---------------------------------------------------------------- ARM P-10
+//
+// ARM P's SENTENCE, WITHOUT ARM P'S BATCH SHRINKAGE.
+//
+// The 2026-08-18 mixed-menu run rejected Arm P for shipping: weighted dishes
+// went 16/96 -> 27/96 inside their real menus. The cause was isolated by an
+// internal control - the two fixtures whose batch-mates did NOT change scored
+// IDENTICALLY across arms, and every regression was a dish whose batch shrank
+// (CESAR 10 -> 5 mates, PASTEL and Coleslaw 10 -> 6). That matches the
+// 2026-08-12 batch-size curve, which already found small batches cost weighted
+// dishes 4x their accuracy. So Arm P's defect is its BATCHING, not its wording.
+//
+// splitArm/armP chunk the menu at 10 and split each chunk, so BOTH halves come
+// out undersized. This partitions the WHOLE menu first and chunks each side at
+// ENRICH_BATCH_SIZE, so a weighted dish rides with 10 weighted items instead of
+// 5-8 while unweighted items keep Arm P's sentence.
+//
+// ⚠️ Takes the WHOLE menu. Do NOT pre-chunk it - that is precisely what armP
+// does and what this arm exists to undo.
+//
+// Weighted items still go through callGptEnrich with the UNCHANGED prompt, so
+// their request is byte-identical to production and only their neighbours
+// differ. B21 is not touched.
+export async function armP10(items: Item[]) {
+  const weighted = items.filter((i) => i.grams != null);
+  const unweighted = items.filter((i) => i.grams == null);
+  // deno-lint-ignore no-explicit-any
+  const out: any[] = [];
+
+  if (weighted.length > 0) {
+    // callGptEnrich chunks internally at ENRICH_BATCH_SIZE - that is the point.
+    // deno-lint-ignore no-explicit-any
+    const { items: enriched } = await callGptEnrich(weighted as any, apiKey!);
+    out.push(...enriched);
+  }
+  // Chunked here because callOpenAI would otherwise send every unweighted item
+  // in one call - the same undersizing defect in reverse, and a 61-item request
+  // on a dense menu.
+  for (const batch of chunk(unweighted, ENRICH_BATCH_SIZE)) {
+    const raw = await callOpenAI(ARM_P_PROMPT, ENRICH_SCHEMA_OPENAI, batch);
+    for (const it of raw.items ?? []) {
+      out.push({
+        ...it,
+        ...sumIngredientMacros(it.ingredients ?? [], it.printed_total_g),
       });
     }
   }
@@ -181,7 +431,7 @@ export function statesSize(name: string, description: string): boolean {
   ].some((re) => re.test(text));
 }
 
-async function armAConditional(items: Item[]) {
+export async function armAConditional(items: Item[]) {
   const weighted = items.filter((i) => i.grams != null);
   const unweighted = items.filter((i) => i.grams == null);
   // deno-lint-ignore no-explicit-any
@@ -335,6 +585,72 @@ const ARMS: Record<string, (items: Item[]) => Promise<unknown[]>> = {
 
 const archive: Record<string, unknown> = {};
 
+// ARMS S3 and S4 - prompt and schema live in arm-schemas.ts so a harness that
+// only inspects them does not need an API key. Runners stay here with the other
+// arms, and go through enrichBatch, the DEPLOYED request builder.
+export async function armS3(items: Item[]) {
+  return await retryOnce(() =>
+    enrichBatch(
+      // deno-lint-ignore no-explicit-any
+      items as any,
+      apiKey!,
+      ENRICH_MODEL,
+      undefined,
+      ARM_S3.prompt,
+      ARM_S3.schema,
+    )
+  );
+}
+export async function armS4(items: Item[]) {
+  return await retryOnce(() =>
+    enrichBatch(
+      // deno-lint-ignore no-explicit-any
+      items as any,
+      apiKey!,
+      ENRICH_MODEL,
+      undefined,
+      ARM_S4.prompt,
+      ARM_S4.schema,
+    )
+  );
+}
+
+/**
+ * The sauce probes' dish set, shared by `sauce-dish` and `sauce-schema` so the
+ * two arms are judged on identical dishes - lesson 28, one definition only.
+ *
+ * usda = published FNDDS fat/100 g of the sauce, reference only: the metric is
+ * the DISH's fat, because that is what reaches the user and the benchmark.
+ * control = no mixture anywhere in its ingredient list. An arm that moves a
+ * control is pushing fat around rather than decomposing a mixture.
+ */
+const SAUCE_DISHES: {
+  menu: string;
+  name: string;
+  sauce: string;
+  usda: number | null;
+  control?: boolean;
+}[] = [
+  { menu: "andaluz", name: "CESAR (200 g)", sauce: "caesar dressing", usda: 57.9 },
+  { menu: "casa-nostra", name: "Cesar", sauce: "Caesar dressing", usda: 57.9 },
+  { menu: "brasero", name: "PASTA AL PESTO", sauce: "Pesto", usda: 59.2 },
+  { menu: "polloteria", name: "Dedos De Queso (200gr)", sauce: "Ranch", usda: 44.5 },
+  { menu: "casa-nostra", name: "Salmone padella", sauce: "garlic sauce", usda: 74.0 },
+  { menu: "brasero", name: "PESCADO AL AJILLO", sauce: "garlic sauce", usda: 74.0 },
+  // House-named: no published record exists, so observed and never scored.
+  { menu: "brasero", name: "NEW YORK", sauce: "chimichurri", usda: null },
+  { menu: "brasero", name: "FILETE DISCORDIA", sauce: "salsa chemita", usda: null },
+  // CONTROLS - single foods throughout.
+  { menu: "andaluz", name: "PULPO A LA GALLEGA (200 g)", sauce: "-", usda: null, control: true },
+  {
+    menu: "andaluz",
+    name: "CAMARONES EMPANIZADOS (200 g)",
+    sauce: "-",
+    usda: null,
+    control: true,
+  },
+];
+
 // SOLO MODE (Santiago, 2026-08-11). Is the instability the MODEL or the BATCH?
 // The noise run measured five batched draws; this measures five SOLO draws of
 // the same dishes, one item per call, nothing else changed. If solo is steady
@@ -445,6 +761,161 @@ if (Deno.args[0] === "noise") {
   Deno.exit(0);
 }
 
+// CURVE MODE (Santiago, 2026-08-12). THE BATCH-SIZE CURVE. Solo is stable and
+// batched is not; this finds the knee. Where does stability arrive - at 10, at
+// 5, at 3, or only at 1? And because ENRICH_BATCH_SIZE was tuned DOWN to 10 to
+// stop GPT-4o early-stopping, it must record BOTH numbers: a batch size that
+// fixes stability by reintroducing dropped items is not a fix.
+//
+// Calls enrichBatch DIRECTLY, one call per group, deliberately WITHOUT
+// enrichBatchWithRetry: production re-asks whenever the model returns fewer
+// items than it was sent, which both hides the drop and substitutes a second
+// draw's numbers into the first draw's result. This measures the raw call.
+//
+// Group size is recorded as the size the dish ACTUALLY sat in, and the median
+// counts only dishes that sat in a FULL group of the nominal size - fifteen
+// dishes at a nominal 10 is one group of 10 plus a remainder of 5, and calling
+// that "15 per call" is exactly how the earlier figures got mislabelled.
+if (Deno.args[0] === "curve") {
+  const set: { name: string; description: string }[] = JSON.parse(
+    await Deno.readTextFile("scripts/fixtures/unweighted-guard-set.json"),
+  );
+  const items = set.map((d) => item(d.name, d.description));
+  const DRAWS_CURVE = 5;
+  const NOMINAL = [1, 3, 5, 10];
+
+  // nominal -> dish -> kcal per draw, plus the group size the dish sat in.
+  const kcal = new Map<number, Map<string, number[]>>();
+  const grpOf = new Map<number, Map<string, number>>();
+  const drops: Record<
+    number,
+    { calls: number; short: number; missing: number; failed: number }
+  > = {};
+  // A 429 would otherwise blank a whole column: b1 fires 15 calls per draw and
+  // a thrown call is a lost data point, not a retried one.
+  const CONCURRENCY = 5;
+
+  for (const nominal of NOMINAL) {
+    kcal.set(nominal, new Map());
+    grpOf.set(nominal, new Map());
+    drops[nominal] = { calls: 0, short: 0, missing: 0, failed: 0 };
+
+    for (let draw = 0; draw < DRAWS_CURVE; draw++) {
+      const groups: Item[][] = [];
+      for (let i = 0; i < items.length; i += nominal) {
+        groups.push(items.slice(i, i + nominal));
+      }
+      // Parallel within a draw, the way production fires its batches, but capped
+      // so a rate limit does not eat data points. Each call is independent, so
+      // this changes wall-clock only.
+      // deno-lint-ignore no-explicit-any
+      const outs: { out: any[]; failed: boolean }[] = [];
+      for (let w = 0; w < groups.length; w += CONCURRENCY) {
+        outs.push(
+          ...await Promise.all(groups.slice(w, w + CONCURRENCY).map(async (group) => {
+            try {
+              // deno-lint-ignore no-explicit-any
+              return { out: await enrichBatch(group as any, apiKey!) as any[], failed: false };
+            } catch (err) {
+              console.error(
+                `[curve] b${nominal} d${draw} call FAILED (not a drop):`,
+                err instanceof Error ? err.message : err,
+              );
+              return { out: [], failed: true };
+            }
+          })),
+        );
+      }
+
+      outs.forEach(({ out, failed }, g) => {
+        const group = groups[g];
+        drops[nominal].calls++;
+        // A thrown call is an API error, NOT the model stopping early. Counting
+        // the two together would credit early-stopping with every 429.
+        if (failed) drops[nominal].failed++;
+        else if (out.length < group.length) {
+          drops[nominal].short++;
+          drops[nominal].missing += group.length - out.length;
+        }
+        archive[`curve b${nominal} d${draw} g${g}`] = out;
+        for (const it of out) {
+          const byName = kcal.get(nominal)!;
+          if (!byName.has(it.name)) byName.set(it.name, []);
+          byName.get(it.name)!.push(Math.round(it.estimated_calories ?? 0));
+        }
+        for (const src of group) grpOf.get(nominal)!.set(src.name, group.length);
+      });
+    }
+  }
+
+  const spreadOf = (xs: number[]) => {
+    if (xs.length === 0) return null;
+    const low = Math.min(...xs), high = Math.max(...xs);
+    return (high - low) / ((high + low) / 2);
+  };
+
+  console.log(
+    `\nBATCH-SIZE CURVE - ${set.length} dishes, ${DRAWS_CURVE} draws each, kcal spread\n`,
+  );
+  console.log(
+    `${"dish".padEnd(30)}${NOMINAL.map((n) => `b${n}`.padStart(9)).join("")}`,
+  );
+  const perNominal: Record<number, number[]> = {};
+  for (const n of NOMINAL) perNominal[n] = [];
+  for (const d of set) {
+    const cells = NOMINAL.map((n) => {
+      const s = spreadOf(kcal.get(n)!.get(d.name) ?? []);
+      if (s === null) return "MISSING".padStart(9);
+      const full = grpOf.get(n)!.get(d.name) === n;
+      // Only a dish that sat in a full group of n describes batch size n.
+      if (full) perNominal[n].push(s);
+      return `${(s * 100).toFixed(0)}%${full ? "" : "*"}`.padStart(9);
+    });
+    console.log(`${d.name.slice(0, 28).padEnd(30)}${cells.join("")}`);
+  }
+
+  const median = (xs: number[]) => {
+    if (xs.length === 0) return null;
+    const s = [...xs].sort((a, b) => a - b);
+    return s[Math.floor(s.length / 2)];
+  };
+  const row = (label: string, pick: (xs: number[]) => number | null) =>
+    console.log(
+      `${label.padEnd(30)}${
+        NOMINAL.map((n) => {
+          const v = pick(perNominal[n]);
+          return (v === null ? "-" : `${(v * 100).toFixed(0)}%`).padStart(9);
+        }).join("")
+      }`,
+    );
+  console.log("");
+  row("MEDIAN spread (full groups)", median);
+  row("WORST spread (full groups)", (xs) => xs.length ? Math.max(...xs) : null);
+  console.log(
+    `\n* dish did not sit in a full group of that size (remainder) - excluded from the median.`,
+  );
+
+  console.log(`\nITEM DROPS - the reason ENRICH_BATCH_SIZE is 10, not larger:`);
+  for (const n of NOMINAL) {
+    const d = drops[n];
+    console.log(
+      `  b${String(n).padEnd(3)} ${d.short}/${d.calls} calls returned short, ` +
+        `${d.missing} item(s) missing in total` +
+        (d.failed ? `  (+${d.failed} API failures, not drops)` : ""),
+    );
+  }
+  console.log(
+    `\nToday's production setting is ENRICH_BATCH_SIZE = 10. ` +
+      `A smaller batch multiplies prompt tokens: enrichment is ~$0.03/scan at 10, ~$0.30 at 1.`,
+  );
+
+  await Deno.writeTextFile(
+    "scripts/fixtures/caches/probe-batch-curve.raw.json",
+    JSON.stringify(archive, null, 2) + "\n",
+  );
+  Deno.exit(0);
+}
+
 // WIDE MODE (Santiago, 2026-08-11): fifteen real unweighted dishes with real
 // descriptions, spanning 60 g to 510 g across four menus, run BATCHED the way
 // production runs them. Four dishes and single-item calls decided A-conditional;
@@ -505,6 +976,527 @@ if (Deno.args[0] === "wide") {
 // of them prints a weight, so they all take the byte-identical path and the
 // changed path is never exercised. The dishes actually at risk are the
 // unweighted ones the pipeline already gets RIGHT.
+// SAUCE MODE (Santiago, 2026-08-16). Does asking the model to DECOMPOSE a
+// prepared mixture move its fat toward the published value?
+//
+// The 2026-08-16 $0 audit of 10 real menus found the pattern this tests:
+//
+//   single food   (olive oil, butter, mayonnaise)  model / USDA = 1.00x  n=16
+//   MIXTURE       (pesto, caesar, ranch, garlic)   model / USDA = 0.69x  n=21
+//   house-named   (chimichurri, chemita, aderezo)  flat 15-20 g fat, protein 1
+//
+// So the model is not weak on sauces - it is weak on MIXTURES, because a
+// mixture's per-100 g figure is a calculation over its parts, and this pipeline
+// has measured four times that the model supplies knowledge well and arithmetic
+// badly (B10, B12, B4, B21). The parts themselves it gets exactly right.
+//
+// Each sauce is sent as its OWN item, one per call. That is the only way the
+// number is comparable to a published record: inside a dish the sauce's mass
+// share is a second unknown, and batch-mates move the answer (2026-08-12 curve).
+// ⚠️ SYNTHETIC ITEMS. This measures the model's treatment of a named mixture,
+// NOT menu behaviour - do not quote it as a menu-level rate (2026-08-09 lesson).
+//
+//   deno run --allow-net --allow-env --allow-read --allow-write \
+//     --env-file=.env.local scripts/probe-plate-arms.ts sauce
+if (Deno.args[0] === "sauce") {
+  // Structural, never a food: enrich_test.ts bans food names in the nutrition
+  // step, and the standing rule is broader than the test. This names a KIND of
+  // component ("a prepared mixture rather than a single food"), which is the
+  // same move as B15's name_implied_components and Arm PD's "body of the item".
+  const ARM_S_SENTENCE =
+    " Where an ingredient is itself a prepared mixture rather than a single food," +
+    " do not give figures for the mixture as a whole. List instead the single" +
+    " foods it is made from, each as its own ingredient with its own weight and" +
+    " its own composition, because a mixture's composition is an average over" +
+    " parts that differ enormously and stating it directly understates whichever" +
+    " part is most concentrated.";
+  const ARM_S_PROMPT = ENRICH_PROMPT + ARM_S_SENTENCE;
+
+  // Published FNDDS fat per 100 g. null = house-named, NO record exists, so it
+  // is observed and never scored - inventing a target for it is what put a
+  // frozen-pizza band in the oracle for four days.
+  const SAUCES: { name: string; usda: number | null }[] = [
+    { name: "Garlic sauce", usda: 74.0 },
+    { name: "Pesto", usda: 59.2 },
+    { name: "Caesar dressing", usda: 57.9 },
+    { name: "Ranch dressing", usda: 44.5 },
+    { name: "Alfredo sauce", usda: 15.0 },
+    // CONTROLS. A sentence that simply inflates every fat would raise these too,
+    // and they have almost none. Without them a uniform push reads as a win.
+    { name: "Barbecue sauce", usda: 0.63 },
+    { name: "Soy sauce", usda: 0.57 },
+    // OBSERVED ONLY - the dishes that started this.
+    { name: "Chimichurri", usda: null },
+    { name: "Salsa chemita", usda: null },
+    { name: "Aderezo de la casa", usda: null },
+  ];
+  const DRAWS_S = 3;
+
+  /** Fat per 100 g of the whole item, from the model's OWN parts. */
+  // deno-lint-ignore no-explicit-any
+  function fatPer100g(out: any): number | null {
+    const ings = out?.ingredients ?? [];
+    const grams = resolveGrams(ings, out?.printed_total_g ?? null);
+    const total = grams.reduce((a: number, b: number) => a + b, 0);
+    if (!(total > 0)) return null;
+    const fat = ings.reduce(
+      (s: number, i: { fat_per_100g?: number }, n: number) =>
+        s + (i.fat_per_100g ?? 0) * grams[n] / 100,
+      0,
+    );
+    return 100 * fat / total;
+  }
+
+  const runS = async (items: Item[]) => {
+    const raw = await callOpenAI(ARM_S_PROMPT, ENRICH_SCHEMA_OPENAI, items);
+    return (raw.items ?? []).map((it: Record<string, unknown>) => ({
+      ...it,
+      ...sumIngredientMacros(
+        // deno-lint-ignore no-explicit-any
+        (it.ingredients ?? []) as any,
+        it.printed_total_g as number | null,
+      ),
+    }));
+  };
+
+  console.log(
+    `${"sauce".padEnd(20)} ${"USDA".padStart(6)} ${"baseline".padStart(14)}` +
+      ` ${"decomposed".padStart(14)}   parts the arm named`,
+  );
+  for (const s of SAUCES) {
+    const got: Record<string, number[]> = { baseline: [], S: [] };
+    let parts = "";
+    for (const arm of ["baseline", "S"] as const) {
+      for (let draw = 0; draw < DRAWS_S; draw++) {
+        const it = item(s.name, "");
+        // deno-lint-ignore no-explicit-any
+        const [out] = arm === "S"
+          ? await runS([it]) as any[]
+          : await ARMS.baseline([it]) as any[];
+        archive[`sauce ${arm} ${s.name} d${draw}`] = out;
+        const f = fatPer100g(out);
+        if (f != null) got[arm].push(f);
+        if (arm === "S" && draw === 0) {
+          parts = (out?.ingredients ?? [])
+            // deno-lint-ignore no-explicit-any
+            .map((i: any) => `${i.name} ${i.typical_serving_g}g`)
+            .join(", ")
+            .slice(0, 60);
+        }
+      }
+    }
+    const span = (xs: number[]) =>
+      xs.length === 0
+        ? "  no data"
+        : `${Math.min(...xs).toFixed(0)}-${Math.max(...xs).toFixed(0)}`;
+    const mid = (xs: number[]) =>
+      xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : NaN;
+    const ratio = (xs: number[]) =>
+      s.usda ? ` (${(mid(xs) / s.usda).toFixed(2)}x)` : "";
+    console.log(
+      `${s.name.padEnd(20)} ${(s.usda ?? "-").toString().padStart(6)}` +
+        ` ${(span(got.baseline) + ratio(got.baseline)).padStart(14)}` +
+        ` ${(span(got.S) + ratio(got.S)).padStart(14)}   ${parts}`,
+    );
+  }
+
+  await Deno.writeTextFile(
+    "scripts/fixtures/caches/probe-sauce-decomposition.raw.json",
+    JSON.stringify(archive, null, 2) + "\n",
+  );
+  console.log(
+    "\nArchived to scripts/fixtures/caches/probe-sauce-decomposition.raw.json" +
+      "\n⚠️  Synthetic single-sauce items - not a menu-level rate.",
+  );
+  Deno.exit(0);
+}
+
+// IN-DISH SAUCE MODE (2026-08-16). The probe the `sauce` mode could not do.
+//
+// `sauce` sent each sauce as its OWN item and chimichurri did not move (37-42
+// both arms) - because a sauce sent alone is ALREADY decomposed. Inside a real
+// menu the same sauce comes back at 15 g fat/100 g. So the failure belongs to
+// being ONE INGREDIENT INSIDE A DISH, and that is what this measures.
+//
+// Three columns, and the first is free:
+//   BATCHED  the archived b10 run - what production actually produced
+//   SOLO     the same dish alone, today's prompt - separates the BATCH effect
+//            from the INGREDIENT effect, since 2026-08-12 proved batch-mates move
+//            answers and a solo-only comparison would confound the two
+//   ARM S    the same dish alone, decomposition sentence added
+//
+// Dishes and descriptions are read from the archives, never retyped - a probe
+// that invents its own menu text measures the text (2026-08-09 lesson).
+//
+//   deno run --allow-net --allow-env --allow-read --allow-write \
+//     --env-file=.env.local scripts/probe-plate-arms.ts sauce-dish
+if (Deno.args[0] === "sauce-dish") {
+  const ARM_S_SENTENCE =
+    " Where an ingredient is itself a prepared mixture rather than a single food," +
+    " do not give figures for the mixture as a whole. List instead the single" +
+    " foods it is made from, each as its own ingredient with its own weight and" +
+    " its own composition, because a mixture's composition is an average over" +
+    " parts that differ enormously and stating it directly understates whichever" +
+    " part is most concentrated.";
+  const ARM_S_PROMPT = ENRICH_PROMPT + ARM_S_SENTENCE;
+
+  const DISHES = SAUCE_DISHES;
+  const DRAWS_D = 3;
+
+  const menus = new Map<string, Record<string, unknown>[]>();
+  for (const m of new Set(DISHES.map((d) => d.menu))) {
+    const raw = JSON.parse(
+      await Deno.readTextFile(`scripts/fixtures/caches/pipeline.b10.${m}.raw.json`),
+    );
+    menus.set(m, raw.items ?? []);
+  }
+
+  const runS = async (items: Item[]) => {
+    const raw = await callOpenAI(ARM_S_PROMPT, ENRICH_SCHEMA_OPENAI, items);
+    return (raw.items ?? []).map((it: Record<string, unknown>) => ({
+      ...it,
+      ...sumIngredientMacros(
+        // deno-lint-ignore no-explicit-any
+        (it.ingredients ?? []) as any,
+        it.printed_total_g as number | null,
+      ),
+    }));
+  };
+
+  console.log(
+    `${"dish".padEnd(28)} ${"sauce".padEnd(16)} ${"batched".padStart(8)}` +
+      ` ${"SOLO base".padStart(11)} ${"ARM S".padStart(11)}   fat g`,
+  );
+  for (const d of DISHES) {
+    // deno-lint-ignore no-explicit-any
+    const src = (menus.get(d.menu) ?? []).find((x: any) => x.name === d.name) as any;
+    if (!src) {
+      console.log(`${d.name.padEnd(28)} NOT FOUND in pipeline.b10.${d.menu}`);
+      continue;
+    }
+    const it = item(src.name, src.description ?? "");
+    const fats: Record<string, number[]> = { base: [], S: [] };
+    let parts = "";
+    for (const arm of ["base", "S"] as const) {
+      for (let draw = 0; draw < DRAWS_D; draw++) {
+        // deno-lint-ignore no-explicit-any
+        const [out] = arm === "S"
+          ? await runS([it]) as any[]
+          : await ARMS.baseline([it]) as any[];
+        archive[`sauce-dish ${arm} ${d.name} d${draw}`] = out;
+        if (typeof out?.fat_g === "number") fats[arm].push(out.fat_g);
+        if (arm === "S" && draw === 0) {
+          parts = (out?.ingredients ?? [])
+            // deno-lint-ignore no-explicit-any
+            .map((i: any) => `${i.name} ${i.typical_serving_g}g/${i.fat_per_100g}f`)
+            .join(" ")
+            .slice(0, 72);
+        }
+      }
+    }
+    const span = (xs: number[]) =>
+      xs.length === 0 ? "-" : `${Math.min(...xs)}-${Math.max(...xs)}`;
+    console.log(
+      `${d.name.slice(0, 26).padEnd(28)} ${d.sauce.slice(0, 14).padEnd(16)}` +
+        ` ${String(src.fat_g ?? "-").padStart(8)} ${span(fats.base).padStart(11)}` +
+        ` ${span(fats.S).padStart(11)}   ${d.control ? "[CONTROL] " : ""}${parts}`,
+    );
+  }
+
+  await Deno.writeTextFile(
+    "scripts/fixtures/caches/probe-sauce-in-dish.raw.json",
+    JSON.stringify(archive, null, 2) + "\n",
+  );
+  console.log(
+    "\nArchived to scripts/fixtures/caches/probe-sauce-in-dish.raw.json" +
+      "\n⚠️  SOLO calls - not a production estimate. Batched column is the archive.",
+  );
+  Deno.exit(0);
+}
+
+// SCHEMA-FORCED DECOMPOSITION (Santiago, 2026-08-16). ARM S2.
+//
+// Arm S asked in prose and was IGNORED inside a dish - NEW YORK returned
+// `chimichurri sauce 30 g / fat 15` under both arms. That made prompt wording
+// 0 for 5 in this phase (B11, B13, B23, two serving_pieces wordings, S), while
+// SCHEMA FORCE is 5 for 7 - forced `serving_pieces` succeeded on the exact case
+// two wordings had failed.
+//
+// So this asks for the same thing through the SCHEMA: one REQUIRED string per
+// ingredient, `composed_of`. Strict mode emits every required field, so the
+// model cannot decline it the way it declined the sentence.
+//
+// ⚠️ POSITION IS LOAD-BEARING, and this is the whole design. `composed_of` sits
+// BEFORE the three per-100 g fields, because strict-mode output is emitted in
+// schema order and enrich.ts already depends on that twice: printed_total_g and
+// name_implied_components precede `ingredients` so the model commits to them
+// before portioning. The model must name the parts BEFORE stating composition,
+// or it states the mixture average first and rationalises the parts after.
+//
+//   deno run --allow-net --allow-env --allow-read --allow-write \
+//     --env-file=.env.local scripts/probe-plate-arms.ts sauce-schema
+if (Deno.args[0] === "sauce-schema") {
+  // One sentence, and it only DEFINES the new field - a schema field with no
+  // definition is guessed at. The lever under test is the required field, not
+  // this text. Structural, never a food: the step-2 guard still applies.
+  const ARM_S2_SENTENCE =
+    ' Give "composed_of" for every ingredient: when the ingredient is a single' +
+    " food, repeat its name; when it is a prepared mixture of several foods, name" +
+    " those foods and the approximate share of the mixture each one accounts for" +
+    " by weight. State it before the composition figures, and let it decide them:" +
+    " a mixture carried by a concentrated component is far richer than its name" +
+    " suggests.";
+  const ARM_S2_PROMPT = ENRICH_PROMPT + ARM_S2_SENTENCE;
+
+  // Rebuilt rather than spread, because KEY ORDER is the mechanism here and a
+  // spread would append composed_of after the per-100 g fields.
+  const base = structuredClone(ENRICH_SCHEMA_OPENAI);
+  // deno-lint-ignore no-explicit-any
+  const ing = (base as any).properties.items.items.properties.ingredients.items;
+  const p = ing.properties;
+  ing.properties = {
+    name: p.name,
+    category: p.category,
+    within_printed_weight: p.within_printed_weight,
+    typical_serving_g: p.typical_serving_g,
+    composed_of: { type: "string" },
+    protein_per_100g: p.protein_per_100g,
+    carb_per_100g: p.carb_per_100g,
+    fat_per_100g: p.fat_per_100g,
+  };
+  ing.required = [
+    "name",
+    "category",
+    "within_printed_weight",
+    "typical_serving_g",
+    "composed_of",
+    "protein_per_100g",
+    "carb_per_100g",
+    "fat_per_100g",
+  ];
+
+  const runS2 = async (items: Item[]) => {
+    const raw = await callOpenAI(ARM_S2_PROMPT, base, items);
+    return (raw.items ?? []).map((it: Record<string, unknown>) => ({
+      ...it,
+      ...sumIngredientMacros(
+        // deno-lint-ignore no-explicit-any
+        (it.ingredients ?? []) as any,
+        it.printed_total_g as number | null,
+      ),
+    }));
+  };
+
+  const menus = new Map<string, Record<string, unknown>[]>();
+  for (const m of new Set(SAUCE_DISHES.map((d) => d.menu))) {
+    const raw = JSON.parse(
+      await Deno.readTextFile(`scripts/fixtures/caches/pipeline.b10.${m}.raw.json`),
+    );
+    menus.set(m, raw.items ?? []);
+  }
+
+  const DRAWS_S2 = 3;
+  console.log(
+    `${"dish".padEnd(28)} ${"sauce".padEnd(15)} ${"base".padStart(7)}` +
+      ` ${"ARM S2".padStart(9)}   what it said the sauce is made of`,
+  );
+  for (const d of SAUCE_DISHES) {
+    // deno-lint-ignore no-explicit-any
+    const src = (menus.get(d.menu) ?? []).find((x: any) => x.name === d.name) as any;
+    if (!src) continue;
+    const it = item(src.name, src.description ?? "");
+    const fats: Record<string, number[]> = { base: [], S2: [] };
+    let said = "";
+    for (const arm of ["base", "S2"] as const) {
+      for (let draw = 0; draw < DRAWS_S2; draw++) {
+        // deno-lint-ignore no-explicit-any
+        const [out] = arm === "S2"
+          ? await runS2([it]) as any[]
+          : await ARMS.baseline([it]) as any[];
+        archive[`sauce-schema ${arm} ${d.name} d${draw}`] = out;
+        if (typeof out?.fat_g === "number") fats[arm].push(out.fat_g);
+        if (arm === "S2" && draw === 0 && !d.control) {
+          // deno-lint-ignore no-explicit-any
+          const hit = (out?.ingredients ?? []).find((i: any) =>
+            i.name.toLowerCase().includes(d.sauce.toLowerCase().split(" ")[0])
+          );
+          said = hit
+            ? `${hit.name} f${hit.fat_per_100g} <- ${String(hit.composed_of).slice(0, 46)}`
+            : "(sauce not listed as an ingredient)";
+        }
+      }
+    }
+    const span = (xs: number[]) =>
+      xs.length === 0 ? "-" : `${Math.min(...xs)}-${Math.max(...xs)}`;
+    console.log(
+      `${d.name.slice(0, 26).padEnd(28)} ${d.sauce.slice(0, 13).padEnd(15)}` +
+        ` ${span(fats.base).padStart(7)} ${span(fats.S2).padStart(9)}   ` +
+        `${d.control ? "[CONTROL]" : said}`,
+    );
+  }
+
+  await Deno.writeTextFile(
+    "scripts/fixtures/caches/probe-sauce-schema.raw.json",
+    JSON.stringify(archive, null, 2) + "\n",
+  );
+  console.log(
+    "\nArchived to scripts/fixtures/caches/probe-sauce-schema.raw.json" +
+      "\n⚠️  SOLO calls - not a production estimate.",
+  );
+  Deno.exit(0);
+}
+
+// ARM S3 - the required NUMBER (Santiago, 2026-08-16). The last step of the
+// sauce thread, and the one the evidence actually points at.
+//
+// S  (a sentence)          ignored outright inside a dish.
+// S2 (a required STRING)   always answered, but only helped where the model
+//                          happened to volunteer shares: `ranch dressing` said
+//                          "mayonnaise 50%, buttermilk 30%" and landed on fat 40
+//                          against USDA 44.5, while `Chimichurri` said
+//                          "parsley, garlic, olive oil, vinegar" - no numbers -
+//                          and kept its placeholder fat 15.
+// S3 (a required NUMBER)   forces the share that S2 only sometimes got.
+//
+// `parts` is an ARRAY of {name, share_pct} rather than free text, for two
+// measured reasons: a string bought a description and left the number alone, and
+// a free-text field invited MERGING (shrimp + breading + oil collapsed into
+// `breaded shrimp 150 g`). A structured array cannot be used to narrate a
+// composite away.
+//
+// ⚠️ NOT the same as B1..B13, which asked for gram figures that had to SUM to a
+// printed weight and got arithmetic back-solved by rounding. These shares are
+// WITHIN one ingredient and fit to nothing external - no plate total, no printed
+// weight. Santiago's plate-share variant WOULD be that falsified shape, and is
+// deliberately not what this tests.
+//
+//   deno run --allow-net --allow-env --allow-read --allow-write \
+//     --env-file=.env.local scripts/probe-plate-arms.ts sauce-number
+if (Deno.args[0] === "sauce-number") {
+  const ARM_S3_SENTENCE =
+    ' Give "parts" for every ingredient: the single foods it is made from and the' +
+    " percentage of its weight each one accounts for. When the ingredient is" +
+    " already a single food, give that one food at 100. State the parts before" +
+    " the composition figures and let them determine those figures, because a" +
+    " mixture built largely from a concentrated component is far richer than its" +
+    " name suggests.";
+  const ARM_S3_PROMPT = ENRICH_PROMPT + ARM_S3_SENTENCE;
+
+  const base = structuredClone(ENRICH_SCHEMA_OPENAI);
+  // deno-lint-ignore no-explicit-any
+  const ing = (base as any).properties.items.items.properties.ingredients.items;
+  const p = ing.properties;
+  // Rebuilt, not spread: strict mode emits in KEY ORDER, so `parts` must precede
+  // the per-100 g fields for the parts to constrain them rather than follow them.
+  ing.properties = {
+    name: p.name,
+    category: p.category,
+    within_printed_weight: p.within_printed_weight,
+    typical_serving_g: p.typical_serving_g,
+    parts: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { name: { type: "string" }, share_pct: { type: "number" } },
+        required: ["name", "share_pct"],
+        additionalProperties: false,
+      },
+    },
+    protein_per_100g: p.protein_per_100g,
+    carb_per_100g: p.carb_per_100g,
+    fat_per_100g: p.fat_per_100g,
+  };
+  ing.required = [
+    "name",
+    "category",
+    "within_printed_weight",
+    "typical_serving_g",
+    "parts",
+    "protein_per_100g",
+    "carb_per_100g",
+    "fat_per_100g",
+  ];
+
+  const runS3 = async (items: Item[]) => {
+    const raw = await callOpenAI(ARM_S3_PROMPT, base, items);
+    return (raw.items ?? []).map((it: Record<string, unknown>) => ({
+      ...it,
+      ...sumIngredientMacros(
+        // deno-lint-ignore no-explicit-any
+        (it.ingredients ?? []) as any,
+        it.printed_total_g as number | null,
+      ),
+    }));
+  };
+
+  const menus = new Map<string, Record<string, unknown>[]>();
+  for (const m of new Set(SAUCE_DISHES.map((d) => d.menu))) {
+    const raw = JSON.parse(
+      await Deno.readTextFile(`scripts/fixtures/caches/pipeline.b10.${m}.raw.json`),
+    );
+    menus.set(m, raw.items ?? []);
+  }
+
+  const DRAWS_S3 = 3;
+  console.log(
+    `${"dish".padEnd(27)} ${"sauce".padEnd(14)} ${"base".padStart(7)}` +
+      ` ${"ARM S3".padStart(8)} ${"fat/100g".padStart(9)} ${"USDA".padStart(5)}  parts`,
+  );
+  for (const d of SAUCE_DISHES) {
+    // deno-lint-ignore no-explicit-any
+    const src = (menus.get(d.menu) ?? []).find((x: any) => x.name === d.name) as any;
+    if (!src) continue;
+    const it = item(src.name, src.description ?? "");
+    const fats: Record<string, number[]> = { base: [], S3: [] };
+    let sauceFat = "-";
+    let said = "";
+    for (const arm of ["base", "S3"] as const) {
+      for (let draw = 0; draw < DRAWS_S3; draw++) {
+        // deno-lint-ignore no-explicit-any
+        const [out] = arm === "S3"
+          ? await runS3([it]) as any[]
+          : await ARMS.baseline([it]) as any[];
+        archive[`sauce-number ${arm} ${d.name} d${draw}`] = out;
+        if (typeof out?.fat_g === "number") fats[arm].push(out.fat_g);
+        if (arm === "S3" && draw === 0 && !d.control) {
+          // deno-lint-ignore no-explicit-any
+          const hit = (out?.ingredients ?? []).find((i: any) =>
+            i.name.toLowerCase().includes(d.sauce.toLowerCase().split(" ")[0])
+          );
+          if (hit) {
+            sauceFat = String(hit.fat_per_100g);
+            said = (hit.parts ?? [])
+              // deno-lint-ignore no-explicit-any
+              .map((x: any) => `${x.name} ${x.share_pct}%`)
+              .join(" ")
+              .slice(0, 52);
+          } else {
+            said = "(sauce not listed)";
+          }
+        }
+      }
+    }
+    const span = (xs: number[]) =>
+      xs.length === 0 ? "-" : `${Math.min(...xs)}-${Math.max(...xs)}`;
+    console.log(
+      `${d.name.slice(0, 25).padEnd(27)} ${d.sauce.slice(0, 12).padEnd(14)}` +
+        ` ${span(fats.base).padStart(7)} ${span(fats.S3).padStart(8)}` +
+        ` ${sauceFat.padStart(9)} ${String(d.usda ?? "-").padStart(5)}  ` +
+        `${d.control ? "[CONTROL]" : said}`,
+    );
+  }
+
+  await Deno.writeTextFile(
+    "scripts/fixtures/caches/probe-sauce-number.raw.json",
+    JSON.stringify(archive, null, 2) + "\n",
+  );
+  console.log(
+    "\nArchived to scripts/fixtures/caches/probe-sauce-number.raw.json" +
+      "\n⚠️  SOLO calls - not a production estimate.",
+  );
+  Deno.exit(0);
+}
+
 if (Deno.args[0] === "guard") {
   const GUARDS = [
     {
@@ -562,6 +1554,13 @@ if (Deno.args[0] === "guard") {
   Deno.exit(0);
 }
 
+// import.meta.main so bench-unweighted.ts can import armA rather than keeping a
+// copy of it - lesson 23. Without this guard, importing this file would fire the
+// paid size-sensitivity probe below at module scope.
+if (!import.meta.main) {
+  // Nothing else in this file executes on import; the mode blocks above all
+  // require an exact Deno.args[0] match.
+} else {
 for (const [armName, run] of Object.entries(ARMS)) {
   console.log(`\n=== ARM ${armName}`);
   for (const pair of PAIRS) {
@@ -597,3 +1596,4 @@ await Deno.writeTextFile(
   JSON.stringify(archive, null, 2) + "\n",
 );
 console.log("\nArchived to scripts/fixtures/caches/probe-plate-arms.raw.json");
+}

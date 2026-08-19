@@ -341,11 +341,51 @@ a real neighbour.**
 
 ### 🚧 STILL OPEN, AND NOT ADDRESSED BY THE PLAN
 
-**Accompaniments are sized from a nutrition-LABEL serving instead of what is served** — 24% of weighted
-items, **12–20% of those dishes' calories**. Prose (Arm S) and a duplicate field (S4) have both failed
-at it. ⚠️ **A weight fix ALONE makes sauces WORSE**: chimichurri is 2× too heavy AND ~3× too lean and
-the errors currently cancel. This is the largest known weighted defect and the natural next target
-after the plan ships.
+### 🎯 THE ACCOMPANIMENT DEFECT — the next piece of work, briefed for a cold start
+
+**In one line: when a dish comes with a sauce or a side, the app sizes it like a NUTRITION LABEL
+rather than like a PLATE.**
+
+**The mechanism, exactly.** An ingredient the model marks `within_printed_weight: false` is the one
+class `resolveGrams` **never rescales**, so whatever number arrives reaches the user untouched. B21
+asks for the *standard reference amount* — for a spooned sauce that is USDA's **30 g dipping
+container**, not the ~15 g actually served.
+
+| | |
+|---|---|
+| weighted items carrying at least one accompaniment | **32 of 133 = 24%** |
+| the accompaniment's share of those dishes' calories | **12–20%** |
+| ingredients the model gave **exactly 30 g** | **21 of 48** (and 46 of 48 were multiples of 5) |
+
+🔴 **THE TRAP — THE OBVIOUS FIX MAKES THE APP WORSE, AND THIS IS THE MOST IMPORTANT LINE HERE.**
+Chimichurri's two errors currently **cancel**: it is **2× too heavy** and **3.8× too lean**.
+
+| | kcal |
+|---|---|
+| what the app reports today | **48** |
+| target | **~79** |
+| **after "just halve the grams"** | **24** — twice as wrong, in the same direction |
+
+**Any fix must move WEIGHT and COMPOSITION together, or it must not move either.**
+
+☠️ **FOUR ARMS HAVE ALREADY DIED ON THIS. Do not re-run them.**
+
+| arm | what it was | outcome |
+|---|---|---|
+| **S** | a sentence in the prompt | **ignored** inside a dish; the sauce never moved |
+| **S2** | a required STRING field | always answered, but invited **MERGING** of ingredients |
+| **S3** | a required ARRAY of `{name, share_pct}` | 🔑 **the PROBE worked** — chimichurri fat 15 → 50 — **and the BENCHMARK rejected it**: 5–13/96 weighted vs a 4–6 baseline, and **26/72 unweighted vs 28** |
+| **S4** | S3 + a duplicate `amount_as_served_g` | 7–10/96, rejected |
+
+🔑 **THE LESSON S3 BOUGHT, AND IT IS THE ONE TO CARRY INTO THE BRAINSTORM: a probe measures the
+MECHANISM, the benchmark measures the DISH.** S3 provably made the model answer correctly about
+chimichurri and still made the app worse overall. **A convincing probe is not a shippable arm.**
+
+📊 **The prior to weigh:** prompt wording is **0 for 6**; a required schema field is **6 for 8** — but
+S3 and S4 are two of that scoreboard's failures, so schema force is not a guarantee *here*.
+
+**Where the evidence is:** search `stage2-macro-benchmark.md` for `ARM S3`, `ARMS S3 AND S4 ARE
+REJECTED`, and `SAUCE DECOMPOSITION PROBE`.
 
 ---
 
@@ -883,15 +923,18 @@ say what would falsify it and run it.
 🧭 **The commands that tell you the truth, all $0:**
 
 ```bash
-deno test --allow-all scripts/ supabase/          # expect 361 passed | 2 failed (see below)
+deno test --allow-all scripts/ supabase/          # expect 389 passed | 2 failed (see below)
 deno run --allow-read scripts/rescore-history.ts  # CURRENT score of every archived run
 deno run --allow-read scripts/rescore-history.ts <run-id>… --by-dish   # specific runs, per dish
 deno run --allow-read scripts/sim-scope-rule.ts   # $0: the printed-weight scope rule, A vs C
 
 # $0 replay - score ARCHIVED responses of any unweighted arm against the CURRENT oracle.
 # This is what makes an oracle correction free; it calls no API.
+# `dual` is the SHIPPED path (v32). --allow-env --env-file are REQUIRED even for a
+# replay: probe-plate-arms.ts reads OPENAI_API_KEY at import time and throws
+# without it, even though a replay calls no API.
 deno run --allow-read --allow-env --env-file=.env.local \
-  scripts/bench-unweighted.ts 3 <baseline|P|PF|PD|A|A-cond|S3> --replay
+  scripts/bench-unweighted.ts 3 <baseline|dual|P|P10|PF|PD|A|A-cond|S3|SplitOnly> --replay
 
 # PAID. Weighted set, one run of 3 draws. BENCH_ARM is optional (S3 | S4). ~$0.05.
 BENCH_RUN_ID=iter-<name>-w1 [BENCH_ARM=S3] deno run --allow-read --allow-write \
@@ -904,10 +947,10 @@ BENCH_RUN_ID=iter-<name>-w1 [BENCH_ARM=S3] deno run --allow-read --allow-write \
 # 77% cheaper. DO NOT add --full-menu to "be thorough": it costs 4.5x and buys
 # nothing for the score (see the cost entry in the benchmark log).
 deno run --allow-read --allow-write --allow-env --allow-net \
-  --env-file=.env.local scripts/bench-mixed-menu.ts 3 <mixed|P>
+  --env-file=.env.local scripts/bench-mixed-menu.ts 3 <mixed|dual|P|P10|Pinline>
 
 # $0 replay of the above. Add --full-menu to replay the 2026-08-17 whole-menu run.
-deno run --allow-read scripts/bench-mixed-menu.ts 3 <mixed|P> --replay
+deno run --allow-read scripts/bench-mixed-menu.ts 3 <mixed|dual|P|P10|Pinline> --replay
 ```
 
 `rescore-history.ts` is the **source of truth for every number in these docs.** Any figure written
@@ -915,7 +958,7 @@ in prose is a snapshot of when it was written; that command is what is true now.
 logic lives in `scripts/macro-measure.ts` and **must never be re-implemented anywhere** — see
 lesson 28, and `scripts/macro-measure_test.ts` fails the build if it is.
 
-ℹ️ **The suite's `2 failed` is noise — BOTH are known and neither is yours.** `361 passed | 2 failed`
+ℹ️ **The suite's `2 failed` is noise — BOTH are known and neither is yours.** `389 passed | 2 failed`
 is a CLEAN run:
 
 | red test | why it is noise |

@@ -126,9 +126,24 @@ merging moves code into `main`. Neither triggers the other, and merging ships no
 12 app commits since it include the editor, the per-piece line, the input sanitisers, the
 "18 means 18 rolls" unit fix, the nativewind `textAlign` crash fix, and the zero-portion parser fix.
 
-🏗️ **Build 7 started 2026-08-19** — `eas build --platform ios --profile production`, build id
-`cf7b5088-9280-4bac-a2e8-a97744e217fd`. Version 1.0.0, build number 7 (EAS `autoIncrement`, and
-`appVersionSource: "remote"` — the number is NOT in `app.json`).
+✅ **BUILD 7 IS BUILT AND VERIFIED (2026-08-19)** — id `cf7b5088-9280-4bac-a2e8-a97744e217fd`, commit
+`9745c39`, version 1.0.0 / build 7 (EAS `autoIncrement` + `appVersionSource: "remote"` — the number is
+NOT in `app.json`). ⛔ **NOT SUBMITTED to TestFlight — that step distributes to testers and is
+Santiago's call.** Submit with `eas submit --platform ios --latest`.
+
+🔬 **VERIFIED BY UNPACKING THE `.ipa`, not by trusting the build status** — the same three-row check
+that diagnosed the build-3 crash, run against `Payload/menuscanapp.app/main.jsbundle`:
+
+| string | build 3 (crashed) | build 7 |
+|---|---|---|
+| project ref `uonuiadueykynbetxxrw` | 0 | **1** ✅ |
+| anon key prefix `eyJhbGciOi` | 0 | **1** ✅ |
+| `"Missing Supabase env vars"` | 1 | **0** ✅ |
+
+The feature is in the binary too: `"Close portion editor"`, `"comes in"`, `"Whole order"` all present.
+⚠️ **Use `grep -a`** — `main.jsbundle` is Hermes BYTECODE, so plain `grep` reports "binary file
+matches" and a bare `-c` returns 0 for strings that ARE there. Multi-part template literals are split
+across the string pool, so search for a SINGLE literal, never a concatenated sentence.
 
 ✅ **The env-var trap that broke build 3 is CLOSED.** `eas env:list --environment production` carries
 both `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` against project ref

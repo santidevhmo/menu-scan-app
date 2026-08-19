@@ -1923,3 +1923,29 @@ Rules:
   scan before assuming the harness transferred.
 - **⛔ NEXT: merge PR #18 → PR #17 → `main`**, and the **accompaniment defect** remains the largest
   known weighted defect (24% of weighted items, 12–20% of their calories).
+
+## Eval 154 — 🔀 both PRs MERGED, CodeRabbit worked, TestFlight build 7 built and verified ($0 API)
+
+- **✅ MERGED: PR #18 → PR #17 → `main`** (87 commits). `git diff origin/main HEAD --
+  supabase/functions/analyze-menu/` is **EMPTY** — `main` and the deployed v32 agree for the first time
+  since v30. ⚠️ `main` had been ~533 lines adrift for weeks, so **deploying from `main` would have
+  silently rolled back two versions of macro work.**
+- **🐛 ONE REAL BUG from the CodeRabbit review:** `parsePortionInput("0.001")` returned **0, not null**
+  — it checked `> 0` BEFORE rounding. `PortionEditor` accepts anything non-null, so a tiny typed
+  quantity priced the row at **0 kcal**. Rounded first now; `parsePiecesInput` was unaffected
+  (`Number.isInteger` already rejects fractions). 15 tests in `src/lib/portions_test.ts`.
+- **Two CodeRabbit findings NOT applied as written:** the "11 vs 15 tests" counts are **sequential
+  within one entry**, not a stale number; and the failed stated-count case is **not** the Bistro pizza
+  cohort (already a separate row) — unidentifiable without guessing, so left alone.
+- **One finding was righter than it knew:** the invariant *"changing the divisor cannot move a
+  calorie"* is FALSE for the *"each piece about N cal"* line, which is `caloriesPerOrder /
+  parsedDivisor`. That display was added AFTER the invariant was written. Now scoped to whole-order
+  macros, which is what the ranking uses.
+- **✅ TESTFLIGHT BUILD 7 BUILT AND VERIFIED** (`cf7b5088`, commit `9745c39`). Build 6 was `ccd3b04`
+  (2026-08-09) and predated the entire portion control. **Verified by unpacking the `.ipa`** with the
+  build-3 three-row check: project ref **1**, anon key **1**, `"Missing Supabase env vars"` **0** — the
+  working profile exactly. ⛔ **NOT submitted; distribution is Santiago's call.**
+- ⚠️ **`main.jsbundle` is Hermes BYTECODE — use `grep -a`.** A bare `grep -c` returns 0 for strings
+  that are present, and concatenated template literals are split across the string pool.
+- **⛔ NEXT: submit build 7 (Santiago's call), then the ACCOMPANIMENT defect** — 24% of weighted items,
+  12–20% of their calories, the largest known weighted defect and still unfixed.

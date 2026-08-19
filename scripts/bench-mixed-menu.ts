@@ -49,6 +49,7 @@
 //   deno run --allow-read scripts/bench-mixed-menu.ts 3 P10 --replay --run r2
 import {
   callGptEnrich,
+  callGptEnrichDualPass,
   chunk,
   ENRICH_BATCH_SIZE,
   ENRICH_MODEL,
@@ -77,7 +78,7 @@ export const MENU_ARCHIVE: Record<string, string> = {
   polloteria: "polloteria.eval103c-m41-r1.raw.json",
 };
 
-export const ARMS = ["mixed", "P", "P10", "Pinline"] as const;
+export const ARMS = ["mixed", "P", "P10", "Pinline", "dual"] as const;
 type Arm = typeof ARMS[number];
 
 /**
@@ -284,6 +285,14 @@ async function main(): Promise<void> {
         ? await enrichSplit(sent)
         : arm === "Pinline"
         ? await enrichPInline(sent)
+        : arm === "dual"
+        // The SHIPPED path, scored by the harness that rejected P-10. Same batch
+        // selection as `mixed` on purpose: the dual pass's pass 1 IS today's
+        // batching, so its fixtures sit in today's batches, and any weighted
+        // movement against `mixed` is a defect in the isolation rather than a
+        // different regime.
+        // deno-lint-ignore no-explicit-any
+        ? (await callGptEnrichDualPass(sent as any, apiKey!, ENRICH_MODEL)).items
         // deno-lint-ignore no-explicit-any
         : (await callGptEnrich(sent as any, apiKey!, ENRICH_MODEL)).items;
       assertRunIsProducingData(`${arm} / ${menu} / draw ${draw + 1}`, enriched);

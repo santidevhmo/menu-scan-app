@@ -3352,3 +3352,2122 @@ thing from a food list in the prompt, and it was never covered by that ruling.
 **`portions.ts` is guarded by 5 tests** covering piece labelling, floating-point accumulation
 (1/3 + 1/3 + 1/3 must read "all", never "2.9999/3"), the half-item fallback, and every implausible
 count a model could return (0, 1.5, −3, 51, NaN, Infinity).
+
+### 🚀 FORCED `serving_pieces` — measured, shipped as v30 (2026-08-11, ~$2.35 for the day)
+
+`serving_pieces` stops being nullable. Prompt wording was 0 for 4 at getting a conventional count;
+schema force worked where wording could not, and **it also improved the macros**, which nobody
+predicted.
+
+| arm | failed/96 | mean abs error |
+|---|---|---|
+| `macro-best-v8` (was v29) | 2–3 | 14.3–14.5% |
+| **forced pieces (v30)** | **0–3** | **12.0–12.5%** |
+
+Two of four runs scored a perfect 0/96 and the error ranges do not overlap. **Why** it helps macros is
+NOT established — B15's mechanism (state the served form before listing ingredients) is a hypothesis.
+
+**Santiago's two pre-ship conditions, measured over 213 real items from five menus:**
+printed weight kept on **63/63** items that print one (and 96/96 fixture item-draws), median calorie
+change on those items **2.2%**; no drops, reorders, renames or empty ingredient lists; median change
+across all 213 items **3.3%**. Of the 19 items that moved >25% and >50 kcal, sixteen gained a missing
+preparation ingredient (batter on boneless chicken, oil on grilled vegetables, twice the cheese on a
+whole pizza) and three were drinks — **ruled out of the app by Santiago, so not a blocker**.
+
+🔴 **COVERAGE IS HALF THE STORY — the pizza case STILL FAILS.**
+
+Source: the **213-item forced-`serving_pieces` run over five real menus** described immediately above
+(the same run as the 63/63 printed-weight check), not the 8-dish weighted fixture set.
+
+| kind | count returned |
+|---|---|
+| stated on the menu (`3 pzas`, `Tres tortillas`) | ✅ honoured, 3 of 4 |
+| sushi rolls | 🟡 **32 of 42** got 8; ten got 1 |
+| **pizzas (Bistro)** | 🔴 **0 of 26** — every one returned 1 |
+| single-plate dishes, desserts | ✅ 1, correctly |
+
+So the feature shipped for its MACRO gain, which is measured, and not for its stepper gain, which is
+partial. A pizza still steps in halves. **Sushi counts also come back 8 where Santiago's own
+photographs of Nikkori show 10–12**, so the default is low for that restaurant — which is precisely
+what the editable stepper is for.
+
+### 🎛️ THE PORTION CONTROL — shipped client-side, needs build 7 (2026-08-11, $0)
+
+The stepper stops guessing what a dish is. Every item now carries **two** client-side numbers:
+`portion` (the share of one order, default 1) and `piecesPerOrder` (what the order is cut into,
+seeded from the model's `serving_pieces` and guarded to 1 for anything that is not an integer 1–50).
+A row with no pieces reads `1` and steps in halves; a row with pieces reads `8 / 8` and steps by one
+piece. Tapping the value opens one editor with both fields — `I'll have` and `comes in` — so the
+diner can cut a Margherita the model called whole into 8, or correct a Nikkori roll from 8 to 12.
+
+**What did NOT change IN THIS PHASE: the edge function, the schema, the prompt, the model, and the
+macro maths.** This phase is UI and one pure module. ⚠️ Scoped deliberately — the same branch's
+EARLIER phase did change the edge function (forced `serving_pieces`, deployed as v30), so this is not
+a claim about the whole PR. Spec: `specs/2026-08-11-portion-control-design.md`. Plan:
+`plans/2026-08-11-portion-control.md`.
+
+🔑 **The invariant that makes the pizza defect survivable — and its ONE exception.** **WHOLE-ORDER**
+macros are always `itemMacros × portion`; `piecesPerOrder` is arithmetically absent there, so it can
+only format. Changing `comes in` **cannot move a single whole-order calorie**, and that is enforced by
+a test, not by care.
+⚠️ **The exception, added LATER the same evening and not covered by the sentence as first written:**
+`PortionEditor.tsx` displays *"each piece about N cal"* computed as `caloriesPerOrder / parsedDivisor`,
+so a wrong `piecesPerOrder` DOES make that per-piece figure wrong. A wrong count therefore costs the
+diner granularity (a steak shown as `3 / 3` steps in thirds) **and the accuracy of the per-piece line**
+— but never the whole-order macros the ranking uses. That still downgrades the 0-of-26 pizza result
+from a ranking defect to a display one.
+
+Changing the divisor **preserves the share, not the count**: `8/8` → 12 gives `12/12`, `4/8` → 12
+gives `6/12`. Justified by Santiago's ruling (2026-08-11) that the app is used **before** ordering,
+so nobody is reconciling against slices they have already eaten.
+
+**One spec conflict resolved during implementation.** The spec said the numerator shows to one
+decimal, and also that a typed `0.25` is accepted. Both cannot hold: `0.25` would display as `0.3`
+beside calories computed from `0.25`, which the diner can catch. Typed input is now rounded to **two**
+decimals and displayed at two, so the number shown is always the number the macros used.
+
+**11 tests guard `portions.ts` AT THIS POINT** — the divisor guard against every shape a model can
+return, the step for 1/3/8/12, floating-point accumulation (`1/3 + 1/3 + 1/3` must read `3 / 3`), no
+ceiling in either form (`16 / 8` is two pizzas), the input parsers, and the invariant itself.
+ℹ️ **This count GROWS to 15 later in this same entry** — the device-testing paragraph below adds the
+sanitisers and the unit round-trip. Both numbers are correct at their own moment; **15 is current.**
+
+⚠️ **Not visible until TestFlight build 7.** Build 6 carries the old label and renders `3` / `8`.
+This is the app binary half of the 2026-08-11 split: v30 (the prompt) deployed in minutes, this waits
+for a build.
+
+**Device testing the same evening changed four things** (see §10b of the spec for the
+side-by-side). The `TextInput` crashed on open — `nativewind@5.0.0-preview.4` ships a
+`nativeStyleMapping` of `{ textAlign: true }` against code that calls `path.split(".")`, so
+`text-center` was fatal; `textAlign` now goes through `style`. The editor's quantity field
+was counting **orders** while the row counted **pieces**, so typing `18` on a 12-roll plate
+meant eighteen plates — it now counts the dish's own unit, and `unitCount` /
+`portionFromUnitCount` own that conversion under a round-trip test. The editor gained a live
+`each piece about N cal` line, because §6's guarantee otherwise makes the divisor look inert.
+Both fields now sanitise non-numeric input. **15 tests.**
+
+📊 **A question worth keeping: does the model's mass estimate track its own piece count?**
+Measured on the 213-item forced-pieces run, over the 144 items with no printed weight:
+1 piece → 231 g (n=102), 2 → 203 g, 3 → 230 g, 4 → 230 g, 6 → 213 g, 8 → 392 g (n=35).
+**Flat from 1 to 6.** A 6-piece dish weighs what a 1-piece dish weighs, so the count is a claim
+about how an order is CUT, not how much food it holds — which is what makes §6's invariant
+correct rather than merely convenient. The 8-piece group is heavier because those 35 items are
+almost all sushi rolls, a heavier dish; that confound is the whole of the r=0.535 correlation.
+Corollary for Nikkori: a 397 g Salmón Roll plate is 50 g per piece at the model's 8 and 33 g at
+Santiago's observed 12 — **33 g is a normal sushi piece, so the plate mass looks right and only
+the count is low.**
+
+### 🚧 BLOCKER — the pipeline responds to printed grams and to NO other size signal (2026-08-11, ~$0.20)
+
+Found without an oracle, which is why it is worth more than the six-dish oracle it was meant to
+support. The same dish was sent at two sizes, one item per call so variants could not anchor each
+other, three draws each. **Calories** is the metric: a printed-grams control moved the ingredient
+sum only 1.10× but calories 2.17×, because `resolveGrams` fits the model's servings to the printed
+weight IN CODE — the ingredient list sits upstream of the thing that responds.
+
+| signal | calorie ratio, 3 draws | expected | verdict |
+|---|---|---|---|
+| **printed grams 200 → 400 g** (control) | **2.14–2.37** | 2 | ✅ responds |
+| diameter 28 → 40 cm | 1.06–1.36 | 2.04 | ❌ flat |
+| "individual" → "para compartir, 2 personas" | **0.62**–1.22 | 2 | ❌ flat, sometimes inverted |
+| "6 pz" → "12 pz" | 1.03–1.17 | 2 | ❌ flat |
+| "chica" → "grande" | 1.02–1.32 | 1.5 | ❌ flat |
+
+🔴 **This kills arm B as designed.** B was "capture the `28 CM` and carry it to enrichment". The
+probe ran a stronger version than B could ever be — the size sat in the item's NAME, the most
+prominent position available — and the model ignored it. Passing size as TEXT achieves nothing.
+A captured size only helps if **code** converts it to grams, because grams is the only channel that
+works.
+
+**It is not a pizza problem.** Wings, pasta and salad are equally flat. The dish is irrelevant; the
+channel is everything.
+
+🔑 **A food-agnostic fix is visible in the table.** "2 personas" and "12 pz" are pure **multipliers**
+— 2× one portion whatever the dish, needing no food list, no dish names, and no effect on items that
+state nothing. Only `28 cm` needs a density, and a density is dish-specific.
+
+⚠️ **Interacts with what shipped the same day.** `serving_pieces` is treated as a **divisor** — 8
+slices divide one pizza. But "12 pz" of wings is twice the food, not the same food cut smaller.
+Both the model and the portion control currently treat every count as division. Those are two
+different meanings of a count and only one is implemented.
+
+**What this does NOT establish:** that estimates are uniformly low. They are not — Coliflor Roka
+(85 g), Carbonara (315 g) and Salmón Roll (397 g) all look plausible. The defect is that estimates
+sit near a ~231 g prior and **do not move when the menu says the dish is bigger**. Dishes whose true
+size happens to sit near that prior come out fine; dishes far from it — a 28 cm pizza, a platter for
+two, a 12-piece order — come out badly wrong.
+
+Probe: `scripts/probe-size-sensitivity.ts`. Archive:
+`scripts/fixtures/caches/probe-size-sensitivity.raw.json`.
+
+### 🔑 THE KNOWLEDGE IS THERE — the pipeline never asks for the plate (2026-08-11, ~$0.05)
+
+Follow-up to the size-channel blocker, and the finding that turns it into a buildable fix. The same
+model, same version, same sampling, asked **outside** the enrichment prompt: *how many grams does
+this dish weigh as served?* Three draws.
+
+| dish | asked plainly | the pipeline | factor | best view of truth |
+|---|---|---|---|---|
+| **CAPRICCIOSA 28 cm** | **750 g** | 250 g | **3.00×** | ~500–700 g |
+| **Alitas 12 pz** | **360–480 g** | 130 g | **3.23×** | ~400–500 g |
+| CARBONARA | 450 g | 315 g | 1.43× | ~250–400 g |
+| Coliflor Roka | 150 g | 85 g | 1.76× | 80–160 g |
+| Salmón Roll | 350 g | 397 g | 0.88× | 300–400 g |
+| CESAR (200 g) — CONTROL | 200 g | 200 g | 1.00× | 200 g, stated |
+
+**The mechanism, stated plainly.** The model is asked for ingredients and a typical serving of each;
+the plate mass is whatever those happen to SUM to. No step ever asks whether 250 g is a believable
+28 cm pizza, because no step looks at the plate. That is why the ~231 g mean exists — it is the sum
+of per-ingredient reference servings, not anyone's estimate — and why no stated size moves it.
+`resolveGrams` is the only place in the pipeline where the plate exists as a concept, which is
+exactly why printed grams are the only channel that works.
+
+**The signature is the good one:** the direct answer is ~3× higher precisely where the pipeline is
+badly wrong, and agrees where the pipeline is already right (Salmón Roll 0.88×). A fix built on this
+should move what is broken and leave alone what is not.
+
+⚠️ **The direct answers run HOT** — 750 g against a 500–700 g reconstruction, carbonara 450 g against
+~400, cauliflower at the top of its band. Adopting them wholesale will likely overshoot. Overshooting
+10% is a different problem from being 3× low, but it must be measured, not assumed.
+
+🎯 **What three prior findings jointly direct** (Santiago's rule: old evals are directions, not
+prohibitions):
+
+| prior finding | direction |
+|---|---|
+| the `typical_total_g` anchor regressed printed-weight dishes — ONE prompt served every item | do NOT repeat single-prompt delivery; DO repeat the idea with a **split batch** so weighted items keep today's prompt byte-identically |
+| wording 0-for-4, schema/mechanism force 5-for-7 | make it a **required field plus code routing**, not an instruction |
+| printed grams move the answer 2.14–2.37× via `resolveGrams` | route the plate total through **that same code path** |
+
+**A bonus the probe settled for free:** asking for the PLATE total absorbs the count problem.
+"An order of 12 chicken wings" returned 360–480 g unprompted, so a quantity-type count needs no
+separate multiplier — it is simply a fact about the plate. The divisor-vs-multiplier distinction
+survives only in the UI portion control, not in the mass path.
+
+Probe: `scripts/probe-plate-knowledge.ts`. Archive:
+`scripts/fixtures/caches/probe-plate-knowledge.raw.json`.
+
+### ⚗️ ARMS A AND C MEASURED — A wins, and is NOT ready to ship (2026-08-11, ~$0.80)
+
+Spec: `specs/2026-08-11-plate-total-arms-design.md`. Probe: `scripts/probe-plate-arms.ts`.
+Neither arm touched `enrich.ts` or the deployed function.
+
+**A** splits the batch: items that print a weight keep today's request byte-identically, the rest get
+a required `typical_total_g` **placed immediately after `printed_total_g`, before `ingredients`** —
+the same B4 ordering logic, so the model commits to the plate before portioning into it. **C** leaves
+`ENRICH_PROMPT` untouched and asks a separate parallel call for the plate weight.
+
+| signal, 3 draws | baseline | **A** | C | expected |
+|---|---|---|---|---|
+| printed grams (control) | 2.01–2.10 | **2.14–2.31** ✅ | 2.02–2.17 ✅ | 2 |
+| diameter 28→40 cm | 1.00–1.31 ❌ | **1.74–1.76** ✅ | 1.39–1.41 ❌ | 2.04 |
+| piece count 6→12 pz | 1.00–1.00 ❌ | **1.66–2.48** ✅ | 1.20–1.40 ❌ | 2 |
+| portions for 2 | 1.00–1.28 ❌ | 1.24–1.33 ❌ | 1.42 ❌ | 2 |
+
+🔴 **My prediction about C was wrong.** I expected batching to dilute it; each call here carried a
+single item, so batching was never the cause. C is weaker because it asks **cold**, while A asks
+inside the enrichment prompt where the model is already decomposing the dish. Context helped rather
+than hurt — the opposite of what the design predicted.
+
+**Guard dishes, 3 draws, unweighted only** (the 8-dish fixture CANNOT detect an A regression: all
+eight print a weight, so all eight take the byte-identical path and never exercise the new code):
+
+| dish | plausible | baseline | A | C |
+|---|---|---|---|---|
+| Coliflor Roka | 80–160 g | 160–165 kcal | **150 g ✅** | 250 g ❌ |
+| CARBONARA | 250–400 g | **502–987 kcal** | **350–400 g ✅** | 350 g |
+| CAPRICCIOSA | 500–700 g | ~250 g ❌ | 400 g — improved, still below | 350 g |
+| Salmón Roll | 300–400 g | 397 g ✅ | **250 g ❌ below** | 250 g ❌ |
+
+⚠️ **A single guard run said Coliflor Roka went to 250 g and I called it a regression. Three draws
+say 150 g, inside the band.** The claim was wrong; the re-run caught it. This is the never-quote-a-
+single-run rule earning its place again.
+
+📊 **An unpredicted benefit: A cuts variance.** Baseline Carbonara swings **502–987 kcal** across
+three draws on identical input; A gives 786–825. Stability on unweighted dishes was not a metric in
+the spec and probably should have been.
+
+**Verdict: A wins between the two and does NOT ship yet.** It fixes the defect it was built for,
+provably cannot touch printed-weight items, and is steadier — but it moved one already-correct dish
+out of band, the pizza is still under its reconstruction, and four guard dishes without an oracle is
+too thin to justify changing every scan. Directions this leaves: understand the Salmón Roll drop;
+more guard dishes; and the unweighted oracle, which this experiment deliberately did not need but
+which is what would settle it.
+
+### ✅ ARM A-CONDITIONAL — ask always, anchor only on a stated size (2026-08-11, ~$0.40)
+
+The synthesis of everything measured today. The `typical_total_g` field is **always requested**,
+because asking for the plate demonstrably improves how the model portions ingredients; the value is
+**applied as an anchor only when the menu states a size or quantity**, detected by a deterministic,
+food-agnostic parse (`\d+ cm|pulgadas`, `\d+ pz|piezas`, `\d+ personas`, `chica|grande|individual|
+compartir`, `dos|tres|seis|doce`) — units and quantifiers, never a food name, the `parseItemGrams`
+discipline.
+
+| metric, 3 draws | baseline | A | **A-conditional** |
+|---|---|---|---|
+| printed grams (control) | 2.09–2.22 ✅ | 2.15–2.26 ✅ | 2.09–2.16 ✅ |
+| diameter 28→40 cm | 1.06–1.34 ❌ | 1.68–1.81 ✅ | **1.77–1.95** ✅ |
+| piece count 6→12 pz | 1.00 ❌ | 1.66–1.95 ✅ | **1.81–1.97** ✅ |
+| portions for 2 people | 0.62–1.21 ❌ | 1.33 ❌ | 1.33 ❌ **still unfixed** |
+| Salmón Roll, no size stated | 482–492 ✅ | **362–385 ❌** | **482–496 ✅** |
+| Capricciosa, no size stated | 570–785 | 815–849 | **856 — best** |
+| Carbonara spread | 609–**987** | 745–867 | **701–745 — tightest** |
+| Coliflor Roka | 165–196 kcal | 122–220 | **59–91** (its mass band implies 42–83) |
+
+🔑 **The mechanism, now separated into two levers.** Asking for the plate total improves the
+INGREDIENT LIST — the Capricciosa reaches its best figure (856 kcal) under A-conditional while never
+being anchored at all. Applying the total is a SECOND, independent lever that only pays off when the
+menu actually said something about size; with nothing stated it overrides a reasoned ingredient list
+with a guess, which is what broke the Salmón Roll under plain A. The field is a reasoning device in
+the same family as `name_implied_components`; the anchor is arithmetic.
+
+⚠️ **What this does NOT establish.** Four guard dishes and three draws is thin. There is still no
+unweighted-dish oracle, so every verdict above is "inside/outside a defensible band", not a score.
+The **96-point weighted benchmark cannot validate any of this** — all eight fixtures print a weight,
+so all eight take the byte-identical path and never exercise the changed code. "Portions for N
+people" remains flat in every arm, and the Capricciosa at 856 kcal is still under its 1,100–2,000
+reconstruction.
+
+Probe: `scripts/probe-plate-arms.ts` (`statesSize` is the detector). Archives:
+`probe-plate-arms.raw.json`, `probe-plate-arms-guard.raw.json`.
+
+### 🛑 THE WIDER SET OVERTURNS A-CONDITIONAL (2026-08-11, ~$0.25) — do not ship it
+
+Fifteen real unweighted dishes with real descriptions, 60–510 g, four menus, run **batched** the way
+production runs them. Set frozen at `scripts/fixtures/unweighted-guard-set.json`.
+
+| direction | dishes | change vs baseline |
+|---|---|---|
+| up | Tiras de Pollo, Ensalada Griega, Caviar Service, Seafood Plateau, Braised Short-Rib, Mexicana, Scallop Ceviche, Flamenkuchen, Ostrica | **+13% to +64%** |
+| down | Unagui Masago, Amazonas Top, Cosmo de Pollo, Nico, Nikkori Dynamite | **−33% to −41%** |
+| flat | Nevada | −2% |
+
+🔴 **12 of 15 moved more than 25%, and the anchor fired on NONE of them** — no dish in the set states
+a size, so every bit of that movement came from the schema field alone. This is the parked anchor's
+failure mode repeating: **a required field perturbs every item, not only its target.** On four
+single-item dishes A-conditional looked surgical; across fifteen batched dishes it is not.
+
+**The split is systematic by dish type**, which is worse than noise: five of six sushi rolls fell
+~35% while nearly every non-sushi dish rose. The one fixed point we have — Santiago's independent
+cross-check putting the Salmón Roll at ~592 kcal — says the sushi drop is **wrong**. Meanwhile Tiras
+de Pollo rising 505–648 → 889–987 for breaded chicken with fries looks **right**. A-conditional
+trades one class of dish for another.
+
+⚠️ **Batching is implicated and was previously untested.** Single-item, A-conditional left the Salmón
+Roll at baseline (482–496). Batched with fourteen others, rolls fall by a third. Same code, different
+grouping. Every earlier arm result today used one item per call.
+
+📉 **Also visible: the baseline is very unstable in a batch** — Ostrica 215–498, Nico 655–854, Tiras
+de Pollo 505–648 across three draws of identical input. Some of the "movement" above is competing
+with noise of that size, and no conclusion here separates the two.
+
+**Directions this leaves** (not prohibitions): the plate-total idea still has the strongest mechanism
+evidence of anything tried — the model does know, and asking does change portioning. What is not
+established is that a required field can be added without perturbing everything else. Worth trying
+next: the field on a SEPARATE call keyed to items that state a size (a narrowed arm C, which never
+touches the enrichment request at all), and a batched-vs-single measurement of the baseline's own
+variance so future arms are judged against the right noise floor.
+
+### 📏 THE NOISE FLOOR — median 25%, worst 88% (2026-08-11, ~$0.20). Read this before trusting any arm.
+
+The same fifteen dishes through the **unchanged** pipeline, five times, batched. Nothing varies but
+the model's own sampling — same prompt, same model, same `temperature: 0`, same seed.
+
+| dish | kcal across 5 identical runs | spread |
+|---|---|---|
+| OSTRICA | 525, 205, 243, 242, 242 | **88%** |
+| MEXICANA | 499, 335, 339, 362, 639 | **62%** |
+| BRAISED SHORT-RIB GF | 500, 379, 501, 501, 653 | 53% |
+| Nevada | 347, 514, 346, 503, 346 | 39% |
+| Cosmo de Pollo | 664, 501, 681, 693, 636 | 32% |
+| Nico | 867, 668, 818, 703, 705 | 26% |
+| Tiras de Pollo / TAYLOR BAY | — | 25% |
+| CAVIAR SERVICE | 291, 253, 232, 253, 232 | 23% |
+| Nikkori Dynamite | 680, 547, 683, 670, 593 | 22% |
+| FLAMENKUCHEN / SEAFOOD PLATEAU / Unagui Masago | — | 17% |
+| Amazonas Top | 454, 415, 454, 448, 472 | 13% |
+| **ENSALADA GRIEGA** | 195, 196, 196, 196, 196 | **1%** |
+
+🔴 **`temperature: 0` and a fixed seed do NOT make this deterministic.** OpenAI's seed is
+best-effort; these swings are what remains.
+
+🔑 **This retro-scores the A-conditional result.** Its headline was "12 of 15 dishes moved more than
+25%" — and the **median noise floor is 25%**. Re-judged against each dish's OWN noise, the real
+movements are: **up** — Ensalada Griega (+64% against **1%** noise, unmistakable), Tiras de Pollo,
+Caviar, Seafood Plateau, Scallop Ceviche; **down** — Unagui Masago, Amazonas Top, Nikkori Dynamite.
+Ostrica, Mexicana, Flamenkuchen and Nevada were noise, and Cosmo de Pollo and Nico are borderline.
+The sushi-down / non-sushi-up split is REAL but it is 5 versus 3, not 9 versus 5.
+
+⚠️ **A defect bigger than the experiment: the SHIPPED pipeline is unstable on unweighted dishes.**
+Ostrica returns 205–525 kcal for the same menu item on the same input; Mexicana 335–639. A diner
+scanning the same menu twice can see a dish's calories more than double. This is in production today,
+has nothing to do with the plate-total work, and is arguably the more urgent finding.
+
+**Standing consequence for every future arm:** a change must beat **that dish's own** noise, not a
+flat threshold, and three draws is too few for dishes whose spread approaches 90%. Judge per-dish or
+do not judge.
+
+### 🚨 THE INSTABILITY IS THE BATCH, NOT THE MODEL (2026-08-11, ~$0.15) — production defect, code-only fix
+
+Same dishes, same unchanged pipeline, five draws each. The ONLY variable is whether the item was
+sent alone or in a batch of fifteen.
+
+| dish | SOLO, 1 item per call | BATCHED, 15 per call |
+|---|---|---|
+| OSTRICA | 173,172,172,172,177 → **3%** | 525,205,243,242,242 → **88%** |
+| MEXICANA | 358,359,359,358,359 → **0%** | 499,335,339,362,639 → **62%** |
+| BRAISED SHORT-RIB GF | 525,529,529,529,525 → **1%** | 500,379,501,501,653 → **53%** |
+| Nevada | 460,450,463,450,463 → **3%** | 347,514,346,503,346 → **39%** |
+| ENSALADA GRIEGA | 186,186,175,186,191 → 9% | 195,196,196,196,196 → 1% |
+
+🔑 **Asked alone the model is essentially deterministic (0–3%). Batched, the same dish swings
+39–88%.** Twenty to thirty times the spread, from grouping alone. `temperature: 0` and the fixed
+seed hold fine for a single item; they do not survive a fifteen-item request.
+
+🔴 **This ships today.** `ENRICH_BATCH_SIZE = 10`, so every real scan carries it. Two diners at the
+same table can see a dish differ by 2×, and the RANKING they came for is built on those numbers. It
+is a code-only fix — no prompt, no schema, no model change.
+
+⚠️ **It retro-invalidates part of the same day's work.** The 15-dish wide run was batched, so
+"A-conditional moved 12 of 15 dishes" was largely measuring this. The guard runs were solo and remain
+trustworthy. Any arm judged on batched runs must be re-judged.
+
+**Open question worth measuring next:** the batch-size curve. `ENRICH_BATCH_SIZE` is already tuned
+down to 10 for a different reason (GPT-4o early-stopping, see the comment in `enrich.ts`). Does
+stability arrive at 5, at 3, or only at 1? One item per call multiplies prompt tokens by the item
+count — enrichment is ~$0.03/scan today, so the ceiling is roughly $0.30/scan — and the knee of that
+curve is the whole decision.
+
+Probe: `scripts/probe-plate-arms.ts solo|noise`. Archives: `probe-solo-vs-batch.raw.json`,
+`probe-noise-floor.raw.json`.
+
+### 🔴 THE BATCH-SIZE CURVE — MEASURED, AND IT IS A TRADE-OFF, NOT A KNOB (2026-08-12, ~$11.50)
+
+Answers the question the entry above left open, and the answer is not the one that entry expected.
+**Nothing was changed. `ENRICH_BATCH_SIZE` is still 10 and nothing was deployed.**
+
+#### 1. The curve — stability, 15 unweighted dishes, 5 draws each, 125 calls
+
+| | b1 | b3 | b5 | **b10 (production)** |
+|---|---|---|---|---|
+| median kcal spread | 4% | 12% | 7% | **35%** |
+| worst dish | 45% | 49% | 76% | 79% |
+| dishes within 10% | 9/15 | 7/15 | 11/15 | **2/15** |
+| calls returning short | 0/75 | 0/25 | 0/15 | 0/10 |
+
+**b10 is far worse than any smaller size.** 1 vs 3 vs 5 cannot be separated at five draws — median
+favours b1, "dishes within 10%" favours b5, worst-case favours b1/b3. Do not quote a knee.
+
+#### 2. Batch size shifts the ANSWER, not just the scatter
+
+The finding that reframes everything. OSTRICA, five draws per size:
+
+| b1 | b3 | b5 | b10 |
+|---|---|---|---|
+| 172,173,172,172,173 | 171,171,171,170,171 | 457,216,370,479,247 | 237,242,216,498,232 |
+
+Steady at ~172 in a small batch, ~2× higher and unstable in a large one. TAYLOR BAY runs the OTHER
+way: ~200 kcal at b1/b3, ~115 at b5, ~99 at b10. This is not noise around a fixed value; the batch
+composition moves the estimate.
+
+#### 3. The drop fear did not reproduce, and b10 is the one that drops
+
+`ENRICH_BATCH_SIZE` was pinned at 10 to stop GPT-4o early-stopping. Across 125 curve calls at
+1/3/5/10, not one returned short. Then the all-menu sweep found the opposite of the fear:
+
+| | b10, 1 draw | b3, 3 draws |
+|---|---|---|
+| menu-runs | 10 | **30** |
+| item enrichments | 460 | **1,380** |
+| input order preserved | 10/10 | **30/30** |
+| **genuine drops** | **16** (Polloteria wing sauces) | **0** |
+| wall-clock, 10 menus | 521 s | 353 / 342 / 304 s |
+
+**Polloteria loses 16 of 95 items at the setting running in production today.** BBQ, Ranch, Buffalo
+and twelve more come back with `kcal 0, confidence low, 0 ingredients` — `fallbackEnriched`'s exact
+signature — and come back correct at b3 (BBQ 39 kcal, Buffalo 107, Ranch 88). b3 is also ~35% FASTER
+despite more calls.
+The one item flagged in every b3 draw is `CERVEZAS Y LICORES / "PREGUNTA POR NUESTRA VARIEDAD"`, a
+section header extraction captured as an item. Not a dish, correctly not enriched, identical at b10 —
+a small EXTRACTION defect, logged here and not chased.
+Items with zero macros are all drinks: Grey Goose, Don Julio, bottled water, americano, tea. Correct —
+alcohol is deliberately out of scope and water is 0 kcal. The sweep's own gate over-flagged these;
+it should exclude `category: drink`.
+
+#### 4. 🔴 THE GATE THAT KILLED THE FIX: b3 damages accuracy on weighted dishes
+
+Santiago's ruling was that nothing ships without evidence across every menu. That gate caught this.
+8 fixtures, same oracle, same `rescore-history.ts` path, 4 runs × 3 draws:
+
+| arm | request | failed | mean\|err\| |
+|---|---|---|---|
+| **B21** (published best) | `enrichBatch`, one call of 8 | 0, 2, 2, 3 / 96 | 12.1–14.1% |
+| **control** | `callGptEnrich`, batch 8 | 0, 0, 2, 4 / 96 | 12.3–13.9% |
+| **b3** | `callGptEnrich`, batch 3 | **13, 13, 15, 14 / 96** | **17.9–18.9%** |
+
+The control exists because the b3 comparison changed TWO things — batch size AND the code path (B21
+called `enrichBatch` directly). It reproduces B21 exactly, so **the wrapper is innocent and batch size
+is the cause.** No dish was backfilled or empty in any b3 draw; this is worse model output, not a drop.
+
+#### 5. What this means — the two defects are ONE defect
+
+Small batches help unweighted dishes and hurt weighted ones. A single global batch size cannot win
+both, so **this was never a tuning problem.**
+
+**Hypothesis for the next session, offered as a prior and NOT as a finding:** the model calibrates
+across the items in a call. Where `resolveGrams` pins a dish's grams from a printed weight, that
+cross-item context helps and removing it hurts. Where the plate is GUESSED, the same context makes the
+guess depend on whatever else shares the batch — which is exactly the instability. If that holds, the
+batching defect and the "size is a dead channel except printed grams" defect are the same gap:
+**nothing pins the plate for a dish that prints no weight.** Arm A (a required `typical_total_g`) was
+built and shelved for pushing the Salmón Roll out of band; it is the shape of a fix that would address
+both, and it deserves re-judging SOLO now that batched runs are known to be untrustworthy.
+
+#### What this does NOT establish
+
+- **No knee.** 1 vs 3 vs 5 are indistinguishable at five draws.
+- **"Solo is stable" was a 5-dish selection artifact.** Across 15 dishes, five swing ≥19% sent ALONE
+  (Tiras de Pollo 505–796 kcal at b1). Batch size is not the whole fix.
+- **The 8-fixture benchmark structurally cannot see the instability.** `bench-macros.ts` sends all 8 in
+  one call and all 8 print weights, so `resolveGrams` pins them and the plate is never guessed.
+  `0–3/96 at 12%` is real but describes ONLY dishes that print a weight.
+- Stability was measured on unweighted dishes from 4 menus; accuracy on 8 weighted fixtures. Neither
+  covers the other's population.
+- One draw at b10 in the sweep against three at b3.
+
+#### Code, all uncommitted on `feat/forced-serving-pieces`
+
+- `enrich.ts` — **`MAX_CONCURRENT_BATCHES = 5`**, and `callGptEnrich` now runs capped waves instead of
+  one `Promise.all` over every batch. Polloteria at b3 is 19 simultaneous requests uncapped; a
+  rate-limited call retries once and then `fallbackEnriched` zeroes the item, so the cost of the cap's
+  absence is a WRONG scan, not a slow one. Guarded by a test that was verified to fail without it.
+- `enrich.ts` — `callGptEnrich(items, key, model, batchSize?)`. Harness knob, lesson 23. Production
+  passes nothing and gets `ENRICH_BATCH_SIZE`.
+- `bench-pipeline.ts` — `sweep [--dry] <sizes...>` over all 10 archived menus. Repeating a size buys
+  extra draws (`sweep 3 3`). Reads archived EXTRACTIONS from `caches/`, so all ten menus cost $0
+  instead of re-buying OCR for six. `--dry` prices a run before sending anything.
+- `bench-macros.ts` — `BENCH_BATCH_SIZE` env knob; unset, the request is byte-identical to every
+  archived run. `replayDraw` now also reads a reassembled-items archive so these runs re-score for $0.
+- `probe-plate-arms.ts` — `curve` arm.
+
+Archives: `probe-batch-curve.raw.json`, `pipeline.b{10,3}.p{0,1}.<menu>.raw.json`,
+`macro-bench.iter-b3batch-w{1..4}-d{0..2}.raw.json`, `macro-bench.iter-b8ctrl-w{1..4}-d{0..2}.raw.json`.
+Re-derive every figure with `deno run --allow-read scripts/rescore-history.ts <runs...>`.
+
+⚠️ **Correction to the entry above and to START-HERE: every "15 per call" figure was really 10 + 5.**
+`callGptEnrich` chunks internally at `ENRICH_BATCH_SIZE`, so the 15-dish batched runs were a group of
+10 plus a remainder of 5. The curve tags each dish with the group size it ACTUALLY sat in.
+
+### 🟢 THE UNWEIGHTED ORACLE EXISTS — AND THE PIPELINE SCORES 39% ON IT (2026-08-13, ~$2)
+
+The gap every figure in this log carried but could not measure. **The 96-point benchmark only ever
+described dishes that PRINT A WEIGHT.** All 8 of its fixtures print one, so `resolveGrams` pins their
+grams and the plate is never guessed. Most real menu items are unweighted and were ungated.
+
+**Two scores now exist. NEVER merge them, and never quote one as the other.**
+
+| score | dishes | points | population |
+|---|---|---|---|
+| weighted (existing) | 8 | 96 | menus that print grams — **~96% passing** |
+| **unweighted (NEW)** | 6 | 24 | menus that do not — **28/72 = 39%** over 3 draws |
+
+`scripts/fixtures/unweighted-oracle.json`, built by `scripts/unweighted-oracle-build.ts`, scored by
+`scripts/bench-unweighted.ts`. Truth is a **band**, not a number: a fake point oracle silently
+flatters whichever model shares its error.
+
+| dish | mass g | kcal | protein | carb | fat | score |
+|---|---|---|---|---|---|---|
+| CAPRICCIOSA | 400-450 | 1101-1238 | 45-51 | 100-113 | 58-65 | **0/12** |
+| CARBONARA | 250-450 | 528-950 | 14-26 | 39-69 | 35-63 | 9/12 |
+| ENSALADA GRIEGA | 136-250 | 126-231 | 3-6 | 8-15 | 9-16 | 10/12 |
+| TIRAS DE POLLO | 234-333 | 613-872 | 37-52 | 46-66 | 31-44 | 3/12 |
+| COLIFLOR ROKA | 85-120 | 205-289 | 3-5 | 17-24 | 14-19 | **0/12** |
+| Salmón Roll | 300-400 | 410-547 | 20-27 | 41-55 | 18-24 | 6/12 |
+
+#### 🔑 Santiago's rulings — every mass band is his, none is USDA's alone
+
+- **PRICE IS NOT EVIDENCE OF GRAMS (2026-08-13).** A draft band for COLIFLOR ROKA was argued from
+  price parity — a $250 starter beside a $220 200 g dish. **Rejected outright:** *"A menu can have an
+  expensive pizza of 1k+ dollars, doesn't mean it weighs 10x the size of a large pizza."* Price
+  reflects margin and scarcity, never mass. Do not reintroduce it in an oracle, a prompt, or code.
+- **CAPRICCIOSA 400-450 g**, overriding a USDA-derived 647-724 g.
+- **Salmón Roll 300-400 g**, revised up from 250-350 the same day.
+- **COLIFLOR ROKA 85-120 g** — 85 g is USDA's largest published fried-cauliflower portion.
+
+#### ⚠️ FOUR ORACLE ERRORS, ALL CAUGHT BY THE GATE BEFORE IT JUDGED THE PIPELINE
+
+Read this section before building any oracle entry. **Every one is the same mistake: a generic USDA
+record that omits something the menu explicitly names.**
+
+| entry | wrong record | why it was wrong | effect once fixed |
+|---|---|---|---|
+| CARBONARA | 'Pasta with cream sauce' (FDC 2708855) | **no meat**; menu says *"un toque de tocino"* | protein band 9-17 -> **14-26**. Pipeline's 21-23 went FAILING -> PASSING |
+| ENSALADA GRIEGA | 'Salad dressing, NFS' (FDC 2710195), 44.5 g fat/100 g | **creamy**; menu says *"vinagreta balsamico"* (FDC 2710203, 21.1 g) | fat band 16-30 -> **9-16**. Pipeline's 9-12 went FAILING -> PASSING |
+| CAPRICCIOSA | cheese-only 14" records | wrong **topping class** — serrano ham, artichoke, olive, mushroom is meat-and-vegetable | the design doc's [470,530] band is superseded |
+| CAPRICCIOSA | chain-pizza composition kept under a thin-crust mass | rejecting a record's MASS makes its COMPOSITION suspect too | switched to FDC 2708660 thin crust; fat 10.9 -> **14.4 g/100 g** |
+
+🔑 **The general lesson: an oracle built from generic records will fail a pipeline that is right.**
+Two of the four "pipeline defects" in the first run were the oracle's fault. **Re-source before
+believing any single-dish failure.** And a caveat that was CHECKED AND DISMISSED, so nobody re-opens
+it: FDC 2709830 'Greek Salad, no dressing' *does* contain feta — back-solving its 2.26 g fat and 49
+kcal per 100 g against plain salad vegetables implies ~10% feta.
+
+#### 🔴 THE FINDING: a right mass with the wrong FOOD — COLIFLOR ROKA scores 0/4
+
+The pipeline returns **25 kcal, 2 g protein, 4 g carb, 0 g FAT**. That is plain raw cauliflower.
+**Zero grams of fat on a battered, deep-fried, sauced dish.** Its mass is roughly right and its
+identity is completely wrong.
+
+**Why: the description is EMPTY, and 'Roka' is defined only on ANOTHER LINE of the same menu** —
+`CAMARÓN ROKA … capeado y bañado en nuestro aderezo roka a base de chipotle`. Enrichment never sees
+that line. A human reading the menu infers it in seconds.
+
+⚠️ **A draft of this entry claimed the dish "already passes, because the pipeline says 85 g". It
+scores 0/4.** Mass is NOT scored — the four macros are. A right-looking weight with a raw-vegetable
+composition fails everything. Never infer a dish's score from its implied mass.
+
+🔗 **This connects to the batching defect and points the OTHER way.** Batching showed that what shares
+a call CHANGES an answer, and small batches were preferred; here, cross-item context from the same
+menu would have HELPED. Both are the same question — what the model sees alongside an item — and any
+arm that isolates items further will make this dish worse.
+
+#### 🔴 FAT IS THE WEAKEST MACRO — 5 of 6 dishes
+
+| dish | pipeline fat | band |
+|---|---|---|
+| COLIFLOR ROKA | **0 g** | 14-19 |
+| CAPRICCIOSA | 20 g | 58-65 |
+| TIRAS DE POLLO | 20-22 g | 31-44 |
+| CARBONARA | 25-29 g | 35-63 |
+| Salmón Roll | 25 g (**high**) | 18-24 |
+| ENSALADA GRIEGA | 12 g ✅ | 9-16 |
+
+Carbs pass almost everywhere. This is the same shape as the known Coleslaw regression where B4
+under-portions dressing, and it is now measured rather than suspected.
+
+#### What this does NOT establish
+
+- **6 dishes, 3 draws, 4 menus.** A 24-point score moves 4 points per dish; one re-ruled band swings
+  the headline. Do not report a 1-point difference between arms as a result.
+- **The bands are Santiago's judgement anchored on USDA, not measurements.** Two were revised within
+  24 hours. An arm that fails by a little may be meeting a band that is a little wrong.
+- **ENSALADA GRIEGA's remaining protein failure (8 g vs 3-6) is the narrowest in the set** and is
+  believed genuine — ~3.2 g/100 g against USDA's undressed 2.75 — but do not act on it alone.
+- Nothing here re-scores the 96-point weighted number, which is unchanged.
+- **Arm A cannot fix COLIFLOR ROKA.** Arm A supplies a plate WEIGHT; this dish's weight is already
+  right and its FOOD is wrong. Judge Arm A on Capricciosa and Tiras de Pollo, not on the set total.
+
+#### Tools added
+
+- `scripts/unweighted-oracle-build.ts` — writes the oracle from approved mass bands. Bands are
+  computed by `deriveBands`, never by hand, so calories stay Atwater-consistent at both endpoints and
+  no one has to trust an agent's arithmetic. Refuses to write if `validateEntry` fails.
+- `scripts/bench-unweighted.ts` — the 24-point score. Enriches each dish **inside its own menu** at
+  the deployed `ENRICH_BATCH_SIZE`, because the batch-size curve proved a 6-item call is a regime
+  production never runs. **Excludes backfilled items rather than scoring them 0/4** — the first run
+  scored an API timeout as a catastrophic salad estimate.
+- `scripts/unweighted-portions.ts` — `--search <terms>` finds FDC candidates instead of guessing ids,
+  and every record now prints its per-100 g composition. The committed candidate list contained a
+  canned-orange id under COLIFLOR ROKA and cheese-fries under TIRAS DE POLLO, which is what guessing
+  ids costs. Writes nothing; selection stays Santiago's.
+
+### ❌ ARM A, SCORED AGAINST THE ORACLE AT LAST — NET WORSE, DO NOT SHIP (2026-08-13, ~$2)
+
+Arm A (a required `typical_total_g` for items with no printed weight) was built on 2026-08-11 and
+shelved on a single-dish impression. It now has a number, and the number is bad.
+
+**baseline 28/72 (39%) → Arm A 15/72 (21%).** Same menus, same batching, same oracle; the ONLY
+difference is the prompt. Arm A was chunked at `ENRICH_BATCH_SIZE` for exactly this reason —
+`armA()` otherwise sends every unweighted item in one call, which is a regime neither production nor
+the baseline runs.
+
+| dish | baseline | Arm A | Δ | what happened |
+|---|---|---|---|---|
+| CAPRICCIOSA | 0/12 | **3/12** | **+3** | 524 → **799 kcal** (band 1101-1238). Carb entered band |
+| COLIFLOR ROKA | 0/12 | 0/12 | 0 | 25 → **116 kcal**, fat 0 → 8 g. Still 0/4 but materially closer |
+| TIRAS DE POLLO | 3/12 | 3/12 | 0 | same score, DIFFERENT failures — protein 33 → **71** (band 37-52), carb left the band |
+| CARBONARA | 9/12 | 6/12 | **-3** | overshot: protein 31 (band 14-26), carb 72 (band 39-69) |
+| Salmón Roll | 6/12 | **0/12** | **-6** | now UNDERshoots: 377-384 kcal (band 410-547) |
+| ENSALADA GRIEGA | 10/12 | **3/12** | **-7** | overshot: 241-271 kcal (band 126-231), fat 18-21 (band 9-16) |
+
+#### 🔑 Why it fails, and it is not "it scales everything up"
+
+**Arm A REPLACES the ingredient-sum mass with a guessed plate mass.** It is a swap, not a multiplier.
+Where the model's plate guess beats the ingredient sum it helps (Capricciosa +275 kcal, Coliflor
++91); where the ingredient sum was already the better estimate it destroys it — and the Salmón Roll
+moved DOWN, which no scaling story explains. **The plate guess is not reliably better than the
+decomposition.** Any future arm must beat the ingredient sum per dish, not merely restore size
+sensitivity.
+
+✅ **This CONFIRMS the 2026-08-11 shelving decision, which was made on an impression.** That entry
+read "restores size response but pushed the Salmón Roll out of band". Both halves reproduce, and the
+Salmón Roll effect is now quantified at -6 points.
+
+#### ⚠️ Two predictions made BEFORE the run, both wrong. Recorded so the reasoning is not reused.
+
+1. **"Arm A cannot fix COLIFLOR ROKA — its mass is right and its FOOD is wrong."** Half wrong. It did
+   not fix it (still 0/4) but it moved it a long way: 25 → 116 kcal and fat 0 → 8 g. Asking for a
+   plate weight also improved the ingredient list, so the anchor is not purely a mass mechanism.
+2. **"Realistic ceiling ~+10 points; the risk is pushing the Salmón Roll further over."** The
+   direction was wrong: Arm A pushed the roll UNDER its band, not over. Predicting the SIGN of an
+   arm's error from a previous arm's behaviour is not reliable.
+
+#### The arm worth measuring next — and it is largely predictable for $0 first
+
+**A-conditional** asks for the plate weight always but APPLIES it only when the menu STATES a size
+(`statesSize()`, food-agnostic). Of these six dishes only CAPRICCIOSA states one ("28 cm"). If the
+non-anchored dishes reverted to baseline behaviour it would score ~**31/72** — Arm A's Capricciosa
+plus the baseline's other five. ⚠️ **That is an ESTIMATE, not a result:** A-conditional still asks
+for `typical_total_g` on every unweighted item, which changes the ingredient list even where the
+anchor is not applied, and it splits batches differently. Measure it; do not quote 31.
+
+**Do not re-run plain Arm A.** Archives: `unweighted.A.<menu>-d{0,1,2}.raw.json`,
+`unweighted.baseline.<menu>-d{0,1,2}.raw.json`.
+
+### 🟡 A-CONDITIONAL — THE TOTAL SAYS "NOISE", THE PER-DISH SAYS SOMETHING REAL (2026-08-13, ~$2)
+
+| dish | states a size? | baseline | Arm A | **A-cond** |
+|---|---|---|---|---|
+| CAPRICCIOSA | **yes, "28 cm"** | 0/12 | 3/12 | 2/12 |
+| CARBONARA | no | 9/12 | 6/12 | **12/12 — 4/4 on every draw** |
+| ENSALADA GRIEGA | no | **10/12** | 3/12 | **3/12** |
+| TIRAS DE POLLO | no | 3/12 | 3/12 | 3/12 |
+| COLIFLOR ROKA | no | 0/12 | 0/12 | 0/12 |
+| Salmón Roll | no | 6/12 | 0/12 | **10/12** |
+| **TOTAL** | | **28/72 (39%)** | 15/72 (21%) | **30/72 (42%)** |
+
+**28 → 30 is inside the noise of 6 dishes × 3 draws. Do not call A-conditional an improvement.**
+
+#### 🔑 THE FINDING: "ask but do not apply" DOES NOT ISOLATE ANYTHING
+
+A-conditional's whole premise is that requesting `typical_total_g` is harmless where the anchor is
+not APPLIED. **Five of these six dishes state no size, so their anchor was never applied — and three
+of them moved hard anyway:**
+
+| dish | baseline → A-cond | anchor applied? |
+|---|---|---|
+| CARBONARA | 9 → **12** | **no** |
+| Salmón Roll | 6 → **10** | **no** |
+| ENSALADA GRIEGA | 10 → **3** | **no** |
+
+**Merely ASKING for a plate weight rewrites the ingredient list.** The mass anchor is not the
+mechanism — or not the only one. Any future arm that assumes a prompt addition is inert where its
+output goes unused is assuming something this run falsifies. Per-draw scores were stable within each
+arm (Carbonara 4,4,4; Griega 1,1,1; Salmón 3,4,3), so these per-dish moves are real even though the
+total is not.
+
+⚠️ **A PREDICTION THAT WAS RIGHT FOR THE WRONG REASON — the most dangerous kind.** Before the run this
+log estimated "~31/72, being Arm A's Capricciosa plus the baseline's other five". **The total came in
+at 30.** Every component of that reasoning was wrong: Carbonara beat its baseline by 3, the Salmón
+Roll by 4, and Griega collapsed by 7. The offsetting errors summed to almost exactly the predicted
+number. **A matching headline is not confirmation of a mechanism.** Always read the per-dish table.
+
+#### The pattern worth carrying forward — a PRIOR, not a finding
+
+Asking for a plate weight helped the two DENSE dishes (pasta 9→12, sushi 6→10) and wrecked the one
+LOW-DENSITY dish (salad 10→3, overshooting to 271-296 kcal against a 126-231 band). Capricciosa, the
+only anchored dish, barely differed between A and A-cond (3 vs 2), so **the anchor itself did little;
+the ASK did the work.** If density is the axis, an arm that requests a plate weight only for dishes
+that are not salad-shaped is the next thing to try — but that needs a food-agnostic detector, and
+this project has already ruled that putting food names in the nutrition step is measured harmful.
+
+#### Unmoved by every arm
+
+**COLIFLOR ROKA 0/12 in all three.** Nothing that supplies a plate weight can fix a dish whose weight
+is already right and whose FOOD is wrong. Its description is empty and "Roka" is defined on another
+line of the menu. **TIRAS DE POLLO 3/12 in all three**, failing on different fields each time.
+
+Archives: `unweighted.A-cond.<menu>-d{0,1,2}.raw.json`.
+
+### 🔧 THE TWO ZEROING BUGS ARE FIXED, AND THE NO-DESCRIPTION POPULATION IS CHARACTERISED (2026-08-13, $0)
+
+Both fixes are code-only, uncommitted, **not deployed**. `ENRICH_BATCH_SIZE` is still 10.
+
+#### The rescue pass — one fix, both bugs
+
+Both bugs ended the same way: `fallbackEnriched` zeroes every macro, and the user sees **0 kcal**,
+which is not a near-miss but a visibly broken row that also corrupts the goal ranking.
+
+| bug | before |
+|---|---|
+| model drops items from a large batch | Polloteria lost **16 of 95** — the wing sauces — on BOTH attempts |
+| batch exceeds `MODEL_TIMEOUT_MS` (120 s) | whole batch zeroed; fired twice during this session's own runs |
+
+**The old retry re-rolled the same dice: it re-sent the WHOLE batch and accepted whatever came back,
+however short.** `enrichBatchWithRetry` now re-asks for **only the still-missing items, in batches of
+3** (`ENRICH_RESCUE_BATCH_SIZE`). Those 16 sauces come back correct at 3 (BBQ 39 kcal, Buffalo 107,
+Ranch 88) because they are droppable only in company — short, near-identical option names that a
+large batch collapses. The same path covers the timeout, since a third of a batch answers well inside
+a window the whole batch blew.
+
+⚠️ **Batch 3 is measurably WORSE for accuracy than 10 (13-15/96 vs 0-4/96), which is exactly why the
+main path stays at 10.** The rescue is not a reversal of that ruling: a rescued item's alternative is
+zeroes, and slightly-off beats 0 kcal. Do not read this as licence to lower `ENRICH_BATCH_SIZE`.
+
+`missingFrom()` matches by name the way `reassembleEnriched` does — one response consumed per input —
+so a menu listing the same name twice needs two responses. Two tests, both verified to FAIL when the
+rescue is removed. 32 tests pass.
+
+#### 🔴 What an item with NO DESCRIPTION gets — measured on 460 real archived items
+
+| macro-relevant items | n | ingredients | kcal | fat |
+|---|---|---|---|---|
+| has a description | 259 | **4.87** | 550 | 27.0 g |
+| **no description** | 84 | **1.93** | 249 | 12.4 g |
+
+**76% of undescribed items get ≤2 ingredients, against 8% of described ones.** That is COLIFLOR
+ROKA's failure exactly — a 2-ingredient decomposition at half the calories and half the fat.
+
+⚠️ **Correcting a figure stated earlier in this session: "40% of items have no description" counted
+DRINKS, which are out of scope.** For macro-relevant categories it is **~28% (99 of 358)**, and the
+distribution is what matters:
+
+| category | share with no description |
+|---|---|
+| food | 29 of 283 — **10%** |
+| **side** | 28 of 33 — **85%** |
+| **dessert** | 18 of 18 — **100%** |
+| other | 24 of 24 — 100% |
+| drink (out of scope) | 85 of 102 |
+
+⚠️ **This is CORRELATIONAL and must not be quoted as proof of error.** An undescribed dish may
+genuinely be simpler — a side of fries against a composed entrée. COLIFLOR ROKA is the only member of
+this population with an oracle, and there the estimate is definitively wrong (0/12). **Widening the
+unweighted oracle with undescribed sides and desserts is what would settle it**, and it is the
+highest-value use of Santiago's ruling time.
+
+🔑 **Why this matters more than the plate-weight work:** two arms aimed at dish WEIGHT both failed to
+beat baseline, and the dishes they could not move (COLIFLOR ROKA 0/12 in all three arms) fail on dish
+IDENTITY instead. A dish the model cannot identify cannot be weighed correctly either.
+
+### 🛑 THE PLATE-WEIGHT DIRECTION IS DEAD — PROVEN AT $0 (2026-08-13, loop iteration 1)
+
+`scripts/sim-plate-rescale.ts` replays archived runs: it takes the BASELINE ingredient list and
+rescales it to Arm A's plate weight through the real `sumIngredientMacros`. This isolates the plate
+anchor from Arm A's collateral prompt damage — the arm Arm C tried to be — for **$0**.
+
+| threshold (apply plate when sum disagrees by ≥) | x1.00 | x1.15 | x1.30 | **x1.50** | x2.00 | never (=baseline) |
+|---|---|---|---|---|---|---|
+| TOTAL /72 | 22 | 22 | 24 | **31** | 28 | **28** |
+| **CAPRICCIOSA** | **0** | **0** | **0** | **0** | **0** | **0** |
+
+The best threshold gains +3, which this log's own noise rule calls nothing. **And the pizza — the dish
+that motivated the entire phase — scores 0 in EVERY column.**
+
+#### Why no plate weight can ever fix it
+
+| pizza total | result | band |
+|---|---|---|
+| 290 g (baseline's own sum) | 524 kcal | — |
+| 400 g (BOTTOM of the mass band) | 722 kcal | 1101-1238 |
+| **450 g (TOP of the mass band)** | **812 kcal** | 1101-1238 |
+
+**Correct the mass to the top of its verified range and it is still 26% low.** The model's pizza is
+**1.81 kcal/g**; USDA thin-crust meat-and-vegetable is **2.75 kcal/g**. To reach the band with these
+proportions the pizza would have to weigh **608 g**, well above its own band.
+
+Its decomposition, from the archive: `100 g crust, 50 g tomato sauce, 30 g cheese, 30 g jamón
+serrano, 30 g artichoke, 20 g olives, 30 g mushrooms`. **30 g of cheese on a 28 cm pizza** is a
+standalone reference serving of cheese, not the amount on a pie.
+
+🔑 **RESCALING PRESERVES PROPORTIONS, SO NO TOTAL CAN FIX WRONG PROPORTIONS.** The defect is not that
+the pipeline gets the plate SIZE wrong. It is that the plate is assembled from standalone reference
+servings, giving a dish that is too LEAN per gram. Size was the visible symptom.
+
+⚠️ **This retires the plate-weight family: Arm A (measured 15/72), A-conditional (30/72), Arm C (never
+scored), and any threshold variant (simulated, best 31/72). Do not open another one.**
+
+#### What this does NOT establish
+
+- Only the pizza is proven un-fixable by mass. CARBONARA gains 6→9 at x1.50 and COLIFLOR 0→3 at
+  x1.30, so the plate anchor does help some dishes — just not enough, and not the motivating one.
+- The simulation reuses Arm A's plate weights, produced by a prompt that also rewrote the ingredient
+  list. A real arm would have to source the plate weight some other way.
+- **B21's standard-reference-amount rule is NOT falsified.** It is what took the WEIGHTED score to
+  ~96%, where `resolveGrams` pins the total and only proportions matter. The evidence here is that
+  the same rule under-assembles a dish when nothing pins the total.
+
+### ✅ ARM P — PROPORTIONS, NOT SIZE. 28/72 → 38/72 (2026-08-13, ~$2, loop iteration 2)
+
+The first arm to beat baseline by more than noise. It follows directly from the simulation above:
+the defect is that an unweighted dish is ASSEMBLED from standalone reference servings, so it comes
+out too lean per gram — size was the symptom.
+
+**One sentence, appended for UNWEIGHTED items only**, overriding B21's "do not estimate by eye how
+much is on the plate": give `typical_serving_g` as *the amount of that ingredient actually present in
+one order of this item as it is served*. Schema untouched — it changes what a number MEANS, not its
+shape. Weighted items keep today's request byte-identically.
+
+| dish | baseline | Arm A | A-cond | **Arm P** |
+|---|---|---|---|---|
+| CAPRICCIOSA | 0/12 | 3/12 | 2/12 | **3/12** |
+| CARBONARA | 9/12 | 6/12 | 12/12 | **12/12 — 4/4 every draw** |
+| ENSALADA GRIEGA | 10/12 | 3/12 | 3/12 | **12/12 — 4/4 every draw** |
+| TIRAS DE POLLO | 3/12 | 3/12 | 3/12 | 3/12 |
+| COLIFLOR ROKA | **0/12** | 0/12 | 0/12 | **3/12 — first arm to move it** |
+| Salmón Roll | 6/12 | 0/12 | 10/12 | 5/12 |
+| **TOTAL** | **28/72** | 15/72 | 30/72 | **38/72 (53%)** |
+
+Per-draw scores are stable (Carbonara 4,4,4; Griega 4,4,4; Coliflor 1,1,1), so this is not one lucky
+draw. The pizza moved 524 → 766-869 kcal and its CARB now lands in band.
+
+⚠️ **Not a repeat of the falsified iter-b1..b13.** Those asked for a gram figure FITTED to a printed
+weight and the model back-solved the arithmetic (every gram a multiple of 5). Here there is no target
+to fit to — these items print no weight, which is the entire population the arm addresses.
+**B21 remains correct where a printed weight pins the total; this overrides it only where nothing does.**
+
+#### 🚨 THE RISK THAT BLOCKS SHIPPING, AND THE BENCHMARK CANNOT SEE IT
+
+Arm P splits enrichment into TWO requests — weighted items in one, unweighted in another. The prompt
+for weighted items is byte-identical, **but their BATCH COMPOSITION changes**: today a weighted dish
+sits in a batch of 10 mixed items, and under Arm P it would sit only with other weighted items.
+**The 2026-08-12 curve measured that batch composition MOVES the answer.**
+
+**The 96-point benchmark is structurally blind to this** — all 8 fixtures print weights, so they are
+already batched together there and the split is invisible. A clean 96-point score after this change
+would be evidence of nothing. Measuring it needs a weighted dish scored inside a real mixed menu,
+which no current harness does.
+
+#### What this does NOT establish
+
+- 6 dishes, 3 draws. +10 is well outside this log's noise rule, but two dishes (TIRAS DE POLLO,
+  CAPRICCIOSA) did not improve at all and one regressed (Salmón Roll 6→5).
+- **The pizza is still 0/4 on calories, protein and fat** — 766-869 against 1101-1238. Arm P closed
+  roughly half the gap that no plate weight could close at all, and did not close it.
+- Nothing here tests the deployed path: production has no weighted/unweighted split today.
+
+### ⏸️ LOOP HALTED — OPENAI CREDITS EXHAUSTED (2026-08-13, loop iteration 3)
+
+**Arm PF never ran.** The first unweighted call returned `429 insufficient_quota /
+credit_balance_exhausted`. **No archives were written, so there is NO partial result to interpret and
+nothing to re-score.** Its hypothesis is untested, not falsified.
+
+**Resume here.** `deno run --allow-net --allow-env --allow-read --allow-write --env-file=.env.local
+scripts/bench-unweighted.ts 3 PF` once the account has credit. The arm is built, typechecked and
+registered in `ARM_RUNNERS`; nothing needs writing first.
+
+**Arm PF's hypothesis, unchanged by the halt:** every dish Arm P still fails is FAT-LOW — pizza 30 g
+against a 58-65 band, chicken-and-fries 20 against 31-44, a battered deep-fried vegetable **5 against
+14-19**. `ENRICH_PROMPT` step 2 already says "fat absorbed or added in cooking counts", but it is
+folded into a per-100 g composition figure the model evidently reports at plain-food values. PF adds
+one sentence asking for that fat to be listed as **its own ingredient** with the quantity retained.
+
+**Loop state at halt:** 3 iterations, ~$2 spent (iteration 1 was a $0 simulation, iteration 3 bought
+nothing). Best arm is **P at 38/72 (53%)** against a 28/72 baseline. The $15 loop budget was never
+approached — the account ran dry, not the budget.
+
+### 🟡 ARM PF — COOKING FAT IS NOT THE LEVER. 37/72, no better than P's 38 (2026-08-13, ~$2, iteration 3)
+
+Arm P plus one sentence asking for absorbed/added fat as its own ingredient.
+
+| dish | Arm P | Arm PF |
+|---|---|---|
+| TIRAS DE POLLO | 3/12 | **7/12** (fat 20 -> 28-35 g) |
+| ENSALADA GRIEGA | 12/12 | **8/12** (fat 18-19 against a 9-16 band) |
+| CAPRICCIOSA | 3/12 | 3/12 — **unmoved**, fat 29 against 58-65 |
+| COLIFLOR ROKA | 3/12 | 3/12 — **unmoved**, fat 3-5 against 14-19 |
+| **TOTAL** | **38/72** | **37/72** |
+
+It helps a fried dish and overshoots a salad by the same margin; they cancel. **Keep Arm P, drop PF.**
+🔑 It also rules something out: the pizza and the cauliflower did not move, so **their fat gap is not
+cooking fat.** For the pizza it is cheese quantity; for the cauliflower it is that the model never
+learns the dish is battered at all.
+
+#### 🔬 $0 DIAGNOSTIC — Arm P fixes the TOTAL and leaves the PROPORTIONS wrong
+
+Archived Arm P decompositions. The pizza's mass is now **410 g, inside its 400-450 band**, and it
+still returns 869 kcal against 1101-1238 — 2.12 kcal/g against the band's 2.75.
+
+| CAPRICCIOSA under Arm P | | Salmón Roll under Arm P | |
+|---|---|---|---|
+| pizza crust | 200 g (49%) | arroz | 100 g (38%) |
+| **mozzarella** | **50 g (12%)** | salmón | 50 g (19%) |
+| jamón serrano | 30 g (7%) | queso crema | 30 g (12%) |
+| **artichoke + mushroom + olive** | **130 g (32%)** | aguacate + surimi + pepino | 80 g (31%) |
+
+**Every topping gets a ~30-50 g standalone serving regardless of what the dish carries**, so a third
+of the pizza is near-zero-calorie vegetables (artichoke F0.2, mushroom F0.5). The roll's rice is 38%
+where the form is nearer 50%, and its CARB is exactly what fails. The calorie-dense structural
+component is under-assembled and the garnishes over-assembled.
+
+⚠️ COLIFLOR ROKA is a different failure and must not be pooled with these: Arm P made it **230 g of
+plain cauliflower** — mass now ABOVE its 85-120 band while calories stay at 106 against 205-289. No
+proportion rule fixes it; the model never learns the dish is battered and fried, because the
+description is empty and "Roka" is defined on another line of the menu.
+
+### 🔴 ARM PD FAILS (30/72) AND THE PIZZA'S OWN BAND IS WRONG — LOOP HALTED FOR A RULING (2026-08-13, ~$2, iteration 4)
+
+Arm P plus a sentence pushing the structural body UP and scattered components DOWN.
+
+| dish | Arm P | Arm PD |
+|---|---|---|
+| Salmón Roll | 5/12 | **0/12** |
+| ENSALADA GRIEGA | 12/12 | 10/12 |
+| CARBONARA | 12/12 | 11/12 |
+| CAPRICCIOSA | 3/12 | 3/12 |
+| **TOTAL** | **38/72** | **30/72** |
+
+Pushing garnishes down is wrong for a dish whose "garnishes" ARE the substance — the roll lost its
+salmon, avocado and cream cheese and fell out of band on all four macros. **Arm P stands as the best
+arm; PF (37) and PD (30) both failed to improve on it.**
+
+#### 🔑 THE CLUE: the pizza is IMMOVABLE, which is what exposed the band
+
+| arm | CAPRICCIOSA kcal, 3 draws | fat |
+|---|---|---|
+| P | 869, 766, 851 | 24-30 |
+| PF | 851, 835, 835 | 29 |
+| PD | 851, 833, 835 | 29 |
+
+**Three different prompt sentences moved it essentially nowhere.** A dish that will not move under any
+instruction is usually a dish the model is confident about — so the band was re-checked, and it is
+sourced wrong.
+
+**The composition came from FDC 2708660, `Pizza with meat and vegetables, FROM FROZEN, thin crust`.
+There is a restaurant record: FDC 2708663, `…FROM RESTAURANT OR FAST FOOD, thin crust`.**
+
+| record | protein | carb | **fat** | kcal/100 g |
+|---|---|---|---|---|
+| 2708660 frozen (in the oracle now) | 11.3 | 25.1 | **14.4** | **275** |
+| **2708663 restaurant (correct)** | 11.6 | 26.6 | **9.87** | **242** |
+
+Frozen pizza carries **46% more fat per 100 g** than restaurant pizza. At Santiago's ruled 400-450 g
+the band would move from **1101-1238 kcal / F58-65** to roughly **967-1087 kcal / F40-44**, and the
+pipeline's CARB (107 g) would land in band.
+
+⚠️ **NOT APPLIED. Changing an oracle band is Santiago's ruling alone.** Recorded for his decision.
+
+#### 🚨 THIS IS THE FIFTH ORACLE ERROR OF ONE CLASS — read before sourcing any band
+
+Every one is a USDA record that is the right FOOD and the wrong VARIANT:
+
+| # | entry | wrong record | the variant that mattered |
+|---|---|---|---|
+| 1 | CARBONARA | pasta with cream sauce | **no meat**; menu says *tocino* |
+| 2 | ENSALADA GRIEGA | salad dressing NFS | **creamy**, not *vinagreta* |
+| 3 | CAPRICCIOSA | 14" cheese-only | wrong **topping class** |
+| 4 | CAPRICCIOSA | chain regular crust | wrong **crust** |
+| 5 | CAPRICCIOSA | thin crust **from frozen** | wrong **venue** |
+
+🔑 **FNDDS encodes venue, crust, preparation and topping class as SEPARATE records, and picking the
+wrong axis moves a band by 30-46%.** Three of the five are the same dish, each found only after the
+previous fix. **Before trusting any single-dish failure, search FDC for every variant of that food and
+justify the axis chosen.** Two of the first four were fixed and the pipeline immediately went from
+failing to passing — the oracle was wrong, not the model.
+
+### ✅ THE PIZZA BAND IS CORRECTED — AND IT DID NOT RESCUE THE PIZZA (2026-08-16, $0, Santiago's ruling)
+
+**Santiago ruled the correction in. Applied, and every arm re-scored for $0 by replaying archives.**
+
+`CAPRICCIOSA`'s composition moved from FDC 2708660 `…FROM FROZEN, thin crust` to FDC 2708663
+`…FROM RESTAURANT OR FAST FOOD, thin crust`. Verified against the FDC API on the day, not taken from
+this log. The whole FNDDS grid was listed before choosing: frozen thin/medium/thick are ONE identical
+record (276 kcal/100 g), restaurant splits by crust (thin 241, medium 248, thick 259). Topping class
+re-checked against the menu — *"Jamón serrano, alcachofa, aceituna negra y champiñón"* is meat AND
+vegetables. Mass band unchanged at Santiago's ruled 400–450 g.
+
+| | protein/100 g | carb/100 g | fat/100 g | kcal/100 g |
+|---|---|---|---|---|
+| 2708660 frozen (was) | 11.3 | 25.1 | **14.4** | 276 |
+| **2708663 restaurant (now)** | 11.6 | 26.6 | **9.87** | 241 |
+
+Band: **1101–1238 kcal / P 45–51 / C 100–113 / F 58–65** → **967–1087 / P 46–52 / C 106–120 / F 39–44**.
+
+#### 🔴 THE RESULT IS NOT WHAT THIS LOG PREDICTED — READ BEFORE QUOTING THE OLD NUMBERS
+
+The 2026-08-13 entry predicted the correction would land the pipeline's carb in band and improve the
+pizza. **It did not improve anything, and it cost Arm P a point.**
+
+| arm | old band | **corrected band** |
+|---|---|---|
+| baseline | 28/72 | **28/72** |
+| **P** | **38/72** | **37/72** |
+| PF | 37/72 | **37/72** |
+| PD | 30/72 | **30/72** |
+| A-cond | 30/72 | **28/72** |
+| A | 15/72 | **12/72** |
+
+**Why P lost a point:** the carb band moved UP (100–113 → 106–120), and P's low draw of 100 g carb
+fell OUT of it. The fat band moved DOWN (58–65 → 39–44), which should have helped — but the pipeline
+returns 24–30 g fat, still below even the corrected floor. The prediction looked at PD's carbs
+(106/107/110, in band under BOTH readings) and generalised from the wrong arm.
+
+🔑 **P AND PF ARE NOW TIED AT 37/72, and that is the finding.** P's one-point lead was inside the
+oracle's own error. They are not equivalent — they fail differently, which is what to design against:
+
+| dish | Arm P | Arm PF |
+|---|---|---|
+| CARBONARA | 12/12 | 12/12 |
+| ENSALADA GRIEGA | **12/12** | 8/12 |
+| TIRAS DE POLLO | 3/12 | **7/12** |
+| CAPRICCIOSA | 2/12 | 3/12 |
+| COLIFLOR ROKA | 3/12 | 3/12 |
+| Salmón Roll | **5/12** | 4/12 |
+
+⚠️ **The pizza is still the set's worst dish under every arm** and the correction did not change that.
+Its calories run 766–869 against a 967–1087 band — still low, still the assembly problem, now measured
+against a band whose provenance is finally right.
+
+#### 🧰 `--replay` — an oracle correction now costs $0 to propagate
+
+`scripts/bench-unweighted.ts` gained `--replay`, which scores ARCHIVED responses instead of buying new
+ones. It calls no API (run it without `--allow-net` and that is enforced, not promised).
+
+```bash
+deno run --allow-read --allow-env --env-file=.env.local \
+  scripts/bench-unweighted.ts 3 <baseline|P|PF|PD|A|A-cond> --replay
+```
+
+🔑 **It was validated before being trusted:** replaying against the OLD band reproduced every
+previously published figure exactly — 28 / 38 / 37 / 30 / 15 / 30. A replay harness that cannot
+reproduce the number it is replacing is not evidence of anything.
+
+#### ⚠️ A TEST GUARD IS RED, AND IT IS A FALSE POSITIVE (pre-existing, not from this change)
+
+`deno test --allow-all scripts/ supabase/` is now **360 passed | 2 failed**, not the 337|1 these docs
+quote. `scripts/tile-cut_test.ts` is the known-ignorable one. The second,
+`macro-measure_test.ts` → *"only macro-measure.ts knows the archive eras"*, fires because
+`scripts/unweighted-oracle.ts` and `scripts/unweighted-oracle-build.ts` contain the string
+`protein_per_100g` as an ORACLE COMPOSITION FIELD — not as archive-era detection, which is what the
+guard exists to prevent. Both files arrived with the 2026-08-13 unweighted oracle and the failure has
+been red since; nobody recorded it. **Left red deliberately: narrowing a measurement guard is a
+judgement call (lesson 28) and belongs to Santiago, not to a session doing something else.**
+
+### 🧪 SAUCE DECOMPOSITION PROBE — IT WORKS, AND THE INSTRUMENT CANNOT SEE THE REAL BUG (2026-08-16, ~$0.10)
+
+**Origin: Santiago, reading a raw dump — "chimichurri you returned as 30 g but in reality it's 3 to 5 g."**
+Chasing that found a defect the 96-point benchmark is structurally blind to, and then a second one.
+
+#### 🔍 THE $0 AUDIT THAT CAME FIRST — the model is not weak on sauces, it is weak on MIXTURES
+
+10 real menus, 444 enriched items, every ingredient matched against its FNDDS record:
+
+| kind of ingredient | model / USDA | n |
+|---|---|---|
+| a SINGLE food (olive oil, butter, mayonnaise) | **1.00x — exact** | 6 names, 16 obs |
+| a MIXTURE (pesto, caesar, ranch, garlic sauce) | **0.69x** | 11 names, 21 obs |
+| HOUSE-named (chimichurri, chemita, aderezo) | flat 15–20 g fat, **protein = 1 on 8 of 12** | 12 names |
+
+A mixture's per-100 g figure is a CALCULATION over its parts; a single food's is knowledge. This
+pipeline has measured four times (B4, B10, B12, B21) that the model supplies knowledge well and
+arithmetic badly. `protein = 1` on eight house sauces is the filler tell.
+
+#### THE ARM: list the single foods, do not state the mixture
+
+Food-agnostic by construction — it names a KIND of component, never a food, so the step-2 guard in
+`enrich_test.ts` stays satisfied. `scripts/probe-plate-arms.ts sauce`. Each sauce sent as its OWN
+item, one per call, 3 draws, both arms.
+
+| sauce | USDA fat/100 g | baseline | **decomposed** | |
+|---|---|---|---|---|
+| Pesto | 59.2 | 12–13 (0.22x) | **56–61 (1.01x)** | ✅ 4.6x correction, near exact |
+| Caesar dressing | 57.9 | 28–41 (0.56x) | **54–55 (0.94x)** | ✅ |
+| Ranch dressing | 44.5 | 21–23 (0.50x) | **36–37 (0.81x)** | ✅ |
+| Garlic sauce | 74.0 | 58 (0.78x) | **42 (0.56x)** | ❌ regressed |
+| Alfredo sauce | 15.0 | 16–47 (2.46x) | **45 (3.00x)** | ❌ but see below |
+| **Barbecue sauce** (control) | 0.63 | 0–1 | **0–1** | ✅ held |
+| **Soy sauce** (control) | 0.57 | 0 | **0** | ✅ held |
+
+🔑 **THE CONTROLS ARE THE POINT.** A sentence that merely inflated fat would have raised barbecue
+and soy too. They did not move, so the arm is discriminating, not pushing.
+
+⚠️ **Alfredo's "regression" is probably the TARGET's fault, not the arm's** — FNDDS `Alfredo sauce`
+is 15 g fat/100 g, which is a diluted as-eaten record; a restaurant alfredo is butter + cream +
+parmesan and the arm's 45 is the more believable number. **Not corrected: picking a different record
+is Santiago's ruling.** This is the sixth time a variant has been suspect (see the pizza).
+
+#### 🔴 THE INSTRUMENT'S BLIND SPOT — the finding that matters most
+
+**Chimichurri did not move: 37–42 baseline, 36–41 decomposed.** But inside a real menu it returns
+**15 g fat/100 g with protein 1**. Same model, same prompt, same sauce.
+
+🔑 **A sauce sent as its OWN item already gets decomposed — the failure only appears when the sauce is
+ONE INGREDIENT INSIDE A DISH.** So this probe validated the sentence on sauces that were already
+being decomposed, and could not test the case that motivated it. Standalone-vs-in-dish is the same
+context effect the 2026-08-12 batch curve found, one level down.
+
+**The arm is NOT yet judged.** What it needs is a probe on real menu items that CONTAIN these sauces,
+comparing the sauce's fat as an ingredient. Cheap (~$0.10) and it is the next step.
+
+⚠️ **SYNTHETIC ITEMS — do not quote any figure here as a menu-level rate** (the 2026-08-09 lesson).
+
+#### Accompaniment rulings recorded this session (Santiago)
+
+| accompaniment | was | **ruled** | basis |
+|---|---|---|---|
+| chimichurri | 30 g | **15 g** | USDA spooned-on-food amounts (tablespoon 16–17 g, sandwich guideline 17 g). The 30 g the model returns is USDA's **dipping-container** portion |
+| baguette | 45 g | **15 g** | one slice, from USDA's 324 g / 22" baguette = ~15 g per inch |
+| beans | 80 g | **25–35 g** | **Santiago's judgement.** USDA publishes 130 g but that is beans AS THE FOOD; there is no published side-of-a-plate portion, and the composite recipes give none either. Recorded as judgement, NOT as USDA-backed |
+
+⚠️ **A weight fix ALONE makes sauces worse, and that is why these move together:** chimichurri's two
+errors currently cancel — 2x too heavy, 3.8x too lean. Halving the grams without fixing the
+composition takes it from 48 kcal to 24 against a ~79 kcal target.
+
+### ❌ ARM S IS IGNORED INSIDE A DISH — WORDING IS NOW 0 FOR 5 (2026-08-16, ~$0.15)
+
+**The sentence that fixed a standalone sauce does nothing when the sauce is an ingredient.**
+10 real dishes read from the archives, 3 draws, solo calls, `probe-plate-arms.ts sauce-dish`.
+
+The proof is one dish, and it is unambiguous:
+
+| | ingredients returned |
+|---|---|
+| baseline, NEW YORK | `beef steak 200 g / fat 20` + **`chimichurri sauce 30 g / fat 15`** |
+| **ARM S**, NEW YORK | `New York steak 250 g / fat 20` + **`Chimichurri sauce 30 g / fat 15`** |
+
+Identical treatment of the sauce. Same 30 g, same 15 g fat/100 g, no decomposition. CESAR likewise
+kept `aderezo cesar de la casa` whole; `Dedos De Queso` kept `ranch dressing 30 g / fat 40`.
+**The instruction is simply not followed when the item is a dish rather than the sauce itself.**
+
+📊 **This is the FIFTH prompt-wording arm to move nothing** (B11, B13, B23, the two `serving_pieces`
+wordings, now S). Against that, SCHEMA FORCE is 5 for 7 — forced `serving_pieces` succeeded on the
+exact case two wordings had failed. **That scoreboard, not a new sentence, is what the next arm
+should be built on:** a REQUIRED per-ingredient field the model cannot leave unanswered.
+
+⚠️ **CORRECTION — the control did NOT show fat inflation, and the first reading of this table said it
+did.** `CAMARONES EMPANIZADOS` moved 14 → 20 g fat with a byte-identical ingredient list. The cause
+was a single flag:
+
+| | frying oil |
+|---|---|
+| baseline | `within_printed_weight: false` -> passes through at 10 g |
+| ARM S | `within_printed_weight: **true**` -> fitted with the rest, 125 g -> 200 g, so 10 g becomes 16 g |
+
+🔑 **Side finding, unchased and worth more than this probe: `within_printed_weight` is UNSTABLE on
+ambiguous components, and it is worth 6 g of fat on one dish.** Frying oil is genuinely arguable, the
+model flips on it between calls, and the flag decides whether an ingredient is rescaled at all. It
+is the same switch that lets accompaniments escape `resolveGrams`.
+
+✅ **The standalone `sauce` result still stands and still means something** — the model CAN decompose
+a mixture correctly (pesto 0.22x -> 1.01x). It just will not do it unasked inside a dish. So the
+knowledge is there and the request is what is missing, which is the same shape as the 2026-08-11
+finding that the model knows a 28 cm pizza is 750 g and is never asked.
+
+**Batched vs solo, free from the archives, confirming the 2026-08-12 curve is still live:**
+FILETE DISCORDIA 70 g fat batched vs 29 solo; Salmone padella 26 vs 13; PULPO 9 vs 13.
+**Do not read any solo number here as a production figure.**
+
+### 🟡 ARM S2 — SCHEMA FORCE GETS AN ANSWER, THE WRONG FIELD SHAPE WASTES IT (2026-08-16, ~$0.15)
+
+**A required per-ingredient string `composed_of`, placed BEFORE the three per-100 g fields** so the
+model names the parts before costing them (strict mode emits in schema order; `enrich.ts` already
+relies on this twice). Same 10 archived dishes as `sauce-dish`, 3 draws, solo.
+`probe-plate-arms.ts sauce-schema`.
+
+#### ✅ The mechanism works — schema force is now 6 for 8, wording still 0 for 5
+
+**Every ingredient answered, every draw.** The identical request in prose was ignored outright.
+And where the model volunteered SHARES, the composition came out right:
+
+| ingredient | what it said it is made of | fat/100 g | USDA |
+|---|---|---|---|
+| ranch dressing | **mayonnaise 50%, buttermilk 30%**, herbs | **40** | 44.5 ✅ |
+| pesto sauce | basil, olive oil, pine nuts, parmesan | 47 | 59.2 ✅ better |
+| caesar dressing | oil, egg, anchovy, parmesan, garlic, lemon | 40 | 57.9 🟡 |
+
+#### ❌ But the dish that started this is UNCHANGED
+
+| | |
+|---|---|
+| NEW YORK, `Chimichurri` 30 g | `composed_of` = **"parsley, garlic, olive oil, vinegar"** — and fat **STILL 15** |
+
+🔑 **The split is exact: shares present -> composition right; NAMES ONLY -> composition unmoved.**
+Ranch got percentages and landed at 40. Chimichurri got a bare list and kept its placeholder 15.
+Naming olive oil changed nothing, because nothing forced the model to say HOW MUCH of it there is.
+**A required STRING buys a description; the number needs a required NUMBER** — which is exactly the
+shape that worked for `serving_pieces` and never worked as prose.
+
+#### 🔴 THE SIDE EFFECT — the field invites the model to MERGE ingredients, the opposite of the goal
+
+A free-text `composed_of` gives a mixture somewhere to be *described*, so the model stops
+decomposing and starts collapsing:
+
+| dish | baseline ingredients | **under ARM S2** |
+|---|---|---|
+| CAMARONES EMPANIZADOS **(control)** | shrimp 85 g · breading 30 g · oil 10 g | **`breaded shrimp` 150 g** (`shrimp 60%, breading 40%`) + oil |
+| Dedos De Queso | mozzarella 30 g · breadcrumbs 30 g · … | **`mozzarella cheese sticks` 100 g** (`cheese 70%, breading 30%`) |
+
+The control's fat went **14 -> 30 g** for that reason alone. ⚠️ The other control (PULPO) moved
+13 -> 9 g from ordinary sampling — its olive oil drew 15 g then 10 g — **not** from the arm; the two
+control movements have different causes and neither is fat inflation.
+
+#### 🧭 What this says the next arm is
+
+Not another string, and not another sentence. **A required NUMBER**: the share of the ingredient's
+weight carried by its most energy-dense part. Evidence: every case where a share existed produced a
+believable fat, and every case without one produced the placeholder. It also removes the merging
+incentive, because a number cannot be used to describe a composite away.
+
+⚠️ Still unresolved and now twice-observed: **`within_printed_weight` flips between draws on
+ambiguous components** (frying oil), and it decides whether `resolveGrams` rescales an ingredient at
+all. Worth 6 g of fat on one dish. Unassigned.
+
+**Phase spend today: ~$0.40 across three probes** (sauce, sauce-dish, sauce-schema).
+
+### ✅ ARM S3 — THE REQUIRED NUMBER WORKS. CHIMICHURRI 15 → 50 (2026-08-16, ~$0.15)
+
+**The end of the sauce thread, and the arm the evidence pointed at.** A required per-ingredient
+`parts` ARRAY of `{name, share_pct}`, placed BEFORE the three per-100 g fields.
+`probe-plate-arms.ts sauce-number`. Same 10 archived dishes, 3 draws, solo.
+
+#### The case that started it, finally moved
+
+| | `Chimichurri`, 30 g, in NEW YORK |
+|---|---|
+| baseline / Arm S / Arm S2 | fat **15** g/100 g (unchanged by any of them) |
+| **ARM S3** | **fat 50** — `olive oil 50%, vinegar 20%, parsley 15%, garlic 10%, red pepper` |
+
+**50 sits inside the 45–57 the two independent estimates give** (a typical recipe works out ~47%; the
+oracle assumed 57%). No USDA record exists, so this is not scored — but 15 was never defensible for a
+sauce the model itself describes as half olive oil.
+
+#### 🔑 THE PROGRESSION IS THE FINDING — four arms, one request, escalating force
+
+| arm | what was asked | result |
+|---|---|---|
+| S | a sentence | **ignored** in-dish; sauce untouched |
+| S2 | a required STRING | always answered; helped ONLY where the model volunteered shares. Invited **MERGING** |
+| **S3** | a required ARRAY of `{name, share_pct}` | **shares always present, composition follows them** |
+
+**A structured array fixed the merging.** Under S2 the CAMARONES control collapsed
+`shrimp + breading + oil` into `breaded shrimp 150 g`; under S3 all three stay separate, each
+annotated `X 100%`. A number cannot be used to narrate a composite away, which is why the shape was
+chosen.
+
+#### ✅ Both controls held — and both moved for reasons that are NOT the arm
+
+| control | base | S3 | cause |
+|---|---|---|---|
+| PULPO A LA GALLEGA | 13 g fat | 9 | its olive oil drew 15 g then 10 g, paprika 5 g then 1 g — **sampling** |
+| CAMARONES EMPANIZADOS | 14 g fat | 20 | frying oil flipped `within_printed_weight` false → true — **the known flag defect, third sighting** |
+
+Ingredient lists are otherwise identical on both. **No inflation, no merging.**
+
+#### ⚠️ NOT fully reliable — the model still sometimes ignores its own parts
+
+| sauce | parts it gave | fat it then stated | USDA |
+|---|---|---|---|
+| garlic sauce | **oil 60%**, garlic 10%, water 30% | **20** | 74 |
+| caesar dressing | **oil 50%**, egg yolk 20%, vinegar 10%, parmesan 10% | **40** | 57.9 |
+
+Oil at 60% cannot yield 20 g fat/100 g. So `parts` constrains the answer but does not determine it,
+and the arm is an improvement rather than a fix. **Do not report S3 as "solved".**
+
+#### 🧭 Status: mechanism validated, NOT yet scored
+
+Everything above is 10 dishes on SOLO calls. **No benchmark number has been run on S3.** The next
+step is the real thing — the 96-point weighted and 72-point unweighted sets, ~$2.50 — and it should
+carry Santiago's three accompaniment rulings at the same time, since a weight fix alone regresses
+sauces (see the cancelling-errors note).
+
+**Phase spend today: ~$0.55 across four probes.**
+
+### ⛔ CORRECTION — `within_printed_weight` IS NOT UNSTABLE. I BROKE THE DENOMINATOR RULE (2026-08-16, $0)
+
+**Three entries above call this flag "unstable", "flips between draws", "the known flag defect, third
+sighting", and the last one recommends it might jump the queue. THAT IS WRONG.** It was asserted from
+three anecdotes without ever counting the denominator — the exact failure Santiago's standing rule
+exists to prevent, and which has already cost this project two sessions (evals 139 and 140).
+
+Counted across all four sauce probes, 2026-08-16:
+
+| question | result |
+|---|---|
+| **same prompt, different draw** (genuine instability) | **2 of 420 = 0.5%** |
+| different prompt (a prompt change moved it) | 5 of 141 = 3.5% |
+
+**The flag is stable under repetition.** What I actually observed was the flag differing between
+BASELINE and an ARM — which is a prompt change doing its job, not a coin flip. Conflating those two
+is what produced the false claim.
+
+🔑 **The flag still matters, for a completely different reason, and that reason survives:** it is the
+switch that decides whether `resolveGrams` corrects an ingredient's weight at all, and it is where
+the printed-weight SCOPE question is actually being answered — per ingredient, by the model, on every
+scan. **That is a DESIGN question for Santiago, not a bug to fix.** It is not urgent on stability
+grounds and should not displace the benchmark run.
+
+⚠️ **Anyone quoting the three "unstable flag" notes above: they are superseded by this entry.**
+
+### ⚖️ THE PRINTED-WEIGHT SCOPE RULE — SIMULATED AT $0, AND OPTION A IS FALSIFIED (2026-08-16)
+
+The scope question ("does a menu's printed 200 g already include the bread and beans?") has been
+open for months. It is not unanswered in code — it is answered per ingredient, per scan, by
+`within_printed_weight`, which decides whether `resolveGrams` corrects that ingredient at all.
+**24% of weighted items carry at least one ingredient marked outside.**
+
+`scripts/sim-scope-rule.ts` re-scores the archived B21 runs under each candidate rule through
+`macro-measure.ts` — the same path as every published figure. No model calls.
+
+| rule | failed fields | mean abs error |
+|---|---|---|
+| **C — the model decides per ingredient (today)** | **7/288** | **13.1%** |
+| A — printed weight covers the WHOLE plate | **31/288** | 16.5% |
+
+**Option A is 4.4x worse and the damage is concentrated:** `Salmone toscano` goes 3 -> 26 failed
+fields, because forcing its baguette inside the printed 200 g squeezes the salmon down to make room.
+
+⚠️ **Read this before quoting the comparison: it is PARTLY CIRCULAR.** The 8-dish oracle was built
+on the convention that an accompaniment sits OUTSIDE the printed weight (`Salmone toscano`'s entry
+says so explicitly: *"the baguette ... sits OUTSIDE the printed weight at 45 g, but is eaten and
+counted. Total eaten 245 g"*). A rule asserting the opposite was always going to score worse against
+it. **What rescues the test is independent evidence from the menus themselves** — El Marcos prints
+*"el gramaje se refiere a los ingredientes principales"*, which says the printed number covers the
+main ingredients and not the sides. Oracle convention and printed menu text agree, and A contradicts
+both.
+
+#### ✅ Santiago's refinement is already how it behaves — "main ingredientS", plural
+
+He raised the risk that "main ingredients" gets read as ONE ingredient — a 200 g salad becoming 200 g
+of chicken. **It does not happen.** Across 117 weighted dishes with 2+ ingredients:
+
+| ingredients inside the printed weight | share |
+|---|---|
+| 2 or more | **94%** |
+| exactly 1 | 6% (7 dishes) |
+
+And all 7 are legitimately single-component dishes — NEW YORK, RIB EYE, the 20 oz ribeye, a chicken
+breast — where the printed weight IS that one item and the rest is served alongside.
+
+#### 🧭 What this reframes
+
+**The scope question is largely settled by evidence, and it is NOT the defect.** C already scores
+7/288. Option B (decide from the menu's own words in code) would differ from C only where the model
+disagrees with the menu wording, and on this set there is almost no headroom to win.
+
+**The open part is not WHICH ingredients sit outside — it is what those ingredients WEIGH.** That is
+the label-serving defect (a 30 g dipping-cup portion for a spooned sauce) and Santiago's three
+rulings address exactly it. Spend the effort there.
+
+### ❌ ARMS S3 AND S4 ARE REJECTED ON BOTH BENCHMARKS (2026-08-16, ~$5)
+
+**The sauce thread ends here.** A probe that looked convincing did not survive the benchmark, on
+either set. Santiago approved the run and the resulting oracle change; both are recorded.
+
+#### The numbers
+
+| arm | weighted, failed/96 (4 runs x 3 draws) | unweighted /72 (3 draws) |
+|---|---|---|
+| **baseline (B21)** | **4-6** at 17.1-17.6% | **28** |
+| **Arm P** (best known) | — | **37** |
+| S3 — `parts` shares | **5-13** at 16.1-18.4% | **26** ❌ |
+| S4 — S3 + `amount_as_served_g` | **7-10** at 16.1-17.1% | not run, see below |
+
+**Neither arm beats baseline on failures anywhere.** Both are marginally better on mean error, which
+is not a reason to ship. On the unweighted set S3 is BELOW the baseline it was meant to lift.
+
+#### 🔑 S4 DID NOT FAIL — IT NEVER RAN. THE MODEL COPIED THE FIELD.
+
+| | |
+|---|---|
+| ingredients that answered `amount_as_served_g` | **364** |
+| where it differed from `typical_serving_g` | **0 — 0.0%** |
+| of the 36 ACCOMPANIMENTS, the only ones resolveGrams uses it for | **0 differed** |
+
+Salmone's baguette: `typical 50 g -> served 50 g`, where the ruling wants ~15.
+
+🔑 **THE RIDER THIS ADDS TO THE SCHEMA-FORCE SCOREBOARD: a required field whose meaning OVERLAPS an
+existing field returns a COPY.** Schema force reliably compels an answer — it does not compel a
+DIFFERENT answer. Asking "how much is served?" beside "what is a typical serving?" got the same
+number 364 times out of 364. The prompt's own *"otherwise repeat typical_serving_g"* invited it.
+A future arm must make the new field answer a question the old one cannot.
+
+#### 🔑 THE BIGGER LESSON — THE PROBE MEASURED THE SAUCE, THE BENCHMARK MEASURES THE DISH
+
+The `sauce-number` probe was a genuine result: chimichurri's fat went 15 -> 50 g/100 g, controls held,
+merging stopped. **All true, and all irrelevant to the score.** Per dish:
+
+| dish | baseline | S3 | S4 |
+|---|---|---|---|
+| CESAR | 11% of fields failed | **21%** | **25%** |
+| PASTEL AZTECA | 6% | **21%** | **17%** |
+| Salmone toscano, mean error | 49.4% | **36.8%** | **34.0%** ✅ |
+| NEW YORK + 4 others | 0 | 0 | 0 |
+
+**The composition fix helps where a mixture dominates and hurts where it does not.** Salmone — the
+dish the baguette ruling exposed — genuinely improved. CESAR and PASTEL, both previously solid, got
+materially worse. That trade is a loss.
+
+⚠️ **This is the SECOND time a promising arm died between probe and benchmark** (A-conditional was
+the first: best on 4 solo dishes, overturned by the 15-dish run). **A probe that isolates a mechanism
+cannot tell you what the mechanism costs elsewhere.** Budget the benchmark before believing a probe.
+
+#### What stands after this
+
+- **Arm P remains the best unweighted arm at 37/72**, unbeaten and still unshippable for the batch
+  reason recorded above.
+- **The accompaniment weights are Santiago's ruling and they stay applied.** The weighted headline is
+  **4-6/96, not 0-3/96** — he approved carrying that. It is a stricter oracle, not a worse pipeline.
+- **The label-serving defect is REAL and remains UNFIXED.** 24% of weighted items carry an
+  accompaniment, it is 12-20% of those dishes' calories, and the pipeline still sizes it from a
+  dipping-container serving. Two mechanisms have now failed to move it: prose, and a duplicate field.
+- S3's `parts` field is NOT worthless — it is the only thing that has ever moved a house sauce's
+  composition. It is rejected as a WHOLE-PIPELINE change, not as an idea.
+
+**Phase spend 2026-08-16: ~$5.5** (four probes ~$0.55, eight weighted runs, one unweighted run).
+S4 was deliberately NOT run on the unweighted set: without a printed weight nothing rescales, so
+`amount_as_served_g` is never read and S4 is identical to S3 there.
+
+### ⚖️ PASTEL AZTECA'S BEANS ARE RESTAURANT REFRIED — RULED AND APPLIED (2026-08-17, $0)
+
+Santiago closed the composition half that the 2026-08-16 weight ruling deliberately left open.
+The **sixth** right-food/wrong-variant oracle error, and the axis is **venue** again.
+
+| | record | kcal/100 g | fat |
+|---|---|---|---|
+| was | FDC 2707375 `Pinto beans, from canned, no added fat` | 137 | 0.93 |
+| **now** | **FDC 2707397 `Refried beans, from fast food / restaurant`** | **177** | **9.48** |
+
+Values verified live against the FDC API before the change. The ruled **30 g weight is unchanged**.
+Applied by `scripts/apply-accompaniment-rulings.ts`'s sibling
+`scripts/apply-bean-composition-ruling.ts`, which imports `sumRecipe` from `usda-oracle.ts` rather
+than re-implementing it (lesson 28) and **refuses to write** unless it first reproduces all 8 stored
+oracle totals from their own ingredients.
+
+**Effect, $0 re-score of the current best arm (B21, `iter-b21-w2/w3/w4`):**
+
+| | weighted | mean abs error |
+|---|---|---|
+| before | **4–6/96** | 17.1–17.6% |
+| **after** | **6–9/96** | 17.6–18.0% |
+
+**Every point of it is PASTEL AZTECA (2/36 → 9/36); the other seven dishes are unchanged.**
+⚠️ **STRICTER ORACLE, NOT A WORSE PIPELINE** — the same shape as the accompaniment rulings.
+**Do not quote 4–6/96 as current.**
+
+⚠️ **NOT PROPAGATED, and deliberately.** ENFRIJOLADAS (same menu) keeps FDC 2707396 `Refried beans`
+at 90 kcal for its *salsa de frijol*: a bean sauce a dish is **bathed in** is a thinner food than a
+scoop of refried beans **beside** it. That entry was not re-ruled. ⚠️ Recorded tension: the standing
+"prefer the median, never the richest" rule (born of the Caesar dressing) would have rejected 2707397,
+which IS the richest of the FNDDS refried family (90 / 99 / 89 / 119 / **177**). It is taken anyway
+because it is the **only entry at this dish's venue** — not a pick among defensible same-venue
+records, which is what that rule guards against. The newer venue rule is the more specific one.
+
+### 🧪 THE MIXED-MENU HARNESS EXISTS — AND ITS FIRST RUN WAS HALTED BY CREDITS (2026-08-17, ~$2)
+
+**The blind spot it closes.** `bench-macros.ts` sends all 8 weighted fixtures in a SINGLE call and
+all 8 print a weight. Production sends a whole menu through `callGptEnrich`, chunked into
+`ENRICH_BATCH_SIZE` groups of mostly-unweighted neighbours. The 2026-08-12 curve proved batch
+composition MOVES the answer rather than merely scattering it, so **every weighted figure this phase
+has published describes a regime production never runs.** That is what has blocked Arm P.
+
+`scripts/bench-mixed-menu.ts` scores the same 8 dishes **inside their own real menus** — andaluz,
+casa-nostra, el-marcos, brasero, polloteria, 227 archived extraction items — through the deployed
+path at batch 10. Two arms, one variable:
+
+| arm | what it is |
+|---|---|
+| `mixed` | production today — `callGptEnrich(whole menu, batch 10)` |
+| `P` | Arm P as it would ship — chunk at 10, then `armP` per chunk |
+
+🔑 **A free property that makes the comparison valid:** all 8 fixtures appear in those archives with
+**BYTE-IDENTICAL name and description** to the frozen oracle, so a scored dish's own request text is
+unchanged from `bench-macros.ts` and **only its neighbours differ**. Asserted at runtime and covered
+by 5 $0 tests — a re-extraction that reworded one description would otherwise turn a
+batch-composition result into a prompt-text result with nothing to show it.
+
+#### ⏸️ THE RUN IS PARTIAL. ARM P NEVER RAN.
+
+**The OpenAI account ran out of credits** during draw 2 of polloteria (`You have no credits
+remaining`) — the same halt as 2026-08-13. Valid data: **2 clean draws for 6 dishes, 1 for the
+polloteria pair = 56 of 96 field-draws.** Backfilled items were EXCLUDED and reported, never scored
+as model error.
+
+| menu | draw 1 | draw 2 | draw 3 |
+|---|---|---|---|
+| andaluz, casa-nostra, el-marcos, brasero | clean | clean | all backfilled |
+| polloteria | clean (both fixtures) | 92/95 backfilled | all backfilled |
+
+#### 🔴 THE PROVISIONAL SIGNAL — ONE RUN, SO NOT A QUALITY CLAIM
+
+| | failed field/draws | rate |
+|---|---|---|
+| isolated (`iter-b21-w2/w3/w4`, 9 draws) | 22/288 | **7.6%** |
+| **inside their real menus** (partial) | 10/56 | **17.9%** |
+
+**And it REDISTRIBUTES rather than uniformly worsening** — which is the more interesting half:
+
+| dish | isolated | inside its menu |
+|---|---|---|
+| Gnocchi alla sorrentina | 0/36 — **0%** | 4/8 — **50%** |
+| ENFRIJOLADAS | 0/36 — **0%** | 2/8 — **25%** |
+| Salmone toscano | 9/36 — 25% | 4/8 — 50% |
+| PASTEL AZTECA | 9/36 — 25% | 0/8 — **0%** |
+| CESAR | 4/36 — 11% | 0/8 — **0%** |
+| NEW YORK, French Fries, Coleslaw | 0 | 0 |
+
+**Two dishes that are perfect in isolation fail inside their own menu, and two that fail in isolation
+pass.** If this holds up, the 96-point benchmark's per-dish verdicts do not survive contact with
+production, and that matters well beyond Arm P.
+
+⚠️ **DO NOT QUOTE 10/56 AS A RESULT.** It is ONE run of two draws against a documented noise floor of
+median 25% / worst 88%. Santiago's standing rule is a RANGE across runs, and there is no range here.
+What is established is that **the harness works, its exclusion discipline works, and its archives
+replay for $0**; what is measured is a first look.
+
+**Every draw re-scores for $0 against any future oracle, calling no API:**
+
+```bash
+deno run --allow-read scripts/bench-mixed-menu.ts 3 mixed --replay
+```
+
+#### ⛔ BLOCKED, AND IT IS NOT A MEASUREMENT QUESTION
+
+**Nothing further can run until credits are added to the OpenAI account.** Outstanding, in order:
+1. Re-run `mixed` to a full 3 draws (and ideally 4 runs, for a range).
+2. Run arm `P` — **the question the harness was built to answer is still open.**
+
+### 💸 WHERE THE MONEY ACTUALLY GOES — AND A 77% CUT THAT COSTS NOTHING (2026-08-18, $0)
+
+Santiago flagged that a run eats ~$2 of a $10 reload. **Measured, not estimated.**
+
+| | |
+|---|---|
+| fixed `ENRICH_PROMPT` + schema per call | **~1,265 tokens** — *not* the driver |
+| enriched output, one draw of 5 whole menus | 218 items, ~51,000 tokens |
+| output cost, 3 draws @ $10/1M | **~$1.53** |
+| + input | ~$0.25 → **~$1.8 per arm** |
+
+**The bill is almost entirely OUTPUT**, because every item returns a full ingredient list with
+per-100 g composition. Nothing about the prompt is wasteful.
+
+🔑 **BUT MOST OF THAT OUTPUT WAS NEVER MEASURED.** `callGptEnrich` chunks sequentially and fires each
+batch as its **own HTTP request**, so a scored dish is influenced only by the ≤9 items sharing **its**
+call. The other batches cannot touch it. We were enriching **227 items to measure 8 dishes that only
+ever meet 53 of them.**
+
+| menu | items | the fixtures' own batches |
+|---|---|---|
+| andaluz | 36 | 10 |
+| casa-nostra | 23 | 13 (two fixtures, two batches) |
+| el-marcos | 45 | 10 (both fixtures share a batch) |
+| brasero | 28 | 10 |
+| polloteria | 95 | 10 (both fixtures share a batch) |
+| **total** | **227** | **53 — a 77% cut** |
+
+**`scripts/bench-mixed-menu.ts` now sends only those batches by default: ~$1.8 → ~$0.4 per arm.**
+Batches are located in the **WHOLE** menu first, so the chunk boundaries are exactly production's, and
+the request bytes for a scored dish are **byte-identical** either way. That equivalence is the entire
+basis of the saving, so it is pinned by a test: every kept batch must be a **verbatim, in-order slice**
+of the whole menu, or the run would be measuring a composition that never occurs.
+
+⚠️ **What `--full-menu` is still for, and it is NOT the score:** whole-menu behaviour under load —
+concurrency, the rescue path, the Polloteria drop. That is `bench-pipeline.ts`'s job. The existing
+2026-08-17 archives are whole-menu runs, replay under `--full-menu`, and still reproduce **10/56**
+exactly; focused runs archive under a `-f` suffix so the two can never be confused.
+
+✅ **Nothing that makes this generalise was traded away:** all 5 menus, all 8 dishes, all-real
+neighbours, the deployed path, the deployed batch size. **The generalisation lives in the DIVERSITY of
+the menus, not in the item count.**
+
+📌 **For reference, what each harness costs (3 draws):** `bench-macros.ts` ~**$0.05** (8 items, one
+call — cheap precisely because of the blind spot that motivated the mixed-menu harness);
+`bench-unweighted.ts` ~**$2** (whole menus); `bench-mixed-menu.ts` ~**$0.4/arm** focused, ~$1.8
+`--full-menu`.
+
+### 🔴 ARM P IS REJECTED FOR SHIPPING — IT COSTS WEIGHTED DISHES 16/96 → 27/96 (2026-08-18, ~$0.85)
+
+**The question the mixed-menu harness was built to answer is ANSWERED.** Both arms ran to 3 full
+draws on the ~$0.40 focused path, **all 15 menu-draws clean on both, zero backfilled items, zero
+exclusions.** Verified by $0 replay.
+
+| arm | weighted dishes, inside their real menus |
+|---|---|
+| `mixed` — production today | **16/96** |
+| `P` — Arm P as it would ship | **27/96** ❌ |
+
+**Arm P makes weighted dishes 69% worse.** Set against its unweighted gain of 28/72 → 37/72, the
+trade in percentage-point terms is nearly symmetric — **unweighted fields failing 61% → 49%
+(−12 pts), weighted fields failing 16.7% → 28.1% (+11.4 pts)** — so this was never going to be
+visible as a free win, and the 96-point benchmark could not see the cost at all.
+
+#### 🔑 THE INTERNAL CONTROL — THIS IS WHY IT IS NOT JUST ONE NOISY RUN
+
+Arm P only changes a weighted dish's **batch-mates**. Two fixtures' batches happen not to change at
+all, and **both scored IDENTICALLY across the arms:**
+
+| dish | batch-mates today | under Arm P | `mixed` | `P` |
+|---|---|---|---|---|
+| **NEW YORK** | 10 | **10 — unchanged** | 0/12 | **0/12** ✅ identical |
+| **Salmone toscano** | 3 | **3 — unchanged** | 6/12 | **6/12** ✅ identical |
+| Gnocchi | 10 | 8 | 6/12 | 4/12 |
+| ENFRIJOLADAS | 10 | 6 | 3/12 | 3/12 |
+| French Fries | 10 | 6 | 0/12 | 0/12 |
+| **Coleslaw** | 10 | 6 | 0/12 | **4/12** |
+| **PASTEL AZTECA** | 10 | 6 | 0/12 | **5/12** |
+| **CESAR** | 10 | **5** | 1/12 | **5/12** |
+
+**Where the batch is untouched the score is untouched; every regression is a dish whose batch shrank.**
+That is a control, not a correlation, and it means the harness is measuring exactly what it claims.
+
+🔑 **AND IT CORROBORATES A PRIOR, INDEPENDENT MEASUREMENT.** The 2026-08-12 batch-size curve already
+established that **small batches are WORSE for dishes that print a weight** (batch 3 scored 13–15/96
+against batch 8–10's 0–4/96). Arm P shrinks the weighted batch from 10 to **5–8**, and weighted
+accuracy degrades. Two experiments, different designs, same mechanism. **Arm P's defect is not its
+sentence — it is the batch shrinkage its split causes.**
+
+#### ✅ AND THE HARNESS'S OWN HEADLINE FINDING REPRODUCED
+
+The 2026-08-17 partial whole-menu run and this focused run agree closely, which independently
+validates the 77% cost cut:
+
+| | isolated (`bench-macros`) | partial whole-menu (2026-08-17, $1.8) | focused (2026-08-18, $0.40) |
+|---|---|---|---|
+| fields failed | **7.6%** | 17.9% | **16.7%** |
+| Gnocchi | 0% | 50% | 50% |
+| ENFRIJOLADAS | 0% | 25% | 25% |
+| PASTEL | 25% | 0% | 0% |
+
+🔴 **THE 96-POINT WEIGHTED BENCHMARK FLATTERS THE PIPELINE BY ~2×, and its per-dish verdicts do not
+survive contact with production.** Two dishes that are perfect in isolation fail inside their own
+menu; two that fail in isolation pass. **Report the mixed-menu number alongside it from now on.**
+
+#### 🧭 THE ARM THIS POINTS TO NEXT — "P-10", NOT ANOTHER PROMPT
+
+Arm P's split chunks the menu at 10 and *then* divides each chunk, so both halves come out
+undersized. **Partition the whole menu into weighted and unweighted FIRST, then chunk each at 10**,
+and a weighted dish rides with 10 weighted items instead of 5–8 — restoring the batch size the
+2026-08-12 curve says it needs while keeping Arm P's sentence for unweighted items. ~$0.40 to test on
+this harness, and the unweighted set can be re-scored the same way. **This is a batching change, not
+a wording change — the 0-for-5 prompt scoreboard does not apply to it.**
+
+⚠️ **Do NOT read this as "Arm P is falsified".** Its unweighted gain (28/72 → 37/72) stands and was
+never in question. What is rejected is **shipping it in its current split form**.
+
+### 🟡 ARM P-10 — BATCH SIZE WAS HALF THE STORY. 27/96 → 22/96, STILL SHORT OF 16 (2026-08-18, ~$0.40)
+
+The P-10 hypothesis: Arm P chunks at 10 and *then* splits, leaving both halves undersized, so
+**partition the menu weighted/unweighted FIRST and chunk each side at 10.** Verified before spending
+that it restores the batch — every fixture goes back to **9–10 mates** from Arm P's 5–8.
+`armP10` in `scripts/probe-plate-arms.ts`; 3 draws, 15/15 menu-draws clean, 0 backfilled, $0-replay
+verified.
+
+| arm | weighted, inside real menus |
+|---|---|
+| `mixed` — production today | **16/96** |
+| `P10` | **22/96** |
+| `P` | 27/96 |
+
+**It recovers 5 of Arm P's 11 lost field-draws and stops there. It does NOT clear the bar (16/96), so
+it is not shippable either.**
+
+#### 🔑 THE PER-DISH RESULT IS WHERE THE FINDING IS
+
+| dish | batch-mates today → P → P10 | today | P | P10 |
+|---|---|---|---|---|
+| **CESAR** | 10 → **5** → **10** | 1/12 | 5/12 | **0/12** ✅ fully recovered |
+| PASTEL AZTECA | 10 → 6 → 9 | 0/12 | 5/12 | 3/12 🟡 partly |
+| ENFRIJOLADAS | 10 → 6 → 9 | 3/12 | 3/12 | **1/12** ✅ better than today |
+| Gnocchi | 10 → 8 → 10 | 6/12 | 4/12 | 6/12 |
+| **Salmone toscano** | **3 → 3 → 10** | 6/12 | 6/12 | **6/12** ⬅ size tripled, score IDENTICAL |
+| **Coleslaw** | 10 → 6 → **10** | 0/12 | 4/12 | **6/12** ⬅ size restored, got WORSE |
+| NEW YORK | 10 → 10 → 10 | 0/12 | 0/12 | 0/12 |
+| French Fries | 10 → 6 → 10 | 0/12 | 0/12 | 0/12 |
+
+**CESAR is textbook** — 5 mates cost it 5 field-draws, 10 mates give them all back and then some. That
+is the batch-size mechanism confirmed at the dish level.
+
+🔴 **BUT TWO DISHES FALSIFY "SIZE IS THE WHOLE STORY":** Salmone's batch went **3 → 10** and its score
+did not move by a single field, and **Coleslaw got WORSE (4 → 6) with its batch size restored.**
+
+🔑 **THE CONCLUSION THAT MATTERS, AND IT IS BIGGER THAN ONE ARM.** P-10 holds batch SIZE at 10 and
+changes only WHO is in it — today's mates are a realistic mix, P-10's are all weighted. Weighted
+dishes still degrade (16 → 22). So **splitting the request disturbs weighted dishes independently of
+batch size**, which supports the 2026-08-12 prior that *the model calibrates across the items sharing
+a call*: an all-weighted batch is an unrealistic calibration context, and B21's proportions were tuned
+inside a mixed one.
+
+☠️ **THIS RETIRES A DELIVERY MECHANISM, NOT JUST AN ARM. Any arm that separates weighted from
+unweighted items into different calls should be expected to cost weighted dishes** — the chunking
+order only changes how much. Arm P (27/96) and P-10 (22/96) are two points on that; neither reaches 16.
+
+⚠️ **Arm P's UNWEIGHTED gain (28/72 → 37/72) is still not falsified.** What is now doubly established
+is that **its delivery mechanism is the problem.**
+
+🧭 **THE QUESTION THIS LEAVES:** can Arm P's instruction reach unweighted items **without a split** —
+one mixed batch, one call, the sentence made conditional per item? That keeps weighted dishes in
+exactly today's context. ⚠️ It is a prompt SENTENCE, and wording is **0 for 5** — but Arm P's sentence
+demonstrably works when the batch is homogeneous (37/72), so the open question is specifically whether
+it survives being conditional. State the falsifier before running it, and score BOTH benchmarks: it
+must hold 16/96 weighted and 37/72 unweighted.
+
+⚠️ **ONE RUN OF 3 DRAWS PER ARM.** CESAR's recovery tracks its batch cleanly, but Coleslaw's 0 → 6 is
+the size of swing that needs a repeat before it is load-bearing. **A range across runs is still owed.**
+
+### ❌ ARM P-INLINE FAILS — WORDING IS 0 FOR 6, AND THE GAIN LOOKS LIKE THE BATCH (2026-08-18, ~$1.8)
+
+Four runs: a second baseline on each benchmark (for the RANGE Santiago's rule requires) plus P-inline
+on both. Zero backfilled items anywhere; all four $0-replay verified.
+
+| arm | weighted, in real menus | unweighted | shippable? |
+|---|---|---|---|
+| **production today** | **16–18/96** (2 runs) | **25–28/72** (2 runs) | — |
+| Arm P — split | 27/96 ❌ | **37/72** ✅ | no |
+| Arm P-10 — split, full batches | 22/96 ❌ | *never measured* | no |
+| **P-inline — no split** | **15/96** ✅ | **29/72** ❌ | **no** |
+
+**P-inline clears the weighted gate and fails the one that matters.** 29/72 against a 25–28 baseline
+is inside the noise; Arm P's 37 is 8 points away. **It bought nothing.**
+
+🔑 **PROMPT WORDING IS NOW 0 FOR 6** (B11, B13, B23, two `serving_pieces` wordings, Arm S, P-inline).
+
+#### 🧪 THE $0 DIAGNOSTIC PREDICTED IT, AND IT WAS WRITTEN DOWN BEFORE THE RUN
+
+The falsifier was fixed in the source before spending: *"unweighted stays ~28/72 → the condition never
+fired."* Comparing archived serving sums, P-inline vs baseline, same draw:
+
+| group | should | median change | unchanged (±2%) |
+|---|---|---|---|
+| **unweighted** — the target | grow | **1.00× — did not move** | 6/15 |
+| **weighted** — must be untouched | 1.00× | 1.01× median, but **4.00×, 1.94×, 1.87×** on individual dishes | **4/38** |
+
+**The conditional landed on the wrong group.** Items it was scoped to barely moved; items it
+explicitly excluded were shuffled — which is why French Fries went 0/12 → 6/12 on the weighted gate.
+A per-item condition in prose is not read as a per-item condition.
+
+#### 🔑 THE FINDING THAT MATTERS — ARM P'S GAIN IS PROBABLY THE BATCH, NOT THE SENTENCE
+
+Per dish, unweighted:
+
+| dish | baseline | P-inline | **Arm P** |
+|---|---|---|---|
+| CARBONARA | 10 | **12** | 12 |
+| ENSALADA GRIEGA | 7 | 10 | **12** |
+| CAPRICCIOSA | 0 | 0 | **2** |
+| COLIFLOR ROKA | 0 | 0 | **3** |
+| Salmón Roll | 5 | 3 | **5** |
+| TIRAS DE POLLO | 3 | 4 | 3 |
+| **TOTAL** | **25** | **29** | **37** |
+
+**P-inline gives the SAME WORDS to the SAME items and gets 29 where Arm P gets 37. The only
+difference between them is that Arm P's unweighted items travel in a batch containing nothing but
+unweighted items.** That is direct evidence for the 2026-08-12 prior — *the model calibrates across
+the items sharing a call* — and it reframes the whole thread: **Arm P may never have been a prompt
+win at all.**
+
+⚠️ **THE CONTROL THAT WAS NEVER RUN, and it is now the cheapest informative experiment (~$0.50):**
+split weighted/unweighted into separate calls with the **UNCHANGED** prompt, scored on the unweighted
+set. If that alone lands near 37/72, **the lever is BATCH COMPOSITION and every prompt arm in this
+thread was measuring it by accident.**
+
+⚠️ **A SECOND GAP: Arm P-10's UNWEIGHTED score was never measured.** We know its weighted cost
+(22/96 against 16–18) and nothing about its gain. It keeps unweighted items in homogeneous batches of
+10, so it should carry Arm P's gain — and without that number its trade-off cannot be put to Santiago.
+~$0.50.
+
+#### 🔧 A HARNESS BUG WAS FOUND AND FIXED MID-RUN
+
+The first P-inline unweighted run **crashed on a single 120 s timeout**: the prompt-arms call
+`enrichBatch` directly (to vary the prompt) and it has no retry, where production wraps every batch in
+`enrichBatchWithRetry`. One slow request killed a paid run. `retryOnce` now wraps `armPInline` in
+`scripts/probe-plate-arms.ts`. ⚠️ `armS3`/`armS4` share the fragility and are deliberately NOT wrapped
+— both are rejected arms nothing re-runs.
+
+#### 📌 Cost and ranges
+
+**~$1.80 for four runs** (~$0.40 × 2 weighted, ~$0.50 × 2 unweighted). Under the old whole-menu path
+this was ~$8. The unweighted harness now carries the same focused-batch saving, with a `-f` archive
+segment so a cheap run can never overwrite the whole-menu evidence — verified after the change that
+the published archives still replay to **28/72** (baseline) and **37/72** (Arm P).
+
+⚠️ **Both baselines now have a RANGE and it is tight: weighted 16–18/96, unweighted 25–28/72.**
+Coleslaw remains the noisiest dish (0 / 2 / 4 / 6 across four arms) — treat any single-dish claim
+about it with suspicion.
+
+### 🔬 THE SPLIT-ONLY CONTROL — MY OWN REFRAME IS FALSIFIED. IT IS AN INTERACTION (2026-08-18, ~$0.5)
+
+Yesterday's entry proposed that **Arm P's gain is probably the batch, not the sentence**, and named the
+control that would settle it. The control ran. **The proposal is wrong and is retracted here.**
+
+`armSplitOnly` = Arm P's split with the prompt left **byte-identical to production**. 3 draws, 9/9
+menu-draws clean, 0 backfilled, $0-replay verified. **21/72 — BELOW the 25–28 baseline.**
+
+#### The 2×2, and neither ingredient works alone
+
+| | shipped prompt | + Arm P's sentence |
+|---|---|---|
+| **mixed batch** | **25–28** — baseline | **29** — P-inline |
+| **split batch** | **21** — SplitOnly ❌ | **37** — Arm P ✅ |
+
+**The split ALONE is worse than doing nothing. The sentence ALONE is worth nothing. Together they are
+worth 9–12 points.** There is no main effect here to chase — the effect is the interaction, and every
+arm that tried to isolate one half has now failed: P-inline (words, no split) 29, SplitOnly (split, no
+words) 21.
+
+🔑 **THE MECHANISM THIS POINTS TO, AND IT IS ACTIONABLE.** Arm P's sentence opens *"The items in this
+request print no weight"* — a statement that is **TRUE OF THE WHOLE REQUEST** only when the batch is
+homogeneous. P-inline had to phrase the same idea as a per-item condition, and the 2026-08-18
+diagnostic measured the model applying it **indiscriminately** — the targeted items did not move while
+excluded ones were shuffled. **The model honours an unconditional fact about the request far better
+than a per-item condition inside it.** The split is not valuable in itself; it is what makes the
+instruction statable as a fact. And on its own it costs accuracy, because it disturbs the calibration
+context (the same reason weighted dishes degrade under Arm P).
+
+⚠️ **THIS IS THE THIRD ARM TO DIE BETWEEN A PLAUSIBLE STORY AND A MEASUREMENT** (after A-conditional
+and S3). The story — "batch composition is the lever" — was consistent with the batch-size curve, the
+mixed-menu 2× finding, and P-inline's shortfall. It was still wrong. **A hypothesis that explains
+every prior result is not thereby true; the control is $0.50.**
+
+#### What actually stands now
+
+- **Arm P remains the ONLY thing that has ever moved the unweighted score** (25–28 → 37/72), and it
+  needs BOTH halves. It is not a prompt win and it is not a batching win; it is both.
+- **Its weighted cost is unchanged and still blocks it:** 27/96 against a 16–18 baseline, with P-10
+  recovering part of that (22/96).
+- 🔴 **THE SINGLE MOST DECISION-RELEVANT MISSING NUMBER IS ARM P-10 ON THE UNWEIGHTED SET (~$0.50).**
+  P-10 carries **both** halves of the interaction (split + sentence) while restoring full batches, so
+  it should keep Arm P's gain at a smaller weighted cost. If it scores ~37/72, the trade becomes
+  concrete and Santiago's: **+9 to +12 unweighted for −4 to −6 weighted.** Without it, nothing can be
+  put to him.
+
+### 🟢 ARM P-10 SCORES 38/72 — THE BEST UNWEIGHTED RESULT EVER, AT A SMALLER WEIGHTED COST (2026-08-18, ~$0.5)
+
+The missing number exists. 3 draws, 9/9 menu-draws clean, 0 backfilled, $0-replay verified.
+
+| arm | unweighted (higher better) | weighted, in real menus (lower better) |
+|---|---|---|
+| production today | 25–28/72 | **16–18/96** |
+| Arm P | 37/72 | 27/96 |
+| **Arm P-10** | **38/72** 🥇 | **22/96** |
+| P-inline | 29/72 | 15/96 |
+| SplitOnly | 21/72 | — |
+
+**P-10 DOMINATES Arm P on both axes** — equal-or-better unweighted (38 vs 37, a tie within noise) at a
+materially smaller weighted cost (22 vs 27). **Arm P is superseded; P-10 is the candidate.**
+
+#### Per dish, unweighted
+
+| dish | baseline | Arm P | **P-10** |
+|---|---|---|---|
+| **CAPRICCIOSA** (the pizza that started this) | 0 | 2 | **6** 🎯 |
+| CARBONARA | 10 | 12 | 12 |
+| ENSALADA GRIEGA | 7 | **12** | 9 |
+| TIRAS DE POLLO | 3 | 3 | **5** |
+| COLIFLOR ROKA | 0 | 3 | 3 |
+| Salmón Roll | 5 | **5** | 3 |
+| **TOTAL** | **25** | **37** | **38** |
+
+🎯 **CAPRICCIOSA finally moves.** The 28 cm pizza has scored 0/12 through every arm of this phase — it
+is the dish that motivated the whole plate-weight thread, the one proven at $0 to be unfixable by any
+total. **P-10 gets it to 6/12.**
+
+#### ⚖️ THE TRADE, AND IT IS SANTIAGO'S
+
+| | today | under P-10 | change |
+|---|---|---|---|
+| unweighted dishes correct | 35–39% | **53%** | **+14 to +18 pts** |
+| weighted dishes correct | 81–83% | **77%** | −4 to −6 pts |
+
+**Unweighted items are the majority of a real menu, and their errors are enormous** (a 28 cm pizza at
+half its calories) where weighted errors sit near their band edges. **The recommendation is to take
+it** — but it is a product call, not a measurement one.
+
+⚠️ **ONE RUN OF 3 DRAWS ON EACH SIDE.** The per-draw spread is wide (CAPRICCIOSA 1–4/4, Salmón Roll
+0–3/4), so **38 vs 37 is a tie, not a win** — the load-bearing claims are "P-10 ≈ Arm P on unweighted"
+and "P-10 costs less than Arm P on weighted". **A confirmation run of both sides (~$1) is owed before
+shipping**, per the standing range rule.
+
+⚠️ **AND SHIPPING IS A REAL CODE CHANGE, NOT A PROMPT EDIT.** P-10 restructures `callGptEnrich`:
+partition the menu weighted/unweighted, chunk each side at `ENRICH_BATCH_SIZE`, send the unweighted
+side with Arm P's sentence. That touches the deployed enrichment path, so it needs its own tests and a
+deployment ruling. Nothing has been changed in `supabase/functions/`.
+
+### 🔴 CONFIRMED: P-10'S WEIGHTED COST IS REAL, NOT NOISE (2026-08-18, ~$0.8). SANTIAGO WAS RIGHT.
+
+He was **skeptical of spending the weighted result** and asked for the cost to be confirmed before any
+product decision. It was one run; it is now three. **The ranges do not overlap.**
+
+| | runs | range | dishes correct |
+|---|---|---|---|
+| **production today** | 16, 18 | **16–18/96** | **81–83%** |
+| **Arm P-10** | 22, 21, 25 | **21–25/96** | **74–78%** |
+
+**Every P-10 run is worse than every baseline run — six pairwise comparisons, all the same
+direction.** 45 archived menu-draws, **0 backfilled**, all three runs $0-replay verified.
+**The trade is real: roughly −5 to −8 points of weighted accuracy.**
+
+⚠️ **This also retires the hedge in the previous entry.** That entry said "38 vs 37 is a tie" and
+"−4 to −6 may be noise". The unweighted tie stands; **the weighted cost does not — it is confirmed and
+slightly larger than first measured.**
+
+#### 🔑 THE MISCONCEPTION THIS CLEARED UP, AND IT IS THE IMPORTANT PART
+
+Santiago asked why his design — *split the JSON into weighted and unweighted, run two separate
+processes, keep them isolated* — could not simply use "the process that is ~93% right" for the
+weighted half. **That design IS Arm P-10, and there is no 93% process.**
+
+| what a weighted dish travels with | score |
+|---|---|
+| **the other 7 fixtures** — `bench-macros.ts`, all 8 sent alone together | **6–9/96 ≈ 93%** |
+| a mixed group of 10 real menu items — **production today** | **16–18/96 ≈ 82%** |
+| a group of 10 other WEIGHTED dishes — Arm P-10 | **21–25/96 ≈ 76%** |
+
+**The 93% is an artifact of the eight fixtures being batched with each other**, which is a grouping the
+app never produces. It is not a pipeline capability and it cannot be recovered by splitting. **Never
+quote it as what weighted extraction achieves** — quote 16–18/96 in real menus.
+
+#### ⚖️ WHERE THIS LEAVES THE DECISION
+
+**P-10 as designed is a genuine trade and Santiago has declined that shape of trade.** Two options
+remain:
+
+1. 🟢 **THE DUAL-PASS — the trade disappears.** Send the menu **unchanged** (pass 1) and use its
+   answers for weighted dishes; send the unweighted items **again** in their own batches with Arm P's
+   sentence (pass 2) and use those for unweighted dishes. **Weighted requests are byte-identical to
+   today by construction, so 16–18/96 is preserved by design rather than by hope**, while unweighted
+   gets P-10's 38/72 — *both numbers already measured, nothing new to prove*. Unweighted items are
+   enriched twice and one copy is discarded; **the cost is money, not accuracy: ~1.5× enrichment
+   (~$0.03 → ~$0.05 per scan)** since unweighted items are ~54% of a real menu.
+   ⚠️ **Why twice:** the unweighted items' PRESENCE in pass 1 is what holds the weighted batches at
+   today's composition. Remove them and the weighted score moves — that is exactly what P-10 measured.
+2. **Ship nothing here and go after the accompaniment-weight defect instead** (24% of weighted items,
+   12–20% of their calories, still unfixed).
+
+**Nothing in `supabase/functions/` has been touched.**
+
+### 🟡 THE DUAL PASS IS BUILT AND MEASURED — WEIGHTED IS FREE, UNWEIGHTED IS 31/72 NOT 38 (2026-08-19, ~$3.2)
+
+`docs/superpowers/plans/2026-08-18-dual-pass-enrichment.md` executed, Tasks 1–5. **Deployed code is
+still edge fn v31** — nothing here is live. Branch `feat/dual-pass-enrichment`, PR #18, based on
+`feat/forced-serving-pieces` so it does not swallow PR #17.
+
+#### ✅ THE WEIGHTED SIDE IS FREE, AND THIS TIME A FRESH CONTROL SAYS SO
+
+| run | weighted (lower better) |
+|---|---|
+| **fresh baseline control, same day** (`mixed --run ctrl`) | **15/96** |
+| dual run 1 | 17/96 |
+| dual run 2 | 14/96 |
+| dual run 3 | 15/96 |
+
+**The ranges overlap and the control sits inside them: no detectable weighted cost.** Contrast P-10,
+where every run was worse than every baseline run over six pairwise comparisons. 60/60 menu-draws
+clean, **0 backfilled, 0 absent**, all four runs `--replay` verified.
+
+⚠️ **THE "16–18/96" BASELINE ON RECORD COULD NOT BE FULLY RE-DERIVED.** Only ONE focused `mixed` run
+is archived and it replays to **18/96**; the "16" has no surviving archive — almost certainly lost to
+the overwrite hazard `--run` was added to fix. The fresh control (15/96) is now the number to quote.
+
+☠️ **THE PRE-REGISTERED BAR WAS "INSIDE 16–18/96" AND TWO RUNS LANDED BELOW IT.** Called a PASS, and
+the reasoning is recorded rather than quietly assumed: the bar existed to catch weighted
+DEGRADATION, pass 1's request bytes are unchanged, and the fresh control shows the band was stale.
+
+#### 🔴 THE PLAN'S CENTRAL CLAIM WAS FALSE: THE UNWEIGHTED GAIN DOES NOT TRANSFER BY CONSTRUCTION
+
+The plan said both numbers already existed. **`probe-plate-arms.ts` reaches the model through its own
+request builder and production does not:**
+
+| | how the request is built |
+|---|---|
+| `callOpenAI` — every ARM this phase | **two** messages: prompt as **`system`**, items as `user`, serialized `{"items":[…]}` |
+| `enrichBatch` — production, and pass 2 | **one** `user` message: `` `${prompt}\n\nMenu items (JSON):\n${JSON.stringify(items)}` `` |
+
+Same prompt (md5-verified identical), same batch composition (`fixtureBatchesP10`), **envelope the
+only difference:**
+
+| dish | baseline<br>(user env, shipped prompt) | **dual**<br>(user env, P sentence) | P-10<br>(system env, P sentence) |
+|---|---|---|---|
+| **CAPRICCIOSA** | 0 | **0** 🔴 | **6** |
+| CARBONARA | 10 | 11 | 12 |
+| ENSALADA GRIEGA | 7 | **11** | 9 |
+| TIRAS DE POLLO | 3 | 3 | 5 |
+| COLIFLOR ROKA | 0 | **3** | 3 |
+| Salmón Roll | 5 | 3 | 3 |
+| **TOTAL** | **25/72** | **31/72** | **38/72** |
+
+**The shipped code captures +6 of the advertised +13**, and **CAPRICCIOSA — the 28 cm pizza that
+motivated the entire plate-weight thread — goes 6 → 0.**
+
+⚠️ **THE +6 IS NOT "THE SENTENCE ALONE".** The `baseline` arm selects MIXED batches, `dual` selects
+unweighted-only ones, so +6 bundles the sentence WITH the batching. It is the correct SHIPPING number
+(end-to-end vs today) and an unsound MECHANISM claim. Corrected here after being stated wrongly once.
+
+⚠️ **ONE RUN PER CELL.** 31 vs 38 rests on one run each and the per-draw spread is wide. Direction is
+corroborated independently — pass 2 moved unweighted calories by a **median 0.99×** (17 up, 28 down)
+across 45 unweighted neighbours in the weighted menus — but the SIZE of the gap is unconfirmed.
+
+🔑 **THIS RETRO-TAINTS EVERY ARM SCORED THROUGH `callOpenAI` AGAINST A `callGptEnrich` BASELINE** —
+Arm P (37), P-inline (29), SplitOnly (21). Some rejections may have been rejections of an ENVELOPE
+rather than an idea. `enrich.ts`'s own comment warned about exactly this: *"an arm that reaches the
+model by its own path is not evidence about the deployed one."* **A prior for the next brainstorm,
+not a to-do list** — re-running rejected arms is expensive and none are shipping candidates.
+
+#### ✅ LATENCY PASSES — the thing that declined GPT-5.5
+
+Timed back to back on the SAME menu, single pass first so the dual pass cannot ride a warmed
+connection:
+
+| menu | items | single | dual | ratio |
+|---|---|---|---|---|
+| Andaluz | 36 (36% unweighted) | 31.0s | 59.5s | **1.92×** |
+| Polloteria | 55 (31% unweighted) | 38.7s | 60.4s | **1.56×** |
+
+Inside the plan's expected 1.5–2×, **below the 2.4× that got GPT-5.5 declined.**
+⚠️ `bench-pipeline.ts` CANNOT produce this ratio — it only calls `callGptEnrich`. Measured with a
+throwaway probe, which is also why it is contemporaneous rather than against a different day.
+
+#### 🔧 Three defects in the plan, found by implementing it
+
+| plan said | source actually does |
+|---|---|
+| forward the prompt to *the* `enrichBatch` call in `enrichBatchWithRetry` | there are **three** (first try, retry, rescue) — one-only would serve a retried pass-2 item TODAY's prompt while looking like it got the new one. Test verified to fail without the fix |
+| define `ENRICH_PROMPT_UNWEIGHTED` in `enrich.ts` | leaves the sentence in TWO places; `probe-plate-arms.ts` now builds `ARM_P_PROMPT` from it |
+| `export { … } from` in `bench-pipeline.ts` | a bare re-export creates no local binding and three call sites need one |
+
+#### 🧭 NEXT
+
+**Test the envelope as a PASS-2-ONLY change (~$1).** `enrichBatch` gains a defaulted envelope option;
+pass 1 keeps today's exactly — touching the shared path destroys the byte-identical guarantee the
+whole weighted result rests on. Lands ~38 → ship the full gain; lands ~31 → the envelope story is
+falsified, ship 31 and stop.
+
+### ✅ THE ENVELOPE WAS MOST OF THE GAP — 31 → 35–36/72, CONFIRMED OVER TWO RUNS (2026-08-19, ~$2)
+
+The pass-2-only envelope change, and its confirmation run. **`--run sysenv` / `sysenv2`, both
+`--replay` verified, 0 backfilled.**
+
+| envelope | prompt | unweighted |
+|---|---|---|
+| user | shipped | **25/72** ← production today |
+| user | + P sentence | **31/72** |
+| **system** | **+ P sentence** ← **THE SHIPPED CODE** | **35, 36/72** |
+| system | + P sentence, via `callOpenAI` | 38/72 ← the number on record, ONE run |
+
+**The envelope recovered 4–5 of the 7 missing points, and two runs agree.** The residual 2–3 against
+P-10 is inside the per-draw spread and is not worth another run: P-10 is not a shipping candidate and
+the code has now adopted its envelope.
+
+| dish | baseline | dual, user env | **dual, system env** | P-10 |
+|---|---|---|---|---|
+| CAPRICCIOSA | 0 | 0 | **2, 3** | 6 |
+| CARBONARA | 10 | 11 | **12, 12** | 12 |
+| ENSALADA GRIEGA | 7 | 11 | **10, 8** | 9 |
+| TIRAS DE POLLO | 3 | 3 | **3, 3** | 5 |
+| COLIFLOR ROKA | 0 | 3 | **3, 3** | 3 |
+| Salmón Roll | 5 | 3 | **5, 7** | 3 |
+| **TOTAL** | **25** | **31** | **35, 36** | **38** |
+
+🔑 **THE ENVELOPE IS A MEASURED VARIABLE, NOT A STYLE CHOICE.** The same prompt, same batching, same
+model, differing only in whether it arrives as a `system` message or appended to a `user` one, is
+worth **4–5 points of 72**. `enrichBatch` now takes a defaulted `envelope` option and **pass 2 is the
+only caller that sets it.**
+
+✅ **PASS 1 IS BYTE-IDENTICAL — VERIFIED, NOT ASSUMED.** The single-pass request body is **5491 bytes
+before and after** the parameter existed, so the weighted result (14–17/96 against a 15/96 control) is
+untouched by this change.
+
+⚠️ **A TEST-STUB DEFECT THIS ALMOST HID:** the stubs read `messages[0]`, which under the system
+envelope is the PROMPT, not the items. They would have echoed an EMPTY batch, sending every test down
+the retry path while appearing to pass. Fixed to read every message.
+
+#### 📊 THE CHANGE, END TO END
+
+| measure | today | dual pass + system envelope |
+|---|---|---|
+| weighted | 15/96 (fresh control) | **14–17/96** — no detectable cost |
+| unweighted | 25/72 (35%) | **35–36/72 (49–50%)** |
+| Stage-2 latency | 1× | **1.56–1.92×** |
+| cost per scan | ~$0.03 | ~$0.05 |
+
+⚠️ **Pass 2 now sends a request shape PRODUCTION HAS NEVER SENT.** It is the shape every arm in this
+phase was measured through and it is covered by tests, but a harness is not a deployment.
+⚠️ **STILL UNFIXED: the accompaniment defect** — 24% of weighted items, 12–20% of their calories.

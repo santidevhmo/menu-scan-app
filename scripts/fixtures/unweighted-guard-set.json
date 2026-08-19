@@ -1,0 +1,92 @@
+[
+ {
+  "name": "Tiras de Pollo",
+  "description": "Acompañadas de papas fritas.",
+  "menu": "andaluz",
+  "baseline_g": 235
+ },
+ {
+  "name": "FLAMENKUCHEN",
+  "description": "Base de crema, tocino y cebolla caramelizada",
+  "menu": "bistro",
+  "baseline_g": 190
+ },
+ {
+  "name": "MEXICANA",
+  "description": "Cebolla morada, pimiento verde y chorizo",
+  "menu": "bistro",
+  "baseline_g": 220
+ },
+ {
+  "name": "OSTRICA",
+  "description": "Ostión ahumado, tocino y mostaza dijon",
+  "menu": "bistro",
+  "baseline_g": 340
+ },
+ {
+  "name": "ENSALADA GRIEGA",
+  "description": "Lechuga, pepino, tomate, cebolla morada, aceituna negra, queso feta y vinagreta balsámica",
+  "menu": "bistro",
+  "baseline_g": 250
+ },
+ {
+  "name": "CAVIAR SERVICE & TOASTED BRIOCHE",
+  "description": "traditional accoutrements",
+  "menu": "guest-house",
+  "baseline_g": 60
+ },
+ {
+  "name": "TAYLOR BAY SCALLOP CEVICHE",
+  "description": "yuzu | lychee | lavender | lime",
+  "menu": "guest-house",
+  "baseline_g": 145
+ },
+ {
+  "name": "SEAFOOD PLATEAU*",
+  "description": "chilled or warm / shrimp | maine lobster | king crab roasted bay scallops | oysters | clams",
+  "menu": "guest-house",
+  "baseline_g": 510
+ },
+ {
+  "name": "BRAISED SHORT-RIB GF",
+  "description": "carrots | onion roast | pea shoots",
+  "menu": "guest-house",
+  "baseline_g": 300
+ },
+ {
+  "name": "Nevada",
+  "description": "Por dentro: Salmón, pepino y aguacate. Por fuera: Queso crema.",
+  "menu": "nikkori",
+  "baseline_g": 385
+ },
+ {
+  "name": "Unagui Masago",
+  "description": "Por dentro: Camarón empanizado, queso crema y aguacate. Por fuera: Anguila, cebollín y masago.",
+  "menu": "nikkori",
+  "baseline_g": 398
+ },
+ {
+  "name": "Amazonas Top",
+  "description": "Por dentro: Kanikama y zanahoria capeada con aguacate. Por fuera: Spicy tuna y masago bañados con salsa spicy ponzu.",
+  "menu": "nikkori",
+  "baseline_g": 418
+ },
+ {
+  "name": "Cosmo de Pollo",
+  "description": "Por dentro: Pollo frito y queso manchego. Por fuera: Empanizado",
+  "menu": "nikkori",
+  "baseline_g": 318
+ },
+ {
+  "name": "Nico",
+  "description": "Por dentro: Arroz frito, tampico y aguacate. Por fuera: Queso crema, camarón y empanizado.",
+  "menu": "nikkori",
+  "baseline_g": 365
+ },
+ {
+  "name": "Nikkori Dynamite",
+  "description": "Por dentro: Queso crema, aguacate y kanikama frito. Por fuera: Camarón con una combinación de kanikama cruyente, chipotle y mayonesa, bañado con salsa de anguila.",
+  "menu": "nikkori",
+  "baseline_g": 460
+ }
+]

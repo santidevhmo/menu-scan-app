@@ -1,0 +1,621 @@
+{
+  "items": [
+    {
+      "name": "NEW YORK",
+      "description": "Calidad choice acompañado de chimichurri de la casa. (400gr)",
+      "price": 690,
+      "category": "food",
+      "printed_total_g": 400,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "beef steak",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 200,
+          "protein_per_100g": 26,
+          "carb_per_100g": 0,
+          "fat_per_100g": 20
+        },
+        {
+          "name": "chimichurri",
+          "category": "fat",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 2,
+          "fat_per_100g": 15
+        }
+      ],
+      "protein_g": 104,
+      "carb_g": 1,
+      "fat_g": 85,
+      "estimated_calories": 1180,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": []
+    },
+    {
+      "name": "RIB EYE",
+      "description": "Calidad choice acompañado de chimichurri de la casa. (400gr)",
+      "price": 690,
+      "category": "food",
+      "printed_total_g": 400,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "rib eye steak",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 200,
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 22
+        },
+        {
+          "name": "chimichurri",
+          "category": "fat",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 2,
+          "fat_per_100g": 15
+        }
+      ],
+      "protein_g": 100,
+      "carb_g": 1,
+      "fat_g": 93,
+      "estimated_calories": 1236,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": []
+    },
+    {
+      "name": "FILETE DISCORDIA",
+      "description": "Filete de res asado acompañado de puré de papa, salteado de espinacas con cebolla, con una corona de camarones envueltos en tocino y bañado en salsa chemita. (230gr)",
+      "price": 680,
+      "category": "food",
+      "printed_total_g": 230,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "beef filet",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 26,
+          "carb_per_100g": 0,
+          "fat_per_100g": 20
+        },
+        {
+          "name": "mashed potatoes",
+          "category": "carb",
+          "within_printed_weight": false,
+          "typical_serving_g": 150,
+          "protein_per_100g": 2,
+          "carb_per_100g": 20,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "spinach",
+          "category": "veg",
+          "within_printed_weight": false,
+          "typical_serving_g": 90,
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.4
+        },
+        {
+          "name": "shrimp",
+          "category": "protein",
+          "within_printed_weight": false,
+          "typical_serving_g": 85,
+          "protein_per_100g": 20,
+          "carb_per_100g": 0,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "bacon",
+          "category": "fat",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 12,
+          "carb_per_100g": 1,
+          "fat_per_100g": 42
+        },
+        {
+          "name": "salsa chemita",
+          "category": "other",
+          "within_printed_weight": false,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 10
+        }
+      ],
+      "protein_g": 87,
+      "carb_g": 36,
+      "fat_g": 72,
+      "estimated_calories": 1143,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "shellfish"
+      ]
+    },
+    {
+      "name": "MEDALLÓN DE RES AL LIMÓN",
+      "description": "Medallones de filete salseados con mantequilla de limón, vino blanco y alcaparras. (230gr)",
+      "price": 750,
+      "category": "food",
+      "printed_total_g": 230,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "beef medallions",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 26,
+          "carb_per_100g": 0,
+          "fat_per_100g": 20
+        },
+        {
+          "name": "lemon butter sauce",
+          "category": "fat",
+          "within_printed_weight": false,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 2,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "capers",
+          "category": "other",
+          "within_printed_weight": false,
+          "typical_serving_g": 10,
+          "protein_per_100g": 2,
+          "carb_per_100g": 4,
+          "fat_per_100g": 1
+        }
+      ],
+      "protein_g": 60,
+      "carb_g": 1,
+      "fat_g": 51,
+      "estimated_calories": 701,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy"
+      ]
+    },
+    {
+      "name": "HAMBURGUESA CALAFATE",
+      "description": "Pan de ajonjolí, recorte fino, queso cheddar, pimiento rojo asado, chorizo argentino, chimichurri, arúgula, cebolla morada y dijonesa. (200gr)",
+      "price": 380,
+      "category": "food",
+      "printed_total_g": 200,
+      "name_implied_components": [
+        "bun"
+      ],
+      "ingredients": [
+        {
+          "name": "beef patty",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 26,
+          "carb_per_100g": 0,
+          "fat_per_100g": 20
+        },
+        {
+          "name": "sesame bun",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 70,
+          "protein_per_100g": 9,
+          "carb_per_100g": 50,
+          "fat_per_100g": 4
+        },
+        {
+          "name": "cheddar cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 25,
+          "carb_per_100g": 1,
+          "fat_per_100g": 33
+        },
+        {
+          "name": "roasted red pepper",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0.3
+        },
+        {
+          "name": "argentinian chorizo",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 20,
+          "carb_per_100g": 1,
+          "fat_per_100g": 30
+        },
+        {
+          "name": "chimichurri",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 2,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "arugula",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 10,
+          "protein_per_100g": 2.6,
+          "carb_per_100g": 3.7,
+          "fat_per_100g": 0.7
+        },
+        {
+          "name": "red onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "dijon mayonnaise",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 70
+        }
+      ],
+      "protein_g": 28,
+      "carb_g": 23,
+      "fat_g": 37,
+      "estimated_calories": 537,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy",
+        "egg"
+      ]
+    },
+    {
+      "name": "BACON CHEESE BURGER",
+      "description": "Pan de ajonjolí, recorte fino, queso cheddar, tocino, tomate, cebolla morada, hojas verdes y dijonesa. (200gr)",
+      "price": 380,
+      "category": "food",
+      "printed_total_g": 200,
+      "name_implied_components": [
+        "bun"
+      ],
+      "ingredients": [
+        {
+          "name": "beef patty",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 26,
+          "carb_per_100g": 0,
+          "fat_per_100g": 20
+        },
+        {
+          "name": "sesame bun",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 70,
+          "protein_per_100g": 9,
+          "carb_per_100g": 50,
+          "fat_per_100g": 4
+        },
+        {
+          "name": "cheddar cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 25,
+          "carb_per_100g": 1,
+          "fat_per_100g": 33
+        },
+        {
+          "name": "bacon",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 12,
+          "carb_per_100g": 1,
+          "fat_per_100g": 42
+        },
+        {
+          "name": "tomato",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "red onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "mixed greens",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 2,
+          "carb_per_100g": 3,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "dijon mayonnaise",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 70
+        }
+      ],
+      "protein_g": 28,
+      "carb_g": 25,
+      "fat_g": 37,
+      "estimated_calories": 546,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy",
+        "egg"
+      ]
+    },
+    {
+      "name": "PULPO A LAS BRASAS",
+      "description": "Pulpo a las brasas con un adobo de chiles secos, con espárragos y champiñones. (280gr)",
+      "price": 530,
+      "category": "food",
+      "printed_total_g": 280,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "grilled octopus",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 2
+        },
+        {
+          "name": "chile adobo",
+          "category": "other",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 2,
+          "carb_per_100g": 10,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "asparagus",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 60,
+          "protein_per_100g": 2.2,
+          "carb_per_100g": 3.9,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "mushrooms",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 40,
+          "protein_per_100g": 3,
+          "carb_per_100g": 3,
+          "fat_per_100g": 0.3
+        }
+      ],
+      "protein_g": 41,
+      "carb_g": 7,
+      "fat_g": 5,
+      "estimated_calories": 231,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "shellfish"
+      ]
+    },
+    {
+      "name": "SALMÓN MEDITERRÁNEO",
+      "description": "Filete de salmón en cama de pasta al burro, bañado en salsa mediterránea y albahaca. (350gr)",
+      "price": 530,
+      "category": "food",
+      "printed_total_g": 350,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "salmon fillet",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 13
+        },
+        {
+          "name": "pasta al burro",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 5,
+          "carb_per_100g": 30,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "mediterranean sauce",
+          "category": "other",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "basil",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 10,
+          "protein_per_100g": 3.2,
+          "carb_per_100g": 2.7,
+          "fat_per_100g": 0.6
+        }
+      ],
+      "protein_g": 45,
+      "carb_g": 46,
+      "fat_g": 31,
+      "estimated_calories": 644,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "fish",
+        "gluten"
+      ]
+    },
+    {
+      "name": "PESCADO AL AJILLO",
+      "description": "Pescado del día en una cama de calabaza y espárraga. Bañado en salsa al ajillo, con camarón. (200gr)",
+      "price": 420,
+      "category": "food",
+      "printed_total_g": 200,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "fish fillet",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 22,
+          "carb_per_100g": 0,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "pumpkin",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 60,
+          "protein_per_100g": 1,
+          "carb_per_100g": 7,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "asparagus",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 60,
+          "protein_per_100g": 2.2,
+          "carb_per_100g": 3.9,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "garlic sauce",
+          "category": "other",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "shrimp",
+          "category": "protein",
+          "within_printed_weight": false,
+          "typical_serving_g": 85,
+          "protein_per_100g": 20,
+          "carb_per_100g": 0,
+          "fat_per_100g": 1
+        }
+      ],
+      "protein_g": 40,
+      "carb_g": 5,
+      "fat_g": 8,
+      "estimated_calories": 255,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "fish",
+        "shellfish"
+      ]
+    },
+    {
+      "name": "TOMAHAWK DE PUERCO",
+      "description": "A las brasas, con salsa oriental, cebollas y chiles asados. (380gr)",
+      "price": 530,
+      "category": "food",
+      "printed_total_g": 380,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "pork tomahawk",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 250,
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 20
+        },
+        {
+          "name": "oriental sauce",
+          "category": "other",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 10,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "grilled onions",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "grilled chiles",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0.3
+        }
+      ],
+      "protein_g": 64,
+      "carb_g": 11,
+      "fat_g": 52,
+      "estimated_calories": 763,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": []
+    }
+  ]
+}

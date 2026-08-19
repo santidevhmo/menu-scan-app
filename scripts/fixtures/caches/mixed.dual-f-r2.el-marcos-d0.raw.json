@@ -1,0 +1,692 @@
+{
+  "items": [
+    {
+      "name": "OMELETTE LAMERA",
+      "description": "Dos huevos con cebolla, champiñones, tocino y chile verde.",
+      "price": 94,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "omelette"
+      ],
+      "ingredients": [
+        {
+          "name": "eggs",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 13,
+          "carb_per_100g": 1.1,
+          "fat_per_100g": 11
+        },
+        {
+          "name": "onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1.1,
+          "carb_per_100g": 9.3,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "mushrooms",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 3.1,
+          "carb_per_100g": 3.3,
+          "fat_per_100g": 0.3
+        },
+        {
+          "name": "bacon",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 12.5,
+          "carb_per_100g": 1.4,
+          "fat_per_100g": 42
+        },
+        {
+          "name": "green chili",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 1.9,
+          "carb_per_100g": 4.6,
+          "fat_per_100g": 0.2
+        }
+      ],
+      "protein_g": 18,
+      "carb_g": 7,
+      "fat_g": 20,
+      "estimated_calories": 275,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "egg"
+      ]
+    },
+    {
+      "name": "OMELETTE TOMASA",
+      "description": "Dos huevos con cebolla, cebollín, cilantro, champiñones y queso.",
+      "price": 94,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "omelette"
+      ],
+      "ingredients": [
+        {
+          "name": "eggs",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 13,
+          "carb_per_100g": 1.1,
+          "fat_per_100g": 11
+        },
+        {
+          "name": "onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1.1,
+          "carb_per_100g": 9.3,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "scallions",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 1.8,
+          "carb_per_100g": 7.3,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "cilantro",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 10,
+          "protein_per_100g": 2.1,
+          "carb_per_100g": 3.7,
+          "fat_per_100g": 0.5
+        },
+        {
+          "name": "mushrooms",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 3.1,
+          "carb_per_100g": 3.3,
+          "fat_per_100g": 0.3
+        },
+        {
+          "name": "cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 25,
+          "carb_per_100g": 1.3,
+          "fat_per_100g": 33
+        }
+      ],
+      "protein_g": 23,
+      "carb_g": 8,
+      "fat_g": 21,
+      "estimated_calories": 313,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "egg",
+        "dairy"
+      ]
+    },
+    {
+      "name": "OMELETTE CUBANA",
+      "description": "Dos huevos con chorizo, jamón, tocino, queso, cebolla y pimiento verde.",
+      "price": 98,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "omelette"
+      ],
+      "ingredients": [
+        {
+          "name": "eggs",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 13,
+          "carb_per_100g": 1.1,
+          "fat_per_100g": 11
+        },
+        {
+          "name": "chorizo",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 20,
+          "carb_per_100g": 2.6,
+          "fat_per_100g": 38
+        },
+        {
+          "name": "ham",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 19,
+          "carb_per_100g": 1.5,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "bacon",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 12.5,
+          "carb_per_100g": 1.4,
+          "fat_per_100g": 42
+        },
+        {
+          "name": "cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 25,
+          "carb_per_100g": 1.3,
+          "fat_per_100g": 33
+        },
+        {
+          "name": "onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1.1,
+          "carb_per_100g": 9.3,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "green pepper",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0.3
+        }
+      ],
+      "protein_g": 35,
+      "carb_g": 7,
+      "fat_g": 42,
+      "estimated_calories": 549,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "egg",
+        "dairy"
+      ]
+    },
+    {
+      "name": "DE INDIO",
+      "description": "Dos huevos fritos montados sobre un huarache de maíz con frijoles refritos y bañados con salsa verde, crema, cebolla y cilantro.",
+      "price": 94,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "huarache"
+      ],
+      "ingredients": [
+        {
+          "name": "eggs",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 13,
+          "carb_per_100g": 1.1,
+          "fat_per_100g": 11
+        },
+        {
+          "name": "corn huarache",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 6.9,
+          "carb_per_100g": 60,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "refried beans",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 5.5,
+          "carb_per_100g": 20,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "green salsa",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1.5,
+          "carb_per_100g": 5,
+          "fat_per_100g": 0.5
+        },
+        {
+          "name": "cream",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 2.1,
+          "carb_per_100g": 4.3,
+          "fat_per_100g": 19
+        },
+        {
+          "name": "onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1.1,
+          "carb_per_100g": 9.3,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "cilantro",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 10,
+          "protein_per_100g": 2.1,
+          "carb_per_100g": 3.7,
+          "fat_per_100g": 0.5
+        }
+      ],
+      "protein_g": 28,
+      "carb_g": 107,
+      "fat_g": 25,
+      "estimated_calories": 762,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "egg",
+        "dairy",
+        "gluten"
+      ]
+    },
+    {
+      "name": "CHILAQUILES (70gr.)",
+      "description": "Tradicionales. Con pollo, crema y queso gratinado, con su elección de salsa suiza o verde.",
+      "price": 138,
+      "category": "food",
+      "printed_total_g": 70,
+      "name_implied_components": [
+        "tortilla chips"
+      ],
+      "ingredients": [
+        {
+          "name": "tortilla chips",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 7,
+          "carb_per_100g": 65,
+          "fat_per_100g": 25
+        },
+        {
+          "name": "chicken",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 27,
+          "carb_per_100g": 0,
+          "fat_per_100g": 3.6
+        },
+        {
+          "name": "cream",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 2.1,
+          "carb_per_100g": 4,
+          "fat_per_100g": 30
+        },
+        {
+          "name": "grated cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 25,
+          "carb_per_100g": 1.3,
+          "fat_per_100g": 33
+        },
+        {
+          "name": "salsa",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 0.5
+        }
+      ],
+      "protein_g": 11,
+      "carb_g": 10,
+      "fat_g": 9,
+      "estimated_calories": 167,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ]
+    },
+    {
+      "name": "CHILAQUILES (70gr.) Regionales",
+      "description": "Con pollo, crema en salsa de chile colorado, con su elección de queso panela o mezcla de quesos.",
+      "price": 138,
+      "category": "food",
+      "printed_total_g": 70,
+      "name_implied_components": [
+        "tortilla chips"
+      ],
+      "ingredients": [
+        {
+          "name": "tortilla chips",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 7,
+          "carb_per_100g": 65,
+          "fat_per_100g": 25
+        },
+        {
+          "name": "chicken",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 27,
+          "carb_per_100g": 0,
+          "fat_per_100g": 3.6
+        },
+        {
+          "name": "cream",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 2.1,
+          "carb_per_100g": 4,
+          "fat_per_100g": 30
+        },
+        {
+          "name": "queso panela",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 18,
+          "carb_per_100g": 3.5,
+          "fat_per_100g": 20
+        },
+        {
+          "name": "chile colorado salsa",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 0.5
+        }
+      ],
+      "protein_g": 10,
+      "carb_g": 10,
+      "fat_g": 8,
+      "estimated_calories": 156,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ]
+    },
+    {
+      "name": "CHILAQUILES (70gr.) Divorciados",
+      "description": "Mitad rojos, mitad verdes.",
+      "price": 138,
+      "category": "food",
+      "printed_total_g": 70,
+      "name_implied_components": [
+        "tortilla chips"
+      ],
+      "ingredients": [
+        {
+          "name": "tortilla chips",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 7,
+          "carb_per_100g": 65,
+          "fat_per_100g": 25
+        },
+        {
+          "name": "red salsa",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 0.5
+        },
+        {
+          "name": "green salsa",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 0.5
+        }
+      ],
+      "protein_g": 2,
+      "carb_g": 18,
+      "fat_g": 6,
+      "estimated_calories": 133,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten"
+      ]
+    },
+    {
+      "name": "MACHACA",
+      "description": "Con huevo o verdura (Machaca 30gr.)",
+      "price": 98,
+      "category": "food",
+      "printed_total_g": 30,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "machaca",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 32,
+          "carb_per_100g": 0,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "egg",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 13,
+          "carb_per_100g": 1.1,
+          "fat_per_100g": 11
+        },
+        {
+          "name": "vegetables",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1.5,
+          "carb_per_100g": 8,
+          "fat_per_100g": 0.5
+        }
+      ],
+      "protein_g": 4,
+      "carb_g": 1,
+      "fat_g": 2,
+      "estimated_calories": 40,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "egg"
+      ]
+    },
+    {
+      "name": "ENFRIJOLADAS (135gr.)",
+      "description": "Tres tortillas de maíz rellenas de pollo y bañadas con salsa de frijol, crema y queso cotija.",
+      "price": 94,
+      "category": "food",
+      "printed_total_g": 135,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "corn tortillas",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 60,
+          "protein_per_100g": 6.9,
+          "carb_per_100g": 72,
+          "fat_per_100g": 4.7
+        },
+        {
+          "name": "chicken",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 27,
+          "carb_per_100g": 0,
+          "fat_per_100g": 3.6
+        },
+        {
+          "name": "bean sauce",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 6.9,
+          "carb_per_100g": 20.1,
+          "fat_per_100g": 5.5
+        },
+        {
+          "name": "cream",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 2.1,
+          "carb_per_100g": 4,
+          "fat_per_100g": 30
+        },
+        {
+          "name": "cotija cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 23,
+          "carb_per_100g": 2.3,
+          "fat_per_100g": 33
+        }
+      ],
+      "protein_g": 21,
+      "carb_g": 28,
+      "fat_g": 14,
+      "estimated_calories": 321,
+      "serving_pieces": 3,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ]
+    },
+    {
+      "name": "PASTEL AZTECA (300gr.)",
+      "description": "Con pollo, salsa de tomate, chile verde, cebolla, elote y mezcla de quesos, servido con frijoles.",
+      "price": 94,
+      "category": "food",
+      "printed_total_g": 300,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "chicken",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 27,
+          "carb_per_100g": 0,
+          "fat_per_100g": 3.6
+        },
+        {
+          "name": "tomato sauce",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1,
+          "carb_per_100g": 5,
+          "fat_per_100g": 0.5
+        },
+        {
+          "name": "green chili",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1.9,
+          "carb_per_100g": 8.8,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 1.1,
+          "carb_per_100g": 9.3,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "corn",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 3.2,
+          "carb_per_100g": 19,
+          "fat_per_100g": 1.2
+        },
+        {
+          "name": "cheese blend",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 25,
+          "carb_per_100g": 1.3,
+          "fat_per_100g": 33
+        },
+        {
+          "name": "beans",
+          "category": "protein",
+          "within_printed_weight": false,
+          "typical_serving_g": 100,
+          "protein_per_100g": 6.9,
+          "carb_per_100g": 20.1,
+          "fat_per_100g": 5.5
+        }
+      ],
+      "protein_g": 40,
+      "carb_g": 44,
+      "fat_g": 18,
+      "estimated_calories": 499,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy"
+      ]
+    }
+  ]
+}

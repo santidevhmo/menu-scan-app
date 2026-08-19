@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import {
-  callGptEnrich,
+  callGptEnrichDualPass,
   ENRICH_MODEL,
   type EnrichedItem,
   type ExtractedItem,
@@ -106,7 +106,11 @@ export async function handleRequest(req: Request): Promise<Response> {
       let modelId: string;
 
       if (provider === "gpt-4o") {
-        result = await callGptEnrich(
+        // Passed through UNRESHAPED - no map, spread or clone. enrichBatch
+        // serialises whole item objects into the prompt, so pass 1's request
+        // bytes are today's only while these stay the same objects (`grams`
+        // included, which is also what isUnweighted partitions on).
+        result = await callGptEnrichDualPass(
           inputItems as ExtractedItem[],
           OPENAI_API_KEY,
         );

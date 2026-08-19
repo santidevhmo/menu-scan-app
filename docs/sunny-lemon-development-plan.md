@@ -683,9 +683,10 @@ dishes (Coleslaw) got worse. **GPT-5.5 was measured, beat GPT-4o on macros, and 
 for status; `docs/superpowers/stage2-macro-benchmark.md` is the living log (Runs, Rulings, the
 deployment entry); `docs/superpowers/plans/2026-08-07-stage2-macro-benchmark.md` holds the paid-run
 procedure only — its Tasks 1–5 are COMPLETE. Do not rerun paid baselines without a new hypothesis
-and Santiago's explicit cost approval. **Two decisions are open and both are his:** the
-printed-weight *scope* convention, and the real-restaurant field test (never done — every scan to
-date has been a photo of a screen).
+and Santiago's explicit cost approval. **One decision is open and it is his:** the printed-weight
+*scope* convention. (The "real-restaurant field test" that used to sit beside it was **closed
+2026-08-16 as a false premise** — the fixture menus are real phone photos of real paper menus, not
+photos of a screen.)
 
 **Goal:** Pick the winning vision model from Phase 1 testing + production data, lock it via feature flag, optionally improve macro accuracy.
 

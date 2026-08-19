@@ -1,0 +1,1584 @@
+{
+  "solo OSTRICA d0": {
+    "name": "OSTRICA",
+    "description": "Ostión ahumado, tocino y mostaza dijon",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Ostión ahumado",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 85,
+        "protein_per_100g": 20,
+        "carb_per_100g": 5,
+        "fat_per_100g": 2
+      },
+      {
+        "name": "Tocino",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 14,
+        "carb_per_100g": 1,
+        "fat_per_100g": 42
+      },
+      {
+        "name": "Mostaza Dijon",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 7,
+        "carb_per_100g": 5,
+        "fat_per_100g": 10
+      }
+    ],
+    "protein_g": 19,
+    "carb_g": 5,
+    "fat_g": 9,
+    "estimated_calories": 173,
+    "serving_pieces": 1,
+    "confidence": "medium",
+    "allergens": [
+      "shellfish"
+    ]
+  },
+  "solo OSTRICA d1": {
+    "name": "OSTRICA",
+    "description": "Ostión ahumado, tocino y mostaza dijon",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Ostión ahumado",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 85,
+        "protein_per_100g": 20,
+        "carb_per_100g": 5,
+        "fat_per_100g": 2
+      },
+      {
+        "name": "Tocino",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 12,
+        "carb_per_100g": 1,
+        "fat_per_100g": 42
+      },
+      {
+        "name": "Mostaza Dijon",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 7,
+        "carb_per_100g": 5,
+        "fat_per_100g": 10
+      }
+    ],
+    "protein_g": 19,
+    "carb_g": 5,
+    "fat_g": 9,
+    "estimated_calories": 172,
+    "serving_pieces": 1,
+    "confidence": "medium",
+    "allergens": [
+      "shellfish"
+    ]
+  },
+  "solo OSTRICA d2": {
+    "name": "OSTRICA",
+    "description": "Ostión ahumado, tocino y mostaza dijon",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Ostión ahumado",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 85,
+        "protein_per_100g": 20,
+        "carb_per_100g": 5,
+        "fat_per_100g": 2
+      },
+      {
+        "name": "Tocino",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 12,
+        "carb_per_100g": 1,
+        "fat_per_100g": 42
+      },
+      {
+        "name": "Mostaza Dijon",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 7,
+        "carb_per_100g": 5,
+        "fat_per_100g": 10
+      }
+    ],
+    "protein_g": 19,
+    "carb_g": 5,
+    "fat_g": 9,
+    "estimated_calories": 172,
+    "serving_pieces": 1,
+    "confidence": "medium",
+    "allergens": [
+      "shellfish"
+    ]
+  },
+  "solo OSTRICA d3": {
+    "name": "OSTRICA",
+    "description": "Ostión ahumado, tocino y mostaza dijon",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Ostión ahumado",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 85,
+        "protein_per_100g": 20,
+        "carb_per_100g": 5,
+        "fat_per_100g": 2
+      },
+      {
+        "name": "Tocino",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 12,
+        "carb_per_100g": 1,
+        "fat_per_100g": 42
+      },
+      {
+        "name": "Mostaza Dijon",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 7,
+        "carb_per_100g": 5,
+        "fat_per_100g": 10
+      }
+    ],
+    "protein_g": 19,
+    "carb_g": 5,
+    "fat_g": 9,
+    "estimated_calories": 172,
+    "serving_pieces": 1,
+    "confidence": "medium",
+    "allergens": [
+      "shellfish"
+    ]
+  },
+  "solo OSTRICA d4": {
+    "name": "OSTRICA",
+    "description": "Ostión ahumado, tocino y mostaza dijon",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Ostión (smoked oyster)",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 85,
+        "protein_per_100g": 20,
+        "carb_per_100g": 5,
+        "fat_per_100g": 3
+      },
+      {
+        "name": "Tocino (bacon)",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 12,
+        "carb_per_100g": 1,
+        "fat_per_100g": 42
+      },
+      {
+        "name": "Mostaza Dijon (Dijon mustard)",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 5,
+        "protein_per_100g": 7,
+        "carb_per_100g": 5,
+        "fat_per_100g": 4
+      }
+    ],
+    "protein_g": 19,
+    "carb_g": 5,
+    "fat_g": 9,
+    "estimated_calories": 177,
+    "serving_pieces": 1,
+    "confidence": "medium",
+    "allergens": [
+      "shellfish"
+    ]
+  },
+  "solo MEXICANA d0": {
+    "name": "MEXICANA",
+    "description": "Cebolla morada, pimiento verde y chorizo",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "tortilla"
+    ],
+    "ingredients": [
+      {
+        "name": "tortilla",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 7,
+        "carb_per_100g": 45,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "cebolla morada",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "pimiento verde",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "chorizo",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 25,
+        "carb_per_100g": 2,
+        "fat_per_100g": 35
+      }
+    ],
+    "protein_g": 17,
+    "carb_g": 28,
+    "fat_g": 20,
+    "estimated_calories": 358,
+    "serving_pieces": 1,
+    "confidence": "medium",
+    "allergens": [
+      "gluten"
+    ]
+  },
+  "solo MEXICANA d1": {
+    "name": "MEXICANA",
+    "description": "Cebolla morada, pimiento verde y chorizo",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "tortilla"
+    ],
+    "ingredients": [
+      {
+        "name": "tortilla",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 7,
+        "carb_per_100g": 45,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "cebolla morada",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "pimiento verde",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "chorizo",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 25,
+        "carb_per_100g": 2,
+        "fat_per_100g": 35
+      }
+    ],
+    "protein_g": 17,
+    "carb_g": 28,
+    "fat_g": 20,
+    "estimated_calories": 359,
+    "serving_pieces": 1,
+    "confidence": "medium",
+    "allergens": [
+      "gluten"
+    ]
+  },
+  "solo MEXICANA d2": {
+    "name": "MEXICANA",
+    "description": "Cebolla morada, pimiento verde y chorizo",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "tortilla"
+    ],
+    "ingredients": [
+      {
+        "name": "tortilla",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 7,
+        "carb_per_100g": 45,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "cebolla morada",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "pimiento verde",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "chorizo",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 25,
+        "carb_per_100g": 2,
+        "fat_per_100g": 35
+      }
+    ],
+    "protein_g": 17,
+    "carb_g": 28,
+    "fat_g": 20,
+    "estimated_calories": 359,
+    "serving_pieces": 1,
+    "confidence": "medium",
+    "allergens": [
+      "gluten"
+    ]
+  },
+  "solo MEXICANA d3": {
+    "name": "MEXICANA",
+    "description": "Cebolla morada, pimiento verde y chorizo",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "tortilla"
+    ],
+    "ingredients": [
+      {
+        "name": "tortilla",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 7,
+        "carb_per_100g": 45,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "cebolla morada",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "pimiento verde",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "chorizo",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 25,
+        "carb_per_100g": 2,
+        "fat_per_100g": 35
+      }
+    ],
+    "protein_g": 17,
+    "carb_g": 28,
+    "fat_g": 20,
+    "estimated_calories": 358,
+    "serving_pieces": 1,
+    "confidence": "medium",
+    "allergens": [
+      "gluten"
+    ]
+  },
+  "solo MEXICANA d4": {
+    "name": "MEXICANA",
+    "description": "Cebolla morada, pimiento verde y chorizo",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "tortilla"
+    ],
+    "ingredients": [
+      {
+        "name": "tortilla",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 7,
+        "carb_per_100g": 45,
+        "fat_per_100g": 5
+      },
+      {
+        "name": "cebolla morada",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "pimiento verde",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "chorizo",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 25,
+        "carb_per_100g": 2,
+        "fat_per_100g": 35
+      }
+    ],
+    "protein_g": 17,
+    "carb_g": 28,
+    "fat_g": 20,
+    "estimated_calories": 359,
+    "serving_pieces": 1,
+    "confidence": "medium",
+    "allergens": [
+      "gluten"
+    ]
+  },
+  "solo BRAISED SHORT-RIB GF d0": {
+    "name": "BRAISED SHORT-RIB GF",
+    "description": "carrots | onion roast | pea shoots",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "beef short rib",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 25
+      },
+      {
+        "name": "carrots",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 80,
+        "protein_per_100g": 1,
+        "carb_per_100g": 10,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "onion roast",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "pea shoots",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 3,
+        "carb_per_100g": 7,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 32,
+    "carb_g": 15,
+    "fat_g": 38,
+    "estimated_calories": 525,
+    "serving_pieces": 1,
+    "confidence": "medium",
+    "allergens": [
+      "none"
+    ]
+  },
+  "solo BRAISED SHORT-RIB GF d1": {
+    "name": "BRAISED SHORT-RIB GF",
+    "description": "carrots | onion roast | pea shoots",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "beef short rib",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 25
+      },
+      {
+        "name": "carrots",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 80,
+        "protein_per_100g": 1,
+        "carb_per_100g": 10,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "onion roast",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1.1,
+        "carb_per_100g": 9.3,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "pea shoots",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 3.6,
+        "carb_per_100g": 7.1,
+        "fat_per_100g": 0.4
+      }
+    ],
+    "protein_g": 32,
+    "carb_g": 15,
+    "fat_g": 38,
+    "estimated_calories": 529,
+    "serving_pieces": 1,
+    "confidence": "medium",
+    "allergens": []
+  },
+  "solo BRAISED SHORT-RIB GF d2": {
+    "name": "BRAISED SHORT-RIB GF",
+    "description": "carrots | onion roast | pea shoots",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "beef short rib",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 25
+      },
+      {
+        "name": "carrots",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 80,
+        "protein_per_100g": 1,
+        "carb_per_100g": 10,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "onion roast",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1.1,
+        "carb_per_100g": 9.3,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "pea shoots",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 3.6,
+        "carb_per_100g": 7,
+        "fat_per_100g": 0.4
+      }
+    ],
+    "protein_g": 32,
+    "carb_g": 15,
+    "fat_g": 38,
+    "estimated_calories": 529,
+    "serving_pieces": 1,
+    "confidence": "medium",
+    "allergens": []
+  },
+  "solo BRAISED SHORT-RIB GF d3": {
+    "name": "BRAISED SHORT-RIB GF",
+    "description": "carrots | onion roast | pea shoots",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "beef short rib",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 25
+      },
+      {
+        "name": "carrots",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 80,
+        "protein_per_100g": 1,
+        "carb_per_100g": 10,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "onion roast",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1.1,
+        "carb_per_100g": 9.3,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "pea shoots",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 3.6,
+        "carb_per_100g": 7,
+        "fat_per_100g": 0.4
+      }
+    ],
+    "protein_g": 32,
+    "carb_g": 15,
+    "fat_g": 38,
+    "estimated_calories": 529,
+    "serving_pieces": 1,
+    "confidence": "medium",
+    "allergens": []
+  },
+  "solo BRAISED SHORT-RIB GF d4": {
+    "name": "BRAISED SHORT-RIB GF",
+    "description": "carrots | onion roast | pea shoots",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "beef short rib",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 25
+      },
+      {
+        "name": "carrots",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 80,
+        "protein_per_100g": 1,
+        "carb_per_100g": 10,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "onion roast",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1,
+        "carb_per_100g": 9,
+        "fat_per_100g": 0
+      },
+      {
+        "name": "pea shoots",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 3,
+        "carb_per_100g": 7,
+        "fat_per_100g": 0
+      }
+    ],
+    "protein_g": 32,
+    "carb_g": 15,
+    "fat_g": 38,
+    "estimated_calories": 525,
+    "serving_pieces": 1,
+    "confidence": "medium",
+    "allergens": []
+  },
+  "solo Nevada d0": {
+    "name": "Nevada",
+    "description": "Por dentro: Salmón, pepino y aguacate. Por fuera: Queso crema.",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "sushi rice",
+      "nori"
+    ],
+    "ingredients": [
+      {
+        "name": "sushi rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 2.5,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0.3
+      },
+      {
+        "name": "nori",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 3,
+        "protein_per_100g": 5.8,
+        "carb_per_100g": 5.1,
+        "fat_per_100g": 0.3
+      },
+      {
+        "name": "salmón",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 13
+      },
+      {
+        "name": "pepino",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 0.7,
+        "carb_per_100g": 3.6,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "aguacate",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "queso crema",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 6,
+        "carb_per_100g": 4,
+        "fat_per_100g": 34
+      }
+    ],
+    "protein_g": 19,
+    "carb_g": 47,
+    "fat_g": 22,
+    "estimated_calories": 460,
+    "serving_pieces": 8,
+    "confidence": "medium",
+    "allergens": [
+      "fish",
+      "dairy",
+      "gluten"
+    ]
+  },
+  "solo Nevada d1": {
+    "name": "Nevada",
+    "description": "Por dentro: Salmón, pepino y aguacate. Por fuera: Queso crema.",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "sushi rice",
+      "nori"
+    ],
+    "ingredients": [
+      {
+        "name": "sushi rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 2.5,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0.3
+      },
+      {
+        "name": "nori",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 3,
+        "protein_per_100g": 5.8,
+        "carb_per_100g": 5.1,
+        "fat_per_100g": 0.3
+      },
+      {
+        "name": "salmon",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 13
+      },
+      {
+        "name": "cucumber",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 0.7,
+        "carb_per_100g": 3.6,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "cream cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 6,
+        "carb_per_100g": 4,
+        "fat_per_100g": 34
+      }
+    ],
+    "protein_g": 17,
+    "carb_g": 47,
+    "fat_g": 22,
+    "estimated_calories": 450,
+    "serving_pieces": 8,
+    "confidence": "medium",
+    "allergens": [
+      "fish",
+      "dairy",
+      "gluten"
+    ]
+  },
+  "solo Nevada d2": {
+    "name": "Nevada",
+    "description": "Por dentro: Salmón, pepino y aguacate. Por fuera: Queso crema.",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "sushi rice",
+      "nori"
+    ],
+    "ingredients": [
+      {
+        "name": "sushi rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 2.5,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0.3
+      },
+      {
+        "name": "nori",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 3,
+        "protein_per_100g": 30,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0.5
+      },
+      {
+        "name": "salmón",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 13
+      },
+      {
+        "name": "pepino",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 0.7,
+        "carb_per_100g": 3.6,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "aguacate",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "queso crema",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 6,
+        "carb_per_100g": 4,
+        "fat_per_100g": 34
+      }
+    ],
+    "protein_g": 20,
+    "carb_g": 47,
+    "fat_g": 22,
+    "estimated_calories": 463,
+    "serving_pieces": 8,
+    "confidence": "medium",
+    "allergens": [
+      "fish",
+      "dairy",
+      "gluten"
+    ]
+  },
+  "solo Nevada d3": {
+    "name": "Nevada",
+    "description": "Por dentro: Salmón, pepino y aguacate. Por fuera: Queso crema.",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "sushi rice",
+      "nori"
+    ],
+    "ingredients": [
+      {
+        "name": "sushi rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 2.5,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0.3
+      },
+      {
+        "name": "nori",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 3,
+        "protein_per_100g": 5.8,
+        "carb_per_100g": 5.1,
+        "fat_per_100g": 0.3
+      },
+      {
+        "name": "salmon",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 20,
+        "carb_per_100g": 0,
+        "fat_per_100g": 13
+      },
+      {
+        "name": "cucumber",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 0.7,
+        "carb_per_100g": 3.6,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "avocado",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "cream cheese",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 6,
+        "carb_per_100g": 4,
+        "fat_per_100g": 34
+      }
+    ],
+    "protein_g": 17,
+    "carb_g": 47,
+    "fat_g": 22,
+    "estimated_calories": 450,
+    "serving_pieces": 8,
+    "confidence": "medium",
+    "allergens": [
+      "fish",
+      "dairy",
+      "gluten"
+    ]
+  },
+  "solo Nevada d4": {
+    "name": "Nevada",
+    "description": "Por dentro: Salmón, pepino y aguacate. Por fuera: Queso crema.",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [
+      "sushi rice",
+      "nori"
+    ],
+    "ingredients": [
+      {
+        "name": "sushi rice",
+        "category": "carb",
+        "within_printed_weight": true,
+        "typical_serving_g": 150,
+        "protein_per_100g": 2.5,
+        "carb_per_100g": 28,
+        "fat_per_100g": 0.3
+      },
+      {
+        "name": "nori",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 3,
+        "protein_per_100g": 30,
+        "carb_per_100g": 5,
+        "fat_per_100g": 0.5
+      },
+      {
+        "name": "salmón",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 25,
+        "carb_per_100g": 0,
+        "fat_per_100g": 13
+      },
+      {
+        "name": "pepino",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 0.7,
+        "carb_per_100g": 3.6,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "aguacate",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 2,
+        "carb_per_100g": 9,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "queso crema",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 6,
+        "carb_per_100g": 4,
+        "fat_per_100g": 34
+      }
+    ],
+    "protein_g": 20,
+    "carb_g": 47,
+    "fat_g": 22,
+    "estimated_calories": 463,
+    "serving_pieces": 8,
+    "confidence": "medium",
+    "allergens": [
+      "fish",
+      "dairy",
+      "gluten"
+    ]
+  },
+  "solo ENSALADA GRIEGA d0": {
+    "name": "ENSALADA GRIEGA",
+    "description": "Lechuga, pepino, tomate, cebolla morada, aceituna negra, queso feta y vinagreta balsámica",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Lechuga",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1.4,
+        "carb_per_100g": 2.9,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "Pepino",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 0.7,
+        "carb_per_100g": 3.6,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "Tomate",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 0.9,
+        "carb_per_100g": 3.9,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "Cebolla morada",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1.1,
+        "carb_per_100g": 9.3,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "Aceituna negra",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6.3,
+        "fat_per_100g": 15.3
+      },
+      {
+        "name": "Queso feta",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 14.2,
+        "carb_per_100g": 4.1,
+        "fat_per_100g": 21.3
+      },
+      {
+        "name": "Vinagreta balsámica",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 0.5,
+        "carb_per_100g": 10,
+        "fat_per_100g": 20
+      }
+    ],
+    "protein_g": 6,
+    "carb_g": 11,
+    "fat_g": 13,
+    "estimated_calories": 186,
+    "serving_pieces": 1,
+    "confidence": "high",
+    "allergens": [
+      "dairy"
+    ]
+  },
+  "solo ENSALADA GRIEGA d1": {
+    "name": "ENSALADA GRIEGA",
+    "description": "Lechuga, pepino, tomate, cebolla morada, aceituna negra, queso feta y vinagreta balsámica",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Lechuga",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1.4,
+        "carb_per_100g": 2.9,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "Pepino",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 0.7,
+        "carb_per_100g": 3.6,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "Tomate",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 0.9,
+        "carb_per_100g": 3.9,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "Cebolla morada",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1.1,
+        "carb_per_100g": 9.3,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "Aceituna negra",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6.3,
+        "fat_per_100g": 15.3
+      },
+      {
+        "name": "Queso feta",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 14.2,
+        "carb_per_100g": 4.1,
+        "fat_per_100g": 21.3
+      },
+      {
+        "name": "Vinagreta balsámica",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 0.5,
+        "carb_per_100g": 10,
+        "fat_per_100g": 20
+      }
+    ],
+    "protein_g": 6,
+    "carb_g": 11,
+    "fat_g": 13,
+    "estimated_calories": 186,
+    "serving_pieces": 1,
+    "confidence": "high",
+    "allergens": [
+      "dairy"
+    ]
+  },
+  "solo ENSALADA GRIEGA d2": {
+    "name": "ENSALADA GRIEGA",
+    "description": "Lechuga, pepino, tomate, cebolla morada, aceituna negra, queso feta y vinagreta balsámica",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Lechuga",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1.4,
+        "carb_per_100g": 2.9,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "Pepino",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 0.7,
+        "carb_per_100g": 3.6,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "Tomate",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 0.9,
+        "carb_per_100g": 3.9,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "Cebolla morada",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1.1,
+        "carb_per_100g": 9.3,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "Aceituna negra",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6.3,
+        "fat_per_100g": 15.3
+      },
+      {
+        "name": "Queso feta",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 14.2,
+        "carb_per_100g": 4.1,
+        "fat_per_100g": 21.3
+      },
+      {
+        "name": "Vinagreta balsámica",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 0.5,
+        "carb_per_100g": 10,
+        "fat_per_100g": 20
+      }
+    ],
+    "protein_g": 6,
+    "carb_g": 11,
+    "fat_g": 12,
+    "estimated_calories": 175,
+    "serving_pieces": 1,
+    "confidence": "high",
+    "allergens": [
+      "dairy"
+    ]
+  },
+  "solo ENSALADA GRIEGA d3": {
+    "name": "ENSALADA GRIEGA",
+    "description": "Lechuga, pepino, tomate, cebolla morada, aceituna negra, queso feta y vinagreta balsámica",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Lechuga",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1.4,
+        "carb_per_100g": 2.9,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "Pepino",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 0.7,
+        "carb_per_100g": 3.6,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "Tomate",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 0.9,
+        "carb_per_100g": 3.9,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "Cebolla morada",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 1.1,
+        "carb_per_100g": 9.3,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "Aceituna negra",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6,
+        "fat_per_100g": 15
+      },
+      {
+        "name": "Queso feta",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 14.2,
+        "carb_per_100g": 4.1,
+        "fat_per_100g": 21.3
+      },
+      {
+        "name": "Vinagreta balsámica",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 0.5,
+        "carb_per_100g": 10,
+        "fat_per_100g": 20
+      }
+    ],
+    "protein_g": 6,
+    "carb_g": 11,
+    "fat_g": 13,
+    "estimated_calories": 186,
+    "serving_pieces": 1,
+    "confidence": "high",
+    "allergens": [
+      "dairy"
+    ]
+  },
+  "solo ENSALADA GRIEGA d4": {
+    "name": "ENSALADA GRIEGA",
+    "description": "Lechuga, pepino, tomate, cebolla morada, aceituna negra, queso feta y vinagreta balsámica",
+    "price": 200,
+    "category": "food",
+    "printed_total_g": null,
+    "name_implied_components": [],
+    "ingredients": [
+      {
+        "name": "Lechuga",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 1.4,
+        "carb_per_100g": 2.9,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "Pepino",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 0.7,
+        "carb_per_100g": 3.6,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "Tomate",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 50,
+        "protein_per_100g": 0.9,
+        "carb_per_100g": 3.9,
+        "fat_per_100g": 0.2
+      },
+      {
+        "name": "Cebolla morada",
+        "category": "veg",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 1.1,
+        "carb_per_100g": 9.3,
+        "fat_per_100g": 0.1
+      },
+      {
+        "name": "Aceituna negra",
+        "category": "fat",
+        "within_printed_weight": true,
+        "typical_serving_g": 15,
+        "protein_per_100g": 1,
+        "carb_per_100g": 6.3,
+        "fat_per_100g": 15.3
+      },
+      {
+        "name": "Queso feta",
+        "category": "protein",
+        "within_printed_weight": true,
+        "typical_serving_g": 30,
+        "protein_per_100g": 14.2,
+        "carb_per_100g": 4.1,
+        "fat_per_100g": 21.5
+      },
+      {
+        "name": "Vinagreta balsámica",
+        "category": "other",
+        "within_printed_weight": true,
+        "typical_serving_g": 20,
+        "protein_per_100g": 0.5,
+        "carb_per_100g": 10,
+        "fat_per_100g": 20
+      }
+    ],
+    "protein_g": 6,
+    "carb_g": 12,
+    "fat_g": 13,
+    "estimated_calories": 191,
+    "serving_pieces": 1,
+    "confidence": "high",
+    "allergens": [
+      "dairy"
+    ]
+  }
+}

@@ -124,10 +124,134 @@ grams, sums, and derives calories by Atwater (4/4/9). Every time arithmetic was 
 model and left as knowledge, accuracy improved; every time it was asked for a finished number, it
 returned a round multiple of 5. **Do not "simplify" this by asking the model for the totals.**
 
+**The ingredient rule (Santiago, 2026-08-11) — the description is the source of truth above all
+else.** The NAME says what the dish *is*; the DESCRIPTION says what that dish exactly has.
+
+| the menu gives | what to do |
+|---|---|
+| a description listing ingredients | **use exactly those — add none, remove none.** This is the source of truth. |
+| a name whose dish form requires components the menu never lists (a roll's rice and nori, a burger's bun, a taco's tortilla, a pizza's dough) | add ONLY those constitutive components — this is `name_implied_components` (B15), a measured win |
+| nothing else | **never invent.** No sesame, mayo or eel sauce that the menu did not mention. |
+
+Worked example, the case that settled it: *Salmón Roll — "Por dentro: queso crema, pepino, aguacate
+y surimi. Por fuera: salmón."* Those five are used exactly as printed. Rice and nori are added
+because a roll cannot exist without them, and the menu never lists them — they are 150 g and 42 of
+the dish's 54 g of carbs, and an independent cross-check put the result at ~592 kcal, matching.
+Nothing else may be added.
+
 Two mechanical guards in `enrich_test.ts` fail the build: **schema property order** (`ingredients[]`
 must precede the macro fields, or the chain-of-thought silently stops working) and **no food, dish
 or cuisine name in the prompt's nutrition step** (measured harmful — a food list leaked the test set
 into a prompt that ships to every menu on earth).
+
+**The portion rule — a printed weight decides WHICH question to ask (measured 2026-08-13).** These
+two are not interchangeable and each is wrong in the other's place:
+
+| the item | ask for | why |
+|---|---|---|
+| **prints a weight** | each ingredient's **standard reference amount** (B21 / 21 CFR 101.12 RACC) | `resolveGrams` pins the total from the printed weight, so only the PROPORTIONS matter. This is what took the weighted score to ~96% |
+| **prints no weight** | the amount **actually present in one order as served** | nothing pins the total, so the same numbers set the dish's WEIGHT too — and reference servings assemble a dish that is far too lean per gram |
+
+Worked example: a 28 cm pizza built from reference servings is 1.81 kcal/g where a real one is
+~2.4–2.75, because 30 g is a standalone serving of cheese and not the amount on a pie. **Correcting
+the total cannot fix this** — rescaling preserves proportions, so at the very top of the pizza's
+verified weight band it is still 26% low on calories. Measured: 28/72 → **37/72** on the unweighted
+oracle (Arm P; it read 38/72 before the pizza's band was corrected on 2026-08-16). Do NOT ask an
+unweighted item for a plate total instead; that family of arms is retired (see the roadmap's
+`🎯 CURRENT PHASE`).
+
+⚠️ **THE THIRD CASE, and it is a DEFECT rather than a rule — an ingredient served ALONGSIDE the item.**
+`resolveGrams` never rescales anything marked `within_printed_weight: false`, so a reference serving
+reaches the plate untouched — and for a spooned sauce the reference serving is USDA's **30 g dipping
+container** rather than the ~15 g actually served. It affects **24% of weighted items** and is
+**12–20% of those dishes' calories**. Unfixed as of 2026-08-16; prose and a duplicate schema field
+have both failed at it. ⚠️ **Do not fix the weight alone** — chimichurri is 2× too heavy AND ~3× too
+lean, the two errors currently cancel, and halving the grams makes the dish worse.
+
+**WORDING DOES NOT WORK HERE. SCHEMA FORCE DOES. (measured, 2026-08-16 — scoreboard, not a rule.)**
+Before designing any change to Stage 2, weigh this: **a new sentence in `ENRICH_PROMPT` is 0 for 6;
+a new REQUIRED FIELD in `ENRICH_SCHEMA_OPENAI` is 6 for 8.**
+
+| approach | record | cases |
+|---|---|---|
+| ask in prose | **0 for 6** | B11, B13, B23, two `serving_pieces` wordings, Arm S, **Arm P-inline** |
+| force a required field | **6 for 8** | B4 `printed_total_g`, B15 `name_implied_components`, forced `serving_pieces`, B24b, Arm S2 |
+
+The cleanest demonstration: two prompt wordings asked for a conventional piece count and both returned
+`null`; making the field required and non-nullable fixed it immediately. On 2026-08-16 the SAME request
+was tested both ways within one hour — as a sentence it was ignored outright (`chimichurri sauce 30 g
+/ fat 15` unchanged), as a required field it was answered on every ingredient of every draw.
+
+⚠️ **A required field whose meaning OVERLAPS an existing field returns a COPY.** Schema force compels
+an ANSWER, not a DIFFERENT answer. `amount_as_served_g` was added beside `typical_serving_g` and came
+back identical in **364 of 364** ingredients. Before adding a field, ask what question it answers that
+no existing field can.
+
+⚠️ **Two riders, both measured the same day.** (1) **Ask for a NUMBER, not a string.** A required string
+buys a description: ingredients that came back with a share ("mayonnaise 50%") got the right fat,
+ingredients that came back as a bare list ("parsley, garlic, olive oil, vinegar") kept their placeholder.
+(2) **A free-text field invites MERGING** — given somewhere to describe a mixture, the model stops
+decomposing and collapses ingredients (`shrimp` + `breading` + `oil` became `breaded shrimp 150 g`).
+(3) **Field ORDER is load-bearing**: strict mode emits in schema order, so a field must sit BEFORE the
+numbers it is meant to constrain.
+
+This is a prior for the next design, not a ban on prose — if a hypothesis says wording is the lever
+*for a different reason*, say what would falsify it and run it.
+
+**A BENCHMARK MUST BE REALISTIC, NOT BIG (Santiago, 2026-08-18).** He reloads the OpenAI account in
+$10 increments and a whole-menu run was eating $2 of it. Measured: the prompt+schema is only ~1,265
+tokens per call, so the bill is almost entirely OUTPUT — a full ingredient list with per-100 g
+composition for every item. **The lever is therefore how many items you ENRICH, never how you word the
+prompt.**
+
+🔑 **`callGptEnrich` chunks sequentially and fires each batch as its OWN request, so a scored dish is
+influenced only by the ≤9 items sharing ITS call.** Enriching a whole 95-item menu to measure two
+dishes pays for 8 batches that cannot touch the result. `scripts/bench-mixed-menu.ts` therefore sends
+only the batches its fixtures land in — located in the WHOLE menu first, so the chunk boundaries are
+exactly production's — and costs **~$0.40 per arm instead of ~$1.8, measuring the identical request
+bytes.** A test pins the equivalence: every kept batch must be a verbatim, in-order slice.
+
+⚠️ **This is NOT licence to shrink a benchmark's SCOPE.** Cost is not a constraint (below), and the
+8-dish weighted benchmark is cheap ($0.05) precisely *because* of the blind spot that motivated the
+mixed-menu harness — it scores a regime production never runs. **Generalisation lives in the DIVERSITY
+of the menus and the realism of the neighbours, not in the item count.** Cut arithmetic that changes
+nothing; never cut a menu, a dish, a draw, or a real neighbour. Do not add `--full-menu` to "be
+thorough": 4.5× the cost, no change to the score.
+
+⚠️ **A PER-ITEM CONDITION IN PROSE IS NOT READ AS ONE (measured 2026-08-18).** Arm P-inline scoped a
+sentence to items whose `printed_total_g` is null. Measured against the archives: the items it was
+scoped to **did not move** (median serving-sum 1.00×), while the items it explicitly EXCLUDED were
+shuffled (4.00×, 1.94×, 1.87× on individual dishes; only 4 of 38 unchanged). **The model applied it
+indiscriminately.** If a change must apply to some items and not others, the separation has to be
+structural, not a clause.
+
+🔑 **THE ONE THING THAT HAS EVER MOVED THE UNWEIGHTED SCORE IS AN INTERACTION, NOT A LEVER
+(measured 2026-08-18, a full 2×2).** Arm P = a split batch + a sentence, and it is worth 25–28 → 37/72.
+**Neither half works alone:**
+
+| | shipped prompt | + Arm P's sentence |
+|---|---|---|
+| **mixed batch** | 25–28 (baseline) | **29** (P-inline) |
+| **split batch** | **21** (SplitOnly — *worse than doing nothing*) | **37** (Arm P) |
+
+⚠️ **An earlier version of this file said "batch composition moves answers more than any wording".
+That was a hypothesis, the $0.50 control falsified it, and it is retracted.** The split is not
+valuable in itself — it is what lets the instruction be stated as an **unconditional fact about the
+whole request** (*"The items in this request print no weight"*). Phrased as a per-item condition in a
+mixed batch, the same idea was applied indiscriminately. **Prefer a homogeneous request plus a flat
+statement over a heterogeneous request plus a condition.**
+
+**Price is NEVER evidence of grams (Santiago, 2026-08-13).** Not in an oracle, not in a prompt, not in
+code. Price reflects margin and scarcity, never mass — *"a menu can have an expensive pizza of 1k+
+dollars, doesn't mean it weighs 10x the size of a large pizza."* Price parity between items on one
+menu is the same fallacy at smaller scale.
+
+**Sourcing a USDA record: the food is not enough, the VARIANT decides the number.** FNDDS stores
+venue, crust, preparation and topping class as SEPARATE records, and picking the wrong axis moves a
+value 30–46% — restaurant vs *from frozen* pizza differs by 46% in fat. The oracle has been wrong
+five times this way, and twice the "pipeline defect" was the oracle's own error. **Search every
+variant before choosing one** (`scripts/unweighted-portions.ts --search <terms>`), record the axis in
+the entry's `assumed` field, and re-source before believing any single-dish failure.
 
 Do not introduce new major libraries unless there is a strong reason.
 Ask before installing anything new.
@@ -347,6 +471,12 @@ Be concise. Explain what changed and how to test it.
 Track here anything that blocks testing or shipping. Update as items resolve.
 
 - **Apple Developer Program — ✅ PAID (confirmed 2026-07-11).** Physical-device testing works — first on-device verification ran 2026-07-12 (auto-cutter 3-scan checklist, all passed).
+- **Macro-enrichment blockers are NOT restated here** — status lives in exactly one place, the
+  `🎯 CURRENT PHASE` block of `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`,
+  with the takeover briefing in the `🆕 2026-08-16 HANDOFF` block of
+  `docs/superpowers/START-HERE.md`. Read those, not a copy. As of 2026-08-16: **production is edge fn
+  v31** (the 0-kcal fix, no accuracy change), all work is committed but unpushed on
+  `feat/forced-serving-pieces`, and the next step is a harness that can judge Arm P for shipping.
 
 ---
 

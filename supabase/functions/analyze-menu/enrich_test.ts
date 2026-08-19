@@ -2,6 +2,7 @@ import {
   assert,
   assertEquals,
   assertRejects,
+  assertStringIncludes,
   assertThrows,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
@@ -958,4 +959,101 @@ Deno.test("resolveGrams prefers an as-served amount for an accompaniment (ARM S4
   // inert until it is deliberately shipped.
   const production = ingredients.map(({ amount_as_served_g: _drop, ...rest }) => rest);
   assertEquals(resolveGrams(production, 400), [400, 30]);
+});
+
+// ── Dual pass ───────────────────────────────────────────────────────────────
+
+/**
+ * Echoes back one minimal enriched item per item in the request, so
+ * enrichBatchWithRetry sees a COMPLETE batch and neither retries nor rescues.
+ * Records every request body so a test can assert which prompt it carried.
+ */
+function stubEcho(bodies: string[]) {
+  return ((_url: string, init: RequestInit) => {
+    bodies.push(String(init.body));
+    const content = JSON.parse(String(init.body)).messages[0].content as string;
+    const names = [...content.matchAll(/"name":"([^"]+)"/g)].map((m) => m[1]);
+    return Promise.resolve(
+      new Response(
+        JSON.stringify({
+          choices: [{
+            message: {
+              content: JSON.stringify({ items: names.map((name) => ({ name })) }),
+            },
+          }],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    // deno-lint-ignore no-explicit-any
+  }) as any;
+}
+
+Deno.test("callGptEnrich sends the SHIPPED prompt when none is given", async () => {
+  const bodies: string[] = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = stubEcho(bodies);
+  try {
+    await callGptEnrich([extracted("A")], "k");
+  } finally {
+    globalThis.fetch = original;
+  }
+  assertEquals(bodies.length, 1);
+  const sent = JSON.parse(bodies[0]).messages[0].content as string;
+  assertStringIncludes(sent, ENRICH_PROMPT);
+  // The unweighted sentence must NOT leak into the default path - that is the
+  // whole isolation guarantee of the dual pass.
+  assertEquals(sent.includes("print no weight"), false);
+});
+
+Deno.test("callGptEnrich forwards an explicit prompt to every batch", async () => {
+  const bodies: string[] = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = stubEcho(bodies);
+  try {
+    await callGptEnrich(
+      [extracted("A"), extracted("B")],
+      "k",
+      ENRICH_MODEL,
+      1, // force two batches, so "every batch" is actually exercised
+      "CUSTOM PROMPT",
+    );
+  } finally {
+    globalThis.fetch = original;
+  }
+  assertEquals(bodies.length, 2);
+  for (const body of bodies) {
+    assertStringIncludes(JSON.parse(body).messages[0].content, "CUSTOM PROMPT");
+  }
+});
+
+Deno.test("an explicit prompt survives the RETRY and the RESCUE, not just the first try", async () => {
+  // enrichBatchWithRetry calls enrichBatch THREE times - first attempt, whole-batch
+  // retry, then the small-batch rescue. A prompt forwarded to only the first would
+  // serve an unweighted item TODAY's answer while looking like it got the new one,
+  // and only on the failure path, which is the hardest place to notice it.
+  const bodies: string[] = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = ((_url: string, init: RequestInit) => {
+    bodies.push(String(init.body));
+    // Returns NOTHING, so the batch is never complete and both fallbacks fire.
+    return Promise.resolve(
+      new Response(
+        JSON.stringify({
+          choices: [{ message: { content: JSON.stringify({ items: [] }) } }],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    // deno-lint-ignore no-explicit-any
+  }) as any;
+  try {
+    await callGptEnrich([extracted("A")], "k", ENRICH_MODEL, 10, "CUSTOM PROMPT");
+  } finally {
+    globalThis.fetch = original;
+  }
+  assertEquals(bodies.length, 3); // first attempt, retry, rescue
+  for (const body of bodies) {
+    assertStringIncludes(JSON.parse(body).messages[0].content, "CUSTOM PROMPT");
+  }
 });

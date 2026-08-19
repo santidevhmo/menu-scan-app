@@ -573,10 +573,17 @@ async function enrichBatchWithRetry(
   batch: ExtractedItem[],
   apiKey: string,
   model: string,
+  // Pass 2 of the dual pass varies the PROMPT and nothing else. Defaulted so
+  // pass 1 and every existing caller send exactly what they sent before.
+  //
+  // Forwarded to ALL THREE enrichBatch calls below, not just the first: an
+  // unweighted item that needed the retry or the rescue would otherwise come
+  // back with TODAY's prompt while looking like it got pass 2's.
+  prompt: string = ENRICH_PROMPT,
 ): Promise<EnrichedItem[]> {
   let got: EnrichedItem[] = [];
   try {
-    got = await enrichBatch(batch, apiKey, model);
+    got = await enrichBatch(batch, apiKey, model, undefined, prompt);
   } catch (err) {
     console.error(
       "[enrich] batch failed, retrying:",
@@ -586,7 +593,7 @@ async function enrichBatchWithRetry(
 
   if (got.length < batch.length) {
     try {
-      const second = await enrichBatch(batch, apiKey, model);
+      const second = await enrichBatch(batch, apiKey, model, undefined, prompt);
       // Keep whichever attempt returned more; a short retry must not discard a
       // fuller first answer.
       if (second.length > got.length) got = second;
@@ -607,7 +614,9 @@ async function enrichBatchWithRetry(
   );
   for (const group of chunk(missing, ENRICH_RESCUE_BATCH_SIZE)) {
     try {
-      got = got.concat(await enrichBatch(group, apiKey, model));
+      got = got.concat(
+        await enrichBatch(group, apiKey, model, undefined, prompt),
+      );
     } catch (err) {
       // Out of options for this group; reassembleEnriched backfills it. Logged
       // so a zeroed row in production is traceable to a cause.
@@ -637,6 +646,9 @@ export async function callGptEnrich(
   // of keeping a private copy of the batching — lesson 23. Production passes
   // nothing and gets ENRICH_BATCH_SIZE.
   batchSize: number = ENRICH_BATCH_SIZE,
+  // Pass 2 of the dual pass. Defaulted, so pass 1's request is byte-identical to
+  // what shipped before this parameter existed - pinned by enrich_test.ts.
+  prompt: string = ENRICH_PROMPT,
 ): Promise<{ items: EnrichedItem[]; raw_response: string }> {
   const batches = chunk(items, batchSize);
   // Capped waves, not one big Promise.all. A smaller batchSize means MORE
@@ -651,7 +663,7 @@ export async function callGptEnrich(
     settled.push(
       ...await Promise.all(
         batches.slice(i, i + MAX_CONCURRENT_BATCHES).map((batch) =>
-          enrichBatchWithRetry(batch, apiKey, model)
+          enrichBatchWithRetry(batch, apiKey, model, prompt)
         ),
       ),
     );

@@ -7,6 +7,7 @@ import {
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
 import {
   callGptEnrich,
+  callGptEnrichDualPass,
   chunk,
   ENRICH_MODEL,
   MAX_CONCURRENT_BATCHES,
@@ -1101,4 +1102,203 @@ Deno.test("isFallbackEnriched spots a zeroed item and nothing else", () => {
   // fallbackEnriched IS the thing this detects - pinned against the real
   // producer so the two cannot drift apart.
   assertEquals(isFallbackEnriched(fallbackEnriched(extracted("A"))), true);
+});
+
+/** Answers each batch with a full item per input, tagging which prompt it saw. */
+function stubOpenAI(seen: { prompt: string; names: string[] }[]) {
+  return ((_url: string, init: RequestInit) => {
+    const body = JSON.parse(String(init.body));
+    const content = body.messages[0].content as string;
+    const names = [...content.matchAll(/"name":"([^"]+)"/g)].map((m) => m[1]);
+    const unweightedPass = content.includes("print no weight");
+    seen.push({ prompt: unweightedPass ? "unweighted" : "shipped", names });
+    return Promise.resolve(
+      new Response(
+        JSON.stringify({
+          choices: [{
+            message: {
+              content: JSON.stringify({
+                items: names.map((name) => ({
+                  name,
+                  description: "",
+                  price: null,
+                  category: "food",
+                  printed_total_g: null,
+                  name_implied_components: [],
+                  ingredients: [{
+                    name: unweightedPass ? "pass2" : "pass1",
+                    category: "other",
+                    within_printed_weight: true,
+                    typical_serving_g: 10,
+                    protein_per_100g: 1,
+                    carb_per_100g: 1,
+                    fat_per_100g: 1,
+                  }],
+                  serving_pieces: 1,
+                  allergens: [],
+                  confidence: "high",
+                })),
+              }),
+            },
+          }],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    // deno-lint-ignore no-explicit-any
+  }) as any;
+}
+
+const WEIGHTED = { ...extracted("STEAK"), category: "food", grams: 400 };
+const UNWEIGHTED = { ...extracted("PIZZA"), category: "food", grams: null };
+
+Deno.test("dual pass: pass 1 sees EVERY item with the shipped prompt", async () => {
+  const seen: { prompt: string; names: string[] }[] = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = stubOpenAI(seen);
+  try {
+    await callGptEnrichDualPass([WEIGHTED, UNWEIGHTED], "k");
+  } finally {
+    globalThis.fetch = original;
+  }
+  const pass1 = seen.filter((s) => s.prompt === "shipped");
+  assertEquals(pass1.length, 1);
+  // The unweighted item MUST be in pass 1 - its presence is what holds the
+  // weighted item's batch composition at today's shape.
+  assertEquals(pass1[0].names.sort(), ["PIZZA", "STEAK"]);
+});
+
+Deno.test("dual pass: pass 2 sees ONLY unweighted items", async () => {
+  const seen: { prompt: string; names: string[] }[] = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = stubOpenAI(seen);
+  try {
+    await callGptEnrichDualPass([WEIGHTED, UNWEIGHTED], "k");
+  } finally {
+    globalThis.fetch = original;
+  }
+  const pass2 = seen.filter((s) => s.prompt === "unweighted");
+  assertEquals(pass2.length, 1);
+  assertEquals(pass2[0].names, ["PIZZA"]);
+});
+
+Deno.test("dual pass: weighted keeps pass 1, unweighted takes pass 2", async () => {
+  const seen: { prompt: string; names: string[] }[] = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = stubOpenAI(seen);
+  let result;
+  try {
+    result = await callGptEnrichDualPass([WEIGHTED, UNWEIGHTED], "k");
+  } finally {
+    globalThis.fetch = original;
+  }
+  const steak = result!.items.find((i) => i.name === "STEAK")!;
+  const pizza = result!.items.find((i) => i.name === "PIZZA")!;
+  assertEquals(steak.ingredients[0].name, "pass1");
+  assertEquals(pizza.ingredients[0].name, "pass2");
+  // Order is preserved - the client re-ranks against input order.
+  assertEquals(result!.items.map((i) => i.name), ["STEAK", "PIZZA"]);
+});
+
+Deno.test("dual pass: a failing pass 2 degrades to pass 1, never to zeros", async () => {
+  const original = globalThis.fetch;
+  let call = 0;
+  globalThis.fetch = ((_url: string, init: RequestInit) => {
+    call++;
+    const content = JSON.parse(String(init.body)).messages[0].content as string;
+    if (content.includes("print no weight")) {
+      return Promise.reject(new Error("pass 2 exploded"));
+    }
+    return stubOpenAI([])(_url, init);
+    // deno-lint-ignore no-explicit-any
+  }) as any;
+  let result;
+  try {
+    result = await callGptEnrichDualPass([WEIGHTED, UNWEIGHTED], "k");
+  } finally {
+    globalThis.fetch = original;
+  }
+  assertEquals(call > 1, true);
+  assertEquals(result!.items.length, 2);
+  // Both fall back to pass 1's answer - the worst case is today's app.
+  for (const item of result!.items) {
+    assertEquals(item.ingredients[0].name, "pass1");
+  }
+});
+
+Deno.test("dual pass: a ZEROED pass-2 item degrades to pass 1", async () => {
+  // The try/catch cannot see this one: pass 2 resolves fine, but the item inside
+  // it is fallbackEnriched's zeroed placeholder. Shipping that would show the
+  // user 0 kcal for a dish pass 1 had already answered correctly - the exact
+  // failure v31 was deployed to stop.
+  const original = globalThis.fetch;
+  globalThis.fetch = ((_url: string, init: RequestInit) => {
+    const content = JSON.parse(String(init.body)).messages[0].content as string;
+    if (content.includes("print no weight")) {
+      // Returns no items at all, so reassembleEnriched backfills with zeros.
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            choices: [{ message: { content: JSON.stringify({ items: [] }) } }],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+    }
+    return stubOpenAI([])(_url, init);
+    // deno-lint-ignore no-explicit-any
+  }) as any;
+  let result;
+  try {
+    result = await callGptEnrichDualPass([WEIGHTED, UNWEIGHTED], "k");
+  } finally {
+    globalThis.fetch = original;
+  }
+  const pizza = result!.items.find((i) => i.name === "PIZZA")!;
+  assertEquals(pizza.ingredients[0].name, "pass1");
+  assert(pizza.estimated_calories > 0);
+});
+
+Deno.test("dual pass: an all-weighted menu makes no second call at all", async () => {
+  const seen: { prompt: string; names: string[] }[] = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = stubOpenAI(seen);
+  try {
+    await callGptEnrichDualPass([WEIGHTED], "k");
+  } finally {
+    globalThis.fetch = original;
+  }
+  assertEquals(seen.length, 1);
+  assertEquals(seen[0].prompt, "shipped");
+});
+
+Deno.test("dual pass: pass 2 waits for pass 1 - they are never in flight together", async () => {
+  // Sequential is a rate-limit guarantee, not a style choice: a throttled batch
+  // does not arrive late, it gives up after two attempts and fallbackEnriched
+  // returns ZEROED macros. Overlapping the passes would put ~1.5x the requests
+  // against the same limit.
+  const original = globalThis.fetch;
+  let inFlight = 0;
+  let maxInFlight = 0;
+  let sawPass2 = false;
+  globalThis.fetch = (async (_url: string, init: RequestInit) => {
+    const content = JSON.parse(String(init.body)).messages[0].content as string;
+    if (content.includes("print no weight")) sawPass2 = true;
+    inFlight++;
+    maxInFlight = Math.max(maxInFlight, inFlight);
+    await new Promise((r) => setTimeout(r, 5));
+    inFlight--;
+    return stubOpenAI([])(_url, init);
+    // deno-lint-ignore no-explicit-any
+  }) as any;
+  try {
+    // Two batches of one, so pass 1 itself runs two concurrent requests: this
+    // asserts the PASSES do not overlap, not that concurrency is gone.
+    await callGptEnrichDualPass([WEIGHTED, UNWEIGHTED], "k", ENRICH_MODEL, 1);
+  } finally {
+    globalThis.fetch = original;
+  }
+  assertEquals(sawPass2, true);
+  // Pass 1 is 2 requests; pass 2 is 1. If they overlapped this would reach 3.
+  assertEquals(maxInFlight, 2);
 });

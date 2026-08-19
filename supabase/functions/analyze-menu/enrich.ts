@@ -726,3 +726,70 @@ export async function callGptEnrich(
   const enriched = reassembleEnriched(items, settled.flat());
   return { items: enriched, raw_response: JSON.stringify({ items: enriched }) };
 }
+
+/**
+ * Stage 2 in two passes, so unweighted items get a better answer and weighted
+ * items get today's.
+ *
+ * PASS 1 is `callGptEnrich` over the WHOLE menu with the shipped prompt - the
+ * exact call that ships today, byte for byte. Its answers are kept for every
+ * item that prints a weight.
+ *
+ * PASS 2 re-sends only the items that print no weight, in their own batches,
+ * with ENRICH_PROMPT_UNWEIGHTED. Its answers replace pass 1's for those items.
+ *
+ * ⚠️ WHY UNWEIGHTED ITEMS ARE SENT TWICE. Not to retry them - their PRESENCE in
+ * pass 1 is what keeps the weighted items' batches at today's composition.
+ * Removing them measurably moves the weighted score: that is Arm P-10, which
+ * scored 21-25/96 against this baseline's 16-18/96 over three runs.
+ *
+ * ⚠️ SEQUENTIAL ON PURPOSE. Running the passes together would put ~1.5x the
+ * requests in flight against the same rate limit, and a rate-limited batch does
+ * not merely arrive late - enrichBatchWithRetry gives up after two attempts and
+ * the item comes back with ZEROED macros. Pass 2 waits so it can never compete
+ * with pass 1 for the concurrency budget. The cost is latency; see the plan.
+ *
+ * ⚠️ PASS 2 IS BEST-EFFORT. Any throw, and any item it returns zeroed, falls
+ * back to pass 1's answer. The worst case of this whole change is today's app.
+ */
+export async function callGptEnrichDualPass(
+  items: ExtractedItem[],
+  apiKey: string,
+  model: string = ENRICH_MODEL,
+  batchSize: number = ENRICH_BATCH_SIZE,
+): Promise<{ items: EnrichedItem[]; raw_response: string }> {
+  // PASS 1 - untouched. Nothing above this line may reshape `items`.
+  const pass1 = await callGptEnrich(items, apiKey, model, batchSize);
+
+  const unweighted = items.filter(isUnweighted);
+  if (unweighted.length === 0) return pass1;
+
+  let pass2: EnrichedItem[];
+  try {
+    const result = await callGptEnrich(
+      unweighted,
+      apiKey,
+      model,
+      batchSize,
+      ENRICH_PROMPT_UNWEIGHTED,
+    );
+    pass2 = result.items;
+  } catch (error) {
+    console.error(`[enrich] pass 2 failed, keeping pass 1: ${error}`);
+    return pass1;
+  }
+
+  // Merged BY POSITION within the unweighted subsequence, never by name:
+  // callGptEnrich returns items aligned to the array it was given, and menus do
+  // repeat a name across sections.
+  let next = 0;
+  const merged = items.map((item, index) => {
+    const fromPass1 = pass1.items[index];
+    if (!isUnweighted(item)) return fromPass1;
+    const candidate = pass2[next++];
+    // A missing or zeroed pass-2 answer is a failure, not an estimate.
+    return !candidate || isFallbackEnriched(candidate) ? fromPass1 : candidate;
+  });
+
+  return { items: merged, raw_response: JSON.stringify({ items: merged }) };
+}

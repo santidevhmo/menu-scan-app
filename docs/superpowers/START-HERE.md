@@ -145,6 +145,14 @@ The feature is in the binary too: `"Close portion editor"`, `"comes in"`, `"Whol
 matches" and a bare `-c` returns 0 for strings that ARE there. Multi-part template literals are split
 across the string pool, so search for a SINGLE literal, never a concatenated sentence.
 
+🔍 **"Why is Hermes involved at all?" — a fair question, and the answer is: nobody opted in.** Hermes
+is the **default React Native JS engine** since RN 0.70 / Expo SDK 48, so an Expo SDK 56 build uses it
+unless `app.json` sets `"jsEngine": "jsc"`. It does not. Nothing in `src/` references Hermes; it is
+what the iOS build compiles the JS *into*. **Verified, not assumed** — the bundle's first 8 bytes are
+`c6 1f bc 03 c1 03 19 1f` (the Hermes bytecode magic `0x1F1903C103BC1FC6`), it contains
+`HermesInternalBytecode.js`, and `hermes-compiler` is in `pnpm-lock.yaml`. Check the header with
+`xxd -l 8` before believing any claim about this file's format, including this one.
+
 ✅ **The env-var trap that broke build 3 is CLOSED.** `eas env:list --environment production` carries
 both `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` against project ref
 `uonuiadueykynbetxxrw`. Build 3 shipped with them undefined; the minifier constant-folded the guard so

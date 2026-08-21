@@ -23,12 +23,63 @@ export interface UnweightedEntry {
 const round = (value: number) => Math.round(value);
 
 /**
- * Macro bands come from the MASS band times the reviewed composition, never
- * from a second source. Uncertainty therefore has exactly one origin - how much
- * food is on the plate - and calories stay Atwater-consistent with the three
- * macros at both endpoints.
+ * How close the pipeline must land to the AVERAGE version of a dish to pass.
+ *
+ * SANTIAGO'S RULING, 2026-08-20. Before it, a band was the mass range times one
+ * fixed composition, so its width was whatever the mass range happened to be and
+ * nobody had chosen it: CAPRICCIOSA was pinned to 400-450 g and got +/-6% on FAT,
+ * while CARBONARA's 250-450 g bought it +/-29%. The dish with the widest band
+ * scored 12/12 and the dish with the narrowest scored 3/12, so the benchmark was
+ * partly measuring how tightly each dish had been specified.
+ *
+ * The product goal is a precise estimate of the AVERAGE version of a menu item,
+ * so the bar is now stated directly instead of inherited from unrelated
+ * arithmetic, and it is the SAME for every dish.
+ *
+ * 🔴 WHY 0.20 AND NOT A LOOSER NUMBER. A benchmark loosened until the score looks
+ * good is rigged. The guard is the gap between the SHIPPED pipeline and the
+ * pre-dual-pass baseline, measured by `scripts/sim-tolerance-sweep.ts`:
+ *
+ *     bar        shipped   pre-dual   gap
+ *     today's      36/72      25/72    11
+ *     +/-20%       33/72      25/72     8    <- chosen
+ *     +/-25%       48/72      27/72    21
+ *
+ * +/-25% discriminates better AND flatters the headline (36 -> 48). Santiago took
+ * +/-20% precisely because it does NOT flatter it - the score lands slightly BELOW
+ * today's. COLIFLOR ROKA, which is genuinely wrong, still fails at every bar.
+ */
+export const BAND_TOLERANCE = 0.20;
+
+/**
+ * Macro bands: the AVERAGE dish, plus or minus `BAND_TOLERANCE`.
+ *
+ * The average is the mass band's midpoint times the reviewed composition, so the
+ * mass band still records the sourcing judgement and calories stay
+ * Atwater-consistent with the three macros.
  */
 export function deriveBands(
+  [lowG, highG]: MacroBand,
+  composition: Composition,
+): MacroBands {
+  const midG = (lowG + highG) / 2;
+  const span = (value: number): MacroBand => [
+    round(value * (1 - BAND_TOLERANCE)),
+    round(value * (1 + BAND_TOLERANCE)),
+  ];
+  const protein = midG * composition.protein_per_100g / 100;
+  const carb = midG * composition.carb_per_100g / 100;
+  const fat = midG * composition.fat_per_100g / 100;
+  return {
+    calories: span(4 * protein + 4 * carb + 9 * fat),
+    protein_g: span(protein),
+    carb_g: span(carb),
+    fat_g: span(fat),
+  };
+}
+
+/** The pre-2026-08-20 rule, kept so `sim-tolerance-sweep.ts` can still show what changed. */
+export function deriveBandsFromMassRange(
   [lowG, highG]: MacroBand,
   composition: Composition,
 ): MacroBands {

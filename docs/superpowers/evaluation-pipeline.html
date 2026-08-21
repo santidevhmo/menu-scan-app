@@ -1,0 +1,618 @@
+<title>How Menu Scan is tested</title>
+
+<style>
+  :root {
+    --ground: #f4f6f7;
+    --surface: #ffffff;
+    --surface-2: #eceff1;
+    --ink: #15191e;
+    --ink-soft: #57646f;
+    --ink-faint: #8695a1;
+    --rule: #d7dee2;
+    --rule-strong: #b9c5cc;
+    --accent: #1d6f6a;
+    --accent-soft: #d8e9e7;
+    --pass: #2c6e49;
+    --pass-soft: #dbeee2;
+    --fail: #a63a3a;
+    --fail-soft: #f6dede;
+    --warn: #8a6100;
+    --warn-soft: #f6ecd2;
+
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #11151a;
+      --surface: #191f26;
+      --surface-2: #212932;
+      --ink: #e7edf1;
+      --ink-soft: #a0aeb9;
+      --ink-faint: #74838f;
+      --rule: #2c3641;
+      --rule-strong: #3d4a57;
+      --accent: #57bdb5;
+      --accent-soft: #16302f;
+      --pass: #6fc08d;
+      --pass-soft: #162c1f;
+      --fail: #e08585;
+      --fail-soft: #33191a;
+      --warn: #d6ac52;
+      --warn-soft: #2e2513;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #11151a;
+    --surface: #191f26;
+    --surface-2: #212932;
+    --ink: #e7edf1;
+    --ink-soft: #a0aeb9;
+    --ink-faint: #74838f;
+    --rule: #2c3641;
+    --rule-strong: #3d4a57;
+    --accent: #57bdb5;
+    --accent-soft: #16302f;
+    --pass: #6fc08d;
+    --pass-soft: #162c1f;
+    --fail: #e08585;
+    --fail-soft: #33191a;
+    --warn: #d6ac52;
+    --warn-soft: #2e2513;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0 20px 96px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  header.masthead {
+    padding: 64px 0 32px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 40px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 14px;
+  }
+  h1 {
+    font-size: clamp(30px, 5vw, 42px);
+    line-height: 1.12;
+    letter-spacing: -0.022em;
+    font-weight: 700;
+    margin: 0 0 16px;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 19px;
+    color: var(--ink-soft);
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  section { margin: 0 0 56px; }
+
+  h2 {
+    font-size: 13px;
+    font-family: var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 600;
+    margin: 0 0 6px;
+  }
+  h2 + .heading { margin-top: 0; }
+  .heading {
+    font-size: clamp(21px, 3vw, 26px);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    font-weight: 650;
+    margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  h3 {
+    font-size: 17px;
+    font-weight: 650;
+    margin: 32px 0 10px;
+    letter-spacing: -0.005em;
+  }
+
+  p { margin: 0 0 16px; text-wrap: pretty; }
+  strong { font-weight: 650; }
+  code, .num {
+    font-family: var(--mono);
+    font-size: 0.9em;
+    font-variant-numeric: tabular-nums;
+  }
+  code {
+    background: var(--surface-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 22px 24px;
+    margin: 0 0 20px;
+  }
+  .card > :last-child { margin-bottom: 0; }
+
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 16px 20px;
+    margin: 0 0 20px;
+    border-radius: 0 4px 4px 0;
+  }
+  .callout > :last-child { margin-bottom: 0; }
+  .callout.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  .callout.good { border-left-color: var(--pass); background: var(--pass-soft); }
+
+  .scroll { overflow-x: auto; margin: 0 0 20px; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 15px;
+    min-width: 400px;
+  }
+  th, td {
+    text-align: left;
+    padding: 9px 14px 9px 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  th {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 600;
+    border-bottom-color: var(--rule-strong);
+    white-space: nowrap;
+  }
+  td.n, th.n { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  .pill {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    padding: 2px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .pill.pass { background: var(--pass-soft); color: var(--pass); }
+  .pill.fail { background: var(--fail-soft); color: var(--fail); }
+  .pill.warn { background: var(--warn-soft); color: var(--warn); }
+
+  figure { margin: 0 0 24px; }
+  figure svg { display: block; width: 100%; height: auto; font-family: var(--mono); }
+
+  /* SVG takes its colours through CLASSES, never through fill="var(--x)".
+     A CSS variable in a presentation attribute does not resolve, and the shape
+     renders black-on-black in dark mode. */
+  .sv-box   { fill: var(--surface); stroke: var(--rule-strong); }
+  .sv-tint  { fill: var(--surface-2); stroke: var(--rule); }
+  .sv-hi    { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+  .sv-band  { fill: var(--pass-soft); stroke: var(--pass); stroke-dasharray: 3 3; }
+  .sv-line  { stroke: var(--rule-strong); stroke-width: 1.5; fill: none; }
+  .sv-tick  { stroke: var(--ink); stroke-width: 2; }
+  .sv-arrow { fill: var(--rule-strong); }
+  .t-ink    { fill: var(--ink); }
+  .t-soft   { fill: var(--ink-soft); }
+  .t-faint  { fill: var(--ink-faint); }
+  .t-accent { fill: var(--accent); }
+  .t-pass   { fill: var(--pass); }
+  .t-fail   { fill: var(--fail); }
+  .dot-fail { fill: var(--fail); }
+  figcaption {
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin-top: 10px;
+    font-family: var(--mono);
+    line-height: 1.5;
+  }
+
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: s; }
+  .steps > li {
+    counter-increment: s;
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 16px;
+    padding: 16px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .steps > li::before {
+    content: counter(s, decimal-leading-zero);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    padding-top: 3px;
+  }
+  .steps h4 { margin: 0 0 5px; font-size: 16px; font-weight: 650; }
+  .steps p { margin: 0; font-size: 15.5px; color: var(--ink-soft); }
+
+  dl.glossary { margin: 0; }
+  dl.glossary > div {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 20px;
+    padding: 13px 0;
+    border-top: 1px solid var(--rule);
+  }
+  dl.glossary dt {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  dl.glossary dd { margin: 0; font-size: 15.5px; color: var(--ink-soft); }
+
+  .decision {
+    border: 1px solid var(--rule-strong);
+    border-radius: 4px;
+    padding: 20px 22px;
+    margin: 0 0 16px;
+    background: var(--surface);
+  }
+  .decision .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--warn);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .decision h4 { margin: 0 0 10px; font-size: 17px; font-weight: 650; }
+  .decision > :last-child { margin-bottom: 0; }
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+    font-size: 13.5px;
+    color: var(--ink-faint);
+    font-family: var(--mono);
+    line-height: 1.7;
+  }
+
+  @media (max-width: 600px) {
+    dl.glossary > div { grid-template-columns: 1fr; gap: 4px; }
+    body { font-size: 16px; }
+  }
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Menu Scan · evaluation</p>
+  <h1>How we test whether the macros are right</h1>
+  <p class="standfirst">Written for Santiago and for any session starting cold. It explains the whole
+  measurement setup in plain language, defines every piece of jargon, and answers one blunt
+  question: is the app actually getting better?</p>
+</header>
+
+<section>
+  <h2>Section 01</h2>
+  <p class="heading">What the app does, and what we are testing</p>
+
+  <p>A user photographs a restaurant menu. The app returns every dish with its calories, protein,
+  carbs and fat, sorted by how well it fits their nutrition goal.</p>
+
+  <p>Three model calls do this. <strong>Only the last one is what we have been testing.</strong></p>
+
+  <figure>
+    <svg viewBox="0 0 700 128" role="img" aria-label="Photo becomes text, text becomes a dish list, dish list becomes macros.">
+      <g font-size="11">
+        <rect class="sv-box" x="1" y="30" width="150" height="56" rx="3"/>
+        <text class="t-faint" x="14" y="52">STAGE 1a</text>
+        <text class="t-ink" x="14" y="70" font-size="13">photo → text</text>
+
+        <rect class="sv-box" x="180" y="30" width="150" height="56" rx="3"/>
+        <text class="t-faint" x="193" y="52">STAGE 1b</text>
+        <text class="t-ink" x="193" y="70" font-size="13">text → dish list</text>
+
+        <rect class="sv-hi" x="359" y="22" width="180" height="72" rx="3"/>
+        <text class="t-accent" x="373" y="46">STAGE 2 — TESTED HERE</text>
+        <text class="t-ink" x="373" y="66" font-size="13">dish → macros</text>
+        <text class="t-soft" x="373" y="83">calories · protein · carbs · fat</text>
+
+        <path class="sv-line" d="M155 58 L176 58" marker-end="url(#arw)"/>
+        <path class="sv-line" d="M334 58 L355 58" marker-end="url(#arw)"/>
+        <path class="sv-line" d="M543 58 L564 58" marker-end="url(#arw)"/>
+        <text class="t-soft" x="570" y="55" font-size="12">sorted</text>
+        <text class="t-soft" x="570" y="70" font-size="12">results</text>
+      </g>
+      <defs>
+        <marker id="arw" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+          <path class="sv-arrow" d="M0 0 L7 3.5 L0 7 z"/>
+        </marker>
+      </defs>
+    </svg>
+    <figcaption>Stages 1a and 1b were finished and frozen months ago. Everything in this document
+    is about stage 2.</figcaption>
+  </figure>
+
+  <div class="callout">
+    <p><strong>The one mechanical fact worth knowing.</strong> The model never adds anything up. It
+    lists a dish's ingredients, and for each one says what that food is made of per 100 g and how
+    much of it is on the plate. <em>Our code</em> does the multiplication and the sum. Every time
+    arithmetic was taken away from the model, accuracy improved.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Section 02</h2>
+  <p class="heading">Why there are two separate test sets</p>
+
+  <p>Some menus print a weight — <code>NEW YORK (400gr)</code>. Most do not. These are two
+  completely different problems, so they are scored separately and <strong>the two scores are never
+  added together.</strong></p>
+
+  <figure>
+    <svg viewBox="0 0 700 180" role="img" aria-label="Two thirds of menu items print no weight.">
+      <g font-size="11">
+        <rect class="sv-tint" x="1" y="1" width="698" height="34" rx="3"/>
+        <text class="t-ink" x="16" y="23" font-size="12">343 real dishes across 10 real menus</text>
+
+        <rect class="sv-box" x="1" y="62" width="230" height="106" rx="3"/>
+        <text class="t-faint" x="16" y="84">MENU PRINTS GRAMS</text>
+        <text class="t-ink" x="16" y="112" font-size="26" font-weight="600">33%</text>
+        <text class="t-soft" x="16" y="134" font-size="12">tested by 8 dishes</text>
+        <text class="t-pass" x="16" y="151" font-size="12">84% of values correct</text>
+
+        <rect class="sv-box" x="253" y="62" width="446" height="106" rx="3"/>
+        <text class="t-faint" x="268" y="84">MENU PRINTS NOTHING</text>
+        <text class="t-ink" x="268" y="112" font-size="26" font-weight="600">67%</text>
+        <text class="t-soft" x="268" y="134" font-size="12">tested by 6 dishes</text>
+        <text class="t-fail" x="268" y="151" font-size="12">50% of values correct — the unsolved half</text>
+
+        <path class="sv-line" d="M116 39 L116 58"/>
+        <path class="sv-line" d="M476 39 L476 58"/>
+      </g>
+    </svg>
+    <figcaption>The half that works is the smaller half. Four of the ten menus print no weight on a
+    single dish.</figcaption>
+  </figure>
+
+  <div class="callout warn">
+    <p><strong>The benchmark is thin here, and that is a real weakness.</strong> Six dishes stand in
+    for two-thirds of every real menu. One dish swinging can move the whole score by several points,
+    which is why widening this set is the current priority.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Section 03</h2>
+  <p class="heading">How one test dish gets built</p>
+
+  <p>This is the process Santiago defined at the start, unchanged. It is slow and manual on purpose
+  — every number traces to a published source or a recorded decision.</p>
+
+  <ol class="steps">
+    <li>
+      <h4>Pick a real dish off a real menu</h4>
+      <p>From the photographed menus, not invented. The dish's printed text is kept exactly as it
+      appears.</p>
+    </li>
+    <li>
+      <h4>Write down what is actually in it</h4>
+      <p>Each ingredient and how many grams of it. For a dish with no printed weight, a plausible
+      range rather than one number — a pizza is 400–450 g, not exactly 425 g.</p>
+    </li>
+    <li>
+      <h4>Look up each ingredient in USDA FoodData Central</h4>
+      <p>A public government nutrition database. Every ingredient gets a real record ID, so anyone
+      can check it. The specific variant matters enormously — restaurant pizza and frozen pizza
+      differ by 46% in fat.</p>
+    </li>
+    <li>
+      <h4>Santiago approves it personally</h4>
+      <p>No dish enters the test set without his ruling, and every later change to one is recorded
+      with the reason.</p>
+    </li>
+    <li>
+      <h4>The right answer is computed, never typed</h4>
+      <p>Code multiplies the grams by the composition and sums. This keeps calories consistent with
+      the protein, carbs and fat rather than trusting anyone's arithmetic.</p>
+    </li>
+  </ol>
+</section>
+
+<section>
+  <h2>Section 04</h2>
+  <p class="heading">How we decide a value is right</p>
+
+  <p>The app's answer never has to match exactly. It has to land close enough. "Close enough" is a
+  range around the true value, and each of the four numbers is judged on its own.</p>
+
+  <figure>
+    <svg viewBox="0 0 700 150" role="img" aria-label="A pass is landing inside the range around the true value.">
+      <g font-size="11">
+        <rect class="sv-band" x="230" y="46" width="260" height="34"/>
+        <line class="sv-line" x1="30" y1="63" x2="670" y2="63"/>
+
+        <line class="sv-tick" x1="360" y1="36" x2="360" y2="90"/>
+        <text class="t-ink" x="360" y="28" text-anchor="middle" font-size="12">the true value</text>
+        <text class="t-soft" x="360" y="104" text-anchor="middle">42 g fat</text>
+
+        <text class="t-pass" x="230" y="104" text-anchor="middle">34 g</text>
+        <text class="t-pass" x="490" y="104" text-anchor="middle">50 g</text>
+        <text class="t-pass" x="360" y="128" text-anchor="middle">anything in here counts as right</text>
+
+        <circle class="dot-fail" cx="163" cy="63" r="5"/>
+        <text class="t-fail" x="163" y="104" text-anchor="middle">app says 29 g</text>
+        <text class="t-fail" x="163" y="28" text-anchor="middle" font-size="12">too low — fails</text>
+      </g>
+    </svg>
+    <figcaption>One dish, one macro. Each dish is asked four times over (calories, protein, carbs,
+    fat) and each attempt is run three times, because the model answers differently each call.</figcaption>
+  </figure>
+
+  <h3>Where the range comes from — and what just changed</h3>
+
+  <p>Until 20 August the range was a side-effect. It was calculated purely from how uncertain the
+  dish's <em>weight</em> was, which meant every dish got a different strictness, and nobody had
+  chosen any of them.</p>
+
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>Dish</th><th class="n">Old strictness</th><th class="n">Now</th><th>Effect</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Capricciosa pizza</td><td class="n">±6%</td><td class="n">±20%</td><td><span class="pill warn">looser</span></td></tr>
+        <tr><td>Salmón Roll</td><td class="n">±14%</td><td class="n">±20%</td><td><span class="pill warn">looser</span></td></tr>
+        <tr><td>Tiras de pollo</td><td class="n">±17%</td><td class="n">±20%</td><td><span class="pill warn">looser</span></td></tr>
+        <tr><td>Carbonara</td><td class="n">±29%</td><td class="n">±20%</td><td><span class="pill pass">stricter</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The pizza had to hit its fat within ±6% — a bar no real kitchen would meet twice. Carbonara got
+  ±29% and passed almost everything. <strong>The test was partly measuring how tightly each dish
+  happened to be written down.</strong> Now every dish is judged the same way.</p>
+
+  <div class="callout good">
+    <p><strong>The check that stops this being cheating.</strong> Loosening a test until the score
+    looks good is rigging. So both the current app <em>and</em> the older, worse version are scored
+    at every candidate bar. If the gap between them shrinks, the bar has stopped telling good from
+    bad and is rejected.</p>
+    <p>Two bars were considered. <code>±25%</code> would have moved the headline from 36 to 48 —
+    Santiago rejected it for exactly that reason and chose <code>±20%</code>, which leaves the score
+    unchanged at <span class="num">36/72</span> and the gap unchanged at <span class="num">11</span>.
+    Only the meaning changed, not the number.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Section 05</h2>
+  <p class="heading">Are we going in circles?</p>
+
+  <p>Fair question, and the honest answer is split: <strong>the app has improved a lot; today's work
+  did not change the app at all.</strong></p>
+
+  <h3>The app, over time</h3>
+
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>Version</th><th class="n">Dishes with printed grams</th><th class="n">Dishes without</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>the original</td><td class="n">27 values wrong</td><td class="n">—</td></tr>
+        <tr><td>after the printed-weight fix</td><td class="n">7–8 wrong</td><td class="n">—</td></tr>
+        <tr><td>before the two-pass change</td><td class="n">6–9 wrong</td><td class="n">25 / 72 right</td></tr>
+        <tr><td><strong>live today</strong></td><td class="n"><strong>6–9 wrong</strong></td><td class="n"><strong>36 / 72 right</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Both directions are real gains, measured across multiple runs. Nothing has gone backwards.</p>
+
+  <h3>What today actually was</h3>
+
+  <p>No change to the app. Three plausible fixes were <em>proposed and killed</em> before any money
+  was spent on them:</p>
+
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>Idea</th><th>Result when simulated</th><th>Verdict</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Correct the side-dish weights</td><td class="n">46 → 66 wrong</td><td><span class="pill fail">worse</span></td></tr>
+        <tr><td>Add fat to thin-looking dishes</td><td class="n">46 → 80 wrong</td><td><span class="pill fail">worse</span></td></tr>
+        <tr><td>Correct each dish's total weight</td><td class="n">36 → 35 right</td><td><span class="pill fail">no gain</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Each was tested by replaying every answer the model has ever given, with the proposed fix
+  applied. <strong>Cost: nothing.</strong> All three looked obviously correct beforehand.</p>
+
+  <div class="callout warn">
+    <p><strong>Why the corrections kept coming.</strong> Twice, a measuring script disagreed with the
+    real one — reading 33 where the harness read 36. Both times it was caught by a deliberate rule:
+    every simulation must first reproduce the known score exactly, or none of its other numbers are
+    believed. That rule is doing its job, and it is why the corrections surface as noise. Silent
+    agreement would be the dangerous outcome.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Section 06</h2>
+  <p class="heading">Open decisions</p>
+
+  <div class="decision">
+    <span class="tag">Needs a ruling</span>
+    <h4>Replace Coliflor Roka in the test set</h4>
+    <p>Its menu line is just the name. The real dish — seen on the restaurant's Instagram — is
+    battered cauliflower on lettuce under a chipotle mayo. None of that is knowable from the menu, so
+    the dish is unanswerable rather than badly answered, and it has been distorting the score.
+    Santiago's proposal: swap it for something plainly described, such as a side of french fries.</p>
+  </div>
+
+  <div class="decision">
+    <span class="tag">Needs a ruling</span>
+    <h4>Cap the error in grams, not only in percent</h4>
+    <p>A percentage scales with dish size, which is why it was chosen — 5 g off is bad on fries and
+    fine on a pizza. Santiago's addition: also cap the absolute miss, so a very large dish cannot
+    drift far while still passing on percentage. Proposed caps are roughly 10 g of fat, 15–20 g of
+    carbs, 20–30 g of protein.</p>
+    <p>Applied on top of ±20%, the fat and protein caps would rarely bind; <strong>the carb cap
+    would</strong> — a pizza at ±20% is allowed ±22 g of carbs, more than the proposed cap.</p>
+  </div>
+
+  <div class="decision">
+    <span class="tag">In progress</span>
+    <h4>Widen the no-printed-weight test set</h4>
+    <p>Six dishes is too thin a basis for judging two-thirds of every menu. More dishes means more
+    USDA sourcing and more of Santiago's rulings, but no model spend.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Section 07</h2>
+  <p class="heading">Every piece of jargon, defined</p>
+
+  <dl class="glossary">
+    <div><dt>oracle</dt><dd>The recorded truth for a test dish — its ingredients, their grams, their USDA records, and the resulting correct macros. Santiago approves every one.</dd></div>
+    <div><dt>band</dt><dd>The range of answers counted as correct for one macro on one dish.</dd></div>
+    <div><dt>draw</dt><dd>One run of the model. The same dish is drawn three times because the model answers slightly differently each call, and a single run proves nothing.</dd></div>
+    <div><dt>weighted dish</dt><dd>A dish whose menu prints a weight. Nothing to do with statistical weighting.</dd></div>
+    <div><dt>unweighted dish</dt><dd>A dish whose menu prints no weight — two-thirds of real items.</dd></div>
+    <div><dt>arm</dt><dd>One candidate change being tested, so it can be compared against the current version. Named A, P, S3 and so on purely for record-keeping.</dd></div>
+    <div><dt>baseline</dt><dd>The older, worse version, kept as a comparison. If a change cannot beat it, the change is not real.</dd></div>
+    <div><dt>the gap</dt><dd>How far ahead the current version scores versus that baseline. It is the anti-cheating check: a test that cannot separate them is measuring nothing.</dd></div>
+    <div><dt>harness</dt><dd>The script that runs the test and produces the score.</dd></div>
+    <div><dt>replay</dt><dd>Re-scoring answers the model already gave, saved on disk. Costs nothing and calls no model, which is how ideas get killed for free.</dd></div>
+    <div><dt>the two scores</dt><dd><span class="num">n / 288</span> counts values <em>wrong</em> on printed-weight dishes — lower is better. <span class="num">n / 72</span> counts values <em>right</em> on the rest — higher is better. They are never combined.</dd></div>
+  </dl>
+</section>
+
+<footer>
+  <p>Every figure here was re-derived on 2026-08-20 by running the scoring scripts, not copied from
+  notes. Re-derive them yourself: <code>deno run --allow-read scripts/rescore-history.ts</code> and
+  the replay commands in <code>docs/superpowers/START-HERE.md</code>.</p>
+  <p>Production is edge function <code>analyze-menu</code> v32, unchanged by any work described here.</p>
+</footer>
+
+</div>

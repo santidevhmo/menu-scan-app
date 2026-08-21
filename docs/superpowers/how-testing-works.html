@@ -246,8 +246,11 @@
     color: var(--accent);
     padding-top: 3px;
   }
-  .steps h4 { margin: 0 0 5px; font-size: 16px; font-weight: 650; }
-  .steps p { margin: 0; font-size: 15.5px; color: var(--ink-soft); }
+  /* Both must be pinned to column 2. The ::before takes grid slot 1, so h4 lands
+     in column 2 and p wraps onto the next ROW into the 34px counter column —
+     which renders one word per line. */
+  .steps h4 { grid-column: 2; margin: 0 0 5px; font-size: 16px; font-weight: 650; }
+  .steps p { grid-column: 2; margin: 0; font-size: 15.5px; color: var(--ink-soft); }
 
   dl.glossary { margin: 0; }
   dl.glossary > div {
@@ -500,6 +503,47 @@
     unchanged at <span class="num">36/72</span> and the gap unchanged at <span class="num">11</span>.
     Only the meaning changed, not the number.</p>
   </div>
+
+  <h3>A percentage alone is unfair to small dishes</h3>
+
+  <p>A percentage scales with the dish, which is why it was chosen. But that cuts both ways: on a
+  small dish, 20% is a punishingly small number of grams.</p>
+
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>Dish</th><th class="n">True fat</th><th class="n">±20% allows</th><th>In real terms</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Capricciosa pizza</td><td class="n">42 g</td><td class="n">±8.4 g</td><td>a generous margin</td></tr>
+        <tr><td>Ensalada griega</td><td class="n">12.5 g</td><td class="n">±2.5 g</td><td>half a teaspoon of oil</td></tr>
+        <tr><td>Coliflor roka</td><td class="n">16.5 g</td><td class="n">±3.3 g</td><td>under a teaspoon</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>So a field now passes on <strong>either</strong> test — within 20%, <em>or</em> within a fixed
+  small miss of <code>6 g</code> for a macro and <code>50 kcal</code> for calories. Whichever is more
+  generous wins.</p>
+
+  <div class="callout">
+    <p><strong>This rule is not new.</strong> Santiago made exactly this ruling for the
+    printed-weight dishes on 9 August — <em>"if something has 20 grams and the model says 15, that's
+    only five grams, it's not that different"</em> — and the no-weight scorer simply never got it.
+    The two halves of the benchmark now agree on what "close enough" means, and share one copy of
+    the numbers.</p>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>The honest cost, and it needs watching.</strong> The headline moves
+    <span class="num">36 → 44</span> and the gap over the old version narrows from
+    <span class="num">11 to 9</span>. The gap surviving is the test passing its own anti-rigging
+    check — but it did narrow, and a narrowing gap is the early sign of a bar that has gone soft.
+    Worth re-checking as dishes are added.</p>
+    <p>What it does <em>not</em> do is rescue a genuinely wrong answer. Coliflor roka stays at
+    <span class="num">3/12</span>: its fat is 14.5 g out, far past the 6 g allowance. A test pins
+    this, so the allowance cannot quietly grow into the whole rule.</p>
+  </div>
 </section>
 
 <section>
@@ -520,12 +564,20 @@
         <tr><td>the original</td><td class="n">27 values wrong</td><td class="n">—</td></tr>
         <tr><td>after the printed-weight fix</td><td class="n">7–8 wrong</td><td class="n">—</td></tr>
         <tr><td>before the two-pass change</td><td class="n">6–9 wrong</td><td class="n">25 / 72 right</td></tr>
-        <tr><td><strong>live today</strong></td><td class="n"><strong>6–9 wrong</strong></td><td class="n"><strong>36 / 72 right</strong></td></tr>
+        <tr><td><strong>live today</strong></td><td class="n"><strong>6–9 wrong</strong></td><td class="n"><strong>44 / 72 right</strong></td></tr>
       </tbody>
     </table>
   </div>
 
   <p>Both directions are real gains, measured across multiple runs. Nothing has gone backwards.</p>
+
+  <div class="callout warn">
+    <p><strong>One caveat on that last row, and it matters.</strong> The <span class="num">44</span>
+    and the <span class="num">25</span> above are <em>not</em> measured the same way — the 25 predates
+    both the ±20% bar and the gram allowance. Scored under today's rules the older version reads
+    <span class="num">35</span>, so <strong>the honest gain is 35 → 44, not 25 → 44.</strong> Whenever
+    the ruler changes, only same-ruler comparisons mean anything.</p>
+  </div>
 
   <h3>What today actually was</h3>
 
@@ -562,30 +614,34 @@
   <p class="heading">Open decisions</p>
 
   <div class="decision">
-    <span class="tag">Needs a ruling</span>
+    <span class="tag">Approved · 2026-08-20 · not yet done</span>
     <h4>Replace Coliflor Roka in the test set</h4>
     <p>Its menu line is just the name. The real dish — seen on the restaurant's Instagram — is
     battered cauliflower on lettuce under a chipotle mayo. None of that is knowable from the menu, so
-    the dish is unanswerable rather than badly answered, and it has been distorting the score.
-    Santiago's proposal: swap it for something plainly described, such as a side of french fries.</p>
+    the dish is <strong>unanswerable rather than badly answered</strong>, and it has been distorting
+    the score. It will be swapped for something plainly described, such as a side of french fries.</p>
+    <p>Its replacement needs a new USDA-sourced recipe and Santiago's approval, the same route as any
+    test dish.</p>
   </div>
 
   <div class="decision">
-    <span class="tag">Needs a ruling</span>
-    <h4>Cap the error in grams, not only in percent</h4>
-    <p>A percentage scales with dish size, which is why it was chosen — 5 g off is bad on fries and
-    fine on a pizza. Santiago's addition: also cap the absolute miss, so a very large dish cannot
-    drift far while still passing on percentage. Proposed caps are roughly 10 g of fat, 15–20 g of
-    carbs, 20–30 g of protein.</p>
-    <p>Applied on top of ±20%, the fat and protein caps would rarely bind; <strong>the carb cap
-    would</strong> — a pizza at ±20% is allowed ±22 g of carbs, more than the proposed cap.</p>
-  </div>
-
-  <div class="decision">
-    <span class="tag">In progress</span>
+    <span class="tag">Approved · 2026-08-20 · not yet done</span>
     <h4>Widen the no-printed-weight test set</h4>
-    <p>Six dishes is too thin a basis for judging two-thirds of every menu. More dishes means more
-    USDA sourcing and more of Santiago's rulings, but no model spend.</p>
+    <p>Six dishes is too thin a basis for judging two-thirds of every menu. One dish swinging can move
+    the score several points. More dishes means more USDA sourcing and more of Santiago's rulings, but
+    no model spend.</p>
+  </div>
+
+  <div class="decision">
+    <span class="tag">Done · 2026-08-20</span>
+    <h4>Allow a small miss in grams, not only in percent</h4>
+    <p>Implemented as described in section 04, reusing the exact allowances Santiago ruled for the
+    printed-weight dishes on 9 August rather than inventing new ones.</p>
+    <p>A stricter variant was considered and rejected: <em>capping</em> the error in grams, so a large
+    dish could not drift far while still passing on percentage. Measured, only the carb cap would ever
+    bind — a pizza at ±20% is allowed ±22.6 g of carbs, above the proposed 15–20 g cap. It would
+    have made one macro on one dish harder and changed nothing else, so it was not worth a second
+    rule.</p>
   </div>
 </section>
 
@@ -605,7 +661,14 @@
     <div><dt>harness</dt><dd>The script that runs the test and produces the score.</dd></div>
     <div><dt>replay</dt><dd>Re-scoring answers the model already gave, saved on disk. Costs nothing and calls no model, which is how ideas get killed for free.</dd></div>
     <div><dt>the two scores</dt><dd><span class="num">n / 288</span> counts values <em>wrong</em> on printed-weight dishes — lower is better. <span class="num">n / 72</span> counts values <em>right</em> on the rest — higher is better. They are never combined.</dd></div>
+    <div><dt>the allowance</dt><dd>The fixed small miss — 6 g of a macro, 50 kcal — that passes a value even when the percentage band does not. It exists because 20% of a side salad's fat is half a teaspoon of oil.</dd></div>
   </dl>
+
+  <div class="callout">
+    <p><strong>The one rule that governs all of this:</strong> a figure written in prose is a snapshot
+    of the day it was written. Every number here was re-derived by running the scripts. If a document
+    and a script disagree, the script is right.</p>
+  </div>
 </section>
 
 <footer>

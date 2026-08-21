@@ -7,7 +7,11 @@
 // as published by FDC, fetched with scripts/unweighted-portions.ts.
 //
 //   deno run --allow-write --allow-read scripts/unweighted-oracle-build.ts
-import { deriveBands, type UnweightedEntry, validateEntry } from "./unweighted-oracle.ts";
+import {
+  deriveBands,
+  type UnweightedEntry,
+  validateEntry,
+} from "./unweighted-oracle.ts";
 import type { MacroBand } from "./macro-band-score.ts";
 
 const OUT = "scripts/fixtures/unweighted-oracle.json";
@@ -17,7 +21,11 @@ interface Draft {
   name: string;
   menu: string;
   mass_band_g: MacroBand;
-  composition: { protein_per_100g: number; carb_per_100g: number; fat_per_100g: number };
+  composition: {
+    protein_per_100g: number;
+    carb_per_100g: number;
+    fat_per_100g: number;
+  };
   assumed: string;
 }
 
@@ -36,7 +44,7 @@ const DRAFTS: Draft[] = [
     assumed:
       "28 cm stated on the menu. Band [400,450] g is Santiago's ruling (2026-08-13) for a " +
       "THIN-CRUST pizza. " +
-      'Area-scaling USDA\'s 14" meat-and-vegetable records (FDC 172055 at 1168 g/pie, FDC 172049 ' +
+      "Area-scaling USDA's 14\" meat-and-vegetable records (FDC 172055 at 1168 g/pie, FDC 172049 " +
       'at 1043 g/pie; 28 cm = 62% of 14" BY AREA) gave [647,724] g, but both are American chain ' +
       "pizza - thick pan-style crust. At 450 g a 28 cm pizza carries ~0.73 g/cm2 against the " +
       "chain's ~1.18, which is the thin-vs-pan difference, so the chain mass does not describe " +
@@ -51,7 +59,7 @@ const DRAFTS: Draft[] = [
       "menu: 'Jamon serrano, alcachofa, aceituna negra y champinon' = meat AND vegetables. " +
       "That moves the band from 1101-1238 kcal / F 58-65 to 967-1087 / F 39-44, and the " +
       "pipeline's carb lands IN band. " +
-      "Superseded compositions, in order: CHEESE-ONLY 14\" (wrong topping class), chain regular " +
+      'Superseded compositions, in order: CHEESE-ONLY 14" (wrong topping class), chain regular ' +
       "crust (wrong crust), thin crust from frozen (wrong venue).",
   },
   {
@@ -59,7 +67,11 @@ const DRAFTS: Draft[] = [
     menu: "bistro",
     mass_band_g: [250, 450],
     // FDC 2708861 - the WITH MEAT record. See the re-source note below.
-    composition: { protein_per_100g: 5.67, carb_per_100g: 15.4, fat_per_100g: 14.1 },
+    composition: {
+      protein_per_100g: 5.67,
+      carb_per_100g: 15.4,
+      fat_per_100g: 14.1,
+    },
     assumed:
       "No printed weight. Low endpoint 250 g = the published restaurant pasta portion (identical " +
       "in FDC 2708855 and 2708861). High endpoint 450 g from Santiago's independent " +
@@ -76,7 +88,11 @@ const DRAFTS: Draft[] = [
     menu: "bistro",
     mass_band_g: [136, 250],
     // 77.2% FDC 2709830 + 22.8% FDC 2710203, the ratio the low endpoint is built from.
-    composition: { protein_per_100g: 2.22, carb_per_100g: 6.12, fat_per_100g: 6.56 },
+    composition: {
+      protein_per_100g: 2.22,
+      carb_per_100g: 6.12,
+      fat_per_100g: 6.56,
+    },
     assumed:
       "No printed weight. Low endpoint 136 g = FDC 2709830 'Greek Salad, no dressing' (105 g) + " +
       "dressing (31 g). High endpoint 250 g from Santiago's estimate. Composition is the two " +
@@ -99,7 +115,11 @@ const DRAFTS: Draft[] = [
     menu: "andaluz",
     mass_band_g: [234, 333],
     // 61% FDC 170756 + 39% FDC 2709461 (PLAIN fries, not the cheese-fries record).
-    composition: { protein_per_100g: 15.68, carb_per_100g: 19.82, fat_per_100g: 13.32 },
+    composition: {
+      protein_per_100g: 15.68,
+      carb_per_100g: 19.82,
+      fat_per_100g: 13.32,
+    },
     assumed:
       "No printed weight, and the menu says 'Acompañadas de papas fritas', so the plate is strips " +
       "PLUS fries. Low endpoint 234 g = FDC 170756 breast without skin (142 g) + fries (92 g); " +
@@ -109,36 +129,142 @@ const DRAFTS: Draft[] = [
       "The candidate list's FDC 2709469 is 'french fries WITH CHEESE', which this menu does not " +
       "print; that substitution is the only change made to an approved input.",
   },
+  // ☠️ COLIFLOR ROKA WAS REMOVED HERE (Santiago, 2026-08-20) and PAPAS FRITAS below
+  // replaces it - the same menu, the same category, so the set's shape is unchanged.
+  //
+  // WHY, and it is a rule about what a benchmark may ask: its menu line is only its
+  // name. The real dish, from the restaurant's own photos, is battered cauliflower
+  // on lettuce under a chipotle mayo, and NONE of that is knowable from the text the
+  // pipeline receives. Santiago: an item this thin "shouldn't even be considered" -
+  // it is UNANSWERABLE rather than badly answered, so failing it measured the
+  // menu's silence, not the pipeline. Four arms were partly judged on it.
+  //
+  // ⚠️ WHAT ITS REMOVAL COSTS, recorded because the Salmón Roll entry below depends
+  // on it: Coliflor guarded the BOTTOM of the set - it was the dish that would catch
+  // an arm scaling everything downward, the way Salmón Roll once guarded the top.
+  // Nothing guards the bottom now. Weigh that when judging any arm that shrinks a
+  // plate. Its evidence stays in the ledger (eval 155) and in
+  // scripts/sim-decomposition-ceiling.ts, which used it to prove a missing
+  // INGREDIENT cannot be fixed by scaling a MACRO.
   {
-    name: "COLIFLOR ROKA",
+    name: "PAPAS FRITAS",
     menu: "andaluz",
-    mass_band_g: [85, 120],
-    // 90% FDC 2710042 + 10% FDC 2710195.
-    composition: { protein_per_100g: 3.75, carb_per_100g: 20.3, fat_per_100g: 16.06 },
+    mass_band_g: [160, 200],
+    // 155 g FDC 2709462 + 5 g FDC 2705728 + 5 g FDC 2705885, blended over 165 g.
+    composition: {
+      protein_per_100g: 5.32,
+      carb_per_100g: 35.26,
+      fat_per_100g: 15.11,
+    },
     assumed:
-      "No printed weight and an EMPTY description. What the dish is comes from the menu photo: " +
-      "Andaluz defines 'Roka' on the same page - CAMARÓN ROKA is 'capeado y bañado en nuestro " +
-      "aderezo roka a base de chipotle' - so this is battered, fried and sauced cauliflower, not " +
-      "a plain vegetable side. Low endpoint 85 g = FDC 2710042 'Fried cauliflower', its largest " +
-      "published portion. High endpoint 120 g adds the aderezo it is bathed in. Composition is " +
-      "FDC 2710042 blended 90:10 with FDC 2710195 dressing. " +
-      "⚠️ PRICE WAS NOT USED. An earlier draft proposed 150-300 g by price parity with a 200 g " +
-      "dish on the same menu; Santiago ruled that out on 2026-08-12 - price reflects margin and " +
-      "scarcity, never mass - and ruled 85 g sound. Never reintroduce a price argument here. " +
-      "⚠️ IT IS NOT THE GUARD IT WAS BUILT AS. A draft of this entry claimed the pipeline 'already " +
-      "says 85 g, so this passes today'. It scores 0/4. Mass is not scored - the four MACROS are - " +
-      "and the pipeline returns 25 kcal, 2 g protein, 4 g carb and 0 g FAT, which is plain raw " +
-      "cauliflower. With an empty description it never learns the dish is battered, fried and " +
-      "sauced, because 'Roka' is only defined on ANOTHER LINE of the same menu (CAMARÓN ROKA, " +
-      "'capeado y bañado'). A right-looking mass with a raw-vegetable composition is the failure " +
-      "mode this dish now documents. 0 g fat on a fried dish is the clearest single defect in the set.",
+      '"Sazonidas con trufa, parmesano y virutas de bacon crujiente." (The menu itself ' +
+      "misspells sazonadas; the oracle matches the MENU, not the dictionary.) " +
+      "Ingredients, each from FNDDS: 155 g FDC 2709462 'Potato, french fries, RESTAURANT' - the " +
+      "venue axis matters, this is a restaurant and not a frozen or fast-food record - plus 5 g " +
+      "FDC 2705728 parmesan and 5 g FDC 2705885 bacon. Band [160,200] g brackets FNDDS's own " +
+      "published restaurant-fries portions, which cluster 110-180 g. " +
+      "🔑 THE 5 g FIGURES ARE SANTIAGO'S RULING (2026-08-20) AND THEY ARE THE POINT OF THIS ENTRY. " +
+      "A first draft priced parmesan and bacon at 15 g each, which read 'bacon' and charged for " +
+      "rashers: P 16 / F 31 against the ruled P 10 / F 27. 'Virutas' means SHAVINGS. Pricing a " +
+      "topping as a portion is the same error class as the 30 g dipping-container defect, and it " +
+      "inflates protein hardest because cured meat and hard cheese are the two most " +
+      "protein-dense things on a menu. " +
+      "⚠️ THE TRUFFLE IS UNPRICED, deliberately and it is the known gap. Treated as a dry " +
+      "seasoning at 0 g. If the kitchen uses truffle OIL, roughly 3-5 g of it is missing - about " +
+      "30 kcal and 4 g of fat, which would push fat toward the top of its band. Re-source before " +
+      "treating a fat miss on this dish as a pipeline defect.",
+  },
+  {
+    name: "OMELETTE CUBANA",
+    menu: "el-marcos",
+    mass_band_g: [170, 230],
+    // 110 g egg + 15 chorizo + 15 ham + 8 bacon + 15 cheddar + 20 onion + 20 pepper.
+    composition: {
+      protein_per_100g: 12.33,
+      carb_per_100g: 2.77,
+      fat_per_100g: 15.50,
+    },
+    assumed:
+      '"Dos huevos con chorizo, jamón, tocino, queso, cebolla y pimiento verde." The first ' +
+      "eggs-and-breakfast dish in the set - a whole dish FORM the pipeline had never been " +
+      "measured on. " +
+      "🔑 DECOMPOSED INTO INGREDIENTS BECAUSE FNDDS HAS NO RECORD FOR THIS DISH (Santiago's " +
+      "standing rule, restated 2026-08-20: where FNDDS lacks the composite, use it for each " +
+      "individual ingredient). A first draft used FDC 2707223 'omelet with cheese and meat, made " +
+      "with oil' as a single record. That was wrong twice over: FNDDS carries the " +
+      "cheese+meat+VEGETABLES axis only for egg WHITE and egg SUBSTITUTE, never whole egg, so " +
+      "the onion and green pepper had no representation at all and the record ran richer per " +
+      "gram than the real dish. " +
+      "Ingredients: 110 g FDC 2707158 'Egg, whole, fried with oil' (two eggs, ~55 g each cooked - " +
+      "'dos huevos' is the only quantity the menu states), 15 g FDC 746781 chorizo pan-fried, " +
+      "15 g FDC 173864 ham sliced regular, 8 g FDC 2705885 bacon, 15 g FDC 2705709 cheddar, " +
+      "20 g FDC 2710796 onions cooked, 20 g FDC 2709976 green pepper cooked. " +
+      "⚠️ EVERY FILLING GRAM IS A JUDGEMENT, not a published portion. The menu states no " +
+      "quantity for anything after 'con', and each is priced as a filling rather than a serving " +
+      "of that food - the same ruling as PAPAS FRITAS. The CHEESE is the least certain: 15 g of " +
+      "cheddar is 61 kcal, and el-marcos may use a Mexican melting cheese, which is leaner.",
+  },
+  {
+    name: "TACO PORCO",
+    menu: "brasero-two",
+    mass_band_g: [100, 140],
+    // 28 g tortilla + 55 pork loin + 15 beets + 15 pineapple + 5 peanuts.
+    composition: {
+      protein_per_100g: 15.14,
+      carb_per_100g: 14.29,
+      fat_per_100g: 7.06,
+    },
+    assumed:
+      '"Taco de bandiola adobada, betabel, cacahuate, piña y cilantro." The first taco in the ' +
+      "set, and tacos were 12 of the available described candidates and none of the fixtures. " +
+      "It also exercises the implied-tortilla component, which only pizza and sushi tested before. " +
+      "🔑 DECOMPOSED, AND THE COMPOSITE RECORD WAS REJECTED FOR A MEASURABLE REASON. FNDDS's only " +
+      "pork-taco records all carry CHEESE (FDC 2708517 'Taco, corn tortilla, pork, cheese') and " +
+      "this taco has none. Using it read 276 kcal at 16 g fat; the ingredient decomposition reads " +
+      "218 kcal at 8 g fat - the phantom cheese was HALF the dish's fat. This is the variant " +
+      "error that has bitten this oracle six times, caught before it shipped. " +
+      "Ingredients: 28 g FDC 2707823 'Tortilla, corn' - a published FNDDS portion, the only " +
+      "sourced weight in this entry - 55 g FDC 167842 pork loin roasted, 15 g FDC 169146 beets " +
+      "cooked, 15 g FDC 2709260 pineapple raw, 5 g FDC 2707515 peanuts roasted salted. " +
+      "⚠️ TWO JUDGEMENTS. 'Bandiola' is a River Plate cut FNDDS does not carry; roasted pork loin " +
+      "stands in, and 55 g is one taco's filling rather than a portion of pork - 'Taco de' is " +
+      "singular. Cilantro is unpriced as a herb garnish. " +
+      "⚠️ NO PRICE IS PRINTED for this item. It cannot affect macros (price is never evidence of " +
+      "grams) but it does mean the item is absent from a price-sorted list.",
+  },
+  {
+    name: "BROWNIE",
+    menu: "brasero-two",
+    mass_band_g: [150, 200],
+    // 80 g FDC 2707904 + 65 g FDC 2705630 + 30 g FDC 2709283, blended over 175 g.
+    composition: {
+      protein_per_100g: 3.60,
+      carb_per_100g: 39.34,
+      fat_per_100g: 11.57,
+    },
+    assumed: '"Brownie de la casa con nieve de vainilla y fresas." ' +
+      "🔑 THE ONLY DESCRIBED DESSERT ACROSS ALL TEN ARCHIVED MENUS - measured, 18 of 20 desserts " +
+      "carry no description - so it is the only chance to test the dessert category at all. It is " +
+      "also the set's only carb-dominant dish: 69 g of carbohydrate against 6 g of protein, the " +
+      "opposite balance to every other fixture, which is worth having when judging an arm that " +
+      "moves one macro. " +
+      "Ingredients: 80 g FDC 2707904 'Cookie, brownie, without icing' (FNDDS publishes 30-90 g " +
+      "portions for it; 80 g is a plated dessert square, near the top of that range), 65 g FDC " +
+      "2705630 vanilla ice cream for the 'nieve', 30 g FDC 2709283 strawberries raw. " +
+      "⚠️ 'Sin icing' was chosen because the description names none; FDC 2707905 'with icing or " +
+      "filling' would be the record if the house brownie is glazed. Approved unchanged by " +
+      "Santiago on 2026-08-20, the only one of the four that needed no revision.",
   },
   {
     name: "Salmón Roll",
     menu: "nikkori",
     mass_band_g: [300, 400],
     // 85% FDC 2708963 + 15% FDC 2705760.
-    composition: { protein_per_100g: 6.72, carb_per_100g: 13.69, fat_per_100g: 6.11 },
+    composition: {
+      protein_per_100g: 6.72,
+      carb_per_100g: 13.69,
+      fat_per_100g: 6.11,
+    },
     assumed:
       "No printed weight. Band [300,400] g is Santiago's ruling (2026-08-13), revised up from " +
       "[250,350] the day before, for a roll that is both filled and topped. Well above FDC " +
@@ -178,9 +304,9 @@ await Deno.writeTextFile(OUT, JSON.stringify(entries, null, 2) + "\n");
 
 console.log(`${entries.length} entries -> ${OUT}\n`);
 console.log(
-  `${"dish".padEnd(17)}${"mass g".padStart(12)}${"kcal".padStart(14)}${"protein".padStart(11)}${
-    "carb".padStart(11)
-  }${"fat".padStart(11)}`,
+  `${"dish".padEnd(17)}${"mass g".padStart(12)}${"kcal".padStart(14)}${
+    "protein".padStart(11)
+  }${"carb".padStart(11)}${"fat".padStart(11)}`,
 );
 const pair = (b: MacroBand) => `${b[0]}-${b[1]}`;
 for (const e of entries) {
@@ -192,12 +318,17 @@ for (const e of entries) {
     }`,
   );
 }
-const DESIGN_DISHES = 6;
+// The score's DENOMINATOR is now whatever is ruled, times 4 fields, times the
+// draw count - it was a fixed 6 dishes until 2026-08-20, when Santiago approved
+// widening the set and dropping COLIFLOR ROKA. A hardcoded target would go stale
+// every time the set grows, and the old one already read "-3 of 6 UNRULED" for a
+// set that had GAINED dishes.
 console.log(
-  entries.length === DESIGN_DISHES
-    ? `\nAll ${DESIGN_DISHES} design dishes are ruled. Full score: ${entries.length * 4} points.` +
-      `\nReport it ALONGSIDE the 96-point weighted number, never merged into it.`
-    : `\n${DESIGN_DISHES - entries.length} of ${DESIGN_DISHES} design dishes are UNRULED and absent.` +
-      `\nSo this scores ${entries.length * 4} points, not ${DESIGN_DISHES * 4}. Never report it as ` +
-      `the full unweighted score.`,
+  `\n${entries.length} dishes ruled -> ${
+    entries.length * 4
+  } points per draw, ` +
+    `${entries.length * 4 * 3} over the usual 3 draws.` +
+    `\nReport it ALONGSIDE the weighted number, never merged into it.` +
+    `\n⚠️ The denominator CHANGED on 2026-08-20 (6 dishes -> ${entries.length}). A score from ` +
+    `before that date\nis not comparable to one after it; re-score both arms before quoting a gain.`,
 );

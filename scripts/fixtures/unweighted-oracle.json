@@ -120,32 +120,122 @@
     "retrieved_at": "2026-08-12"
   },
   {
-    "name": "COLIFLOR ROKA",
+    "name": "PAPAS FRITAS",
     "menu": "andaluz",
     "unweighted": true,
     "mass_band_g": [
-      85,
-      120
+      160,
+      200
     ],
     "band": {
       "calories": [
-        197,
-        296
+        430,
+        644
       ],
       "protein_g": [
-        3,
-        5
+        8,
+        11
       ],
       "carb_g": [
-        17,
-        25
+        51,
+        76
       ],
       "fat_g": [
-        13,
-        20
+        22,
+        33
       ]
     },
-    "assumed": "No printed weight and an EMPTY description. What the dish is comes from the menu photo: Andaluz defines 'Roka' on the same page - CAMARÓN ROKA is 'capeado y bañado en nuestro aderezo roka a base de chipotle' - so this is battered, fried and sauced cauliflower, not a plain vegetable side. Low endpoint 85 g = FDC 2710042 'Fried cauliflower', its largest published portion. High endpoint 120 g adds the aderezo it is bathed in. Composition is FDC 2710042 blended 90:10 with FDC 2710195 dressing. ⚠️ PRICE WAS NOT USED. An earlier draft proposed 150-300 g by price parity with a 200 g dish on the same menu; Santiago ruled that out on 2026-08-12 - price reflects margin and scarcity, never mass - and ruled 85 g sound. Never reintroduce a price argument here. ⚠️ IT IS NOT THE GUARD IT WAS BUILT AS. A draft of this entry claimed the pipeline 'already says 85 g, so this passes today'. It scores 0/4. Mass is not scored - the four MACROS are - and the pipeline returns 25 kcal, 2 g protein, 4 g carb and 0 g FAT, which is plain raw cauliflower. With an empty description it never learns the dish is battered, fried and sauced, because 'Roka' is only defined on ANOTHER LINE of the same menu (CAMARÓN ROKA, 'capeado y bañado'). A right-looking mass with a raw-vegetable composition is the failure mode this dish now documents. 0 g fat on a fried dish is the clearest single defect in the set.",
+    "assumed": "\"Sazonidas con trufa, parmesano y virutas de bacon crujiente.\" (The menu itself misspells sazonadas; the oracle matches the MENU, not the dictionary.) Ingredients, each from FNDDS: 155 g FDC 2709462 'Potato, french fries, RESTAURANT' - the venue axis matters, this is a restaurant and not a frozen or fast-food record - plus 5 g FDC 2705728 parmesan and 5 g FDC 2705885 bacon. Band [160,200] g brackets FNDDS's own published restaurant-fries portions, which cluster 110-180 g. 🔑 THE 5 g FIGURES ARE SANTIAGO'S RULING (2026-08-20) AND THEY ARE THE POINT OF THIS ENTRY. A first draft priced parmesan and bacon at 15 g each, which read 'bacon' and charged for rashers: P 16 / F 31 against the ruled P 10 / F 27. 'Virutas' means SHAVINGS. Pricing a topping as a portion is the same error class as the 30 g dipping-container defect, and it inflates protein hardest because cured meat and hard cheese are the two most protein-dense things on a menu. ⚠️ THE TRUFFLE IS UNPRICED, deliberately and it is the known gap. Treated as a dry seasoning at 0 g. If the kitchen uses truffle OIL, roughly 3-5 g of it is missing - about 30 kcal and 4 g of fat, which would push fat toward the top of its band. Re-source before treating a fat miss on this dish as a pipeline defect.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-12"
+  },
+  {
+    "name": "OMELETTE CUBANA",
+    "menu": "el-marcos",
+    "unweighted": true,
+    "mass_band_g": [
+      170,
+      230
+    ],
+    "band": {
+      "calories": [
+        320,
+        480
+      ],
+      "protein_g": [
+        20,
+        30
+      ],
+      "carb_g": [
+        4,
+        7
+      ],
+      "fat_g": [
+        25,
+        37
+      ]
+    },
+    "assumed": "\"Dos huevos con chorizo, jamón, tocino, queso, cebolla y pimiento verde.\" The first eggs-and-breakfast dish in the set - a whole dish FORM the pipeline had never been measured on. 🔑 DECOMPOSED INTO INGREDIENTS BECAUSE FNDDS HAS NO RECORD FOR THIS DISH (Santiago's standing rule, restated 2026-08-20: where FNDDS lacks the composite, use it for each individual ingredient). A first draft used FDC 2707223 'omelet with cheese and meat, made with oil' as a single record. That was wrong twice over: FNDDS carries the cheese+meat+VEGETABLES axis only for egg WHITE and egg SUBSTITUTE, never whole egg, so the onion and green pepper had no representation at all and the record ran richer per gram than the real dish. Ingredients: 110 g FDC 2707158 'Egg, whole, fried with oil' (two eggs, ~55 g each cooked - 'dos huevos' is the only quantity the menu states), 15 g FDC 746781 chorizo pan-fried, 15 g FDC 173864 ham sliced regular, 8 g FDC 2705885 bacon, 15 g FDC 2705709 cheddar, 20 g FDC 2710796 onions cooked, 20 g FDC 2709976 green pepper cooked. ⚠️ EVERY FILLING GRAM IS A JUDGEMENT, not a published portion. The menu states no quantity for anything after 'con', and each is priced as a filling rather than a serving of that food - the same ruling as PAPAS FRITAS. The CHEESE is the least certain: 15 g of cheddar is 61 kcal, and el-marcos may use a Mexican melting cheese, which is leaner.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-12"
+  },
+  {
+    "name": "TACO PORCO",
+    "menu": "brasero-two",
+    "unweighted": true,
+    "mass_band_g": [
+      100,
+      140
+    ],
+    "band": {
+      "calories": [
+        174,
+        261
+      ],
+      "protein_g": [
+        15,
+        22
+      ],
+      "carb_g": [
+        14,
+        21
+      ],
+      "fat_g": [
+        7,
+        10
+      ]
+    },
+    "assumed": "\"Taco de bandiola adobada, betabel, cacahuate, piña y cilantro.\" The first taco in the set, and tacos were 12 of the available described candidates and none of the fixtures. It also exercises the implied-tortilla component, which only pizza and sushi tested before. 🔑 DECOMPOSED, AND THE COMPOSITE RECORD WAS REJECTED FOR A MEASURABLE REASON. FNDDS's only pork-taco records all carry CHEESE (FDC 2708517 'Taco, corn tortilla, pork, cheese') and this taco has none. Using it read 276 kcal at 16 g fat; the ingredient decomposition reads 218 kcal at 8 g fat - the phantom cheese was HALF the dish's fat. This is the variant error that has bitten this oracle six times, caught before it shipped. Ingredients: 28 g FDC 2707823 'Tortilla, corn' - a published FNDDS portion, the only sourced weight in this entry - 55 g FDC 167842 pork loin roasted, 15 g FDC 169146 beets cooked, 15 g FDC 2709260 pineapple raw, 5 g FDC 2707515 peanuts roasted salted. ⚠️ TWO JUDGEMENTS. 'Bandiola' is a River Plate cut FNDDS does not carry; roasted pork loin stands in, and 55 g is one taco's filling rather than a portion of pork - 'Taco de' is singular. Cilantro is unpriced as a herb garnish. ⚠️ NO PRICE IS PRINTED for this item. It cannot affect macros (price is never evidence of grams) but it does mean the item is absent from a price-sorted list.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-12"
+  },
+  {
+    "name": "BROWNIE",
+    "menu": "brasero-two",
+    "unweighted": true,
+    "mass_band_g": [
+      150,
+      200
+    ],
+    "band": {
+      "calories": [
+        386,
+        579
+      ],
+      "protein_g": [
+        5,
+        8
+      ],
+      "carb_g": [
+        55,
+        83
+      ],
+      "fat_g": [
+        16,
+        24
+      ]
+    },
+    "assumed": "\"Brownie de la casa con nieve de vainilla y fresas.\" 🔑 THE ONLY DESCRIBED DESSERT ACROSS ALL TEN ARCHIVED MENUS - measured, 18 of 20 desserts carry no description - so it is the only chance to test the dessert category at all. It is also the set's only carb-dominant dish: 69 g of carbohydrate against 6 g of protein, the opposite balance to every other fixture, which is worth having when judging an arm that moves one macro. Ingredients: 80 g FDC 2707904 'Cookie, brownie, without icing' (FNDDS publishes 30-90 g portions for it; 80 g is a plated dessert square, near the top of that range), 65 g FDC 2705630 vanilla ice cream for the 'nieve', 30 g FDC 2709283 strawberries raw. ⚠️ 'Sin icing' was chosen because the description names none; FDC 2707905 'with icing or filling' would be the record if the house brownie is glazed. Approved unchanged by Santiago on 2026-08-20, the only one of the four that needed no revision.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-12"
   },

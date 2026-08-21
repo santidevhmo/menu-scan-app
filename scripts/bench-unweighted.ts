@@ -20,9 +20,9 @@
 //   deno run --allow-read scripts/bench-unweighted.ts 3 P --replay
 import {
   callGptEnrich,
+  callGptEnrichDualPass,
   chunk,
   ENRICH_BATCH_SIZE,
-  callGptEnrichDualPass,
   ENRICH_MODEL,
   type EnrichedItem,
 } from "../supabase/functions/analyze-menu/enrich.ts";
@@ -30,13 +30,13 @@ import {
   armA,
   armAConditional,
   armP,
+  armP10,
   armPD,
   armPF,
-  armP10,
   armPInline,
-  armSplitOnly,
   armS3,
   armS4,
+  armSplitOnly,
 } from "./probe-plate-arms.ts";
 import { scoreItemAgainstBand } from "./macro-band-score.ts";
 import type { UnweightedEntry } from "./unweighted-oracle.ts";
@@ -49,11 +49,20 @@ import {
 const ORACLE = "scripts/fixtures/unweighted-oracle.json";
 const CACHE_DIR = "scripts/fixtures/caches";
 
-/** Which archived extraction each menu's items come from. Same files bench-pipeline uses. */
+/**
+ * Which archived extraction each menu's items come from. Same files bench-pipeline uses.
+ *
+ * `el-marcos` and `brasero-two` were added 2026-08-20 with the four new fixtures
+ * (OMELETTE CUBANA, TACO PORCO, BROWNIE). They use the same `eval103c-m41-r1`
+ * extraction the MIXED-MENU harness already reads for el-marcos, so both harnesses
+ * see one menu through one archive and cannot disagree about its neighbours.
+ */
 const MENU_ARCHIVE: Record<string, string> = {
   bistro: "bistro.eval117-r1.raw.json",
   andaluz: "andaluz.eval128-r1.raw.json",
   nikkori: "nikkori.eval117-r1.raw.json",
+  "el-marcos": "el-marcos.eval103c-m41-r1.raw.json",
+  "brasero-two": "brasero-two.eval117-r1.raw.json",
   polloteria: "polloteria.eval117-r1.raw.json",
 };
 
@@ -205,12 +214,14 @@ for (let draw = 0; draw < draws; draw++) {
     // The `-f` segment keeps a ~$0.5 focused run from OVERWRITING the whole-menu
     // archives that hold this phase's published evidence (the 28/72 baseline and
     // Arm P's 37/72). Replaying those needs --full-menu.
-    const archive =
-      `${CACHE_DIR}/unweighted.${arm}${fullMenu ? "" : "-f"}.${menu}-d${draw}.raw.json`;
+    const archive = `${CACHE_DIR}/unweighted.${arm}${
+      fullMenu ? "" : "-f"
+    }.${menu}-d${draw}.raw.json`;
     let enriched: EnrichedItem[];
     if (replay) {
-      enriched = JSON.parse(await Deno.readTextFile(await replayPath(arm, archive)))
-        .items;
+      enriched =
+        JSON.parse(await Deno.readTextFile(await replayPath(arm, archive)))
+          .items;
     } else {
       const whole = itemsFromArchive(
         await Deno.readTextFile(`${CACHE_DIR}/${MENU_ARCHIVE[menu]}`),
@@ -245,7 +256,8 @@ for (let draw = 0; draw < draws; draw++) {
         // selection is redundant work whose answers are then discarded - that is
         // the price of exercising the real function rather than a stand-in.
         // deno-lint-ignore no-explicit-any
-        ? (await callGptEnrichDualPass(items as any, apiKey!, ENRICH_MODEL)).items
+        ? (await callGptEnrichDualPass(items as any, apiKey!, ENRICH_MODEL))
+          .items
         : runner
         // deno-lint-ignore no-explicit-any
         ? await enrichWithArm(items, runner as any)
@@ -267,7 +279,9 @@ for (let draw = 0; draw < draws; draw++) {
         // fallbackEnriched item is all zeros, which fails every band by
         // construction. Excluded from the score and reported instead.
         results.get(entry.name)!.detail.push(
-          `draw ${draw + 1}: ${!got ? "ABSENT" : "BACKFILLED (API failure)"} - EXCLUDED`,
+          `draw ${draw + 1}: ${
+            !got ? "ABSENT" : "BACKFILLED (API failure)"
+          } - EXCLUDED`,
         );
         continue;
       }
@@ -277,7 +291,9 @@ for (let draw = 0; draw < draws; draw++) {
       results.get(entry.name)!.detail.push(
         `draw ${draw + 1}: ${points}/4 ${pass ? "PASS" : "FAIL"}  ` +
           fields.map((f) =>
-            `${f.field}=${Math.round(f.model)}${f.pass ? "" : `(band ${f.band})`}`
+            `${f.field}=${Math.round(f.model)}${
+              f.pass ? "" : `(band ${f.band})`
+            }`
           ).join(" "),
       );
     }
@@ -287,7 +303,10 @@ for (let draw = 0; draw < draws; draw++) {
 let total = 0;
 // Scored out of the draws that actually returned an estimate, so one API timeout
 // does not silently deflate the headline number.
-const scoredDraws = [...results.values()].reduce((n, r) => n + r.points.length, 0);
+const scoredDraws = [...results.values()].reduce(
+  (n, r) => n + r.points.length,
+  0,
+);
 const possible = scoredDraws * 4;
 console.log(
   `\nUNWEIGHTED SCORE - arm ${arm} - ${oracle.length} dishes x 4 macros x ${draws} draws, ` +
@@ -300,11 +319,17 @@ for (const entry of oracle) {
   const span = r.points.length === 0
     ? "no draws"
     : `${Math.min(...r.points)}-${Math.max(...r.points)}/4`;
-  console.log(`${entry.name.padEnd(18)} ${String(sum).padStart(3)} pts   per-draw ${span}`);
+  console.log(
+    `${entry.name.padEnd(18)} ${
+      String(sum).padStart(3)
+    } pts   per-draw ${span}`,
+  );
   for (const line of r.detail) console.log(`    ${line}`);
 }
 console.log(
-  `\nTOTAL ${total}/${possible} points in band (${Math.round(100 * total / possible)}%).` +
+  `\nTOTAL ${total}/${possible} points in band (${
+    Math.round(100 * total / possible)
+  }%).` +
     (oracle.length < 6
       ? `\n⚠️  Only ${oracle.length} of the design's 6 dishes are ruled - NOT the full score.`
       : "") +

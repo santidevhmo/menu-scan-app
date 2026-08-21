@@ -219,9 +219,28 @@ for (let draw = 0; draw < draws; draw++) {
     }.${menu}-d${draw}.raw.json`;
     let enriched: EnrichedItem[];
     if (replay) {
-      enriched =
-        JSON.parse(await Deno.readTextFile(await replayPath(arm, archive)))
-          .items;
+      // A menu with NO archive is skipped and reported, never thrown on.
+      //
+      // WHY: adding OMELETTE CUBANA, TACO PORCO and BROWNIE on 2026-08-20 brought
+      // in two menus (el-marcos, brasero-two) that no unweighted run has ever
+      // enriched — and a throw here took the $0 REPLAY down for every arm at once,
+      // including the baseline every arm is judged against. Replay is the cheapest
+      // tool in this phase and the one that killed three fixes for nothing, so it
+      // must degrade to a PARTIAL score rather than die. The per-dish loop already
+      // reports a missing dish as ABSENT, so this follows a convention that exists.
+      let raw: string;
+      try {
+        raw = await Deno.readTextFile(await replayPath(arm, archive));
+      } catch {
+        console.log(
+          `  ⏭  ${menu} draw ${
+            draw + 1
+          }: no archive for arm "${arm}" — SKIPPED, ` +
+            `so its dishes score 0. Run the arm to cover them.`,
+        );
+        continue;
+      }
+      enriched = JSON.parse(raw).items;
     } else {
       const whole = itemsFromArchive(
         await Deno.readTextFile(`${CACHE_DIR}/${MENU_ARCHIVE[menu]}`),
@@ -326,12 +345,30 @@ for (const entry of oracle) {
   );
   for (const line of r.detail) console.log(`    ${line}`);
 }
+// A dish with no draws was never scored, so it is not in `possible` either - and a
+// partial total therefore LOOKS like a full one. "52/72" reads exactly like the
+// historical 6-dish figure while meaning something else entirely, which is the
+// reporting trap this footer exists to close. Say the coverage out loud.
+const covered = oracle.filter((e) =>
+  (results.get(e.name)?.points.length ?? 0) > 0
+);
+const missing = oracle.filter((e) =>
+  (results.get(e.name)?.points.length ?? 0) === 0
+);
 console.log(
   `\nTOTAL ${total}/${possible} points in band (${
     Math.round(100 * total / possible)
-  }%).` +
-    (oracle.length < 6
-      ? `\n⚠️  Only ${oracle.length} of the design's 6 dishes are ruled - NOT the full score.`
+  }%)` +
+    ` over ${covered.length} of ${oracle.length} ruled dishes.` +
+    (missing.length
+      ? `\n⚠️  PARTIAL SCORE - NOT COMPARABLE TO A FULL ONE. Unscored: ${
+        missing.map((e) => e.name).join(", ")
+      }.` +
+        `\n    They have no archive for this arm, so they are absent from BOTH sides of the` +
+        `\n    fraction. Run the arm (no --replay) to cover them.`
       : "") +
-    `\n⚠️  Report alongside the 96-point weighted number, never merged into it.`,
+    `\n⚠️  The DENOMINATOR changed on 2026-08-20 (6 dishes -> ${oracle.length}) and so did the pass` +
+    `\n    rule (average ±20%, plus a 6 g / 50 kcal allowance). A score from before that date is` +
+    `\n    not comparable to one after it.` +
+    `\n⚠️  Report alongside the weighted number, never merged into it.`,
 );

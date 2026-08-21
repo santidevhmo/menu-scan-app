@@ -32,17 +32,25 @@ the edge function → ②.** If a phase or priority is asserted anywhere other t
 it is stale — fix it or ignore it, never believe it. The active Stage-2 macro handoff below is
 the explicit exception: it is the bounded Phase-9 workstream record, not a competing roadmap.
 
-**Stage-2 macro enrichment IS THE ACTIVE WORK. → Start at the `🆕 2026-08-19 HANDOFF` block
+**Stage-2 macro enrichment IS THE ACTIVE WORK. → Start at the `🆕 2026-08-20 HANDOFF` block
 below; it is written so a zero-context session can take over from it alone.** Everything between here
 and that block is older context that it supersedes where they disagree. Phase spend to date:
 **~$35.7** (~$2.52 to 2026-08-09, ~$19 on 2026-08-12, ~$6 on 2026-08-13, ~$5.5 on 2026-08-16,
-~$5.2 on 2026-08-19).
+~$5.2 on 2026-08-19; **2026-08-20 cost $0**).
+
+📄 **Prefer a page to a wall of markdown? `docs/superpowers/how-testing-works.html`** explains the
+whole measurement setup in plain language, with a glossary of every term this phase uses.
+
+🔴 **BEFORE YOU COMPARE ANY UNWEIGHTED NUMBER: the scoring rule and the dish count BOTH changed on
+2026-08-20.** Bands are now the average dish ±20% (they used to inherit the mass range's width,
+±6% to ±29%, unchosen), a miss under 6 g / 50 kcal also passes, and the set is **9 dishes, not 6**.
+**A score from before that date is not comparable to one after it** — re-score both arms first.
 
 🚀 **LIVE NOW: edge function `analyze-menu` v32, deployed 2026-08-19 (Santiago authorised).**
 **v32 = v31 + the DUAL PASS + pass 2's SYSTEM envelope.** Unweighted dishes went **25 → 35–36/72**;
 weighted dishes are unchanged (**14–17/96** vs a fresh **15/96** control) because pass 1's request body
 is byte-identical (5491 bytes, verified). Stage 2 is **1.56–1.92× slower**, ~$0.03 → ~$0.05 per scan.
-Full detail: the `🆕 2026-08-19 HANDOFF` block below. **Rollback to v31:**
+Full detail: the 2026-08-19 handoff block, now superseded by the 2026-08-20 one. **Rollback to v31:**
 ```bash
 git checkout dbf3f79 -- supabase/functions/analyze-menu/ && \
   supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw
@@ -86,7 +94,183 @@ item as `3/8` / `all`. Working, not the intended form.
 
 ---
 
-## 🆕 2026-08-19 HANDOFF — A ZERO-CONTEXT SESSION CAN TAKE OVER FROM THIS BLOCK ALONE
+## 🆕 2026-08-20 HANDOFF — A ZERO-CONTEXT SESSION CAN TAKE OVER FROM THIS BLOCK ALONE
+
+📄 **Read this first if you want the whole measurement setup in plain language:**
+`docs/superpowers/how-testing-works.html` — what the app does, why there are two scores, how an oracle
+dish is built, how a pass is decided, and a glossary of every term used in this phase. Written for
+Santiago and for a cold session. Open it in a browser.
+
+### ⛔ THE NEXT ACTION, IN ONE LINE
+
+**ONE PAID RUN, ~$0.50–0.60, AWAITING SANTIAGO'S APPROVAL — do not run it without asking.**
+
+```bash
+deno run --allow-read --allow-write --allow-env --allow-net \
+  --env-file=.env.local scripts/bench-unweighted.ts 3 dual
+```
+
+Three dishes joined the oracle on 2026-08-20 and sit on two menus the unweighted harness has never
+enriched (`el-marcos`, `brasero-two`), so there are **no archived answers** and they cannot be scored
+for free. This run produces the first full 9-dish score and the first reading ever for eggs, tacos and
+dessert.
+⚠️ **EXPECT THE SCORE TO DROP.** Three untested dish forms are joining at once; TACO PORCO needs the
+model to add an unstated tortilla and BROWNIE is the set's only carb-dominant dish. **A number that
+falls when harder dishes arrive is the benchmark working, not a regression.**
+
+### 🔴 THE MOST IMPORTANT THING ON THIS PAGE: THE RULER CHANGED ON 2026-08-20
+
+**Any unweighted score from before 2026-08-20 is NOT comparable to one after it.** Two scoring rules
+and the dish count all changed the same day. Re-score both arms before quoting any gain.
+
+| | before | now |
+|---|---|---|
+| how wide a band is | whatever the dish's MASS range happened to be — **±6% to ±29%, unchosen** | **the average dish ±20%, the same for every dish** |
+| a small miss in grams | failed if outside the band | **passes: 6 g for a macro, 50 kcal** |
+| dishes in the set | 6 | **9** |
+| the denominator | a hardcoded 72 | **`dishes × 4 × draws`** — printed by the build script |
+
+**Same-ruler, and it must be the SAME DISHES too — the two arms cover different ones.** On the five
+dishes BOTH arms have archives for (CAPRICCIOSA, CARBONARA, ENSALADA GRIEGA, TIRAS DE POLLO, Salmón
+Roll): shipped `dual` **41/60**, pre-dual `baseline` **32/60**, **gap 9**.
+Whole-archive replays print **`dual` 52/72 over 6 of 9 dishes** and **`baseline` 32/60 over 5** — those
+two are NOT comparable to each other, and the harness now says so in its own footer.
+⚠️ **The pre-swap pair "44/72 vs 35/72" is retired.** It was measured with COLIFLOR ROKA in the set and
+PAPAS FRITAS out, so it cannot be reproduced; do not quote it.
+
+### ⚖️ WHY THE BAR MOVED, AND WHY IT IS NOT RIGGING
+
+Bands used to be `mass range × one fixed composition`, so CAPRICCIOSA — pinned to 400–450 g — had to
+hit its fat within **±6%**, a bar no kitchen meets twice, while CARBONARA's 250–450 g bought it
+**±29%**. **The widest-band dish scored 12/12 and the narrowest 3/12**: the benchmark was partly
+measuring how tightly each dish had been written down.
+
+🔑 **The anti-rigging guard is the GAP, and it is what makes a loosened bar defensible.**
+`scripts/sim-tolerance-sweep.ts` scores the shipped pipeline AND the pre-dual baseline at every
+candidate bar. If the gap between them shrinks, the bar has stopped telling good from bad.
+**±25% both discriminated better AND flattered the headline 36 → 48. Santiago took ±20% precisely
+because it does not flatter it.**
+⚠️ **The gap narrowed 11 → 9 when the gram allowance landed.** It survives the check, but a narrowing
+gap is the early sign of a bar gone soft — **re-check it as dishes are added.**
+⚠️ The sweep script is now **HISTORICAL**: `deriveBands` emits the new bands, so its "today's bands"
+row reads the NEW ones and the original comparison cannot be reproduced. Do not quote its numbers.
+
+### 🍟 THE SET IS 9 DISHES, AND WHY THESE NINE
+
+Chosen by **which dish FORM had never been measured**, not by description quality. **10 more salads and
+16 more sushi rolls were available and deliberately skipped** — they grow the number and teach nothing.
+`scripts/find-unweighted-candidates.ts` does the shortlisting for $0.
+
+| dish | menu | form | points |
+|---|---|---|---|
+| PAPAS FRITAS | andaluz | side (replaced COLIFLOR) | **11/12** ✅ free |
+| CARBONARA | bistro | pasta | 10/12 |
+| ENSALADA GRIEGA | bistro | salad | 10/12 |
+| Salmón Roll | nikkori | sushi | 9/12 |
+| CAPRICCIOSA | bistro | pizza | 6/12 |
+| TIRAS DE POLLO | andaluz | fried chicken | 6/12 |
+| **OMELETTE CUBANA** | el-marcos | **eggs — new** | ⛔ needs the run |
+| **TACO PORCO** | brasero-two | **taco — new** | ⛔ needs the run |
+| **BROWNIE** | brasero-two | **dessert — new** | ⛔ needs the run |
+
+🔑 **PAPAS FRITAS came free at 11/12** — it was already a neighbour in andaluz's archived batches, so
+the shipped pipeline had been answering it all along. It is now the best dish in the set. **The five
+survivors are unchanged**, which is what proves the oracle edit moved nothing it should not have.
+
+☠️ **COLIFLOR ROKA IS RETIRED — do not add it back.** Its menu line is only its name; the real dish
+(the restaurant's own photos) is battered cauliflower on lettuce under a chipotle mayo, none of which
+is knowable from the text the pipeline receives. Santiago: an item this thin *"shouldn't even be
+considered"* — **unanswerable rather than badly answered**, so failing it measured the menu's silence.
+Four arms were partly judged on it.
+⚠️ **Its removal costs something: it guarded the BOTTOM of the set** — the dish that would catch an arm
+scaling everything downward. **Nothing guards the bottom now.** Weigh that against any arm that shrinks
+a plate.
+
+### 🔑 TWO STANDING RULINGS ON BUILDING A RECIPE (Santiago, 2026-08-20)
+
+Both were corrections to a draft of mine, and both are now in `AGENTS.md`.
+
+1. **A TOPPING IS PRICED AS A TOPPING.** I read *"virutas de bacon"* and charged **15 g of rashers**
+   (P 16 / F 31 against the ruled P 10 / F 27). *Virutas* means **shavings** → 5 g. This is the same
+   error class as the 30 g dipping container, and it **inflates protein hardest**, because cured meat
+   and hard cheese are the most protein-dense things on a menu.
+2. **WHERE FNDDS HAS NO COMPOSITE RECORD, DECOMPOSE INTO INDIVIDUAL INGREDIENTS.** Both of my
+   single-record drafts were wrong. FNDDS carries the omelette's cheese+meat+**vegetables** axis only
+   for egg WHITE and egg SUBSTITUTE, never whole egg, so onion and pepper had no representation. And
+   **every FNDDS pork-taco record carries CHEESE that this taco does not have — worth HALF its fat**
+   (276 kcal / 16 g → 218 / 8). That is the variant error that has bitten this oracle six times; caught
+   before it shipped this time.
+
+### ☠️ FALSIFIED AT $0 — DO NOT RE-OPEN ANY OF THESE
+
+All three looked obviously correct beforehand. **Every one was killed for nothing**, by replaying
+archived answers with the fix applied. That is the cheapest thing this phase does; use it first.
+
+| idea | measured | script |
+|---|---|---|
+| correct the SIDE-DISH weights to Santiago's own ruled grams | 46 → **66 failed** | `sim-accompaniment-ceiling.ts` |
+| lift lean dishes to normal calorie density via FAT | 46 → **80 failed** | `sim-decomposition-ceiling.ts` |
+| give every dish a PERFECT MASS | 36 → **35 points** | `sim-mass-ceiling.ts` |
+
+🔑 **The two transferable lessons.** (a) **The oversized side is LOAD-BEARING** — 6 of 8 weighted dishes
+are already too LOW, so shrinking a side only removes calories a dish needed. On Salmone toscano the
+ruled 15 g baguette fixes carbs (173% → 19% off) and **breaks calories** (4% → 26%), because the bread
+was propping up a salmon that is 32% short on fat. (b) **A missing INGREDIENT cannot be fixed by
+scaling a MACRO** — COLIFLOR ROKA is *capeado*, and batter is flour AND oil, so pouring in fat
+overshoots fat and never touches carbs. **That is also why Arm PF ("add cooking fat", 37/72) could
+never have won**, and Arm A ("ask for the plate total", 12/72) stays rejected — now re-derived at
+today's oracle rather than quoted from an old note.
+
+### 🪤 TWO SCORER TRAPS, AND THE RULE THAT CATCHES THEM
+
+Both are lesson 28 in miniature and both happened this session.
+
+- A hand-rolled scorer read **33 where the harness reads 36.** The harness scores each item's
+  **ARCHIVED totals**, not a recomputation from its ingredients, and the two diverge on ENSALADA
+  GRIEGA.
+- Forcing every dish to its band **midpoint** is not a mass correction: it **breaks CARBONARA**, which
+  already sits in-band at 281 g scoring a perfect 12/12.
+
+🔑 **THE RULE: every simulator must reproduce the published score in its control row, or none of its
+other rows is believed.** All four sims now do. This is why corrections keep surfacing as noise —
+silent agreement would be the dangerous outcome.
+
+### 🧭 PARKED AS SCOPE CREEP — the enrichability gate (Santiago's call, 2026-08-20)
+
+The spec is written and committed at `docs/superpowers/specs/2026-08-19-enrichability-gate-design.md`
+and **it is NOT the next action.** Santiago named it scope creep: it makes no macro more accurate. Its
+measured content is still true and worth keeping for when it is picked up:
+
+- **~40% of real menu items give the model no usable ingredient evidence** — 25% bare titles plus ~15%
+  descriptions naming no ingredients, counted **once per unique item** across 343 items on 10 menus.
+- The model's `confidence` field is a **poor gate**: as an AND with the description rule it sends **1%**
+  of items to Weak; on its own it wrongly demotes **41%** of good items.
+- Santiago's chosen shape: **Ranked / Weak / Excluded** tabs, and the *user-supplied description*
+  feature (let the user add detail so the model can retry) deferred to **after release**.
+- ⚠️ Its §5.1 open decision still stands: putting the field in `ENRICH_SCHEMA_OPENAI` **breaks pass 1's
+  byte-identical request** and the weighted guarantee resting on it. Stage 1b is the recommended home.
+
+### 🚧 STILL OPEN, AND HONESTLY STATED
+
+- **Burgers and soups cannot be added to the benchmark.** Neither has a single described, no-weight
+  instance across all ten archived menus. Filling those forms needs a new menu photo.
+- **The unweighted path is the product's unfinished half** — measured, **67% of real menu items print no
+  weight**, and 4 of 10 menus print none at all. Every cheap lever on it is now dead; the next move is
+  genuinely expensive.
+- **Santiago's fallback, kept open deliberately:** if this stalls for weeks, **ship the weighted half
+  honestly** — printed-weight dishes are at ~84% and genuinely good — and say plainly in the UI that
+  no-weight items are rough.
+- **The accompaniment defect is closed as unfixable-by-weight, not solved.** See the $0 table above.
+
+### ✅ WHAT IS TRUE ABOUT PRODUCTION (verify, never trust this line)
+
+**Production is edge fn `analyze-menu` v32 and NOTHING in this session changed it.** No prompt, no
+schema, no model pin, no deploy. Verify against the server with
+`mcp__supabase__list_edge_functions`, never against a doc. `main` byte-matches it. TestFlight build 7
+is submitted.
+
+---
+## ⚠️ SUPERSEDED WHERE IT DISAGREES — the 2026-08-19 handoff
 
 ### ⛔ THE NEXT ACTION, IN ONE LINE
 

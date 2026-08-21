@@ -168,6 +168,31 @@ container** rather than the ~15 g actually served. It affects **24% of weighted 
 have both failed at it. ⚠️ **Do not fix the weight alone** — chimichurri is 2× too heavy AND ~3× too
 lean, the two errors currently cancel, and halving the grams makes the dish worse.
 
+**HOW A TEST DISH'S RECIPE IS BUILT — two rulings, both measured (Santiago, 2026-08-20).** These
+govern the ORACLE, not the pipeline, and getting them wrong silently redirects every future iteration.
+
+**1. A TOPPING IS PRICED AS A TOPPING, NOT AS A PORTION.** Reading the word *bacon* in
+*"virutas de bacon crujiente"* and charging 15 g of rashers produced P 16 / F 31 where the ruled
+answer is P 10 / F 27. *Virutas* means **shavings** — 5 g. This is the same error class as the 30 g
+dipping-container defect below, and it **inflates protein hardest**, because cured meat and hard
+cheese are the two most protein-dense things on a menu. Ask what the menu's own word implies about
+QUANTITY before assigning grams.
+
+**2. WHERE FNDDS HAS NO RECORD FOR THE COMPOSITE DISH, DECOMPOSE INTO ITS INDIVIDUAL INGREDIENTS AND
+USE FNDDS FOR EACH.** A single composite record is convenient and twice wrong in practice:
+
+| dish | the composite record | what it got wrong |
+|---|---|---|
+| an omelette with cheese, meat AND vegetables | FDC 2707223 | FNDDS carries the **vegetables** axis only for egg WHITE and egg SUBSTITUTE, never whole egg — the onion and pepper had no representation at all |
+| a pork taco with no cheese | FDC 2708517 | **every** FNDDS pork-taco record carries CHEESE, worth **HALF this dish's fat** (276 kcal / 16 g fat → 218 / 8) |
+
+That second one is the variant error the "sourcing a USDA record" rule below warns about, caught
+before it shipped. **Search every variant, and if none matches the dish, build the dish.**
+
+⚠️ **Record which grams are SOURCED and which are JUDGEMENT in the entry's `assumed` field.** In the
+2026-08-20 additions only the corn tortilla's 28 g came from a published portion; every topping gram
+was a judgement. A future session cannot re-source what it thinks was already sourced.
+
 **WORDING DOES NOT WORK HERE. SCHEMA FORCE DOES. (measured, 2026-08-16 — scoreboard, not a rule.)**
 Before designing any change to Stage 2, weigh this: **a new sentence in `ENRICH_PROMPT` is 0 for 6;
 a new REQUIRED FIELD in `ENRICH_SCHEMA_OPENAI` is 6 for 8.**
@@ -240,6 +265,21 @@ valuable in itself — it is what lets the instruction be stated as an **uncondi
 whole request** (*"The items in this request print no weight"*). Phrased as a per-item condition in a
 mixed batch, the same idea was applied indiscriminately. **Prefer a homogeneous request plus a flat
 statement over a heterogeneous request plus a condition.**
+
+**THE UNWEIGHTED BENCHMARK'S PASS RULE CHANGED ON 2026-08-20, AND SCORES DO NOT CROSS THAT LINE.**
+A band used to be `mass range × one fixed composition`, so its width was whatever the dish's mass range
+happened to be and nobody had chosen it — CAPRICCIOSA got **±6%** on fat, CARBONARA **±29%**, and the
+widest-band dish scored 12/12 while the narrowest scored 3/12. A band is now **the average dish ±20%**,
+the same bar for every dish, and a field ALSO passes when the absolute miss is under **6 g / 50 kcal**
+(the allowances already ruled for the weighted set on 2026-08-09, now imported rather than copied).
+The set went **6 dishes → 9** the same day, so **the denominator moved too** — it is now
+`dishes × 4 × draws`, and the harness prints how many dishes it actually covered.
+
+🔑 **The guard that makes a loosened bar defensible is THE GAP:** score the shipped pipeline and the
+old baseline at every candidate bar, and if the gap between them shrinks, the bar has stopped telling
+good from bad. ±25% both discriminated better and flattered the headline 36 → 48; **±20% was taken
+because it does not flatter it.** The gap did narrow 11 → 9 when the gram allowance landed — watch it.
+**Never quote an unweighted score from before 2026-08-20 against one after it.**
 
 **Price is NEVER evidence of grams (Santiago, 2026-08-13).** Not in an oracle, not in a prompt, not in
 code. Price reflects margin and scarcity, never mass — *"a menu can have an expensive pizza of 1k+
@@ -475,8 +515,10 @@ Track here anything that blocks testing or shipping. Update as items resolve.
   `🎯 CURRENT PHASE` block of `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`,
   with the takeover briefing in the newest `HANDOFF` block of
   `docs/superpowers/START-HERE.md`. Read those, not a copy. As of 2026-08-19: **production is edge fn
-  v32** (the dual pass — unweighted dishes 25 → 35–36/72, weighted unchanged), PRs #17 and #18 are
-  **merged**, `main` byte-matches the deployed function, and the next step is TestFlight build 7.
+  v32** (the dual pass), PRs #17 and #18 are **merged**, `main` byte-matches the deployed function, and
+  TestFlight build 7 is submitted. As of **2026-08-20**: nothing was deployed, the unweighted oracle grew
+  to **9 dishes**, its pass rule changed (average ±20% plus a 6 g / 50 kcal allowance), and the next
+  action is **one ~$0.50–0.60 run awaiting Santiago's approval** to score the three new dishes.
   ⚠️ **This line is a dated snapshot and nothing should be believed from it** — verify the live version
   against the SERVER with `mcp__supabase__list_edge_functions`.
 

@@ -2002,3 +2002,108 @@ Rules:
   predictor (8% vs 44%) and **keeps 90% of items instead of 57%**.
 - **Spend: $0 API.** Two re-runnable $0 simulators added, both with a control row that must reproduce
   the published score. Nothing deployed, no prompt changed, production remains edge fn v32.
+
+## Eval 156 — ⚖️ THE RULER CHANGED TWICE AND THE ORACLE GREW 6 → 9 DISHES. Three fixes killed at $0 ($0 API)
+
+🔴 **READ THIS FIRST IF YOU ARE COMPARING ANY UNWEIGHTED NUMBER: the scoring rule changed on
+2026-08-20 and the dish count changed with it. A score from before this date is NOT comparable to one
+after it.** Re-score both arms before quoting a gain. The denominator is now `dishes × 4 × draws`,
+printed by `unweighted-oracle-build.ts`, not a hardcoded 72.
+
+- **⚖️ RULING 1 — ONE DELIBERATE ACCURACY BAR, ±20% (Santiago).** Bands used to be
+  `mass range × one fixed composition`, so a band's width was whatever the mass range happened to be
+  and **nobody had chosen it**: CAPRICCIOSA was pinned to 400–450 g and got **±6% on fat**, CARBONARA's
+  250–450 g bought it **±29%**. The dish with the widest band scored 12/12 and the narrowest 3/12 — the
+  benchmark was partly measuring *how tightly each dish had been written down*. Bands are now the
+  **average dish ±20%**, the same for every dish, matching the product goal (a precise estimate of the
+  average version of a menu item).
+  **Guarded, not asserted:** `scripts/sim-tolerance-sweep.ts` scored the shipped pipeline AND the
+  pre-dual baseline at every candidate bar. **±25% both discriminates better and flatters the headline
+  36 → 48; Santiago took ±20% precisely because it does NOT flatter it.** After the rebuild: shipped
+  **36/72**, baseline **25/72**, gap **11** — the same numbers as the old bands, so only the MEANING
+  changed. ⚠️ My predicted 33 was wrong: widening already-rounded bands ≠ rebuilding from the average.
+- **⚖️ RULING 2 — A SMALL MISS IN GRAMS PASSES TOO (Santiago).** A percentage alone is unfair to small
+  dishes: ENSALADA GRIEGA's 10–15 g fat band demands the model land **within 2.5 g of fat, half a
+  teaspoon of oil**, while CAPRICCIOSA gets ±8.4 g for the same 20%. A field now passes on **either**
+  test — inside the band, or within **6 g / 50 kcal**. 🔑 **This rule already existed on the WEIGHTED
+  set** (Santiago, 2026-08-09: *"if something has 20 grams and the model says 15, that's only five
+  grams"*); the unweighted scorer never got it. The allowances are now **imported** from
+  `macro-score.ts`, not a second copy. Result: shipped **36 → 44/72**, baseline **25 → 35/72**.
+  ⚠️ **The gap NARROWS 11 → 9.** It survives the anti-rigging check but a narrowing gap is the early
+  sign of a bar gone soft — re-check as dishes are added.
+  🔴 **CORRECTED AFTER THE ORACLE SWAP: the reproducible pair is `dual` 41/60 vs `baseline` 32/60 on
+  the FIVE dishes both arms have archives for, gap 9.** The "44/72 vs 35/72" measured earlier the same
+  day had COLIFLOR ROKA in and PAPAS FRITAS out and can no longer be reproduced — do not quote it.
+  A whole-archive replay prints `dual` 52/72 over 6 of 9 dishes and `baseline` 32/60 over 5; those two
+  are not comparable to each other and the harness now says so itself. Three tests pin the rule, including that it must NEVER rescue
+  COLIFLOR ROKA (14.5 g out). **Also measured and REJECTED: CAPPING** absolute error on top of the
+  percentage — only the carb cap would ever bind (a pizza is allowed ±22.6 g), so it hardens one macro
+  on one dish and changes nothing else.
+- **📈 THE ORACLE IS 9 DISHES (was 6), and COLIFLOR ROKA IS RETIRED.** Chosen by **which dish FORM the
+  set had never measured**, not by description quality: tacos were 12 of the available described
+  candidates and 0 of the fixtures; eggs and desserts likewise. **10 more salads and 16 more sushi
+  rolls were available and deliberately skipped** — they grow the number and teach nothing.
+  `scripts/find-unweighted-candidates.ts` does the shortlisting ($0).
+
+  | dish | menu | form it adds | state |
+  |---|---|---|---|
+  | **PAPAS FRITAS** | andaluz | side, replaces COLIFLOR like-for-like | ✅ **11/12, FREE** |
+  | **OMELETTE CUBANA** | el-marcos | the first eggs / breakfast dish | ⛔ needs a run |
+  | **TACO PORCO** | brasero-two | the first taco; a 2nd implied-tortilla case | ⛔ needs a run |
+  | **BROWNIE** | brasero-two | the only described dessert on any archived menu | ⛔ needs a run |
+
+  🔑 **PAPAS FRITAS scored for FREE at 11/12** — it was already a neighbour in andaluz's archived
+  batches, so the shipped pipeline had been answering it all along. Best dish in the set. The five
+  survivors are **unchanged**, which is what proves the oracle edit moved nothing it should not have.
+- **☠️ COLIFLOR ROKA RETIRED because its menu line is only its NAME.** The real dish (the restaurant's
+  own photos) is battered cauliflower on lettuce under a chipotle mayo, and none of that is knowable
+  from the text the pipeline receives. Santiago: an item this thin *"shouldn't even be considered"* — it
+  is **unanswerable rather than badly answered**, so failing it measured the menu's silence. Four arms
+  were partly judged on it. ⚠️ **Its removal has a cost: it guarded the BOTTOM of the set** — the dish
+  that would catch an arm scaling everything downward. Nothing guards the bottom now.
+- **🔑 TWO STANDING RULINGS ON HOW A RECIPE IS BUILT, both corrections to my first draft, both now in
+  `AGENTS.md`:**
+  1. **A TOPPING IS PRICED AS A TOPPING.** I read *"virutas de bacon"* and charged **15 g of rashers**
+     (P 16 / F 31 against the ruled P 10 / F 27). *Virutas* means **shavings** → 5 g. Same error class
+     as the 30 g dipping container, and it **inflates protein hardest** because cured meat and hard
+     cheese are the most protein-dense things on a menu.
+  2. **WHERE FNDDS HAS NO COMPOSITE RECORD, DECOMPOSE INTO INDIVIDUAL INGREDIENTS.** Both
+     single-record drafts were wrong: FNDDS carries the omelette's cheese+meat+**vegetables** axis only
+     for egg WHITE and egg SUBSTITUTE, never whole egg, so onion and pepper had no representation; and
+     **every FNDDS pork-taco record carries CHEESE this taco does not have — worth HALF its fat**
+     (276 kcal / 16 g fat → 218 / 8). That is the variant error that has bitten this oracle six times,
+     caught before it shipped this time.
+- **☠️ THREE FIXES FALSIFIED AT $0 BEFORE ANY PAID RUN** (detail in eval 155 and the sims):
+  side-weight correction **46 → 66 failed**; lifting lean dishes via fat **46 → 80**; and NEW today,
+  `scripts/sim-mass-ceiling.ts` — a **perfect MASS on every dish is worth NOTHING**, 36 → 35. It helps
+  TIRAS and Salmón Roll and breaks CARBONARA and COLIFLOR. **Arm A stays rejected, now re-derived at
+  today's oracle rather than quoted from an old note.**
+- **🪤 TWO SCORER TRAPS CAUGHT, both lesson 28.** (a) A hand-rolled scorer read **33 where the harness
+  reads 36** — the harness scores each item's **ARCHIVED totals**, not a recomputation from
+  ingredients, and they diverge on ENSALADA GRIEGA. (b) Forcing every dish to its band **midpoint** is
+  not a mass correction at all: it breaks CARBONARA, which is already in-band at 281 g and perfect.
+  **Every simulator now reproduces the published score in its control row or none of its rows are
+  believed.**
+- **🧭 SCOPE CORRECTION, Santiago's call: the enrichability gate is PARKED as scope creep.** The spec
+  is written and committed (`docs/superpowers/specs/2026-08-19-enrichability-gate-design.md`) and it is
+  **not the next action**. It makes no macro more accurate. Its measured content is still true and
+  worth keeping: **~40% of real menu items give the model no usable ingredient evidence** (25% bare
+  titles + ~15% descriptions naming no ingredients, counted once per unique item across 343 items on 10
+  menus); the model's `confidence` field is a **poor gate** (as an AND with the description rule it
+  sends 1% of items to Weak; alone it costs 41% of good items); and Santiago's chosen shape was
+  **Ranked / Weak / Excluded** tabs with the user-supplied-description feature deferred to after
+  release.
+- **📄 NEW: a page a cold session can read** — `docs/superpowers/how-testing-works.html`, published as
+  an artifact. The whole measurement setup in plain language plus a glossary of every term in this
+  phase (oracle, band, draw, arm, baseline, gap, replay, weighted/unweighted, allowance).
+- **⚠️ Corrected while writing it: START-HERE's "desserts 100% undescribed" does not reproduce — it is
+  90% (18 of 20).** And "undescribed items are 10% of food" was a per-ROW count inflated by the
+  heavily re-run benchmark menus; **per unique menu item it is 25%**.
+- **Spend: $0 API.** Nothing deployed. **Production remains edge fn `analyze-menu` v32.**
+- **⛔ NEXT ACTION: ONE PAID RUN, ~$0.50–0.60, AWAITING SANTIAGO'S APPROVAL.** The three new dishes sit
+  on two menus the unweighted harness has never enriched (el-marcos, brasero-two), so there are no
+  archived answers and they cannot be scored for free. Command:
+  `deno run --allow-read --allow-write --allow-env --allow-net --env-file=.env.local
+  scripts/bench-unweighted.ts 3 dual`. **Expect the score to DROP** — three untested forms are joining,
+  TACO PORCO needs an unstated tortilla and BROWNIE is the set's only carb-dominant dish. A number that
+  falls when harder dishes arrive is the benchmark working.

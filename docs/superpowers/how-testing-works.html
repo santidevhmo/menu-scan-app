@@ -384,8 +384,8 @@
         <rect class="sv-box" x="253" y="62" width="446" height="106" rx="3"/>
         <text class="t-faint" x="268" y="84">MENU PRINTS NOTHING</text>
         <text class="t-ink" x="268" y="112" font-size="26" font-weight="600">67%</text>
-        <text class="t-soft" x="268" y="134" font-size="12">tested by 6 dishes</text>
-        <text class="t-fail" x="268" y="151" font-size="12">50% of values correct — the unsolved half</text>
+        <text class="t-soft" x="268" y="134" font-size="12">tested by 9 dishes (3 not yet run)</text>
+        <text class="t-fail" x="268" y="151" font-size="12">72% correct so far — 6 of 9 dishes run</text>
 
         <path class="sv-line" d="M116 39 L116 58"/>
         <path class="sv-line" d="M476 39 L476 58"/>
@@ -396,9 +396,10 @@
   </figure>
 
   <div class="callout warn">
-    <p><strong>The benchmark is thin here, and that is a real weakness.</strong> Six dishes stand in
-    for two-thirds of every real menu. One dish swinging can move the whole score by several points,
-    which is why widening this set is the current priority.</p>
+    <p><strong>The benchmark is thin here, and that is why it was widened.</strong> Six dishes stood in
+    for two thirds of every real menu, so one dish swinging moved the whole score. It is nine as of
+    20 August — but three of those nine have no answers saved yet, so today's figure still rests on
+    six. See section 05.</p>
   </div>
 </section>
 
@@ -526,6 +527,25 @@
   small miss of <code>6 g</code> for a macro and <code>50 kcal</code> for calories. Whichever is more
   generous wins.</p>
 
+  <h3>The test set grew, and Coliflor Roka left</h3>
+
+  <p>Six dishes stood in for two thirds of every real menu, so one dish swinging moved the whole
+  score. It is now <strong>nine</strong>, chosen by which kind of dish had never been tested — the
+  first taco, the first plate of eggs, the first dessert. Ten more salads and sixteen more sushi
+  rolls were available and skipped on purpose: they would have grown the number and taught nothing.</p>
+
+  <p><strong>Coliflor Roka was removed.</strong> Its menu line is only its name. The real dish is
+  battered cauliflower on lettuce under a chipotle mayo — none of which the app can possibly know
+  from the text it is given. It was <em>unanswerable</em> rather than badly answered, so failing it
+  measured the menu's silence. One thing was lost with it: it was the dish that would have caught a
+  change that made every estimate too small. Nothing catches that now.</p>
+
+  <div class="callout">
+    <p><strong>Three of the nine have no answers saved yet</strong> — they sit on two menus the test
+    has never run. Scoring them needs one paid run, and the score is expected to <em>fall</em> when
+    they arrive. A number that drops when harder dishes join is the test working.</p>
+  </div>
+
   <div class="callout">
     <p><strong>This rule is not new.</strong> Santiago made exactly this ruling for the
     printed-weight dishes on 9 August — <em>"if something has 20 grams and the model says 15, that's
@@ -563,8 +583,8 @@
       <tbody>
         <tr><td>the original</td><td class="n">27 values wrong</td><td class="n">—</td></tr>
         <tr><td>after the printed-weight fix</td><td class="n">7–8 wrong</td><td class="n">—</td></tr>
-        <tr><td>before the two-pass change</td><td class="n">6–9 wrong</td><td class="n">25 / 72 right</td></tr>
-        <tr><td><strong>live today</strong></td><td class="n"><strong>6–9 wrong</strong></td><td class="n"><strong>44 / 72 right</strong></td></tr>
+        <tr><td>before the two-pass change</td><td class="n">6–9 wrong</td><td class="n">32 / 60 right</td></tr>
+        <tr><td><strong>live today</strong></td><td class="n"><strong>6–9 wrong</strong></td><td class="n"><strong>41 / 60 right</strong></td></tr>
       </tbody>
     </table>
   </div>
@@ -572,11 +592,14 @@
   <p>Both directions are real gains, measured across multiple runs. Nothing has gone backwards.</p>
 
   <div class="callout warn">
-    <p><strong>One caveat on that last row, and it matters.</strong> The <span class="num">44</span>
-    and the <span class="num">25</span> above are <em>not</em> measured the same way — the 25 predates
-    both the ±20% bar and the gram allowance. Scored under today's rules the older version reads
-    <span class="num">35</span>, so <strong>the honest gain is 35 → 44, not 25 → 44.</strong> Whenever
-    the ruler changes, only same-ruler comparisons mean anything.</p>
+    <p><strong>Two rules make that last column trustworthy, and both were learned the hard way.</strong>
+    Compare only the <em>same ruler</em> — the scoring rule changed on 20 August, so a number from
+    before it means something different. And compare only the <em>same dishes</em> — the test set
+    changed the same day, and the two versions above happen to have answers saved for different
+    dishes.</p>
+    <p>So the figures shown are the five dishes both versions cover:
+    <span class="num">32 → 41 of 60</span>. An earlier draft of this page said 25 → 44; that mixed
+    two rulers and two dish sets, and is withdrawn.</p>
   </div>
 
   <h3>What today actually was</h3>

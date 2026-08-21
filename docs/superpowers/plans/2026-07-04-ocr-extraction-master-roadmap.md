@@ -17,6 +17,27 @@ missing is a measured benchmark, including printed-weight items so P2's "prefer 
 rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope detail: item #5 of
 "Release scope decision" below.
 
+> 🆕 **2026-08-20 — THE MEASUREMENT CHANGED, THE PIPELINE DID NOT. Read this before comparing any
+> unweighted number.** Nothing was deployed and no prompt, schema or model pin was touched; production
+> is still v32. What changed is the RULER and the SET:
+>
+> | | before | now |
+> |---|---|---|
+> | band width | whatever the dish's MASS range was — ±6% to ±29%, unchosen | **the average dish ±20%, same for every dish** |
+> | a small miss in grams | failed | **passes: 6 g macro / 50 kcal** |
+> | unweighted dishes | 6 | **9** (COLIFLOR ROKA retired as unanswerable) |
+>
+> Same ruler AND same dishes: on the five both arms archive, shipped `dual` **41/60** vs pre-dual
+> `baseline` **32/60**, gap **9**. (A whole-archive replay prints 52/72 over 6 of 9 dishes for `dual`;
+> the harness footer states its own coverage.)
+> ⛔ **NEXT ACTION: one ~$0.50–0.60 run, awaiting Santiago's approval**, to score the three new dishes
+> (OMELETTE CUBANA, TACO PORCO, BROWNIE) — they sit on menus the unweighted harness never enriched, so
+> no archive exists and they cannot be scored free. **Expect the score to drop; that is the harder
+> dishes arriving.** Full takeover briefing: the `🆕 2026-08-20 HANDOFF` block in
+> `docs/superpowers/START-HERE.md`, or `docs/superpowers/how-testing-works.html` for the plain-language
+> version. Three fixes were falsified at $0 this session — see ledger eval 156 before proposing any of
+> them again.
+>
 > 🚀 **PRODUCTION IS EDGE FN `analyze-menu` v32 (2026-08-19), `ENRICH_BATCH_SIZE = 10`** — the DUAL
 > PASS with pass 2 on the system envelope. `main` byte-matches it. History below describes v31, which it
 > supersedes: **v31 (2026-08-16)** is

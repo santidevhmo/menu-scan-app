@@ -42,6 +42,8 @@ That split is deliberate: the model is good at knowing what food is, and bad at 
 | **`ORDER` / `ORDER-nopush` / `PIECE`** | Change what the per-ingredient GRAM FIELD asks for: `typical_serving_g` (a label serving) → grams **in one order as sold**, or grams **per piece x `serving_pieces`**. No total asked, nothing rescaled. | **61 / 65 / 60** ☠️ all rejected, eval 159 — **and they SIZED BETTER than the winner** |
 | **`NOPUSH`** | Deletes pass 2's whole addendum — **both** the restraint half AND the push half. Shipped gram ask, shipped schema. | **57/108** ☠️ rejected, eval 160 — **and it does NOT test what its name says** |
 | **`NOBOOST`** | Deletes **only the push half** of pass 2's addendum; keeps the restraint. Shipped gram ask, shipped schema, shipped key. One clause of diff. | **70–72/108** vs the control's **64–67** 🟢 **DISJOINT RANGES, two runs each** (evals 160–162) — deployable, awaiting Santiago |
+| **`ROLE`** | `NOBOOST` + ONE required enum per ingredient (`body│filling│topping│garnish`) inserted immediately BEFORE the gram field. Schema only — no sentence explains it, nothing reads it. | **58/108** ☠️ rejected, eval 163 — **the enum FIRED (labels varied, body's median gram 3.3× filling's) and lost anyway** |
+| **`MASSCALL`** | `NOBOOST`'s recipe rescaled to a plate total from a SECOND call that sees only name + description. Reuses Arm C's plate prompt verbatim. | **50/108** ☠️ rejected, eval 163 — **the bare mass question is a WORSE mass estimator than the ingredient list** |
 
 ### ⚖️ THE TWO SCORES — NEVER MERGE THEM
 
@@ -184,6 +186,8 @@ it. Every arm tried since has scored **worse than what already runs**:
 | ORDER / ORDER-nopush / PIECE (what the gram field asks) | **61 / 65 / 60 vs 67** — better mass, worse recipe |
 | NOPUSH (delete pass 2's whole addendum) | **57/108 vs 67** — rejected |
 | **NOBOOST (delete only the addendum's PUSH half)** | **70–72 vs the control's 64–67** 🟢 **first arm to beat v32 on DISJOINT RANGES** |
+| ROLE (an inert role enum before the gram field) | **58 vs NOBOOST's 70–72** — rejected, eval 163 |
+| MASSCALL (plate total from its own separate call) | **50 vs NOBOOST's 70–72** — rejected, eval 163 |
 
 Shipping any of them would make the app **less** accurate. The honest state is: *the shipped thing is
 the best thing we have, and the next idea has not been found yet.*
@@ -331,15 +335,32 @@ that existed before that day the gap is **+11**, matching the +11/+12 measured e
 The headline fell to +7 because the two NEW dishes contribute **−4**, all of it BROWNIE (baseline 12,
 dual 8). **That is dual genuinely losing a dessert, not a ruler that stopped discriminating.**
 
-### ⛔ THE NEXT ACTION — NONE IS FORCED (Santiago's call, 2026-08-21). TWO CANDIDATES FOR A FRESH SESSION
+### ⛔ THE NEXT ACTION — NONE IS FORCED (Santiago's call, 2026-08-21). ONE DECISION IS OPEN
 
-**No arm design survived contact on 2026-08-21.** Both candidates below need `superpowers:brainstorming`
-first:
+**`NOBOOST` (70–72) is the only change that has ever beaten the shipped pipeline (64–67), and the
+ranges are disjoint. Santiago's deploy decision on it is OPEN**, under his standing rule: nothing ships
+until both halves score excellently AND a test on real current menus passes.
 
-1. **Widen the oracle with more ASSEMBLED dishes** — the structural finding below rests on 5 dishes
-   against 4. Pizzas, pastas, sushi and tacos all exist across the archived menus. Mostly $0.
-2. **A size mechanism that does NOT ask the model for a total.** ☠️ **That route is dead twice over —
-   see the Arm A re-run below. Do not propose "schema-force the plate weight": that IS Arm A.**
+**No arm is designed.** Eval 163 spent both designs that existed — `ROLE` 58 and `MASSCALL` 50 — and
+the next design must pass the screening test below before it is worth money.
+
+🔑 **THE SCREENING TEST, EARNED THE HARD WAY (evals 160–163). Before designing any arm, ask which
+DIRECTION it pushes.** A one-directional mechanism has now netted out negative three times:
+
+| mechanism | direction | cost |
+|---|---|---|
+| pass 2's push half | up | −5.5 (`NOBOOST` removing it gains that back) |
+| `NOPUSH` (deleting both restraints) | up, harder | −10 |
+| `ROLE` (shrink everything not "body") | down | −12 |
+
+The reason is eval 162's $0 SIZE/MIX split: **mix error never exceeds ±20%, but size error runs
+0.65–1.30 in BOTH directions.** Any uniform push helps the dishes on one side and hurts the other.
+Run `deno run --allow-read scripts/sim-mass-composition-split.ts dual NOBOOST` and look at which
+dishes are already over and under BEFORE writing a prompt or a schema.
+
+The still-open cheap candidate: **widen the oracle with more ASSEMBLED dishes** — the structural
+finding below rests on 5 dishes against 4. Pizzas, pastas, sushi and tacos all exist across the
+archived menus. Mostly $0, and it needs Santiago's rulings, not model calls.
 
 ### ☠️ ARM A WAS RE-MEASURED ON 2026-08-21 AND REJECTED AGAIN — 36/108
 
@@ -914,6 +935,13 @@ returns 812 kcal against its band**, because its decomposition is 1.81 kcal/g wh
 ☠️ **RETIRED — do not open another plate-weight arm:** Arm A (12/72), A-conditional (28/72), Arm C
 (never scored), every threshold variant (simulated, best 31/72).
 
+✅ **AND IT NOW HOLDS UNDER THE CURRENT RULER TOO (eval 163).** Everything above was measured on 6
+dishes /72. `MASSCALL` re-ran the idea on 9 dishes /108 with the mass sourced from its OWN call, which
+is the gap this note itself flagged — **50/108 against `NOBOOST`'s 70–72**. Its isolated mass call
+returned the IDENTICAL number in all three draws off a four-value grid (150/200/280/300), and was
+worse than simply summing the ingredient list on 6 of 9 dishes. 🔑 The ingredient list is not
+contamination, it is where the model's mass knowledge lives.
+
 ### What actually worked: ARM P — still the best, still unshipped
 
 One sentence appended **for unweighted items only**: give `typical_serving_g` as *the amount of that
@@ -1438,12 +1466,12 @@ deno run --allow-read scripts/sim-scope-rule.ts   # $0: the printed-weight scope
 
 # $0. Did an arm change the MECHANISM, or just the number? Gram-answer distribution
 # plus each dish's total mass against its ruled band, for any archived arm.
-deno run --allow-read scripts/sim-gram-distribution.ts dual NOBOOST NOBOOST@r2 NOPUSH ORDER ORDER-nopush PIECE
+deno run --allow-read scripts/sim-gram-distribution.ts dual NOBOOST NOBOOST@r2 ROLE MASSCALL NOPUSH ORDER ORDER-nopush PIECE
 
 # $0. Are MASS and COMPOSITION separable? Crosses each arm's mass with each arm's
 # per-100 g recipe. THROWS if the control row misses its published score by >3 -
 # a hand-rolled version of this read 88/108 for a control the harness reads 67.
-deno run --allow-read scripts/sim-mass-composition-split.ts dual dual@r2 NOBOOST NOBOOST@r2 NOPUSH ORDER ORDER-nopush PIECE
+deno run --allow-read scripts/sim-mass-composition-split.ts dual dual@r2 NOBOOST NOBOOST@r2 ROLE MASSCALL NOPUSH ORDER ORDER-nopush PIECE
 
 # $0 CEILINGS - "if we fixed X perfectly, how many points would it be worth?"
 # Run these BEFORE designing any arm: they have killed four ideas for nothing.
@@ -1460,7 +1488,7 @@ deno run --allow-read scripts/sim-decomposition-ceiling.ts  # missing ingredient
 # replay: probe-plate-arms.ts reads OPENAI_API_KEY at import time and throws
 # without it, even though a replay calls no API.
 deno run --allow-read --allow-env --env-file=.env.local \
-  scripts/bench-unweighted.ts 3 <baseline|dual|NOBOOST|NOPUSH|ORDER|ORDER-nopush|PIECE|P|P10|PF|PD|A|A-cond|S3|SplitOnly> --replay
+  scripts/bench-unweighted.ts 3 <baseline|dual|NOBOOST|ROLE|MASSCALL|NOPUSH|ORDER|ORDER-nopush|PIECE|P|P10|PF|PD|A|A-cond|S3|SplitOnly> --replay
 
 # $0. A LABELLED repeat run (--run r2) lives in its own archives. Replay it, and
 # feed it to either sim as ARM@label. ALWAYS pass --run on a repeat or it

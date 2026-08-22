@@ -2621,3 +2621,123 @@ independent 3-draw run, kept in its own archives by the newly ported `--run r2`.
      the family cheaply. ⚠️ Prior art rules out the near shapes: **S4's second gram field returned a COPY
      in 364 of 364 ingredients**, S3's `share_pct` won its probe and lost its benchmark, Arm S's sentence
      was ignored.
+
+## Eval 163 — ☠️ BOTH DESIGNED ARMS REJECTED: `MASSCALL` 50/108, `ROLE` 58/108 against `NOBOOST` 70–72. 🔑 THE BARE MASS QUESTION IS A WORSE MASS ESTIMATOR THAN THE INGREDIENT LIST (2026-08-21, ~$0.8)
+
+**Santiago approved both arms and asked for them in parallel.** Both stack on `NOBOOST`, one variable
+each, so their control is 70 and 72 — not `dual`'s 67.
+
+| dish | `dual` (shipped) | **`NOBOOST`** | `ROLE` | `MASSCALL` |
+|---|---|---|---|---|
+| CAPRICCIOSA | 8 | 3 | 5 | **0** |
+| CARBONARA | 9 | 9 | 9 | 11 |
+| ENSALADA GRIEGA | 11 | 12 | 11 | 8 |
+| TIRAS DE POLLO | 8 | 5 | 5 | 7 |
+| PAPAS FRITAS | 11 | 12 | 12 | 10 |
+| OMELETTE CUBANA | 3 | 3 | 3 | 3 |
+| TACO PORCO | 0 | **6** | 3 | 5 |
+| BROWNIE | 8 | 10 | 6 | **3** |
+| Salmón Roll | 9 | 10 | **4** | **3** |
+| **TOTAL /108** | **67** | **70** | **58** | **50** |
+
+Both losses are concentrated in the SAME two dishes — BROWNIE and Salmón Roll, the two `NOBOOST`
+fixed. −10 of `ROLE`'s −12 and −14 of `MASSCALL`'s −20 come from those two rows.
+
+### `MASSCALL` — the hypothesis inverted, cleanly
+
+The arm: `NOBOOST`'s recipe, rescaled through production's own `sumIngredientMacros(ings, total)` to a
+plate total from a SECOND call that receives only name and description. It reuses `armC`'s
+`PLATE_PROMPT`/`PLATE_SCHEMA` verbatim — that mechanism has existed in `probe-plate-arms.ts` since the
+plate-weight phase, was never exported and was never scored against any oracle.
+
+**What the isolated mass call actually returned**, against each dish's ruled mass band:
+
+| dish | ruled band | plate call, 3 draws | `NOBOOST`'s own ingredient sum |
+|---|---|---|---|
+| CAPRICCIOSA | 400–450 | 280, 280, 280 | 360 |
+| CARBONARA | 250–450 | 300, 300, 300 | 281 ✅ |
+| ENSALADA GRIEGA | 136–250 | 300, 300, 300 | 250 ✅ |
+| TIRAS DE POLLO | 234–333 | 300, 300, 300 | 250 ✅ |
+| PAPAS FRITAS | 160–200 | 150, 150, 150 | 175 ✅ |
+| OMELETTE CUBANA | 170–230 | 280, 280, 280 | 250 |
+| TACO PORCO | 100–140 | 150, 150, 150 | **135 ✅** |
+| BROWNIE | 150–200 | 150, 150, 150 ✅ | 210 |
+| Salmón Roll | 300–400 | 200, 200, 200 | 265 |
+
+- **Every draw of every dish returned the identical number**, off a four-value grid — 150, 200, 280,
+  300. The recipe call varies between draws; the bare mass question is degenerate.
+- 3 dishes over band, 3 in, 3 under. Against `NOBOOST`'s own ingredient sum the plate call is **worse
+  on 6 dishes, neutral on 2, better on 1**.
+- It breaks the phase's headline win: TACO PORCO 135 g (inside 100–140) → 150 g, over. And it pushes
+  Salmón Roll from 265 to 200 against a 300–400 band.
+
+🔑 **`MASSCALL` existed because Arm A's total came from the same completion that wrote the recipe, and
+we called that contamination. It was the INFORMATION.** Decomposing a dish into ingredients is not
+merely how the pipeline gets composition right — it is how the model reaches a mass at all. Asked for
+a bare total with nothing to decompose, it returns a round number off a coarse grid. This is direct
+evidence FOR the "model states parts, code does arithmetic" architecture, from the one experiment that
+tried to route around it.
+
+☠️ **The plate-weight family is now retired under the CURRENT ruler, not just the old one.** Arm A
+(12–15/72), A-conditional (28–30/72), simulated thresholds (best 31/72) and Arm C (never scored) were
+all measured on 6 dishes /72. `MASSCALL` is the fifth member and the first scored on 9 dishes /108.
+The rescale ceiling itself is unchanged and still real — `sim-mass-ceiling.ts` reads 80/108 for
+mass-anywhere-in-band — **but no arm has ever produced a mass good enough to collect it.**
+
+### `ROLE` — the enum FIRED, was not inert, and lost anyway
+
+The arm: one required enum `body | filling | topping | garnish` inserted immediately BEFORE the gram
+field. No sentence explained it, nothing read it, no arithmetic changed. Pure B4-ordering test.
+
+**It was not ignored, and it was not a copy of anything** — the S4 rider did not bite:
+
+| role | share of 140 ingredient answers | median gram | range |
+|---|---|---|---|
+| filling | 57 (40%) | 30 | 1–100 |
+| topping | 42 (30%) | 30 | 5–66 |
+| body | 38 (27%) | **100** | 5–200 |
+| garnish | 3 (2%) | 5 | 5–5 |
+
+The model labels sensibly AND prices by label — body's median gram is 3.3× filling's. The mechanism
+worked exactly as designed. **It still cost 12 points, because it is ONE-DIRECTIONAL.**
+
+| | `NOBOOST` → `ROLE` | mass | band | result |
+|---|---|---|---|---|
+| Salmón Roll | salmón 50→30, surimi 30→20, aguacate 30→20, queso crema 30→20, pepino 20→15 | 265→**210** | 300–400 | 10 → **4** |
+| CAPRICCIOSA | crust 150→180, tomato sauce 50→60 | 360→**400** | 400–450 | 3 → **5** |
+
+It shrinks everything not called "body" and grows what is. That helps the one genuinely large plate
+and hurts every dish already under band.
+
+🔑 **THIRD CONFIRMATION OF THE SAME LAW: a one-directional mechanism nets out NEGATIVE on this dish
+set.** The push half pushed up and cost 5.5 (eval 160–162). `NOPUSH` deleted both restraints and cost
+10 (eval 160). `ROLE` shrinks non-body and costs 12. Eval 162's $0 SIZE/MIX split — mix error never
+exceeds ±20%, size error runs 0.65–1.30 **in both directions** — predicted this before either paid
+run. **That promotes the split from a one-off analysis to a SCREENING TEST: before designing an arm,
+ask which direction it pushes and which dishes are already on that side.**
+
+### Scoreboard and rider updates
+
+- **A required schema field is now 6 for 9.** The rider sharpens: schema force reliably CHANGES the
+  answer; it does not reliably change it in the right direction. `ROLE` is the cleanest case yet —
+  the field was answered richly, varied, and used, and the score fell.
+- Prompt wording stays 0 for 6. Removing an instruction stays 1 for 1 (`NOBOOST`).
+- **The post-run check `ARM_ROLE`'s own docblock demanded, and it came back NEGATIVE in an interesting
+  way.** `sim-gram-distribution.ts` says `ROLE`'s answers are **70% one of 20/30/50/100 and 97%
+  multiples of 5** — indistinguishable from `dual`'s 71%/95%. So the enum moved individual grams
+  without loosening the label-serving habit at all: the model re-picked *which* round reference number
+  to use per role, it did not start estimating a portion. 🔑 **Naming a component's role is not enough
+  to make the model stop reciting a labelling serving.** Mass verdict: `ROLE` 13 of 27 dish-draws in
+  band, against `NOBOOST`'s 17 — the best of any arm.
+- **OMELETTE CUBANA is 3/12 in a FIFTH arm** — `dual`, `NOPUSH`, `NOBOOST`, `ROLE`, `MASSCALL`, every
+  run ever measured. `MASSCALL`'s independent call put it at 280 g against a 170–230 band. ⚠️ That is
+  NOT independent evidence about the dish — it is the same model twice — but it does remove "the
+  ingredient list dragged the total up" as the explanation. Eval 162's FNDDS check stands: the oracle
+  at 203 g is already the generous end, and 280 g is 1.65× FNDDS's largest published portion.
+
+- **Spend: ~$0.8 estimated, not metered. Phase total ~$41.9–42.1.**
+- **Production is UNCHANGED: edge fn `analyze-menu` v32.**
+- **⛔ NEXT ACTION: `NOBOOST` is still the only change that has ever beaten the shipped pipeline
+  (70–72 vs 64–67, disjoint ranges). Santiago's deploy decision on it is still open, and his standing
+  rule is that nothing ships until both halves score excellently AND a real-current-menu test passes.**
+  No arm is designed. The screening test above is what the next design must pass first.

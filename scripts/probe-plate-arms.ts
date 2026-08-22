@@ -27,11 +27,13 @@ import {
 import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
 import { ARM_S3, ARM_S4 } from "./arm-schemas.ts";
 import {
+  ARM_MASSCALL,
   ARM_NOBOOST,
   ARM_NOPUSH,
   ARM_ORDER,
   ARM_ORDER_NOPUSH,
   ARM_PIECE,
+  ARM_ROLE,
 } from "./arm-order-schemas.ts";
 import { resolvePiecesPerOrder } from "../src/lib/portions.ts";
 
@@ -703,6 +705,59 @@ export const armNoPush = (items: Item[]) =>
   runOrderArm(items, ARM_NOPUSH, false);
 export const armNoBoost = (items: Item[]) =>
   runOrderArm(items, ARM_NOBOOST, false);
+export const armRole = (items: Item[]) => runOrderArm(items, ARM_ROLE, false);
+
+/**
+ * ARM MASSCALL — NOBOOST's recipe, rescaled to a total from its OWN call.
+ *
+ * Reuses PLATE_PROMPT and PLATE_SCHEMA verbatim from Arm C above, which is the same
+ * mechanism: a call that receives ONLY name and description, so the total cannot be
+ * back-computed from an ingredient list the same completion just wrote. Arm C was
+ * never scored against an oracle - it paired that call with the SINGLE-pass prompt,
+ * and it predates the 9-dish /108 ruler entirely. Reusing its prompt rather than
+ * writing a new one keeps the mass question one that has already been reviewed, and
+ * leaves this arm exactly one variable away from NOBOOST.
+ *
+ * The rescale is production's own: sumIngredientMacros(ings, total) routes through
+ * resolveGrams, which is what a PRINTED weight does - and the printed-weight path is
+ * what took the weighted score to ~96%. The hypothesis is precisely that an
+ * independently sourced total behaves like a printed one.
+ *
+ * ponytail: 6 of 95 archived ingredients carry within_printed_weight:false, and
+ * resolveGrams leaves those OUTSIDE the rescale, so the final mass can exceed the
+ * total by their grams. That is production's semantics for a side that is not part of
+ * the weighed dish, and changing it here would make the arm two variables.
+ */
+export async function armMassCall(items: Item[]) {
+  const [enriched, plates] = await Promise.all([
+    runOrderArm(items, ARM_MASSCALL, false),
+    retryOnce(() =>
+      callOpenAI(
+        PLATE_PROMPT,
+        PLATE_SCHEMA,
+        items.map((i) => ({ name: i.name, description: i.description })),
+      )
+    ),
+  ]);
+
+  const byName = new Map<string, number>();
+  // deno-lint-ignore no-explicit-any
+  for (const p of (plates as any).items ?? []) byName.set(p.name, p.total_grams);
+
+  // deno-lint-ignore no-explicit-any
+  return (enriched as any[]).map((it) => {
+    const total = plausibleTotal(byName.get(it.name));
+    // No usable total means the arm falls back to NOBOOST for that dish rather
+    // than to zero. `_plate_g` records which dishes were actually rescaled, so a
+    // score can never be attributed to a lever that did not fire.
+    if (total === null) return { ...it, _plate_g: null };
+    return {
+      ...it,
+      ...sumIngredientMacros(it.ingredients ?? [], total),
+      _plate_g: total,
+    };
+  });
+}
 
 /**
  * The sauce probes' dish set, shared by `sauce-dish` and `sauce-schema` so the

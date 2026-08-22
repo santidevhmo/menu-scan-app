@@ -2,11 +2,13 @@
 // changed". These assertions are what makes that claim checkable for $0.
 import { assert, assertEquals } from "jsr:@std/assert";
 import {
+  ARM_MASSCALL,
   ARM_NOBOOST,
   ARM_NOPUSH,
   ARM_ORDER,
   ARM_ORDER_NOPUSH,
   ARM_PIECE,
+  ARM_ROLE,
   ORDER_KEY,
   orderSchema,
   PIECE_KEY,
@@ -135,4 +137,41 @@ Deno.test("NOBOOST drops ONLY the push half, and keeps everything else shipped",
   assertEquals(ARM_NOBOOST.key, "typical_serving_g");
   assert(ARM_NOBOOST.prompt.startsWith(ENRICH_PROMPT));
   assert(ENRICH_PROMPT_UNWEIGHTED.startsWith(ARM_NOBOOST.prompt.slice(0, -1)));
+});
+
+Deno.test("ROLE adds ONE enum before the gram field and changes nothing else", () => {
+  // The prompt must be NOBOOST's, byte for byte: ROLE's claim is that a schema
+  // field moved the score, and a stray word would make that unattributable.
+  assertEquals(ARM_ROLE.prompt, ARM_NOBOOST.prompt);
+  assertEquals(ARM_ROLE.key, "typical_serving_g");
+
+  const before = Object.keys(ing(ENRICH_SCHEMA_OPENAI).properties);
+  const after = Object.keys(ing(ARM_ROLE.schema).properties);
+  const at = before.indexOf("typical_serving_g");
+  assertEquals(after, [
+    ...before.slice(0, at),
+    "role",
+    ...before.slice(at),
+  ]);
+  // B4: the label is emitted BEFORE the gram, which is the whole mechanism.
+  assertEquals(after.indexOf("role") + 1, after.indexOf("typical_serving_g"));
+  assertEquals(ing(ARM_ROLE.schema).properties.role, {
+    type: "string",
+    enum: ["body", "filling", "topping", "garnish"],
+  });
+  // Strict mode: every property required, and `required` in properties order.
+  assertEquals(ing(ARM_ROLE.schema).required, after);
+  // Untouched above the ingredient level - no B4 decision on the ITEM disturbed.
+  assertEquals(
+    Object.keys(itemProps(ARM_ROLE.schema)),
+    Object.keys(itemProps(ENRICH_SCHEMA_OPENAI)),
+  );
+  // And the shipped schema was cloned, not mutated - every other arm reads it.
+  assert(!("role" in ing(ENRICH_SCHEMA_OPENAI).properties));
+});
+
+Deno.test("MASSCALL changes neither prompt nor schema - only the second call", () => {
+  assertEquals(ARM_MASSCALL.prompt, ARM_NOBOOST.prompt);
+  assertEquals(ARM_MASSCALL.schema, ENRICH_SCHEMA_OPENAI);
+  assertEquals(ARM_MASSCALL.key, "typical_serving_g");
 });

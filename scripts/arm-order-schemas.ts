@@ -238,6 +238,90 @@ if (
   throw new Error("NOBOOST must drop the push and KEEP the restraint - it did not");
 }
 
+/**
+ * ARM ROLE — NOBOOST's prompt, plus ONE required enum per ingredient. SCHEMA ONLY.
+ *
+ * `role` is an inert 4-value enum - body | filling | topping | garnish - inserted
+ * immediately BEFORE the gram field. Nothing reads it. No sentence explains it, no
+ * per-role gram table exists, and our arithmetic is unchanged. The ONLY mechanism
+ * under test is B4 ordering: strict mode emits in schema order, so the model must
+ * NAME what a component is to the dish before it prices it.
+ *
+ * Why schema-only: prompt wording is 0 for 6 in this phase and a required schema
+ * field is 6 for 8. Adding a sentence too would make the arm two variables and an
+ * unattributable result.
+ *
+ * ⚠️ THE RIDER THAT KILLED THE NEAREST PRIOR ARM. S4's second gram field came back
+ * IDENTICAL to typical_serving_g in 364 of 364 ingredients, because a required field
+ * whose MEANING OVERLAPS an existing one returns a copy. `role` overlaps nothing -
+ * it is a label, not a second number, and no other field can supply it.
+ *
+ * Control: NOBOOST 70 and 72 /108. Diff: one enum. Post-run check is not only the
+ * score - read the labels back. If everything is "body", the enum was inert in the
+ * useless sense and the family is closed.
+ */
+export function roleSchema() {
+  // deno-lint-ignore no-explicit-any
+  const schema: any = structuredClone(ENRICH_SCHEMA_OPENAI);
+  const ing = schema.properties.items.items.properties.ingredients.items;
+
+  const rebuilt: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(ing.properties)) {
+    if (k === "typical_serving_g") {
+      rebuilt.role = {
+        type: "string",
+        enum: ["body", "filling", "topping", "garnish"],
+      };
+    }
+    rebuilt[k] = v;
+  }
+  ing.properties = rebuilt;
+  const keys = Object.keys(rebuilt);
+  // Strict mode requires EVERY property, and re-deriving in properties order keeps
+  // the two lists from drifting - same reason orderSchema does it that way.
+  const wasRequired = new Set<string>([...ing.required, "role"]);
+  ing.required = keys.filter((k) => wasRequired.has(k));
+
+  if (
+    keys.indexOf("role") + 1 !== keys.indexOf("typical_serving_g") ||
+    ing.required.length !== keys.length
+  ) {
+    throw new Error(
+      "role must sit immediately before typical_serving_g and every field must be required",
+    );
+  }
+  return schema;
+}
+
+export const ARM_ROLE = {
+  prompt: ARM_NOBOOST.prompt,
+  schema: roleSchema(),
+  key: "typical_serving_g",
+};
+
+/**
+ * ARM MASSCALL — NOBOOST's recipe, rescaled to a plate total from a SEPARATE call
+ * that never sees an ingredient list. Prompt and schema are NOBOOST's, unchanged;
+ * the arm's whole content is the second call, which lives in probe-plate-arms.ts.
+ *
+ * ⚠️ THE PLATE-WEIGHT FAMILY WAS RETIRED - UNDER A RULER THAT NO LONGER EXISTS.
+ * Arm A (12-15/72), A-conditional (28-30/72) and every simulated threshold (best
+ * 31/72) were measured on 6 dishes with the old band rule. The oracle is now 9
+ * dishes /108 with a midpoint allowance, and under THAT ruler sim-mass-ceiling.ts
+ * reads mass-anywhere-in-band at 80/108 against today's 67, taking OMELETTE CUBANA
+ * 3/12 -> 12/12 and TACO PORCO 0 -> 12. The retirement note itself records the gap
+ * this arm fills: "the simulation reuses Arm A's plate weights, produced by a prompt
+ * that also rewrote the ingredient list. A real arm would have to source the plate
+ * weight some other way."
+ *
+ * ⚠️ AND IT STILL CANNOT FIX CAPRICCIOSA. At 450 g, the TOP of its band, the pizza
+ * returns 812 kcal against 1101-1238, because rescaling preserves proportions. That
+ * finding is untouched by the new ruler. This arm is aimed at the dishes whose MIX
+ * is already right and whose SIZE is not - which the 2026-08-21 split says is most
+ * of them: mix error never exceeds +-20%, size error runs 0.65 to 1.30.
+ */
+export const ARM_MASSCALL = ARM_NOBOOST;
+
 export const ARM_ORDER = { prompt: ORDER_PROMPT, schema: orderSchema(ORDER_KEY), key: ORDER_KEY };
 export const ARM_ORDER_NOPUSH = { prompt: ORDER_NOPUSH_PROMPT, schema: orderSchema(ORDER_KEY), key: ORDER_KEY };
 export const ARM_PIECE = { prompt: PIECE_PROMPT, schema: orderSchema(PIECE_KEY, true), key: PIECE_KEY };

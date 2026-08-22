@@ -33,6 +33,7 @@ import {
 import {
   armA,
   armAConditional,
+  armMassCall,
   armNoBoost,
   armNoPush,
   armOrder,
@@ -43,6 +44,7 @@ import {
   armPF,
   armPiece,
   armPInline,
+  armRole,
   armS3,
   armS4,
   armSplitOnly,
@@ -218,6 +220,11 @@ const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
   NOPUSH: armNoPush,
   // The shipped question with only the addendum's PUSH half deleted. See ARM_NOBOOST.
   NOBOOST: armNoBoost,
+  // Both stack on NOBOOST, one variable each: ROLE adds an inert enum before the
+  // gram field, MASSCALL rescales to a total from a second call. See ARM_ROLE and
+  // ARM_MASSCALL. Their control is NOBOOST (70 and 72), not `dual`.
+  ROLE: armRole,
+  MASSCALL: armMassCall,
 };
 
 /** Arms whose batches form like dual's pass 2 - see the selection call below. */
@@ -227,6 +234,8 @@ const ORDER_ARMS: Record<string, true> = {
   PIECE: true,
   NOPUSH: true,
   NOBOOST: true,
+  ROLE: true,
+  MASSCALL: true,
 };
 
 // A mistyped arm name would otherwise run the BASELINE and be written up as that

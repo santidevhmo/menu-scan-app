@@ -677,6 +677,14 @@ envelope. Measured: **unweighted dishes 25 → 35–36/72 (35% → 49–50%)**, 
 (14–17/96 against a fresh 15/96 control, because pass 1's request bytes are identical), Stage 2
 **1.56–1.92× slower**, **~$0.03 → ~$0.05 per scan**. Merged to `main` the same day.
 
+⚠️ **THOSE UNWEIGHTED FIGURES ARE ON A RETIRED RULER (2026-08-21).** The unweighted set grew 6 → 9
+dishes and the pass rule changed to "the average dish ±20%", so **the denominator is now /108, not
+/72, and no pre-2026-08-20 unweighted number is comparable.** Re-measured on one ruler: shipped
+`dual` **67/108 (62%)**, pre-dual `baseline` **60/108 (56%)**, and the retired plate-weight Arm A
+**36/108**. **Nothing has beaten v32 since it shipped**, so nothing is awaiting deployment — the
+blocker is that no better arm has been found, not that a better arm is unreleased. Full detail:
+`docs/superpowers/START-HERE.md` §0 and ledger evals 157–158.
+
 History — ✅ **An enrichment fix WAS selected and IS deployed (2026-08-09): "B4", edge function v28.** The
 model now supplies ingredient knowledge — a conventional serving and per-100 g composition per
 ingredient, plus what the menu's printed weight covers — and the **code** does the fitting,

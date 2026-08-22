@@ -197,6 +197,14 @@ was a judgement. A future session cannot re-source what it thinks was already so
 Before designing any change to Stage 2, weigh this: **a new sentence in `ENRICH_PROMPT` is 0 for 6;
 a new REQUIRED FIELD in `ENRICH_SCHEMA_OPENAI` is 6 for 8.**
 
+🔴 **SCHEMA FORCE IS NOT A LICENCE — AND "SCHEMA-FORCE THE PLATE WEIGHT" IS ALREADY REJECTED TWICE.**
+Read what an arm ACTUALLY is before proposing its successor (lesson 31). **Arm A is not a prompt arm:**
+it is `ENRICH_PROMPT` + a sentence **AND** a required numeric `typical_total_g` placed right after
+`printed_total_g` — the strongest form this scoreboard recommends, correctly ordered. It scored
+**12/72** in 2026-08-16 and **36/108 against a shipped 67/108** when re-measured on 2026-08-21.
+**Its mechanism is the flaw:** it rescales every ingredient to the total it asked for, so a model that
+already oversizes gets a second chance to oversize and the rescale MULTIPLIES the error.
+
 | approach | record | cases |
 |---|---|---|
 | ask in prose | **0 for 6** | B11, B13, B23, two `serving_pieces` wordings, Arm S, **Arm P-inline** |

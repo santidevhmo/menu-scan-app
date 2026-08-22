@@ -11,6 +11,106 @@ longer exists** (merged into `main`, eval 138). Read any such path as "this repo
 
 ---
 
+## 0. THE MAP — read this first if any of the words below are unfamiliar
+
+**What the product does.** The user photographs a restaurant menu. The app reads the items off the
+photo (**Stage 1**), then for each dish asks a model to list its ingredients, and for each ingredient
+two things: **how many grams** are in one serving, and **what it is per 100 g** (protein/carb/fat).
+**Our code does all the arithmetic** — grams × per-100 g, summed. The model never reports a total.
+That split is deliberate: the model is good at knowing what food is, and bad at addition.
+
+### The vocabulary, in plain terms
+
+| word | what it means |
+|---|---|
+| **Stage 1 / Stage 2** | Stage 1 reads the menu photo into a list of items. **Stage 2 is the macro estimate.** All the work in this phase is Stage 2. |
+| **oracle** | The **answer key**. A hand-built, USDA-sourced record of what each test dish really contains. It lives in `scripts/fixtures/unweighted-oracle.json` (+ a weighted one). **It never runs in the app** — it exists only to grade us. |
+| **band** | The pass window for one number. Not a single value — a range. A macro **passes** if the app's answer lands inside the band. Currently **the average dish ±20%**, plus a small-miss allowance (6 g for a macro, 50 kcal). |
+| **draw** | One repeat of the exact same question. The model is not deterministic, so every dish is asked **3 times** and all 3 are scored. |
+| **harness** | The script that runs a benchmark and prints a score. `bench-unweighted.ts` (no-weight dishes), `bench-mixed-menu.ts` and `bench-macros.ts` (printed-weight dishes). |
+| **arm** | **A variant of the pipeline being tested** — one changed thing (a prompt sentence, a schema field, a different batching) run through the harness so its score can be compared. Think "experimental condition". Arms are named: `baseline`, `dual`, `P`, `A`, `S3`… |
+| **replay** | Re-scoring **saved** model answers instead of buying new ones. Costs **$0** and calls no API. This is why a corrected oracle re-grades all of history for free. |
+| **ledger** | `docs/superpowers/extraction-iteration-ledger.md` — **the logbook**. One numbered entry ("eval 158") per experiment, newest last, recording what was tried, what it scored, and what it cost. **It is the memory of this project.** Currently at eval 158. |
+
+### The three arms that matter right now
+
+| arm | what it actually is | score |
+|---|---|---|
+| **`baseline`** | The pipeline **before** the dual pass — one call per batch of 10 mixed items. The "do nothing" control. | **60/108** |
+| **`dual`** | **What is deployed today (v32).** Stage 2 runs *twice*: pass 1 sends the whole menu (its answers used for dishes that print a weight); pass 2 re-sends only the no-weight dishes, in their own batches, with one extra sentence. | **67/108** ← best |
+| **`Arm A`** | Asks the model for the dish's **total grams** (`typical_total_g`, a required schema field), then rescales every ingredient to that total. | **36/108** ☠️ rejected twice |
+
+### ⚖️ THE TWO SCORES — NEVER MERGE THEM
+
+The benchmark is split because the product is split.
+
+| | what it covers | how common | denominator | where we are |
+|---|---|---|---|---|
+| **weighted** | dishes whose menu **prints a gram weight** ("Ribeye 300gr") | ~33% of real items | **/96** | **6–9 failed ≈ 82–94%** — genuinely good |
+| **unweighted** | dishes printing **no weight** at all | **~67% of real items** | **/108** | **67/108 = 62%** — the unfinished half |
+
+**The unweighted half is the whole problem.** It is most of a real menu and it is the weaker number.
+
+### Where we are, in one line
+
+**Production is edge function `analyze-menu` v32, deployed 2026-08-19.** Everything since has been
+measurement and failed experiments. **Nothing has beaten v32.**
+
+### ❓ "Why haven't we deployed anything?"
+
+**Because nothing has been good enough to deploy.** Deployment is not blocked, gated, or waiting on
+approval — **there is simply no improvement to ship.** v32 was the last thing that beat what preceded
+it. Every arm tried since has scored **worse than what already runs**:
+
+| tried since v32 | result |
+|---|---|
+| accompaniment weight correction | falsified at $0 — makes it worse |
+| lift lean dishes via fat | falsified at $0 — makes it worse |
+| Arm A (plate total), re-run 2026-08-21 | **36/108 vs the shipped 67/108** |
+
+Shipping any of them would make the app **less** accurate. The honest state is: *the shipped thing is
+the best thing we have, and the next idea has not been found yet.*
+
+### 🎯 Where this sits in the actual product
+
+This is **one workstream inside Phase 9** of `docs/sunny-lemon-development-plan.md` (16 phases,
+bootstrap → launch). Phases 10–16 — paywall, onboarding, analytics, security audit, screenshots,
+launch — are **all downstream of it**. So macro accuracy is the thing standing between the app and the
+launch runway.
+
+⚠️ **Santiago's standing fallback, kept open deliberately:** if the unweighted half stalls for weeks,
+**ship the weighted half honestly** — it is genuinely good — and say plainly in the UI that no-weight
+items are rough estimates. That is a real option, not a failure.
+
+### 🔴 WHY THE 2026-08-21 SESSION KEPT BEING WRONG — read this before you repeat it
+
+Four wrong things surfaced in one day. **They were not four separate mistakes; they were two habits.**
+Full write-ups are **lessons 31–34** in ②'s "Lessons learned".
+
+**Habit 1 — describing an artifact without opening it (lesson 31).** Three wrong claims, each one
+file-read from being right:
+
+| the claim | the reality | what it nearly cost |
+|---|---|---|
+| "Arm A was just a prompt ask, so schema-forcing size is untried" | Arm A is **already** prompt + a required `typical_total_g` field | designing a **duplicate of a twice-rejected arm** |
+| TACO PORCO "is garnish inflation", with a gram breakdown | those grams came from the **`baseline`** archive, not the shipped `dual`; in `dual` the peanuts are *under*-sized and the error is uniform | an arm aimed at **a mechanism that does not exist** |
+| "blast radius is one menu of ten" | checked one harness's archive map; the other uses a **different** family | conclusion held **by luck** |
+
+**Habit 2 — trusting a measurement without checking what it measured (lessons 32–34).** A loader that
+read 1 of 2 archive parts, three sims hardcoding 3 of 5 menus, and a guard that *printed* its invariant
+instead of enforcing it. Each silently reported a **smaller, wrong number that looked fine**, and one
+of them had parked the single largest available lever in a "DO NOT RE-OPEN" table.
+
+🔑 **THE ONE-LINE ANTIDOTE: before writing a number or a claim, open the thing it came from — and ask
+what the measurement EXCLUDED, not just what it reported.** A partial measurement never announces
+itself.
+
+✅ **What went right, and it is the reusable part:** Santiago demanded a **$0.55 control run** instead
+of accepting the argument for why a rejected arm would work now. **The control falsified the plan
+before a line of it was built.** When a past failure is claimed to no longer apply, re-run it.
+
+---
+
 ## 1. What am I supposed to be working on?
 
 There are **two roadmaps, nested** — the product one, and an extraction sub-roadmap inside it.

@@ -32,7 +32,7 @@ import {
   toMacroValues,
 } from "./macro-measure.ts";
 import { scoreItemAgainstBand } from "./macro-band-score.ts";
-import { itemsFromArchive } from "./bench-pipeline.ts";
+import { itemsFromArchiveFile } from "./bench-pipeline.ts";
 import { sumIngredientMacros } from "../supabase/functions/analyze-menu/enrich.ts";
 // The harness's OWN map, imported rather than retyped: a second copy of which
 // extraction feeds which menu is a second thing to drift, and a wrong one here
@@ -45,7 +45,18 @@ const DRAWS = 3;
 
 /** The runs each score is derived from. Every one is committed. */
 const MIXED_RUNS = ["dual-f", "dual-f-r2", "dual-f-r3"];
-const UNWEIGHTED_MENUS = ["andaluz", "bistro", "nikkori"];
+/**
+ * DERIVED from the unweighted oracle, never hardcoded. This used to read
+ * ["andaluz", "bistro", "nikkori"] and did not grow when el-marcos and
+ * brasero-two joined on 2026-08-20, so the unweighted half of this sim silently
+ * covered 6 of 9 dishes. Deriving it means adding a dish extends the sim.
+ */
+const UNWEIGHTED_MENUS = [
+  ...new Set(
+    (JSON.parse(Deno.readTextFileSync(UNWEIGHTED_ORACLE_PATH)) as Item[])
+      .map((e) => e.menu),
+  ),
+];
 
 // deno-lint-ignore no-explicit-any
 type Item = any;
@@ -113,9 +124,7 @@ for (const [label, mode] of MODES) {
           continue; // a run that did not cover this menu
         }
         const enriched: Item[] = JSON.parse(raw).items;
-        const sent = itemsFromArchive(
-          await Deno.readTextFile(`${CACHE}/${MIXED_MENUS[menu]}`),
-        );
+        const sent = itemsFromArchiveFile(MIXED_MENUS[menu]);
         const names = entries.filter((e) => e.menu === menu).map((e) => e.name);
         for (const { name, item } of pairWithOracle(names, enriched, "skip")) {
           const entry = entries.find((e) => e.name === name)!;

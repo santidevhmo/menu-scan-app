@@ -43,7 +43,7 @@ import type { UnweightedEntry } from "./unweighted-oracle.ts";
 import {
   assertRunIsProducingData,
   isBackfilled,
-  itemsFromArchive,
+  itemsFromArchiveFile,
 } from "./bench-pipeline.ts";
 
 const ORACLE = "scripts/fixtures/unweighted-oracle.json";
@@ -242,9 +242,7 @@ for (let draw = 0; draw < draws; draw++) {
       }
       enriched = JSON.parse(raw).items;
     } else {
-      const whole = itemsFromArchive(
-        await Deno.readTextFile(`${CACHE_DIR}/${MENU_ARCHIVE[menu]}`),
-      );
+      const whole = itemsFromArchiveFile(MENU_ARCHIVE[menu]);
       const names = oracle.filter((e) => e.menu === menu).map((e) => e.name);
       // `dual` selects like P-10 ON PURPOSE. Every dish in this oracle is
       // unweighted, so its answer comes ENTIRELY from pass 2 and pass 1's copy is

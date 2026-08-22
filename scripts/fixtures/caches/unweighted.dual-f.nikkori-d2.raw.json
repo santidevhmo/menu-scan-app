@@ -59,23 +59,23 @@
           "name": "salmón",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
-          "protein_per_100g": 20,
+          "typical_serving_g": 40,
+          "protein_per_100g": 25,
           "carb_per_100g": 0,
           "fat_per_100g": 13
         }
       ],
       "protein_g": 18,
       "carb_g": 37,
-      "fat_g": 22,
-      "estimated_calories": 417,
+      "fat_g": 21,
+      "estimated_calories": 405,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "dairy",
         "fish",
-        "shellfish",
-        "gluten"
+        "gluten",
+        "soy"
       ]
     },
     {
@@ -102,9 +102,9 @@
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 30,
-          "protein_per_100g": 8,
-          "carb_per_100g": 12,
-          "fat_per_100g": 10
+          "protein_per_100g": 10,
+          "carb_per_100g": 15,
+          "fat_per_100g": 5
         },
         {
           "name": "aguacate",
@@ -137,8 +137,8 @@
           "name": "camarón",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
-          "protein_per_100g": 20,
+          "typical_serving_g": 40,
+          "protein_per_100g": 24,
           "carb_per_100g": 0,
           "fat_per_100g": 0.5
         },
@@ -146,23 +146,24 @@
           "name": "salmón",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
-          "protein_per_100g": 20,
+          "typical_serving_g": 40,
+          "protein_per_100g": 25,
           "carb_per_100g": 0,
           "fat_per_100g": 13
         }
       ],
-      "protein_g": 19,
-      "carb_g": 36,
+      "protein_g": 28,
+      "carb_g": 37,
       "fat_g": 22,
-      "estimated_calories": 421,
+      "estimated_calories": 456,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "dairy",
         "fish",
-        "shellfish",
-        "gluten"
+        "gluten",
+        "soy",
+        "shellfish"
       ]
     },
     {
@@ -189,16 +190,16 @@
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 50,
-          "protein_per_100g": 22,
-          "carb_per_100g": 2,
-          "fat_per_100g": 8
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 5
         },
         {
           "name": "camarón",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
-          "protein_per_100g": 20,
+          "typical_serving_g": 40,
+          "protein_per_100g": 24,
           "carb_per_100g": 0,
           "fat_per_100g": 0.5
         },
@@ -221,17 +222,17 @@
           "fat_per_100g": 1
         }
       ],
-      "protein_g": 21,
-      "carb_g": 36,
-      "fat_g": 9,
-      "estimated_calories": 310,
+      "protein_g": 26,
+      "carb_g": 35,
+      "fat_g": 8,
+      "estimated_calories": 313,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "fish",
-        "shellfish",
         "gluten",
-        "soy"
+        "soy",
+        "shellfish"
       ]
     },
     {
@@ -257,8 +258,8 @@
           "name": "salmón",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
-          "protein_per_100g": 20,
+          "typical_serving_g": 40,
+          "protein_per_100g": 25,
           "carb_per_100g": 0,
           "fat_per_100g": 13
         },
@@ -292,14 +293,15 @@
       ],
       "protein_g": 16,
       "carb_g": 32,
-      "fat_g": 22,
-      "estimated_calories": 391,
+      "fat_g": 21,
+      "estimated_calories": 379,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "dairy",
         "fish",
         "gluten",
+        "soy",
         "sesame"
       ]
     },
@@ -364,8 +366,7 @@
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
-        "soy",
-        "gluten"
+        "soy"
       ]
     },
     {
@@ -392,27 +393,27 @@
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 30,
-          "protein_per_100g": 8,
-          "carb_per_100g": 12,
-          "fat_per_100g": 10
+          "protein_per_100g": 10,
+          "carb_per_100g": 15,
+          "fat_per_100g": 5
         },
         {
           "name": "atún picado",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
-          "protein_per_100g": 22,
-          "carb_per_100g": 2,
-          "fat_per_100g": 8
+          "typical_serving_g": 40,
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 5
         },
         {
           "name": "salsa spicy",
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 20,
-          "protein_per_100g": 2,
-          "carb_per_100g": 10,
-          "fat_per_100g": 5
+          "protein_per_100g": 5,
+          "carb_per_100g": 20,
+          "fat_per_100g": 1
         },
         {
           "name": "masago",
@@ -425,14 +426,13 @@
         }
       ],
       "protein_g": 18,
-      "carb_g": 35,
-      "fat_g": 9,
-      "estimated_calories": 287,
+      "carb_g": 37,
+      "fat_g": 4,
+      "estimated_calories": 256,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "fish",
-        "shellfish",
         "gluten",
         "soy"
       ]
@@ -460,8 +460,8 @@
           "name": "camarón",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
-          "protein_per_100g": 20,
+          "typical_serving_g": 40,
+          "protein_per_100g": 24,
           "carb_per_100g": 0,
           "fat_per_100g": 0.5
         },
@@ -487,22 +487,23 @@
           "name": "aguacate",
           "category": "fat",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
+          "typical_serving_g": 30,
           "protein_per_100g": 2,
           "carb_per_100g": 9,
           "fat_per_100g": 15
         }
       ],
-      "protein_g": 11,
-      "carb_g": 34,
-      "fat_g": 18,
-      "estimated_calories": 347,
+      "protein_g": 15,
+      "carb_g": 33,
+      "fat_g": 15,
+      "estimated_calories": 326,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "dairy",
-        "shellfish",
-        "gluten"
+        "gluten",
+        "soy",
+        "shellfish"
       ]
     },
     {
@@ -546,10 +547,10 @@
           "name": "atún",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
-          "protein_per_100g": 22,
-          "carb_per_100g": 2,
-          "fat_per_100g": 8
+          "typical_serving_g": 40,
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 5
         },
         {
           "name": "masago",
@@ -566,21 +567,21 @@
           "within_printed_weight": true,
           "typical_serving_g": 10,
           "protein_per_100g": 1,
-          "carb_per_100g": 0.6,
+          "carb_per_100g": 0,
           "fat_per_100g": 75
         }
       ],
-      "protein_g": 17,
-      "carb_g": 33,
-      "fat_g": 27,
-      "estimated_calories": 443,
+      "protein_g": 16,
+      "carb_g": 32,
+      "fat_g": 25,
+      "estimated_calories": 416,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "dairy",
         "fish",
-        "shellfish",
         "gluten",
+        "soy",
         "egg"
       ]
     },
@@ -634,8 +635,8 @@
           "name": "camarón",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 30,
-          "protein_per_100g": 20,
+          "typical_serving_g": 40,
+          "protein_per_100g": 24,
           "carb_per_100g": 0,
           "fat_per_100g": 0.5
         },
@@ -649,16 +650,17 @@
           "fat_per_100g": 1
         }
       ],
-      "protein_g": 14,
+      "protein_g": 18,
       "carb_g": 37,
-      "fat_g": 15,
-      "estimated_calories": 344,
+      "fat_g": 16,
+      "estimated_calories": 359,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
         "dairy",
-        "shellfish",
-        "gluten"
+        "gluten",
+        "soy",
+        "shellfish"
       ]
     },
     {
@@ -685,9 +687,9 @@
           "category": "protein",
           "within_printed_weight": true,
           "typical_serving_g": 50,
-          "protein_per_100g": 22,
-          "carb_per_100g": 2,
-          "fat_per_100g": 8
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 5
         },
         {
           "name": "aguacate",
@@ -702,8 +704,8 @@
           "name": "salmón",
           "category": "protein",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
-          "protein_per_100g": 20,
+          "typical_serving_g": 40,
+          "protein_per_100g": 25,
           "carb_per_100g": 0,
           "fat_per_100g": 13
         },
@@ -712,15 +714,15 @@
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 20,
-          "protein_per_100g": 2,
-          "carb_per_100g": 10,
-          "fat_per_100g": 5
+          "protein_per_100g": 5,
+          "carb_per_100g": 20,
+          "fat_per_100g": 1
         }
       ],
-      "protein_g": 25,
-      "carb_g": 34,
-      "fat_g": 16,
-      "estimated_calories": 380,
+      "protein_g": 27,
+      "carb_g": 35,
+      "fat_g": 13,
+      "estimated_calories": 360,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [

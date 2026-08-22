@@ -20,7 +20,6 @@ import { scoreItemAgainstBand } from "./macro-band-score.ts";
 
 const CACHE = "scripts/fixtures/caches";
 const ORACLE = "scripts/fixtures/unweighted-oracle.json";
-const MENUS = ["andaluz", "bistro", "nikkori"];
 const DRAWS = 3;
 
 // deno-lint-ignore no-explicit-any
@@ -28,6 +27,16 @@ type Item = any;
 
 const oracle: Item[] = JSON.parse(await Deno.readTextFile(ORACLE));
 const byName = new Map(oracle.map((e) => [e.name, e]));
+
+/**
+ * DERIVED from the oracle, never hardcoded. This list used to read
+ * ["andaluz", "bistro", "nikkori"] and did not grow when el-marcos and
+ * brasero-two joined on 2026-08-20, so this sim silently reported a ceiling over
+ * 6 of 9 dishes - missing TACO PORCO and OMELETTE CUBANA, the two the mass
+ * question is really about. Deriving it means adding a dish to the oracle extends
+ * every sim automatically.
+ */
+const MENUS = [...new Set(oracle.map((e) => e.menu))];
 
 /** Resolved grams, replicating resolveGrams exactly. */
 function grams(it: Item): number[] {
@@ -147,7 +156,24 @@ for (const n of names) {
   );
 }
 
+// A REAL assertion, not a printed reminder. The line here used to read "the
+// control row MUST read 36/72" while the sim printed 56/72 over 6 of 9 dishes -
+// a guard nobody could act on, because nothing checked it. Coverage is what
+// actually went wrong, so coverage is what is enforced: a ceiling measured over
+// part of the oracle understates every row and is not comparable to the
+// published score.
+const scored = new Set(perDish.get("today (control)")!.keys());
+const missing = oracle.map((e) => e.name).filter((n) => !scored.has(n));
+if (missing.length) {
+  throw new Error(
+    `this sim scored ${scored.size} of ${oracle.length} oracle dishes - ` +
+      `missing ${missing.join(", ")}.\n` +
+      `Every row above is a ceiling over PART of the set and none is comparable ` +
+      `to the published score. Run the missing menus through ` +
+      `scripts/bench-unweighted.ts first.`,
+  );
+}
 console.log(
-  "\nThe control row MUST read 36/72, the published dual-pass score." +
-    "\nAnything else means this scorer is not the harness's and no row is believable.",
+  `\nControl covers all ${oracle.length} oracle dishes, scored through the ` +
+    `harness's own scoreItemAgainstBand.`,
 );

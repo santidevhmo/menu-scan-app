@@ -24,9 +24,9 @@
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 52,
-          "protein_per_100g": 1,
-          "carb_per_100g": 4,
-          "fat_per_100g": 0
+          "protein_per_100g": 0.7,
+          "carb_per_100g": 3.6,
+          "fat_per_100g": 0.1
         },
         {
           "name": "aguacate",
@@ -60,15 +60,15 @@
           "category": "carb",
           "within_printed_weight": true,
           "typical_serving_g": 150,
-          "protein_per_100g": 2,
+          "protein_per_100g": 2.7,
           "carb_per_100g": 28,
           "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 19,
+      "protein_g": 20,
       "carb_g": 54,
       "fat_g": 25,
-      "estimated_calories": 519,
+      "estimated_calories": 522,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
@@ -91,12 +91,12 @@
       "ingredients": [
         {
           "name": "tampico",
-          "category": "fat",
+          "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 30,
           "protein_per_100g": 5,
           "carb_per_100g": 10,
-          "fat_per_100g": 20
+          "fat_per_100g": 15
         },
         {
           "name": "aguacate",
@@ -121,9 +121,9 @@
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 52,
-          "protein_per_100g": 1,
-          "carb_per_100g": 4,
-          "fat_per_100g": 0
+          "protein_per_100g": 0.7,
+          "carb_per_100g": 3.6,
+          "fat_per_100g": 0.1
         },
         {
           "name": "camarón",
@@ -132,7 +132,7 @@
           "typical_serving_g": 50,
           "protein_per_100g": 20,
           "carb_per_100g": 0,
-          "fat_per_100g": 1
+          "fat_per_100g": 0.5
         },
         {
           "name": "salmón",
@@ -148,15 +148,15 @@
           "category": "carb",
           "within_printed_weight": true,
           "typical_serving_g": 150,
-          "protein_per_100g": 2,
+          "protein_per_100g": 2.7,
           "carb_per_100g": 28,
           "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 28,
+      "protein_g": 29,
       "carb_g": 53,
-      "fat_g": 31,
-      "estimated_calories": 603,
+      "fat_g": 29,
+      "estimated_calories": 590,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
@@ -193,7 +193,7 @@
           "typical_serving_g": 50,
           "protein_per_100g": 20,
           "carb_per_100g": 0,
-          "fat_per_100g": 1
+          "fat_per_100g": 0.5
         },
         {
           "name": "aguacate",
@@ -209,7 +209,7 @@
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 20,
-          "protein_per_100g": 5,
+          "protein_per_100g": 2,
           "carb_per_100g": 20,
           "fat_per_100g": 0
         },
@@ -218,7 +218,7 @@
           "category": "carb",
           "within_printed_weight": true,
           "typical_serving_g": 150,
-          "protein_per_100g": 2,
+          "protein_per_100g": 2.7,
           "carb_per_100g": 28,
           "fat_per_100g": 0.3
         }
@@ -226,7 +226,7 @@
       "protein_g": 28,
       "carb_g": 51,
       "fat_g": 11,
-      "estimated_calories": 411,
+      "estimated_calories": 410,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
@@ -269,33 +269,33 @@
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 52,
-          "protein_per_100g": 1,
-          "carb_per_100g": 4,
-          "fat_per_100g": 0
+          "protein_per_100g": 0.7,
+          "carb_per_100g": 3.6,
+          "fat_per_100g": 0.1
         },
         {
           "name": "ajonjoli",
           "category": "fat",
           "within_printed_weight": true,
           "typical_serving_g": 10,
-          "protein_per_100g": 18,
-          "carb_per_100g": 12,
-          "fat_per_100g": 50
+          "protein_per_100g": 17,
+          "carb_per_100g": 23,
+          "fat_per_100g": 49
         },
         {
           "name": "rice",
           "category": "carb",
           "within_printed_weight": true,
           "typical_serving_g": 150,
-          "protein_per_100g": 2,
+          "protein_per_100g": 2.7,
           "carb_per_100g": 28,
           "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 17,
-      "carb_g": 46,
+      "protein_g": 18,
+      "carb_g": 47,
       "fat_g": 22,
-      "estimated_calories": 454,
+      "estimated_calories": 460,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
@@ -337,33 +337,33 @@
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 52,
-          "protein_per_100g": 1,
-          "carb_per_100g": 4,
-          "fat_per_100g": 0
+          "protein_per_100g": 0.7,
+          "carb_per_100g": 3.6,
+          "fat_per_100g": 0.1
         },
         {
           "name": "zanahoria",
           "category": "veg",
           "within_printed_weight": true,
-          "typical_serving_g": 50,
-          "protein_per_100g": 1,
+          "typical_serving_g": 61,
+          "protein_per_100g": 0.9,
           "carb_per_100g": 10,
-          "fat_per_100g": 0
+          "fat_per_100g": 0.2
         },
         {
           "name": "rice",
           "category": "carb",
           "within_printed_weight": true,
           "typical_serving_g": 150,
-          "protein_per_100g": 2,
+          "protein_per_100g": 2.7,
           "carb_per_100g": 28,
           "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 9,
+      "protein_g": 10,
       "carb_g": 55,
       "fat_g": 10,
-      "estimated_calories": 344,
+      "estimated_calories": 353,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
@@ -383,12 +383,12 @@
       "ingredients": [
         {
           "name": "tampico",
-          "category": "fat",
+          "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 30,
           "protein_per_100g": 5,
           "carb_per_100g": 10,
-          "fat_per_100g": 20
+          "fat_per_100g": 15
         },
         {
           "name": "atún picado",
@@ -404,7 +404,7 @@
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 20,
-          "protein_per_100g": 5,
+          "protein_per_100g": 2,
           "carb_per_100g": 20,
           "fat_per_100g": 0
         },
@@ -415,22 +415,22 @@
           "typical_serving_g": 10,
           "protein_per_100g": 13,
           "carb_per_100g": 3,
-          "fat_per_100g": 2
+          "fat_per_100g": 5
         },
         {
           "name": "rice",
           "category": "carb",
           "within_printed_weight": true,
           "typical_serving_g": 150,
-          "protein_per_100g": 2,
+          "protein_per_100g": 2.7,
           "carb_per_100g": 28,
           "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 19,
+      "protein_g": 20,
       "carb_g": 49,
-      "fat_g": 9,
-      "estimated_calories": 357,
+      "fat_g": 8,
+      "estimated_calories": 348,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
@@ -456,7 +456,7 @@
           "typical_serving_g": 50,
           "protein_per_100g": 20,
           "carb_per_100g": 0,
-          "fat_per_100g": 1
+          "fat_per_100g": 0.5
         },
         {
           "name": "queso crema",
@@ -472,9 +472,9 @@
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 52,
-          "protein_per_100g": 1,
-          "carb_per_100g": 4,
-          "fat_per_100g": 0
+          "protein_per_100g": 0.7,
+          "carb_per_100g": 3.6,
+          "fat_per_100g": 0.1
         },
         {
           "name": "aguacate",
@@ -490,15 +490,15 @@
           "category": "carb",
           "within_printed_weight": true,
           "typical_serving_g": 150,
-          "protein_per_100g": 2,
+          "protein_per_100g": 2.7,
           "carb_per_100g": 28,
           "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 16,
+      "protein_g": 17,
       "carb_g": 50,
-      "fat_g": 19,
-      "estimated_calories": 432,
+      "fat_g": 18,
+      "estimated_calories": 433,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
@@ -552,7 +552,7 @@
           "typical_serving_g": 10,
           "protein_per_100g": 13,
           "carb_per_100g": 3,
-          "fat_per_100g": 2
+          "fat_per_100g": 5
         },
         {
           "name": "mayonesa",
@@ -560,7 +560,7 @@
           "within_printed_weight": true,
           "typical_serving_g": 15,
           "protein_per_100g": 1,
-          "carb_per_100g": 1,
+          "carb_per_100g": 0,
           "fat_per_100g": 75
         },
         {
@@ -568,15 +568,15 @@
           "category": "carb",
           "within_printed_weight": true,
           "typical_serving_g": 150,
-          "protein_per_100g": 2,
+          "protein_per_100g": 2.7,
           "carb_per_100g": 28,
           "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 20,
+      "protein_g": 21,
       "carb_g": 48,
       "fat_g": 32,
-      "estimated_calories": 561,
+      "estimated_calories": 567,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
@@ -619,9 +619,9 @@
           "category": "veg",
           "within_printed_weight": true,
           "typical_serving_g": 52,
-          "protein_per_100g": 1,
-          "carb_per_100g": 4,
-          "fat_per_100g": 0
+          "protein_per_100g": 0.7,
+          "carb_per_100g": 3.6,
+          "fat_per_100g": 0.1
         },
         {
           "name": "camarón",
@@ -630,7 +630,7 @@
           "typical_serving_g": 50,
           "protein_per_100g": 20,
           "carb_per_100g": 0,
-          "fat_per_100g": 1
+          "fat_per_100g": 0.5
         },
         {
           "name": "surimi",
@@ -646,15 +646,15 @@
           "category": "carb",
           "within_printed_weight": true,
           "typical_serving_g": 150,
-          "protein_per_100g": 2,
+          "protein_per_100g": 2.7,
           "carb_per_100g": 28,
           "fat_per_100g": 0.3
         }
       ],
-      "protein_g": 19,
+      "protein_g": 20,
       "carb_g": 54,
       "fat_g": 19,
-      "estimated_calories": 465,
+      "estimated_calories": 466,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [
@@ -706,7 +706,7 @@
           "category": "other",
           "within_printed_weight": true,
           "typical_serving_g": 20,
-          "protein_per_100g": 5,
+          "protein_per_100g": 2,
           "carb_per_100g": 20,
           "fat_per_100g": 0
         },
@@ -715,7 +715,7 @@
           "category": "carb",
           "within_printed_weight": true,
           "typical_serving_g": 150,
-          "protein_per_100g": 2,
+          "protein_per_100g": 2.7,
           "carb_per_100g": 28,
           "fat_per_100g": 0.3
         }
@@ -723,7 +723,7 @@
       "protein_g": 28,
       "carb_g": 51,
       "fat_g": 17,
-      "estimated_calories": 465,
+      "estimated_calories": 466,
       "serving_pieces": 8,
       "confidence": "high",
       "allergens": [

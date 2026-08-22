@@ -131,7 +131,22 @@ async function callOpenAI(
   });
   if (!res.ok) throw new Error(`OpenAI ${res.status}: ${await res.text()}`);
   const json = await res.json();
-  return JSON.parse(json.choices[0].message.content);
+  const content = json.choices[0].message.content;
+  try {
+    return JSON.parse(content);
+  } catch (err) {
+    // A paid run must never die leaving NOTHING to look at. Save the exact bytes
+    // the model sent before rethrowing, or diagnosing this costs another call.
+    const dump = `/tmp/callopenai-unparseable-${Date.now()}.txt`;
+    Deno.writeTextFileSync(dump, content);
+    const m = /position (\d+)/.exec(String(err));
+    const at = m ? Number(m[1]) : -1;
+    throw new Error(
+      `OpenAI content did not parse: ${err}\n` +
+        `  saved to ${dump} (${content.length} chars)\n` +
+        (at >= 0 ? `  context: ${JSON.stringify(content.slice(at - 60, at + 60))}` : ""),
+    );
+  }
 }
 
 export async function armA(items: Item[]) {

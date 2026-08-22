@@ -58,7 +58,7 @@ import {
 import {
   assertRunIsProducingData,
   isBackfilled,
-  itemsFromArchive,
+  itemsFromArchiveFile,
 } from "./bench-pipeline.ts";
 import { loadOracle, ORACLE_PATH } from "./bench-macros.ts";
 import { altOracle, pairWithOracle, scoreDish, toMacroValues } from "./macro-measure.ts";
@@ -264,15 +264,13 @@ async function main(): Promise<void> {
       const suffix = `${fullMenu ? "" : "-f"}${runLabel ? `-${runLabel}` : ""}`;
       const archive = `${CACHE_DIR}/mixed.${arm}${suffix}.${menu}-d${draw}.raw.json`;
     let enriched: EnrichedItem[];
-    let sent: ReturnType<typeof itemsFromArchive>;
+    let sent: ReturnType<typeof itemsFromArchiveFile>;
 
     if (replay) {
       enriched = JSON.parse(await Deno.readTextFile(archive)).items;
-      sent = itemsFromArchive(await Deno.readTextFile(`${CACHE_DIR}/${MENU_ARCHIVE[menu]}`));
+      sent = itemsFromArchiveFile(MENU_ARCHIVE[menu]);
     } else {
-      const whole = itemsFromArchive(
-        await Deno.readTextFile(`${CACHE_DIR}/${MENU_ARCHIVE[menu]}`),
-      );
+      const whole = itemsFromArchiveFile(MENU_ARCHIVE[menu]);
       assertFixtureTextMatches(menu, whole, entries);
       // Batches are located in the WHOLE menu, so the chunk boundaries a fixture
       // sits on are exactly production's, then only those chunks are sent.

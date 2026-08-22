@@ -35,8 +35,10 @@ the explicit exception: it is the bounded Phase-9 workstream record, not a compe
 **Stage-2 macro enrichment IS THE ACTIVE WORK. → Start at the `🆕 2026-08-20 HANDOFF` block
 below; it is written so a zero-context session can take over from it alone.** Everything between here
 and that block is older context that it supersedes where they disagree. Phase spend to date:
-**~$35.7** (~$2.52 to 2026-08-09, ~$19 on 2026-08-12, ~$6 on 2026-08-13, ~$5.5 on 2026-08-16,
-~$5.2 on 2026-08-19; **2026-08-20 cost $0**).
+**~$38.5** (~$2.52 to 2026-08-09, ~$19 on 2026-08-12, ~$6 on 2026-08-13, ~$5.5 on 2026-08-16,
+~$5.2 on 2026-08-19; **~$2.8 on 2026-08-20/21**, evals 157–158).
+ℹ️ Pre-existing and left alone: the itemised figures sum to ~$41, not the running total. The running
+total is the number that has been carried forward; treat both as approximate.
 
 📄 **Prefer a page to a wall of markdown? `docs/superpowers/how-testing-works.html`** explains the
 whole measurement setup in plain language, with a glossary of every term this phase uses.
@@ -101,22 +103,82 @@ item as `3/8` / `all`. Working, not the intended form.
 dish is built, how a pass is decided, and a glossary of every term used in this phase. Written for
 Santiago and for a cold session. Open it in a browser.
 
-### ⛔ THE NEXT ACTION, IN ONE LINE
+### ✅ THAT RUN IS DONE (2026-08-20, eval 157, ~$2.2). THE 9-DISH SCORE EXISTS.
 
-**ONE PAID RUN, ~$0.50–0.60, AWAITING SANTIAGO'S APPROVAL — do not run it without asking.**
+**`dual` (shipped, v32) 67/108 = 62%. `baseline` (pre-dual) 60/108 = 56%. Gap +7.**
+Both arms, all 9 dishes, 3 draws, same ruler, same day. Re-derive with
+`scripts/bench-unweighted.ts 3 <dual|baseline> --replay`.
 
-```bash
-deno run --allow-read --allow-write --allow-env --allow-net \
-  --env-file=.env.local scripts/bench-unweighted.ts 3 dual
-```
+🔑 **READ THE GAP'S DECOMPOSITION, NOT THE HEADLINE — THE BAR HAS NOT GONE SOFT.** On the seven dishes
+that existed before that day the gap is **+11**, matching the +11/+12 measured earlier the same day.
+The headline fell to +7 because the two NEW dishes contribute **−4**, all of it BROWNIE (baseline 12,
+dual 8). **That is dual genuinely losing a dessert, not a ruler that stopped discriminating.**
 
-Three dishes joined the oracle on 2026-08-20 and sit on two menus the unweighted harness has never
-enriched (`el-marcos`, `brasero-two`), so there are **no archived answers** and they cannot be scored
-for free. This run produces the first full 9-dish score and the first reading ever for eggs, tacos and
-dessert.
-⚠️ **EXPECT THE SCORE TO DROP.** Three untested dish forms are joining at once; TACO PORCO needs the
-model to add an unstated tortilla and BROWNIE is the set's only carb-dominant dish. **A number that
-falls when harder dishes arrive is the benchmark working, not a regression.**
+### ⛔ THE NEXT ACTION — NONE IS FORCED (Santiago's call, 2026-08-21). TWO CANDIDATES FOR A FRESH SESSION
+
+**No arm design survived contact on 2026-08-21.** Both candidates below need `superpowers:brainstorming`
+first:
+
+1. **Widen the oracle with more ASSEMBLED dishes** — the structural finding below rests on 5 dishes
+   against 4. Pizzas, pastas, sushi and tacos all exist across the archived menus. Mostly $0.
+2. **A size mechanism that does NOT ask the model for a total.** ☠️ **That route is dead twice over —
+   see the Arm A re-run below. Do not propose "schema-force the plate weight": that IS Arm A.**
+
+### ☠️ ARM A WAS RE-MEASURED ON 2026-08-21 AND REJECTED AGAIN — 36/108
+
+**Arm A 36/108 (33%) against the shipped `dual` 67/108 and `baseline` 60/108.** Far worse than doing
+nothing; it damages 7 of 9 dishes. **Why:** it asks for `typical_total_g` then RESCALES every
+ingredient to it, so a model that already oversizes gets a second chance to oversize and the rescale
+MULTIPLIES the error — TIRAS DE POLLO returns **71 g protein** (band 36–53), BROWNIE **669 kcal**
+(band 386–579).
+
+⚠️ **ARM A IS NOT "just a prompt sentence" — a claim made and corrected the same day.** It is
+`ENRICH_PROMPT` + a sentence **AND** a required numeric `typical_total_g` placed right after
+`printed_total_g` (the B4 ordering rule). **That is already the strongest form the scoreboard
+recommends, and it loses by 31 points.**
+
+🔑 **The hypothesis that justified re-running it — "Arm A failed against a 1.81 kcal/g assembly and
+today's richer dual pass makes the premise expire" — is FALSIFIED.** It was a control run demanded
+before design work, and it is the only reason no arm was built on top of it.
+
+🔴 **Overshoot is the failure direction on the hardest dishes.** The standing story is that unweighted
+dishes come out far too SMALL. **TACO PORCO is 0/12 in every arm at 460–632 kcal against a 174–261
+band; OMELETTE CUBANA is 3/12 in every arm at 621–695 against 320–480.** Both ~2× high.
+
+⚠️ **A TRANSIENT JSON CRASH CAN KILL A PAID RUN.** One Arm A run died on
+`SyntaxError: Bad Unicode escape in JSON at position 25033` after buying calls and writing nothing;
+the identical rerun succeeded, so it is **transient despite `temperature: 0` and `seed: 17`**.
+`callOpenAI` now saves the raw bytes before rethrowing. ⚠️ **Production shares the unguarded parse at
+`enrich.ts:382` — CONTAINED, not safe:** `enrichBatchWithRetry` retries then falls back to zeroed
+macros, so a user sees **0 kcal for that batch**. Untouched; a real open item.
+
+🔑 **TACO PORCO IS A PURE SIZE ERROR.** ⚠️ An earlier version of this block called it garnish
+inflation and quoted a 290 g breakdown — that was the `baseline` archive misattributed to the shipped
+path. **Corrected:** in `dual` the taco is **225 g against a 100–140 g band**, overshooting almost
+UNIFORMLY — tortilla 50 g (ruled 28), bandiola 100 (55), betabel 30 (15), piña 30 (15), and cacahuate
+**10 (15) — under**. **Its composition is RIGHT: 2.07 kcal/g against the oracle's 1.81, off by 1.14×,
+while size is off 1.88×. Resize the model's OWN recipe to 120 g and it scores a PASS at 249 kcal.**
+
+✅ **The count is settled by the menu, not by the model** (Santiago, 2026-08-21): all ten tacos read
+singular *"TACO X / Taco de…"*, and the same menu says **"ORDEN DE TORTILLAS"** when it means an order.
+The oracle's 100–140 g band stands and needs no re-check.
+
+### 🔬 THE STRUCTURAL FINDING: ASSEMBLED DISHES ARE THE BROKEN CLASS (2026-08-21)
+
+Santiago's hypothesis, then measured: the pipeline copes with a PLATE of separable things and breaks on
+a SINGLE UNIT whose ingredients are mixed together.
+
+| class | dishes | typical size miss | worst | score |
+|---|---|---|---|---|
+| **assembled** — pizza, sushi roll, taco, omelette, pasta | 5 | **1.38×** | 1.82× | **29/60** |
+| **separable** — salad, fries, brownie+scoop, strips+dip | 4 | **1.16×** | 1.30× | **38/48** |
+
+⚠️ **5 dishes against 4 — directionally confirmed, not precisely quantified.**
+
+🔑 **A size fix helps BOTH classes and hurts NEITHER.** Clamping each dish into its mass band:
+assembled **29 → 38/60**, separable **38 → 42/48**. Per dish, five are unchanged and four improve
+(TACO PORCO +5, BROWNIE +4, Salmón Roll +3, CAPRICCIOSA +1). **Only CARBONARA is ever damaged, and
+only by the aggressive force-to-midpoint mode (9 → 7), never by clamping.**
 
 ### 🔴 THE MOST IMPORTANT THING ON THIS PAGE: THE RULER CHANGED ON 2026-08-20
 
@@ -130,11 +192,19 @@ and the dish count all changed the same day. Re-score both arms before quoting a
 | dishes in the set | 6 | **9** |
 | the denominator | a hardcoded 72 | **`dishes × 4 × draws`** — printed by the build script |
 
-**Same-ruler, and it must be the SAME DISHES too — the two arms cover different ones.** On the five
-dishes BOTH arms have archives for (CAPRICCIOSA, CARBONARA, ENSALADA GRIEGA, TIRAS DE POLLO, Salmón
-Roll): shipped `dual` **41/60**, pre-dual `baseline` **32/60**, **gap 9**.
-Whole-archive replays print **`dual` 52/72 over 6 of 9 dishes** and **`baseline` 32/60 over 5** — those
-two are NOT comparable to each other, and the harness now says so in its own footer.
+✅ **THAT PARTIAL-COVERAGE PROBLEM IS CLOSED — both arms now cover all 9 dishes** (eval 157):
+**`dual` 67/108, `baseline` 60/108.** The older partial figures — `dual` 41/60 and `baseline` 32/60 on
+five shared dishes, gap 9; and the 52/72-over-6 replay — are **superseded**, and their archives were
+overwritten by the eval-157 runs.
+
+🐛 **WHY THEY WERE EVER PARTIAL, and it was NOT the model.** `brasero-two` is a DENSE menu: it is
+extracted in two calls (base photo, then 2x2 crop tiles archived as `.p1.raw.json`), the parts are
+**disjoint** (16 + 25 = 41 items, zero overlap), and production enriches the MERGED list — but the
+harness's loader read one file. brasero-two was silently truncated to 16 items and TACO PORCO and
+BROWNIE lived in the half never opened, so both arms reported them `ABSENT` on every draw. **Fixed at
+the shared loader** — `itemsFromArchiveFile()` in `bench-pipeline.ts` merges the parts, and all five
+call sites route through it. **brasero-two is the only archive of either menu map with a `.p1.` part,
+and it is not in the mixed-menu map, so NO weighted number moved.**
 ⚠️ **The pre-swap pair "44/72 vs 35/72" is retired.** It was measured with COLIFLOR ROKA in the set and
 PAPAS FRITAS out, so it cannot be reproduced; do not quote it.
 
@@ -161,17 +231,25 @@ Chosen by **which dish FORM had never been measured**, not by description qualit
 16 more sushi rolls were available and deliberately skipped** — they grow the number and teach nothing.
 `scripts/find-unweighted-candidates.ts` does the shortlisting for $0.
 
-| dish | menu | form | points |
-|---|---|---|---|
-| PAPAS FRITAS | andaluz | side (replaced COLIFLOR) | **11/12** ✅ free |
-| CARBONARA | bistro | pasta | 10/12 |
-| ENSALADA GRIEGA | bistro | salad | 10/12 |
-| Salmón Roll | nikkori | sushi | 9/12 |
-| CAPRICCIOSA | bistro | pizza | 6/12 |
-| TIRAS DE POLLO | andaluz | fried chicken | 6/12 |
-| **OMELETTE CUBANA** | el-marcos | **eggs — new** | ⛔ needs the run |
-| **TACO PORCO** | brasero-two | **taco — new** | ⛔ needs the run |
-| **BROWNIE** | brasero-two | **dessert — new** | ⛔ needs the run |
+Points below are the 2026-08-20 eval-157 runs, `dual` vs `baseline`, 3 draws each.
+
+| dish | menu | form | dual | baseline |
+|---|---|---|---|---|
+| ENSALADA GRIEGA | bistro | salad | 11/12 | **12/12** |
+| PAPAS FRITAS | andaluz | side (replaced COLIFLOR) | 11/12 | **12/12** |
+| CARBONARA | bistro | pasta | **9/12** | 7/12 |
+| Salmón Roll | nikkori | sushi | 9/12 | **12/12** |
+| CAPRICCIOSA | bistro | pizza | **8/12** | 0/12 |
+| TIRAS DE POLLO | andaluz | fried chicken | **8/12** | 2/12 |
+| **BROWNIE** | brasero-two | **dessert — new** | 8/12 | **12/12** |
+| **OMELETTE CUBANA** | el-marcos | **eggs — new** | 3/12 | 3/12 |
+| **TACO PORCO** | brasero-two | **taco — new** | **0/12** | **0/12** |
+| **TOTAL** | | | **67/108** | **60/108** |
+
+⚠️ **BROWNIE's baseline 12/12 is partly LUCK and is not evidence of good sizing.** That arm put
+**144 g of strawberries** on it against a ruled 30 g — a ~5× error — and still passed every band,
+because strawberries are ~32 kcal/100 g. **A pass hides a large gram error whenever the mis-sized
+component is calorie-poor.**
 
 🔑 **PAPAS FRITAS came free at 11/12** — it was already a neighbour in andaluz's archived batches, so
 the shipped pipeline had been answering it all along. It is now the best dish in the set. **The five
@@ -210,7 +288,32 @@ archived answers with the fix applied. That is the cheapest thing this phase doe
 |---|---|---|
 | correct the SIDE-DISH weights to Santiago's own ruled grams | 46 → **66 failed** | `sim-accompaniment-ceiling.ts` |
 | lift lean dishes to normal calorie density via FAT | 46 → **80 failed** | `sim-decomposition-ceiling.ts` |
-| give every dish a PERFECT MASS | 36 → **35 points** | `sim-mass-ceiling.ts` |
+| ~~give every dish a PERFECT MASS | 36 → **35 points**~~ | 🔴 **REVERSED — see below** |
+
+🔴 **THE MASS ROW IS RETRACTED (2026-08-21). PERFECT MASS IS NOW THE ONLY LEVER WITH A CEILING.**
+It was measured at the OLD uneven bands over 6 dishes. Re-derived at the ±20% ruler over all 9, with
+every control row reproducing the harness's published **67/108** exactly:
+
+| lever | control | best row | gain |
+|---|---|---|---|
+| **MASS → clamped into band** | 67/108 | **80/108** | **+13** |
+| **MASS → perfect (band midpoint)** | 67/108 | **98/108** | **+31** |
+| accompaniment weight, Santiago's ruled g | 67/108 | 67/108 | **0** |
+| decomposition / lift lean via fat | 67/108 | 67/108 | **0** |
+
+**TACO PORCO 0 → 12 and OMELETTE CUBANA 3 → 12 on mass alone** — they have no composition problem,
+which is exactly why every composition-side lever reads zero.
+⚠️ **Both mass rows are CEILINGS, not arms** — they read the answer from the oracle. They prove
+headroom exists; they are not a mechanism the model can execute.
+⚠️ **This also retires the 2026-08-16 headline "SIZE WAS THE SYMPTOM, ASSEMBLY IS THE DISEASE."** It
+was true of a 1.81 kcal/g assembly. Today's dual pass runs richer and size is the dominant error.
+
+🐛 **WHY THIS WENT UNNOTICED FOR A DAY, and it is the same defect class as the loader bug.** All three
+sims hardcoded `["andaluz", "bistro", "nikkori"]` and never grew when el-marcos and brasero-two joined,
+so each silently reported a ceiling over **6 of 9 dishes** — excluding the two worst overshooters. And
+`sim-mass-ceiling.ts` *printed* "the control row MUST read 36/72" while printing 56/72: a guard nobody
+could act on, because nothing checked it. **All three now DERIVE their menus from the oracle, and the
+mass sim THROWS if it has not scored every oracle dish.**
 
 🔑 **The two transferable lessons.** (a) **The oversized side is LOAD-BEARING** — 6 of 8 weighted dishes
 are already too LOW, so shrinking a side only removes calories a dish needed. On Salmone toscano the

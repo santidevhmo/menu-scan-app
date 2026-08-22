@@ -860,6 +860,8 @@ photos of a screen.)
 
 **Deliverables — Screenshots:**
 
+> **🎨 Design Workflow Reminder:** Use **Paper** (not `/design` command) to design and iterate with Claude. Complete the full design in Paper / Figma, then pass the finished mockups to the app. Reference: Paper + Mobbin + Pinterest + Claude design workflow — [Instagram reel](https://www.instagram.com/reels/Da_zL1EBl2B/).
+
 - Apply Phase 3 Cal AI screenshot teardown + competitor screenshots + Notion saved resources. Output: `research/screenshots.md`.
 - Design 6–8 screenshot frames per platform: hero ("Eat smarter at any restaurant"), feature highlights (multi-goal stacking, drag-reorder priority, profile system, history search, allergen safety).
 - Pirsch Analytics style language — yellow + green accents, DM Sans, real product screens with annotation labels.

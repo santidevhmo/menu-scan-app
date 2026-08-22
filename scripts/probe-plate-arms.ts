@@ -27,6 +27,8 @@ import {
 import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
 import { ARM_S3, ARM_S4 } from "./arm-schemas.ts";
 import {
+  ARM_NOBOOST,
+  ARM_NOPUSH,
   ARM_ORDER,
   ARM_ORDER_NOPUSH,
   ARM_PIECE,
@@ -697,6 +699,10 @@ export const armOrder = (items: Item[]) => runOrderArm(items, ARM_ORDER, false);
 export const armOrderNoPush = (items: Item[]) =>
   runOrderArm(items, ARM_ORDER_NOPUSH, false);
 export const armPiece = (items: Item[]) => runOrderArm(items, ARM_PIECE, true);
+export const armNoPush = (items: Item[]) =>
+  runOrderArm(items, ARM_NOPUSH, false);
+export const armNoBoost = (items: Item[]) =>
+  runOrderArm(items, ARM_NOBOOST, false);
 
 /**
  * The sauce probes' dish set, shared by `sauce-dish` and `sauce-schema` so the

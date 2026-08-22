@@ -1,0 +1,591 @@
+{
+  "items": [
+    {
+      "name": "OMELETTE LAMERA",
+      "description": "Dos huevos con cebolla, champiñones, tocino y chile verde.",
+      "price": 94,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "omelette"
+      ],
+      "ingredients": [
+        {
+          "name": "eggs",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 13,
+          "carb_per_100g": 1,
+          "fat_per_100g": 11
+        },
+        {
+          "name": "onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "mushrooms",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "bacon",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 12,
+          "carb_per_100g": 1,
+          "fat_per_100g": 42
+        },
+        {
+          "name": "green chili",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 10,
+          "protein_per_100g": 2,
+          "carb_per_100g": 7,
+          "fat_per_100g": 0
+        }
+      ],
+      "protein_g": 18,
+      "carb_g": 5,
+      "fat_g": 24,
+      "estimated_calories": 304,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "egg"
+      ]
+    },
+    {
+      "name": "OMELETTE TOMASA",
+      "description": "Dos huevos con cebolla, cebollín, cilantro, champiñones y queso.",
+      "price": 94,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "omelette"
+      ],
+      "ingredients": [
+        {
+          "name": "eggs",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 13,
+          "carb_per_100g": 1,
+          "fat_per_100g": 11
+        },
+        {
+          "name": "onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "spring onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 10,
+          "protein_per_100g": 1,
+          "carb_per_100g": 7,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "cilantro",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 5,
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "mushrooms",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 25,
+          "carb_per_100g": 2,
+          "fat_per_100g": 33
+        }
+      ],
+      "protein_g": 22,
+      "carb_g": 6,
+      "fat_g": 21,
+      "estimated_calories": 298,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "egg",
+        "dairy"
+      ]
+    },
+    {
+      "name": "OMELETTE CUBANA",
+      "description": "Dos huevos con chorizo, jamón, tocino, queso, cebolla y pimiento verde.",
+      "price": 98,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "omelette"
+      ],
+      "ingredients": [
+        {
+          "name": "eggs",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 13,
+          "carb_per_100g": 1,
+          "fat_per_100g": 11
+        },
+        {
+          "name": "chorizo",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 20,
+          "carb_per_100g": 2,
+          "fat_per_100g": 38
+        },
+        {
+          "name": "ham",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 18,
+          "carb_per_100g": 1,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "bacon",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 12,
+          "carb_per_100g": 1,
+          "fat_per_100g": 42
+        },
+        {
+          "name": "cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 25,
+          "carb_per_100g": 2,
+          "fat_per_100g": 33
+        },
+        {
+          "name": "onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "green pepper",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0
+        }
+      ],
+      "protein_g": 36,
+      "carb_g": 6,
+      "fat_g": 46,
+      "estimated_calories": 584,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "egg",
+        "dairy"
+      ]
+    },
+    {
+      "name": "DE INDIO",
+      "description": "Dos huevos fritos montados sobre un huarache de maíz con frijoles refritos y bañados con salsa verde, crema, cebolla y cilantro.",
+      "price": 94,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "fried eggs",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 13,
+          "carb_per_100g": 1,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "corn huarache",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 6,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "refried beans",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 6,
+          "carb_per_100g": 20,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "green salsa",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 1
+        },
+        {
+          "name": "cream",
+          "category": "fat",
+          "within_printed_weight": true,
+          "typical_serving_g": 20,
+          "protein_per_100g": 2,
+          "carb_per_100g": 4,
+          "fat_per_100g": 30
+        },
+        {
+          "name": "onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 10,
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "cilantro",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 5,
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 1
+        }
+      ],
+      "protein_g": 23,
+      "carb_g": 65,
+      "fat_g": 29,
+      "estimated_calories": 610,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "egg",
+        "dairy",
+        "gluten"
+      ]
+    },
+    {
+      "name": "Machaca de Marlín c/huevo o verdura",
+      "description": "",
+      "price": 98,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "marlin",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 20,
+          "carb_per_100g": 0,
+          "fat_per_100g": 2
+        },
+        {
+          "name": "eggs",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 13,
+          "carb_per_100g": 1,
+          "fat_per_100g": 11
+        },
+        {
+          "name": "vegetables",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 2,
+          "carb_per_100g": 8,
+          "fat_per_100g": 0
+        }
+      ],
+      "protein_g": 34,
+      "carb_g": 5,
+      "fat_g": 13,
+      "estimated_calories": 273,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "fish",
+        "egg"
+      ]
+    },
+    {
+      "name": "Cazuela de Marlín",
+      "description": "",
+      "price": 98,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "marlin",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 150,
+          "protein_per_100g": 20,
+          "carb_per_100g": 0,
+          "fat_per_100g": 2
+        },
+        {
+          "name": "vegetables",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 2,
+          "carb_per_100g": 8,
+          "fat_per_100g": 0
+        },
+        {
+          "name": "sauce",
+          "category": "other",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 10,
+          "fat_per_100g": 5
+        }
+      ],
+      "protein_g": 31,
+      "carb_g": 7,
+      "fat_g": 5,
+      "estimated_calories": 194,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "fish"
+      ]
+    },
+    {
+      "name": "Omelette de Camarón y Marlín",
+      "description": "",
+      "price": 98,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "omelette"
+      ],
+      "ingredients": [
+        {
+          "name": "eggs",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 100,
+          "protein_per_100g": 13,
+          "carb_per_100g": 1,
+          "fat_per_100g": 11
+        },
+        {
+          "name": "shrimp",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 24,
+          "carb_per_100g": 0,
+          "fat_per_100g": 2
+        },
+        {
+          "name": "marlin",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 20,
+          "carb_per_100g": 0,
+          "fat_per_100g": 2
+        },
+        {
+          "name": "vegetables",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 2,
+          "carb_per_100g": 8,
+          "fat_per_100g": 0
+        }
+      ],
+      "protein_g": 36,
+      "carb_g": 3,
+      "fat_g": 13,
+      "estimated_calories": 273,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "egg",
+        "fish",
+        "shellfish"
+      ]
+    },
+    {
+      "name": "Doblada de Camarón y Marlín",
+      "description": "",
+      "price": 98,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "shrimp",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 24,
+          "carb_per_100g": 0,
+          "fat_per_100g": 2
+        },
+        {
+          "name": "marlin",
+          "category": "protein",
+          "within_printed_weight": true,
+          "typical_serving_g": 50,
+          "protein_per_100g": 20,
+          "carb_per_100g": 0,
+          "fat_per_100g": 2
+        },
+        {
+          "name": "tortilla",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 60,
+          "protein_per_100g": 6,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "vegetables",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 2,
+          "carb_per_100g": 8,
+          "fat_per_100g": 0
+        }
+      ],
+      "protein_g": 26,
+      "carb_g": 32,
+      "fat_g": 5,
+      "estimated_calories": 279,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "fish",
+        "shellfish",
+        "gluten"
+      ]
+    },
+    {
+      "name": "BISQUETS DEL CENTRO",
+      "description": "(Orden de dos)",
+      "price": 84,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "biscuits",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 120,
+          "protein_per_100g": 7,
+          "carb_per_100g": 60,
+          "fat_per_100g": 20
+        }
+      ],
+      "protein_g": 8,
+      "carb_g": 72,
+      "fat_g": 24,
+      "estimated_calories": 538,
+      "serving_pieces": 2,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ]
+    },
+    {
+      "name": "BISQUETS C/ FRUTOS ROJOS",
+      "description": "(Orden de dos)",
+      "price": 94,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "biscuits",
+          "category": "carb",
+          "within_printed_weight": true,
+          "typical_serving_g": 120,
+          "protein_per_100g": 7,
+          "carb_per_100g": 60,
+          "fat_per_100g": 20
+        },
+        {
+          "name": "red fruits",
+          "category": "veg",
+          "within_printed_weight": true,
+          "typical_serving_g": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 12,
+          "fat_per_100g": 0
+        }
+      ],
+      "protein_g": 9,
+      "carb_g": 76,
+      "fat_g": 24,
+      "estimated_calories": 553,
+      "serving_pieces": 2,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ]
+    }
+  ]
+}

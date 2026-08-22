@@ -40,6 +40,8 @@ That split is deliberate: the model is good at knowing what food is, and bad at 
 | **`dual`** | **What is deployed today (v32).** Stage 2 runs *twice*: pass 1 sends the whole menu (its answers used for dishes that print a weight); pass 2 re-sends only the no-weight dishes, in their own batches, with one extra sentence. | **67/108** ← best |
 | **`Arm A`** | Asks the model for the dish's **total grams** (`typical_total_g`, a required schema field), then rescales every ingredient to that total. | **36/108** ☠️ rejected twice |
 | **`ORDER` / `ORDER-nopush` / `PIECE`** | Change what the per-ingredient GRAM FIELD asks for: `typical_serving_g` (a label serving) → grams **in one order as sold**, or grams **per piece x `serving_pieces`**. No total asked, nothing rescaled. | **61 / 65 / 60** ☠️ all rejected, eval 159 — **and they SIZED BETTER than the winner** |
+| **`NOPUSH`** | Deletes pass 2's whole addendum — **both** the restraint half AND the push half. Shipped gram ask, shipped schema. | **57/108** ☠️ rejected, eval 160 — **and it does NOT test what its name says** |
+| **`NOBOOST`** | Deletes **only the push half** of pass 2's addendum; keeps the restraint. Shipped gram ask, shipped schema, shipped key. One clause of diff. | **70/108** 🟢 **the first arm ever to beat the shipped pipeline** (eval 160) — ONE run, no range |
 
 ### ⚖️ THE TWO SCORES — NEVER MERGE THEM
 
@@ -57,7 +59,7 @@ The benchmark is split because the product is split.
 **Production is edge function `analyze-menu` v32, deployed 2026-08-19.** Everything since has been
 measurement and failed experiments. **Nothing has beaten v32.**
 
-### 🔑 THE 2026-08-21 FINDING THAT CHANGES WHAT TO TRY NEXT (eval 159)
+### 🔑 THE 2026-08-21 FINDINGS THAT CHANGE WHAT TO TRY NEXT (evals 159 + 160)
 
 **MASS AND COMPOSITION ARE NOT SEPARABLE LEVERS IN ONE MODEL CALL.** Three arms changed only what the
 per-ingredient gram field ASKS for. All three **sized the plates better than the shipped pipeline**
@@ -85,15 +87,55 @@ perfect-mass rows. Nobody has shown one call can hold its recipe steady while re
 🔴 **THIS RETIRES "PERFECT MASS = 98/108" AS A TARGET.** `sim-mass-ceiling.ts` rescales mass while
 HOLDING COMPOSITION FIXED, which no arm can do. The ceiling is real; it is not aimable at.
 
-⚠️ **PASS 2's PUSH SENTENCE COST 4 POINTS HERE** (ORDER 61 vs ORDER-nopush 65). It tells the model a
-body component is "present in considerably greater quantity than a standalone serving" — written when
-dishes read too small, now paid for on a set where 9 of 27 dish-draws are already OVER. **Not a licence
-to delete it from production:** that +4 was measured under the NEW gram question, never under the
-shipped one.
+🟢 **THE PUSH SENTENCE WAS THE LEAD, AND EVAL 160 CASHED IT — `NOBOOST` 70/108, THE FIRST ARM EVER TO
+BEAT THE SHIPPED PIPELINE.** Read the next block before touching that sentence.
 
 ⚠️ **THE MODEL ROUNDS EITHER WAY, so none of this cleanly tests "reference serving vs plate share".**
 20/30/50/100 accounts for **71%** of dual's gram answers and **71 / 68 / 64%** of the three arms'.
 Only the numbers it snaps TO got smaller. Re-derive with `sim-gram-distribution.ts`.
+
+### 🟢 EVAL 160: THE PASS-2 SENTENCE IS TWO OPPOSED HALVES, AND WE HAD BEEN DELETING BOTH
+
+`ENRICH_PROMPT_UNWEIGHTED`'s addendum (`enrich.ts:106-107`) is **ONE sentence holding TWO OPPOSED
+HALVES, split by a colon**:
+
+| half | text | direction |
+|---|---|---|
+| **A — restraint** | *"...the amount actually present in one order of this item as it is served, **rather than the amount that ingredient is served in on its own**"* | holds ingredients **DOWN** |
+| **B — the push** | *": a component that forms the body ... **considerably greater quantity** than a standalone serving ... understates the item."* | pushes ingredients **UP** |
+
+Half A is the **only** restraint in the shipped prompt — the shipped gram ask is for a nutrition-LABEL
+serving. Delete A and every ingredient reverts to a standalone portion.
+
+| arm | deletes | score | mass in band /27 |
+|---|---|---|---|
+| `dual` (shipped v32) | — | **67** | 14 |
+| `NOPUSH` | **A and B** | **57** ☠️ −10 | 14 (12 OVER: TACO PORCO 348 g, Salmón Roll 477 g) |
+| `NOBOOST` | **B only** | **70** 🟢 **+3** | **17 — best of any arm** (TACO PORCO 225 g → 135 g, in band) |
+
+🔑 **THIS RECONCILES `ORDER-nopush` +4 WITH `NOPUSH` −10 — the same deletion, opposite signs.**
+`ORDER_ASK` carries its own restraint, so there the deletion dropped only *redundant* push. Restraint
+nowhere else → **−10**. Restraint also in the gram ask → **+4**. Half B was written when dishes read
+too SMALL; on today's ruler 12 of 27 dish-draws come back OVER.
+
+🎯 **THE BEST CELL IN THE PROJECT IS NOW 77/108** — `NOBOOST`'s sizing at `dual`'s recipe, beating eval
+159's 74. Re-derive: `deno run --allow-read scripts/sim-mass-composition-split.ts dual NOPUSH NOBOOST`.
+⚠️ Still a CEILING, not an arm.
+
+⛔ **BEFORE BUYING A REPEAT RUN OF `NOBOOST`: `bench-unweighted.ts` HAS NO `--run` FLAG.** Only
+`bench-mixed-menu.ts` has it (`bench-mixed-menu.ts:227`). Re-running overwrites the 70/108 archives and
+the range is lost — the exact hazard this file records at "the '16' was lost to the overwrite hazard
+`--run` fixes". Port the 8-line pattern first. **+3 on one 3-draw run is NOT shippable** (draw spread
+inside it: CAPRICCIOSA 0–2/4, TACO PORCO 0–3/4).
+
+✅ **OMELETTE CUBANA IS DIAGNOSED AND IT IS NOT A SIZING BUG.** Frozen at exactly 3/12 in all four
+eval-159 arms because each prices the **four named fillings** at a flat 20–30 g — chorizo/ham/bacon/
+cheese = **100–120 g against a ruled 53 g** — while getting eggs (110) and onion/pepper (20/20) right.
+Keep the model's OWN per-100 g recipe and swap in only the oracle's ruled grams: **OMELETTE 1/4 → 4/4
+PASS and TACO PORCO 0/4 → 4/4 PASS**, under both `dual` and `ORDER`. **Composition is entirely correct;
+100% of the loss is per-ingredient gram sizing.** The needed correction (30 → 8–15 g) is BELOW the
+model's granularity for a named meat or cheese: across 140 answers `15 g` appears **once**, `8 g`
+**never**. That is Santiago's ruling #1 (*virutas* = shavings = 5 g) broken four times in one dish.
 
 ### ❓ "Why haven't we deployed anything?"
 
@@ -107,6 +149,8 @@ it. Every arm tried since has scored **worse than what already runs**:
 | lift lean dishes via fat | falsified at $0 — makes it worse |
 | Arm A (plate total), re-run 2026-08-21 | **36/108 vs the shipped 67/108** |
 | ORDER / ORDER-nopush / PIECE (what the gram field asks) | **61 / 65 / 60 vs 67** — better mass, worse recipe |
+| NOPUSH (delete pass 2's whole addendum) | **57/108 vs 67** — rejected |
+| **NOBOOST (delete only the addendum's PUSH half)** | **70/108 vs 67** 🟢 **first arm to beat v32** — one run only |
 
 Shipping any of them would make the app **less** accurate. The honest state is: *the shipped thing is
 the best thing we have, and the next idea has not been found yet.*
@@ -1361,12 +1405,12 @@ deno run --allow-read scripts/sim-scope-rule.ts   # $0: the printed-weight scope
 
 # $0. Did an arm change the MECHANISM, or just the number? Gram-answer distribution
 # plus each dish's total mass against its ruled band, for any archived arm.
-deno run --allow-read scripts/sim-gram-distribution.ts dual ORDER ORDER-nopush PIECE
+deno run --allow-read scripts/sim-gram-distribution.ts dual NOBOOST NOPUSH ORDER ORDER-nopush PIECE
 
 # $0. Are MASS and COMPOSITION separable? Crosses each arm's mass with each arm's
 # per-100 g recipe. THROWS if the control row misses its published score by >3 -
 # a hand-rolled version of this read 88/108 for a control the harness reads 67.
-deno run --allow-read scripts/sim-mass-composition-split.ts dual ORDER ORDER-nopush PIECE
+deno run --allow-read scripts/sim-mass-composition-split.ts dual NOBOOST NOPUSH ORDER ORDER-nopush PIECE
 
 # $0 CEILINGS - "if we fixed X perfectly, how many points would it be worth?"
 # Run these BEFORE designing any arm: they have killed four ideas for nothing.
@@ -1383,7 +1427,7 @@ deno run --allow-read scripts/sim-decomposition-ceiling.ts  # missing ingredient
 # replay: probe-plate-arms.ts reads OPENAI_API_KEY at import time and throws
 # without it, even though a replay calls no API.
 deno run --allow-read --allow-env --env-file=.env.local \
-  scripts/bench-unweighted.ts 3 <baseline|dual|P|P10|PF|PD|A|A-cond|S3|SplitOnly> --replay
+  scripts/bench-unweighted.ts 3 <baseline|dual|NOBOOST|NOPUSH|ORDER|ORDER-nopush|PIECE|P|P10|PF|PD|A|A-cond|S3|SplitOnly> --replay
 
 # PAID. Weighted set, one run of 3 draws. BENCH_ARM is optional (S3 | S4). ~$0.05.
 BENCH_RUN_ID=iter-<name>-w1 [BENCH_ARM=S3] deno run --allow-read --allow-write \

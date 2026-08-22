@@ -2364,3 +2364,113 @@ printed by `unweighted-oracle-build.ts`, not a hardcoded 72.
 - **⛔ NEXT ACTION: none forced.** The cross-table's 74/108 cell is the strongest lead this phase has
   produced in a week, but turning a ceiling into a mechanism needs `superpowers:brainstorming` and
   Santiago's ruling on cost. Do NOT re-run any of the three arms here.
+
+---
+
+## Eval 160 — 🟢 FIRST ARM TO BEAT THE SHIPPED PIPELINE: `NOBOOST` 70/108. The pass-2 sentence is TWO OPPOSED HALVES and we had been deleting both (2026-08-21, ~$0.8)
+
+**What changed:** one clause of `ENRICH_PROMPT_UNWEIGHTED`. Nothing else — same model, same schema,
+same `"system"` envelope, same 9 dishes, same 3 draws, same oracle.
+
+- **🔑 THE STRUCTURAL FINDING. The unweighted addendum is ONE sentence holding TWO OPPOSED HALVES,
+  split by a colon** (`enrich.ts:106-107`):
+
+  | half | text | direction |
+  |---|---|---|
+  | **A — restraint** | *"...the amount of that ingredient actually present in one order of this item as it is served, **rather than the amount that ingredient is served in on its own**"* | holds ingredients **DOWN** |
+  | **B — the push** | *": a component that forms the body of an item is present in **considerably greater quantity** than a standalone serving of it, and using the standalone amount understates the item."* | pushes ingredients **UP** |
+
+  Every prior "drop the push sentence" arm deleted **A and B together**. Half A is the *only* restraint
+  in the shipped prompt — the shipped gram ask is for a nutrition-LABEL serving — so deleting it sends
+  every ingredient back to a standalone portion.
+
+- **THE TWO ARMS, against the shipped `dual` 67/108 control:**
+
+  | arm | what it deletes | score | mass in band /27 | 20/30/50/100 share |
+  |---|---|---|---|---|
+  | `dual` (shipped, v32) | — | **67** | 14 | 71% |
+  | `NOPUSH` | **A and B** | **57** ☠️ **−10** | 14 (12 OVER) | 50% |
+  | `NOBOOST` | **B only** | **70** 🟢 **+3** | **17** (best yet) | 74% |
+
+- **Per dish (`--replay`, $0):**
+
+  | dish | `dual` | `NOPUSH` | `NOBOOST` |
+  |---|---|---|---|
+  | CAPRICCIOSA | 8 | 0 | 3 |
+  | CARBONARA | 9 | 9 | 9 |
+  | ENSALADA GRIEGA | 11 | 12 | 12 |
+  | TIRAS DE POLLO | 8 | 9 | 5 |
+  | PAPAS FRITAS | 11 | 12 | 12 |
+  | OMELETTE CUBANA | **3** | **3** | **3** |
+  | TACO PORCO | 0 | 0 | **6** |
+  | BROWNIE | 8 | 12 | 10 |
+  | Salmón Roll | 9 | 0 | 10 |
+  | **TOTAL** | **67** | **57** | **70** |
+
+  `NOBOOST` is +11 on five dishes and −8 on two. TACO PORCO 225 g → 135 g inside a 100–140 band is the
+  single largest sizing correction any arm has produced.
+
+- **🔑 THIS RECONCILES EVAL 159's `ORDER-nopush` +4 WITH `NOPUSH`'s −10 — SAME DELETION, OPPOSITE SIGN.**
+  `ORDER_ASK` carries its own restraint language, so there the deletion dropped only *redundant* push.
+
+  | where the restraint lives when the sentence is deleted | result |
+  |---|---|
+  | nowhere else (shipped gram ask) | **−10** |
+  | also in the gram ask (`ORDER_ASK`) | **+4** |
+
+  Half B was written when dishes read too SMALL. On today's ruler 12 of 27 dish-draws come back OVER,
+  so B is a correction pointed at a failure mode this dish set no longer has.
+
+- **🎯 THE BEST CELL IN THE PROJECT IS NOW 77/108.** `sim-mass-composition-split.ts` ($0), rows = whose
+  MASS, columns = whose COMPOSITION:
+
+  | | dual | NOPUSH | NOBOOST |
+  |---|---|---|---|
+  | **dual** | **67** | 61 | 58 |
+  | **NOPUSH** | 58 | 57 | 55 |
+  | **NOBOOST** | **77** | 67 | 70 |
+
+  `NOBOOST` sizing at `dual`'s recipe = **77 (+10)**, beating eval 159's best cell of 74. ⚠️ Still a
+  CEILING, not an arm — it reads two archives bought separately.
+
+- **⚠️ ONE RUN, NOT A RANGE.** +3 is a single 3-draw run and the draw spread inside it is real
+  (CAPRICCIOSA 0–2/4, TACO PORCO 0–3/4). **Nothing should ship on this number alone.**
+  ⛔ **BLOCKER FOR THE REPEAT RUN: `bench-unweighted.ts` HAS NO `--run` FLAG.** Only
+  `bench-mixed-menu.ts` has it (`bench-mixed-menu.ts:227`). Re-running `NOBOOST` today OVERWRITES the
+  70/108 archives and the range is lost — the exact hazard START-HERE:618 records losing a "16" to.
+  Port the 8-line pattern before buying a second run.
+
+- **✅ OMELETTE CUBANA DIAGNOSED, AND IT IS NOT A SIZING BUG** (`superpowers:systematic-debugging`,
+  $0, four archives). Frozen at **exactly 3/12 in all four arms** because every arm gets the eggs and
+  vegetables right and prices the **four named fillings** at a flat 20–30 g each:
+
+  | ingredient | oracle ruled | dual | ORDER | ORDER-nopush | PIECE |
+  |---|---|---|---|---|---|
+  | eggs | 110 | 120 | 100 | 100 | 100 |
+  | onion / green pepper | 20 / 20 | **20/20 ✓** | **20/20 ✓** | **20/20 ✓** | **20/20 ✓** |
+  | chorizo / ham / bacon / cheese | **15/15/8/15** | 30/30/30/30 | 30/20/20/30 | 30/30/30/30 | 30/30/20/30 |
+  | **the four fillings** | **53 g** | 120 | 100 | 120 | 110 |
+
+  Hypothesis test — keep the model's OWN per-100 g composition, swap in only the oracle's ruled grams:
+  **OMELETTE 1/4 → 4/4 PASS** under both `dual` and `ORDER`, and **TACO PORCO 0/4 → 4/4 PASS** under
+  both. **So the composition is entirely correct and 100% of the failure is per-ingredient gram
+  sizing.** The needed correction (30 → 8–15 g) sits BELOW the granularity the model uses for a named
+  meat or cheese: across 140 answers `15 g` appears **once** and `8 g` **never**. This is Santiago's
+  own ruling #1 (*virutas* = shavings = 5 g) broken four times in one dish.
+
+- **⚠️ THE 98/108 PERFECT-MASS TARGET STAYS RETIRED** (eval 159). Proportionally rescaling `dual`'s
+  recipe to the oracle midpoint fixes OMELETTE (4/4) — but that operation is arithmetically identical
+  to the cross-table cells, so the two-call split's realistic ceiling is the 77 above, **not 98**.
+
+- **Spend: ~$0.8 estimated, not metered** (2 arms x 5 menus x 3 draws, pass 1 skipped — every dish on
+  this harness is unweighted, so dual's pass-1 answers are all discarded anyway). Santiago approved
+  ~$0.8. Phase total to date **~$40.3–40.5**.
+
+- **Production is UNCHANGED: edge fn `analyze-menu` v32.** A +3 single run does not deploy.
+
+- **⛔ NEXT ACTION: none forced. DO NOT RE-RUN `NOPUSH`** (57, and it does not test what its name says)
+  **or any of eval 159's three arms.** The two live leads, both needing Santiago's cost ruling:
+  1. **Repeat `NOBOOST` for a range** — port `--run` to `bench-unweighted.ts` FIRST or it destroys the 70.
+  2. **A filling-targeted mechanism** — the OMELETTE diagnosis says the remaining loss is a named
+     filling inheriting a standalone portion, which neither a plate-total call nor a prompt sentence
+     has yet moved below 20 g.

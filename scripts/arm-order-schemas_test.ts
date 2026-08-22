@@ -2,6 +2,8 @@
 // changed". These assertions are what makes that claim checkable for $0.
 import { assert, assertEquals } from "jsr:@std/assert";
 import {
+  ARM_NOBOOST,
+  ARM_NOPUSH,
   ARM_ORDER,
   ARM_ORDER_NOPUSH,
   ARM_PIECE,
@@ -111,4 +113,26 @@ Deno.test("a moved gram instruction THROWS instead of measuring the shipped prom
     threw = true;
   }
   assertEquals(threw, false, "the current prompt and schema still match");
+});
+
+Deno.test("NOBOOST drops ONLY the push half, and keeps everything else shipped", () => {
+  // The shipped addendum is one sentence, two opposed halves, split by a colon.
+  // NOPUSH deleted both (57/108). NOBOOST must delete only the second.
+  const addendum = ENRICH_PROMPT_UNWEIGHTED.slice(ENRICH_PROMPT.length);
+  const restraint = "rather than the amount that ingredient is served in on its own";
+  const push = "considerably greater quantity";
+  assert(addendum.includes(restraint), "half A is not where NOBOOST assumes");
+  assert(addendum.includes(push), "half B is not where NOBOOST assumes");
+
+  assert(ARM_NOBOOST.prompt.includes(restraint), "NOBOOST lost the restraint");
+  assert(!ARM_NOBOOST.prompt.includes(push), "NOBOOST kept the push");
+  // NOPUSH is the arm that dropped BOTH - that is why it is not a push test.
+  assert(!ARM_NOPUSH.prompt.includes(restraint));
+  assert(!ARM_NOPUSH.prompt.includes(push));
+
+  // Everything except that clause is the shipped pass-2 request, byte for byte.
+  assertEquals(ARM_NOBOOST.schema, ENRICH_SCHEMA_OPENAI);
+  assertEquals(ARM_NOBOOST.key, "typical_serving_g");
+  assert(ARM_NOBOOST.prompt.startsWith(ENRICH_PROMPT));
+  assert(ENRICH_PROMPT_UNWEIGHTED.startsWith(ARM_NOBOOST.prompt.slice(0, -1)));
 });

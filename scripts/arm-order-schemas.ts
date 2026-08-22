@@ -176,6 +176,68 @@ export function orderSchema(key: string, piecesFirst = false) {
   return schema;
 }
 
+/**
+ * ARM NOPUSH — ☠️ RUN AND REJECTED, 57/108 vs the shipped 67 (eval 160). DO NOT RE-RUN.
+ *
+ * ⚠️ IT DOES NOT MEASURE WHAT ITS NAME SAYS. The unweighted addendum is ONE sentence
+ * holding TWO OPPOSED halves, split by a colon (see ENRICH_PROMPT_UNWEIGHTED):
+ *   A (restraint) "...the amount actually present in one order of this item as it is
+ *                  served, rather than the amount that ingredient is served in on its own"
+ *   B (the push)  ": a component that forms the body ... considerably greater quantity
+ *                  than a standalone serving ... understates the item."
+ * This arm deletes A AND B. Under the shipped gram ask - which asks for a nutrition
+ * LABEL serving - A is the only restraint in the whole prompt, so deleting it sends
+ * every ingredient back to a standalone portion: TACO PORCO 225 g -> 348 g, Salmón Roll
+ * 230 g -> 477 g, mass 12 of 27 OVER against dual's 9. Worse on BOTH axes of
+ * sim-mass-composition-split (its mass 58, its recipe 61, against 67).
+ *
+ * 🔑 That reconciles it with ORDER 61 vs ORDER-nopush 65 (+4 for the same deletion):
+ * ORDER_ASK carries its own restraint, so there the deletion dropped only redundant
+ * push. Restraint in that sentence alone -> -10. Restraint also in the gram ask -> +4.
+ * ARM_NOBOOST below is the isolated test of B that neither arm performed.
+ *
+ * `key` is the shipped field, which makes the runner's remap the identity - the
+ * arm reuses runOrderArm rather than growing a second request path (lesson 23).
+ */
+export const ARM_NOPUSH = {
+  prompt: ENRICH_PROMPT + NO_PUSH,
+  schema: ENRICH_SCHEMA_OPENAI,
+  key: "typical_serving_g",
+};
+if (ARM_NOPUSH.prompt.includes("considerably greater quantity")) {
+  throw new Error("the push clause survived - NOPUSH would measure the shipped arm");
+}
+
+/**
+ * ARM NOBOOST — the shipped pass-2 sentence with ONLY half B (the push) deleted.
+ * Half A (the restraint) stays. Shipped gram ask, shipped schema, shipped key.
+ *
+ * Why: two arms now point at B and neither isolated it. ORDER-nopush beat ORDER by 4
+ * with A still present in its gram ask; NOPUSH lost 10 with A deleted too. B is also
+ * aimed at a failure mode this dish set no longer has - B says the standalone amount
+ * "understates the item", while 12 of 27 dish-draws now come back OVER their band.
+ *
+ * Control: `dual` 67/108. Diff: one clause.
+ */
+const COLON = ": a component that forms the body";
+const cut = PUSH.indexOf(COLON);
+if (cut < 0) {
+  throw new Error(
+    "the push half moved inside ENRICH_PROMPT_UNWEIGHTED - re-split it before running NOBOOST",
+  );
+}
+export const ARM_NOBOOST = {
+  prompt: ENRICH_PROMPT + PUSH.slice(0, cut) + ".",
+  schema: ENRICH_SCHEMA_OPENAI,
+  key: "typical_serving_g",
+};
+if (
+  ARM_NOBOOST.prompt.includes("considerably greater quantity") ||
+  !ARM_NOBOOST.prompt.includes("served in on its own")
+) {
+  throw new Error("NOBOOST must drop the push and KEEP the restraint - it did not");
+}
+
 export const ARM_ORDER = { prompt: ORDER_PROMPT, schema: orderSchema(ORDER_KEY), key: ORDER_KEY };
 export const ARM_ORDER_NOPUSH = { prompt: ORDER_NOPUSH_PROMPT, schema: orderSchema(ORDER_KEY), key: ORDER_KEY };
 export const ARM_PIECE = { prompt: PIECE_PROMPT, schema: orderSchema(PIECE_KEY, true), key: PIECE_KEY };

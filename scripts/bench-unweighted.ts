@@ -29,6 +29,8 @@ import {
 import {
   armA,
   armAConditional,
+  armNoBoost,
+  armNoPush,
   armOrder,
   armOrderNoPush,
   armP,
@@ -196,6 +198,10 @@ const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
   ORDER: armOrder,
   "ORDER-nopush": armOrderNoPush,
   PIECE: armPiece,
+  // The shipped question with pass 2's WHOLE addendum deleted. See ARM_NOPUSH.
+  NOPUSH: armNoPush,
+  // The shipped question with only the addendum's PUSH half deleted. See ARM_NOBOOST.
+  NOBOOST: armNoBoost,
 };
 
 /** Arms whose batches form like dual's pass 2 - see the selection call below. */
@@ -203,6 +209,8 @@ const ORDER_ARMS: Record<string, true> = {
   ORDER: true,
   "ORDER-nopush": true,
   PIECE: true,
+  NOPUSH: true,
+  NOBOOST: true,
 };
 
 // A mistyped arm name would otherwise run the BASELINE and be written up as that

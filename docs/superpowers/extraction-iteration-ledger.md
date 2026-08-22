@@ -2741,3 +2741,131 @@ ask which direction it pushes and which dishes are already on that side.**
   (70–72 vs 64–67, disjoint ranges). Santiago's deploy decision on it is still open, and his standing
   rule is that nothing ships until both halves score excellently AND a real-current-menu test passes.**
   No arm is designed. The screening test above is what the next design must pass first.
+
+## Eval 164 — 🛑 THE BENCHMARK CANNOT DETECT AN IMPROVEMENT. `NOBOOST`'s ENTIRE +5.5 IS **ONE DISH** (2026-08-21, $0)
+
+An external research review came back on the phase. It made four checkable claims about OUR data;
+all four were tested at $0 from existing archives, with the harness's own scorer. **Two land, two
+don't**, and the one that lands changes what this phase should do next.
+
+### 🛑 CLAIM THAT LANDS — the design is under-powered, and it retracts our own headline
+
+The review's charge: *"the 108 points are NOT independent — 4 macros within a dish are driven by the
+same mass error and 3 draws are repeated measures. The effective sample size is closer to 9 clusters,
+not 108. At n=9 the minimum detectable effect is roughly 15–20 percentage points, meaning you cannot
+claim any single-digit improvement is real."*
+
+New tool: **`scripts/sim-arm-significance.ts`** ($0). Dish-level paired bootstrap, 10 000 resamples of
+the 9 dishes, so each dish travels with all its macros and draws and the within-dish correlation is
+inherited rather than assumed away. Verified against the published totals before use — it reproduces
+`dual` 67 and `NOBOOST` 70 exactly.
+
+`dual`+`dual@r2` vs `NOBOOST`+`NOBOOST@r2`, all 6 draws each, the most data this phase has:
+
+| | result |
+|---|---|
+| observed | **+5.5** on the /108 scale |
+| dish-level bootstrap 95% CI | **−9.0 to +25.0** |
+| resamples where `NOBOOST` leads | **69.7%** |
+| cell-level exact sign test (⚠️ anticonservative) | p = 0.14 |
+
+**And leave-one-dish-out is worse than the CI:**
+
+| | difference over the other 8 dishes |
+|---|---|
+| without **TACO PORCO** | **−2.5 /96 — THE SIGN REVERSES** |
+| without BROWNIE | +3.5 /96 |
+| without ENSALADA GRIEGA | +5.0 /96 |
+
+🔑 **`NOBOOST`'s entire advantage is TACO PORCO, one dish out of nine.** Over the other eight it is
+*behind* the shipped pipeline. The "disjoint ranges" claim in evals 160–162 is arithmetically true and
+was the wrong summary: two runs each of two arms is four numbers, and disjointness across four numbers
+says nothing about a 9-cluster sample. **What `NOBOOST` is actually measured to do is fix TACO PORCO
+(0 → 6) at a small cost elsewhere.**
+
+⚠️ **THE ASYMMETRY THAT MATTERS, AND IT IS GOOD NEWS FOR EVERY REJECTION.** The noise band is roughly
+±17 points. Every arm this phase REJECTED is outside it — `MASSCALL` −20, `NOPUSH` −10 to −13,
+`ROLE` −12, Arm A −31. **Those verdicts stand.** Every arm it claimed as a WIN is inside it: `NOBOOST`
++5.5, `ORDER-nopush` +4. **This benchmark can reliably detect a disaster and cannot detect an
+improvement.** That is the honest description of the ruler, and it explains the shape of the whole
+phase: 20+ arms, many confident rejections, no confirmable gain.
+
+⛔ **CONSEQUENCE: widening the oracle is no longer the cheap side-quest, it is the BLOCKER.** No arm
+should be paid for until the dish set can resolve the effect it is looking for. The review puts the
+requirement at "hundreds of independent dishes" for a 3-point effect; even getting from 9 to ~30 would
+cut the noise band roughly in half.
+
+### ✅ CLAIM THAT DOES NOT LAND — the SIZE/MIX split survives
+
+The review's objection: *"'MIX never exceeds ±20%' is reassuring only if MIX and SIZE are independent;
+if the model picks a plausibility-gated mass and adjusts composition to match a mental calorie target,
+the two errors are coupled."*
+
+Measured over all **108 dish-draws** of `dual` and `NOBOOST`, both runs: **Pearson r(size, mix) =
++0.098.** Essentially uncorrelated. The split is a legitimate decomposition and the eval-163 screening
+test that rests on it stands. Two corrections to how it has been quoted, though: pooled per-DRAW (not
+3-draw-averaged) the ranges are **mix 0.76–1.23, size 0.44–1.88** — size is wider than the 0.65–1.30
+recorded in eval 162, which was an average of averages.
+
+### 🔑 CLAIM THAT LANDS SIDEWAYS — "we ask for a label serving and we get one" IS FALSE
+
+That sentence was written in `scripts/arm-order-schemas.ts` and is now corrected there. Checked against
+21 CFR 101.12 Table 2, pooled over four archive sets:
+
+| ingredient class | RACC | model median | n | |
+|---|---|---|---|---|
+| cooked pasta | 140 | **180** | 12 | ABOVE |
+| eggs | 50 | **120** | 12 | ABOVE |
+| cheese | 30 | 30 | 72 | matches |
+| salad dressing | 30 | 30 | 12 | matches |
+| cooked rice | 140 | 100 | 12 | below |
+| vegetables | 85 | **30** | 100 | FAR below |
+| nuts | 30 | **10** | 23 | FAR below |
+
+The model deviates from the labelling table in BOTH directions, so the round-number clustering is
+**anchoring toward a few familiar values, not recitation of RACC.** The sign tracks a component's ROLE:
+what forms the body lands at or above its reference amount, what is scattered over the body lands far
+under. 🔑 That retro-explains `ROLE`'s −12 exactly — it shrank the components that were already the
+under-portioned ones. It also means **a RETRIEVED portion figure (FNDDS/RACC/SMAE) carries information
+the model is not already producing**, which is the one thing S4's second gram field and B16's share
+question both failed to do. That is the review's top-ranked experiment and the best-supported arm
+design this phase has seen — but it cannot be validated on 9 dishes, which is the blocker above.
+
+### ✅ CLAIM TESTED AND FALSIFIED AS A CHEAP WIN — median-of-3 buys nothing
+
+New tool: **`scripts/sim-median-of-draws.ts`** ($0). Takes the per-macro median across the 3 draws and
+scores it once, against today's mean-per-draw.
+
+| arm | today | median-of-3 | difference | |
+|---|---|---|---|---|
+| `dual` | 67 | 72 | +5.0 | inside the noise |
+| `NOBOOST` | 70 | 69 | −1.0 | inside the noise |
+| `ROLE` | 58 | 63 | +5.0 | inside the noise |
+| `MASSCALL` | 50 | 54 | +4.0 | inside the noise |
+
+Not consistent in sign, every value inside the ±17 band, **and it would cost 3× the calls in
+production.** The draw-to-draw variation is not the dominant error; the error is systematic. Retired
+as a cheap win.
+
+### What the review confirmed that needs no action
+
+- **No published system does what we do.** Text-only as-served portion mass from a dish name plus one
+  line is genuinely open: NutriBench supplies quantities, the vendors default to 100 g or a standard
+  serving, and every accurate portion system measures pixels. A confirmed absence — we are not missing
+  a known method.
+- **The schema field-order effect we measured is a named phenomenon** (autoregressive commitment;
+  reasoning-before-answer), with an independent controlled replication at p<0.01.
+- **The decomposition bet is supported**, which agrees with `MASSCALL`'s inversion in eval 163.
+- **Round-number collapse is documented elsewhere**: 89–100% of LLM allocation answers being multiples
+  of 5 in an unrelated domain, and prompt-level mitigations reported "largely ineffective" — which is
+  an outside replication of our own 0-for-6 on prompt wording.
+- **Irreducible floor:** a USDA restaurant study found the same named dish ranging 177–395 g across
+  four restaurants. Some of our ±20% band may be below the real-world variance of the dish itself.
+
+- **Spend: $0.** Phase total unchanged at ~$41.9–42.1.
+- **Production is UNCHANGED: edge fn `analyze-menu` v32.**
+- **⛔ NEXT ACTION — Santiago's call, and the recommendation has changed. DO NOT deploy `NOBOOST` on
+  the strength of 70–72 vs 64–67; that number is one dish.** Deploying it is defensible only as "fix
+  TACO PORCO, accept a wash elsewhere". The blocker to everything else is the dish set: **widen the
+  oracle before paying for another arm.** The retrieved-portion-anchor design is the strongest
+  candidate waiting behind it.

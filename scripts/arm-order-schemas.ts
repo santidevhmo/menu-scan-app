@@ -19,9 +19,30 @@
 //
 // The field is named `typical_serving_g` and the prompt asks for "the standard
 // reference amount ... the amount nutrition labelling treats as one serving of
-// that kind of food". We ask for a label serving and we get one. Mass is the
-// only lever with headroom left: sim-mass-ceiling.ts reads today 67/108,
-// clamped-into-band 80/108, perfect mass 98/108.
+// that kind of food". Mass is the only lever with headroom left:
+// sim-mass-ceiling.ts reads today 67/108, clamped-into-band 80/108, perfect mass
+// 98/108.
+//
+// ⚠️ THIS COMMENT USED TO SAY "we ask for a label serving and we get one".
+// THAT IS FALSE and was corrected 2026-08-21 after an external research review
+// prompted the check. Against 21 CFR 101.12 Table 2, the actual answers deviate in
+// BOTH directions, pooled over four archive sets:
+//
+//   ingredient class   RACC   model median   n
+//   cooked pasta        140            180   12   ABOVE
+//   eggs                 50            120   12   ABOVE
+//   cheese               30             30   72   matches
+//   dressing             30             30   12   matches
+//   cooked rice         140            100   12   below
+//   vegetables           85             30  100   FAR below
+//   nuts                 30             10   23   FAR below
+//
+// So the round-number clustering is NOT recitation of a labelling table. It is
+// round-number anchoring toward a few familiar values, and the sign of the error
+// tracks a component's ROLE in the dish: what forms the body lands at or above its
+// reference amount, what is scattered over the body lands far under. That is why
+// ARM_ROLE's one-way shrink of non-body components lost 12 points (eval 163) —
+// those components were already the under-portioned ones.
 //
 // ⚠️ THIS DELIBERATELY REVERSES B21, AND B16 IS THE PRIOR FAILURE TO WATCH FOR.
 // B21 chose a reference amount precisely because it is knowledge the model holds

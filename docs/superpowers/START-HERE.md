@@ -41,7 +41,7 @@ That split is deliberate: the model is good at knowing what food is, and bad at 
 | **`Arm A`** | Asks the model for the dish's **total grams** (`typical_total_g`, a required schema field), then rescales every ingredient to that total. | **36/108** ☠️ rejected twice |
 | **`ORDER` / `ORDER-nopush` / `PIECE`** | Change what the per-ingredient GRAM FIELD asks for: `typical_serving_g` (a label serving) → grams **in one order as sold**, or grams **per piece x `serving_pieces`**. No total asked, nothing rescaled. | **61 / 65 / 60** ☠️ all rejected, eval 159 — **and they SIZED BETTER than the winner** |
 | **`NOPUSH`** | Deletes pass 2's whole addendum — **both** the restraint half AND the push half. Shipped gram ask, shipped schema. | **57/108** ☠️ rejected, eval 160 — **and it does NOT test what its name says** |
-| **`NOBOOST`** | Deletes **only the push half** of pass 2's addendum; keeps the restraint. Shipped gram ask, shipped schema, shipped key. One clause of diff. | **70–72/108** vs the control's **64–67** 🟢 **DISJOINT RANGES, two runs each** (evals 160–162) — deployable, awaiting Santiago |
+| **`NOBOOST`** | Deletes **only the push half** of pass 2's addendum; keeps the restraint. Shipped gram ask, shipped schema, shipped key. One clause of diff. | **70–72/108** vs the control's **64–67** — ⚠️ **BUT eval 164 shows the whole +5.5 is ONE DISH (TACO PORCO). Over the other 8 it is −2.5. Bootstrap 95% CI −9 to +25.** Not a confirmed improvement. |
 | **`ROLE`** | `NOBOOST` + ONE required enum per ingredient (`body│filling│topping│garnish`) inserted immediately BEFORE the gram field. Schema only — no sentence explains it, nothing reads it. | **58/108** ☠️ rejected, eval 163 — **the enum FIRED (labels varied, body's median gram 3.3× filling's) and lost anyway** |
 | **`MASSCALL`** | `NOBOOST`'s recipe rescaled to a plate total from a SECOND call that sees only name + description. Reuses Arm C's plate prompt verbatim. | **50/108** ☠️ rejected, eval 163 — **the bare mass question is a WORSE mass estimator than the ingredient list** |
 
@@ -185,7 +185,7 @@ it. Every arm tried since has scored **worse than what already runs**:
 | Arm A (plate total), re-run 2026-08-21 | **36/108 vs the shipped 67/108** |
 | ORDER / ORDER-nopush / PIECE (what the gram field asks) | **61 / 65 / 60 vs 67** — better mass, worse recipe |
 | NOPUSH (delete pass 2's whole addendum) | **57/108 vs 67** — rejected |
-| **NOBOOST (delete only the addendum's PUSH half)** | **70–72 vs the control's 64–67** 🟢 **first arm to beat v32 on DISJOINT RANGES** |
+| **NOBOOST (delete only the addendum's PUSH half)** | **70–72 vs 64–67**, but eval 164: **all of it is TACO PORCO**, −2.5 over the other 8 dishes, CI includes zero |
 | ROLE (an inert role enum before the gram field) | **58 vs NOBOOST's 70–72** — rejected, eval 163 |
 | MASSCALL (plate total from its own separate call) | **50 vs NOBOOST's 70–72** — rejected, eval 163 |
 
@@ -335,14 +335,36 @@ that existed before that day the gap is **+11**, matching the +11/+12 measured e
 The headline fell to +7 because the two NEW dishes contribute **−4**, all of it BROWNIE (baseline 12,
 dual 8). **That is dual genuinely losing a dessert, not a ruler that stopped discriminating.**
 
-### ⛔ THE NEXT ACTION — NONE IS FORCED (Santiago's call, 2026-08-21). ONE DECISION IS OPEN
+### ⛔ THE NEXT ACTION — WIDEN THE ORACLE. IT IS NO LONGER A SIDE-QUEST, IT IS THE BLOCKER (eval 164)
 
-**`NOBOOST` (70–72) is the only change that has ever beaten the shipped pipeline (64–67), and the
-ranges are disjoint. Santiago's deploy decision on it is OPEN**, under his standing rule: nothing ships
-until both halves score excellently AND a test on real current menus passes.
+🛑 **THIS BENCHMARK CAN DETECT A DISASTER AND CANNOT DETECT AN IMPROVEMENT.** Measured, not
+argued: `scripts/sim-arm-significance.ts` bootstraps the 9 DISHES (the real unit — 4 macros share one
+mass error, 3 draws are repeated measures) and puts the noise band at roughly **±17 points on the /108
+scale**. Every arm this phase rejected is outside it and those verdicts stand. Every arm it called a
+win is inside it.
 
-**No arm is designed.** Eval 163 spent both designs that existed — `ROLE` 58 and `MASSCALL` 50 — and
-the next design must pass the screening test below before it is worth money.
+⚠️ **`NOBOOST` IS NOT A CONFIRMED IMPROVEMENT.** Its +5.5 has a 95% CI of −9 to +25, it leads in
+only 69.7% of resamples, and **leave-one-dish-out reverses the sign: remove TACO PORCO and it is −2.5
+over the remaining 8 dishes.** What it is measured to do is fix ONE dish (TACO PORCO 0 → 6) at a small
+cost elsewhere. Deploying it is defensible only stated that way. Do not repeat "first arm to beat v32
+on disjoint ranges" — that summary is retracted.
+
+**So: no arm should be paid for until the dish set can resolve the effect it is looking for.** Going
+from 9 dishes to ~30 would roughly halve the noise band; the external review puts "hundreds" as the
+requirement for a 3-point effect. Widening needs Santiago's rulings, not model calls, and is mostly $0.
+Build it with the safeguards the review named: ground truth from a source the model never sees, a RANGE
+rather than a point, and a subset anchored to FNDDS so drift between our oracle and the world is
+detectable.
+
+**The strongest arm design waiting behind that blocker** is a RETRIEVED portion anchor (FNDDS / RACC /
+SMAE) injected as a schema field immediately BEFORE the gram field. It is the one candidate that
+carries information the model is not already producing — eval 164 measured the model deviating from
+the RACC table in BOTH directions (pasta 180 vs 140, vegetables 30 vs 85 over 100 observations), so a
+retrieved figure is new input, unlike S4's second gram field or B16's share question which were both
+back-computed. It needs `superpowers:brainstorming` and Santiago's approval first.
+
+**Retired at $0 by eval 164:** median-of-3 aggregation (+5, −1, +5, +4 across four arms — not
+consistent in sign, all inside the noise, and 3× the calls in production).
 
 🔑 **THE SCREENING TEST, EARNED THE HARD WAY (evals 160–163). Before designing any arm, ask which
 DIRECTION it pushes.** A one-directional mechanism has now netted out negative three times:
@@ -1472,6 +1494,13 @@ deno run --allow-read scripts/sim-gram-distribution.ts dual NOBOOST NOBOOST@r2 R
 # per-100 g recipe. THROWS if the control row misses its published score by >3 -
 # a hand-rolled version of this read 88/108 for a control the harness reads 67.
 deno run --allow-read scripts/sim-mass-composition-split.ts dual dual@r2 NOBOOST NOBOOST@r2 ROLE MASSCALL NOPUSH ORDER ORDER-nopush PIECE
+
+# IS A DIFFERENCE REAL? Dish-level paired bootstrap + leave-one-dish-out. Run this
+# BEFORE writing up any arm as a win - eval 164 retracted one for want of it.
+deno run --allow-read scripts/sim-arm-significance.ts dual+dual@r2 NOBOOST+NOBOOST@r2
+
+# Does aggregating the 3 draws help? (No - retired eval 164, kept so it stays answered.)
+deno run --allow-read scripts/sim-median-of-draws.ts dual NOBOOST ROLE MASSCALL
 
 # $0 CEILINGS - "if we fixed X perfectly, how many points would it be worth?"
 # Run these BEFORE designing any arm: they have killed four ideas for nothing.

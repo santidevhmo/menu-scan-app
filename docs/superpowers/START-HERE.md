@@ -41,7 +41,7 @@ That split is deliberate: the model is good at knowing what food is, and bad at 
 | **`Arm A`** | Asks the model for the dish's **total grams** (`typical_total_g`, a required schema field), then rescales every ingredient to that total. | **36/108** ☠️ rejected twice |
 | **`ORDER` / `ORDER-nopush` / `PIECE`** | Change what the per-ingredient GRAM FIELD asks for: `typical_serving_g` (a label serving) → grams **in one order as sold**, or grams **per piece x `serving_pieces`**. No total asked, nothing rescaled. | **61 / 65 / 60** ☠️ all rejected, eval 159 — **and they SIZED BETTER than the winner** |
 | **`NOPUSH`** | Deletes pass 2's whole addendum — **both** the restraint half AND the push half. Shipped gram ask, shipped schema. | **57/108** ☠️ rejected, eval 160 — **and it does NOT test what its name says** |
-| **`NOBOOST`** | Deletes **only the push half** of pass 2's addendum; keeps the restraint. Shipped gram ask, shipped schema, shipped key. One clause of diff. | **70/108** 🟢 **the first arm ever to beat the shipped pipeline** (eval 160) — ONE run, no range |
+| **`NOBOOST`** | Deletes **only the push half** of pass 2's addendum; keeps the restraint. Shipped gram ask, shipped schema, shipped key. One clause of diff. | **70–72/108** over TWO runs 🟢 **the first arm ever to beat the shipped pipeline** (evals 160 + 161) |
 
 ### ⚖️ THE TWO SCORES — NEVER MERGE THEM
 
@@ -118,15 +118,19 @@ serving. Delete A and every ingredient reverts to a standalone portion.
 nowhere else → **−10**. Restraint also in the gram ask → **+4**. Half B was written when dishes read
 too SMALL; on today's ruler 12 of 27 dish-draws come back OVER.
 
-🎯 **THE BEST CELL IN THE PROJECT IS NOW 77/108** — `NOBOOST`'s sizing at `dual`'s recipe, beating eval
-159's 74. Re-derive: `deno run --allow-read scripts/sim-mass-composition-split.ts dual NOPUSH NOBOOST`.
+🎯 **THE BEST CELL IN THE PROJECT IS NOW 74–77/108** — `NOBOOST`'s sizing at `dual`'s recipe, over its
+two runs, beating eval 159's 74. Re-derive:
+`deno run --allow-read scripts/sim-mass-composition-split.ts dual NOPUSH NOBOOST NOBOOST@r2`.
 ⚠️ Still a CEILING, not an arm.
 
-⛔ **BEFORE BUYING A REPEAT RUN OF `NOBOOST`: `bench-unweighted.ts` HAS NO `--run` FLAG.** Only
-`bench-mixed-menu.ts` has it (`bench-mixed-menu.ts:227`). Re-running overwrites the 70/108 archives and
-the range is lost — the exact hazard this file records at "the '16' was lost to the overwrite hazard
-`--run` fixes". Port the 8-line pattern first. **+3 on one 3-draw run is NOT shippable** (draw spread
-inside it: CAPRICCIOSA 0–2/4, TACO PORCO 0–3/4).
+✅ **REPEATED (eval 161): the range is 70, 72 — BOTH runs above the shipped 67.** `--run <label>` is
+now ported to `bench-unweighted.ts`, so a repeat no longer overwrites its predecessor, and both `$0`
+sims accept **`ARM@label`** (`NOBOOST@r2`). Two effects are stable across both runs and are the whole
+gain: **TACO PORCO 0 → 6/11** (its plate lands in the 100–140 band once the push is gone) and
+**CAPRICCIOSA 8 → 3/5** (the only genuinely large plate in the set, band 400–450 — the one dish the
+push was helping). Per-dish swings of ±5 between runs are normal; the total is not.
+⚠️ **STILL ASYMMETRIC: `dual`'s 67 is ONE run.** Two-run range against a one-run point. A matched
+`dual --run r2` (~$0.4) is the honest prerequisite to any deploy decision.
 
 ✅ **OMELETTE CUBANA IS DIAGNOSED AND IT IS NOT A SIZING BUG.** Frozen at exactly 3/12 in all four
 eval-159 arms because each prices the **four named fillings** at a flat 20–30 g — chorizo/ham/bacon/
@@ -150,7 +154,7 @@ it. Every arm tried since has scored **worse than what already runs**:
 | Arm A (plate total), re-run 2026-08-21 | **36/108 vs the shipped 67/108** |
 | ORDER / ORDER-nopush / PIECE (what the gram field asks) | **61 / 65 / 60 vs 67** — better mass, worse recipe |
 | NOPUSH (delete pass 2's whole addendum) | **57/108 vs 67** — rejected |
-| **NOBOOST (delete only the addendum's PUSH half)** | **70/108 vs 67** 🟢 **first arm to beat v32** — one run only |
+| **NOBOOST (delete only the addendum's PUSH half)** | **70–72/108 vs 67** 🟢 **first arm to beat v32**, both runs above it |
 
 Shipping any of them would make the app **less** accurate. The honest state is: *the shipped thing is
 the best thing we have, and the next idea has not been found yet.*
@@ -1405,12 +1409,12 @@ deno run --allow-read scripts/sim-scope-rule.ts   # $0: the printed-weight scope
 
 # $0. Did an arm change the MECHANISM, or just the number? Gram-answer distribution
 # plus each dish's total mass against its ruled band, for any archived arm.
-deno run --allow-read scripts/sim-gram-distribution.ts dual NOBOOST NOPUSH ORDER ORDER-nopush PIECE
+deno run --allow-read scripts/sim-gram-distribution.ts dual NOBOOST NOBOOST@r2 NOPUSH ORDER ORDER-nopush PIECE
 
 # $0. Are MASS and COMPOSITION separable? Crosses each arm's mass with each arm's
 # per-100 g recipe. THROWS if the control row misses its published score by >3 -
 # a hand-rolled version of this read 88/108 for a control the harness reads 67.
-deno run --allow-read scripts/sim-mass-composition-split.ts dual NOBOOST NOPUSH ORDER ORDER-nopush PIECE
+deno run --allow-read scripts/sim-mass-composition-split.ts dual NOBOOST NOBOOST@r2 NOPUSH ORDER ORDER-nopush PIECE
 
 # $0 CEILINGS - "if we fixed X perfectly, how many points would it be worth?"
 # Run these BEFORE designing any arm: they have killed four ideas for nothing.
@@ -1428,6 +1432,11 @@ deno run --allow-read scripts/sim-decomposition-ceiling.ts  # missing ingredient
 # without it, even though a replay calls no API.
 deno run --allow-read --allow-env --env-file=.env.local \
   scripts/bench-unweighted.ts 3 <baseline|dual|NOBOOST|NOPUSH|ORDER|ORDER-nopush|PIECE|P|P10|PF|PD|A|A-cond|S3|SplitOnly> --replay
+
+# $0. A LABELLED repeat run (--run r2) lives in its own archives. Replay it, and
+# feed it to either sim as ARM@label. ALWAYS pass --run on a repeat or it
+# overwrites its predecessor and the range is gone.
+  scripts/bench-unweighted.ts 3 NOBOOST --replay --run r2
 
 # PAID. Weighted set, one run of 3 draws. BENCH_ARM is optional (S3 | S4). ~$0.05.
 BENCH_RUN_ID=iter-<name>-w1 [BENCH_ARM=S3] deno run --allow-read --allow-write \

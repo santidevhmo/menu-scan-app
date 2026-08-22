@@ -19,6 +19,13 @@ const CACHE = "scripts/fixtures/caches";
 
 const oracle: UnweightedEntry[] = JSON.parse(await Deno.readTextFile(ORACLE));
 const arms = Deno.args.filter((a) => !a.startsWith("--"));
+// "NOBOOST@r2" -> "NOBOOST-f-r2", the shape bench-unweighted --run writes. A bare
+// arm name is unchanged, so every command already in START-HERE still resolves.
+function armFile(arm: string): string {
+  const [name, label] = arm.split("@");
+  return `${name}-f${label ? `-${label}` : ""}`;
+}
+
 if (arms.length === 0) throw new Error("give at least one arm name");
 
 // Menus DERIVED from the oracle, never hardcoded: three sims each silently
@@ -36,7 +43,7 @@ for (const arm of arms) {
       let raw: string;
       try {
         raw = await Deno.readTextFile(
-          `${CACHE}/unweighted.${arm}-f.${menu}-d${draw}.raw.json`,
+          `${CACHE}/unweighted.${armFile(arm)}.${menu}-d${draw}.raw.json`,
         );
       } catch {
         missing++;

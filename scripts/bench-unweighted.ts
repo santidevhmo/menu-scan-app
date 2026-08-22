@@ -13,6 +13,10 @@
 //   deno run --allow-net --allow-env --allow-read --allow-write \
 //     --env-file=.env.local scripts/bench-unweighted.ts [draws] [arm]
 //
+// --run <label> keeps a repeat run in its OWN archives instead of overwriting the
+// previous one, and --replay --run <label> re-scores it:
+//   ... scripts/bench-unweighted.ts 3 NOBOOST --run r2
+//
 // --replay scores the ARCHIVED responses of a previous run instead of paying for
 // new ones, which is what makes an oracle correction free: a band moved after the
 // fact re-scores every arm at $0. It calls no API and writes nothing.
@@ -139,7 +143,19 @@ const macros = (item: EnrichedItem) => ({
 const replay = Deno.args.includes("--replay");
 // Default is FOCUSED - see fixtureBatches. ~$2 -> ~$0.5 per arm, same measurement.
 const fullMenu = Deno.args.includes("--full-menu");
-const positional = Deno.args.filter((a) => a !== "--replay");
+// Repeat runs need their OWN archives or a range is impossible - and the standing
+// rule is a range, never a single run. Ported from bench-mixed-menu.ts, which grew
+// this after a re-run silently replaced its predecessor twice in one phase.
+const runIdx = Deno.args.indexOf("--run");
+const runLabel = runIdx >= 0 ? Deno.args[runIdx + 1] : "";
+if (runIdx >= 0 && (!runLabel || runLabel.startsWith("--"))) {
+  throw new Error("--run needs a label, e.g. --run r2");
+}
+// Drops every flag AND the value after --run, or the label would be read as the
+// arm name and a paid run would be reported as something it is not.
+const positional = Deno.args.filter((a, i) =>
+  !a.startsWith("--") && Deno.args[i - 1] !== "--run"
+);
 
 const apiKey = Deno.env.get("OPENAI_API_KEY");
 if (!apiKey && !replay) throw new Error("OPENAI_API_KEY is required");
@@ -236,8 +252,8 @@ for (let draw = 0; draw < draws; draw++) {
     // The `-f` segment keeps a ~$0.5 focused run from OVERWRITING the whole-menu
     // archives that hold this phase's published evidence (the 28/72 baseline and
     // Arm P's 37/72). Replaying those needs --full-menu.
-    const archive = `${CACHE_DIR}/unweighted.${arm}${
-      fullMenu ? "" : "-f"
+    const archive = `${CACHE_DIR}/unweighted.${arm}${fullMenu ? "" : "-f"}${
+      runLabel ? `-${runLabel}` : ""
     }.${menu}-d${draw}.raw.json`;
     let enriched: EnrichedItem[];
     if (replay) {
@@ -385,6 +401,7 @@ console.log(
     Math.round(100 * total / possible)
   }%)` +
     ` over ${covered.length} of ${oracle.length} ruled dishes.` +
+    (runLabel ? ` [arm ${arm}, run ${runLabel}]` : ` [arm ${arm}]`) +
     (missing.length
       ? `\n⚠️  PARTIAL SCORE - NOT COMPARABLE TO A FULL ONE. Unscored: ${
         missing.map((e) => e.name).join(", ")

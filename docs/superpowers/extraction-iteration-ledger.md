@@ -2474,3 +2474,61 @@ same `"system"` envelope, same 9 dishes, same 3 draws, same oracle.
   2. **A filling-targeted mechanism** — the OMELETTE diagnosis says the remaining loss is a named
      filling inheriting a standalone portion, which neither a plate-total call nor a prompt sentence
      has yet moved below 20 g.
+
+---
+
+## Eval 161 — 🟢 `NOBOOST` REPEATED: RANGE **70–72/108**, BOTH RUNS BEAT THE SHIPPED 67. `--run` ported so the range was possible (2026-08-21, ~$0.4)
+
+**What changed:** nothing about the arm. Same `ARM_NOBOOST`, same model, same oracle. A second
+independent 3-draw run, kept in its own archives by the newly ported `--run r2`.
+
+- **THE RANGE.** Eval 160's caveat is discharged: **70, 72**. Both above the shipped `dual` 67.
+
+  | | run 1 | run 2 | range |
+  |---|---|---|---|
+  | `NOBOOST` score | 70 | 72 | **70–72** |
+  | mass in band /27 | 17 | 16 | **16–17** (dual 14) |
+  | 20/30/50/100 share | 74% | 73% | unchanged habit |
+  | its mass at `dual`'s recipe | **77** | **74** | **74–77** ceiling |
+
+- **Per dish, all three columns $0-replayable:**
+
+  | dish | `dual` | `NOBOOST` r1 | `NOBOOST` r2 |
+  |---|---|---|---|
+  | **TACO PORCO** | **0** | **6** | **11** |
+  | BROWNIE | 8 | 10 | 9 |
+  | PAPAS FRITAS | 11 | 12 | 12 |
+  | CARBONARA | 9 | 9 | 9 |
+  | OMELETTE CUBANA | **3** | **3** | **3** |
+  | ENSALADA GRIEGA | 11 | 12 | 10 |
+  | Salmón Roll | 9 | 10 | 6 |
+  | TIRAS DE POLLO | 8 | 5 | 7 |
+  | **CAPRICCIOSA** | **8** | **3** | **5** |
+  | **TOTAL** | **67** | **70** | **72** |
+
+  Two effects are stable across both runs and are what the +3/+5 is made of:
+  **TACO PORCO 0 → 6/11** (its 225 g plate lands in the 100–140 band once the push is gone) and
+  **CAPRICCIOSA 8 → 3/5** (the one dish the push was helping — it is the only genuinely large plate
+  in the set, band 400–450). Per-dish swings of ±5 between runs are normal; the TOTAL is not.
+
+- **⚠️ THE COMPARISON IS STILL ASYMMETRIC. `dual`'s 67 is ONE run.** No repeat of the control exists on
+  the 9-dish oracle, so this is a two-run range against a one-run point, not range against range.
+  A matched `dual` re-run is ~$0.4 and is the honest prerequisite to any deploy decision.
+  ⚠️ OMELETTE CUBANA is **3/12 in every arm and every run ever measured** — eval 160 proved that is a
+  filling-sizing defect, not variance, and no prompt change has moved it.
+
+- **✅ `--run <label>` PORTED TO `bench-unweighted.ts`** (it only existed on `bench-mixed-menu.ts`).
+  Archives become `unweighted.<arm>-f-<label>.<menu>-d<draw>.raw.json`; the footer now names the arm and
+  run, so two runs' output can no longer be confused; a missing label THROWS. Verified before spending:
+  `--replay --run r2` found nothing while unlabelled `--replay` still read 70. Without this the repeat
+  run would have overwritten eval 160's evidence — the hazard this file records losing a "16" to.
+  Both `$0` sims now accept **`ARM@label`** (`NOBOOST@r2`) since the label sits after the `-f` segment
+  where no arm string can reach it. Bare arm names resolve exactly as before.
+
+- **Spend: ~$0.4 estimated, not metered.** Santiago approved the repeat run. Phase total **~$40.7–40.9**.
+- **Production is UNCHANGED: edge fn `analyze-menu` v32.**
+- **⛔ NEXT ACTION: none forced.** Two candidates, both needing a cost ruling:
+  1. **Matched `dual` re-run** (~$0.4) — makes the comparison range-vs-range. Cheapest path to a
+     deploy decision on a +3–5 change. Use `--run r2`.
+  2. **A filling-targeted mechanism** — OMELETTE's 3/12 and CAPRICCIOSA's regression are both
+     per-ingredient gram sizing, which no sentence has moved. See eval 160's diagnosis.

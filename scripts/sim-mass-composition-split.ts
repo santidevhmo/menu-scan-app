@@ -26,6 +26,13 @@ const DRAWS = 3;
 
 const oracle: UnweightedEntry[] = JSON.parse(await Deno.readTextFile(ORACLE));
 const arms = Deno.args.filter((a) => !a.startsWith("--"));
+// "NOBOOST@r2" -> "NOBOOST-f-r2", the shape bench-unweighted --run writes. A bare
+// arm name is unchanged, so every command already in START-HERE still resolves.
+function armFile(arm: string): string {
+  const [name, label] = arm.split("@");
+  return `${name}-f${label ? `-${label}` : ""}`;
+}
+
 if (arms.length < 1) throw new Error("give at least one arm name");
 
 /** Mass and per-100 g-of-DISH composition, per dish per draw. */
@@ -41,7 +48,7 @@ async function read(arm: string): Promise<Map<string, (Shape | null)[]>> {
       let raw: string;
       try {
         raw = await Deno.readTextFile(
-          `${CACHE}/unweighted.${arm}-f.${menu}-d${draw}.raw.json`,
+          `${CACHE}/unweighted.${armFile(arm)}.${menu}-d${draw}.raw.json`,
         );
       } catch {
         continue;

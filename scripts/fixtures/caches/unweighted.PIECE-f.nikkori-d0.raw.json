@@ -1,0 +1,898 @@
+{
+  "items": [
+    {
+      "name": "Salmón Roll",
+      "description": "Por dentro: Queso crema, pepino, aguacate y surimi. Por fuera: Salmón.",
+      "price": 169,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "arroz",
+        "alga nori"
+      ],
+      "serving_pieces": 8,
+      "ingredients": [
+        {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "alga nori",
+          "category": "other",
+          "within_printed_weight": true,
+          "grams_per_piece": 0.5,
+          "protein_per_100g": 30,
+          "carb_per_100g": 35,
+          "fat_per_100g": 5,
+          "typical_serving_g": 4
+        },
+        {
+          "name": "queso crema",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 6,
+          "carb_per_100g": 4,
+          "fat_per_100g": 34,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "pepino",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 0.6,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.1,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "aguacate",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 2,
+          "carb_per_100g": 9,
+          "fat_per_100g": 15,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "surimi",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 10,
+          "carb_per_100g": 15,
+          "fat_per_100g": 1,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "salmón",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 20,
+          "carb_per_100g": 0,
+          "fat_per_100g": 13,
+          "typical_serving_g": 80
+        }
+      ],
+      "protein_g": 27,
+      "carb_g": 37,
+      "fat_g": 31,
+      "estimated_calories": 531,
+      "confidence": "medium",
+      "allergens": [
+        "dairy",
+        "fish",
+        "shellfish",
+        "gluten"
+      ]
+    },
+    {
+      "name": "Duplex",
+      "description": "Por dentro: Tampico, aguacate, queso crema y pepino. Por fuera: Camarón y salmón.",
+      "price": 159,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "arroz",
+        "alga nori"
+      ],
+      "serving_pieces": 8,
+      "ingredients": [
+        {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "alga nori",
+          "category": "other",
+          "within_printed_weight": true,
+          "grams_per_piece": 0.5,
+          "protein_per_100g": 30,
+          "carb_per_100g": 35,
+          "fat_per_100g": 5,
+          "typical_serving_g": 4
+        },
+        {
+          "name": "tampico",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 8,
+          "carb_per_100g": 12,
+          "fat_per_100g": 10,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "aguacate",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 2,
+          "carb_per_100g": 9,
+          "fat_per_100g": 15,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "queso crema",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 6,
+          "carb_per_100g": 4,
+          "fat_per_100g": 34,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "pepino",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 0.6,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.1,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "camarón",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 24,
+          "carb_per_100g": 0,
+          "fat_per_100g": 0.5,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "salmón",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 20,
+          "carb_per_100g": 0,
+          "fat_per_100g": 13,
+          "typical_serving_g": 40
+        }
+      ],
+      "protein_g": 27,
+      "carb_g": 35,
+      "fat_g": 29,
+      "estimated_calories": 517,
+      "confidence": "medium",
+      "allergens": [
+        "dairy",
+        "fish",
+        "shellfish",
+        "gluten"
+      ]
+    },
+    {
+      "name": "Ipanema Roll",
+      "description": "Por dentro: Atún spicy. Por fuera: Camarón y aguacate, bañado en salsa anguila.",
+      "price": 209,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "arroz",
+        "alga nori"
+      ],
+      "serving_pieces": 8,
+      "ingredients": [
+        {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "alga nori",
+          "category": "other",
+          "within_printed_weight": true,
+          "grams_per_piece": 0.5,
+          "protein_per_100g": 30,
+          "carb_per_100g": 35,
+          "fat_per_100g": 5,
+          "typical_serving_g": 4
+        },
+        {
+          "name": "atún spicy",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 23,
+          "carb_per_100g": 0,
+          "fat_per_100g": 5,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "camarón",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 24,
+          "carb_per_100g": 0,
+          "fat_per_100g": 0.5,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "aguacate",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 2,
+          "carb_per_100g": 9,
+          "fat_per_100g": 15,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "salsa anguila",
+          "category": "other",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 5,
+          "carb_per_100g": 20,
+          "fat_per_100g": 1,
+          "typical_serving_g": 40
+        }
+      ],
+      "protein_g": 34,
+      "carb_g": 35,
+      "fat_g": 11,
+      "estimated_calories": 377,
+      "confidence": "medium",
+      "allergens": [
+        "fish",
+        "shellfish",
+        "gluten",
+        "soy"
+      ]
+    },
+    {
+      "name": "Fildeflex",
+      "description": "Por dentro: Salmón, queso crema y pepino. Por fuera: Ajonjoli.",
+      "price": 159,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "arroz",
+        "alga nori"
+      ],
+      "serving_pieces": 8,
+      "ingredients": [
+        {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "alga nori",
+          "category": "other",
+          "within_printed_weight": true,
+          "grams_per_piece": 0.5,
+          "protein_per_100g": 30,
+          "carb_per_100g": 35,
+          "fat_per_100g": 5,
+          "typical_serving_g": 4
+        },
+        {
+          "name": "salmón",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 20,
+          "carb_per_100g": 0,
+          "fat_per_100g": 13,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "queso crema",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 6,
+          "carb_per_100g": 4,
+          "fat_per_100g": 34,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "pepino",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 0.6,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.1,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "ajonjoli",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 2,
+          "protein_per_100g": 18,
+          "carb_per_100g": 12,
+          "fat_per_100g": 50,
+          "typical_serving_g": 16
+        }
+      ],
+      "protein_g": 25,
+      "carb_g": 29,
+      "fat_g": 32,
+      "estimated_calories": 507,
+      "confidence": "medium",
+      "allergens": [
+        "dairy",
+        "fish",
+        "gluten",
+        "sesame"
+      ]
+    },
+    {
+      "name": "Vegan Roll",
+      "description": "Tofu, aguacate, pepino y zanahoria, cubierto de arroz.",
+      "price": 129,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "alga nori"
+      ],
+      "serving_pieces": 8,
+      "ingredients": [
+        {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "alga nori",
+          "category": "other",
+          "within_printed_weight": true,
+          "grams_per_piece": 0.5,
+          "protein_per_100g": 30,
+          "carb_per_100g": 35,
+          "fat_per_100g": 5,
+          "typical_serving_g": 4
+        },
+        {
+          "name": "tofu",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 8,
+          "carb_per_100g": 2,
+          "fat_per_100g": 4,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "aguacate",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 2,
+          "carb_per_100g": 9,
+          "fat_per_100g": 15,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "pepino",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 0.6,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.1,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "zanahoria",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 0.9,
+          "carb_per_100g": 10,
+          "fat_per_100g": 0.2,
+          "typical_serving_g": 40
+        }
+      ],
+      "protein_g": 11,
+      "carb_g": 35,
+      "fat_g": 10,
+      "estimated_calories": 270,
+      "confidence": "medium",
+      "allergens": [
+        "soy",
+        "gluten"
+      ]
+    },
+    {
+      "name": "Spicy Tuna Roll",
+      "description": "Por dentro: Tampico. Por fuera: Atún picado con salsa spicy y masago.",
+      "price": 159,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "arroz",
+        "alga nori"
+      ],
+      "serving_pieces": 8,
+      "ingredients": [
+        {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "alga nori",
+          "category": "other",
+          "within_printed_weight": true,
+          "grams_per_piece": 0.5,
+          "protein_per_100g": 30,
+          "carb_per_100g": 35,
+          "fat_per_100g": 5,
+          "typical_serving_g": 4
+        },
+        {
+          "name": "tampico",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 8,
+          "carb_per_100g": 12,
+          "fat_per_100g": 10,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "atún picado",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 23,
+          "carb_per_100g": 0,
+          "fat_per_100g": 5,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "salsa spicy",
+          "category": "other",
+          "within_printed_weight": true,
+          "grams_per_piece": 2,
+          "protein_per_100g": 2,
+          "carb_per_100g": 10,
+          "fat_per_100g": 5,
+          "typical_serving_g": 16
+        },
+        {
+          "name": "masago",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 2,
+          "protein_per_100g": 28,
+          "carb_per_100g": 3,
+          "fat_per_100g": 2,
+          "typical_serving_g": 16
+        }
+      ],
+      "protein_g": 30,
+      "carb_g": 31,
+      "fat_g": 10,
+      "estimated_calories": 327,
+      "confidence": "medium",
+      "allergens": [
+        "fish",
+        "shellfish",
+        "gluten",
+        "soy"
+      ]
+    },
+    {
+      "name": "Avocado",
+      "description": "Por dentro: Camarón, queso crema y pepino. Por fuera: Aguacate.",
+      "price": 159,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "arroz",
+        "alga nori"
+      ],
+      "serving_pieces": 8,
+      "ingredients": [
+        {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "alga nori",
+          "category": "other",
+          "within_printed_weight": true,
+          "grams_per_piece": 0.5,
+          "protein_per_100g": 30,
+          "carb_per_100g": 35,
+          "fat_per_100g": 5,
+          "typical_serving_g": 4
+        },
+        {
+          "name": "camarón",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 24,
+          "carb_per_100g": 0,
+          "fat_per_100g": 0.5,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "queso crema",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 6,
+          "carb_per_100g": 4,
+          "fat_per_100g": 34,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "pepino",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 0.6,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.1,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "aguacate",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 2,
+          "carb_per_100g": 9,
+          "fat_per_100g": 15,
+          "typical_serving_g": 80
+        }
+      ],
+      "protein_g": 17,
+      "carb_g": 34,
+      "fat_g": 26,
+      "estimated_calories": 441,
+      "confidence": "medium",
+      "allergens": [
+        "dairy",
+        "shellfish",
+        "gluten"
+      ]
+    },
+    {
+      "name": "Tuna Especial",
+      "description": "Por dentro: Queso crema y aguacate. Por fuera: Atún con topping de masago y mayonesa.",
+      "price": 169,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "arroz",
+        "alga nori"
+      ],
+      "serving_pieces": 8,
+      "ingredients": [
+        {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "alga nori",
+          "category": "other",
+          "within_printed_weight": true,
+          "grams_per_piece": 0.5,
+          "protein_per_100g": 30,
+          "carb_per_100g": 35,
+          "fat_per_100g": 5,
+          "typical_serving_g": 4
+        },
+        {
+          "name": "queso crema",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 6,
+          "carb_per_100g": 4,
+          "fat_per_100g": 34,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "aguacate",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 2,
+          "carb_per_100g": 9,
+          "fat_per_100g": 15,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "atún",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 23,
+          "carb_per_100g": 0,
+          "fat_per_100g": 5,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "masago",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 2,
+          "protein_per_100g": 28,
+          "carb_per_100g": 3,
+          "fat_per_100g": 2,
+          "typical_serving_g": 16
+        },
+        {
+          "name": "mayonesa",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 2,
+          "protein_per_100g": 1,
+          "carb_per_100g": 1,
+          "fat_per_100g": 75,
+          "typical_serving_g": 16
+        }
+      ],
+      "protein_g": 29,
+      "carb_g": 30,
+      "fat_g": 36,
+      "estimated_calories": 564,
+      "confidence": "medium",
+      "allergens": [
+        "dairy",
+        "fish",
+        "gluten",
+        "egg"
+      ]
+    },
+    {
+      "name": "Nikkori Maki",
+      "description": "Por dentro: Queso crema, aguacate, pepino y camarón. Por fuera: Surimi.",
+      "price": 159,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "arroz",
+        "alga nori"
+      ],
+      "serving_pieces": 8,
+      "ingredients": [
+        {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "alga nori",
+          "category": "other",
+          "within_printed_weight": true,
+          "grams_per_piece": 0.5,
+          "protein_per_100g": 30,
+          "carb_per_100g": 35,
+          "fat_per_100g": 5,
+          "typical_serving_g": 4
+        },
+        {
+          "name": "queso crema",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 6,
+          "carb_per_100g": 4,
+          "fat_per_100g": 34,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "aguacate",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 2,
+          "carb_per_100g": 9,
+          "fat_per_100g": 15,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "pepino",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 0.6,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.1,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "camarón",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 24,
+          "carb_per_100g": 0,
+          "fat_per_100g": 0.5,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "surimi",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 10,
+          "carb_per_100g": 15,
+          "fat_per_100g": 1,
+          "typical_serving_g": 40
+        }
+      ],
+      "protein_g": 20,
+      "carb_g": 37,
+      "fat_g": 21,
+      "estimated_calories": 413,
+      "confidence": "medium",
+      "allergens": [
+        "dairy",
+        "shellfish",
+        "gluten"
+      ]
+    },
+    {
+      "name": "Salmón Samba",
+      "description": "Por dentro: Atún spicy y aguacate. Por fuera: Salmón bañado con salsa spicy ponzu.",
+      "price": 219,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "arroz",
+        "alga nori"
+      ],
+      "serving_pieces": 8,
+      "ingredients": [
+        {
+          "name": "arroz",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 2.5,
+          "carb_per_100g": 28,
+          "fat_per_100g": 0.3,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "alga nori",
+          "category": "other",
+          "within_printed_weight": true,
+          "grams_per_piece": 0.5,
+          "protein_per_100g": 30,
+          "carb_per_100g": 35,
+          "fat_per_100g": 5,
+          "typical_serving_g": 4
+        },
+        {
+          "name": "atún spicy",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 23,
+          "carb_per_100g": 0,
+          "fat_per_100g": 5,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "aguacate",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 2,
+          "carb_per_100g": 9,
+          "fat_per_100g": 15,
+          "typical_serving_g": 40
+        },
+        {
+          "name": "salmón",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 20,
+          "carb_per_100g": 0,
+          "fat_per_100g": 13,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "salsa spicy ponzu",
+          "category": "other",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 2,
+          "carb_per_100g": 10,
+          "fat_per_100g": 1,
+          "typical_serving_g": 40
+        }
+      ],
+      "protein_g": 39,
+      "carb_g": 31,
+      "fat_g": 21,
+      "estimated_calories": 474,
+      "confidence": "medium",
+      "allergens": [
+        "fish",
+        "gluten",
+        "soy"
+      ]
+    }
+  ]
+}

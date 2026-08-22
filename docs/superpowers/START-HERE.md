@@ -39,6 +39,7 @@ That split is deliberate: the model is good at knowing what food is, and bad at 
 | **`baseline`** | The pipeline **before** the dual pass — one call per batch of 10 mixed items. The "do nothing" control. | **60/108** |
 | **`dual`** | **What is deployed today (v32).** Stage 2 runs *twice*: pass 1 sends the whole menu (its answers used for dishes that print a weight); pass 2 re-sends only the no-weight dishes, in their own batches, with one extra sentence. | **67/108** ← best |
 | **`Arm A`** | Asks the model for the dish's **total grams** (`typical_total_g`, a required schema field), then rescales every ingredient to that total. | **36/108** ☠️ rejected twice |
+| **`ORDER` / `ORDER-nopush` / `PIECE`** | Change what the per-ingredient GRAM FIELD asks for: `typical_serving_g` (a label serving) → grams **in one order as sold**, or grams **per piece x `serving_pieces`**. No total asked, nothing rescaled. | **61 / 65 / 60** ☠️ all rejected, eval 159 — **and they SIZED BETTER than the winner** |
 
 ### ⚖️ THE TWO SCORES — NEVER MERGE THEM
 
@@ -56,6 +57,44 @@ The benchmark is split because the product is split.
 **Production is edge function `analyze-menu` v32, deployed 2026-08-19.** Everything since has been
 measurement and failed experiments. **Nothing has beaten v32.**
 
+### 🔑 THE 2026-08-21 FINDING THAT CHANGES WHAT TO TRY NEXT (eval 159)
+
+**MASS AND COMPOSITION ARE NOT SEPARABLE LEVERS IN ONE MODEL CALL.** Three arms changed only what the
+per-ingredient gram field ASKS for. All three **sized the plates better than the shipped pipeline**
+(mass in band 21/27, 20/27, 18/27 against dual's 14/27 — TACO PORCO 218 g → 137 g against a 100–140
+band) and **all three scored WORSE**, because the model silently re-reasoned each dish's per-100 g
+composition too.
+
+`scripts/sim-mass-composition-split.ts` ($0) prices each arm's MASS at each arm's COMPOSITION. Rows =
+whose mass, columns = whose composition:
+
+| | dual | ORDER | ORDER-nopush | PIECE |
+|---|---|---|---|---|
+| **dual** | **67** | 54 | 53 | 57 |
+| **ORDER** | **73** | 61 | 63 | 68 |
+| **ORDER-nopush** | **74** | 68 | 65 | 67 |
+| **PIECE** | **72** | 65 | 65 | 60 |
+
+🔑 **Every arm's sizing beats dual's (72–74 vs 67). Every arm's recipe loses to dual's (53–57 vs 67).**
+The best cell — **dual's recipe at ORDER-nopush's sizing, 74/108, +7** — is the same size as dual's
+entire gain over baseline. **That is an argument for asking size and recipe SEPARATELY, not for asking
+the size question better.**
+⚠️ **74 is a CEILING, not an arm** — it reads two archives bought separately, exactly like the
+perfect-mass rows. Nobody has shown one call can hold its recipe steady while re-sizing.
+
+🔴 **THIS RETIRES "PERFECT MASS = 98/108" AS A TARGET.** `sim-mass-ceiling.ts` rescales mass while
+HOLDING COMPOSITION FIXED, which no arm can do. The ceiling is real; it is not aimable at.
+
+⚠️ **PASS 2's PUSH SENTENCE COST 4 POINTS HERE** (ORDER 61 vs ORDER-nopush 65). It tells the model a
+body component is "present in considerably greater quantity than a standalone serving" — written when
+dishes read too small, now paid for on a set where 9 of 27 dish-draws are already OVER. **Not a licence
+to delete it from production:** that +4 was measured under the NEW gram question, never under the
+shipped one.
+
+⚠️ **THE MODEL ROUNDS EITHER WAY, so none of this cleanly tests "reference serving vs plate share".**
+20/30/50/100 accounts for **71%** of dual's gram answers and **71 / 68 / 64%** of the three arms'.
+Only the numbers it snaps TO got smaller. Re-derive with `sim-gram-distribution.ts`.
+
 ### ❓ "Why haven't we deployed anything?"
 
 **Because nothing has been good enough to deploy.** Deployment is not blocked, gated, or waiting on
@@ -67,6 +106,7 @@ it. Every arm tried since has scored **worse than what already runs**:
 | accompaniment weight correction | falsified at $0 — makes it worse |
 | lift lean dishes via fat | falsified at $0 — makes it worse |
 | Arm A (plate total), re-run 2026-08-21 | **36/108 vs the shipped 67/108** |
+| ORDER / ORDER-nopush / PIECE (what the gram field asks) | **61 / 65 / 60 vs 67** — better mass, worse recipe |
 
 Shipping any of them would make the app **less** accurate. The honest state is: *the shipped thing is
 the best thing we have, and the next idea has not been found yet.*
@@ -1318,6 +1358,15 @@ deno test --allow-all scripts/ supabase/
 deno run --allow-read scripts/rescore-history.ts  # CURRENT score of every archived run
 deno run --allow-read scripts/rescore-history.ts <run-id>… --by-dish   # specific runs, per dish
 deno run --allow-read scripts/sim-scope-rule.ts   # $0: the printed-weight scope rule, A vs C
+
+# $0. Did an arm change the MECHANISM, or just the number? Gram-answer distribution
+# plus each dish's total mass against its ruled band, for any archived arm.
+deno run --allow-read scripts/sim-gram-distribution.ts dual ORDER ORDER-nopush PIECE
+
+# $0. Are MASS and COMPOSITION separable? Crosses each arm's mass with each arm's
+# per-100 g recipe. THROWS if the control row misses its published score by >3 -
+# a hand-rolled version of this read 88/108 for a control the harness reads 67.
+deno run --allow-read scripts/sim-mass-composition-split.ts dual ORDER ORDER-nopush PIECE
 
 # $0 CEILINGS - "if we fixed X perfectly, how many points would it be worth?"
 # Run these BEFORE designing any arm: they have killed four ideas for nothing.

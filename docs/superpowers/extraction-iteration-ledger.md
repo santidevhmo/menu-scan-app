@@ -2262,3 +2262,105 @@ printed by `unweighted-oracle-build.ts`, not a hardcoded 72.
   contact today. The two candidates worth a FRESH session, both needing `superpowers:brainstorming`:
   **(a) widen the oracle with more assembled dishes** so the structural finding rests on more than 9;
   **(b) a size mechanism that does NOT ask the model for a total** — that route is now dead twice over.
+
+## Eval 159 — 🔑 MASS AND COMPOSITION ARE NOT SEPARABLE: three arms all SIZED BETTER and SCORED WORSE (2026-08-21, ~$1.0–1.2)
+
+- **⛔ ALL THREE ARMS REJECTED against the shipped `dual` 67/108.** `ORDER` **61**, `ORDER-nopush`
+  **65**, `PIECE` **60**. Same ruler, same 9 dishes, 3 draws, same day. Production is UNCHANGED:
+  edge fn `analyze-menu` v32.
+
+  | dish | dual | ORDER | ORDER-nopush | PIECE |
+  |---|---|---|---|---|
+  | CAPRICCIOSA | 8 | 5 | 5 | 5 |
+  | CARBONARA | 9 | **11** | 8 | 8 |
+  | ENSALADA GRIEGA | 11 | 10 | **12** | **12** |
+  | TIRAS DE POLLO | 8 | 4 | 6 | 6 |
+  | PAPAS FRITAS | 11 | **12** | **12** | 6 |
+  | OMELETTE CUBANA | 3 | 3 | 3 | 3 |
+  | TACO PORCO | **0** | **4** | **6** | 1 |
+  | BROWNIE | 8 | **12** | **12** | **12** |
+  | Salmón Roll | 9 | **0** | 1 | 7 |
+  | **TOTAL** | **67** | **61** | **65** | **60** |
+
+- **🔑 THE FINDING IS NOT THE SCORE, IT IS WHY. THE ARMS FIXED THE SIZING AND BROKE THE RECIPE.**
+  `scripts/sim-gram-distribution.ts` ($0, new) counts each dish's total mass against its ruled band:
+
+  | arm | mass in band | OVER | under |
+  |---|---|---|---|
+  | `dual` (shipped) | 14/27 | 9 | 4 |
+  | `ORDER` | **21/27** | 3 | 3 |
+  | `ORDER-nopush` | 20/27 | 3 | 4 |
+  | `PIECE` | 18/27 | 9 | 0 |
+
+  **TACO PORCO went 218 g → 137 g against a 100–140 band, and BROWNIE 216 → 180 against 150–200.**
+  The mechanism did exactly what it was built to do. The score fell anyway.
+
+- **🔑 THE CROSS-TABLE IS THE RESULT OF THIS SESSION.** `scripts/sim-mass-composition-split.ts` ($0,
+  new) prices each arm's MASS at each arm's per-100 g COMPOSITION. Rows = whose mass, columns = whose
+  composition:
+
+  | | dual | ORDER | ORDER-nopush | PIECE |
+  |---|---|---|---|---|
+  | **dual** | **67** | 54 | 53 | 57 |
+  | **ORDER** | **73** | 61 | 63 | 68 |
+  | **ORDER-nopush** | **74** | 68 | 65 | 67 |
+  | **PIECE** | **72** | 65 | 65 | 60 |
+
+  **Every arm's mass beats dual's mass (72–74 vs 67). Every arm's composition loses to dual's
+  (53–57 vs 67).** The composition damage is larger than the sizing gain, in all three arms, which is
+  the whole reason none of them won.
+
+- **⚠️ THIS RETIRES THE READING OF "PERFECT MASS = 98/108" AS AN ACHIEVABLE TARGET.**
+  `sim-mass-ceiling.ts` rescales mass while HOLDING COMPOSITION FIXED. No arm can do that: asking the
+  gram question differently made the model re-reason the whole dish, and its per-100 g figures moved
+  even though nothing asked them to. TIRAS DE POLLO kept mass in band both ways (250 g) and still fell
+  8 → 4 because its density went 2.47 → 2.17 against a ruled 2.62. **The ceiling is still a real
+  ceiling; it is not a target any single-call arm can aim at.**
+
+- **✅ AND IT NAMES THE NEXT MECHANISM WITHOUT A NEW HYPOTHESIS.** The best cell is 74/108 — dual's
+  recipe at ORDER-nopush's sizing, **+7 over the shipped 67, the same size as dual's entire gain over
+  baseline.** That is an argument for asking the two questions SEPARATELY rather than for asking the
+  size question better. ⚠️ It is a CEILING like the mass rows, not an arm: it reads two archives that
+  were bought separately. Whether one call can be made to hold its recipe steady while re-sizing, or
+  whether it takes two, is untested.
+
+- **⚠️ PASS 2's PUSH SENTENCE IS WORTH +4, AND THAT CONTRADICTS ITS STATED PURPOSE.** ORDER 61 vs
+  ORDER-nopush 65: **dropping the sentence HELPED by 4.** The sentence tells the model a body
+  component is "present in considerably greater quantity than a standalone serving" — an upward push
+  written when dishes read too small. It now costs points on a set where 9 of 27 dish-draws are
+  already OVER. **Not a licence to delete it from production:** it was measured as part of the +7
+  dual gain under the OLD gram question, and nothing here re-measures it under the shipped one.
+
+- **☠️ `PIECE` IS REJECTED AND ITS FAILURE IS INFORMATIVE, NOT NOISE.** It scored worst (60) and it is
+  the only arm that fixed the UNDER-sizing (0 dish-draws under band) — Salmón Roll 9 → 7 where ORDER
+  read 0 — while leaving 9 OVER. Per-piece pricing helped precisely the one dish with
+  `serving_pieces > 1`, as predicted before the run, and it wrecked PAPAS FRITAS (11 → 6). **The model
+  returns `serving_pieces` correctly (8 for the roll, 1 for the other eight dishes) and pricing per
+  piece still loses.**
+
+- **🐛 A HAND-ROLLED SCORER READ 88/108 FOR THE CONTROL WHERE THE HARNESS READS 67, AND THE GUARD
+  CAUGHT IT.** The 6 g / 50 kcal allowance is measured from the band **MIDPOINT**, not from the band
+  EDGES. Applying it to the edges inflated every cell by ~20 points. A second defect on top: skipping
+  `sumIngredientMacros`'s integer ROUNDING read 63 where the harness reads 67, because band edges are
+  integers and an unrounded 38.6 g of protein fails a band starting at 39 that the shipped pipeline
+  passes. **`sim-mass-composition-split.ts` now imports `scoreItemAgainstBand` and THROWS if the
+  control row misses its published score by more than 3.** This is the third instance of this defect
+  class in three sessions (eval 157's loader, eval 158's three blind sims, this).
+
+- **✅ WHAT WENT RIGHT.** The arms were built with $0 assertions first
+  (`scripts/arm-order-schemas_test.ts`, 7 tests) pinning that ORDER and ORDER-nopush differ by exactly
+  the push sentence, that the gram key is renamed IN PLACE rather than appended, and that `PIECE` puts
+  `serving_pieces` ahead of `ingredients` (B4). Running all three CONCURRENTLY is what made the push
+  sentence attributable — choosing one arm would have left it confounded.
+
+- **⚠️ B21 IS NOT VINDICATED AND NOT FALSIFIED.** The gram answers still snap to round defaults under
+  every arm: 20/30/50/100 accounts for 71% of dual's answers, 71% of ORDER's, 68% of ORDER-nopush's,
+  64% of PIECE's. **The habit did not break; only the numbers it snapped TO got smaller.** So this was
+  never a clean test of "reference serving vs plate share" — the model rounds either way.
+
+- **Spend: ~$1.0–1.2 estimated, not metered** (3 arms x 5 menus x 3 draws, one call set each, pass 1
+  skipped because every dish on this harness is unweighted). Santiago approved ~$1.50. Phase total to
+  date **~$39.5–39.7**.
+- **⛔ NEXT ACTION: none forced.** The cross-table's 74/108 cell is the strongest lead this phase has
+  produced in a week, but turning a ceiling into a mechanism needs `superpowers:brainstorming` and
+  Santiago's ruling on cost. Do NOT re-run any of the three arms here.

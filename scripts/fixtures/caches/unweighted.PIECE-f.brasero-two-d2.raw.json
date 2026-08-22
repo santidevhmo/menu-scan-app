@@ -1,0 +1,630 @@
+{
+  "items": [
+    {
+      "name": "TACO PORCO",
+      "description": "Taco de bandiola adobada, betabel, cacahuate, piña y cilantro.",
+      "price": null,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "tortilla"
+      ],
+      "serving_pieces": 1,
+      "ingredients": [
+        {
+          "name": "bandiola adobada",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 80,
+          "protein_per_100g": 25,
+          "carb_per_100g": 2,
+          "fat_per_100g": 15,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "tortilla",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 30,
+          "protein_per_100g": 6,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5,
+          "typical_serving_g": 30
+        },
+        {
+          "name": "betabel",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 20,
+          "protein_per_100g": 2,
+          "carb_per_100g": 10,
+          "fat_per_100g": 0,
+          "typical_serving_g": 20
+        },
+        {
+          "name": "cacahuate",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 25,
+          "carb_per_100g": 20,
+          "fat_per_100g": 50,
+          "typical_serving_g": 10
+        },
+        {
+          "name": "piña",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 15,
+          "protein_per_100g": 1,
+          "carb_per_100g": 13,
+          "fat_per_100g": 0,
+          "typical_serving_g": 15
+        },
+        {
+          "name": "cilantro",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 1,
+          "typical_serving_g": 5
+        }
+      ],
+      "protein_g": 25,
+      "carb_g": 23,
+      "fat_g": 19,
+      "estimated_calories": 358,
+      "confidence": "medium",
+      "allergens": [
+        "gluten",
+        "nuts"
+      ]
+    },
+    {
+      "name": "TOSTA BRASIL (picaña)",
+      "description": "Tostada de picaña en una cama de feijoada y mix de pimiento encima.",
+      "price": null,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "tostada"
+      ],
+      "serving_pieces": 1,
+      "ingredients": [
+        {
+          "name": "picaña",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 100,
+          "protein_per_100g": 28,
+          "carb_per_100g": 0,
+          "fat_per_100g": 20,
+          "typical_serving_g": 100
+        },
+        {
+          "name": "tostada",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 30,
+          "protein_per_100g": 6,
+          "carb_per_100g": 60,
+          "fat_per_100g": 10,
+          "typical_serving_g": 30
+        },
+        {
+          "name": "feijoada",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 50,
+          "protein_per_100g": 10,
+          "carb_per_100g": 20,
+          "fat_per_100g": 5,
+          "typical_serving_g": 50
+        },
+        {
+          "name": "mix de pimiento",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 20,
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0,
+          "typical_serving_g": 20
+        }
+      ],
+      "protein_g": 35,
+      "carb_g": 29,
+      "fat_g": 26,
+      "estimated_calories": 486,
+      "confidence": "medium",
+      "allergens": [
+        "gluten"
+      ]
+    },
+    {
+      "name": "TOSTA ATUM",
+      "description": "Tostada de atún sellado con rub de chiles, portobello y elote asado, pepino, jicama, salseado con ponzu y ajonjolí.",
+      "price": null,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "tostada"
+      ],
+      "serving_pieces": 1,
+      "ingredients": [
+        {
+          "name": "atún sellado",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 80,
+          "protein_per_100g": 30,
+          "carb_per_100g": 0,
+          "fat_per_100g": 10,
+          "typical_serving_g": 80
+        },
+        {
+          "name": "tostada",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 30,
+          "protein_per_100g": 6,
+          "carb_per_100g": 60,
+          "fat_per_100g": 10,
+          "typical_serving_g": 30
+        },
+        {
+          "name": "portobello",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 20,
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0,
+          "typical_serving_g": 20
+        },
+        {
+          "name": "elote asado",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 20,
+          "protein_per_100g": 3,
+          "carb_per_100g": 19,
+          "fat_per_100g": 2,
+          "typical_serving_g": 20
+        },
+        {
+          "name": "pepino",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 15,
+          "protein_per_100g": 1,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0,
+          "typical_serving_g": 15
+        },
+        {
+          "name": "jicama",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 15,
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0,
+          "typical_serving_g": 15
+        },
+        {
+          "name": "ponzu",
+          "category": "other",
+          "within_printed_weight": true,
+          "grams_per_piece": 10,
+          "protein_per_100g": 2,
+          "carb_per_100g": 10,
+          "fat_per_100g": 0,
+          "typical_serving_g": 10
+        },
+        {
+          "name": "ajonjolí",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 5,
+          "protein_per_100g": 18,
+          "carb_per_100g": 25,
+          "fat_per_100g": 50,
+          "typical_serving_g": 5
+        }
+      ],
+      "protein_g": 28,
+      "carb_g": 27,
+      "fat_g": 14,
+      "estimated_calories": 346,
+      "confidence": "medium",
+      "allergens": [
+        "gluten",
+        "soy"
+      ]
+    },
+    {
+      "name": "TACO BRASERO",
+      "description": "Taco de carne asada de diezmillo en tortilla de su elección.",
+      "price": null,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "tortilla"
+      ],
+      "serving_pieces": 1,
+      "ingredients": [
+        {
+          "name": "carne asada de diezmillo",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 100,
+          "protein_per_100g": 27,
+          "carb_per_100g": 0,
+          "fat_per_100g": 15,
+          "typical_serving_g": 100
+        },
+        {
+          "name": "tortilla",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 30,
+          "protein_per_100g": 6,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5,
+          "typical_serving_g": 30
+        }
+      ],
+      "protein_g": 29,
+      "carb_g": 15,
+      "fat_g": 17,
+      "estimated_calories": 324,
+      "confidence": "medium",
+      "allergens": [
+        "gluten"
+      ]
+    },
+    {
+      "name": "TACO TRADICIONAL",
+      "description": "Taco de arrachera en tortilla de su elección.",
+      "price": null,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "tortilla"
+      ],
+      "serving_pieces": 1,
+      "ingredients": [
+        {
+          "name": "arrachera",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 100,
+          "protein_per_100g": 28,
+          "carb_per_100g": 0,
+          "fat_per_100g": 20,
+          "typical_serving_g": 100
+        },
+        {
+          "name": "tortilla",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 30,
+          "protein_per_100g": 6,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5,
+          "typical_serving_g": 30
+        }
+      ],
+      "protein_g": 30,
+      "carb_g": 15,
+      "fat_g": 22,
+      "estimated_calories": 373,
+      "confidence": "medium",
+      "allergens": [
+        "gluten"
+      ]
+    },
+    {
+      "name": "TACO EL CAPRICHO",
+      "description": "Taco de arrachera en base de lechuga fresca y costra de queso.",
+      "price": 100,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "serving_pieces": 1,
+      "ingredients": [
+        {
+          "name": "arrachera",
+          "category": "protein",
+          "within_printed_weight": true,
+          "grams_per_piece": 100,
+          "protein_per_100g": 28,
+          "carb_per_100g": 0,
+          "fat_per_100g": 20,
+          "typical_serving_g": 100
+        },
+        {
+          "name": "lechuga fresca",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 20,
+          "protein_per_100g": 1,
+          "carb_per_100g": 2,
+          "fat_per_100g": 0,
+          "typical_serving_g": 20
+        },
+        {
+          "name": "costra de queso",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 30,
+          "protein_per_100g": 25,
+          "carb_per_100g": 2,
+          "fat_per_100g": 33,
+          "typical_serving_g": 30
+        }
+      ],
+      "protein_g": 36,
+      "carb_g": 1,
+      "fat_g": 30,
+      "estimated_calories": 416,
+      "confidence": "medium",
+      "allergens": [
+        "dairy"
+      ]
+    },
+    {
+      "name": "PAPAS CAMBRAY",
+      "description": "",
+      "price": 60,
+      "category": "side",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "serving_pieces": 1,
+      "ingredients": [
+        {
+          "name": "papas cambray",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 150,
+          "protein_per_100g": 2,
+          "carb_per_100g": 20,
+          "fat_per_100g": 0,
+          "typical_serving_g": 150
+        }
+      ],
+      "protein_g": 3,
+      "carb_g": 30,
+      "fat_g": 0,
+      "estimated_calories": 132,
+      "confidence": "medium",
+      "allergens": []
+    },
+    {
+      "name": "CHILE RELLENO",
+      "description": "",
+      "price": 50,
+      "category": "side",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "serving_pieces": 1,
+      "ingredients": [
+        {
+          "name": "chile poblano",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 100,
+          "protein_per_100g": 2,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0,
+          "typical_serving_g": 100
+        },
+        {
+          "name": "queso",
+          "category": "fat",
+          "within_printed_weight": true,
+          "grams_per_piece": 50,
+          "protein_per_100g": 25,
+          "carb_per_100g": 2,
+          "fat_per_100g": 33,
+          "typical_serving_g": 50
+        },
+        {
+          "name": "batter",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 30,
+          "protein_per_100g": 6,
+          "carb_per_100g": 50,
+          "fat_per_100g": 10,
+          "typical_serving_g": 30
+        }
+      ],
+      "protein_g": 16,
+      "carb_g": 22,
+      "fat_g": 20,
+      "estimated_calories": 329,
+      "confidence": "medium",
+      "allergens": [
+        "dairy",
+        "gluten",
+        "egg"
+      ]
+    },
+    {
+      "name": "CEBOLLAS CAMBRAY",
+      "description": "",
+      "price": 40,
+      "category": "side",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "serving_pieces": 1,
+      "ingredients": [
+        {
+          "name": "cebollas cambray",
+          "category": "veg",
+          "within_printed_weight": true,
+          "grams_per_piece": 100,
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0,
+          "typical_serving_g": 100
+        }
+      ],
+      "protein_g": 1,
+      "carb_g": 9,
+      "fat_g": 0,
+      "estimated_calories": 40,
+      "confidence": "medium",
+      "allergens": []
+    },
+    {
+      "name": "ORDEN DE TORTILLAS",
+      "description": "",
+      "price": 35,
+      "category": "side",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "serving_pieces": 1,
+      "ingredients": [
+        {
+          "name": "tortillas",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 120,
+          "protein_per_100g": 6,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5,
+          "typical_serving_g": 120
+        }
+      ],
+      "protein_g": 7,
+      "carb_g": 60,
+      "fat_g": 6,
+      "estimated_calories": 323,
+      "confidence": "medium",
+      "allergens": [
+        "gluten"
+      ]
+    },
+    {
+      "name": "BROWNIE",
+      "description": "Brownie de la casa con nieve de vainilla y fresas.",
+      "price": 130,
+      "category": "dessert",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "brownie"
+      ],
+      "serving_pieces": 1,
+      "ingredients": [
+        {
+          "name": "brownie",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 100,
+          "protein_per_100g": 5,
+          "carb_per_100g": 60,
+          "fat_per_100g": 20,
+          "typical_serving_g": 100
+        },
+        {
+          "name": "vanilla ice cream",
+          "category": "fat",
+          "within_printed_weight": false,
+          "grams_per_piece": 50,
+          "protein_per_100g": 3,
+          "carb_per_100g": 25,
+          "fat_per_100g": 10,
+          "typical_serving_g": 50
+        },
+        {
+          "name": "strawberries",
+          "category": "veg",
+          "within_printed_weight": false,
+          "grams_per_piece": 30,
+          "protein_per_100g": 1,
+          "carb_per_100g": 8,
+          "fat_per_100g": 0,
+          "typical_serving_g": 30
+        }
+      ],
+      "protein_g": 7,
+      "carb_g": 75,
+      "fat_g": 25,
+      "estimated_calories": 552,
+      "confidence": "medium",
+      "allergens": [
+        "dairy",
+        "gluten",
+        "egg"
+      ]
+    },
+    {
+      "name": "ROLLOS DE CREPA",
+      "description": "Crepa crujiente y azucarada acompañada de dulce de leche, chocolate y helado de vainilla.",
+      "price": 140,
+      "category": "dessert",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "crepe"
+      ],
+      "serving_pieces": 1,
+      "ingredients": [
+        {
+          "name": "crepe",
+          "category": "carb",
+          "within_printed_weight": true,
+          "grams_per_piece": 120,
+          "protein_per_100g": 6,
+          "carb_per_100g": 50,
+          "fat_per_100g": 10,
+          "typical_serving_g": 120
+        },
+        {
+          "name": "dulce de leche",
+          "category": "carb",
+          "within_printed_weight": false,
+          "grams_per_piece": 30,
+          "protein_per_100g": 4,
+          "carb_per_100g": 60,
+          "fat_per_100g": 8,
+          "typical_serving_g": 30
+        },
+        {
+          "name": "chocolate sauce",
+          "category": "fat",
+          "within_printed_weight": false,
+          "grams_per_piece": 20,
+          "protein_per_100g": 5,
+          "carb_per_100g": 50,
+          "fat_per_100g": 20,
+          "typical_serving_g": 20
+        },
+        {
+          "name": "vanilla ice cream",
+          "category": "fat",
+          "within_printed_weight": false,
+          "grams_per_piece": 50,
+          "protein_per_100g": 3,
+          "carb_per_100g": 25,
+          "fat_per_100g": 10,
+          "typical_serving_g": 50
+        }
+      ],
+      "protein_g": 11,
+      "carb_g": 101,
+      "fat_g": 23,
+      "estimated_calories": 656,
+      "confidence": "medium",
+      "allergens": [
+        "dairy",
+        "gluten",
+        "egg"
+      ]
+    }
+  ]
+}

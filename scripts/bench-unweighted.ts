@@ -29,10 +29,13 @@ import {
 import {
   armA,
   armAConditional,
+  armOrder,
+  armOrderNoPush,
   armP,
   armP10,
   armPD,
   armPF,
+  armPiece,
   armPInline,
   armS3,
   armS4,
@@ -189,6 +192,17 @@ const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
   SplitOnly: armSplitOnly,
   S3: armS3,
   S4: armS4,
+  // What the per-ingredient GRAM FIELD asks for. See arm-order-schemas.ts.
+  ORDER: armOrder,
+  "ORDER-nopush": armOrderNoPush,
+  PIECE: armPiece,
+};
+
+/** Arms whose batches form like dual's pass 2 - see the selection call below. */
+const ORDER_ARMS: Record<string, true> = {
+  ORDER: true,
+  "ORDER-nopush": true,
+  PIECE: true,
 };
 
 // A mistyped arm name would otherwise run the BASELINE and be written up as that
@@ -257,7 +271,12 @@ for (let draw = 0; draw < draws; draw++) {
       // message and wraps the items as {"items":[...]}, while enrichBatch (this
       // arm, and production) sends ONE `user` message with the items appended.
       // The 38/72 on record was measured through the former, never the latter.
-      const select = arm === "P10" || arm === "dual"
+      // ORDER/ORDER-nopush/PIECE select like P-10 for the same reason `dual`
+      // does: each one IS dual's pass 2 with the gram field changed, so its
+      // batches form after the weighted/unweighted partition. Selecting with
+      // the mixed boundaries would send a composition the arm never builds and
+      // make the run incomparable to the 67/108 control.
+      const select = arm === "P10" || arm === "dual" || arm in ORDER_ARMS
         ? fixtureBatchesP10
         : fixtureBatches;
       const items = fullMenu ? whole : select(whole, names);

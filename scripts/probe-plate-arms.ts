@@ -26,6 +26,12 @@ import {
 } from "../supabase/functions/analyze-menu/enrich.ts";
 import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
 import { ARM_S3, ARM_S4 } from "./arm-schemas.ts";
+import {
+  ARM_ORDER,
+  ARM_ORDER_NOPUSH,
+  ARM_PIECE,
+} from "./arm-order-schemas.ts";
+import { resolvePiecesPerOrder } from "../src/lib/portions.ts";
 
 const apiKey = Deno.env.get("OPENAI_API_KEY");
 if (!apiKey) throw new Error("OPENAI_API_KEY is required in .env.local");
@@ -629,6 +635,68 @@ export async function armS4(items: Item[]) {
     )
   );
 }
+
+// ------------------------------------- ARMS ORDER / ORDER-nopush / PIECE
+//
+// WHAT THE PER-INGREDIENT GRAM FIELD ASKS FOR. Rationale, the measured gram
+// distribution behind it, and the B21/B16 history are in arm-order-schemas.ts.
+//
+// ⚠️ THE CONTROL FOR THESE THREE IS `dual` (67/108), NOT `baseline`, and that
+// rests on one fact worth checking rather than believing: bench-unweighted hands
+// every arm an ALL-UNWEIGHTED selection, so `dual`'s pass 1 answers are all
+// discarded and its result comes entirely from pass 2 - which is
+// callGptEnrich(items, ENRICH_PROMPT_UNWEIGHTED, "system") batched at
+// ENRICH_BATCH_SIZE. These arms are that same call with the gram field changed.
+// Hence "system" below: the SAME sentence through the user envelope scored
+// 31/72 against 38/72, so getting this wrong would measure the envelope.
+//
+// Pass 1 is skipped rather than run and thrown away, which halves each arm's
+// cost. Nothing weighted is touched, and neither is enrich.ts.
+async function runOrderArm(
+  items: Item[],
+  arm: { prompt: string; schema: unknown; key: string },
+  perPiece: boolean,
+) {
+  const got = await retryOnce(() =>
+    enrichBatch(
+      // deno-lint-ignore no-explicit-any
+      items as any,
+      apiKey!,
+      ENRICH_MODEL,
+      undefined,
+      arm.prompt,
+      arm.schema,
+      "system",
+    )
+  );
+  // enrichBatch summed macros from `typical_serving_g`, which these schemas do
+  // not have - so its totals are zeros and are REPLACED here, not adjusted. The
+  // ingredient objects it spread through are intact, which is where the arm's
+  // own key arrives.
+  // deno-lint-ignore no-explicit-any
+  return got.map((it: any) => {
+    // PIECE prices ONE piece; the multiplication is ours, per B10/B12 - the
+    // model states the parts and never does the arithmetic. Divisor is the app's
+    // own resolvePiecesPerOrder, so the arm and the results screen can never
+    // disagree about what a model-supplied count means.
+    const pieces = perPiece ? resolvePiecesPerOrder(it.serving_pieces) : 1;
+    // deno-lint-ignore no-explicit-any
+    const ingredients = (it.ingredients ?? []).map((i: any) => ({
+      ...i,
+      typical_serving_g: (i[arm.key] ?? 0) * pieces,
+    }));
+    return {
+      ...it,
+      ingredients,
+      ...sumIngredientMacros(ingredients, it.printed_total_g),
+    };
+  });
+}
+
+export const armOrder = (items: Item[]) => runOrderArm(items, ARM_ORDER, false);
+export const armOrderNoPush = (items: Item[]) =>
+  runOrderArm(items, ARM_ORDER_NOPUSH, false);
+export const armPiece = (items: Item[]) => runOrderArm(items, ARM_PIECE, true);
 
 /**
  * The sauce probes' dish set, shared by `sauce-dish` and `sauce-schema` so the

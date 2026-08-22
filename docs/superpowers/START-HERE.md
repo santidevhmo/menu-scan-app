@@ -396,7 +396,10 @@ Both are Santiago's, both recorded in full at the end of the rulings doc. Neithe
    cheese ~113 g, oil ~218 g) — a single cups-to-grams constant would be worse than the grid it
    replaces. FNDDS publishes gram weights per household measure.
 
-### ⛔ SUPERSEDED — the pre-2026-08-22 version of this section (eval 164)
+### 🛑 STILL TRUE AND STILL LOAD-BEARING — the measurement behind all of the above (eval 164)
+
+⚠️ Only the NEXT ACTION in this block was superseded on 2026-08-22 (the rulings are now done).
+**Every finding in it stands**, including that `NOBOOST` is not a confirmed improvement.
 
 🛑 **THIS BENCHMARK CAN DETECT A DISASTER AND CANNOT DETECT AN IMPROVEMENT.** Measured, not
 argued: `scripts/sim-arm-significance.ts` bootstraps the 9 DISHES (the real unit — 4 macros share one

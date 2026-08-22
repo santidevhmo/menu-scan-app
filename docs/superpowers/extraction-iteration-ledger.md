@@ -2869,3 +2869,52 @@ as a cheap win.
   TACO PORCO, accept a wash elsewhere". The blocker to everything else is the dish set: **widen the
   oracle before paying for another arm.** The retrieved-portion-anchor design is the strongest
   candidate waiting behind it.
+
+## Eval 165 — 🟡 A CONTINUOUS METRIC IS **1.8× MORE SENSITIVE** ON THE SAME 9 DISHES — AND STILL NOT ENOUGH (2026-08-22, $0)
+
+Eval 164 established that the band metric cannot resolve a single-digit gain. Before spending Santiago's
+ruling time widening the oracle, the cheaper fix was tested: **keep the dishes, change the metric.**
+
+Pass/fail banding discards magnitude — a dish 21% off and a dish 300% off both score one "fail". The
+replacement, added to `scripts/sim-arm-significance.ts`: **mean |ln(model / band midpoint)| over the 4
+macros.** Log scale because these are positive quantities and a 2× overestimate should weigh the same
+as a 2× underestimate (on a raw-percentage scale they are 100% and 50%). Midpoint as reference because
+that is already where the band rule measures its 6 g / 50 kcal allowance from.
+
+`dual`+`dual@r2` vs `NOBOOST`+`NOBOOST@r2`, same archives, same 9 dishes, same bootstrap:
+
+| | band metric | log-ratio metric |
+|---|---|---|
+| observed effect | +5.5 /108 | **−0.0418** (lower is better) |
+| 95% CI | −9.0 to +24.5 | −0.1264 to +0.0148 |
+| `NOBOOST` better in | 70.0% of resamples | **86.5%** |
+| resolving power (effect ÷ CI half-width) | 0.33 | **0.58** |
+| **CI excludes zero?** | no | **no** |
+
+🟡 **1.8× more sensitive, and it still cannot resolve this effect.** The metric change is real and
+worth keeping — but it does not rescue the 9-dish set.
+
+🔑 **THE NUMBER THAT MAKES THE DECISION.** A bootstrap CI half-width shrinks as 1/√n, so the sample at
+which the CI just excludes zero is `n_now / snr²`. For an effect this size:
+
+| metric | dishes needed |
+|---|---|
+| band | **~84** |
+| log-ratio | **~27** |
+
+**The metric change cuts the required oracle by roughly 3×** — from ~84 dishes to ~27. That is the
+difference between "widening the oracle is impractical" and "widening the oracle is a weekend of
+rulings". Order of magnitude only: it assumes this effect size and this between-dish spread survive
+the widening, which is exactly what a wider oracle would test.
+
+**Tool validated against a known answer before use:** `NOBOOST` vs `MASSCALL` (−20 points) returns a
+95% CI of −39.0 to −2.0, **excluding zero**, and `MASSCALL` ahead in 1.4% of resamples. So the tool
+resolves a large effect and declines to resolve a small one, which is the behaviour it is for.
+
+**Also reported, as a diagnostic only:** mass-only log-ratio, `dual` 0.2411 → `NOBOOST` 0.1884. Never
+the verdict — arm ORDER sized better and scored worse, so an arm is judged on the macros it produces.
+
+- **Spend: $0.** Phase total unchanged at ~$41.9–42.1. Production UNCHANGED at v32.
+- **⛔ NEXT ACTION: widen the oracle to ~27+ dishes, and judge arms on the log-ratio metric with the
+  band score kept as the reported product quality.** Santiago asked for this to go through
+  `superpowers:brainstorming` with example result tables before anything is built.

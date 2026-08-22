@@ -522,13 +522,69 @@ Track here anything that blocks testing or shipping. Update as items resolve.
 - **Macro-enrichment blockers are NOT restated here** — status lives in exactly one place, the
   `🎯 CURRENT PHASE` block of `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`,
   with the takeover briefing in the newest `HANDOFF` block of
-  `docs/superpowers/START-HERE.md`. Read those, not a copy. As of 2026-08-19: **production is edge fn
-  v32** (the dual pass), PRs #17 and #18 are **merged**, `main` byte-matches the deployed function, and
-  TestFlight build 7 is submitted. As of **2026-08-20**: nothing was deployed, the unweighted oracle grew
-  to **9 dishes**, its pass rule changed (average ±20% plus a 6 g / 50 kcal allowance), and the next
-  action is **one ~$0.50–0.60 run awaiting Santiago's approval** to score the three new dishes.
+  `docs/superpowers/START-HERE.md` — start at its **§0 MAP**, which defines every term (oracle, band,
+  draw, arm, harness, replay, ledger) and states where the phase stands. Read those, not a copy.
+  As of **2026-08-21**: production is edge fn **v32** (the dual pass), `main` byte-matches it, and
+  TestFlight build 7 is submitted. The unweighted set is **9 dishes / 108 points** at "average ±20%",
+  and **nothing has beaten v32 since it shipped** — so nothing is awaiting deployment; the blocker is
+  that no better arm has been found, not that a better arm is unreleased.
   ⚠️ **This line is a dated snapshot and nothing should be believed from it** — verify the live version
-  against the SERVER with `mcp__supabase__list_edge_functions`.
+  against the SERVER with `mcp__supabase__list_edge_functions`, and re-derive every score with the
+  `$0` commands rather than quoting it.
+
+---
+
+## Working Rules — spend, evidence, and finishing
+
+These four are phase-independent. They are the rules a session breaks when it is going badly, and
+each one has already cost something here.
+
+### 💸 A PAID RUN NEEDS SANTIAGO'S APPROVAL FIRST
+
+**State the exact command and the cost estimate, then WAIT.** Do not start a paid run because it seems
+obviously right, because a doc named it as the next action, or because it is cheap.
+
+⚠️ **The opposite failure is just as real: NEVER shrink an experiment to save money.** Cost is not a
+constraint — Santiago reloads in $10 increments and has said so explicitly. Cut arithmetic that cannot
+change a score; **never cut a menu, a dish, a draw, or a real neighbour.** A narrowed experiment that
+answers a smaller question is worse than an expensive one that answers the real one.
+
+🔑 **Before paying, check whether a `$0` tool answers it first.** `--replay` re-scores archived
+responses, and the `sim-*-ceiling.ts` scripts bound what a fix could be worth. **Four ideas have been
+killed for zero API spend.** A ceiling that reads 0 means no arm aimed there can work.
+
+### 📖 OPEN THE ARTIFACT BEFORE DESCRIBING IT
+
+**Never describe a script, an arm, an archive, or a fixture from memory, from its name, or from a
+neighbouring file.** Open it.
+
+This is lesson 31, and it produced three wrong claims in a single day: an arm described as
+"just a prompt ask" when it already carried the required schema field (the proposed successor was a
+**duplicate of a twice-rejected arm**); a gram breakdown quoted as evidence about the shipped path when
+the numbers came from a **different arm's archive**, which inverted the diagnosis; and a blast-radius
+claim checked against one of two archive maps. **The tell is a sentence about code or data you have not
+opened in this session.** One tool call prevents each of them.
+
+### 📐 A FIGURE IN PROSE IS A SNAPSHOT — RE-DERIVE IT
+
+**Never quote a number written in a document.** Re-derive it with the `$0` commands in START-HERE's
+*"commands that tell you the truth"* block. Prose records what was true when it was written.
+
+⚠️ **And a conclusion is only valid under the ruler that measured it.** If the oracle, the bands, or
+the dish set has changed, **every stored verdict is provisional — including anything marked "FALSIFIED"
+or "DO NOT RE-OPEN".** A "perfect mass is worthless" entry sat in a do-not-reopen table while being, at
+the current ruler, **the single largest lever available (+31 points)**. When a ruler changes, re-run the
+cheap conclusions immediately, before any of them is used to reject an idea. Record the ruler beside the
+verdict so it ages honestly.
+
+### 🧾 BEFORE THE SESSION ENDS
+
+- **Add a ledger entry** to `docs/superpowers/extraction-iteration-ledger.md` — one per eval, newest
+  last, with what was tried, what it scored, and what it cost. **It is this project's memory.**
+- **Update `docs/superpowers/START-HERE.md`** if the state changed, and **in the same commit as a
+  deploy** if anything shipped.
+- **A run that produced no usable result still gets an entry.** A crashed or falsified run is the
+  cheapest thing a future session can be told about, and the easiest to repeat by accident.
 
 ---
 

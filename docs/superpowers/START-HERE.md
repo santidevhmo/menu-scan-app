@@ -335,7 +335,68 @@ that existed before that day the gap is **+11**, matching the +11/+12 measured e
 The headline fell to +7 because the two NEW dishes contribute **−4**, all of it BROWNIE (baseline 12,
 dual 8). **That is dual genuinely losing a dessert, not a ruler that stopped discriminating.**
 
-### ⛔ THE NEXT ACTION — WIDEN THE ORACLE. IT IS NO LONGER A SIDE-QUEST, IT IS THE BLOCKER (eval 164)
+### ⛔ THE NEXT ACTION (2026-08-22) — THE 12 RULINGS ARE DONE. FOUR $0 STEPS REMAIN.
+
+**Santiago ruled all 12 new oracle dishes on 2026-08-22.** They are recorded in
+`docs/superpowers/specs/2026-08-22-oracle-widening-rulings.md`, with the design in
+`2026-08-22-oracle-widening-design.md`. **Read the rulings doc before touching the oracle** — it
+carries the per-ingredient grams, the FDC records, the open decisions and the verification gate.
+
+**Nothing below needs a model call.** In order:
+
+| # | step | why |
+|---|---|---|
+| 1 | verify every FDC record | some are marked `needs record`; and FDC 2710796, cited by the EXISTING OMELETTE CUBANA entry, returns 404 |
+| 2 | write the 12 entries into `scripts/fixtures/unweighted-oracle.json` | they are markdown on purpose so no harness reads a pending ruling as scoring data |
+| 3 | **re-score all 7 archive sets on 21 dishes — $0** | all 12 dishes are already inside every archive, so `dual` ×2, `NOBOOST` ×2, `ROLE`, `MASSCALL`, `NOPUSH` get re-judged for free |
+| 4 | re-measure the noise band | `sim-arm-significance.ts dual+dual@r2 NOBOOST+NOBOOST@r2` |
+
+⚠️ **GATE on step 3: the existing 9 dishes must score IDENTICALLY before and after.** If they
+move, the harness changed and not just the oracle — the bug class this project has hit twice.
+
+🔑 **Step 3 answers the question the phase is stuck on: does `NOBOOST`'s advantage survive a
+wider dish set, or was it one dish (TACO PORCO) all along?**
+
+### 🔑 FOUND WHILE RULING, AND IT MAY OUTRANK EVERY ARM: THE MENU PRINTS SIZES WE DISCARD
+
+Two independent cases, both verified 2026-08-22:
+
+| case | evidence |
+|---|---|
+| **"PIZZAS BISTRO — 28 CM"** | the size is on the SECTION header. **Zero of 26 bistro items carry "28" or "cm" anywhere** — not in `description`, not in `section_title`. **CAPRICCIOSA's oracle band was ruled from that 28 cm**, and it fails in every arm of this phase |
+| **`CAMARÓN ROKA (200 g)`** | a printed weight on a SIBLING dish that establishes both the preparation and the portion for `DE CAMARÓN ROKA`, which prints nothing |
+
+**Stage 2 sizes each item from its own text alone.** These are Stage 1 fixes and they supply
+REAL information rather than redistributing a guess — unlike every prompt and schema arm tried
+so far. Use `superpowers:systematic-debugging` first: "the size is dropped" is a symptom, and
+it is not yet known whether the cause is the OCR, the Stage-1b prompt, or a schema with nowhere
+to put a section-level note.
+
+Two further Stage-1 gaps found in the same photo: **"*Al horno" dropped from ENSALADA BISTRO**
+(a BAKED salad) and **"*Extracto de huevo" dropped from CARBONARA**. And `ALFREDO PORTOBELLO`
+arrives tagged `section_title: "PIZZAS BISTRO"` — a pasta under the pizza heading, so the
+section signal is not clean.
+
+### 💡 TWO FUTURE-EVAL HYPOTHESES, PRIOR ART ALREADY CHECKED (2026-08-22)
+
+Both are Santiago's, both recorded in full at the end of the rulings doc. Neither is designed.
+
+1. **The menu SECTION as a portion prior.** `section_title` ALREADY reaches the Stage 2 request
+   and neither the prompt nor the schema asks the model to use it. Denominator: only **211 of
+   2102 items (10%)** sit under a heading that says anything about PORTION; ~90% carry DISH TYPE
+   only — so it is a better dish-FORM prior than a starter/main flag. ☠️ **Trap:** our corpus
+   holds both `ENTREES` (64 items, English = MAIN) and `entradas` (115, Spanish = STARTER).
+   Opposite meanings, same root. A mechanism keyed on the word gets one language backwards.
+2. **Ask in RECIPE UNITS, not grams** — "1 tbsp olive oil, 1/2 cup cheese". Untried: S asked in
+   a sentence, S3 in `share_pct`, S4 in a second gram field, B16 in a share, B21 for the
+   reference amount. 🟢 **$0 evidence it is a real mechanism:** over 561 ingredient answers,
+   **59% are metric-round against 6% household-measure**, from a vocabulary of just **16
+   distinct numbers** where five cover 79%. The model is snapping to a metric grid, not
+   converting from a recipe. ⚠️ It needs a per-food DENSITY table (1 cup lettuce ~55 g, grated
+   cheese ~113 g, oil ~218 g) — a single cups-to-grams constant would be worse than the grid it
+   replaces. FNDDS publishes gram weights per household measure.
+
+### ⛔ SUPERSEDED — the pre-2026-08-22 version of this section (eval 164)
 
 🛑 **THIS BENCHMARK CAN DETECT A DISASTER AND CANNOT DETECT AN IMPROVEMENT.** Measured, not
 argued: `scripts/sim-arm-significance.ts` bootstraps the 9 DISHES (the real unit — 4 macros share one

@@ -2918,3 +2918,98 @@ the verdict — arm ORDER sized better and scored worse, so an arm is judged on 
 - **⛔ NEXT ACTION: widen the oracle to ~27+ dishes, and judge arms on the log-ratio metric with the
   band score kept as the reported product quality.** Santiago asked for this to go through
   `superpowers:brainstorming` with example result tables before anything is built.
+
+## Eval 166 — 📋 ALL 12 NEW ORACLE DISHES RULED. Not yet scored — this is state, not a result (2026-08-22, $0)
+
+Eval 164 established the blocker: **the 9-dish benchmark can detect a disaster and cannot detect an
+improvement** (noise band ±17 on /108). Eval 165 cut the required oracle from ~84 dishes to ~27 by
+switching the decision metric to log-ratio error. This entry records the rulings that close the gap.
+
+**Santiago ruled 12 dishes on 2026-08-22.** Full per-ingredient grams, FDC records and open decisions:
+`docs/superpowers/specs/2026-08-22-oracle-widening-rulings.md`. Design:
+`2026-08-22-oracle-widening-design.md`.
+
+| # | menu | dish | mass | kcal |
+|---|---|---|---|---|
+| 1 | el-marcos | OMELETTE TOMASA | 222 g | 315 |
+| 2 | el-marcos | OMELETTE LAMERA | 183 g | 274 |
+| 3 | bistro | FETUCCINI ALFREDO | 345 g | 817 |
+| 4 | bistro | ALFREDO PORTOBELLO | 410 g | 707 |
+| 5 | bistro | PASTA ESPECIAL | 430 g | 633 |
+| 6 | bistro | ENSALADA BALI | 325 g | 443 |
+| 7 | bistro | ENSALADA BISTRO | 330 g | 334 |
+| 8 | bistro | ENSALADA DE LA SEMANA | 390 g | 497 |
+| 9 | nikkori | Vegan Roll | 293 g | 368 |
+| 10 | nikkori | Nikkori Maki | 343 g | 465 |
+| 11 | andaluz | DE CAMARÓN ROKA | 201 g | 411 |
+| 12 | brasero-two | TACO EL CAPRICHO | 128 g | 299 |
+
+🔑 **THE DESIGN TURNS ON ONE DISCOVERY: all 12 are already inside all 7 archive sets we have paid
+for.** So writing them into the oracle re-scores `dual` ×2, `NOBOOST` ×2, `ROLE`, `MASSCALL` and
+`NOPUSH` on 21 dishes at **$0 in model calls**. That is what makes this cheap, and it is why these 12
+were chosen over higher-scoring candidates.
+
+**Nothing is scored yet.** Four $0 steps remain: verify the FDC records, write the entries, re-score,
+re-measure the noise band. **Step 3 answers the question the phase is stuck on — does `NOBOOST`'s
+advantage survive a wider dish set, or was it TACO PORCO all along?**
+
+### 🔑 THE FINDING THAT MAY OUTRANK EVERY ARM: THE MENU PRINTS SIZES WE DISCARD
+
+Two independent cases, both verified against archived extractions:
+
+- **"PIZZAS BISTRO — 28 CM"** is on the SECTION header. **Zero of 26 bistro items carry "28" or "cm"
+  anywhere.** CAPRICCIOSA's oracle band was ruled from that 28 cm, and CAPRICCIOSA fails in every arm
+  of this phase.
+- **`CAMARÓN ROKA (200 g)`** is a printed weight on a SIBLING dish that establishes both the
+  preparation and the portion for `DE CAMARÓN ROKA`, which prints nothing. Independently, the ruling
+  reached 201 g from ingredients alone without consulting it.
+
+**Stage 2 sizes each item from its own text alone.** These are STAGE 1 fixes and they supply real
+information rather than redistributing a guess — unlike every prompt and schema arm tried so far.
+
+Two more Stage-1 gaps in the same photo: **"*Al horno" dropped from ENSALADA BISTRO** (a BAKED salad;
+Santiago ruled to ignore it and keep raw records) and **"*Extracto de huevo" dropped from CARBONARA**.
+`ALFREDO PORTOBELLO` arrives tagged `section_title: "PIZZAS BISTRO"` — a pasta under the pizza heading.
+
+### Method notes worth carrying forward
+
+- **Decomposition vs composite is not a uniform offset.** The taco's two methods agreed within **7%**
+  (composite 319 vs decomposed 299) — and that retroactively validates why TACO PORCO rejected its own
+  composite, since every FNDDS pork-taco cell forces cheese that dish lacked. The pastas diverged up to
+  **18% in BOTH directions** (Alfredo 238 decomposed vs 203 composite; Especial 147 vs 174).
+- ⚠️ **The "assumed ingredient" rule is INCONSISTENT across three decisions.** Rice EXCLUDED from
+  DE CAMARÓN ROKA (nothing establishes it); the roka dressing INCLUDED (a sibling dish spells it out);
+  ENSALADA DE LA SEMANA's dressing INCLUDED with no menu evidence at all. Two principles — "include
+  what the menu ESTABLISHES" vs "include what the dish CERTAINLY HAS" — disagree on the salad. **Pick
+  one before writing the entries.**
+- **A search trap that cost 13× on one ingredient:** the top FNDDS hit for shredded coconut is
+  **coconut WATER** at 37 kcal/100 g against 472. Never accept a top hit without reading its
+  description.
+- **The FDC search endpoint 400s/404s on ANY form of the `dataType` parameter** (raw parens, `%28%29`,
+  `+` for space, param reordering). Plain search works — filter for `Survey (FNDDS)` client-side.
+- **FDC 2710796**, the onion record the EXISTING OMELETTE CUBANA entry cites, returns 404. An id copied
+  out of a doc is not a reliable handle.
+
+### ⚠️ FOUR EXISTING ORACLE DISHES THIS BATCH CAST DOUBT ON — none resolved
+
+| dish | why |
+|---|---|
+| **CAPRICCIOSA** | graded against a 28 CM the pipeline never receives. **Highest severity** |
+| **ENSALADA GRIEGA** | bands 136–250 g / 143–214 kcal against the three new salads at 275–450 g / 354–597 kcal. It may be the outlier rather than they |
+| **Salmón Roll** | its own entry warns the [250,350] → [300,400] revision left the set with no dish guarding against an arm that scales everything UP. Re-check now that 12 dishes are joining |
+| **OMELETTE CUBANA** | 203 g above FNDDS's largest published omelette portion (170 g); both new omelettes land there too. Eval 162 closed this as "the oracle is the generous end, the model is the error" |
+
+### 💡 Two future-eval hypotheses, prior art checked, neither designed
+
+1. **The menu SECTION as a portion prior.** `section_title` already reaches the Stage 2 request and
+   neither the prompt nor the schema uses it. Only **211 of 2102 items (10%)** sit under a
+   portion-bearing heading; ~90% carry dish type only — a better dish-FORM prior than a starter/main
+   flag. ☠️ Trap: the corpus holds both `ENTREES` (64, English = MAIN) and `entradas` (115, Spanish =
+   STARTER).
+2. **Ask in RECIPE UNITS, not grams.** Untried — every prior arm asked in grams or percent. 🟢 $0
+   evidence: over 561 answers, **59% metric-round vs 6% household-measure**, from **16 distinct
+   numbers** where five cover 79%. The model snaps to a metric grid rather than converting from a
+   recipe. ⚠️ Needs a per-food density table; a single cups-to-grams constant would be worse than the
+   grid it replaces.
+
+- **Spend: $0.** Phase total unchanged at ~$41.9–42.1. **Production UNCHANGED: edge fn `analyze-menu` v32.**

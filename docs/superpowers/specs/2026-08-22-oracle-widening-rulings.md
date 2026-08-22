@@ -503,7 +503,7 @@ Recorded for the record: the pass rule adds a 50 kcal allowance measured from th
 MIDPOINT, so even a 365–380 band would pass anything in 322–422 — an effective ±13%, not ±2%.
 
 
-## 12. TACO EL CAPRICHO — brasero-two, $100  ⏳ proposed, awaiting Santiago
+## 12. TACO EL CAPRICHO — brasero-two, $100  ✅ RULED (as proposed, 2026-08-22)
 
 *"Taco de arrachera en base de lechuga fresca y costra de queso."*
 
@@ -533,7 +533,41 @@ because the *costra* is a third of the calories where PORCO has no cheese.
 
 ## Remaining to rule
 
-All 12 proposed. **11 ruled, TACO EL CAPRICHO (#12) awaiting Santiago.**
+# ✅ ALL 12 DISHES RULED (2026-08-22)
+
+Nothing further is needed from Santiago to score these, except the two open items below.
+
+## What remains, in order. None of it needs a model call until step 4.
+
+| # | step | cost | why |
+|---|---|---|---|
+| 1 | **Verify every FDC record** | $0 | Several entries above carry `needs record` on low-impact ingredients (the omelettes' mushrooms, onion, chives, cilantro, chile verde). And **FDC 2710796 — the onion record the EXISTING OMELETTE CUBANA entry cites — returns 404.** That is a pre-existing defect in the oracle's citations, not one these rulings introduced. |
+| 2 | **Write the 12 entries into `scripts/fixtures/unweighted-oracle.json`** | $0 | They live in markdown here on purpose so no harness can read a pending ruling as scoring data. Match the existing entry shape: `name, menu, unweighted, band, mass_band_g, assumed, source, retrieved_at`. |
+| 3 | **Re-score all 7 archive sets on 21 dishes** | **$0** | The payoff. `dual` ×2, `NOBOOST` ×2, `ROLE`, `MASSCALL`, `NOPUSH` all get re-judged with no new calls, because all 12 dishes are already inside every archive. **This is where we find out whether `NOBOOST`'s "the whole effect is one dish" result survives a wider set.** |
+| 4 | **Re-measure the noise band** | $0 | `scripts/sim-arm-significance.ts dual+dual@r2 NOBOOST+NOBOOST@r2`. The projection says the detection floor drops from ~+10 to ~+6.5 — the MEASUREMENT rules, not the projection. |
+
+⚠️ **Verification gate for step 3:** the existing 9 dishes must score IDENTICALLY before and
+after. If they move, the harness changed and not just the oracle — that is the bug class this
+project has hit twice (a hardcoded list that did not grow with the oracle).
+
+## Two open decisions that affect how the entries are written
+
+1. **DE CAMARÓN ROKA's lettuce base.** Visible on the restaurant's Instagram, absent from the
+   menu text. Not in the ruling. Low-calorie but it raises the mass.
+2. 🔑 **THE "ASSUMED INGREDIENT" RULE IS NOT CONSISTENT YET, and three decisions disagree:**
+   - DE CAMARÓN ROKA's **rice: EXCLUDED** — nothing on the menu establishes it.
+   - DE CAMARÓN ROKA's **roka dressing: INCLUDED** — a sibling dish on the same menu spells it
+     out (`CAMARÓN ROKA (200 g)`, *"aderezo roka a base de chipotle"*).
+   - ENSALADA DE LA SEMANA's **dressing: INCLUDED** — with **no menu evidence at all**.
+
+   Two principles are in play — *"include what the menu ESTABLISHES"* versus *"include what the
+   dish CERTAINLY HAS"* — and they give opposite answers for the salad. Pick one before writing
+   the entries, or the oracle encodes both.
+3. **Decomposition vs composite.** All 12 of these are decomposed. CARBONARA and CAPRICCIOSA
+   remain the only composite-derived entries. The taco showed the two methods agreeing within
+   **7%**; the pastas showed them diverging up to **18% in BOTH directions**. Open: re-derive
+   CARBONARA for consistency, or keep both and accept that an arm's result partly reflects which
+   method built which dish.
 
 ## 🔎 DE CAMARÓN ROKA — Santiago's Instagram check, 2026-08-22
 

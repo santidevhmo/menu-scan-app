@@ -503,13 +503,53 @@ Recorded for the record: the pass rule adds a 50 kcal allowance measured from th
 MIDPOINT, so even a 365–380 band would pass anything in 322–422 — an effective ±13%, not ±2%.
 
 
+## 12. TACO EL CAPRICHO — brasero-two, $100  ⏳ proposed, awaiting Santiago
+
+*"Taco de arrachera en base de lechuga fresca y costra de queso."*
+
+| ingredient | grams | % cal | record |
+|---|---|---|---|
+| arrachera | 55 | 44.7% | FDC 2705827 "Beef, steak, flank" · 243 — arrachera IS flank/skirt steak, an exact cell. 55 g matches TACO PORCO's ruled meat |
+| costra de queso | 25 | 32.7% | FDC 2705720 Monterey · 392 — the US analogue for a Mexican melting cheese |
+| tortilla, maíz | 28 | 21.2% | FDC 2707823 · 227 — **a published FNDDS portion**, the same sourced weight TACO PORCO uses |
+| lechuga fresca | 20 | 1.3% | FDC 2709789 · 19 |
+
+**128 g · 299 kcal · 23.5 P · 13.7 C · 16.7 F**
+bands **239–359 kcal / 19–28 P / 11–16 C / 13–20 F**, mass **110–145 g**
+
+✅ **Two consistency checks, both pass.**
+1. **Mass lands inside TACO PORCO's ruled band** — 128 g against [100, 140]. Two tacos from the
+   same menu in the same range.
+2. 🔑 **The composite record AGREES here, and that validates why PORCO rejected its own.**
+   PORCO was decomposed because every FNDDS pork-taco cell forces cheese the dish lacked, and
+   that phantom cheese was half its fat. **This taco HAS cheese**, so the composite should
+   apply — FDC 2708515 "Taco, corn tortilla, beef, cheese" at 249 kcal/100 g gives **319 kcal**
+   at 128 g against the decomposed **299**, a **7%** gap. Compare the pastas, where the two
+   methods diverged in BOTH directions by up to 18%.
+
+Notably richer than TACO PORCO — 299 kcal against its ~218 midpoint, fat 16.7 g against ~8.5 —
+because the *costra* is a third of the calories where PORCO has no cheese.
+
+
 ## Remaining to rule
 
-| # | menu | dish | state |
-|---|---|---|---|
-| 12 | brasero-two | TACO EL CAPRICHO | not started |
+All 12 proposed. **11 ruled, TACO EL CAPRICHO (#12) awaiting Santiago.**
 
-**11 of 12 ruled.**
+## 🔎 DE CAMARÓN ROKA — Santiago's Instagram check, 2026-08-22
+
+Santiago checked the restaurant's Instagram: the dish is **a plate with a lettuce base and
+fried shrimp, not a roll**, and he ruled to keep the rice out and use only the named ingredients
+— which is what the entry above already does. He also directed that the mass be that of **an
+individual dish for one person, not a shareable plate**.
+
+✅ **The ruled 201 g already satisfies that, and the menu corroborates it independently:**
+andaluz's plated `CAMARÓN ROKA` under *del mar* **prints 200 g** — within a gram of the ruled
+mass, reached from ingredients without ever consulting that printed figure.
+
+⏳ **Open:** the lettuce base is visible on Instagram but absent from the menu text for this
+item, so it is NOT in the ruling. Low-calorie, but it would raise the mass. Awaiting a decision,
+and it is the same "ingredient the menu assumes rather than states" question as the rice and the
+roka dressing.
 
 ## ⚠️ EXISTING ORACLE DISHES THIS BATCH CAST DOUBT ON
 

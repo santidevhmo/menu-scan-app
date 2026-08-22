@@ -41,7 +41,7 @@ That split is deliberate: the model is good at knowing what food is, and bad at 
 | **`Arm A`** | Asks the model for the dish's **total grams** (`typical_total_g`, a required schema field), then rescales every ingredient to that total. | **36/108** ☠️ rejected twice |
 | **`ORDER` / `ORDER-nopush` / `PIECE`** | Change what the per-ingredient GRAM FIELD asks for: `typical_serving_g` (a label serving) → grams **in one order as sold**, or grams **per piece x `serving_pieces`**. No total asked, nothing rescaled. | **61 / 65 / 60** ☠️ all rejected, eval 159 — **and they SIZED BETTER than the winner** |
 | **`NOPUSH`** | Deletes pass 2's whole addendum — **both** the restraint half AND the push half. Shipped gram ask, shipped schema. | **57/108** ☠️ rejected, eval 160 — **and it does NOT test what its name says** |
-| **`NOBOOST`** | Deletes **only the push half** of pass 2's addendum; keeps the restraint. Shipped gram ask, shipped schema, shipped key. One clause of diff. | **70–72/108** over TWO runs 🟢 **the first arm ever to beat the shipped pipeline** (evals 160 + 161) |
+| **`NOBOOST`** | Deletes **only the push half** of pass 2's addendum; keeps the restraint. Shipped gram ask, shipped schema, shipped key. One clause of diff. | **70–72/108** vs the control's **64–67** 🟢 **DISJOINT RANGES, two runs each** (evals 160–162) — deployable, awaiting Santiago |
 
 ### ⚖️ THE TWO SCORES — NEVER MERGE THEM
 
@@ -129,8 +129,11 @@ sims accept **`ARM@label`** (`NOBOOST@r2`). Two effects are stable across both r
 gain: **TACO PORCO 0 → 6/11** (its plate lands in the 100–140 band once the push is gone) and
 **CAPRICCIOSA 8 → 3/5** (the only genuinely large plate in the set, band 400–450 — the one dish the
 push was helping). Per-dish swings of ±5 between runs are normal; the total is not.
-⚠️ **STILL ASYMMETRIC: `dual`'s 67 is ONE run.** Two-run range against a one-run point. A matched
-`dual --run r2` (~$0.4) is the honest prerequisite to any deploy decision.
+✅ **THE CONTROL'S RANGE ARRIVED (eval 162): `dual --run r2` = 64, so the control is 64–67 and
+`NOBOOST` is 70–72. THE RANGES ARE DISJOINT** — the worst `NOBOOST` run beats the best `dual` run by 3,
+mean +5.5. First change since the dual pass to clear its control on a range rather than a point.
+🔴 **OPEN DECISION FOR SANTIAGO: deploy it?** One clause, and `ENRICH_PROMPT_UNWEIGHTED` is used ONLY
+in pass 2 — pass 1 stays byte-identical, so the weighted 82–94% cannot move.
 
 ✅ **OMELETTE CUBANA IS DIAGNOSED AND IT IS NOT A SIZING BUG.** Frozen at exactly 3/12 in all four
 eval-159 arms because each prices the **four named fillings** at a flat 20–30 g — chorizo/ham/bacon/
@@ -140,6 +143,32 @@ PASS and TACO PORCO 0/4 → 4/4 PASS**, under both `dual` and `ORDER`. **Composi
 100% of the loss is per-ingredient gram sizing.** The needed correction (30 → 8–15 g) is BELOW the
 model's granularity for a named meat or cheese: across 140 answers `15 g` appears **once**, `8 g`
 **never**. That is Santiago's ruling #1 (*virutas* = shavings = 5 g) broken four times in one dish.
+
+### 🔴 EVAL 162: THE FILLING FRAMING IS THE WRONG TARGET — IT IS WHOLE-PLATE SIZE, IN BOTH DIRECTIONS
+
+Split each dish's error into **SIZE** (model mass / ruled mass) and **MIX** (model density / ruled
+density), 3-draw averages, `dual`:
+
+| dish | size × | mix × | | dish | size × | mix × |
+|---|---|---|---|---|---|---|
+| Salmón Roll | **0.65** | 1.20 | | PAPAS FRITAS | 0.97 | 1.04 |
+| CARBONARA | **0.80** | 1.10 | | BROWNIE | 1.20 | 0.92 |
+| TIRAS DE POLLO | 0.88 | 0.90 | | ENSALADA GRIEGA | 1.28 | 0.99 |
+| CAPRICCIOSA | 0.89 | 0.88 | | **OMELETTE CUBANA** | **1.28** | 1.14 |
+
+🔑 **MIX error never exceeds ±20%. SIZE error runs 0.65–1.30, in BOTH directions.** A mechanism that
+shrinks non-body ingredients helps OMELETTE and ENSALADA while pushing CARBONARA and Salmón Roll —
+already 20–35% UNDER — further under. `sim-mass-ceiling.ts` settles it: a **uniform** rescale to the band
+midpoint takes **OMELETTE 3/12 → 12/12** and TACO PORCO 0 → 12. **The dish that motivated the filling
+hypothesis is fixed by plate mass alone.** Mass-lever value is **~74–80** ("anywhere in band" = 80);
+98 needs band midpoints and stays retired.
+
+✅ **THE OMELETTE ORACLE RE-CHECK IS DONE (eval 158 flagged it, eval 162 closed it). NO CHANGE
+WARRANTED — the oracle is corroborated, the model is the error.** FNDDS's largest published portion for
+a cheese-and-meat omelette is **170 g, exactly the bottom of our 170–230 band**; a single fried egg is
+55 g, confirming the ruled 2×55; and all three per-100 g rows (FNDDS composite, our recipe, the model)
+agree within ~10%, so composition was never in dispute. **The model's 280 g is 1.65× FNDDS's largest
+portion.** ⚠️ The price ladder on that menu was deliberately NOT used — price is not evidence of grams.
 
 ### ❓ "Why haven't we deployed anything?"
 
@@ -154,7 +183,7 @@ it. Every arm tried since has scored **worse than what already runs**:
 | Arm A (plate total), re-run 2026-08-21 | **36/108 vs the shipped 67/108** |
 | ORDER / ORDER-nopush / PIECE (what the gram field asks) | **61 / 65 / 60 vs 67** — better mass, worse recipe |
 | NOPUSH (delete pass 2's whole addendum) | **57/108 vs 67** — rejected |
-| **NOBOOST (delete only the addendum's PUSH half)** | **70–72/108 vs 67** 🟢 **first arm to beat v32**, both runs above it |
+| **NOBOOST (delete only the addendum's PUSH half)** | **70–72 vs the control's 64–67** 🟢 **first arm to beat v32 on DISJOINT RANGES** |
 
 Shipping any of them would make the app **less** accurate. The honest state is: *the shipped thing is
 the best thing we have, and the next idea has not been found yet.*
@@ -1414,7 +1443,7 @@ deno run --allow-read scripts/sim-gram-distribution.ts dual NOBOOST NOBOOST@r2 N
 # $0. Are MASS and COMPOSITION separable? Crosses each arm's mass with each arm's
 # per-100 g recipe. THROWS if the control row misses its published score by >3 -
 # a hand-rolled version of this read 88/108 for a control the harness reads 67.
-deno run --allow-read scripts/sim-mass-composition-split.ts dual NOBOOST NOBOOST@r2 NOPUSH ORDER ORDER-nopush PIECE
+deno run --allow-read scripts/sim-mass-composition-split.ts dual dual@r2 NOBOOST NOBOOST@r2 NOPUSH ORDER ORDER-nopush PIECE
 
 # $0 CEILINGS - "if we fixed X perfectly, how many points would it be worth?"
 # Run these BEFORE designing any arm: they have killed four ideas for nothing.

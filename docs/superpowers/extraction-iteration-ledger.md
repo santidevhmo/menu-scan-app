@@ -2532,3 +2532,92 @@ independent 3-draw run, kept in its own archives by the newly ported `--run r2`.
      deploy decision on a +3–5 change. Use `--run r2`.
   2. **A filling-targeted mechanism** — OMELETTE's 3/12 and CAPRICCIOSA's regression are both
      per-ingredient gram sizing, which no sentence has moved. See eval 160's diagnosis.
+
+---
+
+## Eval 162 — 🟢 THE CONTROL'S RANGE ARRIVES AND THE RANGES DO NOT OVERLAP: `dual` 64–67, `NOBOOST` 70–72. Plus the OMELETTE ORACLE RE-CHECK, which comes back CLEAN (2026-08-21, ~$0.4)
+
+- **THE MATCHED CONTROL.** `dual --run r2` = **64/108**. With eval 161's `NOBOOST` repeat, both sides now
+  have a range measured the same way, on the same 9 dishes, same oracle, same 3 draws:
+
+  | arm | run 1 | run 2 | **range** | mean | mass in band /27 |
+  |---|---|---|---|---|---|
+  | `dual` (shipped v32) | 67 | **64** | **64–67** | 65.5 | 14, 12 |
+  | **`NOBOOST`** | 70 | 72 | **70–72** | **71** | **17, 16** |
+
+  🔑 **The worst `NOBOOST` run beats the best `dual` run by 3 points. The ranges are disjoint.** This is
+  the first change since the dual pass shipped that clears its control on a range rather than a point.
+
+- **Stable across all FOUR runs** — the effect is not draw luck:
+
+  | dish | `dual` r1 / r2 | `NOBOOST` r1 / r2 |
+  |---|---|---|
+  | **TACO PORCO** | 0 / 1 | **6 / 11** |
+  | CAPRICCIOSA | 8 / 6 | 3 / 5 |
+  | CARBONARA | 9 / 10 | 9 / 9 |
+  | **OMELETTE CUBANA** | **3 / 3** | **3 / 3** |
+
+- **Cross-table with both controls** (`sim-mass-composition-split.ts dual dual@r2 NOBOOST NOBOOST@r2`),
+  rows = whose MASS, columns = whose COMPOSITION:
+
+  | | dual | dual@r2 | NOBOOST | NOBOOST@r2 |
+  |---|---|---|---|---|
+  | dual | 67 | 61 | 58 | 66 |
+  | dual@r2 | 69 | 64 | 61 | 66 |
+  | **NOBOOST** | **77** | **73** | 70 | 75 |
+  | **NOBOOST@r2** | **74** | 69 | 65 | 72 |
+
+  `NOBOOST`'s sizing at `dual`'s recipe is **73–77** over four archive pairs. Still a CEILING, not an arm.
+
+- **✅ THE OMELETTE ORACLE RE-CHECK (eval 158 flagged it; never done until now). VERDICT: NO CHANGE
+  WARRANTED — the oracle is corroborated and the model is the error.** $0, no model call.
+  - **The photo** (`scripts/fixtures/photos/ElMarcosMenu.png`) confirms the description verbatim and
+    that **"Dos huevos" is the only printed quantity**. It cannot settle the filling grams — the entry
+    already says *"EVERY FILLING GRAM IS A JUDGEMENT"*. ⚠️ The price ladder on that menu (plain eggs 78,
+    +one meat 90, CUBANA 98) was deliberately NOT used: price is not evidence of grams (Santiago).
+  - **An independent source that owes nothing to our oracle or the model** — FNDDS via the FDC API:
+
+    | | per 100 g | published portions |
+    |---|---|---|
+    | FDC **2707223** *"Egg omelet…with cheese and meat, made with oil"* | P 13.3 / C 1.4 / F 17.4 | **85 / 135 / 170 g** |
+    | FDC **2707158** *"Egg, whole, fried with oil"* | P 11.6 / C 0.9 / F 15.8 | **55 g** ✓ confirms the oracle's 2×55 |
+    | our oracle's ruled recipe (203 g) | P 12.3 / C 2.7 / F 15.3 | band 170–230 |
+    | the model (`dual`, 280 g) | P 13.9 / C 2.1 / F 17.9 | — |
+
+  - 🔑 **Composition was never in dispute** — all three per-100 g rows agree within ~10%.
+    🔑 **The oracle is the GENEROUS end, not the stingy one:** FNDDS's LARGEST portion for a
+    cheese-and-meat omelette is **170 g, exactly the bottom of our band**, and our 203 g ruling sits
+    above it (defensible — this dish has three meats, cheese and two vegetables). **The model's 280 g is
+    1.65× FNDDS's largest portion.** Nothing in the oracle was edited.
+
+- **🔑 THE FILLING FRAMING IS THE WRONG TARGET, on $0 evidence.** Splitting each dish's error into SIZE
+  (model mass / ruled mass) and MIX (model density / ruled density), averaged over 3 draws:
+
+  | dish | size × | mix × | | dish | size × | mix × |
+  |---|---|---|---|---|---|---|
+  | Salmón Roll | **0.65** | 1.20 | | PAPAS FRITAS | 0.97 | 1.04 |
+  | CARBONARA | **0.80** | 1.10 | | BROWNIE | 1.20 | 0.92 |
+  | TIRAS DE POLLO | 0.88 | 0.90 | | ENSALADA GRIEGA | 1.28 | 0.99 |
+  | CAPRICCIOSA | 0.89 | 0.88 | | **OMELETTE CUBANA** | **1.28** | 1.14 |
+
+  **MIX error never exceeds ±20%. SIZE error runs 0.65 to 1.30, in BOTH directions.** A mechanism that
+  shrinks non-body ingredients helps OMELETTE and ENSALADA while pushing CARBONARA and Salmón Roll —
+  already 20–35% UNDER — further under. And `sim-mass-ceiling.ts` settles it: a **uniform** rescale to
+  the band midpoint takes **OMELETTE 3/12 → 12/12** and TACO PORCO 0 → 12. **The dish that motivated the
+  filling hypothesis is fixed by plate mass alone.** Realistic mass-lever value: **~74–80**, since
+  "mass anywhere in its band" scores 80 and nothing will hit midpoints.
+
+- **Spend: ~$0.4 estimated, not metered.** Santiago approved the matched control. Phase total **~$41.1–41.3**.
+- **Production is UNCHANGED: edge fn `analyze-menu` v32.**
+- **⛔ NEXT ACTION: two OPEN decisions, both Santiago's.**
+  1. **DEPLOY `NOBOOST`?** Disjoint ranges, +5.5 mean, a one-clause deletion. `ENRICH_PROMPT_UNWEIGHTED`
+     is used ONLY in pass 2, so pass 1 stays byte-identical and the weighted 82–94% cannot move. This is
+     the first deployable unweighted gain since v32.
+  2. **Two arms designed and awaiting cost approval (~$0.8 together), to run concurrently:**
+     `MASSCALL` — the plate total from its OWN call that never sees an ingredient list (Arm A's total came
+     from the same call that built the recipe, which is why rescaling amplified its own oversize);
+     and `ROLE` — a required 4-value enum (body/filling/topping/garnish) emitted BEFORE the gram field
+     in schema order (B4), no code-side arithmetic and no per-role gram table, so an inert enum closes
+     the family cheaply. ⚠️ Prior art rules out the near shapes: **S4's second gram field returned a COPY
+     in 364 of 364 ingredients**, S3's `share_pct` won its probe and lost its benchmark, Arm S's sentence
+     was ignored.

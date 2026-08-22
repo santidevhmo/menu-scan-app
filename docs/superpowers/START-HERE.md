@@ -1310,10 +1310,23 @@ say what would falsify it and run it.
 🧭 **The commands that tell you the truth, all $0:**
 
 ```bash
-deno test --allow-all scripts/ supabase/          # expect 389 passed | 2 failed (see below)
+# Expect EXACTLY 2 failures, both named below. Do NOT pin the pass count - it grows
+# whenever a test is added, and a pinned number here would be the very thing this
+# block exists to prevent (it read "389" for a week while the suite passed 395).
+# 2 failures = clean. 3+ = one is yours.
+deno test --allow-all scripts/ supabase/
 deno run --allow-read scripts/rescore-history.ts  # CURRENT score of every archived run
 deno run --allow-read scripts/rescore-history.ts <run-id>… --by-dish   # specific runs, per dish
 deno run --allow-read scripts/sim-scope-rule.ts   # $0: the printed-weight scope rule, A vs C
+
+# $0 CEILINGS - "if we fixed X perfectly, how many points would it be worth?"
+# Run these BEFORE designing any arm: they have killed four ideas for nothing.
+# Each derives its menus from the oracle and prints a CONTROL row that must equal
+# the harness's published score; sim-mass-ceiling THROWS if it has not scored
+# every oracle dish. A ceiling is not an arm - it reads the oracle's own answer.
+deno run --allow-read scripts/sim-mass-ceiling.ts           # size
+deno run --allow-read scripts/sim-accompaniment-ceiling.ts  # sides and sauces
+deno run --allow-read scripts/sim-decomposition-ceiling.ts  # missing ingredients
 
 # $0 replay - score ARCHIVED responses of any unweighted arm against the CURRENT oracle.
 # This is what makes an oracle correction free; it calls no API.
@@ -1345,7 +1358,7 @@ in prose is a snapshot of when it was written; that command is what is true now.
 logic lives in `scripts/macro-measure.ts` and **must never be re-implemented anywhere** — see
 lesson 28, and `scripts/macro-measure_test.ts` fails the build if it is.
 
-ℹ️ **The suite's `2 failed` is noise — BOTH are known and neither is yours.** `389 passed | 2 failed`
+ℹ️ **The suite's `2 failed` is noise — BOTH are known and neither is yours.** `N passed | 2 failed`
 is a CLEAN run:
 
 | red test | why it is noise |

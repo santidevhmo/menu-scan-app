@@ -288,22 +288,41 @@ decomposition.
 
 ---
 
-## 6. ENSALADA BALI — bistro, $185  ⏳ ruled as proposed, pending confirmation
+## 6. ENSALADA BALI — bistro, $185  ✅ RULED (Santiago revised the fruit upward, approved 2026-08-22)
 
 *"Espinaca, mandarina, arándanos, tomate cherry, coco rallado, cacahuate y vinagreta de la casa."*
 
+Santiago kept the five figures he called most defensible and raised the two he judged
+visually underestimated — mandarina 50 → 80 g, tomate cherry 40 → 70 g.
+
 | ingredient | grams | % cal | record |
 |---|---|---|---|
-| vinagreta | 30 | 30.8% | FDC 2710195 · 430 |
-| cacahuate, dry roasted | 20 | 30.1% | FDC 2707517 · 629 |
-| arándanos, dried | 15 | 12.2% | FDC 2709202 · 342 — read as dried cranberries |
-| coco rallado | 10 | 11.3% | FDC 2707501 "Coconut, packaged" · 472 |
-| mandarina | 50 | 7.1% | FDC 2709175 · 59 |
-| espinaca | 100 | 6.4% | FDC 2709614 · 27 |
-| tomate cherry | 40 | 2.1% | FDC 2709719 · 22 |
+| vinagreta | 30 | 29.1% | FDC 2710195 · 430 |
+| cacahuate, dry roasted | 20 | 28.4% | FDC 2707517 · 629 |
+| arándanos, dried | 15 | 11.6% | FDC 2709202 · 342 — read as dried cranberries |
+| mandarina | 80 | 10.7% | FDC 2709175 · 59 |
+| coco rallado | 10 | 10.7% | FDC 2707501 "Coconut, packaged" · 472 |
+| espinaca | 100 | 6.0% | FDC 2709614 · 27 |
+| tomate cherry | 70 | 3.5% | FDC 2709719 · 22 |
 
-**265 g · 419 kcal · 9.2 P · 34.3 C · 27.2 F**
-bands **335–502 kcal / 7–11 P / 27–41 C / 22–33 F**, mass **225–305 g**
+**325 g · 443 kcal · 9.7 P · 39.5 C · 27.3 F**
+bands **354–532 kcal / 8–12 P / 32–47 C / 22–33 F**, mass **275–375 g**
+
+All five of Santiago's predicted ranges are hit: 400–460 kcal (443), 8–11 P (9.7), 35–45 C
+(39.5), 24–30 F (27.3), 300–390 g (325).
+
+Two notes recorded so the entry reads as decisions rather than drift:
+- **The centre moved 419 → 443 by arithmetic**, not by choice. The extra 30 g of mandarina and
+  30 g of tomate add 25 kcal. Santiago asked to keep 419 AND raise the fruit; those pull
+  against each other, and 443 is inside his own 400–460 prediction.
+- **His requested 350–500 band IS the standard rule**, not a widening: recipe ±20% on 419 gives
+  335–503. On the new 443 it gives 354–532. The derived band is kept so BALI is not the only
+  dish in the oracle with a hand-set band.
+- Concentration is **68%** for vinagreta + cacahuate + coco, not the 72% Santiago computed —
+  that figure was true of the pre-revision recipe; the added fruit dilutes it.
+- ⚠️ **The vinaigrette is the dish's largest single uncertainty** at 29% of calories, on
+  FDC 2710195 "Salad dressing, NFS, for salads" (430 kcal/100 g), a full-fat generic. A house
+  balsamic could be materially leaner. Not enumerated.
 
 ⚠️ **A search trap caught here, worth remembering:** the top FNDDS hit for "coconut, dried,
 sweetened, shredded" is **Coconut WATER at 37 kcal/100 g**. Taking the top hit would have put a
@@ -389,13 +408,116 @@ But a 2× calorie gap between salads on comparable menus is worth a look, becaus
 ruled too light then it, not these, is the outlier.** Not resolved.
 
 
+## 9. Vegan Roll — nikkori, $129  ✅ RULED (as proposed)
+
+*"Tofu, aguacate, pepino y zanahoria, cubierto de arroz."* Filled only, no topping.
+
+| ingredient | grams | % cal | record |
+|---|---|---|---|
+| arroz | 150 | 52.7% | FDC 2710788 "Rice, white, cooked, as ingredient" · 129 |
+| tofu, firme | 50 | 21.6% | FDC 172475 · 159 — **SR Legacy; FNDDS has no plain tofu cell** |
+| aguacate | 40 | 18.9% | FDC 2709223 · 174 |
+| alga nori | 3 | 3.0% | FDC 2709988 · 373 |
+| zanahoria | 20 | 2.4% | FDC 2709660 · 44 |
+| pepino | 30 | 1.3% | FDC 2709784 · 16 |
+
+**293 g · 368 kcal · 14.6 P · 52.7 C · 11.0 F**
+bands **294–442 kcal / 12–17 P / 42–63 C / 9–13 F**, mass **250–335 g**
+
+Santiago's suggested ranges (293 g, 365–380 kcal, 14–16 P, 50–55 C, 10–12 F) all contain the
+computed recipe. ⚠️ **Sushi rice is seasoned with sugar and vinegar; FDC 2710788 is plain
+cooked rice, so this is a slight UNDERestimate** of the largest component.
+
+## 10. Nikkori Maki — nikkori, $159  ✅ RULED (as proposed)
+
+*"Por dentro: Queso crema, aguacate, pepino y camarón. Por fuera: Surimi."* Filled AND topped —
+the same class as the existing Salmón Roll.
+
+| ingredient | grams | % cal | record |
+|---|---|---|---|
+| arroz | 140 | 39.0% | FDC 2710788 · 129 |
+| queso crema | 30 | 22.1% | FDC 2705760 · 343 — the record Salmón Roll already cites |
+| aguacate | 40 | 15.0% | FDC 2709223 · 174 |
+| surimi | 60 | 12.2% | FDC 2706568 · 95 — the outside layer |
+| camarón | 40 | 8.2% | FDC 2706449 · 96 |
+| alga nori | 3 | 2.4% | FDC 2709988 · 373 |
+| pepino | 30 | 1.0% | FDC 2709784 · 16 |
+
+**343 g · 465 kcal · 17.1 P · 60.0 C · 17.4 F**
+bands **372–558 kcal / 14–21 P / 48–72 C / 14–21 F**, mass **290–395 g**
+
+Santiago's suggested ranges (340–350 g, 450–500 kcal, 16–19 P, 57–64 C, 16–19 F) all contain
+the computed recipe. He flagged two sensitivities not applied: if the surimi exterior carries a
+creamy sauce the upper end is nearer 500–560 kcal; if the cream cheese is 20 g and the surimi a
+thin layer, nearer 425–450.
+
+## 11. DE CAMARÓN ROKA — andaluz, $275  ✅ RULED — rice REMOVED, sauce KEPT
+
+*"Por dentro camarón capeado, pepino, aguacate y alga, y por fuera nuestro camarón roka con
+cebollín y ajonjolí."*
+
+**Santiago's ruling: remove the rice — the menu never names it, and 341 g was only reachable by
+assuming 140 g of it.** Keep the sauce, on evidence from the same menu.
+
+🔑 **THE SAUCE QUESTION IS SETTLED BY THE MENU ITSELF, not by assumption.** Andaluz carries
+`CAMARÓN ROKA (200 g)`: *"Camarón capeado y bañado en nuestro **aderezo roka a base de
+chipotle**."* So "roka" is an *aderezo* — a chipotle-based creamy dressing — and `COLIFLOR ROKA`
+applies the same word to cauliflower, so it is a sauce and not a shrimp technique. The
+standalone version also **prints 200 g**, an external anchor for the preparation.
+
+| ingredient | grams | % cal | record |
+|---|---|---|---|
+| aderezo roka (mayo base) | 20 | 33.1% | FDC 2710204 · 680 — **not named on the menu; included on the evidence above** |
+| camarón capeado | 60 | 31.4% | FDC 2706364 "Shrimp, fried" · 215 |
+| aguacate | 40 | 16.9% | FDC 2709223 · 174 |
+| camarón (roka topping) | 40 | 9.3% | FDC 2706449 · 96 |
+| ajonjolí | 3 | 5.0% | FDC 2707586 · 680 |
+| alga | 3 | 2.7% | FDC 2709988 · 373 |
+| pepino | 30 | 1.2% | FDC 2709784 · 16 |
+| cebollín | 5 | 0.5% | standard |
+
+**201 g · 411 kcal · 15.6 P · 17.2 C · 31.1 F**
+bands **329–493 kcal / 12–19 P / 14–21 C / 25–37 F**, mass **170–230 g**
+
+Santiago's strict no-rice-no-sauce baseline was 181 g / ~275 kcal — arithmetically identical to
+this recipe minus the sauce. His practical range with sauce (200–230 g, 400–500 kcal) contains
+the ruled 201 g / 411 kcal.
+
+⚠️ **This dish sets a precedent: an ingredient the menu ASSUMES rather than states is included
+when other text on the same menu establishes it, and excluded otherwise.** Rice was excluded
+(nothing establishes it); the roka dressing was included (the standalone dish spells it out).
+The same question is open for ENSALADA DE LA SEMANA's dressing, which was included on
+Santiago's ruling with no menu evidence — those two decisions are not made on the same basis.
+
+## 🎯 A NOTE ON BAND WIDTH — Santiago's ranges vs the derived rule
+
+For dishes 9–11 Santiago supplied ranges far tighter than the oracle's rule: Vegan Roll
+365–380 kcal is ±2% where the derivation is recipe ±20%.
+
+**Ruling 2026-08-22: adapt the suggested range to the oracle's band rule.** The derived band is
+used, because the computed recipe falls inside every range he gave, every other dish in the
+oracle derives its band mechanically, and a band four times tighter than its neighbours would
+make these three disproportionately hard and break comparability with the existing nine.
+
+Recorded for the record: the pass rule adds a 50 kcal allowance measured from the band
+MIDPOINT, so even a 365–380 band would pass anything in 322–422 — an effective ±13%, not ±2%.
+
+
 ## Remaining to rule
 
 | # | menu | dish | state |
 |---|---|---|---|
-| 9 | nikkori | Vegan Roll | not started |
-| 10 | nikkori | Nikkori Maki | not started |
-| 11 | andaluz | DE CAMARÓN ROKA | not started |
 | 12 | brasero-two | TACO EL CAPRICHO | not started |
 
-8 of 12 ruled. ENSALADA BALI (#6) is ruled as proposed and awaits explicit confirmation.
+**11 of 12 ruled.**
+
+## ⚠️ EXISTING ORACLE DISHES THIS BATCH CAST DOUBT ON
+
+Not part of the widening, but surfaced by it. None resolved.
+
+| dish | why | severity |
+|---|---|---|
+| **CAPRICCIOSA** | graded against a "28 CM" printed on the menu that Stage 1 never passes to the pipeline | **high** — it fails in every arm of the phase |
+| **ENSALADA GRIEGA** | bands 136–250 g / 143–214 kcal against the three new salads at 275–450 g / 354–597 kcal. It may be the outlier rather than they | medium |
+| **Salmón Roll** | its own entry warns that revising [250,350] → [300,400] left the set with **no dish guarding against an arm that scales everything upward**. Worth re-checking now that 11 dishes are being added — one of them may restore that guard | medium |
+| **OMELETTE CUBANA** | 203 g sits above FNDDS's largest published omelette portion (170 g), and both new omelettes land there too (222 g, 183 g) | low — eval 162 closed this as "the oracle is the generous end, the model is the error" |

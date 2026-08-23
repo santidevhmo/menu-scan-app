@@ -710,6 +710,149 @@ const DRAFTS: Draft[] = [
       "portion for this record. Approved 2026-08-22.",
     retrieved_at: "2026-08-22",
   },
+  // --- Round 2, Task 7: the 16 (11 after Task 5 retirements) one-offs on brasero-two
+  // and el-marcos - the final batch, completing the 44. ---
+  {
+    name: "TACO BRASERO",
+    menu: "brasero-two",
+    mass_band_g: [70, 95],
+    // 55 g FDC 2705825 "Beef, steak, chuck" (diezmillo) + 28 g FDC 2707823 "Tortilla,
+    // corn" (reused from TACO PORCO/EL CAPRICHO, same published FNDDS portion). No
+    // cheese or vegetable is named, unlike the two already-ruled tacos, so this totals
+    // notably lighter (83 g vs their 120-130 g) - ruled on the menu text alone, not
+    // adjusted for the pre-registered prediction that the gap shrinks.
+    composition: { protein_per_100g: 19.13, carb_per_100g: 15.18, fat_per_100g: 9.87 },
+    assumed:
+      '"Taco de carne asada de diezmillo en tortilla de su elección." Approved 2026-08-22.',
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "TACO TRADICIONAL",
+    menu: "brasero-two",
+    mass_band_g: [70, 95],
+    // 55 g FDC 2705827 "Beef, steak, flank" (arrachera - same cut and same weight
+    // TACO EL CAPRICHO already uses) + 28 g FDC 2707823 corn tortilla. No cheese or
+    // vegetable named. Same sizing note as TACO BRASERO.
+    composition: { protein_per_100g: 21.2, carb_per_100g: 15.05, fat_per_100g: 10.3 },
+    assumed: '"Taco de arrachera en tortilla de su elección." Approved 2026-08-22.',
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "TOSTA ATUM",
+    menu: "brasero-two",
+    mass_band_g: [165, 225],
+    // 13 g tostada shell (FDC 167525, published portion) + 70 g seared tuna (FDC
+    // 2706308) + 25 g mushroom/portobello (FDC 2709793) + 25 g roasted corn (FDC
+    // 168540) + 25 g cucumber (FDC 2709784) + 25 g jicama (FDC 2709787) + 10 g
+    // ponzu glaze (FDC 2707442 soy sauce proxy) + 3 g sesame (FDC 2707586).
+    composition: { protein_per_100g: 10.82, carb_per_100g: 9.5, fat_per_100g: 2.95 },
+    assumed:
+      '"Tostada de atún sellado con rub de chiles, portobello y elote asado, pepino, jicama, ' +
+      'salseado con ponzu y ajonjolí." Approved 2026-08-22.',
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "TOSTA BRASIL (picaña)",
+    menu: "brasero-two",
+    mass_band_g: [135, 180],
+    // 13 g tostada shell (FDC 167525) + 60 g sirloin/picanha (FDC 2705833 - no
+    // dedicated picanha record exists) + 60 g black beans (FDC 2707359, the FNDDS
+    // match for "feijoada") + 25 g bell pepper mix (FDC 2709800).
+    composition: { protein_per_100g: 13.71, carb_per_100g: 14.42, fat_per_100g: 10.92 },
+    assumed:
+      '"Tostada de picaña en una cama de feijoada y mix de pimiento encima." Approved 2026-08-22.',
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "ROLLOS DE CREPA",
+    menu: "brasero-two",
+    mass_band_g: [145, 195],
+    // Dessert. 60 g crepe (FDC 2708341) + 30 g caramel candy (FDC 2710354, the
+    // proxy for "dulce de leche" - no dedicated FDC record exists) + 20 g chocolate
+    // syrup (FDC 2710276) + 60 g vanilla ice cream (FDC 2705629 "Ice cream, NFS").
+    composition: { protein_per_100g: 4.93, carb_per_100g: 39.52, fat_per_100g: 8.98 },
+    assumed:
+      '"Crepa crujiente y azucarada acompañada de dulce de leche, chocolate y helado de vainilla." ' +
+      "Approved 2026-08-22.",
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "CHILE RELLENO",
+    menu: "brasero-two",
+    mass_band_g: [135, 185],
+    // Name-only, kept answerable (Task 5 - "the name is the recipe"). No FDC "chile
+    // relleno" record exists; FDC 2710045 "Stuffed jalapeno pepper" is the closest
+    // battered/fried/cheese-stuffed-pepper analog. 160 g, a defensible single-serving
+    // stuffed poblano plus batter/sauce.
+    composition: { protein_per_100g: 8.82, carb_per_100g: 16.5, fat_per_100g: 15.93 },
+    assumed: "Name-only dish, no menu description. Approved 2026-08-22.",
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "ORDEN DE TORTILLAS",
+    menu: "brasero-two",
+    mass_band_g: [120, 160],
+    // Name-only, kept answerable (Task 5 - "orden de" pins a portion convention).
+    // 5 x 28 g FDC 2707823 corn tortilla (the same published-portion record the
+    // tacos use), 5 being a defensible middle count for a tortilla-basket order.
+    composition: { protein_per_100g: 5.7, carb_per_100g: 44.6, fat_per_100g: 2.85 },
+    assumed: "Name-only dish, no menu description. Approved 2026-08-22.",
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "DE INDIO",
+    menu: "el-marcos",
+    mass_band_g: [265, 360],
+    // "Dos huevos" = 2 eggs, 110 g (the established el-marcos omelette convention)
+    // + 80 g gordita/huarache base (FDC 2707818, the closest FNDDS analog to a
+    // huarache) + 60 g refried beans (FDC 2707396) + 30 g salsa verde (FDC 2709743)
+    // + 15 g crema (FDC 2705614) + 15 g onion (FDC 2709795) + 4 g cilantro (FDC
+    // 2709782).
+    composition: { protein_per_100g: 6.32, carb_per_100g: 13.71, fat_per_100g: 9.73 },
+    assumed:
+      '"Dos huevos fritos montados sobre un huarache de maíz con frijoles refritos y bañados con ' +
+      'salsa verde, crema, cebolla y cilantro." Approved 2026-08-22.',
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "BISQUETS DEL CENTRO",
+    menu: "el-marcos",
+    mass_band_g: [75, 100],
+    // "(Orden de dos)" = 2 pieces, stated. 2 x 43 g FDC 2707654 "Roll, white, soft"
+    // (published FNDDS portion for a medium/regular roll) - plain, no other
+    // ingredient named.
+    composition: { protein_per_100g: 9.77, carb_per_100g: 50.12, fat_per_100g: 3.91 },
+    assumed: '"(Orden de dos)" - no further description. Approved 2026-08-22.',
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "BISQUETS C/ FRUTOS ROJOS",
+    menu: "el-marcos",
+    mass_band_g: [100, 135],
+    // Same 2 x 43 g roll base as BISQUETS DEL CENTRO + 30 g berry jam/preserve
+    // (FDC 169641 "Jams and preserves") for "frutos rojos".
+    composition: { protein_per_100g: 7.34, carb_per_100g: 54.97, fat_per_100g: 2.91 },
+    assumed: '"(Orden de dos)" - no further description beyond the name. Approved 2026-08-22.',
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "Omelette de Camarón y Marlín",
+    menu: "el-marcos",
+    mass_band_g: [160, 220],
+    // Name-only, ruled answerable by Santiago (Task 5 edge case - the 2-egg base is
+    // a menu-wide convention from its 3 sibling omelettes, not this dish's own text).
+    // 110 g egg (FDC 2707158) + 40 g shrimp (FDC 2706363) + 40 g marlin (FDC 2706301
+    // "Fish, swordfish" - no dedicated marlin record exists, swordfish is the closest
+    // billfish analog). Lands above FNDDS's largest published omelette portion
+    // (170 g), same pattern round 1 flagged for all 3 sibling omelettes (183-222 g) -
+    // not extended blindly: this 190 g comes from the 2 named proteins alone, at a
+    // magnitude comparable to the siblings' fillings, not from copying a number.
+    composition: { protein_per_100g: 14.94, carb_per_100g: 2.41, fat_per_100g: 11.91 },
+    assumed:
+      "Name-only dish, no menu description at all. Fillings (shrimp, marlin) are named in the " +
+      "dish's own title. Approved 2026-08-22.",
+    retrieved_at: "2026-08-22",
+  },
 ];
 
 /**

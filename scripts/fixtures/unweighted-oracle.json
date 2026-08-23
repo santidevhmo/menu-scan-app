@@ -1378,5 +1378,335 @@
     "assumed": "\"Empanizadas y rellenas de jamón serrano, pollo y queso, en crema bechamel.\" \"(8 pints.)\" pins the piece count; the per-piece mass is Santiago's ruling, not FDC's own published portion for this record. Approved 2026-08-22.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "TACO BRASERO",
+    "menu": "brasero-two",
+    "unweighted": true,
+    "mass_band_g": [
+      70,
+      95
+    ],
+    "band": {
+      "calories": [
+        149,
+        224
+      ],
+      "protein_g": [
+        13,
+        19
+      ],
+      "carb_g": [
+        10,
+        15
+      ],
+      "fat_g": [
+        7,
+        10
+      ]
+    },
+    "assumed": "\"Taco de carne asada de diezmillo en tortilla de su elección.\" Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "TACO TRADICIONAL",
+    "menu": "brasero-two",
+    "unweighted": true,
+    "mass_band_g": [
+      70,
+      95
+    ],
+    "band": {
+      "calories": [
+        157,
+        235
+      ],
+      "protein_g": [
+        14,
+        21
+      ],
+      "carb_g": [
+        10,
+        15
+      ],
+      "fat_g": [
+        7,
+        10
+      ]
+    },
+    "assumed": "\"Taco de arrachera en tortilla de su elección.\" Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "TOSTA ATUM",
+    "menu": "brasero-two",
+    "unweighted": true,
+    "mass_band_g": [
+      165,
+      225
+    ],
+    "band": {
+      "calories": [
+        168,
+        252
+      ],
+      "protein_g": [
+        17,
+        25
+      ],
+      "carb_g": [
+        15,
+        22
+      ],
+      "fat_g": [
+        5,
+        7
+      ]
+    },
+    "assumed": "\"Tostada de atún sellado con rub de chiles, portobello y elote asado, pepino, jicama, salseado con ponzu y ajonjolí.\" Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "TOSTA BRASIL (picaña)",
+    "menu": "brasero-two",
+    "unweighted": true,
+    "mass_band_g": [
+      135,
+      180
+    ],
+    "band": {
+      "calories": [
+        266,
+        398
+      ],
+      "protein_g": [
+        17,
+        26
+      ],
+      "carb_g": [
+        18,
+        27
+      ],
+      "fat_g": [
+        14,
+        21
+      ]
+    },
+    "assumed": "\"Tostada de picaña en una cama de feijoada y mix de pimiento encima.\" Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "ROLLOS DE CREPA",
+    "menu": "brasero-two",
+    "unweighted": true,
+    "mass_band_g": [
+      145,
+      195
+    ],
+    "band": {
+      "calories": [
+        352,
+        528
+      ],
+      "protein_g": [
+        7,
+        10
+      ],
+      "carb_g": [
+        54,
+        81
+      ],
+      "fat_g": [
+        12,
+        18
+      ]
+    },
+    "assumed": "\"Crepa crujiente y azucarada acompañada de dulce de leche, chocolate y helado de vainilla.\" Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "CHILE RELLENO",
+    "menu": "brasero-two",
+    "unweighted": true,
+    "mass_band_g": [
+      135,
+      185
+    ],
+    "band": {
+      "calories": [
+        313,
+        470
+      ],
+      "protein_g": [
+        11,
+        17
+      ],
+      "carb_g": [
+        21,
+        32
+      ],
+      "fat_g": [
+        20,
+        31
+      ]
+    },
+    "assumed": "Name-only dish, no menu description. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "ORDEN DE TORTILLAS",
+    "menu": "brasero-two",
+    "unweighted": true,
+    "mass_band_g": [
+      120,
+      160
+    ],
+    "band": {
+      "calories": [
+        254,
+        381
+      ],
+      "protein_g": [
+        6,
+        10
+      ],
+      "carb_g": [
+        50,
+        75
+      ],
+      "fat_g": [
+        3,
+        5
+      ]
+    },
+    "assumed": "Name-only dish, no menu description. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "DE INDIO",
+    "menu": "el-marcos",
+    "unweighted": true,
+    "mass_band_g": [
+      265,
+      360
+    ],
+    "band": {
+      "calories": [
+        419,
+        629
+      ],
+      "protein_g": [
+        16,
+        24
+      ],
+      "carb_g": [
+        34,
+        51
+      ],
+      "fat_g": [
+        24,
+        36
+      ]
+    },
+    "assumed": "\"Dos huevos fritos montados sobre un huarache de maíz con frijoles refritos y bañados con salsa verde, crema, cebolla y cilantro.\" Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "BISQUETS DEL CENTRO",
+    "menu": "el-marcos",
+    "unweighted": true,
+    "mass_band_g": [
+      75,
+      100
+    ],
+    "band": {
+      "calories": [
+        192,
+        288
+      ],
+      "protein_g": [
+        7,
+        10
+      ],
+      "carb_g": [
+        35,
+        53
+      ],
+      "fat_g": [
+        3,
+        4
+      ]
+    },
+    "assumed": "\"(Orden de dos)\" - no further description. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "BISQUETS C/ FRUTOS ROJOS",
+    "menu": "el-marcos",
+    "unweighted": true,
+    "mass_band_g": [
+      100,
+      135
+    ],
+    "band": {
+      "calories": [
+        259,
+        388
+      ],
+      "protein_g": [
+        7,
+        10
+      ],
+      "carb_g": [
+        52,
+        78
+      ],
+      "fat_g": [
+        3,
+        4
+      ]
+    },
+    "assumed": "\"(Orden de dos)\" - no further description beyond the name. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "Omelette de Camarón y Marlín",
+    "menu": "el-marcos",
+    "unweighted": true,
+    "mass_band_g": [
+      160,
+      220
+    ],
+    "band": {
+      "calories": [
+        268,
+        403
+      ],
+      "protein_g": [
+        23,
+        34
+      ],
+      "carb_g": [
+        4,
+        5
+      ],
+      "fat_g": [
+        18,
+        27
+      ]
+    },
+    "assumed": "Name-only dish, no menu description at all. Fillings (shrimp, marlin) are named in the dish's own title. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
   }
 ]

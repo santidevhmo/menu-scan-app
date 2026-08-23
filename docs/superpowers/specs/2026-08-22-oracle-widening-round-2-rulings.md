@@ -43,21 +43,21 @@ broken.**
 | 27 | FRADIAVIOLA | bistro | one-off | ✅ |
 | 28 | LINGUINNI PARISIENNE | bistro | one-off | ✅ |
 | 29 | CEBOLLAS CAMBRAY | brasero-two | one-off (name-only) | ☠️ retired |
-| 30 | CHILE RELLENO | brasero-two | one-off (name-only) | ☐ |
-| 31 | ORDEN DE TORTILLAS | brasero-two | one-off (name-only) | ☐ |
+| 30 | CHILE RELLENO | brasero-two | one-off (name-only) | ✅ |
+| 31 | ORDEN DE TORTILLAS | brasero-two | one-off (name-only) | ✅ |
 | 32 | PAPAS CAMBRAY | brasero-two | one-off (name-only) | ☠️ retired |
-| 33 | ROLLOS DE CREPA | brasero-two | one-off | ☐ |
-| 34 | TACO BRASERO | brasero-two | one-off | ☐ |
-| 35 | TACO TRADICIONAL | brasero-two | one-off | ☐ |
-| 36 | TOSTA ATUM | brasero-two | one-off | ☐ |
-| 37 | TOSTA BRASIL (picaña) | brasero-two | one-off | ☐ |
-| 38 | BISQUETS C/ FRUTOS ROJOS | el-marcos | one-off | ☐ |
-| 39 | BISQUETS DEL CENTRO | el-marcos | one-off | ☐ |
+| 33 | ROLLOS DE CREPA | brasero-two | one-off | ✅ |
+| 34 | TACO BRASERO | brasero-two | one-off | ✅ |
+| 35 | TACO TRADICIONAL | brasero-two | one-off | ✅ |
+| 36 | TOSTA ATUM | brasero-two | one-off | ✅ |
+| 37 | TOSTA BRASIL (picaña) | brasero-two | one-off | ✅ |
+| 38 | BISQUETS C/ FRUTOS ROJOS | el-marcos | one-off | ✅ |
+| 39 | BISQUETS DEL CENTRO | el-marcos | one-off | ✅ |
 | 40 | Cazuela de Marlín | el-marcos | one-off (name-only) | ☠️ retired |
-| 41 | DE INDIO | el-marcos | one-off | ☐ |
+| 41 | DE INDIO | el-marcos | one-off | ✅ |
 | 42 | Doblada de Camarón y Marlín | el-marcos | one-off (name-only) | ☠️ retired |
 | 43 | Machaca de Marlín c/huevo o verdura | el-marcos | one-off (name-only) | ☠️ retired |
-| 44 | Omelette de Camarón y Marlín | el-marcos | one-off (name-only, answerable) | ☐ |
+| 44 | Omelette de Camarón y Marlín | el-marcos | one-off (name-only, answerable) | ✅ |
 
 **This table is the resume point.** A session picking this up cold reads it first.
 
@@ -323,3 +323,56 @@ the closest composite record (FDC 2706508 "Ham croquette") is "1 croquette = 62g
 American diner-style croquette. Santiago ruled a smaller Spanish-tapa size instead (~28g/piece
 × 8 pieces = 224g), since "de Abuela" implies the smaller regional style, not FDC's own default
 portion.
+
+---
+
+## Task 7 — brasero-two and el-marcos one-offs, the final batch, ruled and written
+
+All 11 approved together (Santiago: "approve everything, I'll check the numbers after we see the
+test results" — reviewing the built answer key against the actual pass/fail outcome rather than
+each gram in advance). `wrote 57 dishes … (46 before, 45 drafts applied)`, guard rail confirms
+`over 57 of 57 ruled dishes` — the oracle's final size, no PARTIAL SCORE warning.
+
+Names re-verified against `scripts/fixtures/caches/unweighted.dual-f.<menu>-dN.raw.json` (the
+scoring ground truth, per the Task 6 naming-trap lesson) before writing any `Draft` — all 11
+matched on the first check, no rename needed this time.
+
+### The two tacos (flagged per the plan's own sensitivity warning)
+
+TACO BRASERO and TACO TRADICIONAL are meat + tortilla only — neither names cheese or a garnish,
+unlike the two already-ruled tacos (TACO PORCO, TACO EL CAPRICHO, both ~120-130g with named
+fruit/vegetable/cheese). Both total **83g**, notably lighter than precedent. This was derived from
+the menu text alone (55g named cut + 28g tortilla, the same tortilla record and weight the other
+two tacos already use) — not adjusted toward or away from the pre-registered prediction that the
+NOBOOST-vs-dual gap shrinks on the wider set.
+
+| dish | ingredients | total mass · macros |
+|---|---|---|
+| TACO BRASERO | 55g beef chuck/diezmillo (FDC 2705825) + 28g corn tortilla (FDC 2707823) | 83g · 19.1P/15.2C/9.9F per 100g |
+| TACO TRADICIONAL | 55g flank/arrachera (FDC 2705827, same cut as TACO EL CAPRICHO) + 28g corn tortilla | 83g · 21.2P/15.1C/10.3F per 100g |
+
+### The rest
+
+| dish | ingredients | total mass · macros |
+|---|---|---|
+| TOSTA ATUM | tostada shell 13g + seared tuna 70g + mushroom 25g + roasted corn 25g + cucumber 25g + jicama 25g + ponzu(soy proxy) 10g + sesame 3g | 196g · 10.8P/9.5C/3.0F per 100g |
+| TOSTA BRASIL (picaña) | tostada shell 13g + sirloin/picanha 60g (no dedicated picanha record exists) + black beans 60g (feijoada) + bell pepper 25g | 158g · 13.7P/14.4C/10.9F per 100g |
+| ROLLOS DE CREPA (dessert) | crepe 60g + caramel candy 30g (dulce-de-leche proxy, no FDC record exists) + chocolate syrup 20g + vanilla ice cream 60g | 170g · 4.9P/39.5C/9.0F per 100g |
+| CHILE RELLENO | name-only. FDC 2710045 "Stuffed jalapeno pepper" (closest battered/fried/stuffed-pepper analog, no chile relleno record exists), 160g | 160g · 8.8P/16.5C/15.9F per 100g |
+| ORDEN DE TORTILLAS | name-only. 5 × 28g corn tortilla (FDC 2707823, reused from the tacos) — 5 chosen as a defensible middle count, no count is stated | 140g · 5.7P/44.6C/2.9F per 100g |
+| DE INDIO | 2 fried eggs 110g + gordita/huarache base 80g + refried beans 60g + salsa verde 30g + crema 15g + onion 15g + cilantro 4g | 314g · 6.3P/13.7C/9.7F per 100g |
+| BISQUETS DEL CENTRO (×2) | 2 × 43g soft roll (FDC 2707654, published portion), plain | 86g · 9.8P/50.1C/3.9F per 100g |
+| BISQUETS C/ FRUTOS ROJOS (×2) | 2 × 43g soft roll + 30g berry jam | 116g · 7.3P/55.0C/2.9F per 100g |
+| Omelette de Camarón y Marlín | 2 eggs 110g + shrimp 40g + marlin 40g (FDC 2706301 "Fish, swordfish" — no dedicated marlin record exists) | 190g · 14.9P/2.4C/11.9F per 100g |
+
+**Omelette de Camarón y Marlín lands at 190g**, above FNDDS's largest published omelette portion
+(170g) — the same pattern round 1 flagged for all 3 sibling omelettes (183-222g). Not extended
+blindly: this 190g comes from the 2 named proteins alone (40g shrimp + 40g marlin), at a magnitude
+comparable to the siblings' own fillings, not from copying a number.
+
+### Final oracle: 57 dishes
+
+44 new dishes proposed, 8 retired as unanswerable (Task 5), 36 written — 21 existing + 36 new = 57.
+Matches the ceiling computed after Task 5's retirements. **All dish-by-dish ruling work for this
+plan is now complete.** What remains (Tasks 8-9) is a small code change (a `--drop` flag on the
+significance simulator) and running the pre-registered analysis — no further gram-level decisions.

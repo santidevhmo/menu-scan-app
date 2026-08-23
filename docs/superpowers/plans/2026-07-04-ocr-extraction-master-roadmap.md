@@ -11,18 +11,32 @@
 > repeatedly lost sessions to status copied into a second file and then left to rot.
 > Entry point for new sessions: `docs/superpowers/START-HERE.md` (routing only, no status).
 
-> 🔴 **THIS BLOCK STOPPED BEING KEPT CURRENT AFTER THE 2026-08-19/20 ENTRIES BELOW — do not read past
-> the v32 deployment as if it were recent.** Everything from 2026-08-21 onward (the NOBOOST finding,
-> the oracle widening, ledger evals 167–170) lives ONLY in `docs/superpowers/START-HERE.md`'s
-> handoff block and the ledger, exactly the "status copied into a second file and left to rot" failure
-> this block warns about above. **For current status, read `START-HERE.md`, not the history trail
-> below.** As of 2026-08-22, end of day: production is still **v32**; the unweighted oracle is
-> **57 dishes / 684 points** (widened 9→21 at eval 167, then 21→57 at eval 169 — a "/108" or "/252"
-> figure is pre-widening); `dual` scores **352/684**, and **`NOBOOST` is REJECTED** (eval 169) along
-> with `NOPUSH`, `ROLE` and `MASSCALL` — **every Stage-2 arm tried in this phase is now rejected.**
-> The oracle was audited at eval 170 and holds. **The open leads are two STAGE-1 fixes** (the dropped
-> "28 CM" section header, the dropped sibling `CAMARÓN ROKA (200 g)`) and two untested Stage-2
-> hypotheses; none is designed. Use `superpowers:brainstorming` before designing any of them.
+> 🚀 **STATUS AS OF 2026-08-23 — PHASE 5 (Stage-2 enrichment accuracy) HAS SHIPPED ITS FIRST WIN.**
+> **Production is edge fn `analyze-menu` v33: FORM SIZING.** The model names each dish's form from a
+> fixed enum and *we* set the plate's mass from a gram table we own.
+>
+> | | /684 | |
+> |---|---|---|
+> | `dual` (was v32) | 352, 357 | 52% |
+> | **`FORM` (v33, live)** | **434, 436, 442, 447, 453** | **65%** |
+>
+> +86.8, 95% CI +30.7 to +142.8, and the first arm whose log-ratio CI also excludes zero. The oracle is
+> **57 dishes / 684 points** — any "/108" or "/252" figure predates the widening and is not comparable.
+>
+> ⚠️ **The phase is NOT closed.** Two things are open and neither needs a new mechanism: the gram table
+> covers only **33%** of dishes on menus it was not built from (82% on those it was), and **38 of 57
+> dishes still score differently run to run** — a user rescanning one menu gets different macros, which
+> no arm has ever addressed. **There is still no written definition of "good enough to ship."**
+>
+> ☠️ **Superseded claims that used to live in this block:** "every Stage-2 arm is now rejected" (false —
+> `HYBRID` and `FORM` both beat `dual`, and `NOBOOST`'s rejection was withdrawn at eval 171 because the
+> deploy rule that killed it was never Santiago's). The two Stage-1 leads are also resolved: the "28 CM"
+> header already reaches Stage 2 (`index.ts` forwards items unreshaped) and the sibling-weight idea was
+> ruled out by Santiago.
+>
+> **Full current status and the ranked next steps: `docs/superpowers/START-HERE.md` — read its
+> "NEXT STEPS" section.** Ledger: `docs/superpowers/extraction-iteration-ledger.md`, evals 172–177.
+> Use `superpowers:brainstorming` before designing any new eval.
 
 **ACTIVE: critical-path #5 — Stage-2 enrichment accuracy benchmark ("macro enrichment").**
 Macro accuracy has never been gated. The enrichment model is already decided (GPT-4o); what is

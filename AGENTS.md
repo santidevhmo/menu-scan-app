@@ -197,6 +197,15 @@ was a judgement. A future session cannot re-source what it thinks was already so
 Before designing any change to Stage 2, weigh this: **a new sentence in `ENRICH_PROMPT` is 0 for 6;
 a new REQUIRED FIELD in `ENRICH_SCHEMA_OPENAI` is 6 for 8.**
 
+🚀 **AND THE STRONGEST VERSION OF THAT, NOW SHIPPED (v33, eval 176): ASK FOR A CATEGORY, NOT A NUMBER.**
+A required enum field naming the dish's FORM, with the grams supplied by OUR table, is worth **+87**.
+The same question asked for a gram number instead LOSES — four times now (Arm A 36/108, MASSCALL
+50/108, the eval-175 `grams` probe at −18, a fitted global calibration at 223/684 leave-one-menu-out).
+☠️ **Eval 175 found the mechanism, and it is not fixable by wording:** asked what a thin-crust pizza
+weighs *in general*, with no plate in front of it, GPT-4o answers **300 g** against a real 400–450; a
+maki order 200 g against 290–400. **The bias lives in its prior about serving sizes, not in its reading
+of any dish.** So: the model says WHAT a thing is; we say HOW MUCH.
+
 🔴 **SCHEMA FORCE IS NOT A LICENCE — AND "SCHEMA-FORCE THE PLATE WEIGHT" IS ALREADY REJECTED TWICE.**
 Read what an arm ACTUALLY is before proposing its successor (lesson 31). **Arm A is not a prompt arm:**
 it is `ENRICH_PROMPT` + a sentence **AND** a required numeric `typical_total_g` placed right after
@@ -524,11 +533,15 @@ Track here anything that blocks testing or shipping. Update as items resolve.
   with the takeover briefing in the newest `HANDOFF` block of
   `docs/superpowers/START-HERE.md` — start at its **§0 MAP**, which defines every term (oracle, band,
   draw, arm, harness, replay, ledger) and states where the phase stands. Read those, not a copy.
-  As of **2026-08-22**: production is edge fn **v32** (the dual pass), `main` byte-matches it, and
-  TestFlight build 7 is submitted. The unweighted set was WIDENED 2026-08-22 (ledger eval 167) and is
-  now **21 dishes / 252 points** at "average ±20%" — a "9 dishes / 108" figure is the pre-widening
-  set and is not comparable. **Nothing has beaten v32 since it shipped** — so nothing is awaiting
-  deployment; the blocker is that no better arm has been found, not that a better arm is unreleased.
+  As of **2026-08-23**: production is edge fn **v33 — FORM SIZING** (the model names each dish's form
+  from a fixed enum, and *we* set the plate's mass from `FORM_G` in
+  `supabase/functions/analyze-menu/dish-form.ts`). It scores **434–453/684 (65%)** over 5 runs against
+  v32's **352–357 (52%)**, ranges disjoint, +86.8 with a 95% CI of +30.7 to +142.8. ⚠️ **`main` does
+  NOT have v33 — PR #19 is open**, so deploying from `main` reverts form sizing. TestFlight build 7
+  predates v33. The unweighted set is **57 dishes / 684 points** (widened 9→21 at eval 167, 21→57 at
+  eval 169) — any "/108" or "/252" figure is pre-widening and not comparable. **Two things are open:
+  the gram table covers only 33% of dishes on menus it was not built from, and 38 of 57 dishes still
+  score differently run to run.**
   ⚠️ **This line is a dated snapshot and nothing should be believed from it** — verify the live version
   against the SERVER with `mcp__supabase__list_edge_functions`, and re-derive every score with the
   `$0` commands rather than quoting it.

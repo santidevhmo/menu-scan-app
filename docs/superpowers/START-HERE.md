@@ -50,7 +50,21 @@ what a future session re-derives from.
 | **replay** | Re-scoring **saved** model answers instead of buying new ones. Costs **$0** and calls no API. This is why a corrected oracle re-grades all of history for free. |
 | **ledger** | `docs/superpowers/extraction-iteration-ledger.md` — **the logbook**. One numbered entry ("eval 158") per experiment, newest last, recording what was tried, what it scored, and what it cost. **It is the memory of this project.** Currently at eval 158. |
 
-### The three arms that matter right now
+### The arms that matter right now — ALL ON THE /684 RULER
+
+| arm | what it is | score | status |
+|---|---|---|---|
+| `dual` | The v32 pipeline. Stage 2 runs twice: pass 1 whole menu, pass 2 re-sends only the no-weight dishes with one extra sentence. | 352, 357 *(2 runs)* | superseded by v33 |
+| `NOBOOST` | Deletes only the PUSH half of pass 2's addendum. | 386 *(1 run)* | unresolved — CI includes zero. Do not ship, do not call it rejected either |
+| `HYBRID(300)` | A **router**: use `NOBOOST`'s answer when `NOBOOST`'s own plate mass < 300 g, else re-ask the shipped question. | 394–419 *(4 runs)* | beaten by `FORM` |
+| 🚀 **`FORM`** | The model names each dish's **form** from a fixed enum; **we** set the plate's mass from `FORM_G` and rescale. | **434–453** *(5 runs, mean 442.4)* | **SHIPPED as v33, 2026-08-23** |
+| `COMBO` | `HYBRID` routes, then `FORM` sizes. | 449–470 *(4 runs)* | ☠️ **NOT established: +18 over `FORM`, CI −7.7 to +43.5.** Do not ship |
+
+🔴 **EVERY SCORE BELOW THIS TABLE WRITTEN AS `/108` OR `/252` IS PRE-WIDENING AND NOT COMPARABLE TO
+ANYTHING CURRENT.** The oracle went 9 → 21 dishes (eval 167) → 57 dishes (eval 169). Re-derive with
+the `--replay` commands at the bottom of this file before trusting any of it.
+
+### HISTORICAL — the same arms on the retired /108 ruler
 
 | arm | what it actually is | score |
 |---|---|---|
@@ -125,6 +139,60 @@ seafood, cake, hot cakes, tostadas), so **the taxonomy is small, not wrong: the 
 composition variance is worth ~20, and the $0 sim's 469 prediction measured 434–453. **This RAISES the
 priority of the 38-of-57 rescan problem** — a user rescanning one menu still gets different macros, and
 no arm has ever addressed it.
+
+---
+
+## 🎯 NEXT STEPS — ranked, with the $0 first move for each (written 2026-08-23)
+
+**The score is 65%. There is still NO written definition of "good enough to ship" anywhere in this
+repo** — Santiago was asked on 2026-08-23 and chose not to set one yet, so do not invent a bar and do
+not treat 65% as done.
+
+### ① MORE ROWS IN `FORM_G` — the highest value, lowest risk work left
+The table sizes **33%** of candidate dishes on menus it was not built from, against **82%** on the five
+it was. The gaps are ordinary restaurant forms with no row: grilled vegetables, raw seafood
+(`TARTAR DE ATÚN`, `COASTAL OYSTERS`, `HAMACHI CRUDO`, `AGUACHILE`), cake, `HOT CAKES`,
+`TOSTADAS DE ATÚN`, `SALCHI-RIBS`. **The table is SMALL, not wrong.**
+- **Why it is safe:** `other` returns null, so an uncovered dish keeps today's answer. Adding a row can
+  only help the dishes it matches. Nothing regresses.
+- **$0 first move:** `deno run --allow-read scripts/sim-form-coverage-split.ts` — it prints the
+  uncovered dishes by name. Those names ARE the work list.
+- ⚠️ **Source the grams from FNDDS/USDA published serving weights, NOT from the oracle.** Two existing
+  rows (`pizza_whole_thin`, the `taco_single_loaded` split) are flagged in `dish-form.ts` as
+  contaminated precisely because they were not. `sim-form-table.ts`'s audit column is how you check.
+- ⚠️ Coverage on the 5 unseen menus **cannot be scored** — they have no oracle. Measure the `other`
+  rate, not a score.
+
+### ② THE RESCAN PROBLEM — now the binding constraint, and untouched by every arm
+**38 of 57 dishes do not score identically run to run.** A user rescanning the same menu gets different
+macros. Correcting mass made this WORSE in relative terms: `dual` moved 5 points between runs, but with
+mass fixed the same composition variance is worth ~20. **Nothing in this phase has attempted it.**
+- Known: `temperature: 0` and `ENRICH_SEED = 17` do **not** give run-to-run stability
+  (`enrich.ts:258` claims otherwise; it is optimistic). Two runs of an identical arm differ on 45–57%
+  of dish-draws, mean mass drift 9–20 g, max 110 g, ingredient COUNT changing on 56 of 171.
+- 🔑 **The FORM label is the exception: it was stable on 57/57 across draws.** So a stable *category*
+  question is answerable; it is the ingredient list underneath that moves. That asymmetry is the lead.
+- **$0 first move:** the drift measurement already exists in the ledger at eval 172 ②. Re-derive it
+  before designing anything.
+- ⚠️ Use `superpowers:brainstorming` before designing an eval here. Do not reach for
+  "median of 3 draws" — `scripts/sim-median-of-draws.ts` already tested aggregation and it was retired.
+
+### ③ MERGE PR #19
+Open, mergeable, no conflicts. `main` has v32; production runs v33. Not urgent — deploying and merging
+are independent and nothing breaks while it waits — but until it merges, **anyone deploying from `main`
+silently reverts form sizing.**
+
+### ⛔ DO NOT DO THESE
+- **Do not ship `COMBO`.** +18 over `FORM` with a CI of −7.7 to +43.5. A fourth model call for an
+  unproven gain.
+- **Do not ask the model for grams, in any framing.** Four arms have now died on it (Arm A 36/108,
+  MASSCALL 50/108, the eval-175 `grams` probe, and a global calibration at 223/684 LOMO). Eval 175
+  found the mechanism: asked what a thin-crust pizza weighs *in general*, with no plate in front of it,
+  it says **300 g** against a real 400–450. **The bias is in its prior about serving sizes, not in its
+  reading of any dish**, so no prompt reaches it. Ask for a CATEGORY and supply the grams yourself.
+- **Do not re-open the "real-restaurant field test".** The fixtures ARE real phone photos of real paper
+  menus (Santiago, 2026-08-16). The old "every scan is a photo of a screen" claim is FALSE.
+
 
 🔴 **BUT READ ③ OF EVAL 172 BEFORE BUILDING ON IT: THE MODEL IS NOT DETERMINISTIC, AND A GRAM
 THRESHOLD IS THE WEAKEST POSSIBLE HINGE.** Two runs of an IDENTICAL arm differ on **45% (`dual`) to
@@ -296,9 +364,13 @@ portion.** ⚠️ The price ladder on that menu was deliberately NOT used — pr
 
 ### ❓ "Why haven't we deployed anything?"
 
-**Because nothing has been good enough to deploy.** Deployment is not blocked, gated, or waiting on
-approval — **there is simply no improvement to ship.** v32 was the last thing that beat what preceded
-it. Every arm tried since has scored **worse than what already runs**:
+🚀 **THAT QUESTION IS ANSWERED AS OF 2026-08-23: `FORM` SHIPPED AS v33.** For most of this phase the
+honest answer was "nothing has been good enough" — deployment was never blocked or gated, there was
+simply no improvement to ship. `FORM` is the first thing since v32 that beat what runs, on 5 runs with
+disjoint ranges, and it is live.
+
+The table below is the record of everything that LOST, and it is worth reading before proposing
+anything: **every row above the `HYBRID` line would make the app less accurate.**
 
 | tried since v32 | result |
 |---|---|
@@ -934,10 +1006,15 @@ measured content is still true and worth keeping for when it is picked up:
 
 ### ✅ WHAT IS TRUE ABOUT PRODUCTION (verify, never trust this line)
 
-**Production is edge fn `analyze-menu` v32 and NOTHING in this session changed it.** No prompt, no
-schema, no model pin, no deploy. Verify against the server with
-`mcp__supabase__list_edge_functions`, never against a doc. `main` byte-matches it. TestFlight build 7
-is submitted.
+🚀 **Production is edge fn `analyze-menu` v33, deployed 2026-08-23** (form sizing; see the top of
+this file). Verify against the SERVER, never against this line:
+```bash
+supabase functions list --project-ref uonuiadueykynbetxxrw   # expect "version":33
+```
+⚠️ **`main` does NOT contain v33** — PR #19 is open. `main` has v32. TestFlight build 7 is submitted
+and predates v33.
+🪤 **Compare `origin/main`, never a local `main` ref.** On 2026-08-23 a stale local `main` produced a
+confident, wrong claim in this very file (that `main` had no dual pass). `git fetch` first.
 
 ---
 ## ⚠️ SUPERSEDED WHERE IT DISAGREES — the 2026-08-19 handoff
@@ -970,6 +1047,12 @@ git checkout dbf3f79 -- supabase/functions/analyze-menu/ && \
 ```
 
 ### 🔀 MERGE STATE — read before touching the PRs
+
+🆕 **PR #19 IS OPEN (2026-08-23): `feat/dual-pass-enrichment` → `main`.** It carries v33's form
+sizing plus this phase's measurement work: 55 commits, 505 files, but **the production change is 2
+files / +274 lines** (`supabase/functions/analyze-menu/dish-form.ts` + the `index.ts` wiring). 458 of
+those files and ~325k of those lines are paid benchmark archives — review the edge function and `src/`,
+take the rest as bulk. Mergeable, no conflicts.
 
 ✅ **BOTH PRs ARE MERGED (2026-08-19).** #18 → `feat/forced-serving-pieces`, then #17 → `main`, 87
 commits. **`main`'s `supabase/functions/analyze-menu/` byte-matched what was deployed at v32**
@@ -1785,6 +1868,32 @@ say what would falsify it and run it.
 🧭 **The commands that tell you the truth, all $0:**
 
 ```bash
+# WHAT PRODUCTION SCORES TODAY (v33 = the FORM arm). Add --run r2/r3/r4/r5 for the repeats.
+deno run --allow-read --allow-write --allow-env --env-file=.env.local \
+  scripts/bench-unweighted.ts 3 FORM --replay
+
+# DID THE FORM RESCALE ACTUALLY FIRE? An invariant INSIDE one archive - a dish sized as
+# pizza_whole_thin must resolve to exactly 425 g - so drift cannot fake a pass. Unlike a
+# cross-archive diff, which eval 172 proved is worthless against a non-deterministic model.
+deno run --allow-read scripts/verify-form-fired.ts FORM      # or: FORM r5 / COMBO
+deno run --allow-read scripts/verify-form-fired.ts COMBO r4
+
+# THE FORM TABLE'S CEILING with hand labels, plus the per-row audit column that shows
+# where the table might have been contaminated by the oracle. Prints the pizza-dropped total.
+deno run --allow-read scripts/sim-form-table.ts
+
+# HOW MUCH OF A REAL MENU CAN THE TABLE SIZE? The coverage limit, split by cause so drinks
+# and printed-weight items do not inflate it. 82% on menus it was built from, 33% on unseen.
+deno run --allow-read scripts/sim-form-coverage-split.ts
+
+# IS A DIFFERENCE REAL? ⚠️ POOL THE RUNS. This script defaults to run 1 only, and on
+# 2026-08-23 that manufactured a clean CI out of noise (COMBO's best run vs FORM's
+# second-worst read +34 excluding zero; pooled it is +18 including zero).
+deno run --allow-read scripts/sim-arm-significance.ts \
+  "dual+dual@r2" "FORM+FORM@r2+FORM@r3+FORM@r4"
+```
+
+```bash
 # Expect EXACTLY 2 failures, both named below. Do NOT pin the pass count - it grows
 # whenever a test is added, and a pinned number here would be the very thing this
 # block exists to prevent (it read "389" for a week while the suite passed 395).
@@ -1825,7 +1934,7 @@ deno run --allow-read scripts/sim-decomposition-ceiling.ts  # missing ingredient
 # replay: probe-plate-arms.ts reads OPENAI_API_KEY at import time and throws
 # without it, even though a replay calls no API.
 deno run --allow-read --allow-env --env-file=.env.local \
-  scripts/bench-unweighted.ts 3 <baseline|dual|NOBOOST|ROLE|MASSCALL|NOPUSH|ORDER|ORDER-nopush|PIECE|P|P10|PF|PD|A|A-cond|S3|SplitOnly> --replay
+  scripts/bench-unweighted.ts 3 <FORM|COMBO|HYBRID|dual|baseline|NOBOOST|ROLE|MASSCALL|NOPUSH|ORDER|ORDER-nopush|PIECE|P|P10|PF|PD|A|A-cond|S3|SplitOnly> --replay
 
 # $0. A LABELLED repeat run (--run r2) lives in its own archives. Replay it, and
 # feed it to either sim as ARM@label. ALWAYS pass --run on a repeat or it

@@ -77,8 +77,21 @@ The benchmark is split because the product is split.
 
 ### Where we are, in one line
 
-**Production is edge function `analyze-menu` v32, deployed 2026-08-19.** Everything since has been
-measurement and failed experiments. **Nothing DEPLOYED has beaten v32.**
+🚀 **PRODUCTION IS EDGE FUNCTION `analyze-menu` v33, DEPLOYED 2026-08-23 — FORM SIZING IS LIVE.**
+v33 = v32 + `callGptEnrichFormSized`: the dual pass, then the model names each dish's FORM from a
+fixed enum and **we** set the plate's mass from `FORM_G`. **434-453/684 over 4 runs against v32's
+352-357, ranges disjoint; +86.8, 95% CI +30.7 to +142.8, and the log-ratio metric excludes zero too.**
+Verified through the SHIPPED path before deploying: `FORM --run r5` = **447/684**, `verify-form-fired`
+**171/171 EXACT**. Cost: a THIRD model call per scan (~+50% Stage-2 calls) and one more round trip.
+**Rollback to v32:**
+```bash
+git checkout b24737a -- supabase/functions/analyze-menu/ && \
+  supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw
+```
+🔑 **The label call CANNOT fail a scan** — `callGptEnrichFormSized` try/catches it and returns the
+unsized dual-pass result, so an error degrades a scan to v32 quality rather than returning nothing.
+⚠️ **Not yet merged to `main`** — this is branch `feat/dual-pass-enrichment`, worktree
+`stage2-macro-benchmark`, and what is deployed matches commit `c7fc388` on that branch, NOT `main`.
 
 🟢 **EVAL 176: `FORM` IS THE BEST ARM AND THE FIRST TO WIN ON BOTH RULERS.** The model picks a dish
 FORM from a fixed enum and **we** supply the grams from `FORM_G` (`scripts/arm-dish-form.ts`); our code
@@ -88,7 +101,7 @@ rescales the plate. Santiago's own idea.
 |---|---|---|---|
 | `dual` (shipped v32) | 352, 357 *(2 runs)* | 352–357 | 354.5 |
 | `HYBRID(300)` | 394, 408, 410, 419 | 394–419 | 407.8 |
-| 🟢 **`FORM`** | **434, 436, 442, 453** | **434–453** | **441.2** |
+| 🚀 **`FORM` — SHIPPED as v33** | **434, 436, 442, 447, 453** *(5 runs)* | **434–453** | **442.4** |
 | `COMBO` (`HYBRID`+`FORM`) | 449, 455, 463, 470 | 449–470 | 459.2 |
 
 🔑 **THREE DISJOINT RANGES. `FORM`'s worst run beats `HYBRID`'s best by +15 and `dual`'s best by +77.**

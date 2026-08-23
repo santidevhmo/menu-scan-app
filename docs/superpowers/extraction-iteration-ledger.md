@@ -4115,3 +4115,68 @@ it.**
   than `HYBRID` on disjoint ranges. Shipping it is Santiago's call. The two things that would make it
   worth more are ⑤ (more rows, measurable) and ⑥ (composition stability, untouched). `COMBO` should
   NOT ship on ② and does not need re-running until `FORM` is settled.
+
+## Eval 177 — 🚀 **DEPLOYED: `analyze-menu` v33 — FORM SIZING IS LIVE IN PRODUCTION.** First thing this phase to reach users. Verified through the SHIPPED code path *before* the deploy: 447/684 and 171/171 EXACT (2026-08-23, ~$1)
+
+- Date: 2026-08-23 | **Production: edge fn `analyze-menu` v33, ACTIVE, deployed from commit `c7fc388`.**
+- v33 = v32 + `callGptEnrichFormSized`. Santiago's own idea, shipped on his instruction.
+
+### ① WHAT CHANGED
+
+`supabase/functions/analyze-menu/dish-form.ts` is new and is the single home for `FORM_G`, the label
+enum, the prompt, `labelForms` and `applyFormMass`. `index.ts`'s enrich stage calls
+`callGptEnrichFormSized` instead of `callGptEnrichDualPass`.
+
+🔑 **`scripts/arm-dish-form.ts` is now a thin RE-EXPORT holding no logic, so the benchmark's `FORM` arm
+and production are literally the same function.** A harness copy of this table is precisely how
+`bench-macros.ts` once drifted from production and cost a wasted paid run.
+
+| | v32 | v33 |
+|---|---|---|
+| unweighted score | 352, 357 | **434, 436, 442, 447, 453** (mean 442.4) |
+| Stage-2 model calls per scan | 2 | **3** |
+| pooled vs v32 | — | **+86.8, 95% CI +30.7 to +142.8**, log-ratio also excludes zero |
+
+### ② 🔑 VERIFIED THROUGH THE SHIPPED PATH BEFORE DEPLOYING, NOT AFTER
+
+The port moved code between files, which is exactly the kind of change that looks free and is not. So
+`bench-unweighted.ts 3 FORM --run r5` was run through the ported module **before** the deploy:
+**447/684**, and `verify-form-fired.ts` read **171/171 EXACT**. 447 sits inside the range the pre-port
+code measured, so the refactor changed nothing measurable.
+🪤 **Do not "verify after deploying" — the port is where behaviour silently changes, and a run costs
+~$1 against a production regression nobody would notice for weeks.**
+
+### ③ TWO PRODUCTION-SAFETY PROPERTIES, BOTH DELIBERATE
+
+- 🔑 **THE LABEL CALL CANNOT FAIL A SCAN.** `callGptEnrichFormSized` try/catches it and returns the
+  UNSIZED dual-pass result on any error. A rate limit or timeout degrades a scan to v32 quality rather
+  than returning nothing. **The third call is an improvement on a working answer, never a dependency
+  of it.**
+- 🔑 **Labels are matched by the name the model echoes back, never by position.** A dropped item cannot
+  shift every label by one and run the pizza target on a taco.
+- A dish with a PRINTED weight is left alone; the menu already said what it weighs. A dish labelled
+  `other` is left alone; that means *no opinion*, not 250 g. **On a menu this 20-row table does not
+  cover, v33 is no worse than v32 — it simply gains nothing.**
+
+### ④ ⚠️ WHAT SHIPPING DID NOT FIX
+
+- **COVERAGE: 33% of candidate dishes on menus the table was not built from** (82% on those it was).
+  The gaps are ordinary forms — grilled vegetables, raw seafood, cake, hot cakes, tostadas. **The
+  table is small, not wrong; more rows is the highest-value work left and it is measurable.**
+- **THE RESCAN PROBLEM IS UNTOUCHED AND IS NOW THE BINDING CONSTRAINT.** 38 of 57 dishes do not score
+  identically run to run. `dual` moves 5 points between runs, but with mass corrected the same
+  composition variance is worth ~20 — **correcting mass promoted the noise.** No arm this phase has
+  ever addressed it.
+- **`COMBO` was NOT shipped**, correctly: pooled over 4 runs it is +18 with a CI of −7.7 to +43.5,
+  including zero. A third… fourth model call for an unproven +18 is not a trade worth making.
+- ⚠️ **Not merged to `main`.** Deployed bytes match `c7fc388` on `feat/dual-pass-enrichment`, not
+  `main`. Anyone deploying from `main` would silently revert v33.
+
+**Rollback to v32:**
+```bash
+git checkout b24737a -- supabase/functions/analyze-menu/ && \
+  supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw
+```
+
+- **Spend: ~$1** (the r5 verification run). Phase total ≈ $54.5.
+- **NEXT:** more table rows (④), then the rescan problem (④). Neither needs a new mechanism.

@@ -3013,3 +3013,245 @@ Santiago ruled to ignore it and keep raw records) and **"*Extracto de huevo" dro
    grid it replaces.
 
 - **Spend: $0.** Phase total unchanged at ~$41.9–42.1. **Production UNCHANGED: edge fn `analyze-menu` v32.**
+
+## Eval 167 — 🎯 THE ORACLE IS WIDENED TO 21 DISHES, THE GATE PASSED ON ALL 7 ARCHIVES, AND NOBOOST'S ADVANTAGE NO LONGER RIDES ON ONE DISH (2026-08-22, $0)
+
+**All four remaining $0 steps from eval 166 are done: FDC records verified, the two blocking
+decisions ruled by Santiago, the 12 entries written into `scripts/fixtures/unweighted-oracle.json`,
+all 7 archive sets re-scored, and the noise band re-measured with `sim-arm-significance.ts`.**
+
+**Santiago's two rulings, both recorded in memory ([[project-oracle-assumed-ingredient-rule]]):**
+1. **The assumed-ingredient rule going forward:** include an unstated ingredient only when it is
+   DEFINITIONAL to what the dish physically is (a roll needs rice+nori to be a roll, a taco needs a
+   tortilla) — never because a sibling item in the same section has it, never because the dish's
+   general category typically has it. `DE CAMARÓN ROKA`'s rice stays OUT (not structurally a roll,
+   despite the sushi section and "por dentro/por fuera" phrasing); its roka sauce stays IN (the menu
+   DEFINES "roka" as a chipotle-mayo sauce on a sibling dish, which is a definition, not an analogy).
+   `ENSALADA DE LA SEMANA`'s dressing is KEPT IN as a named, one-off EXCEPTION to this rule — Santiago
+   judges that specific salad realistically served dressed, not as precedent for a future salad.
+2. **`DE CAMARÓN ROKA` gets NO lettuce base.** Visible on the restaurant's Instagram, absent from the
+   menu text — ruled menu-text-only, Instagram evidence out of scope for this oracle.
+
+**FDC verification turned up a real correction to eval 166's own claim.** `FDC 2710796` (onion,
+cited by the existing OMELETTE CUBANA entry) does **not** actually 404 — repeated fetches show the
+FDC detail endpoint returns **transient 404s that resolve on retry** for a large fraction of valid
+ids (confirmed for ~20 of 51 ids checked, including several with no reason to be broken: egg, pasta,
+cream). The record is real: `2710796` = "Onions, cooked, as ingredient", Survey (FNDDS), and is now
+reused for both new omelettes' onion. **Lesson: a single 404 from this API is not evidence a record
+is gone — retry before concluding a citation is broken.** The 8 ingredients marked `needs record`
+were resolved by search + description read (never a top hit taken blind): mushrooms → FDC 2710797
+"Mushrooms, cooked, as ingredient" (matches the existing CUBANA onion/pepper naming pattern), chives
+→ FDC 2709781, cilantro → FDC 2709782, chile verde → FDC 2709978 "Peppers, hot, cooked" (explicitly
+not the bell-pepper record used elsewhere), cebollín (ROKA) → FDC 2709781 (same as chives, per
+TOMASA's own cebollín=chives mapping). No record failed verification outright; none were substituted
+with a near-miss.
+
+🔎 **Secondary finding, not blocking:** many of the doc's cited "kcal/100g" figures are the naive
+4/4/9 Atwater recompute from FNDDS's own protein/carb/fat, not FNDDS's own published `Energy` field,
+which uses food-specific factors. Gaps run 2–25% per ingredient, worst on fiber/plant items (dried
+seaweed 373 doc vs 298 published, dried cranberries 342 vs 308, roasted peanuts 629 vs 587, avocado
+174 vs 160). Spot-recomputing BALI, DE CAMARÓN ROKA, TACO EL CAPRICHO, and ALFREDO PORTOBELLO's
+chicken with the published values instead moves each dish's total by 1–5%, never enough to cross the
+±20% band. Not corrected in the oracle — Santiago's ruled totals are transcribed as given, and this
+is recorded so a future kcal audit doesn't start from zero.
+
+### ✅ THE GATE PASSED — ALL 7 ARCHIVES, EXACTLY
+
+The instruction was explicit: the pre-existing 9 dishes must score IDENTICALLY on the widened
+21-dish oracle, or the harness changed and not just the oracle. `bench-unweighted.ts` already
+derives its menu list from the oracle (no hardcoded array — the defect class eval 158/162 hit
+twice), so this was a real test, not a formality.
+
+| arm | 9-dish score, pre-widening (published) | 9-dish score, replayed on 21-dish oracle | match |
+|---|---|---|---|
+| `dual` | 67 | 67 | ✅ |
+| `dual --run r2` | 64 | 64 | ✅ |
+| `NOBOOST` | 70 | 70 | ✅ |
+| `NOBOOST --run r2` | 72 | 72 | ✅ |
+| `ROLE` | 58 | 58 | ✅ |
+| `MASSCALL` | 50 | 50 | ✅ |
+| `NOPUSH` | 57 | 57 | ✅ |
+
+All 12 new dishes were confirmed present in every one of these archives before trusting the
+replay — each is a FOCUSED (`-f`) archive, not a full-menu one, so presence was not assumed from
+eval 166's claim but checked file by file (`item.name` lists inspected directly). All 12 were there
+in every arm, every draw.
+
+### 🎯 THE QUESTION THIS PHASE WAS STUCK ON: NOBOOST'S ADVANTAGE SURVIVES
+
+**21-dish totals (/252):** `dual` 139, `dual@r2` 131 (mean 135). `NOBOOST` 149, `NOBOOST@r2` 150
+(mean 149.5). **Observed gap: +14.5 points**, up from +5.5 on the old 9-dish set.
+
+`sim-arm-significance.ts dual+dual@r2 NOBOOST+NOBOOST@r2`, re-derived on the widened oracle:
+
+- **95% CI: −5.5 to +37.5** (was −9 to +25 on 9 dishes) — still includes zero, but the effect
+  roughly tripled while the CI width grew much less.
+- **NOBOOST leads in 90.5% of resamples** (was 69.7%).
+- **🔑 LEAVE-ONE-DISH-OUT NO LONGER REVERSES THE SIGN.** Eval 164's finding — "remove TACO PORCO and
+  the effect is −2.5 over the remaining 8" — does NOT hold on 21 dishes: without TACO PORCO the
+  effect is **+6.5/240**, without TACO EL CAPRICHO **+8.5/240**, without OMELETTE LAMERA
+  **+11.5/240**. All three of the largest single-dish contributors can be individually removed and
+  the gap stays positive.
+- Per-dish decomposition of the new 12 (NOBOOST − dual, mean of both runs): TACO EL CAPRICHO **+6**,
+  OMELETTE LAMERA **+3**, ALFREDO PORTOBELLO **+2.5** push it up; PASTA ESPECIAL **−2.5** and
+  ENSALADA BISTRO **±0** push back. No single new dish dominates the way TACO PORCO did in the old
+  9-dish set — the gain is now spread across several dishes.
+- Dishes needed to resolve an effect this size: **~47** on the band metric (down from the earlier
+  "hundreds" estimate for the old, smaller effect) — still a real number, not a rounding error, but
+  the order of magnitude moved.
+
+**Verdict: NOT YET STATISTICALLY RESOLVED (the CI still includes zero), but the earlier "it's all
+TACO PORCO" objection is retracted.** The widening was designed to answer exactly this, and it
+answered it: NOBOOST's advantage is broader than one dish, roughly 2.6× the old effect size, and
+detectable in 90% of resamples rather than 70%. This upgrades NOBOOST from "one lucky dish" to "a
+real but not yet significant effect" — not to "confirmed."
+
+### ⚠️ Still true, still load-bearing
+
+Everything in eval 164 about the measurement itself stands except the one claim corrected above.
+CAPRICCIOSA, ENSALADA GRIEGA, and OMELETTE CUBANA's pre-existing doubts (28 cm discarded at Stage 1,
+possible band outlier, FNDDS's own portion ceiling) are unresolved and unaffected by this widening.
+
+- **Spend: $0.** Phase total unchanged at ~$41.9–42.1. **Production UNCHANGED: edge fn
+  `analyze-menu` v32.**
+- **⛔ NEXT ACTION: get NOBOOST past significance, or design the next arm knowing its true effect
+  size is now ~+14.5/252, not +5.5/108.** Santiago's cost approval is needed before any paid run —
+  none happened this session.
+
+## Eval 168 — 🔑 NOBOOST IS A SMALL-PLATE MECHANISM, NOT AN IMPROVEMENT. Repeat runs can never resolve it; 47 more dishes are already paid for (2026-08-22, $0)
+
+Three $0 findings, all re-derived from existing tooling and archives. **No paid run. Production
+UNCHANGED: edge fn `analyze-menu` v32.** Eval 167's next action ("get NOBOOST past significance, or
+design the next arm") is answered by finding ③, and both of its cost options are retired by ①.
+
+### ① ☠️ BUYING MORE MODEL CALLS AT 21 DISHES CANNOT RESOLVE NOBOOST — NOT EVEN INFINITELY MANY
+
+`sim-arm-significance.ts` bootstraps **dishes**, so its CI width is set by dish-to-dish
+disagreement, not by draw count. Measured by running the same sim on each run alone and on the pair:
+
+| draws per dish | 95% CI, /252 scale | half-width |
+|---|---|---|
+| 3 — `dual` vs `NOBOOST` | −13.0 to +34.0 | 23.5 |
+| 3 — `dual@r2` vs `NOBOOST@r2` | −3.0 to +47.0 | 25.0 |
+| **6 — both pooled** | **−5.5 to +38.0** | **21.75** |
+
+ℹ️ **The CI's upper bound jitters ~±1 between invocations** — three runs of the pooled comparison on
+the same data gave +37.5 (eval 167), +38.0 and +39.0. It is a 10 000-resample estimate, not an exact
+figure; the lower bound sat at −5.5 every time. Do not treat a 1-point move as a change.
+
+Doubling the draws shrank the half-width **10%**. A pure-noise model predicts **29%**. Fitting that
+split: ≈39% draw noise, ≈61% genuine between-dish heterogeneity. Extrapolated — a 3rd paid run gives
+≈20.9, **infinite runs give ≈18.9, still larger than the +14.5 effect.**
+
+🔑 **This retires "or a paid run at the current 21" from eval 167's next action.** Only more DISHES
+can resolve this arm. ⚠️ Two data points, so 39/61 is approximate — but the all-noise case is
+directly falsified by the observed 10%.
+
+### ② 47 MORE DISHES ARE ALREADY ENRICHED AND SITTING IN THE CACHES
+
+`bench-unweighted.ts`'s `select()` sends each oracle dish's **whole batch of 10 menu items**, so the
+archives hold the neighbours too.
+
+- **68 items appear in all 12 `dual`/`dual@r2`/`NOBOOST`/`NOBOOST@r2` archives.** 21 ruled, **47 not**.
+- All eight current-generation arms — `dual`, `NOBOOST`, `NOPUSH`, `ROLE`, `MASSCALL`, `ORDER`,
+  `ORDER-nopush`, `PIECE` — cover **exactly the same 68**, so a widening re-scores the whole arm
+  history for $0 and the archive gate still applies. `baseline-f` and `A-f` cover 86. The older
+  3-menu arms (`P`, `S3`, `A`, `PD`, `PF`) cover 3 menus and already miss 6 of the 21 — pre-existing.
+
+🔑 **The route eval 167 costed as needing approval is FREE in API.** The only cost is Santiago's
+ruling time. **Every "we can't afford to widen" framing is retracted.**
+
+### ③ 🔴 THE HEADLINE: NOBOOST'S ENTIRE GAIN IS ON SMALL PLATES, AND IT HAS NEVER GAINED ON A BIG ONE
+
+Sorting the 21 dishes by ruled plate mass against NOBOOST's per-dish advantage:
+
+| slice | plates <250 g | plates ≥250 g |
+|---|---|---|
+| all 21 dishes | n=9, **+0.74**/dish | n=12, **−0.15**/dish |
+| drop both tacos | n=7, **+0.29** | n=12, **−0.15** |
+| drop CAPRICCIOSA | n=9, **+0.74** | n=11, **−0.08** |
+| drop the 4 most influential dishes | n=7, **+0.29** | n=10, **0.00** |
+
+Pearson r between plate size and NOBOOST's advantage: **−0.67** over 21 dishes, falling to **−0.25**
+under the harshest trim. So *"size predicts the gain"* is **suggestive, not established** — but
+**"big plates never gain" survives every trim.** Best case for big plates is exactly 0.000.
+
+| | TACO PORCO | CAPRICCIOSA (28 cm pizza) |
+|---|---|---|
+| ruled mass | ~120 g | ~425 g |
+| shipped pipeline | oversizes it | already undersizes it |
+| NOBOOST shrinks every answer → | too much → in band ✅ | too little → further out ❌ |
+| per-draw points | **+2.67 of 4** | **−1.00 of 4** |
+
+🔑 **THIS IS THE PHASE'S OWN SCREENING TEST FIRING (evals 160–163), ON THE ONE ARM THAT LOOKED LIKE A
+WIN.** NOBOOST deletes the clause that pushes grams UP. Eval 162 measured size error running
+0.65–1.30 in **both** directions, so a one-directional mechanism must help one side and hurt the
+other. **NOBOOST scores +14.5 only because the current 21 dishes lean small** — both tacos sit at
+~120 g, where its gain is largest.
+
+⚠️ **This does not retract eval 167.** The +14.5, the 90.8% of resamples and the leave-one-dish-out
+robustness are all still true *of this dish set*. What is new is **why**: it is a property of the
+set's size mix, not a general improvement. "NOBOOST is a promising candidate arm" should now read
+"NOBOOST is a small-plate mechanism whose value depends entirely on the menu's size mix."
+
+### 📋 WHAT SANTIAGO APPROVED — ORACLE WIDENING ROUND 2, 21 → 65 DISHES
+
+Full spec: `docs/superpowers/specs/2026-08-22-oracle-widening-round-2-design.md`.
+
+| | count |
+|---|---|
+| free dishes in the caches | 47 |
+| − `Pollo.`, `Camarón` — `category:"other"`, no price, no description, listed in `bistro.expected.json` under `tolerated_option_names`, section header *"Agrega a tu pasta o ensalada"*. **Add-ons, not dishes.** | −2 |
+| − `COLIFLOR ROKA` — retired eval 156, unchanged | −1 |
+| **new dishes to rule** | **44** → oracle **65** (**52** if every name-only dish is retired) |
+
+Three piles: **10 pizza-group** (one class ruling + a table), **3 pizza-exceptions**
+(FLAMENKUCHEN and QUESO AZUL are cream-base; OSTRICA is smoked oyster), **7 roll-group** (one class
+ruling + a table), **24 one-offs** ruled individually as eval 166's twelve were.
+
+⚠️ **13 of the 44 are NAME-ONLY, and the precedent is against them.** Verified, not assumed: **all 21
+currently-ruled dishes carry a menu description; not one is name-only**, and the only name-only dish
+ever considered — `COLIFLOR ROKA` — was retired at eval 156 as *"unanswerable rather than badly
+answered"*, Santiago's words being that an item that thin *"shouldn't even be considered"*. Those 13
+are therefore **provisional**, each facing a per-dish test: does the name alone pin both what is on
+the plate and how much? `CHILE RELLENO` plausibly does; `PAPAS BRAVAS` plausibly does not. Two of the
+13 are pizzas, where the class ruling supplies the portion, so they pass much more easily.
+
+**Both outcomes still resolve the question**, which is why the ambiguity does not block the work:
+
+| if the name-only dishes… | oracle | smallest detectable effect | vs NOBOOST's 5.75% |
+|---|---|---|---|
+| all survive | 65 dishes | ±4.9% | resolves comfortably |
+| all are retired | 52 dishes | ±5.5% | resolves, but barely |
+
+### 🔒 PRE-REGISTERED BEFORE ANY OF THE 44 IS SCORED
+
+- **Prediction on the record: the +14.5 shrinks toward zero.** 13 of the 44 are 28 cm pizzas —
+  CAPRICCIOSA's class, ~425 g — all in the bucket where NOBOOST has never gained. A crude projection
+  anchoring them at CAPRICCIOSA's −1.00 and the rest at the current mean lands the gap at ~**0**.
+- **Primary verdict:** `sim-arm-significance.ts dual+dual@r2 NOBOOST+NOBOOST@r2` on the full oracle.
+- **No early stop.** The running number may be looked at freely; the run may not be stopped because
+  of what it shows. A **retirement is not an early stop** — it removes a dish that cannot be ruled,
+  never one whose score we dislike, and is recorded with its reason before that dish is scored.
+- **The 250 g line becomes an out-of-sample test.** It was chosen *after* seeing the current 21;
+  fixing it now, before the 44 arrive, converts a story into a prediction.
+- **Sensitivity row:** the same comparison with the 14 pizzas dropped — 14 dishes sharing one class
+  ruling are not 14 independent dishes, and the bootstrap would otherwise overstate confidence.
+- **🔴 DEPLOY RULE, AGREED IN ADVANCE:** *if `NOBOOST` comes out positive overall but still negative
+  on plates ≥250 g, it does NOT ship.* It becomes the evidence for an arm that pushes small plates
+  down **and** big plates up — what eval 162's both-directions finding says any working mechanism
+  must do.
+
+### 🪤 A TRAP WORTH RECORDING
+
+The two answer keys were confused for the archives during this session. Stated once, plainly:
+**68 dishes have the MODEL'S answers** (`scripts/fixtures/caches/`), **21 have the RIGHT answers**
+(`unweighted-oracle.json`), **8 more have right answers on the separate weighted /96 key**
+(`macro-oracle.json`), and `*.expected.json` is **Stage 1 only — item names off the photo, no macros
+at all**. 29 dishes in the whole project have hand-checked macros. The oracle stores **bands only**:
+`mass_band_g`, four macro `band`s and a prose `assumed`; there is no per-ingredient array in it.
+
+- **Spend: $0.** Phase total unchanged at ~$41.9–42.1. **Production UNCHANGED: edge fn v32.**
+- **⛔ NEXT ACTION: execute the round-2 spec** — rule the 44 (2 class rulings + tables, 27 individual,
+  minus whatever the name-only test retires), then run the pre-registered analysis. **No API spend
+  and no approval needed; the design is already approved.**

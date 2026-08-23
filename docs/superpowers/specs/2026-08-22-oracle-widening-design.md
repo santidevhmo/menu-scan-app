@@ -1,7 +1,10 @@
 # Widening the unweighted oracle: 9 dishes → 21, at $0 in model calls
 
-**Status:** approved by Santiago 2026-08-22. Rulings in progress.
-**Supersedes nothing.** The existing 9 dishes are unchanged by this work.
+**Status:** approved by Santiago 2026-08-22. ✅ EXECUTED — rulings, verification, oracle write, and
+re-score all done the same day (ledger eval 167). See `docs/superpowers/START-HERE.md` for the
+current handoff.
+**Supersedes nothing.** The existing 9 dishes are unchanged by this work (verified: they score
+identically on the widened oracle).
 
 ## Why
 

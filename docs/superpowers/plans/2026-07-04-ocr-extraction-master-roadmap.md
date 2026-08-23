@@ -11,6 +11,14 @@
 > repeatedly lost sessions to status copied into a second file and then left to rot.
 > Entry point for new sessions: `docs/superpowers/START-HERE.md` (routing only, no status).
 
+> 🔴 **THIS BLOCK STOPPED BEING KEPT CURRENT AFTER THE 2026-08-19/20 ENTRIES BELOW — do not read past
+> the v32 deployment as if it were recent.** Everything from 2026-08-21 onward (the NOBOOST finding,
+> the oracle widening to 21 dishes, ledger eval 167) lives ONLY in `docs/superpowers/START-HERE.md`'s
+> handoff block and the ledger, exactly the "status copied into a second file and left to rot" failure
+> this block warns about above. **For current status, read `START-HERE.md`, not the history trail
+> below.** As of 2026-08-22: production is still v32, the unweighted oracle is 21 dishes / 252 points
+> (not 9/108), and `NOBOOST` is a promising-but-unconfirmed candidate arm, not yet deployed.
+
 **ACTIVE: critical-path #5 — Stage-2 enrichment accuracy benchmark ("macro enrichment").**
 Macro accuracy has never been gated. The enrichment model is already decided (GPT-4o); what is
 missing is a measured benchmark, including printed-weight items so P2's "prefer printed weights"

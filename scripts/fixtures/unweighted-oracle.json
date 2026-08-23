@@ -268,5 +268,365 @@
     "assumed": "No printed weight. Band [300,400] g is Santiago's ruling (2026-08-13), revised up from [250,350] the day before, for a roll that is both filled and topped. Well above FDC 2708963's published 180 g plain salmon roll for that reason. Composition is FDC 2708963 'Sushi roll, salmon' blended 85:15 with FDC 2705760 cream cheese - neither FNDDS roll record contains cream cheese and this description names it, which is what lifts fat from 1.28 to 6.11 g/100 g. ⚠️ GUARD DISH, AND THE REVISION WEAKENED IT. At [250,350] the pipeline's 397 g sat ABOVE the band and this was the set's only over-estimate. At [300,400] that 397 g is INSIDE, so the set now has NO dish guarding against an arm that scales everything upward. Coliflor Roka guards the bottom; nothing guards the top. Weigh that when judging any arm that adds a plate-weight anchor.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-12"
+  },
+  {
+    "name": "OMELETTE TOMASA",
+    "menu": "el-marcos",
+    "unweighted": true,
+    "mass_band_g": [
+      190,
+      255
+    ],
+    "band": {
+      "calories": [
+        252,
+        378
+      ],
+      "protein_g": [
+        15,
+        23
+      ],
+      "carb_g": [
+        5,
+        8
+      ],
+      "fat_g": [
+        19,
+        29
+      ]
+    },
+    "assumed": "\"Dos huevos con cebolla, cebollín, cilantro, champiñones y queso.\" Santiago pinned the shares (eggs 67%, cheese ~23%), scaling the fillings up 21% from the first proposal. DECOMPOSED INTO INGREDIENTS, same rule as OMELETTE CUBANA (FNDDS has no composite record for a cheese-and-vegetable omelette built on whole egg). Ingredients: 110 g FDC 2707158 'Egg, whole, fried with oil' (two eggs, ~55 g each cooked — 'Dos huevos' is the only quantity stated), 18 g FDC 2705709 'Cheese, Cheddar', 49 g FDC 2710797 'Mushrooms, cooked, as ingredient', 30 g FDC 2710796 'Onions, cooked, as ingredient', 11 g FDC 2709781 'Chives, raw', 4 g FDC 2709782 'Cilantro, raw'. Totals: 222 g · 315 kcal · 18.7 P · 6.5 C · 23.8 F. Note: 222 g sits above FNDDS's largest published omelette portion (170 g); so does LAMERA (183 g) and CUBANA (203 g) — all three of our omelettes are at or past the top of the published range, the tendency the external review flagged. ⚠️ Open inconsistency, flagged and left as ruled: LAMERA keeps mushrooms 30 g / onion 20 g while TOMASA's adjustment raised the same two vegetables to 49 g / 30 g — same restaurant, same section. Neither is above 4% of LAMERA's calories, so it cannot flip a macro, but the oracle is internally inconsistent on this pair until Santiago aligns them or rules that they differ. FDC 2710796 was cited in the pre-existing OMELETTE CUBANA entry as returning a 404 on the FDC detail endpoint; re-verified 2026-08-22 across multiple retries and it resolves correctly to 'Onions, cooked, as ingredient', Survey (FNDDS) — the 404 was the API's own transient behavior (confirmed for several other ids in this batch too), not a broken record.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "OMELETTE LAMERA",
+    "menu": "el-marcos",
+    "unweighted": true,
+    "mass_band_g": [
+      155,
+      210
+    ],
+    "band": {
+      "calories": [
+        220,
+        330
+      ],
+      "protein_g": [
+        14,
+        20
+      ],
+      "carb_g": [
+        4,
+        6
+      ],
+      "fat_g": [
+        17,
+        25
+      ]
+    },
+    "assumed": "\"Dos huevos con cebolla, champiñones, tocino y chile verde.\" RULED AS PROPOSED. DECOMPOSED INTO INGREDIENTS, same rule as OMELETTE CUBANA. Ingredients: 110 g FDC 2707158 'Egg, whole, fried with oil' (two eggs), 8 g FDC 2705885 'Bacon, NS as to type of meat, cooked', 30 g FDC 2710797 'Mushrooms, cooked, as ingredient', 20 g FDC 2710796 'Onions, cooked, as ingredient', 15 g FDC 2709978 'Peppers, hot, cooked' — its own record, deliberately NOT the bell-pepper record (FDC 2709800/2709976) used elsewhere in this set, because 'chile verde' names a hot pepper, not a sweet one. Totals: 183 g · 274 kcal · 16.7 P · 4.8 C · 20.9 F. ⚠️ Open inconsistency, flagged and left as ruled: LAMERA keeps mushrooms 30 g / onion 20 g while TOMASA's adjustment raised the same two vegetables to 49 g / 30 g. Same restaurant, same menu section. Neither is above 4% of LAMERA's calories, so neither can flip a macro — but the oracle is internally inconsistent on this pair until Santiago aligns them or rules that they differ.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "FETUCCINI ALFREDO",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      295,
+      395
+    ],
+    "band": {
+      "calories": [
+        654,
+        980
+      ],
+      "protein_g": [
+        18,
+        27
+      ],
+      "carb_g": [
+        62,
+        92
+      ],
+      "fat_g": [
+        37,
+        56
+      ]
+    },
+    "assumed": "\"Salsa Alfredo a base de queso parmesano.\" Santiago pinned the total at ~817 kcal and the shares at 44.2 / 29.4 / 12.9 / 13.6. DECOMPOSED INTO INGREDIENTS (Santiago's instruction to use the omelette format for this batch of pastas). Ingredients: 235 g FDC 2708357 'Pasta, cooked', 70 g FDC 2705597 'Cream, heavy', 15 g FDC 2710155 'Butter, stick', 25 g FDC 2705728 'Cheese, Parmesan, dry grated'. Totals: 345 g · 817 kcal · 22.5 P · 76.9 C · 46.6 F. Parmesan reads 12.6% of calories against the ruled 12.9% because 12.9% needs 25.6 g and 26 g would put the total at 819 — round gram kept over exact percentage, open to reversal. Open cross-cutting question (not resolved by this ruling): CARBONARA and CAPRICCIOSA remain the only composite-derived entries in the set; these three pastas are decomposed instead, and the two methods disagree in both directions (this dish 238 kcal/100 g decomposed vs 203 composite for a comparable Alfredo cell) — the choice of method is not a uniform offset.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "ALFREDO PORTOBELLO",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      350,
+      470
+    ],
+    "band": {
+      "calories": [
+        566,
+        848
+      ],
+      "protein_g": [
+        33,
+        50
+      ],
+      "carb_g": [
+        53,
+        80
+      ],
+      "fat_g": [
+        24,
+        37
+      ]
+    },
+    "assumed": "\"Base de crema, laminas de portobello y pollo marinado.\" RULED AS PROPOSED. DECOMPOSED INTO INGREDIENTS. Ingredients: 200 g FDC 2708357 'Pasta, cooked', 60 g FDC 2705597 'Cream, heavy', 90 g FDC 2705968 'Chicken breast, grilled without sauce, skin not eaten', 60 g FDC 2709941 'Mushrooms, fresh, cooked with oil'. Totals: 410 g · 707 kcal · 41.5 P · 66.6 C · 30.5 F. ⚠️ THE LARGEST OPEN DIVERGENCE IN THE WHOLE BATCH, recorded and not resolved: decomposed protein is 41.5 g; the FNDDS composite cell (FDC 2708870, cream sauce + poultry + vegetables, restaurant) carries 5.81 g protein per 100 g, implying roughly 50 g of chicken on a 350 g plate against the ruled 90 g — one of those two is wrong by roughly a factor of two on the dish's headline macro. Also arrives tagged `section_title: \"PIZZAS BISTRO\"` in the extraction — a pasta under the pizza heading, a known Stage-1 mis-section for this menu, unrelated to the recipe ruled here.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "PASTA ESPECIAL",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      365,
+      495
+    ],
+    "band": {
+      "calories": [
+        506,
+        759
+      ],
+      "protein_g": [
+        22,
+        33
+      ],
+      "carb_g": [
+        63,
+        95
+      ],
+      "fat_g": [
+        18,
+        27
+      ]
+    },
+    "assumed": "\"Salsa de tomate de la casa, campiñones, chistorra y queso de cabra.\" RULED AS PROPOSED. DECOMPOSED INTO INGREDIENTS. Ingredients: 220 g FDC 2708357 'Pasta, cooked', 40 g FDC 2706179 'Chorizo' (chistorra proxy — no chistorra record exists in FNDDS; chistorra is a thin Spanish/River-Plate sausage, chorizo is the nearest FNDDS analogue), 20 g FDC 2705716 'Cheese, goat', 100 g FDC 2709745 'Spaghetti sauce' (the plain tomato-sauce cell, not 'added vegetables', because the mushrooms are already counted as their own ingredient), 50 g FDC 2709941 'Mushrooms, fresh, cooked with oil'. Totals: 430 g · 633 kcal · 27.9 P · 79.1 C · 22.7 F. Composite cross-check: FDC 2709745-family composite reads 147 kcal/100 g against this recipe's 174 decomposed — the two methods disagree by up to 18% across this batch of three pastas, in BOTH directions (Alfredo decomposed reads richer than composite; Especial decomposed reads leaner). Open: re-derive CARBONARA by decomposition for consistency, or keep both methods in the oracle side by side.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "ENSALADA BALI",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      275,
+      375
+    ],
+    "band": {
+      "calories": [
+        354,
+        532
+      ],
+      "protein_g": [
+        8,
+        12
+      ],
+      "carb_g": [
+        32,
+        47
+      ],
+      "fat_g": [
+        22,
+        33
+      ]
+    },
+    "assumed": "\"Espinaca, mandarina, arándanos, tomate cherry, coco rallado, cacahuate y vinagreta de la casa.\" Santiago kept the five figures he judged most defensible and raised the two he judged visually underestimated — mandarina 50→80 g, tomate cherry 40→70 g — approved 2026-08-22. Ingredients: 30 g FDC 2710195 'Salad dressing, NFS, for salads' (vinagreta — the dish's own text names a dressing, so no assumed-ingredient question here), 20 g FDC 2707517 'Peanuts, dry roasted, salted', 15 g FDC 2709202 'Cranberries, dried' (read as arándanos secos), 80 g FDC 2709175 'Tangerine, raw', 10 g FDC 2707501 'Coconut, packaged', 100 g FDC 2709614 'Spinach, raw', 70 g FDC 2709719 'Tomatoes, raw'. Totals: 325 g · 443 kcal · 9.7 P · 39.5 C · 27.3 F — all five of Santiago's predicted ranges are hit. The centre moved 419→443 by arithmetic (the added fruit), not by choice; his requested 350–500 band IS the standard rule (recipe ±20% on 443), not a widening, kept so BALI isn't the only hand-set band in the oracle. Concentration is 68% for vinagreta+cacahuate+coco, not the 72% first computed — the added fruit dilutes it. ⚠️ The vinaigrette is the dish's largest single uncertainty at 29% of calories, priced as a full-fat generic dressing — a house balsamic could be materially leaner; not enumerated. ⚠️ Search trap avoided: the top FNDDS hit for 'coconut, dried, sweetened, shredded' is Coconut WATER at 37 kcal/100 g — 13× too lean. FDC 2707501 'Coconut, packaged' (456 kcal/100 g, verified 2026-08-22) is the correct solid-coconut record.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "ENSALADA BISTRO",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      280,
+      380
+    ],
+    "band": {
+      "calories": [
+        268,
+        401
+      ],
+      "protein_g": [
+        13,
+        20
+      ],
+      "carb_g": [
+        17,
+        26
+      ],
+      "fat_g": [
+        16,
+        24
+      ]
+    },
+    "assumed": "\"Tomate, campiñones, pimiento verde, cebolla morada, pera, manzana, calabaza, queso brie y chistorra.\" RULED AS PROPOSED. Ingredients: 40 g FDC 2706179 'Chorizo' (chistorra proxy), 30 g FDC 2705708 'Cheese, Brie', 40 g FDC 2709254 'Pear, raw', 40 g FDC 2709215 'Apple, raw', 40 g FDC 2709793 'Mushrooms, raw', 50 g FDC 2709719 'Tomatoes, raw', 40 g FDC 2710804 'Summer squash, cooked, as ingredient', 20 g FDC 2709795 'Onions, raw' (cebolla morada — FNDDS carries no separate red-onion record), 30 g FDC 2709800 'Peppers, sweet, green, raw'. Totals: 330 g · 334 kcal · 16.6 P · 21.6 C · 20.2 F. ⚠️ The menu says \"*Al horno\" — this is a BAKED salad — and the extraction drops that note. Santiago's ruling 2026-08-22: ignore it, keep the raw vegetable records. Recorded because the entry would otherwise look like an oversight rather than a decision. ⚠️ The menu line names no greens at all — taken literally, no lettuce, no spinach, and none is priced.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "ENSALADA DE LA SEMANA",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      330,
+      450
+    ],
+    "band": {
+      "calories": [
+        398,
+        597
+      ],
+      "protein_g": [
+        11,
+        17
+      ],
+      "carb_g": [
+        31,
+        46
+      ],
+      "fat_g": [
+        26,
+        38
+      ]
+    },
+    "assumed": "\"Combinación de lechuga y espinaca, arándanos, tomate cherry, campiñón, calabaza, pera, manzana, almendras y queso de cabra.\" The menu names NO dressing. Santiago ruled 2026-08-22 to include an average one anyway — a STATED EXCEPTION to the assumed-ingredient rule resolved the same day (definitional-to-dish-type beats category-typical; a salad is not always dressed, so by the general rule this would be excluded, but Santiago judged this specific salad realistically served dressed and chose to keep it in rather than change the rule to fit it — do not treat this dish as rule-compliant precedent for a future salad). 30 g is externally anchored, not a guess: it is the RACC for salad dressing, matches USDA's own default coleslaw-dressing serving (31 g), and equals the vinagreta already ruled for ENSALADA BALI. Ingredients: 30 g FDC 2710195 'Salad dressing, NFS, for salads' (unnamed on the menu, included per the exception above), 20 g FDC 2707486 'Almonds, unroasted', 25 g FDC 2705716 'Cheese, goat', 15 g FDC 2709202 'Cranberries, dried', 40 g FDC 2709254 'Pear, raw', 40 g FDC 2709215 'Apple, raw', 50 g FDC 2709614 'Spinach, raw', 60 g FDC 2709789 'Lettuce, raw', 40 g FDC 2710804 'Summer squash, cooked, as ingredient', 30 g FDC 2709793 'Mushrooms, raw', 40 g FDC 2709719 'Tomatoes, raw'. Totals: 390 g · 497 kcal · 14.0 P · 38.1 C · 32.1 F. The unnamed dressing is the dish's single largest calorie source at 26%, ahead of the almonds — a salad's macros are decided mostly by ingredients the menu does not quantify and sometimes does not mention.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "Vegan Roll",
+    "menu": "nikkori",
+    "unweighted": true,
+    "mass_band_g": [
+      250,
+      335
+    ],
+    "band": {
+      "calories": [
+        294,
+        442
+      ],
+      "protein_g": [
+        12,
+        17
+      ],
+      "carb_g": [
+        42,
+        63
+      ],
+      "fat_g": [
+        9,
+        13
+      ]
+    },
+    "assumed": "\"Tofu, aguacate, pepino y zanahoria, cubierto de arroz.\" RULED AS PROPOSED. Filled only, no topping. The rice is stated on the menu ('cubierto de arroz'), not assumed. Ingredients: 150 g FDC 2710788 'Rice, white, cooked, as ingredient', 50 g FDC 172475 'Tofu, raw, firm, prepared with calcium sulfate' (SR Legacy — FNDDS has no plain-tofu cell), 40 g FDC 2709223 'Avocado, raw', 3 g FDC 2709988 'Seaweed, dried' (alga nori), 20 g FDC 2709660 'Carrots, raw', 30 g FDC 2709784 'Cucumber, raw'. Totals: 293 g · 368 kcal · 14.6 P · 52.7 C · 11.0 F. Santiago's suggested ranges (293 g, 365–380 kcal, 14–16 P, 50–55 C, 10–12 F) all contain the computed recipe. ⚠️ Sushi rice is seasoned with sugar and vinegar; FDC 2710788 is plain cooked rice, so this recipe slightly UNDERestimates the largest component. Band width note: Santiago's suggested range (365–380 kcal, ±2%) is far tighter than the oracle's rule; the derived band (recipe ±20%) is used instead, per the 2026-08-22 ruling on band width for dishes 9–11, so this dish stays comparable to its neighbours.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "Nikkori Maki",
+    "menu": "nikkori",
+    "unweighted": true,
+    "mass_band_g": [
+      290,
+      395
+    ],
+    "band": {
+      "calories": [
+        372,
+        558
+      ],
+      "protein_g": [
+        14,
+        21
+      ],
+      "carb_g": [
+        48,
+        72
+      ],
+      "fat_g": [
+        14,
+        21
+      ]
+    },
+    "assumed": "\"Por dentro: Queso crema, aguacate, pepino y camarón. Por fuera: Surimi.\" RULED AS PROPOSED. Filled AND topped — the same class as Salmón Roll. The menu's own text never says 'arroz', but rice is INCLUDED anyway: it is definitional to what a maki physically is (a roll is structurally rice+nori even when the item's description skips the word), under the assumed-ingredient rule resolved 2026-08-22 — this is a form-definitional inclusion, not a category-typical assumption. Ingredients: 140 g FDC 2710788 'Rice, white, cooked, as ingredient', 30 g FDC 2705760 'Cream cheese, regular, plain' (the record Salmón Roll already cites), 40 g FDC 2709223 'Avocado, raw', 60 g FDC 2706568 'Imitation crab meat' (surimi — the outside layer), 40 g FDC 2706449 'Shrimp cocktail', 3 g FDC 2709988 'Seaweed, dried', 30 g FDC 2709784 'Cucumber, raw'. Totals: 343 g · 465 kcal · 17.1 P · 60.0 C · 17.4 F. Santiago's suggested ranges (340–350 g, 450–500 kcal, 16–19 P, 57–64 C, 16–19 F) all contain the computed recipe. He flagged two sensitivities not applied: if the surimi exterior carries a creamy sauce the upper end is nearer 500–560 kcal; if the cream cheese is 20 g and the surimi a thin layer, nearer 425–450. Same band-width note as Vegan Roll: the derived ±20% band is used over his tighter suggested range.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "DE CAMARÓN ROKA",
+    "menu": "andaluz",
+    "unweighted": true,
+    "mass_band_g": [
+      170,
+      230
+    ],
+    "band": {
+      "calories": [
+        329,
+        493
+      ],
+      "protein_g": [
+        12,
+        19
+      ],
+      "carb_g": [
+        14,
+        21
+      ],
+      "fat_g": [
+        25,
+        37
+      ]
+    },
+    "assumed": "\"Por dentro camarón capeado, pepino, aguacate y alga, y por fuera nuestro camarón roka con cebollín y ajonjolí.\" Santiago's ruling: RICE REMOVED — the menu never names it, and 341 g was only reachable by assuming 140 g of it; despite sitting under the sushi/del-mar section and using roll-style 'por dentro / por fuera' phrasing, Santiago confirmed (via the restaurant's own Instagram) this is a fried-shrimp PLATE, not a roll, so rice is not definitional to what this dish physically is. The ROKA SAUCE IS KEPT, on evidence from the same menu: andaluz carries 'CAMARÓN ROKA (200 g)' — 'Camarón capeado y bañado en nuestro aderezo roka a base de chipotle' — so the menu itself DEFINES 'roka' as a chipotle-based sauce; this is a menu-wide term definition, not an assumption borrowed from a sibling dish's ingredient list. Under the assumed-ingredient rule resolved 2026-08-22, that distinction is exactly what keeps the sauce in while the rice stays out. ⏳ The dish also has a lettuce base visible on the restaurant's Instagram; Santiago's ruling 2026-08-22 is MENU TEXT ONLY — no lettuce, Instagram evidence is out of scope for this oracle. Ingredients: 20 g FDC 2710204 'Mayonnaise, regular' (aderezo roka — not named on the menu as an ingredient amount, included on the sauce-definition evidence above; the nearest FNDDS analogue to a chipotle mayo, since FNDDS carries no aioli-family record), 60 g FDC 2706364 'Shrimp, fried' (camarón capeado), 40 g FDC 2709223 'Avocado, raw', 40 g FDC 2706449 'Shrimp cocktail' (roka topping), 3 g FDC 2707586 'Sesame seeds' (ajonjolí), 3 g FDC 2709988 'Seaweed, dried' (alga), 30 g FDC 2709784 'Cucumber, raw' (pepino), 5 g FDC 2709781 'Chives, raw' (cebollín). Totals: 201 g · 411 kcal · 15.6 P · 17.2 C · 31.1 F. Santiago's strict no-rice-no-sauce baseline was 181 g / ~275 kcal — arithmetically identical to this recipe minus the sauce. His practical range with sauce (200–230 g, 400–500 kcal) contains the ruled 201 g / 411 kcal. Independently corroborated: andaluz's own plated 'CAMARÓN ROKA' under del mar prints 200 g — within a gram of this ruled mass, reached from ingredients without ever consulting that printed figure. Santiago directed the mass be that of an individual dish for one person, not a shareable plate.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "TACO EL CAPRICHO",
+    "menu": "brasero-two",
+    "unweighted": true,
+    "mass_band_g": [
+      110,
+      145
+    ],
+    "band": {
+      "calories": [
+        239,
+        359
+      ],
+      "protein_g": [
+        19,
+        28
+      ],
+      "carb_g": [
+        11,
+        16
+      ],
+      "fat_g": [
+        13,
+        20
+      ]
+    },
+    "assumed": "\"Taco de arrachera en base de lechuga fresca y costra de queso.\" RULED AS PROPOSED (2026-08-22). Ingredients: 55 g FDC 2705827 'Beef, steak, flank' (arrachera IS flank/skirt steak, an exact FNDDS cell; 55 g matches TACO PORCO's ruled meat weight), 25 g FDC 2705720 'Cheese, Monterey' (costra de queso — the US analogue for a Mexican melting cheese), 28 g FDC 2707823 'Tortilla, corn' (a published FNDDS portion, the same sourced weight TACO PORCO uses), 20 g FDC 2709789 'Lettuce, raw' (lechuga fresca). Totals: 128 g · 299 kcal · 23.5 P · 13.7 C · 16.7 F. Two consistency checks, both pass: (1) mass lands inside TACO PORCO's ruled band — 128 g against [100,140], two tacos from the same menu in the same range; (2) the composite record AGREES here, which validates why PORCO rejected its own — PORCO was decomposed because every FNDDS pork-taco cell forces cheese the dish lacked, but THIS taco HAS cheese, so the composite applies: FDC 2708515 'Taco, corn tortilla, beef, cheese' at 249 kcal/100 g gives 319 kcal at 128 g against the decomposed 299 — a 7% gap, against the pastas in this same batch where the two methods diverged up to 18% in both directions. Notably richer than TACO PORCO — 299 kcal against its ~218 midpoint, fat 16.7 g against ~8.5 — because the costra is a third of the calories where PORCO has no cheese.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
   }
 ]

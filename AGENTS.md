@@ -524,10 +524,11 @@ Track here anything that blocks testing or shipping. Update as items resolve.
   with the takeover briefing in the newest `HANDOFF` block of
   `docs/superpowers/START-HERE.md` — start at its **§0 MAP**, which defines every term (oracle, band,
   draw, arm, harness, replay, ledger) and states where the phase stands. Read those, not a copy.
-  As of **2026-08-21**: production is edge fn **v32** (the dual pass), `main` byte-matches it, and
-  TestFlight build 7 is submitted. The unweighted set is **9 dishes / 108 points** at "average ±20%",
-  and **nothing has beaten v32 since it shipped** — so nothing is awaiting deployment; the blocker is
-  that no better arm has been found, not that a better arm is unreleased.
+  As of **2026-08-22**: production is edge fn **v32** (the dual pass), `main` byte-matches it, and
+  TestFlight build 7 is submitted. The unweighted set was WIDENED 2026-08-22 (ledger eval 167) and is
+  now **21 dishes / 252 points** at "average ±20%" — a "9 dishes / 108" figure is the pre-widening
+  set and is not comparable. **Nothing has beaten v32 since it shipped** — so nothing is awaiting
+  deployment; the blocker is that no better arm has been found, not that a better arm is unreleased.
   ⚠️ **This line is a dated snapshot and nothing should be believed from it** — verify the live version
   against the SERVER with `mcp__supabase__list_edge_functions`, and re-derive every score with the
   `$0` commands rather than quoting it.

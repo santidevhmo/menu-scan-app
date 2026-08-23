@@ -24,7 +24,19 @@ That split is deliberate: the model is good at knowing what food is, and bad at 
 | word | what it means |
 |---|---|
 | **Stage 1 / Stage 2** | Stage 1 reads the menu photo into a list of items. **Stage 2 is the macro estimate.** All the work in this phase is Stage 2. |
-| **oracle** | The **answer key**. A hand-built, USDA-sourced record of what each test dish really contains. It lives in `scripts/fixtures/unweighted-oracle.json` (+ a weighted one). **It never runs in the app** — it exists only to grade us. |
+| **oracle** | The **answer key**. A hand-built, USDA-sourced record of what each test dish really contains. It lives in `scripts/fixtures/unweighted-oracle.json` (+ a weighted one). **It never runs in the app** — it exists only to grade us. It stores **bands only** — `mass_band_g`, four macro `band`s and a prose `assumed` — with **no per-ingredient array**; the decomposition lives in the rulings docs. |
+
+🪤 **FOUR FILES GET CONFUSED FOR EACH OTHER. THEY ARE NOT THE SAME THING** (eval 168):
+
+| file | what it holds | dishes |
+|---|---|---|
+| `scripts/fixtures/caches/*.raw.json` | **the model's ANSWERS.** What GPT guessed. Free to re-grade. | **68** |
+| `scripts/fixtures/unweighted-oracle.json` | **the RIGHT answers**, hand-ruled. The unweighted **/252**. | **21** |
+| `scripts/fixtures/macro-oracle.json` | the right answers for **printed-weight** dishes. The separate **/96**. | **8** |
+| `scripts/fixtures/*.expected.json` | **STAGE 1 ONLY** — did we read the right item NAMES off the photo. **No macros at all.** | n/a |
+
+**29 dishes in the whole project have hand-checked macros.** 68 dishes have the model's guesses.
+"Don't all the eval items already have checked macros?" — no, and that gap is the entire round-2 job.
 | **band** | The pass window for one number. Not a single value — a range. A macro **passes** if the app's answer lands inside the band. Currently **the average dish ±20%**, plus a small-miss allowance (6 g for a macro, 50 kcal). |
 | **draw** | One repeat of the exact same question. The model is not deterministic, so every dish is asked **3 times** and all 3 are scored. |
 | **harness** | The script that runs a benchmark and prints a score. `bench-unweighted.ts` (no-weight dishes), `bench-mixed-menu.ts` and `bench-macros.ts` (printed-weight dishes). |
@@ -40,10 +52,10 @@ That split is deliberate: the model is good at knowing what food is, and bad at 
 | **`dual`** | **What is deployed today (v32).** Stage 2 runs *twice*: pass 1 sends the whole menu (its answers used for dishes that print a weight); pass 2 re-sends only the no-weight dishes, in their own batches, with one extra sentence. | **67/108** ← best |
 | **`Arm A`** | Asks the model for the dish's **total grams** (`typical_total_g`, a required schema field), then rescales every ingredient to that total. | **36/108** ☠️ rejected twice |
 | **`ORDER` / `ORDER-nopush` / `PIECE`** | Change what the per-ingredient GRAM FIELD asks for: `typical_serving_g` (a label serving) → grams **in one order as sold**, or grams **per piece x `serving_pieces`**. No total asked, nothing rescaled. | **61 / 65 / 60** ☠️ all rejected, eval 159 — **and they SIZED BETTER than the winner** |
-| **`NOPUSH`** | Deletes pass 2's whole addendum — **both** the restraint half AND the push half. Shipped gram ask, shipped schema. | **57/108** ☠️ rejected, eval 160 — **and it does NOT test what its name says** |
-| **`NOBOOST`** | Deletes **only the push half** of pass 2's addendum; keeps the restraint. Shipped gram ask, shipped schema, shipped key. One clause of diff. | **70–72/108** vs the control's **64–67** — ⚠️ **BUT eval 164 shows the whole +5.5 is ONE DISH (TACO PORCO). Over the other 8 it is −2.5. Bootstrap 95% CI −9 to +25.** Not a confirmed improvement. |
-| **`ROLE`** | `NOBOOST` + ONE required enum per ingredient (`body│filling│topping│garnish`) inserted immediately BEFORE the gram field. Schema only — no sentence explains it, nothing reads it. | **58/108** ☠️ rejected, eval 163 — **the enum FIRED (labels varied, body's median gram 3.3× filling's) and lost anyway** |
-| **`MASSCALL`** | `NOBOOST`'s recipe rescaled to a plate total from a SECOND call that sees only name + description. Reuses Arm C's plate prompt verbatim. | **50/108** ☠️ rejected, eval 163 — **the bare mass question is a WORSE mass estimator than the ingredient list** |
+| **`NOPUSH`** | Deletes pass 2's whole addendum — **both** the restraint half AND the push half. Shipped gram ask, shipped schema. | **57/108** ☠️ rejected, eval 160 — **and it does NOT test what its name says.** Re-measured on the widened 21-dish oracle (eval 167): **145/252**, same rank, still rejected. |
+| **`NOBOOST`** | Deletes **only the push half** of pass 2's addendum; keeps the restraint. Shipped gram ask, shipped schema, shipped key. One clause of diff. | **70–72/108** vs the control's **64–67** on 9 dishes. 🔴 **RE-MEASURED ON 21 DISHES (eval 167, 2026-08-22): 149–150/252 vs the control's 131–139. Gap widened to +14.5 (was +5.5), leads in 90.5% of resamples (was 69.7%), and — reversing eval 164 — SURVIVES leave-one-dish-out (+6.5 without TACO PORCO, was −2.5). 95% CI still crosses zero (−5.5 to +37.5): a real, broader effect, still not a confirmed improvement.** 🔴 **AND EVAL 168 EXPLAINS IT: NOBOOST IS A SMALL-PLATE MECHANISM. Its gain is +0.74/dish on plates under 250 g and −0.15/dish on plates at or above 250 g; big plates never gain in ANY trimming of the data. The +14.5 exists because these 21 dishes lean small (both tacos ~120 g). Not a general improvement — its value depends on the menu's size mix.** |
+| **`ROLE`** | `NOBOOST` + ONE required enum per ingredient (`body│filling│topping│garnish`) inserted immediately BEFORE the gram field. Schema only — no sentence explains it, nothing reads it. | **58/108** ☠️ rejected, eval 163 — **the enum FIRED (labels varied, body's median gram 3.3× filling's) and lost anyway.** Re-measured on 21 dishes (eval 167): **137/252**, still rejected. |
+| **`MASSCALL`** | `NOBOOST`'s recipe rescaled to a plate total from a SECOND call that sees only name + description. Reuses Arm C's plate prompt verbatim. | **50/108** ☠️ rejected, eval 163 — **the bare mass question is a WORSE mass estimator than the ingredient list.** Re-measured on 21 dishes (eval 167): **118/252**, still last place. |
 
 ### ⚖️ THE TWO SCORES — NEVER MERGE THEM
 
@@ -52,7 +64,7 @@ The benchmark is split because the product is split.
 | | what it covers | how common | denominator | where we are |
 |---|---|---|---|---|
 | **weighted** | dishes whose menu **prints a gram weight** ("Ribeye 300gr") | ~33% of real items | **/96** | **6–9 failed ≈ 82–94%** — genuinely good |
-| **unweighted** | dishes printing **no weight** at all | **~67% of real items** | **/108** | **67/108 = 62%** — the unfinished half |
+| **unweighted** | dishes printing **no weight** at all | **~67% of real items** | **/252** (widened from /108, eval 167, 2026-08-22) | **`dual` 139/252 ≈ 55%** — the unfinished half. A "/108" or "62%" figure predates the widening. |
 
 **The unweighted half is the whole problem.** It is most of a real menu and it is the weaker number.
 
@@ -185,7 +197,7 @@ it. Every arm tried since has scored **worse than what already runs**:
 | Arm A (plate total), re-run 2026-08-21 | **36/108 vs the shipped 67/108** |
 | ORDER / ORDER-nopush / PIECE (what the gram field asks) | **61 / 65 / 60 vs 67** — better mass, worse recipe |
 | NOPUSH (delete pass 2's whole addendum) | **57/108 vs 67** — rejected |
-| **NOBOOST (delete only the addendum's PUSH half)** | **70–72 vs 64–67**, but eval 164: **all of it is TACO PORCO**, −2.5 over the other 8 dishes, CI includes zero |
+| **NOBOOST (delete only the addendum's PUSH half)** | **70–72 vs 64–67** on 9 dishes; **149–150 vs 131–139 /252** on 21 (eval 167). Eval 164's *"all of it is TACO PORCO"* is **RETRACTED**. Eval 168: it is a **SMALL-PLATE mechanism** — +0.74/dish under 250 g, −0.15/dish at or above. CI still includes zero |
 | ROLE (an inert role enum before the gram field) | **58 vs NOBOOST's 70–72** — rejected, eval 163 |
 | MASSCALL (plate total from its own separate call) | **50 vs NOBOOST's 70–72** — rejected, eval 163 |
 
@@ -335,27 +347,73 @@ that existed before that day the gap is **+11**, matching the +11/+12 measured e
 The headline fell to +7 because the two NEW dishes contribute **−4**, all of it BROWNIE (baseline 12,
 dual 8). **That is dual genuinely losing a dessert, not a ruler that stopped discriminating.**
 
-### ⛔ THE NEXT ACTION (2026-08-22) — THE 12 RULINGS ARE DONE. FOUR $0 STEPS REMAIN.
+### ✅ THE ORACLE WIDENING IS DONE (2026-08-22, eval 167) — THE ORACLE IS NOW 21 DISHES
 
-**Santiago ruled all 12 new oracle dishes on 2026-08-22.** They are recorded in
-`docs/superpowers/specs/2026-08-22-oracle-widening-rulings.md`, with the design in
-`2026-08-22-oracle-widening-design.md`. **Read the rulings doc before touching the oracle** — it
-carries the per-ingredient grams, the FDC records, the open decisions and the verification gate.
+**All four $0 steps from the 2026-08-22 rulings are complete.** Full detail, the two decisions
+Santiago ruled, and the FDC-verification findings are in eval 167 of
+`docs/superpowers/extraction-iteration-ledger.md`. The rulings themselves are still in
+`docs/superpowers/specs/2026-08-22-oracle-widening-rulings.md` for the per-ingredient grams and FDC
+citations; `scripts/fixtures/unweighted-oracle.json` now holds all 21 dishes as scoring data.
 
-**Nothing below needs a model call.** In order:
+**The gate passed on all 7 archives** — the pre-existing 9 dishes score IDENTICALLY on the widened
+oracle as they did before it (`dual` 67, `dual@r2` 64, `NOBOOST` 70, `NOBOOST@r2` 72, `ROLE` 58,
+`MASSCALL` 50, `NOPUSH` 57 — all exact matches). The harness derives its dish/menu list from the
+oracle itself, so this was a real test.
 
-| # | step | why |
+🔑 **THE QUESTION THIS PHASE WAS STUCK ON HAS AN ANSWER: NOBOOST's advantage is broader than one
+dish, but still not statistically resolved.** On the widened 21-dish oracle (/252): `dual` 139/131,
+`NOBOOST` 149/150 — observed gap **+14.5** (was +5.5 on 9 dishes). 95% CI **−5.5 to +37.5** (still
+includes zero) but NOBOOST now leads in **90.5%** of resamples (was 69.7%), and — the part that
+reverses eval 164 — **leave-one-dish-out no longer flips the sign**: remove TACO PORCO and the
+effect is still **+6.5**, not −2.5. The gain is now spread across TACO EL CAPRICHO, OMELETTE LAMERA
+and ALFREDO PORTOBELLO rather than riding on TACO PORCO alone. **Not yet a confirmed improvement —
+the CI still includes zero — but "it's all one dish" is retracted.**
+
+### 🔴 EVAL 168 SUPERSEDES THAT NEXT ACTION — READ THIS INSTEAD (2026-08-22, $0)
+
+Three $0 findings. Full detail in eval 168 of the ledger; the approved plan is
+`docs/superpowers/specs/2026-08-22-oracle-widening-round-2-design.md`.
+
+🔑 **① NOBOOST IS A SMALL-PLATE MECHANISM, NOT AN IMPROVEMENT.** Sort the 21 dishes by ruled plate
+mass against NOBOOST's per-dish advantage and the win is entirely on the small ones:
+
+| slice | plates <250 g | plates ≥250 g |
 |---|---|---|
-| 1 | verify every FDC record | some are marked `needs record`; and FDC 2710796, cited by the EXISTING OMELETTE CUBANA entry, returns 404 |
-| 2 | write the 12 entries into `scripts/fixtures/unweighted-oracle.json` | they are markdown on purpose so no harness reads a pending ruling as scoring data |
-| 3 | **re-score all 7 archive sets on 21 dishes — $0** | all 12 dishes are already inside every archive, so `dual` ×2, `NOBOOST` ×2, `ROLE`, `MASSCALL`, `NOPUSH` get re-judged for free |
-| 4 | re-measure the noise band | `sim-arm-significance.ts dual+dual@r2 NOBOOST+NOBOOST@r2` |
+| all 21 dishes | n=9, **+0.74**/dish | n=12, **−0.15**/dish |
+| drop both tacos | n=7, **+0.29** | n=12, **−0.15** |
+| drop CAPRICCIOSA | n=9, **+0.74** | n=11, **−0.08** |
+| drop the 4 most influential dishes | n=7, **+0.29** | n=10, **0.00** |
 
-⚠️ **GATE on step 3: the existing 9 dishes must score IDENTICALLY before and after.** If they
-move, the harness changed and not just the oracle — the bug class this project has hit twice.
+r = **−0.67** over 21 dishes, −0.25 under the harshest trim — so *"size predicts the gain"* is
+suggestive, **but "big plates never gain" survives every trim.** TACO PORCO (~120 g) **+2.67/4**;
+CAPRICCIOSA (~425 g) **−1.00/4**. **This is the evals 160–163 screening test firing on the one arm
+that looked like a win:** NOBOOST deletes the clause that pushes grams UP, and eval 162 measured size
+error running 0.65–1.30 in BOTH directions. ⚠️ This does **not** retract eval 167 — the +14.5, the
+90.8% and the leave-one-out robustness are all still true *of this dish set*. What is new is **why**.
 
-🔑 **Step 3 answers the question the phase is stuck on: does `NOBOOST`'s advantage survive a
-wider dish set, or was it one dish (TACO PORCO) all along?**
+☠️ **② A PAID REPEAT RUN AT 21 DISHES CANNOT RESOLVE NOBOOST — NOT EVEN INFINITELY MANY.** The sim
+bootstraps DISHES, so draws barely matter. Measured: 3 draws → half-width 23.5 / 25.0; 6 draws
+pooled → **21.75**, a 10% reduction where pure noise predicts 29%. Fitted: ≈61% real between-dish
+heterogeneity. A 3rd run → ≈20.9; **infinite runs → ≈18.9, still bigger than the +14.5 effect.**
+
+🟢 **③ 47 MORE DISHES ARE ALREADY PAID FOR.** `bench-unweighted.ts` sends each oracle dish's whole
+10-item batch, so **68 items sit in all 12 `dual`/`NOBOOST` archives — 21 ruled, 47 not.** All eight
+current arms cover exactly the same 68, so a widening re-scores the whole arm history for $0.
+**The widening route is FREE in API; the only cost is Santiago's ruling time.**
+
+⛔ **NEXT ACTION: execute the approved round-2 spec** — widen the oracle 21 → **65 dishes** (44 new;
+**52** if every name-only dish is retired). Three piles: 10 pizza-group + 3 exceptions (one class
+ruling + a table), 7 roll-group (ditto), 24 one-offs ruled individually. **No API spend, no further
+approval needed.** ⚠️ 13 of the 44 are NAME-ONLY and the precedent is against them — all 21 ruled
+dishes carry a description, and the only name-only dish ever considered (COLIFLOR ROKA) was retired
+at eval 156 as *"unanswerable rather than badly answered"*. Both outcomes still resolve the question
+(±4.9% at 65 dishes, ±5.5% at 52, against NOBOOST's 5.75%).
+
+🔒 **PRE-REGISTERED, DO NOT QUIETLY REVISE:** the prediction is that **+14.5 shrinks toward zero**
+(13 of the 44 are 28 cm pizzas, all in the bucket where NOBOOST never gains); no early stop; the
+250 g line is now an out-of-sample test; report a pizza-excluded sensitivity row. **Deploy rule
+agreed in advance: if NOBOOST is positive overall but still negative on plates ≥250 g, IT DOES NOT
+SHIP** — it becomes the evidence for an arm that pushes small plates down AND big plates up.
 
 ### 🔑 FOUND WHILE RULING, AND IT MAY OUTRANK EVERY ARM: THE MENU PRINTS SIZES WE DISCARD
 

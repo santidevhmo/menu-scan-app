@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7RPWG8LxBVdXzyr34Mlq0Qw2Z7F",
+  "object": "chat.completion",
+  "created": 1787510559,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"5 FORMAGGI\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"CAPRICCIOSA\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"FLAMENKUCHEN\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"QUESO AZUL\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"4 STAGIONI\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"ITALIANA\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"HAWAIANA\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"CAPRESE\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"ALFREDO PORTOBELLO\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"MEXICANA\",\"dish_form\":\"pizza_whole_thin\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 775,
+    "completion_tokens": 170,
+    "total_tokens": 945,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

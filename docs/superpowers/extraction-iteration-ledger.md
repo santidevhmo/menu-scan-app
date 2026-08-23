@@ -3920,3 +3920,87 @@ means **a dish-form mechanism cannot be justified by "the model lacks context"**
   annotation). The dish-FORM design is presented and awaiting his choice between (1) model names the
   form + WE own the gram table, and (2) model names the form AND that form's typical grams. ②
   removed one of my arguments for it; the ceiling (+97 to +164) is untouched.
+
+## Eval 175 — 🟢 THE DISH-FORM MECHANISM WORKS AND THE CLASSIFIER IS FREE: model labels match hand labels **57/57**, so the arm lands exactly on the $0 ceiling at **469/684 (+117, +97 without pizzas)** — better than `HYBRID`'s +53. ☠️ And approach 2 is REJECTED with a finding that explains this whole phase: asked what a pizza weighs IN GENERAL, the model says **300 g** (2026-08-23, ~$0.10)
+
+- Date: 2026-08-23 | Change: `scripts/dish-forms.ts` (table + shared scorer),
+  `scripts/sim-form-table.ts` (the $0 ceiling, eval 174), `scripts/probe-dish-form.ts` (this probe),
+  `scripts/preflight-dish-form.ts`. **Production UNCHANGED: edge fn `analyze-menu` v32.**
+- Archives: `dishform.{label,grams}.<menu>-d{0,1}-b<n>.raw.json`. `--replay` re-scores at $0.
+- Santiago's own proposal, and the direction he named before any of this was measured.
+
+### ① BOTH APPROACHES, SIDE BY SIDE
+
+| | all 57 | without pizzas | vs control |
+|---|---|---|---|
+| `dual` (shipped v32) | 352/684 | 240/504 | — |
+| **① model picks a form from an ENUM, WE supply the grams** | **469/684 (69%)** | **337/504** | **+117 / +97** |
+| ② model supplies the form AND its grams | 334/684 | 290/504 | **−18** / +50 |
+| the $0 ceiling with hand labels (eval 174) | 469/684 | 337/504 | +117 / +97 |
+
+🔑 **APPROACH 1 IS EXACTLY ON ITS CEILING. Automating the label cost +0 points, because the model
+agreed with all 57 hand labels and gave the SAME label on both draws (57/57, 100%).** So the
+classifier is not the bottleneck and never was — which is the opposite of what I expected to find.
+🔑 **`HYBRID`'s measured gain is +53 (eval 173, 4 runs). This is +97 on the honest metric, and the
+pizza-dropped comparison is the fair one because both numbers use the same 42 dishes.**
+
+### ② ☠️ WHY APPROACH 2 LOST, AND IT IS THE MOST USEFUL THING IN THIS ENTRY
+
+Approach 2 was built to be the *better* design: nothing hardcoded, ships on any menu on earth. It
+obeyed the instruction cleanly — 20 distinct forms for 57 dishes, **0 cases of the same form getting
+different grams**, 96% stable across draws. The mechanism worked. **The numbers were wrong, and wrong
+in ONE DIRECTION:**
+
+| | model's own grams | our table |
+|---|---|---|
+| inside the ruled mass band | **17/57** | **48/57** |
+| too LOW | **33/57** | — |
+| too HIGH | 7/57 | — |
+
+| what it was asked | what it answered | ruled |
+|---|---|---|
+| a thin crust pizza, in general | **300 g** (all 15) | 400–450 |
+| a maki roll order, in general | **200 g** | 290–400 |
+| `ENSALADA BALI` / `BISTRO` / `DE LA SEMANA` | **"side salad", 150 g** | 275–450 |
+
+🔑 **THE MASS COMPRESSION IS IN THE MODEL'S GENERAL KNOWLEDGE OF SERVING SIZES, NOT IN ITS READING OF
+A DISH.** Eval 171 measured `model_mass = 0.634 × true_mass + 89`. This probe never showed the model a
+plate to size — it asked what the CATEGORY weighs — and the same downward bias appeared. **That is why
+Arm A (36/108), MASSCALL (50/108) and now approach 2 all lost: they are all the same question, and the
+model's prior for "how much food is a serving" is simply low.** No prompt reaches it, because it is not
+a reasoning error about this dish.
+🔑 **Corollary — this is the mechanical case for owning the table**, and it replaces the stability
+argument that eval 173 ② falsified. Not "a form is stable" but: **the grams are the one thing the model
+is reliably biased about, so the grams are the one thing we must not ask it for.**
+- 🪤 Approach 2 also got the *label* wrong where approach 1 did not: it called three entree salads
+  "side salad". **The enum did double duty** — by forcing a choice between `salad_entree` and
+  `salad_side` it prevented an error free text allowed.
+
+### ③ ⚠️ THE REAL OPEN RISK IS TAXONOMY COVERAGE, NOT CLASSIFICATION
+
+**57/57 agreement is a weaker result than it looks, and the reason is mine: the 20-row taxonomy was
+written BY ME, FROM these 57 dishes.** `biscuit_order_of_two_fruit`, `eggs_on_masa_base` and
+`taco_single_loaded` exist because these five menus contain them. Every dish therefore had a
+well-fitting row available, which is precisely what a real menu will not have.
+- The fallback is already correct-by-construction: `other` returns **null**, not 250 g, so an
+  unrecognised dish is left alone rather than mis-sized. A menu the taxonomy does not cover degrades
+  to today's score, it does not go backwards.
+- ☠️ **So the honest claim is: "on menus this taxonomy covers, the classifier is free." Coverage on an
+  UNSEEN menu is unmeasured.** Do not quote +97 as a worldwide figure.
+- **The cheap next test:** run the same enum over a menu with no oracle rulings (`polloteria`, and the
+  other archived menus) and measure only the **`other` rate**. It cannot be scored, but it answers the
+  one question that matters for shipping — how often does a real menu fall outside the table? ~$0.05.
+
+### ④ WHAT IS STILL TRUE ABOUT NON-DETERMINISM
+
+Eval 173 ② found the score wobble is general model drift, not any threshold. This probe adds the other
+half: **the LABEL is perfectly stable (57/57 on both draws) while the macros underneath it still
+drift.** Both hold at once — a form is a stable thing to ask for, and asking for it does not make the
+ingredient list stable. **A form mechanism fixes MASS. It does not fix the 38-of-57 rescan problem.**
+
+- **Spend: ~$0.10** (2 modes × 2 draws × 57 items, labels only). Phase total ≈ $45.3.
+- **NEXT:** approach 1 is the design; approach 2 is rejected and its rejection is *mechanistic*, not
+  statistical. Before it can be called an arm it needs (a) the coverage test in ③, and (b) a real
+  `bench-unweighted.ts` arm so it is measured end-to-end at the 4-run bar like `HYBRID`, rather than by
+  rescaling `dual` archives. It also composes with `HYBRID` rather than competing: `HYBRID` routes,
+  this sizes. **Untested together.**

@@ -118,19 +118,35 @@ grep for the user's sentence before letting a rule block work.** Consequences: `
 **unresolved** (+41.5, CI −1.5 to +87.5, includes zero), *not* rejected — though `HYBRID`'s 415 beats
 its 396, so it is superseded on arithmetic anyway; and nothing blocks `HYBRID(300)`.
 
-🎯 **THE NEXT LEVER, AND IT IS SANTIAGO'S OWN (2026-08-22): CLASSIFY THE DISH FORM, THEN SIZE IT FROM
-THAT FORM'S AVERAGE.** ☠️ ~~A form is stable where a gram threshold is not~~ — **FALSIFIED, eval
-173 ②: the wobble is general model drift, not the threshold (near-line dishes swing 1.32 pts vs 1.54
-for the rest, r = −0.147). Argue this on the CEILING, never on stability.** $0 evidence over the 57 ruled
-dishes: a form→average table puts mass in band on **40/57 (70%)** — **26/43 (60%)** excluding the
-circular 14-pizza row — against the shipped model's **18/57 (32%)**. And mass is the big prize:
-`sim-mass-ceiling.ts` reads **449/684 clamped into band, 516/684 at band midpoint** vs today's 352,
-so mass alone is worth **+97 to +164**, two to three times `HYBRID`'s measured **+53** (4-run mean). ⚠️ That table was built
-FROM the oracle — it proves form predicts mass, not that the table can be built without the answer
-key (FNDDS is the real source, and real work). ☠️ `taco` scores 1/4, so the form must be finer than
-the word; the 3/11 catch-all makes a fallback mandatory. 🔑 **This is NOT `MASSCALL`/`Arm A` again —
-those asked the model for a GRAM NUMBER (50/108 and 36/108). This asks for a CATEGORY and supplies
-the grams ourselves**, which is the distinction the scoreboard already rewards.
+🟢 **MEASURED AND IT IS THE BEST THING THIS PHASE HAS PRODUCED (evals 174-175) — SANTIAGO'S OWN
+IDEA: CLASSIFY THE DISH FORM, THEN SIZE IT FROM THAT FORM'S AVERAGE.** The model picks a form from a
+fixed ENUM and **we** supply the grams from `FORM_G` in `scripts/dish-forms.ts`; our code rescales.
+
+| | all 57 | without pizzas |
+|---|---|---|
+| `dual` (shipped v32) | 352/684 | 240/504 |
+| **form enum + our table** | **469/684 (69%)** | **337/504 (+97)** |
+| model supplies the grams instead | 334/684 (−18) | 290/504 (+50) |
+
+🔑 **The classifier is FREE: model labels matched all 57 hand labels and were identical on both draws,
+so the arm lands EXACTLY on its $0 ceiling (+0).** +97 on the honest metric against `HYBRID`'s +53.
+☠️ **ASKING THE MODEL FOR THE GRAMS IS REJECTED, MECHANISTICALLY: asked what a thin-crust pizza weighs
+IN GENERAL it says 300 g (ruled 400-450); a maki order 200 g (ruled 290-400); it calls three entree
+salads "side salad" at 150 g. Its grams land in band 17/57 against our table's 48/57, and it is too LOW
+on 33/57.** The mass compression of eval 171 lives in the model's PRIOR about serving sizes, not in its
+reading of a plate - which is why Arm A (36/108), MASSCALL (50/108) and this all failed the same way.
+**The grams are the one thing the model is reliably biased about, so they are the one thing we must not
+ask it for.** This replaces the stability argument eval 173 ② killed.
+⚠️ **THE OPEN RISK IS TAXONOMY COVERAGE, NOT CLASSIFICATION.** The 20-row table was written from these
+57 dishes, so every dish had a fitting row - a real menu will not. `other` returns **null**, so an
+unknown dish is left alone rather than mis-sized (a new menu degrades to today's score, it cannot go
+backwards). **Do not quote +97 as a worldwide figure.** Cheap next test: run the enum over `polloteria`
+and the other unruled archives and measure only the `other` rate, ~$0.05.
+⚠️ Still a rescale of `dual` archives, NOT an end-to-end arm. Before it can ship it needs a real
+`bench-unweighted.ts` arm at the 4-run bar, like `HYBRID` got. **It COMPOSES with `HYBRID` rather than
+competing - `HYBRID` routes, this sizes - and they are untested together.**
+🪤 A form mechanism fixes MASS only. The LABEL is perfectly stable (57/57 twice) while the macros under
+it still drift, so this does NOT touch the 38-of-57 rescan problem.
 
 See evals 171–172 for every derivation.
 

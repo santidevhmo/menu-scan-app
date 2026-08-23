@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7SDsbXiB6GXVWvjRnCFA548qtbO",
+  "object": "chat.completion",
+  "created": 1787510609,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"Salmón Roll\",\"dish_form\":\"maki roll order\",\"form_typical_g\":200},{\"name\":\"Duplex\",\"dish_form\":\"maki roll order\",\"form_typical_g\":200},{\"name\":\"Ipanema Roll\",\"dish_form\":\"maki roll order\",\"form_typical_g\":200},{\"name\":\"Fildeflex\",\"dish_form\":\"maki roll order\",\"form_typical_g\":200},{\"name\":\"Vegan Roll\",\"dish_form\":\"maki roll order\",\"form_typical_g\":200},{\"name\":\"Spicy Tuna Roll\",\"dish_form\":\"maki roll order\",\"form_typical_g\":200},{\"name\":\"Avocado\",\"dish_form\":\"maki roll order\",\"form_typical_g\":200},{\"name\":\"Tuna Especial\",\"dish_form\":\"maki roll order\",\"form_typical_g\":200},{\"name\":\"Nikkori Maki\",\"dish_form\":\"maki roll order\",\"form_typical_g\":200},{\"name\":\"Salmón Samba\",\"dish_form\":\"maki roll order\",\"form_typical_g\":200}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 777,
+    "completion_tokens": 219,
+    "total_tokens": 996,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_684acb85fd"
+}

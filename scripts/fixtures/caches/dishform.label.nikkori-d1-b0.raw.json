@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7RfZb1tOyOilK9kbTkFL8dNgNgT",
+  "object": "chat.completion",
+  "created": 1787510575,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"Salmón Roll\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Duplex\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Ipanema Roll\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Fildeflex\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Vegan Roll\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Spicy Tuna Roll\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Avocado\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Tuna Especial\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Nikkori Maki\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Salmón Samba\",\"dish_form\":\"sushi_roll_order\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 824,
+    "completion_tokens": 149,
+    "total_tokens": 973,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

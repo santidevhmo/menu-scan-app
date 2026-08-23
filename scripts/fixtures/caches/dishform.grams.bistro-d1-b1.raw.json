@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7S5580YQrKVGMxSlKQWZLhlduO5",
+  "object": "chat.completion",
+  "created": 1787510601,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"VEGETARIANA\",\"dish_form\":\"thin crust pizza\",\"form_typical_g\":300},{\"name\":\"OSTRICA\",\"dish_form\":\"thin crust pizza\",\"form_typical_g\":300},{\"name\":\"MARGARITA\",\"dish_form\":\"thin crust pizza\",\"form_typical_g\":300},{\"name\":\"JAMÓN CON CHAMPIÑONES\",\"dish_form\":\"thin crust pizza\",\"form_typical_g\":300},{\"name\":\"PEPPERONI\",\"dish_form\":\"thin crust pizza\",\"form_typical_g\":300},{\"name\":\"ENSALADA GRIEGA\",\"dish_form\":\"side salad\",\"form_typical_g\":150},{\"name\":\"ENSALADA BISTRO\",\"dish_form\":\"side salad\",\"form_typical_g\":150},{\"name\":\"ENSALADA BALI\",\"dish_form\":\"side salad\",\"form_typical_g\":150},{\"name\":\"ENSALADA DE LA SEMANA\",\"dish_form\":\"side salad\",\"form_typical_g\":150},{\"name\":\"CARBONARA\",\"dish_form\":\"pasta dish\",\"form_typical_g\":400}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 778,
+    "completion_tokens": 222,
+    "total_tokens": 1000,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_684acb85fd"
+}

@@ -80,18 +80,38 @@ The benchmark is split because the product is split.
 **Production is edge function `analyze-menu` v32, deployed 2026-08-19.** Everything since has been
 measurement and failed experiments. **Nothing DEPLOYED has beaten v32.**
 
-🟢 **EVAL 173: `HYBRID(300)` HAS CLEARED THE 4-RUN BAR — 394/408/410/419 against `dual`'s 352/357.
-THE RANGES DO NOT OVERLAP; its WORST run is +37 over `dual`'s BEST.** Route each dish to `NOBOOST`'s
-sizing when `NOBOOST`'s OWN plate mass is under 300 g, else re-ask the shipped question. Mean 407.8
-(sd 10.3) vs 354.5, i.e. **+53**. Eval 172's single run also passed the repo's significance script
-(+56.0, 95% CI +7.0 to +113.0, excludes zero; **+63.0 with the 14 pizzas dropped**, so it does not
-ride the correlated cluster) — but **the disjoint ranges are the stronger claim**, since that CI came
-within 7 points of zero. **The first arm this phase that is better than what ships.**
-⚠️ `dual` has only 2 runs; overlapping would need a `dual` run of 395+, i.e. +38 over its own best
-against the 5-point spread its two runs show. Arm is `HYBRID` in `bench-unweighted.ts`; 60 archives
-exist (`--run r2/r3/r4`), so every figure re-derives at $0.
-⚠️ **38 of 57 dishes do not score identically run to run, so a user rescanning one menu can get a
-different answer.** True of `dual` too and unaddressed by every arm so far — its own open problem.
+🟢 **EVAL 176: `FORM` IS THE BEST ARM AND THE FIRST TO WIN ON BOTH RULERS.** The model picks a dish
+FORM from a fixed enum and **we** supply the grams from `FORM_G` (`scripts/arm-dish-form.ts`); our code
+rescales the plate. Santiago's own idea.
+
+| arm | runs × 3 draws | range | mean |
+|---|---|---|---|
+| `dual` (shipped v32) | 352, 357 *(2 runs)* | 352–357 | 354.5 |
+| `HYBRID(300)` | 394, 408, 410, 419 | 394–419 | 407.8 |
+| 🟢 **`FORM`** | **434, 436, 442, 453** | **434–453** | **441.2** |
+| `COMBO` (`HYBRID`+`FORM`) | 449, 455, 463, 470 | 449–470 | 459.2 |
+
+🔑 **THREE DISJOINT RANGES. `FORM`'s worst run beats `HYBRID`'s best by +15 and `dual`'s best by +77.**
+Pooled over all runs, `dual` vs `FORM` is **+86.8, 95% CI +30.7 to +142.8, ahead in 99.9%**, and the
+log-ratio metric ALSO excludes zero (−0.0607, CI −0.1005 to −0.0216) — **every previous winner,
+`HYBRID` included, straddled zero on that second ruler.** Deploying is Santiago's call.
+🟢 **THE MECHANISM IS VERIFIED BY AN INVARIANT, NOT A DIFF:** a dish sized as `pizza_whole_thin` must
+resolve to exactly 425 g, checkable inside ONE archive, so drift cannot fake it.
+`verify-form-fired.ts` reads **171/171 EXACT** on `FORM` r1 and `COMBO` r1/r4, 170/171 elsewhere.
+☠️ **`COMBO` IS NOT ESTABLISHED AND MUST NOT SHIP: pooled over 4 runs it is +18.0, CI −7.7 to +43.5,
+INCLUDES ZERO** (92% of resamples). The +34 with a clean CI that eval 176 first reported came from
+`sim-arm-significance.ts` silently defaulting to run 1, which is `COMBO`'s BEST and `FORM`'s
+second-WORST. 🪤 **A paired test is only as fair as the runs it paired — always pool with
+`arm+arm@r2+arm@r3+arm@r4`.** A third model call for an unproven +18 is not a trade worth making.
+⚠️ **COVERAGE IS THE LIMIT, NOT CLASSIFICATION.** Over the 5 archived menus that never contributed a
+ruled dish, the table sizes **33% of real candidates (122, 82 with no row)** against **82% on the menus
+it was built from**. `other` returns null so an unsized dish keeps today's answer and nothing goes
+backwards — but **+87 IS NOT A WORLDWIDE FIGURE.** The gaps are ordinary forms (grilled vegetables, raw
+seafood, cake, hot cakes, tostadas), so **the taxonomy is small, not wrong: the fix is more rows.**
+⚠️ **FIXING MASS PROMOTES THE NOISE.** `dual` moves 5 points between runs; with mass corrected the same
+composition variance is worth ~20, and the $0 sim's 469 prediction measured 434–453. **This RAISES the
+priority of the 38-of-57 rescan problem** — a user rescanning one menu still gets different macros, and
+no arm has ever addressed it.
 
 🔴 **BUT READ ③ OF EVAL 172 BEFORE BUILDING ON IT: THE MODEL IS NOT DETERMINISTIC, AND A GRAM
 THRESHOLD IS THE WEAKEST POSSIBLE HINGE.** Two runs of an IDENTICAL arm differ on **45% (`dual`) to

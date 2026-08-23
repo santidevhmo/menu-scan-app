@@ -4004,3 +4004,114 @@ ingredient list stable. **A form mechanism fixes MASS. It does not fix the 38-of
   `bench-unweighted.ts` arm so it is measured end-to-end at the 4-run bar like `HYBRID`, rather than by
   rescaling `dual` archives. It also composes with `HYBRID` rather than competing: `HYBRID` routes,
   this sizes. **Untested together.**
+
+## Eval 176 — 🟢 `FORM` IS THE ARM: 434/436/442/453 over 4 runs against `dual`'s 352/357 and `HYBRID`'s 394-419, all three ranges DISJOINT. **+86.8, CI +30.7 to +142.8, and the FIRST result this phase where the log-ratio metric ALSO excludes zero.** ☠️ And `COMBO` is NOT established over `FORM`: the +34 I reported from run 1 collapses to **+18 with a CI that includes zero** once all four runs are paired (2026-08-23, ~$8)
+
+- Date: 2026-08-23 | Change: `scripts/arm-dish-form.ts` (`armForm`, `labelForms`, `applyFormMass`,
+  `FORM_G`), `armCombo` in `probe-plate-arms.ts`, `FORM`/`COMBO` wired into `bench-unweighted.ts`,
+  `scripts/verify-form-fired.ts`, `scripts/probe-form-coverage.ts`,
+  `scripts/sim-form-coverage-split.ts`. **Production UNCHANGED: edge fn `analyze-menu` v32.**
+- 120 archives (`unweighted.{FORM,COMBO}-f{,-r2,-r3,-r4}.<menu>-d{0,1,2}`). Everything re-derives at $0.
+
+### ① FOUR ARMS AT THE 4-RUN BAR
+
+| arm | runs × 3 draws | range | mean | sd |
+|---|---|---|---|---|
+| `dual` (shipped v32) | 352, 357 *(2 runs)* | 352–357 | 354.5 | 3.5 |
+| `HYBRID(300)` | 394, 408, 410, 419 | 394–419 | 407.8 | 10.3 |
+| 🟢 **`FORM`** | **434, 436, 442, 453** | **434–453** | **441.2** | 8.5 |
+| `COMBO` (`HYBRID`+`FORM`) | 449, 455, 463, 470 | 449–470 | 459.2 | 9.2 |
+
+🔑 **`FORM`'s WORST run beats `HYBRID`'s BEST by +15 and `dual`'s best by +77. Three disjoint ranges.**
+Pooling all runs, `dual` vs `FORM`: **+86.8, 95% CI +30.7 to +142.8, ahead in 99.9%**, and — new for
+this phase — **the log-ratio metric ALSO excludes zero (−0.0607, CI −0.1005 to −0.0216)**. Every
+previous winner, `HYBRID` included, had a log-ratio CI straddling zero. This is the first arm that is
+better on both rulers at once.
+
+### ② ☠️ MY OWN RUN-1 REPORT OF `COMBO` WAS AN ARTIFACT OF WHICH RUNS GOT PAIRED
+
+I reported `COMBO` at 470 against `FORM` at 436 and called +34 "the best result of the phase". The
+paired test on those archives agreed: +34.0, CI +4.0 to +64.0, excludes zero. **Both numbers are real
+and the conclusion drawn from them was wrong.** `sim-arm-significance.ts` reads the DEFAULT archives
+unless told otherwise, and by chance **run 1 is `COMBO`'s BEST (470 of 449–470) and `FORM`'s
+second-WORST (436 of 434–453)**. Pooling all four runs of each:
+
+| `FORM` vs `COMBO` | pooled, 4 runs each |
+|---|---|
+| observed | **+18.0** (441 vs 459) |
+| 95% CI | **−7.7 to +43.5 — INCLUDES ZERO** |
+| ahead in | 92.0% of resamples |
+
+🔑 **`COMBO` IS NOT ESTABLISHED OVER `FORM`.** Its mean is higher in all four runs and 92% is
+suggestive, but the ranges overlap (449–470 vs 434–453) and the CI crosses zero. **It costs a THIRD
+model call per scan for an unproven +18.** `FORM` is the arm.
+🪤 **THE LESSON, and it is the same shape as eval 172's: a paired test is only as fair as the runs it
+paired.** `sim-arm-significance.ts` silently defaults to run 1, so comparing two arms whose run-1
+happened to fall at opposite ends of their ranges manufactured a clean CI out of noise. **Always pool
+with `arm+arm@r2+arm@r3+arm@r4` when the runs exist** — the syntax was already there and I did not use
+it at first.
+
+### ③ THE COMPOSITION CLAIM — WEAKENED, NOT WITHDRAWN
+
+`verify-form-fired.ts` proves `FORM` and `COMBO` give all 57 dishes **the same mass**, so any gap
+between them is COMPOSITION (which ingredients, in what proportions), not size. On run 1 that gap was
++34 and I wrote that `HYBRID`'s benefit "partly survives mass correction", i.e. that the routed
+question also improves composition. **With four runs the gap is +18 with a CI including zero, so that
+finding is SUGGESTED, NOT ESTABLISHED.** Direction is consistent (4 of 4 runs, 92%); magnitude is not
+resolvable at 57 dishes. Recorded as a prior for the next brainstorm, not as a fact.
+
+### ④ 🟢 THE MECHANISM IS VERIFIED, AND THE CHECK IS A BETTER KIND THAN EVAL 172's
+
+Form sizing leaves an **invariant inside a single archive**: a dish sized as `pizza_whole_thin` must
+resolve to exactly 425 g. No second run, no drift, nothing to confound.
+
+| | EXACT | OTHERROW | NOFIRE |
+|---|---|---|---|
+| `FORM` r1 | **171/171** | 0 | 0 |
+| `FORM` r2, r4 | 170/171 | **1** | 0 |
+| `COMBO` r1, r4 | **171/171** | 0 | 0 |
+
+🔑 **The mechanism fired on every dish-draw, and the model's LIVE labels matched the 57 hand labels
+essentially everywhere** — confirming eval 175's 57/57 in a completely different way.
+☠️ **The single disagreement is `TACO PORCO`, which is precisely the row whose independence I had
+already declared compromised.** The model says `taco_single` (95 g); I said `taco_single_loaded`
+(130 g) under a rule — "names four-plus fillings" — that I invented after noticing EL CAPRICHO was
+heavier. Its band is 100–140, so my label scores and the model's does not. **The model's reading is at
+least as defensible as mine: "bandiola adobada, betabel, cacahuate, piña y cilantro" is an ordinary
+taco.** Do not log this as a classifier error. It is a warning that the loaded/plain split is the
+weakest row in the table.
+
+### ⑤ ⚠️ COVERAGE — THE ONE THING THAT STOPS +87 BEING A WORLDWIDE NUMBER
+
+Same enum over the five archived menus that have never contributed a ruled dish. Nothing scoreable
+there, so the only output is how much of a real menu the table cannot size. The raw `other` rate (50%
+seen / 60% unseen) OVERSTATES it: `applyFormMass` already skips a dish with a printed weight, and
+drinks are out of scope. Counting only what the mechanism would actually try to size:
+
+| | candidates | no row | **covers** |
+|---|---|---|---|
+| menus the table was built from | 147 | 26 | **82%** |
+| **menus it has never seen** | 122 | 82 | **33%** |
+
+🔑 **Roughly one dish in three on a new menu.** It cannot go backwards — `other` returns null, so an
+unsized dish keeps today's answer — but **+87 must never be quoted as a worldwide figure.**
+🟢 **The uncovered food says the taxonomy is SMALL, not WRONG:** `PARRILLADA VERDURAS`,
+`COLIFLOR AL CHURRASCO`, `TARTAR DE ATÚN`, `COASTAL OYSTERS`, `HAMACHI CRUDO`, `AGUACHILE DE PAPADA`,
+`Red velvet`, `Pastel de zanahoria`, `HOT CAKES`, `TOSTADAS DE ATÚN`, `SALCHI-RIBS`. Every one is an
+ordinary restaurant form with no row. **20 rows is not enough for the world and the fix is more rows** —
+a list-writing job with a measurable target, not a redesign.
+
+### ⑥ FIXING MASS PROMOTES THE NOISE THAT WAS ALREADY THERE
+
+The $0 sim predicted 469 for `FORM`; it measured 434–453. Mass is provably identical in both, so the
+shortfall is composition drift between the archived `dual` answers the sim rescaled and fresh runs.
+⚠️ **`dual`'s own score moves 5 points between runs (352→357), but after mass correction the same
+composition variance is worth ~20.** Correcting mass does not remove noise, it makes noise the binding
+constraint. **This RAISES the priority of the untouched 38-of-57 rescan problem rather than lowering
+it.**
+
+- **Spend: ~$8.15** (8 runs × 5 menus × 3 draws, plus the 485-item coverage probe). Phase total ≈ $53.5.
+- **NEXT:** `FORM` is the arm — better than `dual` on both metrics with disjoint ranges, and better
+  than `HYBRID` on disjoint ranges. Shipping it is Santiago's call. The two things that would make it
+  worth more are ⑤ (more rows, measurable) and ⑥ (composition stability, untouched). `COMBO` should
+  NOT ship on ② and does not need re-running until `FORM` is settled.

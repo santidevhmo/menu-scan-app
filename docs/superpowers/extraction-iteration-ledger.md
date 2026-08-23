@@ -3303,7 +3303,7 @@ The widening broke nothing.
 | 95% CI | −5.5 to +37.5 | **−1.5 to +87.5** |
 | includes zero? | yes | **yes — still not resolved** |
 | NOBOOST ahead in resamples | 90.5–90.8% | **97.1%** |
-| leave-one-out | survives (was the eval-164 flip point) | robust — dropping the 3 largest new movers (both new tacos, TOSTA BRASIL) moves the estimate by ≤1 point either way |
+| leave-one-out | survives (was the eval-164 flip point) | robust — the worst single-dish removal (any of the 3 largest new movers: both new tacos, TOSTA BRASIL) takes it from +41.5/684 to +32.0/672 — still clearly positive; the sign never flips (contrast eval 164, where removing TACO PORCO flipped +6.5 to -2.5) |
 
 **The pre-registered prediction — "the +14.5 shrinks toward zero" — is FALSE.** As a fraction of the
 scale, the gap did not shrink; it held essentially flat (5.75% → 6.07%) while the confidence around

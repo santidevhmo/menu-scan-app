@@ -287,7 +287,11 @@ const DRAFTS: Draft[] = [
     menu: "bistro",
     mass_band_g: [400, 450],
     // FDC 2708615, RESTAURANT thin crust, CHEESE topping class.
-    composition: { protein_per_100g: 11.39, carb_per_100g: 33.33, fat_per_100g: 9.69 },
+    composition: {
+      protein_per_100g: 11.39,
+      carb_per_100g: 33.33,
+      fat_per_100g: 9.69,
+    },
     assumed:
       '"Queso mozzarella, chihuahua, azul, feta y cabra." Class ruling: 28 cm thin-crust Bistro ' +
       "pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION " +
@@ -301,7 +305,11 @@ const DRAFTS: Draft[] = [
     mass_band_g: [400, 450],
     // FDC 2708615, RESTAURANT thin crust, CHEESE topping class - venue and crust match
     // CAPRICCIOSA's ruling; only the topping class differs.
-    composition: { protein_per_100g: 11.39, carb_per_100g: 33.33, fat_per_100g: 9.69 },
+    composition: {
+      protein_per_100g: 11.39,
+      carb_per_100g: 33.33,
+      fat_per_100g: 9.69,
+    },
     assumed:
       '"Rebanadas de tomate fresco y albahaca deshidratada." Class ruling: 28 cm thin-crust Bistro ' +
       "pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION " +
@@ -316,7 +324,11 @@ const DRAFTS: Draft[] = [
     mass_band_g: [400, 450],
     // FDC 2708639, the dedicated pepperoni record - NOT the generic "meat" record
     // (2708650), which is literally titled "meat OTHER THAN pepperoni".
-    composition: { protein_per_100g: 11.74, carb_per_100g: 31.98, fat_per_100g: 11.91 },
+    composition: {
+      protein_per_100g: 11.74,
+      carb_per_100g: 31.98,
+      fat_per_100g: 11.91,
+    },
     assumed:
       "Name-only dish. Ruled here rather than in the answerability task (Task 5) because the class " +
       "ruling supplies the portion (28 cm is on the section header, dropped by Stage 1) and the " +
@@ -332,7 +344,11 @@ const DRAFTS: Draft[] = [
     menu: "bistro",
     mass_band_g: [400, 450],
     // FDC 2708650, RESTAURANT thin crust, MEAT topping class (four meats, no vegetable).
-    composition: { protein_per_100g: 11.5, carb_per_100g: 30.6, fat_per_100g: 12.4 },
+    composition: {
+      protein_per_100g: 11.5,
+      carb_per_100g: 30.6,
+      fat_per_100g: 12.4,
+    },
     assumed:
       '"Pepperoni, jamón, tocino y chistorra." Class ruling: 28 cm thin-crust Bistro pizza, ' +
       "[400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER " +
@@ -345,7 +361,11 @@ const DRAFTS: Draft[] = [
     menu: "bistro",
     mass_band_g: [400, 450],
     // FDC 2708650, RESTAURANT thin crust, MEAT topping class.
-    composition: { protein_per_100g: 11.5, carb_per_100g: 30.6, fat_per_100g: 12.4 },
+    composition: {
+      protein_per_100g: 11.5,
+      carb_per_100g: 30.6,
+      fat_per_100g: 12.4,
+    },
     assumed:
       '"Jamón y piña." Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago ' +
       "2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by " +
@@ -361,7 +381,11 @@ const DRAFTS: Draft[] = [
     mass_band_g: [400, 450],
     // FDC 2708663, RESTAURANT thin crust, MEAT+VEGETABLE topping class - CAPRICCIOSA's
     // already-ruled id.
-    composition: { protein_per_100g: 11.55, carb_per_100g: 26.62, fat_per_100g: 9.87 },
+    composition: {
+      protein_per_100g: 11.55,
+      carb_per_100g: 26.62,
+      fat_per_100g: 9.87,
+    },
     assumed:
       '"Pepperoni, cebolla morada, pimiento verde, aceituna negra y champiñones." Class ruling: ' +
       "28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). " +
@@ -376,7 +400,11 @@ const DRAFTS: Draft[] = [
     menu: "bistro",
     mass_band_g: [400, 450],
     // FDC 2708663, RESTAURANT thin crust, MEAT+VEGETABLE topping class.
-    composition: { protein_per_100g: 11.55, carb_per_100g: 26.62, fat_per_100g: 9.87 },
+    composition: {
+      protein_per_100g: 11.55,
+      carb_per_100g: 26.62,
+      fat_per_100g: 9.87,
+    },
     assumed:
       '"Cebolla morada, pimiento verde y chistorra." Class ruling: 28 cm thin-crust Bistro pizza, ' +
       "[400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER " +
@@ -389,7 +417,11 @@ const DRAFTS: Draft[] = [
     menu: "bistro",
     mass_band_g: [400, 450],
     // FDC 2708663, RESTAURANT thin crust, MEAT+VEGETABLE topping class.
-    composition: { protein_per_100g: 11.55, carb_per_100g: 26.62, fat_per_100g: 9.87 },
+    composition: {
+      protein_per_100g: 11.55,
+      carb_per_100g: 26.62,
+      fat_per_100g: 9.87,
+    },
     assumed:
       '"Espinacas, jamón serrano y tomate deshidratado." Class ruling: 28 cm thin-crust Bistro ' +
       "pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION " +
@@ -403,7 +435,11 @@ const DRAFTS: Draft[] = [
     menu: "bistro",
     mass_band_g: [400, 450],
     // FDC 2708663, RESTAURANT thin crust, MEAT+VEGETABLE topping class.
-    composition: { protein_per_100g: 11.55, carb_per_100g: 26.62, fat_per_100g: 9.87 },
+    composition: {
+      protein_per_100g: 11.55,
+      carb_per_100g: 26.62,
+      fat_per_100g: 9.87,
+    },
     assumed:
       "Name-only dish. Ruled here rather than in the answerability task (Task 5) because the class " +
       "ruling supplies the portion (28 cm is on the section header, dropped by Stage 1) and the " +
@@ -417,7 +453,11 @@ const DRAFTS: Draft[] = [
     menu: "bistro",
     mass_band_g: [400, 450],
     // FDC 2708626, RESTAURANT thin crust, VEGETABLE topping class.
-    composition: { protein_per_100g: 9.96, carb_per_100g: 29.86, fat_per_100g: 8.37 },
+    composition: {
+      protein_per_100g: 9.96,
+      carb_per_100g: 29.86,
+      fat_per_100g: 8.37,
+    },
     assumed:
       '"Espinaca, calabaza, champiñón, cebolla morada, pimiento verde y aceituna negra." Class ' +
       "ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from " +
@@ -443,7 +483,11 @@ const DRAFTS: Draft[] = [
     // "spicy" read as a prep style with no separate ingredient) + shrimp ~40 g (FDC 2706449,
     // topped) + avocado ~40 g (FDC 2709223, topped) + eel-sauce glaze ~10 g (FDC 2707442
     // soy sauce, proxy for "salsa anguila" at garnish scale). Totals ~283 g, 24 P / 49 C / 7 F.
-    composition: { protein_per_100g: 8.48, carb_per_100g: 17.31, fat_per_100g: 2.47 },
+    composition: {
+      protein_per_100g: 8.48,
+      carb_per_100g: 17.31,
+      fat_per_100g: 2.47,
+    },
     assumed:
       '"Por dentro: Atún spicy. Por fuera: Camarón y aguacate, bañado en salsa anguila." Rice+nori ' +
       "base per the roll class ruling (2026-08-22), carried from Salmón Roll/Vegan Roll/Nikkori " +
@@ -460,7 +504,11 @@ const DRAFTS: Draft[] = [
     // + salmon ~60 g (FDC 2706286 baked/broiled, the dominant filling) + cream cheese 30 g
     // (FDC 2705760) + cucumber 30 g (FDC 2709784) + sesame ~5 g (FDC 2707586, coating).
     // Totals ~278 g, 23 P / 48 C / 25 F.
-    composition: { protein_per_100g: 8.27, carb_per_100g: 17.27, fat_per_100g: 8.99 },
+    composition: {
+      protein_per_100g: 8.27,
+      carb_per_100g: 17.27,
+      fat_per_100g: 8.99,
+    },
     assumed:
       '"Por dentro: Salmón, queso crema y pepino. Por fuera: Ajonjolí." Rice+nori base per the ' +
       "roll class ruling (2026-08-22). Filled-only (sesame is a coating, not a mass-bearing " +
@@ -480,7 +528,11 @@ const DRAFTS: Draft[] = [
     // + cream cheese 30 g (FDC 2705760, filled) + cucumber 30 g (FDC 2709784, filled) +
     // avocado ~45 g (FDC 2709223, topped - the name-driving ingredient). Totals ~293 g,
     // 13 P / 52 C / 18 F.
-    composition: { protein_per_100g: 4.44, carb_per_100g: 17.75, fat_per_100g: 6.14 },
+    composition: {
+      protein_per_100g: 4.44,
+      carb_per_100g: 17.75,
+      fat_per_100g: 6.14,
+    },
     assumed:
       '"Por dentro: Camarón, queso crema y pepino. Por fuera: Aguacate." Rice+nori base per the ' +
       "roll class ruling (2026-08-22), carried from the same three precedent rolls. At 11 pieces, " +
@@ -496,7 +548,11 @@ const DRAFTS: Draft[] = [
     // filled) + avocado 40 g (FDC 2709223, filled) + tuna ~50 g (FDC 2706308, topped) +
     // masago ~8 g (FDC 175132 fish roe, topped) + mayonnaise ~8 g (FDC 2710204, topped).
     // Totals ~279 g, 21 P / 47 C / 23 F.
-    composition: { protein_per_100g: 7.53, carb_per_100g: 16.85, fat_per_100g: 8.24 },
+    composition: {
+      protein_per_100g: 7.53,
+      carb_per_100g: 16.85,
+      fat_per_100g: 8.24,
+    },
     assumed:
       '"Por dentro: Queso crema y aguacate. Por fuera: Atún con topping de masago y mayonesa." ' +
       "Rice+nori base per the roll class ruling (2026-08-22). At 11 pieces, 25.4 g/piece, 1.91 g " +
@@ -511,7 +567,11 @@ const DRAFTS: Draft[] = [
     // avocado 40 g (FDC 2709223, filled) + salmon ~50 g (FDC 2706286 baked/broiled, topped) +
     // ponzu glaze ~10 g (FDC 2707442 soy sauce, proxy for "salsa spicy ponzu" at garnish
     // scale). Totals ~283 g, 29 P / 46 C / 16 F.
-    composition: { protein_per_100g: 10.25, carb_per_100g: 16.25, fat_per_100g: 5.65 },
+    composition: {
+      protein_per_100g: 10.25,
+      carb_per_100g: 16.25,
+      fat_per_100g: 5.65,
+    },
     assumed:
       '"Por dentro: Atún spicy y aguacate. Por fuera: Salmón bañado con salsa spicy ponzu." ' +
       "Rice+nori base per the roll class ruling (2026-08-22). Names both tuna AND salmon as " +
@@ -531,7 +591,11 @@ const DRAFTS: Draft[] = [
     // cheese 25 g (FDC 2705760, filled) + cucumber 25 g (FDC 2709784, filled) + shrimp 45 g
     // (FDC 2706449, topped) + salmon 45 g (FDC 2706286 baked/broiled, topped). Totals ~343 g,
     // 24 P / 52 C / 37 F.
-    composition: { protein_per_100g: 7.0, carb_per_100g: 15.16, fat_per_100g: 10.79 },
+    composition: {
+      protein_per_100g: 7.0,
+      carb_per_100g: 15.16,
+      fat_per_100g: 10.79,
+    },
     assumed:
       '"Por dentro: Tampico, aguacate, queso crema y pepino. Por fuera: Camarón y salmón." ' +
       "Rice+nori base per the roll class ruling (2026-08-22). Richest of the seven (4 filled + 2 " +
@@ -552,7 +616,11 @@ const DRAFTS: Draft[] = [
     // generic sauce reused at garnish scale for "salsa spicy") + masago ~8 g (FDC 175132 fish
     // roe, topped). Totals ~246 g, 20 P / 45 C / 24 F - the lightest of the seven because all
     // of the stated protein sits in the topping, none in the filling.
-    composition: { protein_per_100g: 8.13, carb_per_100g: 18.29, fat_per_100g: 9.76 },
+    composition: {
+      protein_per_100g: 8.13,
+      carb_per_100g: 18.29,
+      fat_per_100g: 9.76,
+    },
     assumed:
       '"Por dentro: Tampico. Por fuera: Atún picado con salsa spicy y masago." Rice+nori base per ' +
       "the roll class ruling (2026-08-22). The menu names no protein in the filling - only a " +
@@ -570,7 +638,11 @@ const DRAFTS: Draft[] = [
     // FDC 2708682 "White pizza, cheese, with meat and vegetables, thin crust" - a CREAM
     // base, not tomato, so the standard 5-class topping rule does not apply. Bacon = meat,
     // caramelized onion = vegetable, matching this record's own class exactly.
-    composition: { protein_per_100g: 12.07, carb_per_100g: 21.06, fat_per_100g: 15.31 },
+    composition: {
+      protein_per_100g: 12.07,
+      carb_per_100g: 21.06,
+      fat_per_100g: 15.31,
+    },
     assumed:
       '"Base de crema, tocino y cebolla caramelizada." CREAM BASE, not tomato - leaves the ' +
       "standard topping-class rule (Task 2/3) for that reason, same 400-450 g mass band carried " +
@@ -587,7 +659,11 @@ const DRAFTS: Draft[] = [
     // spinach (vegetable). Green apple is a named addition with no dedicated FNDDS
     // fruit-on-pizza record at this venue/crust; treated like HAWAIANA's pineapple -
     // not separately weighed.
-    composition: { protein_per_100g: 12.07, carb_per_100g: 21.06, fat_per_100g: 15.31 },
+    composition: {
+      protein_per_100g: 12.07,
+      carb_per_100g: 21.06,
+      fat_per_100g: 15.31,
+    },
     assumed:
       '"Base de crema, queso azul, espinaca, jamón serrano y laminas de manzana verde." CREAM ' +
       "BASE, not tomato, plus a fruit component - leaves the standard topping-class rule for " +
@@ -607,7 +683,11 @@ const DRAFTS: Draft[] = [
     // is a common Mexican product). No FNDDS pizza-with-seafood record exists at any
     // venue/crust. Dijon mustard (FDC 172234) is a drizzle-scale condiment, not separately
     // weighed. Blend: 0.85*(11.5,30.6,12.4) + 0.15*(7.67,4.25,2.68).
-    composition: { protein_per_100g: 10.93, carb_per_100g: 26.65, fat_per_100g: 10.94 },
+    composition: {
+      protein_per_100g: 10.93,
+      carb_per_100g: 26.65,
+      fat_per_100g: 10.94,
+    },
     assumed:
       '"Ostión ahumado, tocino y mostaza dijón." No cream/tomato base is stated, no vegetable, ' +
       "no cheese named - and no FNDDS pizza-with-seafood record exists at any venue/crust, " +
@@ -630,7 +710,11 @@ const DRAFTS: Draft[] = [
     // cream" - the FNDDS match for "crema de tomate") + 3 g dried chile de árbol (FDC
     // 168570, "un toque" = a touch, flavor-scale only) + 40 g spinach (FDC 2709614) +
     // 25 g feta (FDC 2705714). Totals 398 g, 20.8 P / 78.6 C / 13.9 F.
-    composition: { protein_per_100g: 5.224, carb_per_100g: 19.744, fat_per_100g: 3.487 },
+    composition: {
+      protein_per_100g: 5.224,
+      carb_per_100g: 19.744,
+      fat_per_100g: 3.487,
+    },
     assumed:
       '"Crema de tomate con un toque de chile de árbol, espinacas y queso feta." Pasta base and ' +
       "decomposed-ingredient method carried from CARBONARA/PASTA ESPECIAL/FETUCCINI ALFREDO, all " +
@@ -645,7 +729,11 @@ const DRAFTS: Draft[] = [
     // 2708357) + 40 g bell pepper (FDC 2709800) + 40 g mushroom (FDC 2709793) + 35 g
     // deli ham (FDC 2706206) + 100 g cheese sauce (FDC 2705808, the FNDDS match for
     // "salsa cremosa a base de quesos"). Totals 445 g, 23.7 P / 82.1 C / 16.9 F.
-    composition: { protein_per_100g: 5.321, carb_per_100g: 18.445, fat_per_100g: 3.793 },
+    composition: {
+      protein_per_100g: 5.321,
+      carb_per_100g: 18.445,
+      fat_per_100g: 3.793,
+    },
     assumed:
       '"Pimientos, campiñones, jamón en salsa cremosa a base de quesos." Pasta base and ' +
       "decomposed-ingredient method carried from CARBONARA/PASTA ESPECIAL/FETUCCINI ALFREDO, all " +
@@ -655,16 +743,20 @@ const DRAFTS: Draft[] = [
   {
     name: "MEDITERRÁNEA",
     menu: "andaluz",
-    mass_band_g: [340, 460],
+    mass_band_g: [325, 435],
     // 11 named ingredients, decomposed: 100 g lettuce (FDC 2709789) + 30 g cucumber
     // (FDC 2709784) + 30 g corn (FDC 168540) + 30 g queso fresco (FDC 2705745 - the
     // closest FNDDS match to "queso panela"; no exact panela record exists) + 15 g
     // olives (FDC 169095) + 40 g cherry tomato (FDC 2709719) + 30 g avocado (FDC
     // 2709223) + 30 g mushroom (FDC 2709793) + 30 g asparagus (FDC 168390) + 15 g
     // almonds (FDC 168596) + 30 g olive-oil/balsamic dressing (FDC 2710203, the same
-    // Italian-dressing record already used for ENSALADA GRIEGA). Totals 400 g, 13.7 P
-    // / 26.2 C / 27.5 F.
-    composition: { protein_per_100g: 3.4275, carb_per_100g: 6.56, fat_per_100g: 6.8825 },
+    // Italian-dressing record already used for ENSALADA GRIEGA). Totals 380 g (absolute
+    // macros 13.71 P / 26.24 C / 27.53 F), 3.6 P / 6.9 C / 7.2 F per 100 g.
+    composition: {
+      protein_per_100g: 3.608,
+      carb_per_100g: 6.905,
+      fat_per_100g: 7.245,
+    },
     assumed:
       '"Lechuga, pepino, elote, queso panela, aceitunas, tomate cherry, aguacate, champis, ' +
       'espárragos, almendras, aderezada con aceite oliva y balsámico." Full description, all ' +
@@ -685,7 +777,11 @@ const DRAFTS: Draft[] = [
     // taste) is explicitly optional/unspecified and not separately weighed, same
     // treatment as the rolls' negligible garnishes. Totals 210 g, 36.4 P / 47.2 C /
     // 29.5 F.
-    composition: { protein_per_100g: 17.314, carb_per_100g: 22.452, fat_per_100g: 14.033 },
+    composition: {
+      protein_per_100g: 17.314,
+      carb_per_100g: 22.452,
+      fat_per_100g: 14.033,
+    },
     assumed:
       '"Dos tortillas de harina, manchego, boneless con salsa al gusto." "Dos" pins the tortilla ' +
       "count. Approved 2026-08-22.",
@@ -703,7 +799,11 @@ const DRAFTS: Draft[] = [
     // published "1 croquette = 62 g" portion for this record - that portion reads as an
     // American diner-style croquette, too large for a dish named "de Abuela" in a
     // Spanish tapas context). 8 x 28 g = 224 g total, 43.4 P / 4.7 C / 40.1 F.
-    composition: { protein_per_100g: 19.376, carb_per_100g: 2.08, fat_per_100g: 17.918 },
+    composition: {
+      protein_per_100g: 19.376,
+      carb_per_100g: 2.08,
+      fat_per_100g: 17.918,
+    },
     assumed:
       '"Empanizadas y rellenas de jamón serrano, pollo y queso, en crema bechamel." "(8 pints.)" ' +
       "pins the piece count; the per-piece mass is Santiago's ruling, not FDC's own published " +
@@ -721,7 +821,11 @@ const DRAFTS: Draft[] = [
     // cheese or vegetable is named, unlike the two already-ruled tacos, so this totals
     // notably lighter (83 g vs their 120-130 g) - ruled on the menu text alone, not
     // adjusted for the pre-registered prediction that the gap shrinks.
-    composition: { protein_per_100g: 19.13, carb_per_100g: 15.18, fat_per_100g: 9.87 },
+    composition: {
+      protein_per_100g: 19.13,
+      carb_per_100g: 15.18,
+      fat_per_100g: 9.87,
+    },
     assumed:
       '"Taco de carne asada de diezmillo en tortilla de su elección." Approved 2026-08-22.',
     retrieved_at: "2026-08-22",
@@ -733,8 +837,13 @@ const DRAFTS: Draft[] = [
     // 55 g FDC 2705827 "Beef, steak, flank" (arrachera - same cut and same weight
     // TACO EL CAPRICHO already uses) + 28 g FDC 2707823 corn tortilla. No cheese or
     // vegetable named. Same sizing note as TACO BRASERO.
-    composition: { protein_per_100g: 21.2, carb_per_100g: 15.05, fat_per_100g: 10.3 },
-    assumed: '"Taco de arrachera en tortilla de su elección." Approved 2026-08-22.',
+    composition: {
+      protein_per_100g: 21.2,
+      carb_per_100g: 15.05,
+      fat_per_100g: 10.3,
+    },
+    assumed:
+      '"Taco de arrachera en tortilla de su elección." Approved 2026-08-22.',
     retrieved_at: "2026-08-22",
   },
   {
@@ -745,7 +854,11 @@ const DRAFTS: Draft[] = [
     // 2706308) + 25 g mushroom/portobello (FDC 2709793) + 25 g roasted corn (FDC
     // 168540) + 25 g cucumber (FDC 2709784) + 25 g jicama (FDC 2709787) + 10 g
     // ponzu glaze (FDC 2707442 soy sauce proxy) + 3 g sesame (FDC 2707586).
-    composition: { protein_per_100g: 10.82, carb_per_100g: 9.5, fat_per_100g: 2.95 },
+    composition: {
+      protein_per_100g: 10.82,
+      carb_per_100g: 9.5,
+      fat_per_100g: 2.95,
+    },
     assumed:
       '"Tostada de atún sellado con rub de chiles, portobello y elote asado, pepino, jicama, ' +
       'salseado con ponzu y ajonjolí." Approved 2026-08-22.',
@@ -758,7 +871,11 @@ const DRAFTS: Draft[] = [
     // 13 g tostada shell (FDC 167525) + 60 g sirloin/picanha (FDC 2705833 - no
     // dedicated picanha record exists) + 60 g black beans (FDC 2707359, the FNDDS
     // match for "feijoada") + 25 g bell pepper mix (FDC 2709800).
-    composition: { protein_per_100g: 13.71, carb_per_100g: 14.42, fat_per_100g: 10.92 },
+    composition: {
+      protein_per_100g: 13.71,
+      carb_per_100g: 14.42,
+      fat_per_100g: 10.92,
+    },
     assumed:
       '"Tostada de picaña en una cama de feijoada y mix de pimiento encima." Approved 2026-08-22.',
     retrieved_at: "2026-08-22",
@@ -770,7 +887,11 @@ const DRAFTS: Draft[] = [
     // Dessert. 60 g crepe (FDC 2708341) + 30 g caramel candy (FDC 2710354, the
     // proxy for "dulce de leche" - no dedicated FDC record exists) + 20 g chocolate
     // syrup (FDC 2710276) + 60 g vanilla ice cream (FDC 2705629 "Ice cream, NFS").
-    composition: { protein_per_100g: 4.93, carb_per_100g: 39.52, fat_per_100g: 8.98 },
+    composition: {
+      protein_per_100g: 4.93,
+      carb_per_100g: 39.52,
+      fat_per_100g: 8.98,
+    },
     assumed:
       '"Crepa crujiente y azucarada acompañada de dulce de leche, chocolate y helado de vainilla." ' +
       "Approved 2026-08-22.",
@@ -784,7 +905,11 @@ const DRAFTS: Draft[] = [
     // relleno" record exists; FDC 2710045 "Stuffed jalapeno pepper" is the closest
     // battered/fried/cheese-stuffed-pepper analog. 160 g, a defensible single-serving
     // stuffed poblano plus batter/sauce.
-    composition: { protein_per_100g: 8.82, carb_per_100g: 16.5, fat_per_100g: 15.93 },
+    composition: {
+      protein_per_100g: 8.82,
+      carb_per_100g: 16.5,
+      fat_per_100g: 15.93,
+    },
     assumed: "Name-only dish, no menu description. Approved 2026-08-22.",
     retrieved_at: "2026-08-22",
   },
@@ -795,7 +920,11 @@ const DRAFTS: Draft[] = [
     // Name-only, kept answerable (Task 5 - "orden de" pins a portion convention).
     // 5 x 28 g FDC 2707823 corn tortilla (the same published-portion record the
     // tacos use), 5 being a defensible middle count for a tortilla-basket order.
-    composition: { protein_per_100g: 5.7, carb_per_100g: 44.6, fat_per_100g: 2.85 },
+    composition: {
+      protein_per_100g: 5.7,
+      carb_per_100g: 44.6,
+      fat_per_100g: 2.85,
+    },
     assumed: "Name-only dish, no menu description. Approved 2026-08-22.",
     retrieved_at: "2026-08-22",
   },
@@ -808,7 +937,11 @@ const DRAFTS: Draft[] = [
     // huarache) + 60 g refried beans (FDC 2707396) + 30 g salsa verde (FDC 2709743)
     // + 15 g crema (FDC 2705614) + 15 g onion (FDC 2709795) + 4 g cilantro (FDC
     // 2709782).
-    composition: { protein_per_100g: 6.32, carb_per_100g: 13.71, fat_per_100g: 9.73 },
+    composition: {
+      protein_per_100g: 6.32,
+      carb_per_100g: 13.71,
+      fat_per_100g: 9.73,
+    },
     assumed:
       '"Dos huevos fritos montados sobre un huarache de maíz con frijoles refritos y bañados con ' +
       'salsa verde, crema, cebolla y cilantro." Approved 2026-08-22.',
@@ -821,7 +954,11 @@ const DRAFTS: Draft[] = [
     // "(Orden de dos)" = 2 pieces, stated. 2 x 43 g FDC 2707654 "Roll, white, soft"
     // (published FNDDS portion for a medium/regular roll) - plain, no other
     // ingredient named.
-    composition: { protein_per_100g: 9.77, carb_per_100g: 50.12, fat_per_100g: 3.91 },
+    composition: {
+      protein_per_100g: 9.77,
+      carb_per_100g: 50.12,
+      fat_per_100g: 3.91,
+    },
     assumed: '"(Orden de dos)" - no further description. Approved 2026-08-22.',
     retrieved_at: "2026-08-22",
   },
@@ -831,8 +968,13 @@ const DRAFTS: Draft[] = [
     mass_band_g: [100, 135],
     // Same 2 x 43 g roll base as BISQUETS DEL CENTRO + 30 g berry jam/preserve
     // (FDC 169641 "Jams and preserves") for "frutos rojos".
-    composition: { protein_per_100g: 7.34, carb_per_100g: 54.97, fat_per_100g: 2.91 },
-    assumed: '"(Orden de dos)" - no further description beyond the name. Approved 2026-08-22.',
+    composition: {
+      protein_per_100g: 7.34,
+      carb_per_100g: 54.97,
+      fat_per_100g: 2.91,
+    },
+    assumed:
+      '"(Orden de dos)" - no further description beyond the name. Approved 2026-08-22.',
     retrieved_at: "2026-08-22",
   },
   {
@@ -847,7 +989,11 @@ const DRAFTS: Draft[] = [
     // (170 g), same pattern round 1 flagged for all 3 sibling omelettes (183-222 g) -
     // not extended blindly: this 190 g comes from the 2 named proteins alone, at a
     // magnitude comparable to the siblings' fillings, not from copying a number.
-    composition: { protein_per_100g: 14.94, carb_per_100g: 2.41, fat_per_100g: 11.91 },
+    composition: {
+      protein_per_100g: 14.94,
+      carb_per_100g: 2.41,
+      fat_per_100g: 11.91,
+    },
     assumed:
       "Name-only dish, no menu description at all. Fillings (shrimp, marlin) are named in the " +
       "dish's own title. Approved 2026-08-22.",
@@ -922,9 +1068,9 @@ async function main() {
     console.log(
       `${e.name.slice(0, 16).padEnd(17)}${pair(e.mass_band_g).padStart(12)}${
         pair(e.band.calories).padStart(14)
-      }${pair(e.band.protein_g).padStart(11)}${pair(e.band.carb_g).padStart(11)}${
-        pair(e.band.fat_g).padStart(11)
-      }`,
+      }${pair(e.band.protein_g).padStart(11)}${
+        pair(e.band.carb_g).padStart(11)
+      }${pair(e.band.fat_g).padStart(11)}`,
     );
   }
   // The score's DENOMINATOR is now whatever is ruled, times 4 fields, times the

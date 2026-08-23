@@ -44,7 +44,9 @@ export function parseDrop(args: string[]): Set<string> {
   const flag = args.find((a) => a.startsWith("--drop="));
   if (!flag) return new Set();
   return new Set(
-    flag.slice("--drop=".length).split(",").map((s) => s.trim()).filter(Boolean),
+    flag.slice("--drop=".length).split(",").map((s) => s.trim()).filter(
+      Boolean,
+    ),
   );
 }
 
@@ -71,7 +73,10 @@ function armFile(arm: string): string {
 type Draw = { pass: boolean[]; logErr: number; massLogErr: number | null };
 
 /** dish -> one entry per scored draw. */
-async function read(spec: string, oracle: UnweightedEntry[]): Promise<Map<string, Draw[]>> {
+async function read(
+  spec: string,
+  oracle: UnweightedEntry[],
+): Promise<Map<string, Draw[]>> {
   const out = new Map<string, Draw[]>();
   for (const e of oracle) out.set(e.name, []);
   for (const arm of spec.split("+")) {
@@ -124,28 +129,6 @@ async function read(spec: string, oracle: UnweightedEntry[]): Promise<Map<string
   return out;
 }
 
-if (import.meta.main) {
-  const oracle: UnweightedEntry[] = JSON.parse(await Deno.readTextFile(ORACLE));
-  const args = Deno.args.filter((a) => !a.startsWith("--"));
-  if (args.length !== 2) {
-    throw new Error(
-      "give exactly two arms to compare, e.g. dual NOBOOST (or dual+dual@r2 NOBOOST+NOBOOST@r2)",
-    );
-  }
-
-  const [specA, specB] = args;
-  const A = await read(specA, oracle);
-  const B = await read(specB, oracle);
-
-const points = (draws: Draw[]) =>
-  draws.reduce((n, d) => n + d.pass.filter(Boolean).length, 0);
-const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
-const logErr = (draws: Draw[]) => mean(draws.map((d) => d.logErr));
-const massErr = (draws: Draw[]) => {
-  const xs = draws.map((d) => d.massLogErr).filter((x): x is number => x !== null);
-  return xs.length ? mean(xs) : null;
-};
-
 // Per-dish MEAN points per draw, so pooling two runs of one arm against one run of
 // another compares like with like instead of rewarding whoever has more draws.
 type Row = {
@@ -157,68 +140,11 @@ type Row = {
   mA: number | null;
   mB: number | null;
 };
-const dropped = parseDrop(Deno.args);
-const rows: Row[] = [];
-for (const e of oracle) {
-  if (dropped.has(e.name)) continue;
-  const da = A.get(e.name)!, db = B.get(e.name)!;
-  if (da.length === 0 || db.length === 0) continue;
-  rows.push({
-    dish: e.name,
-    a: points(da) / da.length,
-    b: points(db) / db.length,
-    eA: logErr(da),
-    eB: logErr(db),
-    mA: massErr(da),
-    mB: massErr(db),
-  });
-}
-if (rows.length === 0) throw new Error("no dish has archives for both arms");
 
-console.log(
-  `\nPAIRED ON ${rows.length} DISHES — band points per draw (out of 4, higher better)` +
-    ` and log-ratio error (lower better)\n`,
-);
-console.log(
-  `  ${"dish".padEnd(18)} ${"band A".padStart(7)} ${"band B".padStart(7)} ${
-    "diff".padStart(6)
-  }   ${"logerr A".padStart(9)} ${"logerr B".padStart(9)} ${"diff".padStart(7)}`,
-);
-for (const r of rows) {
-  const d = r.b - r.a;
-  const de = r.eB - r.eA;
-  console.log(
-    `  ${r.dish.padEnd(18)} ${r.a.toFixed(2).padStart(7)} ${
-      r.b.toFixed(2).padStart(7)
-    } ${(d >= 0 ? "+" : "") + d.toFixed(2)}`.padEnd(50) +
-      `${r.eA.toFixed(3).padStart(9)} ${r.eB.toFixed(3).padStart(9)} ${
-        (de >= 0 ? "+" : "") + de.toFixed(3)
-      }`,
-  );
-}
-const meanA = rows.reduce((s, r) => s + r.a, 0);
-const meanB = rows.reduce((s, r) => s + r.b, 0);
-const observed = meanB - meanA;
-console.log(
-  `\n  per-draw totals: ${specA} ${meanA.toFixed(1)}/${rows.length * 4}, ` +
-    `${specB} ${meanB.toFixed(1)}/${rows.length * 4}` +
-    `  →  scaled to ${DRAWS} draws: ${(meanA * DRAWS).toFixed(0)} vs ${
-      (meanB * DRAWS).toFixed(0)
-    } /${rows.length * 4 * DRAWS}`,
-);
-console.log(
-  `  observed difference: ${observed >= 0 ? "+" : ""}${
-    observed.toFixed(2)
-  } points per draw = ${(observed * DRAWS).toFixed(1)} on the /${
-    rows.length * 4 * DRAWS
-  } scale`,
-);
+const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
 
-// ---- 1. dish-level paired bootstrap
-// Resamples DISHES, not cells. Each draw of that dish travels with it, so the
-// within-dish correlation the review names is preserved rather than assumed away.
 /** Mean per-dish difference, its 95% CI, and how often B leads. */
-function bootstrap(diffOf: (r: Row) => number) {
+function bootstrap(rows: Row[], diffOf: (r: Row) => number) {
   const obs = mean(rows.map(diffOf));
   const ds: number[] = [];
   let wins = 0;
@@ -240,156 +166,249 @@ function bootstrap(diffOf: (r: Row) => number) {
   };
 }
 
-const sign = (x: number) => (x >= 0 ? "+" : "");
-const band = bootstrap((r) => r.b - r.a);
-// Points live on the published /108 scale: 9 dishes x 4 macros x 3 draws.
-const S = rows.length * DRAWS;
-console.log(
-  `\n① DISH-LEVEL PAIRED BOOTSTRAP — BAND METRIC (${RESAMPLES} resamples of ${rows.length} dishes)` +
-    `\n   observed ${sign(band.obs * S)}${(band.obs * S).toFixed(1)},` +
-    ` 95% CI ${sign(band.lo * S)}${(band.lo * S).toFixed(1)} to ${
-      sign(band.hi * S)
-    }${(band.hi * S).toFixed(1)}` +
-    ` on the /${rows.length * 4 * DRAWS} scale` +
-    `\n   ${specB} ahead in ${(100 * band.winFrac).toFixed(1)}% of resamples` +
-    `\n   → ${
-      band.lo > 0 || band.hi < 0
-        ? "the CI EXCLUDES zero: the difference survives clustering at the dish level"
-        : `the CI INCLUDES zero: NOT resolvable at ${rows.length} dishes on this metric`
-    }`,
-);
-
-// ---- 1a. the SAME bootstrap on a CONTINUOUS metric
-// The band rule scores 4 coin-flips per dish and discards magnitude: a dish 21%
-// off and a dish 300% off both score one fail. Mean |ln(model / band midpoint)|
-// keeps that magnitude, so the same 9 dishes carry more information. Lower is
-// better, so a NEGATIVE difference favours the second arm.
-const cont = bootstrap((r) => r.eB - r.eA);
-const mrows = rows.filter((r) => r.mA !== null && r.mB !== null);
-console.log(
-  `\n①a THE SAME BOOTSTRAP ON LOG-RATIO ERROR — mean |ln(model / band midpoint)|` +
-    ` over the 4 macros. LOWER IS BETTER.` +
-    `\n   ${specA} ${mean(rows.map((r) => r.eA)).toFixed(4)}   ${specB} ${
-      mean(rows.map((r) => r.eB)).toFixed(4)
-    }` +
-    `\n   observed ${sign(cont.obs)}${cont.obs.toFixed(4)},` +
-    ` 95% CI ${sign(cont.lo)}${cont.lo.toFixed(4)} to ${sign(cont.hi)}${
-      cont.hi.toFixed(4)
-    }` +
-    `\n   ${specB} lower (better) in ${
-      (100 * (1 - cont.winFrac)).toFixed(1)
-    }% of resamples` +
-    `\n   → ${
-      cont.lo > 0 || cont.hi < 0
-        ? "the CI EXCLUDES zero: RESOLVABLE on this metric"
-        : `the CI INCLUDES zero: NOT resolvable at ${rows.length} dishes on this metric either`
-    }`,
-);
-// Effect relative to the noise it has to clear. Comparable across metrics because
-// both are the same ratio, which is the whole point of running them side by side.
-const snr = (b: { obs: number; lo: number; hi: number }) =>
-  Math.abs(b.obs) / ((b.hi - b.lo) / 2);
-console.log(
-  `\n   RESOLVING POWER (|effect| ÷ CI half-width, higher = more detectable):` +
-    `\n     band metric      ${snr(band).toFixed(2)}` +
-    `\n     log-ratio metric ${snr(cont).toFixed(2)}` +
-    `\n   → ${
-      snr(cont) > snr(band)
-        ? `the continuous metric is ${
-          (snr(cont) / snr(band)).toFixed(1)
-        }x more sensitive on this comparison`
-        : "the continuous metric is NOT more sensitive here"
-    }`,
-);
-
-// HOW MANY DISHES WOULD IT TAKE? A bootstrap CI half-width shrinks as 1/sqrt(n), so
-// the n at which |effect| equals the half-width - the point where the CI just
-// excludes zero - is n_now / snr^2. This assumes the effect size and the
-// between-dish spread hold as dishes are added, which is exactly what a wider
-// oracle would test. Treat it as an order of magnitude, not a target.
-const needed = (b: { obs: number; lo: number; hi: number }) =>
-  Math.ceil(rows.length / (snr(b) ** 2));
-console.log(
-  `\n   DISHES NEEDED to resolve an effect THIS SIZE (n_now / snr², 1/√n scaling):` +
-    `\n     on the band metric      ~${needed(band)} dishes` +
-    `\n     on the log-ratio metric ~${needed(cont)} dishes` +
-    `\n   ⚠️ Order of magnitude only - it assumes this effect size and this` +
-    ` between-dish spread survive the widening.`,
-);
-if (mrows.length) {
-  const massB = bootstrap((r) => r.mB! - r.mA!);
-  console.log(
-    `\n①b MASS-ONLY log-ratio (⚠️ DIAGNOSTIC, never the verdict — arm ORDER sized` +
-      ` better and scored worse)` +
-      `\n   ${specA} ${mean(mrows.map((r) => r.mA!)).toFixed(4)}   ${specB} ${
-        mean(mrows.map((r) => r.mB!)).toFixed(4)
-      }   observed ${sign(massB.obs)}${massB.obs.toFixed(4)}` +
-      `  95% CI ${sign(massB.lo)}${massB.lo.toFixed(4)} to ${
-        sign(massB.hi)
-      }${massB.hi.toFixed(4)}`,
-  );
-}
-
-// ---- 1b. leave-one-dish-out
-// A 9-dish set can have its whole headline carried by one row, and "the ranges are
-// disjoint" would still be true while describing one dish rather than a general
-// improvement. This names the dish instead of leaving it to be noticed.
-// `observed` is a SUM over dishes, so dropping one is a subtraction - and the
-// remaining total lives on a SMALLER denominator, which is why that is printed too
-// rather than silently compared against the 9-dish scale.
-const loo = rows.map((r) => ({ dish: r.dish, without: observed - (r.b - r.a) }));
-loo.sort((x, y) => x.without - y.without);
-const outOf = (rows.length - 1) * 4 * DRAWS;
-console.log(
-  `\n①c LEAVE-ONE-DISH-OUT — the difference recomputed with each dish removed` +
-    `\n   (${DRAWS} draws over the remaining ${rows.length - 1} dishes, /${outOf})`,
-);
-for (const l of loo.slice(0, 3)) {
-  console.log(
-    `   without ${l.dish.padEnd(18)} ${l.without >= 0 ? "+" : ""}${
-      (l.without * DRAWS).toFixed(1)
-    } /${outOf}`,
-  );
-}
-const flip = loo.find((l) => (l.without > 0) !== (observed > 0));
-if (flip) {
-  console.log(
-    `   ⚠️  REMOVING ${flip.dish} REVERSES THE SIGN. The headline is that dish, not the arm.`,
-  );
-}
-
-// ---- 2. cell-level exact sign test, ANTICONSERVATIVE and labelled as such
-// Pairs draw i of one arm with draw i of the other. The draws are independent
-// samples, not repeated measures of one thing, so this pairing is arbitrary - it
-// is reported to show how much the naive 108-independent-cells view inflates
-// confidence, not to support a conclusion.
-let b = 0, c = 0;
-for (const e of oracle) {
-  const da = A.get(e.name)!, db = B.get(e.name)!;
-  for (let d = 0; d < Math.min(da.length, db.length); d++) {
-    for (let m = 0; m < 4; m++) {
-      if (da[d].pass[m] && !db[d].pass[m]) b++;
-      if (!da[d].pass[m] && db[d].pass[m]) c++;
-    }
-  }
-}
 // Exact two-sided binomial on the discordant pairs, p = 0.5.
 function logC(n: number, k: number): number {
   let s = 0;
   for (let i = 1; i <= k; i++) s += Math.log(n - k + i) - Math.log(i);
   return s;
 }
-const n = b + c;
-const kMin = Math.min(b, c);
-let p = 0;
-for (let k = 0; k <= kMin; k++) p += Math.exp(logC(n, k) - n * Math.LN2);
-p = Math.min(1, 2 * p);
-console.log(
-  `\n② CELL-LEVEL EXACT SIGN TEST — ⚠️ ANTICONSERVATIVE, treats ${n} correlated` +
-    ` cells as independent` +
-    `\n   discordant: ${specA} only ${b}, ${specB} only ${c}  →  p = ${
-      p.toExponential(2)
-    }` +
-    `\n   Quote ① and not this. It is here to show the size of the overstatement.`,
-);
+
+if (import.meta.main) {
+  const oracle: UnweightedEntry[] = JSON.parse(await Deno.readTextFile(ORACLE));
+  const args = Deno.args.filter((a) => !a.startsWith("--"));
+  if (args.length !== 2) {
+    throw new Error(
+      "give exactly two arms to compare, e.g. dual NOBOOST (or dual+dual@r2 NOBOOST+NOBOOST@r2)",
+    );
+  }
+
+  const [specA, specB] = args;
+  const A = await read(specA, oracle);
+  const B = await read(specB, oracle);
+
+  const points = (draws: Draw[]) =>
+    draws.reduce((n, d) => n + d.pass.filter(Boolean).length, 0);
+  const logErr = (draws: Draw[]) => mean(draws.map((d) => d.logErr));
+  const massErr = (draws: Draw[]) => {
+    const xs = draws.map((d) => d.massLogErr).filter((x): x is number =>
+      x !== null
+    );
+    return xs.length ? mean(xs) : null;
+  };
+
+  const dropped = parseDrop(Deno.args);
+  const rows: Row[] = [];
+  for (const e of oracle) {
+    if (dropped.has(e.name)) continue;
+    const da = A.get(e.name)!, db = B.get(e.name)!;
+    if (da.length === 0 || db.length === 0) continue;
+    rows.push({
+      dish: e.name,
+      a: points(da) / da.length,
+      b: points(db) / db.length,
+      eA: logErr(da),
+      eB: logErr(db),
+      mA: massErr(da),
+      mB: massErr(db),
+    });
+  }
+  if (rows.length === 0) throw new Error("no dish has archives for both arms");
+
+  console.log(
+    `\nPAIRED ON ${rows.length} DISHES — band points per draw (out of 4, higher better)` +
+      ` and log-ratio error (lower better)\n`,
+  );
+  console.log(
+    `  ${"dish".padEnd(18)} ${"band A".padStart(7)} ${"band B".padStart(7)} ${
+      "diff".padStart(6)
+    }   ${"logerr A".padStart(9)} ${"logerr B".padStart(9)} ${
+      "diff".padStart(7)
+    }`,
+  );
+  for (const r of rows) {
+    const d = r.b - r.a;
+    const de = r.eB - r.eA;
+    console.log(
+      `  ${r.dish.padEnd(18)} ${r.a.toFixed(2).padStart(7)} ${
+        r.b.toFixed(2).padStart(7)
+      } ${(d >= 0 ? "+" : "") + d.toFixed(2)}`.padEnd(50) +
+        `${r.eA.toFixed(3).padStart(9)} ${r.eB.toFixed(3).padStart(9)} ${
+          (de >= 0 ? "+" : "") + de.toFixed(3)
+        }`,
+    );
+  }
+  const meanA = rows.reduce((s, r) => s + r.a, 0);
+  const meanB = rows.reduce((s, r) => s + r.b, 0);
+  const observed = meanB - meanA;
+  console.log(
+    `\n  per-draw totals: ${specA} ${meanA.toFixed(1)}/${rows.length * 4}, ` +
+      `${specB} ${meanB.toFixed(1)}/${rows.length * 4}` +
+      `  →  scaled to ${DRAWS} draws: ${(meanA * DRAWS).toFixed(0)} vs ${
+        (meanB * DRAWS).toFixed(0)
+      } /${rows.length * 4 * DRAWS}`,
+  );
+  console.log(
+    `  observed difference: ${observed >= 0 ? "+" : ""}${
+      observed.toFixed(2)
+    } points per draw = ${(observed * DRAWS).toFixed(1)} on the /${
+      rows.length * 4 * DRAWS
+    } scale`,
+  );
+
+  // ---- 1. dish-level paired bootstrap
+  // Resamples DISHES, not cells. Each draw of that dish travels with it, so the
+  // within-dish correlation the review names is preserved rather than assumed away.
+  const sign = (x: number) => (x >= 0 ? "+" : "");
+  const band = bootstrap(rows, (r) => r.b - r.a);
+  // Points live on the published /108 scale: 9 dishes x 4 macros x 3 draws.
+  const S = rows.length * DRAWS;
+  console.log(
+    `\n① DISH-LEVEL PAIRED BOOTSTRAP — BAND METRIC (${RESAMPLES} resamples of ${rows.length} dishes)` +
+      `\n   observed ${sign(band.obs * S)}${(band.obs * S).toFixed(1)},` +
+      ` 95% CI ${sign(band.lo * S)}${(band.lo * S).toFixed(1)} to ${
+        sign(band.hi * S)
+      }${(band.hi * S).toFixed(1)}` +
+      ` on the /${rows.length * 4 * DRAWS} scale` +
+      `\n   ${specB} ahead in ${
+        (100 * band.winFrac).toFixed(1)
+      }% of resamples` +
+      `\n   → ${
+        band.lo > 0 || band.hi < 0
+          ? "the CI EXCLUDES zero: the difference survives clustering at the dish level"
+          : `the CI INCLUDES zero: NOT resolvable at ${rows.length} dishes on this metric`
+      }`,
+  );
+
+  // ---- 1a. the SAME bootstrap on a CONTINUOUS metric
+  // The band rule scores 4 coin-flips per dish and discards magnitude: a dish 21%
+  // off and a dish 300% off both score one fail. Mean |ln(model / band midpoint)|
+  // keeps that magnitude, so the same 9 dishes carry more information. Lower is
+  // better, so a NEGATIVE difference favours the second arm.
+  const cont = bootstrap(rows, (r) => r.eB - r.eA);
+  const mrows = rows.filter((r) => r.mA !== null && r.mB !== null);
+  console.log(
+    `\n①a THE SAME BOOTSTRAP ON LOG-RATIO ERROR — mean |ln(model / band midpoint)|` +
+      ` over the 4 macros. LOWER IS BETTER.` +
+      `\n   ${specA} ${mean(rows.map((r) => r.eA)).toFixed(4)}   ${specB} ${
+        mean(rows.map((r) => r.eB)).toFixed(4)
+      }` +
+      `\n   observed ${sign(cont.obs)}${cont.obs.toFixed(4)},` +
+      ` 95% CI ${sign(cont.lo)}${cont.lo.toFixed(4)} to ${sign(cont.hi)}${
+        cont.hi.toFixed(4)
+      }` +
+      `\n   ${specB} lower (better) in ${
+        (100 * (1 - cont.winFrac)).toFixed(1)
+      }% of resamples` +
+      `\n   → ${
+        cont.lo > 0 || cont.hi < 0
+          ? "the CI EXCLUDES zero: RESOLVABLE on this metric"
+          : `the CI INCLUDES zero: NOT resolvable at ${rows.length} dishes on this metric either`
+      }`,
+  );
+  // Effect relative to the noise it has to clear. Comparable across metrics because
+  // both are the same ratio, which is the whole point of running them side by side.
+  const snr = (b: { obs: number; lo: number; hi: number }) =>
+    Math.abs(b.obs) / ((b.hi - b.lo) / 2);
+  console.log(
+    `\n   RESOLVING POWER (|effect| ÷ CI half-width, higher = more detectable):` +
+      `\n     band metric      ${snr(band).toFixed(2)}` +
+      `\n     log-ratio metric ${snr(cont).toFixed(2)}` +
+      `\n   → ${
+        snr(cont) > snr(band)
+          ? `the continuous metric is ${
+            (snr(cont) / snr(band)).toFixed(1)
+          }x more sensitive on this comparison`
+          : "the continuous metric is NOT more sensitive here"
+      }`,
+  );
+
+  // HOW MANY DISHES WOULD IT TAKE? A bootstrap CI half-width shrinks as 1/sqrt(n), so
+  // the n at which |effect| equals the half-width - the point where the CI just
+  // excludes zero - is n_now / snr^2. This assumes the effect size and the
+  // between-dish spread hold as dishes are added, which is exactly what a wider
+  // oracle would test. Treat it as an order of magnitude, not a target.
+  const needed = (b: { obs: number; lo: number; hi: number }) =>
+    Math.ceil(rows.length / (snr(b) ** 2));
+  console.log(
+    `\n   DISHES NEEDED to resolve an effect THIS SIZE (n_now / snr², 1/√n scaling):` +
+      `\n     on the band metric      ~${needed(band)} dishes` +
+      `\n     on the log-ratio metric ~${needed(cont)} dishes` +
+      `\n   ⚠️ Order of magnitude only - it assumes this effect size and this` +
+      ` between-dish spread survive the widening.`,
+  );
+  if (mrows.length) {
+    const massB = bootstrap(rows, (r) => r.mB! - r.mA!);
+    console.log(
+      `\n①b MASS-ONLY log-ratio (⚠️ DIAGNOSTIC, never the verdict — arm ORDER sized` +
+        ` better and scored worse)` +
+        `\n   ${specA} ${mean(mrows.map((r) => r.mA!)).toFixed(4)}   ${specB} ${
+          mean(mrows.map((r) => r.mB!)).toFixed(4)
+        }   observed ${sign(massB.obs)}${massB.obs.toFixed(4)}` +
+        `  95% CI ${sign(massB.lo)}${massB.lo.toFixed(4)} to ${sign(massB.hi)}${
+          massB.hi.toFixed(4)
+        }`,
+    );
+  }
+
+  // ---- 1b. leave-one-dish-out
+  // A 9-dish set can have its whole headline carried by one row, and "the ranges are
+  // disjoint" would still be true while describing one dish rather than a general
+  // improvement. This names the dish instead of leaving it to be noticed.
+  // `observed` is a SUM over dishes, so dropping one is a subtraction - and the
+  // remaining total lives on a SMALLER denominator, which is why that is printed too
+  // rather than silently compared against the 9-dish scale.
+  const loo = rows.map((r) => ({
+    dish: r.dish,
+    without: observed - (r.b - r.a),
+  }));
+  loo.sort((x, y) => x.without - y.without);
+  const outOf = (rows.length - 1) * 4 * DRAWS;
+  console.log(
+    `\n①c LEAVE-ONE-DISH-OUT — the difference recomputed with each dish removed` +
+      `\n   (${DRAWS} draws over the remaining ${
+        rows.length - 1
+      } dishes, /${outOf})`,
+  );
+  for (const l of loo.slice(0, 3)) {
+    console.log(
+      `   without ${l.dish.padEnd(18)} ${l.without >= 0 ? "+" : ""}${
+        (l.without * DRAWS).toFixed(1)
+      } /${outOf}`,
+    );
+  }
+  const flip = loo.find((l) => (l.without > 0) !== (observed > 0));
+  if (flip) {
+    console.log(
+      `   ⚠️  REMOVING ${flip.dish} REVERSES THE SIGN. The headline is that dish, not the arm.`,
+    );
+  }
+
+  // ---- 2. cell-level exact sign test, ANTICONSERVATIVE and labelled as such
+  // Pairs draw i of one arm with draw i of the other. The draws are independent
+  // samples, not repeated measures of one thing, so this pairing is arbitrary - it
+  // is reported to show how much the naive 108-independent-cells view inflates
+  // confidence, not to support a conclusion.
+  let b = 0, c = 0;
+  for (const e of oracle) {
+    const da = A.get(e.name)!, db = B.get(e.name)!;
+    for (let d = 0; d < Math.min(da.length, db.length); d++) {
+      for (let m = 0; m < 4; m++) {
+        if (da[d].pass[m] && !db[d].pass[m]) b++;
+        if (!da[d].pass[m] && db[d].pass[m]) c++;
+      }
+    }
+  }
+  const n = b + c;
+  const kMin = Math.min(b, c);
+  let p = 0;
+  for (let k = 0; k <= kMin; k++) p += Math.exp(logC(n, k) - n * Math.LN2);
+  p = Math.min(1, 2 * p);
+  console.log(
+    `\n② CELL-LEVEL EXACT SIGN TEST — ⚠️ ANTICONSERVATIVE, treats ${n} correlated` +
+      ` cells as independent` +
+      `\n   discordant: ${specA} only ${b}, ${specB} only ${c}  →  p = ${
+        p.toExponential(2)
+      }` +
+      `\n   Quote ① and not this. It is here to show the size of the overstatement.`,
+  );
 }

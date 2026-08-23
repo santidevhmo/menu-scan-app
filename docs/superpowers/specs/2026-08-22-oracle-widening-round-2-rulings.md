@@ -314,7 +314,7 @@ was committed.
 |---|---|---|---|
 | FRADIAVIOLA | [340,460] | 398g | 20.8 / 78.6 / 13.9 |
 | LINGUINNI PARISIENNE | [380,510] | 445g | 23.7 / 82.1 / 16.9 |
-| MEDITERRÁNEA | [340,460] | 400g | 13.7 / 26.2 / 27.5 |
+| MEDITERRÁNEA | [325,435] | 380g | 13.7 / 26.2 / 27.5 |
 | QUESABONELESS | [180,240] | 210g | 36.4 / 47.2 / 29.5 |
 | CROQUETAS DE ABUELA (8 pints.) | [190,260] | 224g | 43.4 / 4.7 / 40.1 |
 

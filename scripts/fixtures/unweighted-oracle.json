@@ -1294,8 +1294,8 @@
     "menu": "andaluz",
     "unweighted": true,
     "mass_band_g": [
-      340,
-      460
+      325,
+      435
     ],
     "band": {
       "calories": [

@@ -34,18 +34,18 @@ broken.**
 | 18 | Salmón Samba | nikkori | roll-group | ✅ |
 | 19 | Spicy Tuna Roll | nikkori | roll-group | ✅ |
 | 20 | Tuna Especial | nikkori | roll-group | ✅ |
-| 21 | CHAMPIÑONES AL AJILLO | andaluz | one-off (name-only) | ☐ |
+| 21 | CHAMPIÑONES AL AJILLO | andaluz | one-off (name-only) | ☠️ retired |
 | 22 | CROQUETAS DE ABUELA (8 pints.) | andaluz | one-off | ☐ |
 | 23 | MEDITERRÁNEA | andaluz | one-off | ☐ |
-| 24 | PAPAS BRAVAS | andaluz | one-off (name-only) | ☐ |
-| 25 | PARRILLADA VERDURAS | andaluz | one-off (name-only) | ☐ |
+| 24 | PAPAS BRAVAS | andaluz | one-off (name-only) | ☠️ retired |
+| 25 | PARRILLADA VERDURAS | andaluz | one-off (name-only) | ☠️ retired |
 | 26 | QUESABONELESS | andaluz | one-off | ☐ |
 | 27 | FRADIAVIOLA | bistro | one-off | ☐ |
 | 28 | LINGUINNI PARISIENNE | bistro | one-off | ☐ |
-| 29 | CEBOLLAS CAMBRAY | brasero-two | one-off (name-only) | ☐ |
+| 29 | CEBOLLAS CAMBRAY | brasero-two | one-off (name-only) | ☠️ retired |
 | 30 | CHILE RELLENO | brasero-two | one-off (name-only) | ☐ |
 | 31 | ORDEN DE TORTILLAS | brasero-two | one-off (name-only) | ☐ |
-| 32 | PAPAS CAMBRAY | brasero-two | one-off (name-only) | ☐ |
+| 32 | PAPAS CAMBRAY | brasero-two | one-off (name-only) | ☠️ retired |
 | 33 | ROLLOS DE CREPA | brasero-two | one-off | ☐ |
 | 34 | TACO BRASERO | brasero-two | one-off | ☐ |
 | 35 | TACO TRADICIONAL | brasero-two | one-off | ☐ |
@@ -53,11 +53,11 @@ broken.**
 | 37 | TOSTA BRASIL (picaña) | brasero-two | one-off | ☐ |
 | 38 | BISQUETS C/ FRUTOS ROJOS | el-marcos | one-off | ☐ |
 | 39 | BISQUETS DEL CENTRO | el-marcos | one-off | ☐ |
-| 40 | Cazuela de Marlín | el-marcos | one-off (name-only) | ☐ |
+| 40 | Cazuela de Marlín | el-marcos | one-off (name-only) | ☠️ retired |
 | 41 | DE INDIO | el-marcos | one-off | ☐ |
-| 42 | Doblada de Camarón y Marlín | el-marcos | one-off (name-only) | ☐ |
-| 43 | Machaca de Marlín c/huevo o verdura | el-marcos | one-off (name-only) | ☐ |
-| 44 | Omelette de Camarón y Marlín | el-marcos | one-off (name-only) | ☐ |
+| 42 | Doblada de Camarón y Marlín | el-marcos | one-off (name-only) | ☠️ retired |
+| 43 | Machaca de Marlín c/huevo o verdura | el-marcos | one-off (name-only) | ☠️ retired |
+| 44 | Omelette de Camarón y Marlín | el-marcos | one-off (name-only, answerable) | ☐ |
 
 **This table is the resume point.** A session picking this up cold reads it first.
 
@@ -238,4 +238,38 @@ different size for any of the three.
 
 ## Retired — unanswerable
 
-*(populated in Task 5)*
+**The test** (from the design spec): does the **name alone** pin both what is on the plate and how
+much of it? Retiring a dish is not an early stop — it removes a dish that cannot be ruled, never
+one whose score would be disliked, and every retirement below was recorded **before** any of the
+13 name-only dishes was scored. Follows the same precedent as `COLIFLOR ROKA` (retired at eval 156:
+*"shouldn't even be considered"* — unanswerable rather than badly answered).
+
+Two of the 13 name-only dishes (`JAMÓN CON CHAMPIÑONES`, `PEPPERONI`) were ruled answerable in
+Task 3 — the class ruling supplies their portion, so the answerability test doesn't apply the same
+way. Of the remaining 11, applied 2026-08-22:
+
+| dish | menu | reason | verdict |
+|---|---|---|---|
+| CHAMPIÑONES AL AJILLO | andaluz | "garlic mushrooms" names a recognizable prep, but no count/weight/portion convention anywhere | ☠️ retired |
+| PAPAS BRAVAS | andaluz | design spec itself flags this as "plausibly does not" pin what+how much; real prep variance across restaurants (cube vs. wedge cut, sauce type), no size stated | ☠️ retired |
+| PARRILLADA VERDURAS | andaluz | the plan's own worked example — "grilled vegetables" names neither which vegetables nor how many | ☠️ retired |
+| CEBOLLAS CAMBRAY | brasero-two | "cambray onions" (grilled spring onions) — no count/weight stated | ☠️ retired |
+| PAPAS CAMBRAY | brasero-two | "cambray potatoes" (small roasted new potatoes) — same gap as CEBOLLAS CAMBRAY, no count/weight | ☠️ retired |
+| Cazuela de Marlín | el-marcos | design spec flags this as "plausibly does not" — "cazuela" names a cooking vessel/style, not a bounded recipe or portion | ☠️ retired |
+| Doblada de Camarón y Marlín | el-marcos | "doblada" is a regional folded-dish name without a universally fixed size/filling ratio; not self-contained the way ORDEN DE TORTILLAS is | ☠️ retired |
+| Machaca de Marlín c/huevo o verdura | el-marcos | the name itself contains an unresolved branch — "huevo **o** verdura" (egg **or** vegetable) — it can't pin down a single WHAT, let alone how much | ☠️ retired |
+
+Two ruled **answerable** and kept: `CHILE RELLENO` and `ORDEN DE TORTILLAS` — the plan's own worked
+examples, "the name *is* the recipe." Ruled in Task 7.
+
+**One edge case, ruled by Santiago:** `Omelette de Camarón y Marlín` has no description at all — its
+2-egg base is only inferable by analogy to its 3 sibling omelettes on the same menu section (TOMASA,
+LAMERA, CUBANA all state *"Dos huevos"* in their own text; this one states nothing). That's different
+from ORDEN DE TORTILLAS, which is self-contained, and closer to relying on a sibling dish — the
+reasoning the assumed-ingredient rule forbids for ingredients. Santiago ruled **answerable** anyway:
+the 2-egg base is a menu-wide portioning convention (every omelette on this specific menu = 2 eggs),
+not an assumed ingredient, and the fillings (shrimp + marlin) are named even without proportions.
+Ruled in Task 7.
+
+**Final dish count impact:** 8 of 44 retired. Round-2 ceiling drops from 65 to **57** dishes if
+every other pending ruling lands (44 - 8 = 36 new + 21 existing).

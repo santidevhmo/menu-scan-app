@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7ZbL9uETiyEGBUZfxnuFRNWnQ8L",
+  "object": "chat.completion",
+  "created": 1787511067,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"DIVORCIADOS\",\"dish_form\":\"eggs_on_masa_base\"},{\"name\":\"Dos huevos naturales\",\"dish_form\":\"omelette_2egg\"},{\"name\":\"Dos huevos a la mexicana\",\"dish_form\":\"omelette_2egg\"},{\"name\":\"Con jamón, chorizo o tocino\",\"dish_form\":\"omelette_2egg\"},{\"name\":\"Dos huevos naturales\",\"dish_form\":\"omelette_2egg\"},{\"name\":\"Con jamón, chorizo o tocino\",\"dish_form\":\"omelette_2egg\"},{\"name\":\"DE LA SIERRA\",\"dish_form\":\"omelette_2egg\"},{\"name\":\"A LA YOLANDA\",\"dish_form\":\"eggs_on_masa_base\"},{\"name\":\"NORTEÑOS\",\"dish_form\":\"omelette_2egg\"},{\"name\":\"RANCHEROS\",\"dish_form\":\"eggs_on_masa_base\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 780,
+    "completion_tokens": 180,
+    "total_tokens": 960,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

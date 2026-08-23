@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7RcwF5LmvZ6pV4i4rASbqtpDToB",
+  "object": "chat.completion",
+  "created": 1787510572,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"PAPAS FRITAS\",\"dish_form\":\"fries_starter\"},{\"name\":\"QUESABONELESS\",\"dish_form\":\"quesadilla_two_tortilla\"},{\"name\":\"CROQUETAS DE ABUELA (8 pints.)\",\"dish_form\":\"croquette_order\"},{\"name\":\"TIRAS DE POLLO\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"MEDITERRÁNEA\",\"dish_form\":\"salad_entree\"},{\"name\":\"DE CAMARÓN ROKA\",\"dish_form\":\"sushi_roll_order\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 630,
+    "completion_tokens": 116,
+    "total_tokens": 746,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

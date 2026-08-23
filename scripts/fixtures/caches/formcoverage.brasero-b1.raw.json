@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7ZxNq8XRiUJftTXjbMvQgyOSuns",
+  "object": "chat.completion",
+  "created": 1787511089,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"POLLO EN SALSA BICOLORE\",\"dish_form\":\"other\"},{\"name\":\"ESPÁRRAGOS ASADOS 200gr\",\"dish_form\":\"other\"},{\"name\":\"COLES DE BRUSELAS 200gr\",\"dish_form\":\"other\"},{\"name\":\"MAC AND CHEESE 250gr\",\"dish_form\":\"pasta_entree\"},{\"name\":\"PURÉ DE PAPA 350gr\",\"dish_form\":\"other\"},{\"name\":\"ESPINACAS A LA CREMA 250gr\",\"dish_form\":\"other\"},{\"name\":\"VEGETALES A LAS BRASAS 200gr\",\"dish_form\":\"other\"},{\"name\":\"PAPAS CON PARMESANO 200gr\",\"dish_form\":\"other\"},{\"name\":\"TARTAR DE ATÚN\",\"dish_form\":\"other\"},{\"name\":\"CAMARONES ZARANDEADOS\",\"dish_form\":\"salad_entree\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 776,
+    "completion_tokens": 182,
+    "total_tokens": 958,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

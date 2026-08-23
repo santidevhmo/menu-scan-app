@@ -1,10 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import {
-  callGptEnrichDualPass,
   ENRICH_MODEL,
   type EnrichedItem,
   type ExtractedItem,
 } from "./enrich.ts";
+import { callGptEnrichFormSized } from "./dish-form.ts";
 import {
   runCropExtractions,
   runGroupedExtraction,
@@ -110,7 +110,11 @@ export async function handleRequest(req: Request): Promise<Response> {
         // serialises whole item objects into the prompt, so pass 1's request
         // bytes are today's only while these stay the same objects (`grams`
         // included, which is also what isUnweighted partitions on).
-        result = await callGptEnrichDualPass(
+        // v33 (eval 176): the dual pass, then FORM SIZING - the model names the
+        // dish's form from a fixed enum and WE set the plate's mass from our own
+        // table. 434-453/684 against v32's 352-357 over 4 runs x 3 draws, ranges
+        // disjoint. The label call cannot fail a scan; see dish-form.ts.
+        result = await callGptEnrichFormSized(
           inputItems as ExtractedItem[],
           OPENAI_API_KEY,
         );
@@ -213,7 +217,9 @@ export async function handleRequest(req: Request): Promise<Response> {
         throw new Error(`Unknown extraction provider: ${provider}`);
       }
       console.log(
-        `[scan ${scanId}] extract pages=${photos.length} rotated=${rotated === true}`,
+        `[scan ${scanId}] extract pages=${photos.length} rotated=${
+          rotated === true
+        }`,
       );
       // Per-page multi-photo recipe (iter-036): N photos ⇒ N parallel calls
       // merged into ONE menu; 1 photo ⇒ one call. Same path the eval gate proves.
@@ -223,11 +229,16 @@ export async function handleRequest(req: Request): Promise<Response> {
         OPENAI_API_KEY,
         undefined,
         undefined,
-        { rotated: rotated === true, prior: Array.isArray(prior) ? prior : undefined },
+        {
+          rotated: rotated === true,
+          prior: Array.isArray(prior) ? prior : undefined,
+        },
       );
       if ("needs_rotation" in result) {
         console.log(
-          `[scan ${scanId}] needs_rotation ${JSON.stringify(result.needs_rotation)} ocr_chars=${result.prior.map((p) => p.length).join(",")}`,
+          `[scan ${scanId}] needs_rotation ${
+            JSON.stringify(result.needs_rotation)
+          } ocr_chars=${result.prior.map((p) => p.length).join(",")}`,
         );
         await recordScan({
           scan_id: scanId,
@@ -251,7 +262,9 @@ export async function handleRequest(req: Request): Promise<Response> {
         );
       }
       if ("needs_crops" in result) {
-        console.log(`[scan ${scanId}] needs_crops ${JSON.stringify(result.needs_crops)}`);
+        console.log(
+          `[scan ${scanId}] needs_crops ${JSON.stringify(result.needs_crops)}`,
+        );
         await recordScan({
           scan_id: scanId,
           pages: photos.length,
@@ -272,7 +285,9 @@ export async function handleRequest(req: Request): Promise<Response> {
       }
 
       console.log(
-        `[scan ${scanId}] items=${result.items.length} ${JSON.stringify(result.items.map((i) => `${i.name}|${i.price ?? ""}`))}`,
+        `[scan ${scanId}] items=${result.items.length} ${
+          JSON.stringify(result.items.map((i) => `${i.name}|${i.price ?? ""}`))
+        }`,
       );
       await recordScan({
         scan_id: scanId,

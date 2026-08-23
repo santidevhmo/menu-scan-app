@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7RSvcFufan0oa0qzxv9xe3P6bBo",
+  "object": "chat.completion",
+  "created": 1787510562,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"LINGUINNI PARISIENNE\",\"dish_form\":\"pasta_entree\"},{\"name\":\"PASTA ESPECIAL\",\"dish_form\":\"pasta_entree\"},{\"name\":\"FRADIAVIOLA\",\"dish_form\":\"pasta_entree\"},{\"name\":\"FETUCCINI ALFREDO\",\"dish_form\":\"pasta_entree\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 480,
+    "completion_tokens": 74,
+    "total_tokens": 554,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

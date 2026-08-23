@@ -13,6 +13,10 @@
 //   deno run --allow-net --allow-env --allow-read --allow-write \
 //     --env-file=.env.local scripts/bench-unweighted.ts [draws] [arm]
 //
+// --run <label> keeps a repeat run in its OWN archives instead of overwriting the
+// previous one, and --replay --run <label> re-scores it:
+//   ... scripts/bench-unweighted.ts 3 NOBOOST --run r2
+//
 // --replay scores the ARCHIVED responses of a previous run instead of paying for
 // new ones, which is what makes an oracle correction free: a band moved after the
 // fact re-scores every arm at $0. It calls no API and writes nothing.
@@ -20,40 +24,58 @@
 //   deno run --allow-read scripts/bench-unweighted.ts 3 P --replay
 import {
   callGptEnrich,
+  callGptEnrichDualPass,
   chunk,
   ENRICH_BATCH_SIZE,
-  callGptEnrichDualPass,
   ENRICH_MODEL,
   type EnrichedItem,
 } from "../supabase/functions/analyze-menu/enrich.ts";
 import {
   armA,
   armAConditional,
+  armCombo,
+  armHybrid,
+  armMassCall,
+  armNoBoost,
+  armNoPush,
+  armOrder,
+  armOrderNoPush,
   armP,
+  armP10,
   armPD,
   armPF,
-  armP10,
+  armPiece,
   armPInline,
-  armSplitOnly,
+  armRole,
   armS3,
   armS4,
+  armSplitOnly,
 } from "./probe-plate-arms.ts";
 import { scoreItemAgainstBand } from "./macro-band-score.ts";
 import type { UnweightedEntry } from "./unweighted-oracle.ts";
 import {
   assertRunIsProducingData,
   isBackfilled,
-  itemsFromArchive,
+  itemsFromArchiveFile,
 } from "./bench-pipeline.ts";
 
 const ORACLE = "scripts/fixtures/unweighted-oracle.json";
 const CACHE_DIR = "scripts/fixtures/caches";
 
-/** Which archived extraction each menu's items come from. Same files bench-pipeline uses. */
+/**
+ * Which archived extraction each menu's items come from. Same files bench-pipeline uses.
+ *
+ * `el-marcos` and `brasero-two` were added 2026-08-20 with the four new fixtures
+ * (OMELETTE CUBANA, TACO PORCO, BROWNIE). They use the same `eval103c-m41-r1`
+ * extraction the MIXED-MENU harness already reads for el-marcos, so both harnesses
+ * see one menu through one archive and cannot disagree about its neighbours.
+ */
 const MENU_ARCHIVE: Record<string, string> = {
   bistro: "bistro.eval117-r1.raw.json",
   andaluz: "andaluz.eval128-r1.raw.json",
   nikkori: "nikkori.eval117-r1.raw.json",
+  "el-marcos": "el-marcos.eval103c-m41-r1.raw.json",
+  "brasero-two": "brasero-two.eval117-r1.raw.json",
   polloteria: "polloteria.eval117-r1.raw.json",
 };
 
@@ -125,7 +147,19 @@ const macros = (item: EnrichedItem) => ({
 const replay = Deno.args.includes("--replay");
 // Default is FOCUSED - see fixtureBatches. ~$2 -> ~$0.5 per arm, same measurement.
 const fullMenu = Deno.args.includes("--full-menu");
-const positional = Deno.args.filter((a) => a !== "--replay");
+// Repeat runs need their OWN archives or a range is impossible - and the standing
+// rule is a range, never a single run. Ported from bench-mixed-menu.ts, which grew
+// this after a re-run silently replaced its predecessor twice in one phase.
+const runIdx = Deno.args.indexOf("--run");
+const runLabel = runIdx >= 0 ? Deno.args[runIdx + 1] : "";
+if (runIdx >= 0 && (!runLabel || runLabel.startsWith("--"))) {
+  throw new Error("--run needs a label, e.g. --run r2");
+}
+// Drops every flag AND the value after --run, or the label would be read as the
+// arm name and a paid run would be reported as something it is not.
+const positional = Deno.args.filter((a, i) =>
+  !a.startsWith("--") && Deno.args[i - 1] !== "--run"
+);
 
 const apiKey = Deno.env.get("OPENAI_API_KEY");
 if (!apiKey && !replay) throw new Error("OPENAI_API_KEY is required");
@@ -170,6 +204,8 @@ async function replayPath(arm: string, path: string): Promise<string> {
   }
 }
 
+import { armForm } from "./arm-dish-form.ts";
+
 const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
   A: armA,
   "A-cond": armAConditional,
@@ -180,12 +216,47 @@ const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
   SplitOnly: armSplitOnly,
   S3: armS3,
   S4: armS4,
+  // What the per-ingredient GRAM FIELD asks for. See arm-order-schemas.ts.
+  ORDER: armOrder,
+  "ORDER-nopush": armOrderNoPush,
+  PIECE: armPiece,
+  // The shipped question with pass 2's WHOLE addendum deleted. See ARM_NOPUSH.
+  NOPUSH: armNoPush,
+  // The shipped question with only the addendum's PUSH half deleted. See ARM_NOBOOST.
+  NOBOOST: armNoBoost,
+  // Both stack on NOBOOST, one variable each: ROLE adds an inert enum before the
+  // gram field, MASSCALL rescales to a total from a second call. See ARM_ROLE and
+  // ARM_MASSCALL. Their control is NOBOOST (70 and 72), not `dual`.
+  ROLE: armRole,
+  MASSCALL: armMassCall,
+  // eval 171. Not a prompt or schema change - a ROUTER. Asks with NOBOOST's
+  // prompt, then re-asks the SHIPPED question for only the items NOBOOST sized at
+  // or above 300 g, because the size error runs in BOTH directions and every
+  // single-direction arm above is rejected. See armHybrid.
+  HYBRID: armHybrid,
+  // eval 176. HYBRID's routing, then the FORM table overrides the mass. Its
+  // control is HYBRID, not dual - see armCombo.
+  COMBO: armCombo,
+};
+
+/** Arms whose batches form like dual's pass 2 - see the selection call below. */
+const ORDER_ARMS: Record<string, true> = {
+  ORDER: true,
+  "ORDER-nopush": true,
+  PIECE: true,
+  NOPUSH: true,
+  NOBOOST: true,
+  ROLE: true,
+  MASSCALL: true,
+  HYBRID: true,
+  COMBO: true,
 };
 
 // A mistyped arm name would otherwise run the BASELINE and be written up as that
 // arm's result - a paid run reported as something it is not.
 if (
-  arm !== "baseline" && arm !== "P10" && arm !== "dual" && !(arm in ARM_RUNNERS)
+  arm !== "baseline" && arm !== "P10" && arm !== "dual" && arm !== "FORM" &&
+  !(arm in ARM_RUNNERS)
 ) {
   throw new Error(
     `unknown arm "${arm}" - expected baseline, P10, dual, ${
@@ -205,16 +276,35 @@ for (let draw = 0; draw < draws; draw++) {
     // The `-f` segment keeps a ~$0.5 focused run from OVERWRITING the whole-menu
     // archives that hold this phase's published evidence (the 28/72 baseline and
     // Arm P's 37/72). Replaying those needs --full-menu.
-    const archive =
-      `${CACHE_DIR}/unweighted.${arm}${fullMenu ? "" : "-f"}.${menu}-d${draw}.raw.json`;
+    const archive = `${CACHE_DIR}/unweighted.${arm}${fullMenu ? "" : "-f"}${
+      runLabel ? `-${runLabel}` : ""
+    }.${menu}-d${draw}.raw.json`;
     let enriched: EnrichedItem[];
     if (replay) {
-      enriched = JSON.parse(await Deno.readTextFile(await replayPath(arm, archive)))
-        .items;
+      // A menu with NO archive is skipped and reported, never thrown on.
+      //
+      // WHY: adding OMELETTE CUBANA, TACO PORCO and BROWNIE on 2026-08-20 brought
+      // in two menus (el-marcos, brasero-two) that no unweighted run has ever
+      // enriched — and a throw here took the $0 REPLAY down for every arm at once,
+      // including the baseline every arm is judged against. Replay is the cheapest
+      // tool in this phase and the one that killed three fixes for nothing, so it
+      // must degrade to a PARTIAL score rather than die. The per-dish loop already
+      // reports a missing dish as ABSENT, so this follows a convention that exists.
+      let raw: string;
+      try {
+        raw = await Deno.readTextFile(await replayPath(arm, archive));
+      } catch {
+        console.log(
+          `  ⏭  ${menu} draw ${
+            draw + 1
+          }: no archive for arm "${arm}" — SKIPPED, ` +
+            `so its dishes score 0. Run the arm to cover them.`,
+        );
+        continue;
+      }
+      enriched = JSON.parse(raw).items;
     } else {
-      const whole = itemsFromArchive(
-        await Deno.readTextFile(`${CACHE_DIR}/${MENU_ARCHIVE[menu]}`),
-      );
+      const whole = itemsFromArchiveFile(MENU_ARCHIVE[menu]);
       const names = oracle.filter((e) => e.menu === menu).map((e) => e.name);
       // `dual` selects like P-10 ON PURPOSE. Every dish in this oracle is
       // unweighted, so its answer comes ENTIRELY from pass 2 and pass 1's copy is
@@ -229,7 +319,13 @@ for (let draw = 0; draw < draws; draw++) {
       // message and wraps the items as {"items":[...]}, while enrichBatch (this
       // arm, and production) sends ONE `user` message with the items appended.
       // The 38/72 on record was measured through the former, never the latter.
-      const select = arm === "P10" || arm === "dual"
+      // ORDER/ORDER-nopush/PIECE select like P-10 for the same reason `dual`
+      // does: each one IS dual's pass 2 with the gram field changed, so its
+      // batches form after the weighted/unweighted partition. Selecting with
+      // the mixed boundaries would send a composition the arm never builds and
+      // make the run incomparable to the 67/108 control.
+      const select = arm === "P10" || arm === "dual" || arm === "FORM" ||
+          arm in ORDER_ARMS
         ? fixtureBatchesP10
         : fixtureBatches;
       const items = fullMenu ? whole : select(whole, names);
@@ -240,12 +336,19 @@ for (let draw = 0; draw < draws; draw++) {
         // P's undersized batches and silently re-measure it.
         // deno-lint-ignore no-explicit-any
         ? await armP10(items as any) as EnrichedItem[]
+        : arm === "FORM"
+        // eval 176. dual's own entry point, then form-sized - NOT through
+        // enrichWithArm, which pre-chunks and would hand pass 2 a different
+        // batch composition than the `dual` control it is compared against.
+        // deno-lint-ignore no-explicit-any
+        ? await armForm(items as any, apiKey!)
         : arm === "dual"
         // The SHIPPED entry point, end to end. Pass 1 over an all-unweighted
         // selection is redundant work whose answers are then discarded - that is
         // the price of exercising the real function rather than a stand-in.
         // deno-lint-ignore no-explicit-any
-        ? (await callGptEnrichDualPass(items as any, apiKey!, ENRICH_MODEL)).items
+        ? (await callGptEnrichDualPass(items as any, apiKey!, ENRICH_MODEL))
+          .items
         : runner
         // deno-lint-ignore no-explicit-any
         ? await enrichWithArm(items, runner as any)
@@ -267,7 +370,9 @@ for (let draw = 0; draw < draws; draw++) {
         // fallbackEnriched item is all zeros, which fails every band by
         // construction. Excluded from the score and reported instead.
         results.get(entry.name)!.detail.push(
-          `draw ${draw + 1}: ${!got ? "ABSENT" : "BACKFILLED (API failure)"} - EXCLUDED`,
+          `draw ${draw + 1}: ${
+            !got ? "ABSENT" : "BACKFILLED (API failure)"
+          } - EXCLUDED`,
         );
         continue;
       }
@@ -277,7 +382,9 @@ for (let draw = 0; draw < draws; draw++) {
       results.get(entry.name)!.detail.push(
         `draw ${draw + 1}: ${points}/4 ${pass ? "PASS" : "FAIL"}  ` +
           fields.map((f) =>
-            `${f.field}=${Math.round(f.model)}${f.pass ? "" : `(band ${f.band})`}`
+            `${f.field}=${Math.round(f.model)}${
+              f.pass ? "" : `(band ${f.band})`
+            }`
           ).join(" "),
       );
     }
@@ -287,7 +394,10 @@ for (let draw = 0; draw < draws; draw++) {
 let total = 0;
 // Scored out of the draws that actually returned an estimate, so one API timeout
 // does not silently deflate the headline number.
-const scoredDraws = [...results.values()].reduce((n, r) => n + r.points.length, 0);
+const scoredDraws = [...results.values()].reduce(
+  (n, r) => n + r.points.length,
+  0,
+);
 const possible = scoredDraws * 4;
 console.log(
   `\nUNWEIGHTED SCORE - arm ${arm} - ${oracle.length} dishes x 4 macros x ${draws} draws, ` +
@@ -300,13 +410,38 @@ for (const entry of oracle) {
   const span = r.points.length === 0
     ? "no draws"
     : `${Math.min(...r.points)}-${Math.max(...r.points)}/4`;
-  console.log(`${entry.name.padEnd(18)} ${String(sum).padStart(3)} pts   per-draw ${span}`);
+  console.log(
+    `${entry.name.padEnd(18)} ${
+      String(sum).padStart(3)
+    } pts   per-draw ${span}`,
+  );
   for (const line of r.detail) console.log(`    ${line}`);
 }
+// A dish with no draws was never scored, so it is not in `possible` either - and a
+// partial total therefore LOOKS like a full one. "52/72" reads exactly like the
+// historical 6-dish figure while meaning something else entirely, which is the
+// reporting trap this footer exists to close. Say the coverage out loud.
+const covered = oracle.filter((e) =>
+  (results.get(e.name)?.points.length ?? 0) > 0
+);
+const missing = oracle.filter((e) =>
+  (results.get(e.name)?.points.length ?? 0) === 0
+);
 console.log(
-  `\nTOTAL ${total}/${possible} points in band (${Math.round(100 * total / possible)}%).` +
-    (oracle.length < 6
-      ? `\n⚠️  Only ${oracle.length} of the design's 6 dishes are ruled - NOT the full score.`
+  `\nTOTAL ${total}/${possible} points in band (${
+    Math.round(100 * total / possible)
+  }%)` +
+    ` over ${covered.length} of ${oracle.length} ruled dishes.` +
+    (runLabel ? ` [arm ${arm}, run ${runLabel}]` : ` [arm ${arm}]`) +
+    (missing.length
+      ? `\n⚠️  PARTIAL SCORE - NOT COMPARABLE TO A FULL ONE. Unscored: ${
+        missing.map((e) => e.name).join(", ")
+      }.` +
+        `\n    They have no archive for this arm, so they are absent from BOTH sides of the` +
+        `\n    fraction. Run the arm (no --replay) to cover them.`
       : "") +
-    `\n⚠️  Report alongside the 96-point weighted number, never merged into it.`,
+    `\n⚠️  The DENOMINATOR changed on 2026-08-20 (6 dishes -> ${oracle.length}) and so did the pass` +
+    `\n    rule (average ±20%, plus a 6 g / 50 kcal allowance). A score from before that date is` +
+    `\n    not comparable to one after it.` +
+    `\n⚠️  Report alongside the weighted number, never merged into it.`,
 );

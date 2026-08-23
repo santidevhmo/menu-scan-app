@@ -11,6 +11,424 @@ longer exists** (merged into `main`, eval 138). Read any such path as "this repo
 
 ---
 
+## 0. THE MAP — read this first if any of the words below are unfamiliar
+
+**What the product does.** The user photographs a restaurant menu. The app reads the items off the
+photo (**Stage 1**), then for each dish asks a model to list its ingredients, and for each ingredient
+two things: **how many grams** are in one serving, and **what it is per 100 g** (protein/carb/fat).
+**Our code does all the arithmetic** — grams × per-100 g, summed. The model never reports a total.
+That split is deliberate: the model is good at knowing what food is, and bad at addition.
+
+### The vocabulary, in plain terms
+
+| word | what it means |
+|---|---|
+| **Stage 1 / Stage 2** | Stage 1 reads the menu photo into a list of items. **Stage 2 is the macro estimate.** All the work in this phase is Stage 2. |
+| **oracle** | The **answer key**. A hand-built, USDA-sourced record of what each test dish really contains. It lives in `scripts/fixtures/unweighted-oracle.json` (+ a weighted one). **It never runs in the app** — it exists only to grade us. It stores **bands only** — `mass_band_g`, four macro `band`s and a prose `assumed` — with **no per-ingredient array**; the decomposition lives in the rulings docs. |
+
+🪤 **FOUR FILES GET CONFUSED FOR EACH OTHER. THEY ARE NOT THE SAME THING** (eval 168):
+
+| file | what it holds | dishes |
+|---|---|---|
+| `scripts/fixtures/caches/*.raw.json` | **the model's ANSWERS.** What GPT guessed. Free to re-grade. | **68** |
+| `scripts/fixtures/unweighted-oracle.json` | **the RIGHT answers**, hand-ruled. The unweighted **/684**. | **57** |
+| `scripts/fixtures/macro-oracle.json` | the right answers for **printed-weight** dishes. The separate **/96**. | **8** |
+| `scripts/fixtures/*.expected.json` | **STAGE 1 ONLY** — did we read the right item NAMES off the photo. **No macros at all.** | n/a |
+
+**65 dishes in the whole project have hand-checked macros.** 68 dishes have the model's guesses, and
+after round 2 all but a handful are ruled — the 8 unruled were **retired as unanswerable** (their menu
+line is only a name), not left as a to-do.
+
+⚠️ **`unweighted-oracle.json` is GENERATED — never hand-edit it.** Add a `Draft` to
+`scripts/unweighted-oracle-build.ts` and re-run it; `deriveBands()` does the arithmetic. **Put the
+derivation in the `assumed` STRING, not a code comment** — comments never reach the JSON, which is
+what a future session re-derives from.
+| **band** | The pass window for one number. Not a single value — a range. A macro **passes** if the app's answer lands inside the band. Currently **the average dish ±20%**, plus a small-miss allowance (6 g for a macro, 50 kcal). |
+| **draw** | One repeat of the exact same question. The model is not deterministic, so every dish is asked **3 times** and all 3 are scored. |
+| **harness** | The script that runs a benchmark and prints a score. `bench-unweighted.ts` (no-weight dishes), `bench-mixed-menu.ts` and `bench-macros.ts` (printed-weight dishes). |
+| **arm** | **A variant of the pipeline being tested** — one changed thing (a prompt sentence, a schema field, a different batching) run through the harness so its score can be compared. Think "experimental condition". Arms are named: `baseline`, `dual`, `P`, `A`, `S3`… |
+| **replay** | Re-scoring **saved** model answers instead of buying new ones. Costs **$0** and calls no API. This is why a corrected oracle re-grades all of history for free. |
+| **ledger** | `docs/superpowers/extraction-iteration-ledger.md` — **the logbook**. One numbered entry ("eval 158") per experiment, newest last, recording what was tried, what it scored, and what it cost. **It is the memory of this project.** Currently at eval 158. |
+
+### The arms that matter right now — ALL ON THE /684 RULER
+
+| arm | what it is | score | status |
+|---|---|---|---|
+| `dual` | The v32 pipeline. Stage 2 runs twice: pass 1 whole menu, pass 2 re-sends only the no-weight dishes with one extra sentence. | 352, 357 *(2 runs)* | superseded by v33 |
+| `NOBOOST` | Deletes only the PUSH half of pass 2's addendum. | 386 *(1 run)* | unresolved — CI includes zero. Do not ship, do not call it rejected either |
+| `HYBRID(300)` | A **router**: use `NOBOOST`'s answer when `NOBOOST`'s own plate mass < 300 g, else re-ask the shipped question. | 394–419 *(4 runs)* | beaten by `FORM` |
+| 🚀 **`FORM`** | The model names each dish's **form** from a fixed enum; **we** set the plate's mass from `FORM_G` and rescale. | **434–453** *(5 runs, mean 442.4)* | **SHIPPED as v33, 2026-08-23** |
+| `COMBO` | `HYBRID` routes, then `FORM` sizes. | 449–470 *(4 runs)* | ☠️ **NOT established: +18 over `FORM`, CI −7.7 to +43.5.** Do not ship |
+
+🔴 **EVERY SCORE BELOW THIS TABLE WRITTEN AS `/108` OR `/252` IS PRE-WIDENING AND NOT COMPARABLE TO
+ANYTHING CURRENT.** The oracle went 9 → 21 dishes (eval 167) → 57 dishes (eval 169). Re-derive with
+the `--replay` commands at the bottom of this file before trusting any of it.
+
+### HISTORICAL — the same arms on the retired /108 ruler
+
+| arm | what it actually is | score |
+|---|---|---|
+| **`baseline`** | The pipeline **before** the dual pass — one call per batch of 10 mixed items. The "do nothing" control. | **60/108** |
+| **`dual`** | **What is deployed today (v32).** Stage 2 runs *twice*: pass 1 sends the whole menu (its answers used for dishes that print a weight); pass 2 re-sends only the no-weight dishes, in their own batches, with one extra sentence. | **67/108** ← best |
+| **`Arm A`** | Asks the model for the dish's **total grams** (`typical_total_g`, a required schema field), then rescales every ingredient to that total. | **36/108** ☠️ rejected twice |
+| **`ORDER` / `ORDER-nopush` / `PIECE`** | Change what the per-ingredient GRAM FIELD asks for: `typical_serving_g` (a label serving) → grams **in one order as sold**, or grams **per piece x `serving_pieces`**. No total asked, nothing rescaled. | **61 / 65 / 60** ☠️ all rejected, eval 159 — **and they SIZED BETTER than the winner** |
+| **`NOPUSH`** | Deletes pass 2's whole addendum — **both** the restraint half AND the push half. Shipped gram ask, shipped schema. | **57/108** ☠️ rejected, eval 160 — **and it does NOT test what its name says.** Re-measured on the widened 21-dish oracle (eval 167): **145/252**, same rank, still rejected. |
+| **`NOBOOST`** | Deletes **only the push half** of pass 2's addendum; keeps the restraint. Shipped gram ask, shipped schema, shipped key. One clause of diff. | **70–72/108** vs the control's **64–67** on 9 dishes; **149–150/252** vs **131–139** on 21 (eval 167). On 57 dishes: **386/684** against `dual`'s 352, +41.5, CI **−1.5 to +87.5**, ahead in 97.1% of resamples. The small-plate pattern replicated out-of-sample (+0.97/dish <250g, −0.21/dish ≥250g, n=22/35). ⚠️ **eval 169 marked this REJECTED via a "pre-committed deploy rule" that was NEVER SANTIAGO'S — that rule is VOID (eval 171), so the rejection is WITHDRAWN and the honest status is UNRESOLVED (the CI includes zero).** It is nevertheless superseded on arithmetic: `HYBRID(300)` reads 415 to its 396. Do not ship it; do not cite it as "rejected" either. |
+| 🟢 **`HYBRID(T)`** | **Not a prompt or schema change — a ROUTER.** Per dish: use `NOBOOST`'s answer when `NOBOOST`'s OWN plate mass is under T g, else keep `dual`. Reads only the model's output, never the oracle, so it can ship. 🟢 **PAID AND CONFIRMED AT THE 4-RUN BAR (eval 173): 394/408/410/419 vs `dual`'s 352/357 — DISJOINT RANGES, worst run +37 over `dual`'s best**, mean 407.8 vs 354.5. Eval 172's single run: +56.0, CI +7.0 to +113.0, excludes zero; +63.0 pizzas-dropped. The $0 replay that predicted it read 415 and +50 with T chosen leave-one-menu-out, so batch composition did NOT eat the gain. **Deploy-eligible on the repo's own rule; deploying is Santiago's call.** evals 171–173 |
+| **`ROLE`** | `NOBOOST` + ONE required enum per ingredient (`body│filling│topping│garnish`) inserted immediately BEFORE the gram field. Schema only — no sentence explains it, nothing reads it. | **58/108** ☠️ rejected, eval 163 — **the enum FIRED (labels varied, body's median gram 3.3× filling's) and lost anyway.** Re-measured on 21 dishes (eval 167): **137/252**, still rejected. |
+| **`MASSCALL`** | `NOBOOST`'s recipe rescaled to a plate total from a SECOND call that sees only name + description. Reuses Arm C's plate prompt verbatim. | **50/108** ☠️ rejected, eval 163 — **the bare mass question is a WORSE mass estimator than the ingredient list.** Re-measured on 21 dishes (eval 167): **118/252**, still last place. |
+
+### ⚖️ THE TWO SCORES — NEVER MERGE THEM
+
+The benchmark is split because the product is split.
+
+| | what it covers | how common | denominator | where we are |
+|---|---|---|---|---|
+| **weighted** | dishes whose menu **prints a gram weight** ("Ribeye 300gr") | ~33% of real items | **/96** | **6–9 failed ≈ 82–94%** — genuinely good |
+| **unweighted** | dishes printing **no weight** at all | **~67% of real items** | **/684** (widened 108→252 eval 167, then 252→684 eval 169, 2026-08-22) | **`dual` 352/684 ≈ 51%** — the unfinished half. A "/108" or "/252" figure predates the eval-169 widening. |
+
+**The unweighted half is the whole problem.** It is most of a real menu and it is the weaker number.
+
+### Where we are, in one line
+
+🚀 **PRODUCTION IS EDGE FUNCTION `analyze-menu` v33, DEPLOYED 2026-08-23 — FORM SIZING IS LIVE.**
+v33 = v32 + `callGptEnrichFormSized`: the dual pass, then the model names each dish's FORM from a
+fixed enum and **we** set the plate's mass from `FORM_G`. **434-453/684 over 4 runs against v32's
+352-357, ranges disjoint; +86.8, 95% CI +30.7 to +142.8, and the log-ratio metric excludes zero too.**
+Verified through the SHIPPED path before deploying: `FORM --run r5` = **447/684**, `verify-form-fired`
+**171/171 EXACT**. Cost: a THIRD model call per scan (~+50% Stage-2 calls) and one more round trip.
+**Rollback to v32:**
+```bash
+git checkout b24737a -- supabase/functions/analyze-menu/ && \
+  supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw
+```
+🔑 **The label call CANNOT fail a scan** — `callGptEnrichFormSized` try/catches it and returns the
+unsized dual-pass result, so an error degrades a scan to v32 quality rather than returning nothing.
+⚠️ **Not yet merged to `main`** — this is branch `feat/dual-pass-enrichment`, worktree
+`stage2-macro-benchmark`, and what is deployed matches commit `c7fc388` on that branch, NOT `main`.
+
+🟢 **EVAL 176: `FORM` IS THE BEST ARM AND THE FIRST TO WIN ON BOTH RULERS.** The model picks a dish
+FORM from a fixed enum and **we** supply the grams from `FORM_G` (`scripts/arm-dish-form.ts`); our code
+rescales the plate. Santiago's own idea.
+
+| arm | runs × 3 draws | range | mean |
+|---|---|---|---|
+| `dual` (shipped v32) | 352, 357 *(2 runs)* | 352–357 | 354.5 |
+| `HYBRID(300)` | 394, 408, 410, 419 | 394–419 | 407.8 |
+| 🚀 **`FORM` — SHIPPED as v33** | **434, 436, 442, 447, 453** *(5 runs)* | **434–453** | **442.4** |
+| `COMBO` (`HYBRID`+`FORM`) | 449, 455, 463, 470 | 449–470 | 459.2 |
+
+🔑 **THREE DISJOINT RANGES. `FORM`'s worst run beats `HYBRID`'s best by +15 and `dual`'s best by +77.**
+Pooled over all runs, `dual` vs `FORM` is **+86.8, 95% CI +30.7 to +142.8, ahead in 99.9%**, and the
+log-ratio metric ALSO excludes zero (−0.0607, CI −0.1005 to −0.0216) — **every previous winner,
+`HYBRID` included, straddled zero on that second ruler.** Deploying is Santiago's call.
+🟢 **THE MECHANISM IS VERIFIED BY AN INVARIANT, NOT A DIFF:** a dish sized as `pizza_whole_thin` must
+resolve to exactly 425 g, checkable inside ONE archive, so drift cannot fake it.
+`verify-form-fired.ts` reads **171/171 EXACT** on `FORM` r1 and `COMBO` r1/r4, 170/171 elsewhere.
+☠️ **`COMBO` IS NOT ESTABLISHED AND MUST NOT SHIP: pooled over 4 runs it is +18.0, CI −7.7 to +43.5,
+INCLUDES ZERO** (92% of resamples). The +34 with a clean CI that eval 176 first reported came from
+`sim-arm-significance.ts` silently defaulting to run 1, which is `COMBO`'s BEST and `FORM`'s
+second-WORST. 🪤 **A paired test is only as fair as the runs it paired — always pool with
+`arm+arm@r2+arm@r3+arm@r4`.** A third model call for an unproven +18 is not a trade worth making.
+⚠️ **COVERAGE IS THE LIMIT, NOT CLASSIFICATION.** Over the 5 archived menus that never contributed a
+ruled dish, the table sizes **33% of real candidates (122, 82 with no row)** against **82% on the menus
+it was built from**. `other` returns null so an unsized dish keeps today's answer and nothing goes
+backwards — but **+87 IS NOT A WORLDWIDE FIGURE.** The gaps are ordinary forms (grilled vegetables, raw
+seafood, cake, hot cakes, tostadas), so **the taxonomy is small, not wrong: the fix is more rows.**
+⚠️ **FIXING MASS PROMOTES THE NOISE.** `dual` moves 5 points between runs; with mass corrected the same
+composition variance is worth ~20, and the $0 sim's 469 prediction measured 434–453. **This RAISES the
+priority of the 38-of-57 rescan problem** — a user rescanning one menu still gets different macros, and
+no arm has ever addressed it.
+
+---
+
+## 🎯 NEXT STEPS — ranked, with the $0 first move for each (written 2026-08-23)
+
+**The score is 65%. There is still NO written definition of "good enough to ship" anywhere in this
+repo** — Santiago was asked on 2026-08-23 and chose not to set one yet, so do not invent a bar and do
+not treat 65% as done.
+
+### ① MORE ROWS IN `FORM_G` — the highest value, lowest risk work left
+The table sizes **33%** of candidate dishes on menus it was not built from, against **82%** on the five
+it was. The gaps are ordinary restaurant forms with no row: grilled vegetables, raw seafood
+(`TARTAR DE ATÚN`, `COASTAL OYSTERS`, `HAMACHI CRUDO`, `AGUACHILE`), cake, `HOT CAKES`,
+`TOSTADAS DE ATÚN`, `SALCHI-RIBS`. **The table is SMALL, not wrong.**
+- **Why it is safe:** `other` returns null, so an uncovered dish keeps today's answer. Adding a row can
+  only help the dishes it matches. Nothing regresses.
+- **$0 first move:** `deno run --allow-read scripts/sim-form-coverage-split.ts` — it prints the
+  uncovered dishes by name. Those names ARE the work list.
+- ⚠️ **Source the grams from FNDDS/USDA published serving weights, NOT from the oracle.** Two existing
+  rows (`pizza_whole_thin`, the `taco_single_loaded` split) are flagged in `dish-form.ts` as
+  contaminated precisely because they were not. `sim-form-table.ts`'s audit column is how you check.
+- ⚠️ Coverage on the 5 unseen menus **cannot be scored** — they have no oracle. Measure the `other`
+  rate, not a score.
+
+### ② THE RESCAN PROBLEM — now the binding constraint, and untouched by every arm
+**38 of 57 dishes do not score identically run to run.** A user rescanning the same menu gets different
+macros. Correcting mass made this WORSE in relative terms: `dual` moved 5 points between runs, but with
+mass fixed the same composition variance is worth ~20. **Nothing in this phase has attempted it.**
+- Known: `temperature: 0` and `ENRICH_SEED = 17` do **not** give run-to-run stability
+  (`enrich.ts:258` claims otherwise; it is optimistic). Two runs of an identical arm differ on 45–57%
+  of dish-draws, mean mass drift 9–20 g, max 110 g, ingredient COUNT changing on 56 of 171.
+- 🔑 **The FORM label is the exception: it was stable on 57/57 across draws.** So a stable *category*
+  question is answerable; it is the ingredient list underneath that moves. That asymmetry is the lead.
+- **$0 first move:** the drift measurement already exists in the ledger at eval 172 ②. Re-derive it
+  before designing anything.
+- ⚠️ Use `superpowers:brainstorming` before designing an eval here. Do not reach for
+  "median of 3 draws" — `scripts/sim-median-of-draws.ts` already tested aggregation and it was retired.
+
+### ③ MERGE PR #19
+Open, mergeable, no conflicts. `main` has v32; production runs v33. Not urgent — deploying and merging
+are independent and nothing breaks while it waits — but until it merges, **anyone deploying from `main`
+silently reverts form sizing.**
+
+### ⛔ DO NOT DO THESE
+- **Do not ship `COMBO`.** +18 over `FORM` with a CI of −7.7 to +43.5. A fourth model call for an
+  unproven gain.
+- **Do not ask the model for grams, in any framing.** Four arms have now died on it (Arm A 36/108,
+  MASSCALL 50/108, the eval-175 `grams` probe, and a global calibration at 223/684 LOMO). Eval 175
+  found the mechanism: asked what a thin-crust pizza weighs *in general*, with no plate in front of it,
+  it says **300 g** against a real 400–450. **The bias is in its prior about serving sizes, not in its
+  reading of any dish**, so no prompt reaches it. Ask for a CATEGORY and supply the grams yourself.
+- **Do not re-open the "real-restaurant field test".** The fixtures ARE real phone photos of real paper
+  menus (Santiago, 2026-08-16). The old "every scan is a photo of a screen" claim is FALSE.
+
+
+🔴 **BUT READ ③ OF EVAL 172 BEFORE BUILDING ON IT: THE MODEL IS NOT DETERMINISTIC, AND A GRAM
+THRESHOLD IS THE WEAKEST POSSIBLE HINGE.** Two runs of an IDENTICAL arm differ on **45% (`dual`) to
+57% (`NOBOOST`) of dish-draws**, mean mass drift 9–20 g, max 110 g, ingredient COUNT changing on 56
+of 171 — despite `temperature: 0` and `seed: 17` (`enrich.ts:258` calls that "run-to-run stability";
+it is optimistic). 37% of NOBOOST answers sit within 50 g of the 300 g line, so for a third of the menu the routing
+decision is settled by noise — ⚠️ but ~~this makes those dishes the unstable ones~~ is **FALSIFIED by
+eval 173 ②**: near-threshold dishes swing 1.32 pts against 1.54 for the rest, r = −0.147. The churn is
+GENERAL DRIFT, not the hinge. **Do not argue for dish-form work on stability grounds.**
+🟢 **THE BAR IS NOW MET (eval 173): `HYBRID` ran 4 × 3 draws at 394/408/410/419 against `dual`'s
+352/357 — the ranges DO NOT OVERLAP, worst `HYBRID` run +37 over best `dual` run.** It is the first
+arm this phase that is better than what ships. Deploying is Santiago's call, not an automatic rule.
+🪤 **A diff between two paid archives CANNOT distinguish a mechanism from drift** — an after-the-fact
+archive diff made `HYBRID` look badly broken when it was not. Log a router's decision during the run.
+
+⚠️ **There is still NO numeric deployment bar anywhere in this repo** — "good enough to ship" has
+never been written down as a number. 60% is the phase's biggest jump, not a finish line.
+
+☠️ **THE "DEPLOY RULE" THAT KILLED `NOBOOST` WAS NEVER SANTIAGO'S — IT IS VOID (eval 171).** Eval 168
+wrote it, eval 169 applied it "as agreed in advance", eval 170 called it closed; **no block carries
+any attribution**, and asked directly Santiago said *"Don't remember saying that. Ignore it and
+proceed as if it was never there."* 🪤 **A constraint with no named author is not a constraint —
+grep for the user's sentence before letting a rule block work.** Consequences: `NOBOOST` reverts to
+**unresolved** (+41.5, CI −1.5 to +87.5, includes zero), *not* rejected — though `HYBRID`'s 415 beats
+its 396, so it is superseded on arithmetic anyway; and nothing blocks `HYBRID(300)`.
+
+🟢 **MEASURED AND IT IS THE BEST THING THIS PHASE HAS PRODUCED (evals 174-175) — SANTIAGO'S OWN
+IDEA: CLASSIFY THE DISH FORM, THEN SIZE IT FROM THAT FORM'S AVERAGE.** The model picks a form from a
+fixed ENUM and **we** supply the grams from `FORM_G` in `scripts/dish-forms.ts`; our code rescales.
+
+| | all 57 | without pizzas |
+|---|---|---|
+| `dual` (shipped v32) | 352/684 | 240/504 |
+| **form enum + our table** | **469/684 (69%)** | **337/504 (+97)** |
+| model supplies the grams instead | 334/684 (−18) | 290/504 (+50) |
+
+🔑 **The classifier is FREE: model labels matched all 57 hand labels and were identical on both draws,
+so the arm lands EXACTLY on its $0 ceiling (+0).** +97 on the honest metric against `HYBRID`'s +53.
+☠️ **ASKING THE MODEL FOR THE GRAMS IS REJECTED, MECHANISTICALLY: asked what a thin-crust pizza weighs
+IN GENERAL it says 300 g (ruled 400-450); a maki order 200 g (ruled 290-400); it calls three entree
+salads "side salad" at 150 g. Its grams land in band 17/57 against our table's 48/57, and it is too LOW
+on 33/57.** The mass compression of eval 171 lives in the model's PRIOR about serving sizes, not in its
+reading of a plate - which is why Arm A (36/108), MASSCALL (50/108) and this all failed the same way.
+**The grams are the one thing the model is reliably biased about, so they are the one thing we must not
+ask it for.** This replaces the stability argument eval 173 ② killed.
+⚠️ **THE OPEN RISK IS TAXONOMY COVERAGE, NOT CLASSIFICATION.** The 20-row table was written from these
+57 dishes, so every dish had a fitting row - a real menu will not. `other` returns **null**, so an
+unknown dish is left alone rather than mis-sized (a new menu degrades to today's score, it cannot go
+backwards). **Do not quote +97 as a worldwide figure.** Cheap next test: run the enum over `polloteria`
+and the other unruled archives and measure only the `other` rate, ~$0.05.
+⚠️ Still a rescale of `dual` archives, NOT an end-to-end arm. Before it can ship it needs a real
+`bench-unweighted.ts` arm at the 4-run bar, like `HYBRID` got. **It COMPOSES with `HYBRID` rather than
+competing - `HYBRID` routes, this sizes - and they are untested together.**
+🪤 A form mechanism fixes MASS only. The LABEL is perfectly stable (57/57 twice) while the macros under
+it still drift, so this does NOT touch the 38-of-57 rescan problem.
+
+See evals 171–172 for every derivation.
+
+### 🔑 THE 2026-08-21 FINDINGS THAT CHANGE WHAT TO TRY NEXT (evals 159 + 160)
+
+**MASS AND COMPOSITION ARE NOT SEPARABLE LEVERS IN ONE MODEL CALL.** Three arms changed only what the
+per-ingredient gram field ASKS for. All three **sized the plates better than the shipped pipeline**
+(mass in band 21/27, 20/27, 18/27 against dual's 14/27 — TACO PORCO 218 g → 137 g against a 100–140
+band) and **all three scored WORSE**, because the model silently re-reasoned each dish's per-100 g
+composition too.
+
+`scripts/sim-mass-composition-split.ts` ($0) prices each arm's MASS at each arm's COMPOSITION. Rows =
+whose mass, columns = whose composition:
+
+| | dual | ORDER | ORDER-nopush | PIECE |
+|---|---|---|---|---|
+| **dual** | **67** | 54 | 53 | 57 |
+| **ORDER** | **73** | 61 | 63 | 68 |
+| **ORDER-nopush** | **74** | 68 | 65 | 67 |
+| **PIECE** | **72** | 65 | 65 | 60 |
+
+🔑 **Every arm's sizing beats dual's (72–74 vs 67). Every arm's recipe loses to dual's (53–57 vs 67).**
+The best cell — **dual's recipe at ORDER-nopush's sizing, 74/108, +7** — is the same size as dual's
+entire gain over baseline. **That is an argument for asking size and recipe SEPARATELY, not for asking
+the size question better.**
+⚠️ **74 is a CEILING, not an arm** — it reads two archives bought separately, exactly like the
+perfect-mass rows. Nobody has shown one call can hold its recipe steady while re-sizing.
+
+🔴 **THIS RETIRES "PERFECT MASS = 98/108" AS A TARGET.** `sim-mass-ceiling.ts` rescales mass while
+HOLDING COMPOSITION FIXED, which no arm can do. The ceiling is real; it is not aimable at.
+
+🟢 **THE PUSH SENTENCE WAS THE LEAD, AND EVAL 160 CASHED IT — `NOBOOST` 70/108, THE FIRST ARM EVER TO
+BEAT THE SHIPPED PIPELINE.** Read the next block before touching that sentence.
+
+⚠️ **THE MODEL ROUNDS EITHER WAY, so none of this cleanly tests "reference serving vs plate share".**
+20/30/50/100 accounts for **71%** of dual's gram answers and **71 / 68 / 64%** of the three arms'.
+Only the numbers it snaps TO got smaller. Re-derive with `sim-gram-distribution.ts`.
+
+### 🟢 EVAL 160: THE PASS-2 SENTENCE IS TWO OPPOSED HALVES, AND WE HAD BEEN DELETING BOTH
+
+`ENRICH_PROMPT_UNWEIGHTED`'s addendum (`enrich.ts:106-107`) is **ONE sentence holding TWO OPPOSED
+HALVES, split by a colon**:
+
+| half | text | direction |
+|---|---|---|
+| **A — restraint** | *"...the amount actually present in one order of this item as it is served, **rather than the amount that ingredient is served in on its own**"* | holds ingredients **DOWN** |
+| **B — the push** | *": a component that forms the body ... **considerably greater quantity** than a standalone serving ... understates the item."* | pushes ingredients **UP** |
+
+Half A is the **only** restraint in the shipped prompt — the shipped gram ask is for a nutrition-LABEL
+serving. Delete A and every ingredient reverts to a standalone portion.
+
+| arm | deletes | score | mass in band /27 |
+|---|---|---|---|
+| `dual` (shipped v32) | — | **67** | 14 |
+| `NOPUSH` | **A and B** | **57** ☠️ −10 | 14 (12 OVER: TACO PORCO 348 g, Salmón Roll 477 g) |
+| `NOBOOST` | **B only** | **70** 🟢 **+3** | **17 — best of any arm** (TACO PORCO 225 g → 135 g, in band) |
+
+🔑 **THIS RECONCILES `ORDER-nopush` +4 WITH `NOPUSH` −10 — the same deletion, opposite signs.**
+`ORDER_ASK` carries its own restraint, so there the deletion dropped only *redundant* push. Restraint
+nowhere else → **−10**. Restraint also in the gram ask → **+4**. Half B was written when dishes read
+too SMALL; on today's ruler 12 of 27 dish-draws come back OVER.
+
+🎯 **THE BEST CELL IN THE PROJECT IS NOW 74–77/108** — `NOBOOST`'s sizing at `dual`'s recipe, over its
+two runs, beating eval 159's 74. Re-derive:
+`deno run --allow-read scripts/sim-mass-composition-split.ts dual NOPUSH NOBOOST NOBOOST@r2`.
+⚠️ Still a CEILING, not an arm.
+
+✅ **REPEATED (eval 161): the range is 70, 72 — BOTH runs above the shipped 67.** `--run <label>` is
+now ported to `bench-unweighted.ts`, so a repeat no longer overwrites its predecessor, and both `$0`
+sims accept **`ARM@label`** (`NOBOOST@r2`). Two effects are stable across both runs and are the whole
+gain: **TACO PORCO 0 → 6/11** (its plate lands in the 100–140 band once the push is gone) and
+**CAPRICCIOSA 8 → 3/5** (the only genuinely large plate in the set, band 400–450 — the one dish the
+push was helping). Per-dish swings of ±5 between runs are normal; the total is not.
+✅ **THE CONTROL'S RANGE ARRIVED (eval 162): `dual --run r2` = 64, so the control is 64–67 and
+`NOBOOST` is 70–72. THE RANGES ARE DISJOINT** — the worst `NOBOOST` run beats the best `dual` run by 3,
+mean +5.5. First change since the dual pass to clear its control on a range rather than a point.
+🔴 **OPEN DECISION FOR SANTIAGO: deploy it?** One clause, and `ENRICH_PROMPT_UNWEIGHTED` is used ONLY
+in pass 2 — pass 1 stays byte-identical, so the weighted 82–94% cannot move.
+
+✅ **OMELETTE CUBANA IS DIAGNOSED AND IT IS NOT A SIZING BUG.** Frozen at exactly 3/12 in all four
+eval-159 arms because each prices the **four named fillings** at a flat 20–30 g — chorizo/ham/bacon/
+cheese = **100–120 g against a ruled 53 g** — while getting eggs (110) and onion/pepper (20/20) right.
+Keep the model's OWN per-100 g recipe and swap in only the oracle's ruled grams: **OMELETTE 1/4 → 4/4
+PASS and TACO PORCO 0/4 → 4/4 PASS**, under both `dual` and `ORDER`. **Composition is entirely correct;
+100% of the loss is per-ingredient gram sizing.** The needed correction (30 → 8–15 g) is BELOW the
+model's granularity for a named meat or cheese: across 140 answers `15 g` appears **once**, `8 g`
+**never**. That is Santiago's ruling #1 (*virutas* = shavings = 5 g) broken four times in one dish.
+
+### 🔴 EVAL 162: THE FILLING FRAMING IS THE WRONG TARGET — IT IS WHOLE-PLATE SIZE, IN BOTH DIRECTIONS
+
+Split each dish's error into **SIZE** (model mass / ruled mass) and **MIX** (model density / ruled
+density), 3-draw averages, `dual`:
+
+| dish | size × | mix × | | dish | size × | mix × |
+|---|---|---|---|---|---|---|
+| Salmón Roll | **0.65** | 1.20 | | PAPAS FRITAS | 0.97 | 1.04 |
+| CARBONARA | **0.80** | 1.10 | | BROWNIE | 1.20 | 0.92 |
+| TIRAS DE POLLO | 0.88 | 0.90 | | ENSALADA GRIEGA | 1.28 | 0.99 |
+| CAPRICCIOSA | 0.89 | 0.88 | | **OMELETTE CUBANA** | **1.28** | 1.14 |
+
+🔑 **MIX error never exceeds ±20%. SIZE error runs 0.65–1.30, in BOTH directions.** A mechanism that
+shrinks non-body ingredients helps OMELETTE and ENSALADA while pushing CARBONARA and Salmón Roll —
+already 20–35% UNDER — further under. `sim-mass-ceiling.ts` settles it: a **uniform** rescale to the band
+midpoint takes **OMELETTE 3/12 → 12/12** and TACO PORCO 0 → 12. **The dish that motivated the filling
+hypothesis is fixed by plate mass alone.** Mass-lever value is **~74–80** ("anywhere in band" = 80);
+98 needs band midpoints and stays retired.
+
+✅ **THE OMELETTE ORACLE RE-CHECK IS DONE (eval 158 flagged it, eval 162 closed it). NO CHANGE
+WARRANTED — the oracle is corroborated, the model is the error.** FNDDS's largest published portion for
+a cheese-and-meat omelette is **170 g, exactly the bottom of our 170–230 band**; a single fried egg is
+55 g, confirming the ruled 2×55; and all three per-100 g rows (FNDDS composite, our recipe, the model)
+agree within ~10%, so composition was never in dispute. **The model's 280 g is 1.65× FNDDS's largest
+portion.** ⚠️ The price ladder on that menu was deliberately NOT used — price is not evidence of grams.
+
+### ❓ "Why haven't we deployed anything?"
+
+🚀 **THAT QUESTION IS ANSWERED AS OF 2026-08-23: `FORM` SHIPPED AS v33.** For most of this phase the
+honest answer was "nothing has been good enough" — deployment was never blocked or gated, there was
+simply no improvement to ship. `FORM` is the first thing since v32 that beat what runs, on 5 runs with
+disjoint ranges, and it is live.
+
+The table below is the record of everything that LOST, and it is worth reading before proposing
+anything: **every row above the `HYBRID` line would make the app less accurate.**
+
+| tried since v32 | result |
+|---|---|
+| accompaniment weight correction | falsified at $0 — makes it worse |
+| lift lean dishes via fat | falsified at $0 — makes it worse |
+| Arm A (plate total), re-run 2026-08-21 | **36/108 vs the shipped 67/108** |
+| ORDER / ORDER-nopush / PIECE (what the gram field asks) | **61 / 65 / 60 vs 67** — better mass, worse recipe |
+| NOPUSH (delete pass 2's whole addendum) | **57/108 vs 67** — rejected |
+| **NOBOOST (delete only the addendum's PUSH half)** | **70–72 vs 64–67** on 9 dishes; **149–150 vs 131–139 /252** on 21 (eval 167). Eval 164's *"all of it is TACO PORCO"* is **RETRACTED**. Eval 168: it is a **SMALL-PLATE mechanism** — +0.74/dish under 250 g, −0.15/dish at or above. CI still includes zero |
+| ROLE (an inert role enum before the gram field) | **58 vs NOBOOST's 70–72** — rejected, eval 163 |
+| MASSCALL (plate total from its own separate call) | **50 vs NOBOOST's 70–72** — rejected, eval 163 |
+| global calibration — invert the mass compression with one fitted line (eval 171) | **223/684 leave-one-MENU-out vs 352** ☠️ the slope does not transfer between cuisines |
+| piecewise shrink keyed on the model's own mass (eval 171) | **314–352 LOMO** ☠️ never beats doing nothing |
+| 🟢 **HYBRID(T) — route each dish between `dual` and `NOBOOST` on the model's OWN plate mass** (eval 171) | **415/684 vs 355**, +60.0, CI **+23.5 to +102.5 (excludes zero)**, 100% of resamples, stable across runs, survives dropping the 14 pizzas, LOMO-chosen T still +50. **The first candidate, awaiting a paid confirmation** |
+
+Every arm above the HYBRID row would make the app **less** accurate. **HYBRID is the first exception
+since v32** — and it is a replay, not a purchase, so it is a candidate rather than a result.
+
+### 🎯 Where this sits in the actual product
+
+This is **one workstream inside Phase 9** of `docs/sunny-lemon-development-plan.md` (16 phases,
+bootstrap → launch). Phases 10–16 — paywall, onboarding, analytics, security audit, screenshots,
+launch — are **all downstream of it**. So macro accuracy is the thing standing between the app and the
+launch runway.
+
+⚠️ **Santiago's standing fallback, kept open deliberately:** if the unweighted half stalls for weeks,
+**ship the weighted half honestly** — it is genuinely good — and say plainly in the UI that no-weight
+items are rough estimates. That is a real option, not a failure.
+
+### 🔴 WHY THE 2026-08-21 SESSION KEPT BEING WRONG — read this before you repeat it
+
+Four wrong things surfaced in one day. **They were not four separate mistakes; they were two habits.**
+Full write-ups are **lessons 31–34** in ②'s "Lessons learned".
+
+**Habit 1 — describing an artifact without opening it (lesson 31).** Three wrong claims, each one
+file-read from being right:
+
+| the claim | the reality | what it nearly cost |
+|---|---|---|
+| "Arm A was just a prompt ask, so schema-forcing size is untried" | Arm A is **already** prompt + a required `typical_total_g` field | designing a **duplicate of a twice-rejected arm** |
+| TACO PORCO "is garnish inflation", with a gram breakdown | those grams came from the **`baseline`** archive, not the shipped `dual`; in `dual` the peanuts are *under*-sized and the error is uniform | an arm aimed at **a mechanism that does not exist** |
+| "blast radius is one menu of ten" | checked one harness's archive map; the other uses a **different** family | conclusion held **by luck** |
+
+**Habit 2 — trusting a measurement without checking what it measured (lessons 32–34).** A loader that
+read 1 of 2 archive parts, three sims hardcoding 3 of 5 menus, and a guard that *printed* its invariant
+instead of enforcing it. Each silently reported a **smaller, wrong number that looked fine**, and one
+of them had parked the single largest available lever in a "DO NOT RE-OPEN" table.
+
+🔑 **THE ONE-LINE ANTIDOTE: before writing a number or a claim, open the thing it came from — and ask
+what the measurement EXCLUDED, not just what it reported.** A partial measurement never announces
+itself.
+
+✅ **What went right, and it is the reusable part:** Santiago demanded a **$0.55 control run** instead
+of accepting the argument for why a rejected arm would work now. **The control falsified the plan
+before a line of it was built.** When a past failure is claimed to no longer apply, re-run it.
+
+---
+
 ## 1. What am I supposed to be working on?
 
 There are **two roadmaps, nested** — the product one, and an extraction sub-roadmap inside it.
@@ -32,13 +450,41 @@ the edge function → ②.** If a phase or priority is asserted anywhere other t
 it is stale — fix it or ignore it, never believe it. The active Stage-2 macro handoff below is
 the explicit exception: it is the bounded Phase-9 workstream record, not a competing roadmap.
 
-**Stage-2 macro enrichment IS THE ACTIVE WORK. → Start at the `🆕 2026-08-19 HANDOFF` block
+**Stage-2 macro enrichment IS THE ACTIVE WORK. → Start at the `🆕 2026-08-20 HANDOFF` block
 below; it is written so a zero-context session can take over from it alone.** Everything between here
 and that block is older context that it supersedes where they disagree. Phase spend to date:
-**~$35.7** (~$2.52 to 2026-08-09, ~$19 on 2026-08-12, ~$6 on 2026-08-13, ~$5.5 on 2026-08-16,
-~$5.2 on 2026-08-19).
+**~$38.5** (~$2.52 to 2026-08-09, ~$19 on 2026-08-12, ~$6 on 2026-08-13, ~$5.5 on 2026-08-16,
+~$5.2 on 2026-08-19; **~$2.8 on 2026-08-20/21**, evals 157–158).
+ℹ️ Pre-existing and left alone: the itemised figures sum to ~$41, not the running total. The running
+total is the number that has been carried forward; treat both as approximate.
 
-🚀 **LIVE NOW: edge function `analyze-menu` v31, deployed 2026-08-16 (Santiago authorised).**
+📄 **Prefer a page to a wall of markdown? `docs/superpowers/how-testing-works.html`** explains the
+whole measurement setup in plain language, with a glossary of every term this phase uses.
+
+🔴 **BEFORE YOU COMPARE ANY UNWEIGHTED NUMBER: the scoring rule and the dish count BOTH changed on
+2026-08-20.** Bands are now the average dish ±20% (they used to inherit the mass range's width,
+±6% to ±29%, unchosen), a miss under 6 g / 50 kcal also passes, and the set is **9 dishes, not 6**.
+**A score from before that date is not comparable to one after it** — re-score both arms first.
+
+🚀 **LIVE NOW: edge function `analyze-menu` v32, deployed 2026-08-19 (Santiago authorised).**
+**v32 = v31 + the DUAL PASS + pass 2's SYSTEM envelope.** Unweighted dishes went **25 → 35–36/72**;
+weighted dishes are unchanged (**14–17/96** vs a fresh **15/96** control) because pass 1's request body
+is byte-identical (5491 bytes, verified). Stage 2 is **1.56–1.92× slower**, ~$0.03 → ~$0.05 per scan.
+Full detail: the 2026-08-19 handoff block, now superseded by the 2026-08-20 one. **Rollback to v31:**
+```bash
+git checkout dbf3f79 -- supabase/functions/analyze-menu/ && \
+  supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw
+```
+✅ **`main` DOES contain v32** — PRs #18 → #17 → `main` merged 2026-08-19. Verified against
+`origin/main` on 2026-08-23: `git show origin/main:.../enrich.ts | grep -c callGptEnrichDualPass`
+returns 1.
+⚠️ **`main` does NOT yet contain v33 (form sizing).** `git diff origin/main HEAD --
+supabase/functions/analyze-menu/` = **2 files, +274/−7** (`dish-form.ts` plus the `index.ts` wiring),
+so deploying from `main` today reverts form sizing ONLY, not the dual pass. A PR is open.
+🪤 **ALWAYS `git fetch` AND COMPARE `origin/main`, NOT the local `main` ref.** A stale local `main`
+here read as "no dual pass on main" and produced a confident, wrong claim in this very file.
+
+History — **v31, deployed 2026-08-16**, superseded by the above.
 **v31 = v30 + the two ZEROING BUG FIXES, and nothing else.** Verified before shipping: the delta
 against v30 is `enrich.ts` + its tests only — `ENRICH_PROMPT`, `ENRICH_SCHEMA_OPENAI`, the model pin
 and `ENRICH_BATCH_SIZE = 10` are all byte-identical, so **macro accuracy is unchanged by design**
@@ -74,13 +520,517 @@ item as `3/8` / `all`. Working, not the intended form.
 
 ---
 
-## 🆕 2026-08-19 HANDOFF — A ZERO-CONTEXT SESSION CAN TAKE OVER FROM THIS BLOCK ALONE
+## 🆕 2026-08-20 HANDOFF — A ZERO-CONTEXT SESSION CAN TAKE OVER FROM THIS BLOCK ALONE
+
+📄 **Read this first if you want the whole measurement setup in plain language:**
+`docs/superpowers/how-testing-works.html` — what the app does, why there are two scores, how an oracle
+dish is built, how a pass is decided, and a glossary of every term used in this phase. Written for
+Santiago and for a cold session. Open it in a browser.
+
+### ✅ THAT RUN IS DONE (2026-08-20, eval 157, ~$2.2). THE 9-DISH SCORE EXISTS.
+
+**`dual` (shipped, v32) 67/108 = 62%. `baseline` (pre-dual) 60/108 = 56%. Gap +7.**
+Both arms, all 9 dishes, 3 draws, same ruler, same day. Re-derive with
+`scripts/bench-unweighted.ts 3 <dual|baseline> --replay`.
+
+🔑 **READ THE GAP'S DECOMPOSITION, NOT THE HEADLINE — THE BAR HAS NOT GONE SOFT.** On the seven dishes
+that existed before that day the gap is **+11**, matching the +11/+12 measured earlier the same day.
+The headline fell to +7 because the two NEW dishes contribute **−4**, all of it BROWNIE (baseline 12,
+dual 8). **That is dual genuinely losing a dessert, not a ruler that stopped discriminating.**
+
+### ✅ ROUND-1 WIDENING, eval 167 — 9 → 21 DISHES. ⚠️ SUPERSEDED: THE ORACLE IS NOW **57** (eval 169)
+
+**All four $0 steps from the 2026-08-22 rulings are complete.** Full detail, the two decisions
+Santiago ruled, and the FDC-verification findings are in eval 167 of
+`docs/superpowers/extraction-iteration-ledger.md`. The rulings themselves are still in
+`docs/superpowers/specs/2026-08-22-oracle-widening-rulings.md` for the per-ingredient grams and FDC
+citations; `scripts/fixtures/unweighted-oracle.json` now holds all 21 dishes as scoring data.
+
+**The gate passed on all 7 archives** — the pre-existing 9 dishes score IDENTICALLY on the widened
+oracle as they did before it (`dual` 67, `dual@r2` 64, `NOBOOST` 70, `NOBOOST@r2` 72, `ROLE` 58,
+`MASSCALL` 50, `NOPUSH` 57 — all exact matches). The harness derives its dish/menu list from the
+oracle itself, so this was a real test.
+
+🔑 **THE QUESTION THIS PHASE WAS STUCK ON HAS AN ANSWER: NOBOOST's advantage is broader than one
+dish, but still not statistically resolved.** On the widened 21-dish oracle (/252): `dual` 139/131,
+`NOBOOST` 149/150 — observed gap **+14.5** (was +5.5 on 9 dishes). 95% CI **−5.5 to +37.5** (still
+includes zero) but NOBOOST now leads in **90.5%** of resamples (was 69.7%), and — the part that
+reverses eval 164 — **leave-one-dish-out no longer flips the sign**: remove TACO PORCO and the
+effect is still **+6.5**, not −2.5. The gain is now spread across TACO EL CAPRICHO, OMELETTE LAMERA
+and ALFREDO PORTOBELLO rather than riding on TACO PORCO alone. **Not yet a confirmed improvement —
+the CI still includes zero — but "it's all one dish" is retracted.**
+
+### 🔴 EVAL 169: NOBOOST IS REJECTED. THE ORACLE IS NOW 57 DISHES (2026-08-22, $0)
+
+The round-2 spec is fully executed and the pre-registered analysis is run. Full detail in eval 169
+of the ledger; per-dish rulings in `docs/superpowers/specs/2026-08-22-oracle-widening-round-2-rulings.md`.
+**No API spend. Production still v32.**
+
+**Dish count: 21 → 57** (44 proposed, 8 retired as unanswerable, 36 written — not the 65/52
+originally projected; the answerability test split individually, not as a block).
+
+🔑 **① THE PRE-REGISTERED PREDICTION WAS WRONG.** Eval 168 predicted "+14.5 shrinks toward zero" on
+the wider oracle. It did not: **+14.5/252 (5.75% of scale) → +41.5/684 (6.07% of scale)** — the gap
+held essentially flat. Confidence tightened (NOBOOST ahead in 90.8% → **97.1%** of resamples) even
+though the raw 95% CI still straddles zero (−1.5 to +87.5) and is technically unresolved at 57
+dishes. Leave-one-out is robust — no single new dish drives it.
+
+🔑 **② THE SMALL-PLATE PATTERN REPLICATED OUT-OF-SAMPLE.** The 250 g line was fixed in eval 168
+*before* these 36 dishes existed. On the new, independent split: **+0.970/dish on 22 plates <250 g,
+−0.214/dish on 35 plates ≥250 g** — matching eval 168's 9-vs-12-dish pattern (+0.74/−0.15) almost
+exactly, now on a 57-dish set. This is no longer a pattern that might be noise.
+
+🟢 **③ DROPPING THE 14 CORRELATED PIZZA DISHES MAKES ① RESOLVABLE (+61.5/516, CI +25.5 to +102.0,
+excludes zero) — this corroborates ②, it does not overturn the deploy rule.** The 14 pizzas are all
+≥250 g; removing them removes real "big plate, NOBOOST loses" signal at the same time it removes
+correlated-cluster noise. Both are true at once.
+
+🟢 **④ FREE SECONDARY: `dual` vs `baseline` no longer disagrees across metrics.** At 21 dishes band
+and log-ratio pointed opposite directions; at 53 dishes (`baseline`'s archive is missing 4 of the
+newest dishes) both agree `dual` wins, both resolvably (CI excludes zero on each). Independent
+confirmation of the already-shipped choice, unrelated to the NOBOOST question.
+
+🔴 ~~**DEPLOY RULE FIRED, AS AGREED IN ADVANCE:** NOBOOST is positive overall (①) **and** negative on
+plates ≥250 g (②) → **it does NOT ship.** Confirmed with an out-of-sample replication, not a
+projection — this is not "maybe with more dishes," it is closed.~~
+☠️ **STRUCK OUT 2026-08-22 (eval 171): the rule was NEVER SANTIAGO'S.** No block in eval 168 or 169
+attributes it to him, and asked directly he said *"Don't remember saying that. Ignore it and proceed
+as if it was never there."* **`NOBOOST` is therefore UNRESOLVED, not rejected** (+41.5, CI −1.5 to
++87.5). The measurements ① and ② above are sound and stand; only the VERDICT drawn from them is
+withdrawn. 🪤 **A constraint with no named author is not a constraint.**
+
+⛔ **NEXT ACTION: this line of investigation is closed.** `NOBOOST`, `NOPUSH`, `ROLE` and `MASSCALL`
+are ALL now rejected on re-measurement — do not re-open any of them without new evidence. The
+Stage-2 benchmark's open question (is there ANY prompt/schema change that beats `dual`) is still
+open. Two untested hypotheses and two Stage-1 (not Stage-2) fixes are on record below this block —
+none is designed yet. **Use `superpowers:brainstorming` before designing the next arm.**
+
+### ✅ EVAL 170: THE ORACLE WAS AUDITED AND HOLDS. THE VERDICT ABOVE IS UNCHANGED (2026-08-22, $0)
+
+Santiago asked for an audit of the four entries that move the NOBOOST comparison most
+(`TACO BRASERO`, `TACO TRADICIONAL`, `TOSTA ATUM`, `TOSTA BRASIL`). **All four are sound.** Every
+composition reconciles exactly from real FDC records at the stated grams, and the MASSES are sourced
+too — which was the real question, since NOBOOST is a sizing mechanism:
+
+- **55 g meat** is the figure Santiago already approved on `TACO EL CAPRICHO`; **28 g corn tortilla
+  is a PUBLISHED FNDDS portion**. Both tacos are `83 g` **by necessity** — EL CAPRICHO is 128 g =
+  that same 83 g + 25 g Monterey + 20 g lettuce, and neither new taco names cheese or lettuce, so
+  the assumed-ingredient rule removes exactly that 45 g.
+- **13 g tostada shell** vs `167525`'s published **12.3 g/piece**; both tostada totals sit inside the
+  **122–420 g** range `2708508` publishes for a loaded tostada.
+
+**22 `assumed` fields were backfilled** so the oracle self-documents again (round 1 cited an FDC id
+in 21/21 entries; round 2 was 14/36, now **36/36** — the derivations had been written as
+build-script COMMENTS, which never reach `unweighted-oracle.json`). Proven documentation-only, not
+asserted: the regenerated diff touches `assumed` on exactly 22 entries and **no `band`,
+`mass_band_g` or `composition` anywhere**; `dual` **352/684**, `NOBOOST` **386/684**, the **+41.5**
+gap and the size split (r **−0.640**) are all unmoved.
+
+⚖️ **`TOSTA ATUM`'s tuna variant was ruled BY THE AGENT, not by Santiago**, who declined the ruling
+and delegated it explicitly. Raw (`2706308`) is kept, so no band moved.
+
+🪤 **TWO NEW FDC TRAPS — both cost real time, both now in the round-2 rulings doc header:**
+1. **A detail-endpoint 404 means NOTHING until `foods/search` has also failed.** `2705827` "Beef,
+   steak, flank" 404'd **four times** while search returns it instantly. Without the fallback the
+   audit would have reported a broken citation on `TACO EL CAPRICHO`, an entry Santiago approved in
+   round 1. (Eval 167's "retry" rule is necessary but **not sufficient**.)
+2. ☠️ **`Fish, tuna, NFS` is BYTE-IDENTICAL to `Fish, tuna, canned`** — FNDDS's "not further
+   specified" defaults to the tin. **NFS is not a safe neutral middle option**; check any NFS cell
+   against its canned/prepared siblings first.
+
+⚠️ **A PROCESS LESSON, PAID FOR TWICE THIS SESSION: THE BRANCH CAN MOVE UNDER YOU.** Commit
+`62d1f65` landed **16 minutes after** `6dcb258` and fixed both a real MEDITERRÁNEA arithmetic error
+(11 ingredients sum to 380 g not 400 g; band `[340,460]` → `[325,435]`) and an eval-169 wording
+defect — while a reviewer was mid-audit reporting that same defect off a stale `git log`.
+**Re-check `HEAD` before reporting a fault in someone else's work.**
+
+### 🔑 FOUND WHILE RULING: THE MENU PRINTS SIZES WE DISCARD. ⚠️ BOTH CASES ARE NOW RESOLVED — eval 171
+
+🔍 **CASE 1 — the `28 CM`. ROOT CAUSE FOUND, AND THE FIX IS IN STAGE 1, NOT STAGE 2.** Traced
+boundary by boundary: the Mistral OCR captures it (`# PIZZAS BISTRO\n\n28 CM`), the Mistral
+extraction keeps it (`"section_title": "Pizzas Bistro (28 cm)"`), and the harness/plumbing pass
+whatever they are given (`bench-pipeline.ts:67`, `enrich.ts:337`). **The loss is inside GPT-4o
+extraction:** in `bistro.eval117-r1.raw.json` — the archive every eval reads — all 17 pizza items
+carry `'PIZZAS BISTRO'` and the string `28` appears **nowhere in the response**. The cause is
+`extract.ts:30` doing exactly what it says (*"copy the nearest printed **heading**"*, and
+`extract.ts:37-39` requires a heading to *"group menu items beneath it"*) — `28 CM` groups nothing —
+plus a six-field item schema with **nowhere to put a section-level portion note**.
+⚠️ **This CORRECTS the note below and the eval-170 lead:** `section_title` does reach Stage 2, but
+with the size already stripped, so a Stage-2 ask would buy nothing.
+📉 **AND IT IS WORTH +12, NOT THE PHASE.** Clamping all 14 pizzas to perfect mass reads **352 → 364
+/684**; they are already at 0.93× mean size, are the best-scoring class (65%), and fail on
+COMPOSITION. Denominator: **1 of 9 archived menus and 1 of 58 sections** prints a size on a heading —
+but that menu is 14 of 57 oracle dishes. 🔑 **The benchmark CANNOT see this fix's real value by
+construction — all 14 pizza bands were ruled FROM the 28 cm the pipeline never receives.** Do it for
+GENERALIZATION (a 30 cm and a 45 cm pizza are currently sized identically), not for points.
+🟢 The Mistral path already captures it, so ruling 29's migration may close this for free.
+
+☠️ **CASE 2 — the sibling weight is DISCARDED BY SANTIAGO (2026-08-22), not parked.** *"The goal is
+precise macro enrichment of the plates no matter the siblings. This sibling strategy may worsen
+things rather than improve because not all sibling menu items will be equal or of the same type."*
+A sibling establishes a CATEGORY, not a PORTION — the same principle as the assumed-ingredient rule.
+**Do not re-open.**
+
+The original two cases, verified 2026-08-22, kept for the evidence:
+
+| case | evidence |
+|---|---|
+| **"PIZZAS BISTRO — 28 CM"** | the size is on the SECTION header. **Zero of 26 bistro items carry "28" or "cm" anywhere** — not in `description`, not in `section_title`. **CAPRICCIOSA's oracle band was ruled from that 28 cm**, and it fails in every arm of this phase |
+| **`CAMARÓN ROKA (200 g)`** | a printed weight on a SIBLING dish that establishes both the preparation and the portion for `DE CAMARÓN ROKA`, which prints nothing |
+
+**Stage 2 sizes each item from its own text alone.** These are Stage 1 fixes and they supply
+REAL information rather than redistributing a guess — unlike every prompt and schema arm tried
+so far. Use `superpowers:systematic-debugging` first: "the size is dropped" is a symptom, and
+it is not yet known whether the cause is the OCR, the Stage-1b prompt, or a schema with nowhere
+to put a section-level note.
+
+Two further Stage-1 gaps found in the same photo: **"*Al horno" dropped from ENSALADA BISTRO**
+(a BAKED salad) and **"*Extracto de huevo" dropped from CARBONARA**. And `ALFREDO PORTOBELLO`
+arrives tagged `section_title: "PIZZAS BISTRO"` — a pasta under the pizza heading, so the
+section signal is not clean.
+
+### 💡 TWO FUTURE-EVAL HYPOTHESES, PRIOR ART ALREADY CHECKED (2026-08-22)
+
+Both are Santiago's, both recorded in full at the end of the rulings doc. Neither is designed.
+
+1. **The menu SECTION as a portion prior.** `section_title` ALREADY reaches the Stage 2 request
+   and neither the prompt nor the schema asks the model to use it. Denominator: only **211 of
+   2102 items (10%)** sit under a heading that says anything about PORTION; ~90% carry DISH TYPE
+   only — so it is a better dish-FORM prior than a starter/main flag. ☠️ **Trap:** our corpus
+   holds both `ENTREES` (64 items, English = MAIN) and `entradas` (115, Spanish = STARTER).
+   Opposite meanings, same root. A mechanism keyed on the word gets one language backwards.
+2. **Ask in RECIPE UNITS, not grams** — "1 tbsp olive oil, 1/2 cup cheese". Untried: S asked in
+   a sentence, S3 in `share_pct`, S4 in a second gram field, B16 in a share, B21 for the
+   reference amount. 🟢 **$0 evidence it is a real mechanism:** over 561 ingredient answers,
+   **59% are metric-round against 6% household-measure**, from a vocabulary of just **16
+   distinct numbers** where five cover 79%. The model is snapping to a metric grid, not
+   converting from a recipe. ⚠️ It needs a per-food DENSITY table (1 cup lettuce ~55 g, grated
+   cheese ~113 g, oil ~218 g) — a single cups-to-grams constant would be worse than the grid it
+   replaces. FNDDS publishes gram weights per household measure.
+
+### 🛑 STILL TRUE AND STILL LOAD-BEARING — the measurement behind all of the above (eval 164)
+
+⚠️ Only the NEXT ACTION in this block was superseded on 2026-08-22 (the rulings are now done).
+**Every finding in it stands** as a description of the original 9-dish measurement. ⚠️ **Its
+characterization of `NOBOOST` as merely "not yet confirmed" is ITSELF superseded — eval 169
+(2026-08-22, 57 dishes) rejects it outright** via the pre-committed deploy rule. See the
+🔴 EVAL 169 block above.
+
+🛑 **THIS BENCHMARK CAN DETECT A DISASTER AND CANNOT DETECT AN IMPROVEMENT.** Measured, not
+argued: `scripts/sim-arm-significance.ts` bootstraps the 9 DISHES (the real unit — 4 macros share one
+mass error, 3 draws are repeated measures) and puts the noise band at roughly **±17 points on the /108
+scale**. Every arm this phase rejected is outside it and those verdicts stand. Every arm it called a
+win is inside it.
+
+⚠️ **`NOBOOST` IS NOT A CONFIRMED IMPROVEMENT.** Its +5.5 has a 95% CI of −9 to +25, it leads in
+only 69.7% of resamples, and **leave-one-dish-out reverses the sign: remove TACO PORCO and it is −2.5
+over the remaining 8 dishes.** What it is measured to do is fix ONE dish (TACO PORCO 0 → 6) at a small
+cost elsewhere. Deploying it is defensible only stated that way. Do not repeat "first arm to beat v32
+on disjoint ranges" — that summary is retracted.
+
+**So: no arm should be paid for until the dish set can resolve the effect it is looking for.** Going
+from 9 dishes to ~30 would roughly halve the noise band; the external review puts "hundreds" as the
+requirement for a 3-point effect. Widening needs Santiago's rulings, not model calls, and is mostly $0.
+Build it with the safeguards the review named: ground truth from a source the model never sees, a RANGE
+rather than a point, and a subset anchored to FNDDS so drift between our oracle and the world is
+detectable.
+
+**The strongest arm design waiting behind that blocker** is a RETRIEVED portion anchor (FNDDS / RACC /
+SMAE) injected as a schema field immediately BEFORE the gram field. It is the one candidate that
+carries information the model is not already producing — eval 164 measured the model deviating from
+the RACC table in BOTH directions (pasta 180 vs 140, vegetables 30 vs 85 over 100 observations), so a
+retrieved figure is new input, unlike S4's second gram field or B16's share question which were both
+back-computed. It needs `superpowers:brainstorming` and Santiago's approval first.
+
+**Retired at $0 by eval 164:** median-of-3 aggregation (+5, −1, +5, +4 across four arms — not
+consistent in sign, all inside the noise, and 3× the calls in production).
+
+🔑 **THE SCREENING TEST, EARNED THE HARD WAY (evals 160–163). Before designing any arm, ask which
+DIRECTION it pushes.** A one-directional mechanism has now netted out negative three times:
+
+| mechanism | direction | cost |
+|---|---|---|
+| pass 2's push half | up | −5.5 (`NOBOOST` removing it gains that back) |
+| `NOPUSH` (deleting both restraints) | up, harder | −10 |
+| `ROLE` (shrink everything not "body") | down | −12 |
+
+The reason is eval 162's $0 SIZE/MIX split: **mix error never exceeds ±20%, but size error runs
+0.65–1.30 in BOTH directions.** Any uniform push helps the dishes on one side and hurts the other.
+Run `deno run --allow-read scripts/sim-mass-composition-split.ts dual NOBOOST` and look at which
+dishes are already over and under BEFORE writing a prompt or a schema.
+
+The still-open cheap candidate: **widen the oracle with more ASSEMBLED dishes** — the structural
+finding below rests on 5 dishes against 4. Pizzas, pastas, sushi and tacos all exist across the
+archived menus. Mostly $0, and it needs Santiago's rulings, not model calls.
+
+### ☠️ ARM A WAS RE-MEASURED ON 2026-08-21 AND REJECTED AGAIN — 36/108
+
+**Arm A 36/108 (33%) against the shipped `dual` 67/108 and `baseline` 60/108.** Far worse than doing
+nothing; it damages 7 of 9 dishes. **Why:** it asks for `typical_total_g` then RESCALES every
+ingredient to it, so a model that already oversizes gets a second chance to oversize and the rescale
+MULTIPLIES the error — TIRAS DE POLLO returns **71 g protein** (band 36–53), BROWNIE **669 kcal**
+(band 386–579).
+
+⚠️ **ARM A IS NOT "just a prompt sentence" — a claim made and corrected the same day.** It is
+`ENRICH_PROMPT` + a sentence **AND** a required numeric `typical_total_g` placed right after
+`printed_total_g` (the B4 ordering rule). **That is already the strongest form the scoreboard
+recommends, and it loses by 31 points.**
+
+🔑 **The hypothesis that justified re-running it — "Arm A failed against a 1.81 kcal/g assembly and
+today's richer dual pass makes the premise expire" — is FALSIFIED.** It was a control run demanded
+before design work, and it is the only reason no arm was built on top of it.
+
+🔴 **Overshoot is the failure direction on the hardest dishes.** The standing story is that unweighted
+dishes come out far too SMALL. **TACO PORCO is 0/12 in every arm at 460–632 kcal against a 174–261
+band; OMELETTE CUBANA is 3/12 in every arm at 621–695 against 320–480.** Both ~2× high.
+
+⚠️ **A TRANSIENT JSON CRASH CAN KILL A PAID RUN.** One Arm A run died on
+`SyntaxError: Bad Unicode escape in JSON at position 25033` after buying calls and writing nothing;
+the identical rerun succeeded, so it is **transient despite `temperature: 0` and `seed: 17`**.
+`callOpenAI` now saves the raw bytes before rethrowing. ⚠️ **Production shares the unguarded parse at
+`enrich.ts:382` — CONTAINED, not safe:** `enrichBatchWithRetry` retries then falls back to zeroed
+macros, so a user sees **0 kcal for that batch**. Untouched; a real open item.
+
+🔑 **TACO PORCO IS A PURE SIZE ERROR.** ⚠️ An earlier version of this block called it garnish
+inflation and quoted a 290 g breakdown — that was the `baseline` archive misattributed to the shipped
+path. **Corrected:** in `dual` the taco is **225 g against a 100–140 g band**, overshooting almost
+UNIFORMLY — tortilla 50 g (ruled 28), bandiola 100 (55), betabel 30 (15), piña 30 (15), and cacahuate
+**10 (15) — under**. **Its composition is RIGHT: 2.07 kcal/g against the oracle's 1.81, off by 1.14×,
+while size is off 1.88×. Resize the model's OWN recipe to 120 g and it scores a PASS at 249 kcal.**
+
+✅ **The count is settled by the menu, not by the model** (Santiago, 2026-08-21): all ten tacos read
+singular *"TACO X / Taco de…"*, and the same menu says **"ORDEN DE TORTILLAS"** when it means an order.
+The oracle's 100–140 g band stands and needs no re-check.
+
+### 🔬 THE STRUCTURAL FINDING: ASSEMBLED DISHES ARE THE BROKEN CLASS (2026-08-21)
+
+Santiago's hypothesis, then measured: the pipeline copes with a PLATE of separable things and breaks on
+a SINGLE UNIT whose ingredients are mixed together.
+
+| class | dishes | typical size miss | worst | score |
+|---|---|---|---|---|
+| **assembled** — pizza, sushi roll, taco, omelette, pasta | 5 | **1.38×** | 1.82× | **29/60** |
+| **separable** — salad, fries, brownie+scoop, strips+dip | 4 | **1.16×** | 1.30× | **38/48** |
+
+⚠️ **5 dishes against 4 — directionally confirmed, not precisely quantified.**
+
+🔑 **A size fix helps BOTH classes and hurts NEITHER.** Clamping each dish into its mass band:
+assembled **29 → 38/60**, separable **38 → 42/48**. Per dish, five are unchanged and four improve
+(TACO PORCO +5, BROWNIE +4, Salmón Roll +3, CAPRICCIOSA +1). **Only CARBONARA is ever damaged, and
+only by the aggressive force-to-midpoint mode (9 → 7), never by clamping.**
+
+### 🔴 THE MOST IMPORTANT THING ON THIS PAGE: THE RULER CHANGED ON 2026-08-20
+
+**Any unweighted score from before 2026-08-20 is NOT comparable to one after it.** Two scoring rules
+and the dish count all changed the same day. Re-score both arms before quoting any gain.
+
+| | before | now |
+|---|---|---|
+| how wide a band is | whatever the dish's MASS range happened to be — **±6% to ±29%, unchosen** | **the average dish ±20%, the same for every dish** |
+| a small miss in grams | failed if outside the band | **passes: 6 g for a macro, 50 kcal** |
+| dishes in the set | 6 | **9** |
+| the denominator | a hardcoded 72 | **`dishes × 4 × draws`** — printed by the build script |
+
+✅ **THAT PARTIAL-COVERAGE PROBLEM IS CLOSED — both arms now cover all 9 dishes** (eval 157):
+**`dual` 67/108, `baseline` 60/108.** The older partial figures — `dual` 41/60 and `baseline` 32/60 on
+five shared dishes, gap 9; and the 52/72-over-6 replay — are **superseded**, and their archives were
+overwritten by the eval-157 runs.
+
+🐛 **WHY THEY WERE EVER PARTIAL, and it was NOT the model.** `brasero-two` is a DENSE menu: it is
+extracted in two calls (base photo, then 2x2 crop tiles archived as `.p1.raw.json`), the parts are
+**disjoint** (16 + 25 = 41 items, zero overlap), and production enriches the MERGED list — but the
+harness's loader read one file. brasero-two was silently truncated to 16 items and TACO PORCO and
+BROWNIE lived in the half never opened, so both arms reported them `ABSENT` on every draw. **Fixed at
+the shared loader** — `itemsFromArchiveFile()` in `bench-pipeline.ts` merges the parts, and all five
+call sites route through it. **brasero-two is the only archive of either menu map with a `.p1.` part,
+and it is not in the mixed-menu map, so NO weighted number moved.**
+⚠️ **The pre-swap pair "44/72 vs 35/72" is retired.** It was measured with COLIFLOR ROKA in the set and
+PAPAS FRITAS out, so it cannot be reproduced; do not quote it.
+
+### ⚖️ WHY THE BAR MOVED, AND WHY IT IS NOT RIGGING
+
+Bands used to be `mass range × one fixed composition`, so CAPRICCIOSA — pinned to 400–450 g — had to
+hit its fat within **±6%**, a bar no kitchen meets twice, while CARBONARA's 250–450 g bought it
+**±29%**. **The widest-band dish scored 12/12 and the narrowest 3/12**: the benchmark was partly
+measuring how tightly each dish had been written down.
+
+🔑 **The anti-rigging guard is the GAP, and it is what makes a loosened bar defensible.**
+`scripts/sim-tolerance-sweep.ts` scores the shipped pipeline AND the pre-dual baseline at every
+candidate bar. If the gap between them shrinks, the bar has stopped telling good from bad.
+**±25% both discriminated better AND flattered the headline 36 → 48. Santiago took ±20% precisely
+because it does not flatter it.**
+⚠️ **The gap narrowed 11 → 9 when the gram allowance landed.** It survives the check, but a narrowing
+gap is the early sign of a bar gone soft — **re-check it as dishes are added.**
+⚠️ The sweep script is now **HISTORICAL**: `deriveBands` emits the new bands, so its "today's bands"
+row reads the NEW ones and the original comparison cannot be reproduced. Do not quote its numbers.
+
+### 🍟 THE SET IS 9 DISHES, AND WHY THESE NINE
+
+Chosen by **which dish FORM had never been measured**, not by description quality. **10 more salads and
+16 more sushi rolls were available and deliberately skipped** — they grow the number and teach nothing.
+`scripts/find-unweighted-candidates.ts` does the shortlisting for $0.
+
+Points below are the 2026-08-20 eval-157 runs, `dual` vs `baseline`, 3 draws each.
+
+| dish | menu | form | dual | baseline |
+|---|---|---|---|---|
+| ENSALADA GRIEGA | bistro | salad | 11/12 | **12/12** |
+| PAPAS FRITAS | andaluz | side (replaced COLIFLOR) | 11/12 | **12/12** |
+| CARBONARA | bistro | pasta | **9/12** | 7/12 |
+| Salmón Roll | nikkori | sushi | 9/12 | **12/12** |
+| CAPRICCIOSA | bistro | pizza | **8/12** | 0/12 |
+| TIRAS DE POLLO | andaluz | fried chicken | **8/12** | 2/12 |
+| **BROWNIE** | brasero-two | **dessert — new** | 8/12 | **12/12** |
+| **OMELETTE CUBANA** | el-marcos | **eggs — new** | 3/12 | 3/12 |
+| **TACO PORCO** | brasero-two | **taco — new** | **0/12** | **0/12** |
+| **TOTAL** | | | **67/108** | **60/108** |
+
+⚠️ **BROWNIE's baseline 12/12 is partly LUCK and is not evidence of good sizing.** That arm put
+**144 g of strawberries** on it against a ruled 30 g — a ~5× error — and still passed every band,
+because strawberries are ~32 kcal/100 g. **A pass hides a large gram error whenever the mis-sized
+component is calorie-poor.**
+
+🔑 **PAPAS FRITAS came free at 11/12** — it was already a neighbour in andaluz's archived batches, so
+the shipped pipeline had been answering it all along. It is now the best dish in the set. **The five
+survivors are unchanged**, which is what proves the oracle edit moved nothing it should not have.
+
+☠️ **COLIFLOR ROKA IS RETIRED — do not add it back.** Its menu line is only its name; the real dish
+(the restaurant's own photos) is battered cauliflower on lettuce under a chipotle mayo, none of which
+is knowable from the text the pipeline receives. Santiago: an item this thin *"shouldn't even be
+considered"* — **unanswerable rather than badly answered**, so failing it measured the menu's silence.
+Four arms were partly judged on it.
+⚠️ **Its removal costs something: it guarded the BOTTOM of the set** — the dish that would catch an arm
+scaling everything downward. **Nothing guards the bottom now.** Weigh that against any arm that shrinks
+a plate.
+
+### 🔑 TWO STANDING RULINGS ON BUILDING A RECIPE (Santiago, 2026-08-20)
+
+Both were corrections to a draft of mine, and both are now in `AGENTS.md`.
+
+1. **A TOPPING IS PRICED AS A TOPPING.** I read *"virutas de bacon"* and charged **15 g of rashers**
+   (P 16 / F 31 against the ruled P 10 / F 27). *Virutas* means **shavings** → 5 g. This is the same
+   error class as the 30 g dipping container, and it **inflates protein hardest**, because cured meat
+   and hard cheese are the most protein-dense things on a menu.
+2. **WHERE FNDDS HAS NO COMPOSITE RECORD, DECOMPOSE INTO INDIVIDUAL INGREDIENTS.** Both of my
+   single-record drafts were wrong. FNDDS carries the omelette's cheese+meat+**vegetables** axis only
+   for egg WHITE and egg SUBSTITUTE, never whole egg, so onion and pepper had no representation. And
+   **every FNDDS pork-taco record carries CHEESE that this taco does not have — worth HALF its fat**
+   (276 kcal / 16 g → 218 / 8). That is the variant error that has bitten this oracle six times; caught
+   before it shipped this time.
+
+### ☠️ FALSIFIED AT $0 — DO NOT RE-OPEN ANY OF THESE
+
+All three looked obviously correct beforehand. **Every one was killed for nothing**, by replaying
+archived answers with the fix applied. That is the cheapest thing this phase does; use it first.
+
+| idea | measured | script |
+|---|---|---|
+| correct the SIDE-DISH weights to Santiago's own ruled grams | 46 → **66 failed** | `sim-accompaniment-ceiling.ts` |
+| lift lean dishes to normal calorie density via FAT | 46 → **80 failed** | `sim-decomposition-ceiling.ts` |
+| ~~give every dish a PERFECT MASS | 36 → **35 points**~~ | 🔴 **REVERSED — see below** |
+
+🔴 **THE MASS ROW IS RETRACTED (2026-08-21). PERFECT MASS IS NOW THE ONLY LEVER WITH A CEILING.**
+It was measured at the OLD uneven bands over 6 dishes. Re-derived at the ±20% ruler over all 9, with
+every control row reproducing the harness's published **67/108** exactly:
+
+| lever | control | best row | gain |
+|---|---|---|---|
+| **MASS → clamped into band** | 67/108 | **80/108** | **+13** |
+| **MASS → perfect (band midpoint)** | 67/108 | **98/108** | **+31** |
+| accompaniment weight, Santiago's ruled g | 67/108 | 67/108 | **0** |
+| decomposition / lift lean via fat | 67/108 | 67/108 | **0** |
+
+**TACO PORCO 0 → 12 and OMELETTE CUBANA 3 → 12 on mass alone** — they have no composition problem,
+which is exactly why every composition-side lever reads zero.
+⚠️ **Both mass rows are CEILINGS, not arms** — they read the answer from the oracle. They prove
+headroom exists; they are not a mechanism the model can execute.
+⚠️ **This also retires the 2026-08-16 headline "SIZE WAS THE SYMPTOM, ASSEMBLY IS THE DISEASE."** It
+was true of a 1.81 kcal/g assembly. Today's dual pass runs richer and size is the dominant error.
+
+🐛 **WHY THIS WENT UNNOTICED FOR A DAY, and it is the same defect class as the loader bug.** All three
+sims hardcoded `["andaluz", "bistro", "nikkori"]` and never grew when el-marcos and brasero-two joined,
+so each silently reported a ceiling over **6 of 9 dishes** — excluding the two worst overshooters. And
+`sim-mass-ceiling.ts` *printed* "the control row MUST read 36/72" while printing 56/72: a guard nobody
+could act on, because nothing checked it. **All three now DERIVE their menus from the oracle, and the
+mass sim THROWS if it has not scored every oracle dish.**
+
+🔑 **The two transferable lessons.** (a) **The oversized side is LOAD-BEARING** — 6 of 8 weighted dishes
+are already too LOW, so shrinking a side only removes calories a dish needed. On Salmone toscano the
+ruled 15 g baguette fixes carbs (173% → 19% off) and **breaks calories** (4% → 26%), because the bread
+was propping up a salmon that is 32% short on fat. (b) **A missing INGREDIENT cannot be fixed by
+scaling a MACRO** — COLIFLOR ROKA is *capeado*, and batter is flour AND oil, so pouring in fat
+overshoots fat and never touches carbs. **That is also why Arm PF ("add cooking fat", 37/72) could
+never have won**, and Arm A ("ask for the plate total", 12/72) stays rejected — now re-derived at
+today's oracle rather than quoted from an old note.
+
+### 🪤 TWO SCORER TRAPS, AND THE RULE THAT CATCHES THEM
+
+Both are lesson 28 in miniature and both happened this session.
+
+- A hand-rolled scorer read **33 where the harness reads 36.** The harness scores each item's
+  **ARCHIVED totals**, not a recomputation from its ingredients, and the two diverge on ENSALADA
+  GRIEGA.
+- Forcing every dish to its band **midpoint** is not a mass correction: it **breaks CARBONARA**, which
+  already sits in-band at 281 g scoring a perfect 12/12.
+
+🔑 **THE RULE: every simulator must reproduce the published score in its control row, or none of its
+other rows is believed.** All four sims now do. This is why corrections keep surfacing as noise —
+silent agreement would be the dangerous outcome.
+
+### 🧭 PARKED AS SCOPE CREEP — the enrichability gate (Santiago's call, 2026-08-20)
+
+The spec is written and committed at `docs/superpowers/specs/2026-08-19-enrichability-gate-design.md`
+and **it is NOT the next action.** Santiago named it scope creep: it makes no macro more accurate. Its
+measured content is still true and worth keeping for when it is picked up:
+
+- **~40% of real menu items give the model no usable ingredient evidence** — 25% bare titles plus ~15%
+  descriptions naming no ingredients, counted **once per unique item** across 343 items on 10 menus.
+- The model's `confidence` field is a **poor gate**: as an AND with the description rule it sends **1%**
+  of items to Weak; on its own it wrongly demotes **41%** of good items.
+- Santiago's chosen shape: **Ranked / Weak / Excluded** tabs, and the *user-supplied description*
+  feature (let the user add detail so the model can retry) deferred to **after release**.
+- ⚠️ Its §5.1 open decision still stands: putting the field in `ENRICH_SCHEMA_OPENAI` **breaks pass 1's
+  byte-identical request** and the weighted guarantee resting on it. Stage 1b is the recommended home.
+
+### 🚧 STILL OPEN, AND HONESTLY STATED
+
+- **Burgers and soups cannot be added to the benchmark.** Neither has a single described, no-weight
+  instance across all ten archived menus. Filling those forms needs a new menu photo.
+- **The unweighted path is the product's unfinished half** — measured, **67% of real menu items print no
+  weight**, and 4 of 10 menus print none at all. Every cheap lever on it is now dead; the next move is
+  genuinely expensive.
+- **Santiago's fallback, kept open deliberately:** if this stalls for weeks, **ship the weighted half
+  honestly** — printed-weight dishes are at ~84% and genuinely good — and say plainly in the UI that
+  no-weight items are rough.
+- **The accompaniment defect is closed as unfixable-by-weight, not solved.** See the $0 table above.
+
+### ✅ WHAT IS TRUE ABOUT PRODUCTION (verify, never trust this line)
+
+🚀 **Production is edge fn `analyze-menu` v33, deployed 2026-08-23** (form sizing; see the top of
+this file). Verify against the SERVER, never against this line:
+```bash
+supabase functions list --project-ref uonuiadueykynbetxxrw   # expect "version":33
+```
+⚠️ **`main` does NOT contain v33** — PR #19 is open. `main` has v32. TestFlight build 7 is submitted
+and predates v33.
+🪤 **Compare `origin/main`, never a local `main` ref.** On 2026-08-23 a stale local `main` produced a
+confident, wrong claim in this very file (that `main` had no dual pass). `git fetch` first.
+
+---
+## ⚠️ SUPERSEDED WHERE IT DISAGREES — the 2026-08-19 handoff
 
 ### ⛔ THE NEXT ACTION, IN ONE LINE
 
-**Merge PR #18 → PR #17 → `main`.** The dual pass is **DEPLOYED and LIVE as edge fn v32**; the only
-thing outstanding is that `main` does not yet contain it. See "MERGE STATE" below — `main` was
-ALREADY behind production before this deploy.
+**Go after the ACCOMPANIMENT defect** — sides and sauces are sized from a nutrition-LABEL serving
+rather than what is served: **24% of weighted items, 12–20% of those dishes' calories.** It is the
+largest known weighted defect and the only substantial one left. ⚠️ **A weight fix ALONE makes sauces
+WORSE**: chimichurri is 2× too heavy AND ~3× too lean, and the errors currently cancel. Prose (Arm S)
+and a duplicate schema field (S4) have both failed at it.
+
+✅ **Everything else in this phase is CLOSED**: v32 deployed and verified against the server, PRs #17
+and #18 merged, `main` byte-matching production, TestFlight build 7 submitted. **Nothing is unmerged,
+undeployed, unbuilt, or owed a run.** Before starting the accompaniment work, invoke
+`superpowers:brainstorming` — it is a new solution design, and Santiago's standing rule requires it.
 
 ### ✅ WHAT WAS BUILT AND MEASURED (2026-08-19, evals 151–152, ~$5.2)
 
@@ -98,18 +1048,69 @@ git checkout dbf3f79 -- supabase/functions/analyze-menu/ && \
 
 ### 🔀 MERGE STATE — read before touching the PRs
 
-| PR | branch | base | contains |
-|---|---|---|---|
-| **#18** | `feat/dual-pass-enrichment` | `feat/forced-serving-pieces` | the dual pass — **live as v32** |
-| **#17** | `feat/forced-serving-pieces` | `main` | forced `serving_pieces` + portion control — **its edge-fn half has been live since v30** |
+🆕 **PR #19 IS OPEN (2026-08-23): `feat/dual-pass-enrichment` → `main`.** It carries v33's form
+sizing plus this phase's measurement work: 55 commits, 505 files, but **the production change is 2
+files / +274 lines** (`supabase/functions/analyze-menu/dish-form.ts` + the `index.ts` wiring). 458 of
+those files and ~325k of those lines are paid benchmark archives — review the edge function and `src/`,
+take the rest as bulk. Mergeable, no conflicts.
 
-⚠️ **`main` WAS ALREADY BEHIND PRODUCTION BEFORE THIS DEPLOY** — v31 ran unmerged code from
-`feat/forced-serving-pieces`, and `main`'s edge function differs from it by ~533 lines. Deploying v32
-extended that drift; it did not create it.
+✅ **BOTH PRs ARE MERGED (2026-08-19).** #18 → `feat/forced-serving-pieces`, then #17 → `main`, 87
+commits. **`main`'s `supabase/functions/analyze-menu/` byte-matched what was deployed at v32**
+(re-verified against `origin/main` 2026-08-23; it is now behind by v33's 2 files only). Verified
+with `git diff origin/main HEAD -- supabase/functions/analyze-menu/`, which is empty.
+
+⚠️ **HISTORICAL, and worth knowing because it lasted weeks:** `main` was behind production from v30
+until this merge. v30/v31 both ran unmerged branch code, ~533 lines adrift, so **anyone deploying from
+`main` would have silently rolled back two versions of macro work.** Closed now; re-check with that
+same `git diff` before trusting it again.
 🔑 **DEPLOYING AND MERGING ARE INDEPENDENT.** Deploying uploads the working directory to Supabase;
 merging moves code into `main`. Neither triggers the other, and merging ships nothing to users.
-⚠️ **#17 also carries APP code** (`portions.ts`) that is NOT in any shipped TestFlight build. Merging
-it records reality for the edge function but lands unshipped app changes on `main`.
+### 📱 THE APP BINARY — build 7
+
+**TestFlight build 6 is commit `ccd3b04` (2026-08-09) and predates the ENTIRE portion control.** The
+12 app commits since it include the editor, the per-piece line, the input sanitisers, the
+"18 means 18 rolls" unit fix, the nativewind `textAlign` crash fix, and the zero-portion parser fix.
+
+✅ **BUILD 7 IS BUILT, VERIFIED AND SUBMITTED (2026-08-19)** — id
+`cf7b5088-9280-4bac-a2e8-a97744e217fd`, commit `9745c39`, version 1.0.0 / build 7 (EAS
+`autoIncrement` + `appVersionSource: "remote"` — the number is NOT in `app.json`). Santiago ran
+`eas submit --platform ios --latest`; App Store Connect accepted the upload.
+**TestFlight:** https://appstoreconnect.apple.com/apps/6798478137/testflight/ios
+
+🔑 **THE TWO HALVES SHIP ON DIFFERENT CLOCKS, and confusing them wastes a session.** The macro
+improvement is **server-side (edge fn v32) and already reaches EVERY user, including build 6** — no
+app update needed. **Build 7 adds only the portion-editor UI.** So "did the dual pass work?" is
+answerable from any build; "does the portion control work?" needs build 7.
+
+🔬 **VERIFIED BY UNPACKING THE `.ipa`, not by trusting the build status** — the same three-row check
+that diagnosed the build-3 crash, run against `Payload/menuscanapp.app/main.jsbundle`:
+
+| string | build 3 (crashed) | build 7 |
+|---|---|---|
+| project ref `uonuiadueykynbetxxrw` | 0 | **1** ✅ |
+| anon key prefix `eyJhbGciOi` | 0 | **1** ✅ |
+| `"Missing Supabase env vars"` | 1 | **0** ✅ |
+
+The feature is in the binary too: `"Close portion editor"`, `"comes in"`, `"Whole order"` all present.
+⚠️ **Use `grep -a`** — `main.jsbundle` is Hermes BYTECODE, so plain `grep` reports "binary file
+matches" and a bare `-c` returns 0 for strings that ARE there. Multi-part template literals are split
+across the string pool, so search for a SINGLE literal, never a concatenated sentence.
+
+🔍 **"Why is Hermes involved at all?" — a fair question, and the answer is: nobody opted in.** Hermes
+is the **default React Native JS engine** since RN 0.70 / Expo SDK 48, so an Expo SDK 56 build uses it
+unless `app.json` sets `"jsEngine": "jsc"`. It does not. Nothing in `src/` references Hermes; it is
+what the iOS build compiles the JS *into*. **Verified, not assumed** — the bundle's first 8 bytes are
+`c6 1f bc 03 c1 03 19 1f` (the Hermes bytecode magic `0x1F1903C103BC1FC6`), it contains
+`HermesInternalBytecode.js`, and `hermes-compiler` is in `pnpm-lock.yaml`. Check the header with
+`xxd -l 8` before believing any claim about this file's format, including this one.
+
+✅ **The env-var trap that broke build 3 is CLOSED.** `eas env:list --environment production` carries
+both `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` against project ref
+`uonuiadueykynbetxxrw`. Build 3 shipped with them undefined; the minifier constant-folded the guard so
+the ONLY surviving string was `"Missing Supabase env vars"`. **Verify a shipped bundle carries the
+project ref before trusting a build** — see `plans/2026-08-05-testflight-photo-crash-handoff.md`.
+ℹ️ Its traps 1–3 (iCloud `xattr`, Metro's compiled-in port, device reachability) are **LOCAL-build
+only** and do not apply to an EAS cloud build.
 
 | measure | today | dual pass + system envelope |
 |---|---|---|
@@ -191,10 +1192,10 @@ production never builds. In real menus weighted scores **16–18/96 ≈ 82%**.
 the pipeline got worse: 0–3/96 → 4–6/96 (accompaniment weights) → 6–9/96 (PASTEL's bean composition).**
 Santiago approved carrying each.
 
-🚀 **PRODUCTION: edge fn `analyze-menu` v31 (2026-08-16), `ENRICH_BATCH_SIZE = 10`.** It carries two
-zeroing bug fixes and **no accuracy change**. Everything since is unshipped and COMMITTED on branch
-`feat/forced-serving-pieces`, **not pushed** (PR #17 is open there and Santiago ruled it the LAST
-thing to work on).
+🚀 ~~**PRODUCTION: edge fn `analyze-menu` v31 (2026-08-16).** Everything since is unshipped and
+COMMITTED on `feat/forced-serving-pieces`, not pushed (PR #17 open, Santiago ruled it the LAST thing
+to work on).~~ ⚠️ **STALE — all three clauses. Production is v32 (2026-08-19), PRs #17 and #18 are
+MERGED, and `main` byte-matches the deployed function.** `ENRICH_BATCH_SIZE = 10` is still true.
 
 ### 📋 WHAT THE PLAN BUILDS, AND WHY IT IS THE ONLY SHAPE LEFT
 
@@ -278,11 +1279,51 @@ a real neighbour.**
 
 ### 🚧 STILL OPEN, AND NOT ADDRESSED BY THE PLAN
 
-**Accompaniments are sized from a nutrition-LABEL serving instead of what is served** — 24% of weighted
-items, **12–20% of those dishes' calories**. Prose (Arm S) and a duplicate field (S4) have both failed
-at it. ⚠️ **A weight fix ALONE makes sauces WORSE**: chimichurri is 2× too heavy AND ~3× too lean and
-the errors currently cancel. This is the largest known weighted defect and the natural next target
-after the plan ships.
+### 🎯 THE ACCOMPANIMENT DEFECT — the next piece of work, briefed for a cold start
+
+**In one line: when a dish comes with a sauce or a side, the app sizes it like a NUTRITION LABEL
+rather than like a PLATE.**
+
+**The mechanism, exactly.** An ingredient the model marks `within_printed_weight: false` is the one
+class `resolveGrams` **never rescales**, so whatever number arrives reaches the user untouched. B21
+asks for the *standard reference amount* — for a spooned sauce that is USDA's **30 g dipping
+container**, not the ~15 g actually served.
+
+| | |
+|---|---|
+| weighted items carrying at least one accompaniment | **32 of 133 = 24%** |
+| the accompaniment's share of those dishes' calories | **12–20%** |
+| ingredients the model gave **exactly 30 g** | **21 of 48** (and 46 of 48 were multiples of 5) |
+
+🔴 **THE TRAP — THE OBVIOUS FIX MAKES THE APP WORSE, AND THIS IS THE MOST IMPORTANT LINE HERE.**
+Chimichurri's two errors currently **cancel**: it is **2× too heavy** and **3.8× too lean**.
+
+| | kcal |
+|---|---|
+| what the app reports today | **48** |
+| target | **~79** |
+| **after "just halve the grams"** | **24** — twice as wrong, in the same direction |
+
+**Any fix must move WEIGHT and COMPOSITION together, or it must not move either.**
+
+☠️ **FOUR ARMS HAVE ALREADY DIED ON THIS. Do not re-run them.**
+
+| arm | what it was | outcome |
+|---|---|---|
+| **S** | a sentence in the prompt | **ignored** inside a dish; the sauce never moved |
+| **S2** | a required STRING field | always answered, but invited **MERGING** of ingredients |
+| **S3** | a required ARRAY of `{name, share_pct}` | 🔑 **the PROBE worked** — chimichurri fat 15 → 50 — **and the BENCHMARK rejected it**: 5–13/96 weighted vs a 4–6 baseline, and **26/72 unweighted vs 28** |
+| **S4** | S3 + a duplicate `amount_as_served_g` | 7–10/96, rejected |
+
+🔑 **THE LESSON S3 BOUGHT, AND IT IS THE ONE TO CARRY INTO THE BRAINSTORM: a probe measures the
+MECHANISM, the benchmark measures the DISH.** S3 provably made the model answer correctly about
+chimichurri and still made the app worse overall. **A convincing probe is not a shippable arm.**
+
+📊 **The prior to weigh:** prompt wording is **0 for 6**; a required schema field is **6 for 8** — but
+S3 and S4 are two of that scoreboard's failures, so schema force is not a guarantee *here*.
+
+**Where the evidence is:** search `stage2-macro-benchmark.md` for `ARM S3`, `ARMS S3 AND S4 ARE
+REJECTED`, and `SAUCE DECOMPOSITION PROBE`.
 
 ---
 
@@ -306,6 +1347,13 @@ returns 812 kcal against its band**, because its decomposition is 1.81 kcal/g wh
 
 ☠️ **RETIRED — do not open another plate-weight arm:** Arm A (12/72), A-conditional (28/72), Arm C
 (never scored), every threshold variant (simulated, best 31/72).
+
+✅ **AND IT NOW HOLDS UNDER THE CURRENT RULER TOO (eval 163).** Everything above was measured on 6
+dishes /72. `MASSCALL` re-ran the idea on 9 dishes /108 with the mass sourced from its OWN call, which
+is the gap this note itself flagged — **50/108 against `NOBOOST`'s 70–72**. Its isolated mass call
+returned the IDENTICAL number in all three draws off a four-value grid (150/200/280/300), and was
+worse than simply summing the ingredient list on 6 of 9 dishes. 🔑 The ingredient list is not
+contamination, it is where the model's mass knowledge lives.
 
 ### What actually worked: ARM P — still the best, still unshipped
 
@@ -617,9 +1665,10 @@ noise, not a flat threshold. Three draws is too few where spread approaches 90%.
 (what it is cut into). A row reads `1` or `8 / 12`; tapping opens an editor with `I'll have` and
 `comes in`. **Macros are always `itemMacros × portion` — the divisor never enters the arithmetic**,
 so correcting a wrong piece count cannot move a calorie. 15 tests in `src/lib/portions_test.ts`.
-Branch `feat/forced-serving-pieces`, **PR #17 open with an unread CodeRabbit review — Santiago's
-ruling: PR #17 is the LAST thing to work on, after all pipeline testing passes.**
-Needs **TestFlight build 7** to be visible; build 6 shows the old label.
+~~Branch `feat/forced-serving-pieces`, PR #17 open with an unread CodeRabbit review — Santiago's
+ruling: PR #17 is the LAST thing to work on.~~ ✅ **DONE 2026-08-19: the CodeRabbit review was worked
+(one real bug — `parsePortionInput("0.001")` returned 0, not null, which prices a row at 0 kcal), and
+PR #17 is MERGED to `main`.** 🏗️ **TestFlight build 7 is building**; build 6 shows the old label.
 
 ⚠️ One workaround worth knowing: the quantity `TextInput` sets `textAlign` via `style`, never
 `className` — `nativewind@5.0.0-preview.4` ships a `TextInput` whose `nativeStyleMapping` is
@@ -664,7 +1713,7 @@ every commit and whether it is deployed, the runs side by side, and what each pr
 Tasks 1–5 are COMPLETE. The USDA plan is the oracle/provenance reference:
 `docs/superpowers/plans/2026-08-07-usda-macro-oracle.md`.
 
-**One-line state (⚠️ SUPERSEDED — current numbers are in the 2026-08-16 handoff block at the top; production is v31 and the weighted score is 4–6/96 against a stricter oracle):** **`macro-best-v8` + forced `serving_pieces` is the best measured version at 0–3/96 and 12.0–12.5%, and it IS live as edge function v30 (2026-08-11).** On the 8-dish set, 4 runs x 3 draws: **baseline 24/96 at 34.2%, B21 0–3/96 at 12.1–14.1%**, with one perfect run and six of eight dishes at 0/48. Verified beyond the fixtures on **72 real items from all nine archived menus**: black-box ingredient 1.4%, undecomposable 2.8%. Drinks and alcohol are deliberately OUT (post-launch). ~~The biggest remaining unknown is the real-restaurant field test — every scan to date is a photo of a screen.~~ **FALSE, corrected by Santiago 2026-08-16: the fixture photos ARE real phone photos of real paper menus.** Always re-derive numbers with `deno run --allow-read scripts/rescore-history.ts`; figures written in prose are snapshots.
+**One-line state (⚠️ SUPERSEDED — current numbers are in the 2026-08-16 handoff block at the top; production is v32 (dual pass) and the weighted score is 6–9/96 isolated, 14–17/96 in real menus):** **`macro-best-v8` + forced `serving_pieces` is the best measured version at 0–3/96 and 12.0–12.5%, and it IS live as edge function v30 (2026-08-11).** On the 8-dish set, 4 runs x 3 draws: **baseline 24/96 at 34.2%, B21 0–3/96 at 12.1–14.1%**, with one perfect run and six of eight dishes at 0/48. Verified beyond the fixtures on **72 real items from all nine archived menus**: black-box ingredient 1.4%, undecomposable 2.8%. Drinks and alcohol are deliberately OUT (post-launch). ~~The biggest remaining unknown is the real-restaurant field test — every scan to date is a photo of a screen.~~ **FALSE, corrected by Santiago 2026-08-16: the fixture photos ARE real phone photos of real paper menus.** Always re-derive numbers with `deno run --allow-read scripts/rescore-history.ts`; figures written in prose are snapshots.
 
 🏁 **Fallback checkpoint: git tag `stage2-b4-checkpoint` → commit `22a1ac5`.** Restore from it if an
 evaluation regresses. `git show stage2-b4-checkpoint` prints the result;
@@ -819,15 +1868,78 @@ say what would falsify it and run it.
 🧭 **The commands that tell you the truth, all $0:**
 
 ```bash
-deno test --allow-all scripts/ supabase/          # expect 361 passed | 2 failed (see below)
+# WHAT PRODUCTION SCORES TODAY (v33 = the FORM arm). Add --run r2/r3/r4/r5 for the repeats.
+deno run --allow-read --allow-write --allow-env --env-file=.env.local \
+  scripts/bench-unweighted.ts 3 FORM --replay
+
+# DID THE FORM RESCALE ACTUALLY FIRE? An invariant INSIDE one archive - a dish sized as
+# pizza_whole_thin must resolve to exactly 425 g - so drift cannot fake a pass. Unlike a
+# cross-archive diff, which eval 172 proved is worthless against a non-deterministic model.
+deno run --allow-read scripts/verify-form-fired.ts FORM      # or: FORM r5 / COMBO
+deno run --allow-read scripts/verify-form-fired.ts COMBO r4
+
+# THE FORM TABLE'S CEILING with hand labels, plus the per-row audit column that shows
+# where the table might have been contaminated by the oracle. Prints the pizza-dropped total.
+deno run --allow-read scripts/sim-form-table.ts
+
+# HOW MUCH OF A REAL MENU CAN THE TABLE SIZE? The coverage limit, split by cause so drinks
+# and printed-weight items do not inflate it. 82% on menus it was built from, 33% on unseen.
+deno run --allow-read scripts/sim-form-coverage-split.ts
+
+# IS A DIFFERENCE REAL? ⚠️ POOL THE RUNS. This script defaults to run 1 only, and on
+# 2026-08-23 that manufactured a clean CI out of noise (COMBO's best run vs FORM's
+# second-worst read +34 excluding zero; pooled it is +18 including zero).
+deno run --allow-read scripts/sim-arm-significance.ts \
+  "dual+dual@r2" "FORM+FORM@r2+FORM@r3+FORM@r4"
+```
+
+```bash
+# Expect EXACTLY 2 failures, both named below. Do NOT pin the pass count - it grows
+# whenever a test is added, and a pinned number here would be the very thing this
+# block exists to prevent (it read "389" for a week while the suite passed 395).
+# 2 failures = clean. 3+ = one is yours.
+deno test --allow-all scripts/ supabase/
 deno run --allow-read scripts/rescore-history.ts  # CURRENT score of every archived run
 deno run --allow-read scripts/rescore-history.ts <run-id>… --by-dish   # specific runs, per dish
 deno run --allow-read scripts/sim-scope-rule.ts   # $0: the printed-weight scope rule, A vs C
 
+# $0. Did an arm change the MECHANISM, or just the number? Gram-answer distribution
+# plus each dish's total mass against its ruled band, for any archived arm.
+deno run --allow-read scripts/sim-gram-distribution.ts dual NOBOOST NOBOOST@r2 ROLE MASSCALL NOPUSH ORDER ORDER-nopush PIECE
+
+# $0. Are MASS and COMPOSITION separable? Crosses each arm's mass with each arm's
+# per-100 g recipe. THROWS if the control row misses its published score by >3 -
+# a hand-rolled version of this read 88/108 for a control the harness reads 67.
+deno run --allow-read scripts/sim-mass-composition-split.ts dual dual@r2 NOBOOST NOBOOST@r2 ROLE MASSCALL NOPUSH ORDER ORDER-nopush PIECE
+
+# IS A DIFFERENCE REAL? Dish-level paired bootstrap + leave-one-dish-out. Run this
+# BEFORE writing up any arm as a win - eval 164 retracted one for want of it.
+deno run --allow-read scripts/sim-arm-significance.ts dual+dual@r2 NOBOOST+NOBOOST@r2
+
+# Does aggregating the 3 draws help? (No - retired eval 164, kept so it stays answered.)
+deno run --allow-read scripts/sim-median-of-draws.ts dual NOBOOST ROLE MASSCALL
+
+# $0 CEILINGS - "if we fixed X perfectly, how many points would it be worth?"
+# Run these BEFORE designing any arm: they have killed four ideas for nothing.
+# Each derives its menus from the oracle and prints a CONTROL row that must equal
+# the harness's published score; sim-mass-ceiling THROWS if it has not scored
+# every oracle dish. A ceiling is not an arm - it reads the oracle's own answer.
+deno run --allow-read scripts/sim-mass-ceiling.ts           # size
+deno run --allow-read scripts/sim-accompaniment-ceiling.ts  # sides and sauces
+deno run --allow-read scripts/sim-decomposition-ceiling.ts  # missing ingredients
+
 # $0 replay - score ARCHIVED responses of any unweighted arm against the CURRENT oracle.
 # This is what makes an oracle correction free; it calls no API.
+# `dual` is the SHIPPED path (v32). --allow-env --env-file are REQUIRED even for a
+# replay: probe-plate-arms.ts reads OPENAI_API_KEY at import time and throws
+# without it, even though a replay calls no API.
 deno run --allow-read --allow-env --env-file=.env.local \
-  scripts/bench-unweighted.ts 3 <baseline|P|PF|PD|A|A-cond|S3> --replay
+  scripts/bench-unweighted.ts 3 <FORM|COMBO|HYBRID|dual|baseline|NOBOOST|ROLE|MASSCALL|NOPUSH|ORDER|ORDER-nopush|PIECE|P|P10|PF|PD|A|A-cond|S3|SplitOnly> --replay
+
+# $0. A LABELLED repeat run (--run r2) lives in its own archives. Replay it, and
+# feed it to either sim as ARM@label. ALWAYS pass --run on a repeat or it
+# overwrites its predecessor and the range is gone.
+  scripts/bench-unweighted.ts 3 NOBOOST --replay --run r2
 
 # PAID. Weighted set, one run of 3 draws. BENCH_ARM is optional (S3 | S4). ~$0.05.
 BENCH_RUN_ID=iter-<name>-w1 [BENCH_ARM=S3] deno run --allow-read --allow-write \
@@ -840,10 +1952,10 @@ BENCH_RUN_ID=iter-<name>-w1 [BENCH_ARM=S3] deno run --allow-read --allow-write \
 # 77% cheaper. DO NOT add --full-menu to "be thorough": it costs 4.5x and buys
 # nothing for the score (see the cost entry in the benchmark log).
 deno run --allow-read --allow-write --allow-env --allow-net \
-  --env-file=.env.local scripts/bench-mixed-menu.ts 3 <mixed|P>
+  --env-file=.env.local scripts/bench-mixed-menu.ts 3 <mixed|dual|P|P10|Pinline>
 
 # $0 replay of the above. Add --full-menu to replay the 2026-08-17 whole-menu run.
-deno run --allow-read scripts/bench-mixed-menu.ts 3 <mixed|P> --replay
+deno run --allow-read scripts/bench-mixed-menu.ts 3 <mixed|dual|P|P10|Pinline> --replay
 ```
 
 `rescore-history.ts` is the **source of truth for every number in these docs.** Any figure written
@@ -851,7 +1963,7 @@ in prose is a snapshot of when it was written; that command is what is true now.
 logic lives in `scripts/macro-measure.ts` and **must never be re-implemented anywhere** — see
 lesson 28, and `scripts/macro-measure_test.ts` fails the build if it is.
 
-ℹ️ **The suite's `2 failed` is noise — BOTH are known and neither is yours.** `361 passed | 2 failed`
+ℹ️ **The suite's `2 failed` is noise — BOTH are known and neither is yours.** `N passed | 2 failed`
 is a CLEAN run:
 
 | red test | why it is noise |

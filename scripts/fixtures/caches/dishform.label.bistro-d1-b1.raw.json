@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7RZBjdZsNoSHZFdIO3kTNA3GgBA",
+  "object": "chat.completion",
+  "created": 1787510569,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"VEGETARIANA\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"OSTRICA\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"MARGARITA\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"JAMÓN CON CHAMPIÑONES\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"PEPPERONI\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"ENSALADA GRIEGA\",\"dish_form\":\"salad_entree\"},{\"name\":\"ENSALADA BISTRO\",\"dish_form\":\"salad_entree\"},{\"name\":\"ENSALADA BALI\",\"dish_form\":\"salad_entree\"},{\"name\":\"ENSALADA DE LA SEMANA\",\"dish_form\":\"salad_entree\"},{\"name\":\"CARBONARA\",\"dish_form\":\"pasta_entree\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 825,
+    "completion_tokens": 171,
+    "total_tokens": 996,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

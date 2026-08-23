@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7aFzCDD6ySDEad7D2yj9oKat42x",
+  "object": "chat.completion",
+  "created": 1787511107,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"TostiBoneless (450gr)\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"Cheesey Chicken Balls (250gr)\",\"dish_form\":\"croquette_order\"},{\"name\":\"Bacon Cheese Fries (300gr)\",\"dish_form\":\"fries_starter\"},{\"name\":\"Dedos De Queso (200gr)\",\"dish_form\":\"other\"},{\"name\":\"Parmesano Fries (300gr)\",\"dish_form\":\"fries_starter\"},{\"name\":\"Salsa's Boneless Fries (450gr)\",\"dish_form\":\"fries_starter\"},{\"name\":\"Cubeta Pollotera\",\"dish_form\":\"other\"},{\"name\":\"El Tendedero\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"Megacharola Boneless\",\"dish_form\":\"other\"},{\"name\":\"Ensalada Boneless\",\"dish_form\":\"salad_entree\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 987,
+    "completion_tokens": 179,
+    "total_tokens": 1166,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

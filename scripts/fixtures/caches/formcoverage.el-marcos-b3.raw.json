@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7Zfp1AGoV210d7ql3gIpO4OT9U9",
+  "object": "chat.completion",
+  "created": 1787511071,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"WAFFLES Con plátano, canela y miel balsámica\",\"dish_form\":\"other\"},{\"name\":\"WAFFLES Con Frutos rojos\",\"dish_form\":\"other\"},{\"name\":\"AVENA CON LECHE (350ml.)\",\"dish_form\":\"other\"},{\"name\":\"CAFÉ AMERICANO (200ml.)\",\"dish_form\":\"other\"},{\"name\":\"CAFÉ CON LECHE (200ml.)\",\"dish_form\":\"other\"},{\"name\":\"CAFÉ CAPUCHINO (200ml.)\",\"dish_form\":\"other\"},{\"name\":\"TÉ (200ml.)\",\"dish_form\":\"other\"},{\"name\":\"CHOCOLATE (200ml.)\",\"dish_form\":\"other\"},{\"name\":\"LECHE (200ml.)\",\"dish_form\":\"other\"},{\"name\":\"PLATO SURTIDO (350gr.)\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 760,
+    "completion_tokens": 174,
+    "total_tokens": 934,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

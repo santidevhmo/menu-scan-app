@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7ZzbXFeGduKH6BTq9o8gRAkGeBq",
+  "object": "chat.completion",
+  "created": 1787511091,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"CHAMORRO CALAFATE\",\"dish_form\":\"other\"},{\"name\":\"SPAGHETTI A LA BOLOGNESA\",\"dish_form\":\"pasta_entree\"},{\"name\":\"PASTA AL PESTO\",\"dish_form\":\"pasta_entree\"},{\"name\":\"PASTA ALFREDO\",\"dish_form\":\"pasta_entree\"},{\"name\":\"PASTA PARMESANO\",\"dish_form\":\"pasta_entree\"},{\"name\":\"AI FRUTTI DI MARE\",\"dish_form\":\"pasta_entree\"},{\"name\":\"LASAGNA RÚSTICA\",\"dish_form\":\"pasta_entree\"},{\"name\":\"PASTA ALLA LIGURE\",\"dish_form\":\"pasta_entree\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 815,
+    "completion_tokens": 146,
+    "total_tokens": 961,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

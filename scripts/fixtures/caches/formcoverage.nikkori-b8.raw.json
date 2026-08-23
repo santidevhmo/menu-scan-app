@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7ZrbW0ynsza80QkTemfSNdBwOE2",
+  "object": "chat.completion",
+  "created": 1787511083,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"Jimador\",\"dish_form\":\"other\"},{\"name\":\"Black Label\",\"dish_form\":\"other\"},{\"name\":\"Carajillo\",\"dish_form\":\"other\"},{\"name\":\"Licor 43\",\"dish_form\":\"other\"},{\"name\":\"Bailey's\",\"dish_form\":\"other\"},{\"name\":\"Vino Blanco\",\"dish_form\":\"other\"},{\"name\":\"Vino Rosado\",\"dish_form\":\"other\"},{\"name\":\"Lambruisco Cavicchioli\",\"dish_form\":\"other\"},{\"name\":\"Cabernet Sauvignon L.A. Cetto\",\"dish_form\":\"other\"},{\"name\":\"Ventisquero Pinot Noir Reserva\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 641,
+    "completion_tokens": 129,
+    "total_tokens": 770,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

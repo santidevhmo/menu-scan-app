@@ -11,13 +11,63 @@
 > repeatedly lost sessions to status copied into a second file and then left to rot.
 > Entry point for new sessions: `docs/superpowers/START-HERE.md` (routing only, no status).
 
+> 🚀 **STATUS AS OF 2026-08-23 — PHASE 5 (Stage-2 enrichment accuracy) HAS SHIPPED ITS FIRST WIN.**
+> **Production is edge fn `analyze-menu` v33: FORM SIZING.** The model names each dish's form from a
+> fixed enum and *we* set the plate's mass from a gram table we own.
+>
+> | | /684 | |
+> |---|---|---|
+> | `dual` (was v32) | 352, 357 | 52% |
+> | **`FORM` (v33, live)** | **434, 436, 442, 447, 453** | **65%** |
+>
+> +86.8, 95% CI +30.7 to +142.8, and the first arm whose log-ratio CI also excludes zero. The oracle is
+> **57 dishes / 684 points** — any "/108" or "/252" figure predates the widening and is not comparable.
+>
+> ⚠️ **The phase is NOT closed.** Two things are open and neither needs a new mechanism: the gram table
+> covers only **33%** of dishes on menus it was not built from (82% on those it was), and **38 of 57
+> dishes still score differently run to run** — a user rescanning one menu gets different macros, which
+> no arm has ever addressed. **There is still no written definition of "good enough to ship."**
+>
+> ☠️ **Superseded claims that used to live in this block:** "every Stage-2 arm is now rejected" (false —
+> `HYBRID` and `FORM` both beat `dual`, and `NOBOOST`'s rejection was withdrawn at eval 171 because the
+> deploy rule that killed it was never Santiago's). The two Stage-1 leads are also resolved: the "28 CM"
+> header already reaches Stage 2 (`index.ts` forwards items unreshaped) and the sibling-weight idea was
+> ruled out by Santiago.
+>
+> **Full current status and the ranked next steps: `docs/superpowers/START-HERE.md` — read its
+> "NEXT STEPS" section.** Ledger: `docs/superpowers/extraction-iteration-ledger.md`, evals 172–177.
+> Use `superpowers:brainstorming` before designing any new eval.
+
 **ACTIVE: critical-path #5 — Stage-2 enrichment accuracy benchmark ("macro enrichment").**
 Macro accuracy has never been gated. The enrichment model is already decided (GPT-4o); what is
 missing is a measured benchmark, including printed-weight items so P2's "prefer printed weights"
 rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope detail: item #5 of
 "Release scope decision" below.
 
-> 🚀 **PRODUCTION IS EDGE FN `analyze-menu` v31 (2026-08-16), `ENRICH_BATCH_SIZE = 10`.** It is
+> 🆕 **2026-08-20 — THE MEASUREMENT CHANGED, THE PIPELINE DID NOT. Read this before comparing any
+> unweighted number.** Nothing was deployed and no prompt, schema or model pin was touched; production
+> is still v32. What changed is the RULER and the SET:
+>
+> | | before | now |
+> |---|---|---|
+> | band width | whatever the dish's MASS range was — ±6% to ±29%, unchosen | **the average dish ±20%, same for every dish** |
+> | a small miss in grams | failed | **passes: 6 g macro / 50 kcal** |
+> | unweighted dishes | 6 | **9** (COLIFLOR ROKA retired as unanswerable) |
+>
+> Same ruler AND same dishes: on the five both arms archive, shipped `dual` **41/60** vs pre-dual
+> `baseline` **32/60**, gap **9**. (A whole-archive replay prints 52/72 over 6 of 9 dishes for `dual`;
+> the harness footer states its own coverage.)
+> ⛔ **NEXT ACTION: one ~$0.50–0.60 run, awaiting Santiago's approval**, to score the three new dishes
+> (OMELETTE CUBANA, TACO PORCO, BROWNIE) — they sit on menus the unweighted harness never enriched, so
+> no archive exists and they cannot be scored free. **Expect the score to drop; that is the harder
+> dishes arriving.** Full takeover briefing: the `🆕 2026-08-20 HANDOFF` block in
+> `docs/superpowers/START-HERE.md`, or `docs/superpowers/how-testing-works.html` for the plain-language
+> version. Three fixes were falsified at $0 this session — see ledger eval 156 before proposing any of
+> them again.
+>
+> 🚀 **PRODUCTION IS EDGE FN `analyze-menu` v32 (2026-08-19), `ENRICH_BATCH_SIZE = 10`** — the DUAL
+> PASS with pass 2 on the system envelope. `main` byte-matches it. History below describes v31, which it
+> supersedes: **v31 (2026-08-16)** is
 > `macro-best-v8` (B21 + B24b) + forced `serving_pieces` + two zeroing bug fixes. **Verify against the
 > server, never against this file** — `mcp__supabase__list_edge_functions` gives version and
 > `updated_at`. Rollback: `git checkout abe5e12 -- supabase/functions/analyze-menu/ && supabase
@@ -79,8 +129,8 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > shuffled (4.00×, 1.94×, 1.87×). **A per-item condition in prose is not read as one.**
 >
 > ✅ **THE DUAL-PASS PLAN IS EXECUTED (2026-08-19, eval 151, ~$3.2). Tasks 1–5 done; Task 6 —
-> deployment — is Santiago's and is OPEN.** Branch `feat/dual-pass-enrichment`, **PR #18**, based on
-> `feat/forced-serving-pieces`. **PRODUCTION IS STILL EDGE FN v31 — nothing here is live.**
+> deployment — was Santiago's and is now DONE.** ✅ **DEPLOYED as v32 and MERGED to `main`
+> (2026-08-19): PR #18 → PR #17 → `main`, 87 commits.**
 >
 > ✅ **WEIGHTED IS FREE, and a FRESH control says so:** dual **14, 15, 17/96** against a same-day
 > `mixed --run ctrl` at **15/96**. Ranges overlap, control inside them, 60/60 menu-draws clean, all
@@ -118,9 +168,20 @@ rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope d
 > **Rollback:** `git checkout dbf3f79 -- supabase/functions/analyze-menu/ && supabase functions deploy
 > analyze-menu --project-ref uonuiadueykynbetxxrw`.
 >
-> ⛔ **THE NEXT ACTION: merge PR #18 → PR #17 → `main`.** ⚠️ `main` was ALREADY behind production
-> before this deploy (v31 ran unmerged branch code); **deploying and merging are independent** and
-> merging ships nothing to users. #17 also carries app code absent from any TestFlight build.
+> ✅ **MERGED 2026-08-19: PR #18 → PR #17 → `main`** (87 commits). `git diff origin/main HEAD --
+> supabase/functions/analyze-menu/` is EMPTY, so `main` and the deployed function now agree — the drift
+> that ran from v30 to v32 is closed. 🔑 **Deploying and merging are independent**: deploying uploads
+> the working directory, merging moves code into `main`, and merging ships nothing to users.
+>
+> ✅ **TESTFLIGHT BUILD 7 IS SUBMITTED (2026-08-19, id `cf7b5088`, commit `9745c39`)** — verified by
+> unpacking the `.ipa` before submission, not by trusting the build status. Build 6 was `ccd3b04` and
+> predated the whole portion control. 🔑 **The macro gain is SERVER-SIDE and already reaches every
+> user including build 6; build 7 adds only the portion-editor UI.**
+>
+> ⛔ **THE NEXT ACTION: the ACCOMPANIMENT defect** — 24% of weighted items, 12–20% of their calories,
+> the largest known weighted defect and the only substantial one left. ⚠️ A weight fix ALONE makes
+> sauces WORSE (chimichurri is 2× too heavy AND ~3× too lean; the errors cancel today). Prose and a
+> duplicate schema field have both failed. **Brainstorm before building — Santiago's standing rule.**
 >
 > **THE DUAL PASS, and why it is the only shape left.** Pass 1 = today's call over the whole menu,
 > byte-identical, answers used for WEIGHTED items. Pass 2 = the unweighted items re-sent in their own
@@ -868,6 +929,14 @@ Rationale (user, 2026-07-10): options matter mainly where variants invert macros
 30. **A BENCHMARK THAT BUILDS ITS OWN REQUEST IS NOT MEASURING THE PRODUCT — and it will keep passing while it does it.** This has now cost two paid incidents in one phase. First `bench-pipeline.ts` kept a private copy of the OpenAI request that quietly hardcoded `temperature: 0`; `gpt-5.5` rejects that outright, so swapping `ENRICH_MODEL` alone would have 400'd **every scan in production**, and the macro benchmark could never have caught it. `a9fce10` moved `callGptEnrich` into `enrich.ts` to end the duplication — **and fixed one file while leaving `bench-macros.ts` with the same private copy.** The half-fix survived four more paid arms unnoticed. It surfaced only when B20 put logic INSIDE `enrichBatch`: the probe returned 26/96 at 25.3%, which read as a catastrophic regression and was in fact a hybrid that exists nowhere — the harness sent the old payload against the new schema. **Why it hides so well: both copies imported `ENRICH_PROMPT` and `ENRICH_SCHEMA_OPENAI`, so every prompt and schema experiment measured correctly.** What diverged was everything *around* the request — sampling, payload shaping, response handling — which is precisely the part nobody thinks to verify, because the numbers look fine. **The test that matters is not "does the harness produce plausible numbers" but "does the harness CALL the deployed function".** Fixed by giving `enrichBatch` an optional `onRaw` hook so a harness can archive the exact response bytes without needing its own request, and `bench-macros_test.ts` now fails the build if `api.openai.com` reappears in that file or `enrichBatch` disappears from it. Same corollary as lesson 28, one level out: a broken measurement silently redirects every future iteration — and here it also meant **the deployed path had never once been exercised by the benchmark that gates it.**
 
 29. **When ONE fixture fails 100% of its fields, suspect a definitional mismatch between the oracle and the pipeline before you suspect the model.** The signature is the two sides measuring different things. French Fries went 0/48 → 48/48 on an oracle change alone, and the resulting arm-vs-arm reversal was entirely answer-key movement, not a quality change.
+
+31. **DESCRIBE AN ARTIFACT BY READING IT — never from memory, never from an adjacent one. This single habit would have prevented every wrong claim in the 2026-08-21 session.** Three confident, wrong statements in one session, each one file-read away from being right. (a) Arm A was described as "just a prompt ask, so schema-forcing the size is untried" — reading `probe-plate-arms.ts` shows it is `ENRICH_PROMPT` + a sentence **AND** a required numeric `typical_total_g` inserted after `printed_total_g`. The "new" arm about to be designed was **a duplicate of a thing already rejected twice**. (b) TACO PORCO's ingredient breakdown was quoted as evidence about the SHIPPED pipeline while the numbers came from the `baseline` archive; in the shipped `dual` path the supposedly-inflated peanuts are *under*-sized and the real error is uniform, which **inverted the diagnosis and would have aimed an arm at a mechanism that does not exist**. (c) "Blast radius is one menu of ten" was asserted after checking `bench-pipeline`'s archive map, while `bench-mixed-menu` uses a *different* archive family that had not been checked — the conclusion held, but only by luck. **The tell is a sentence about code or data you did not open in this session.** Before writing a claim about what an arm does, what a dish returned, or what a map contains: open the file. The cost is one tool call; the cost of being wrong is a designed-and-paid experiment aimed at nothing.
+
+32. **A HARDCODED LIST THAT MUST GROW WITH THE ORACLE WILL GO STALE SILENTLY — derive it from the source of truth instead.** Found TWICE in one day, in different files, both silently shrinking what was being measured. (a) `bench-pipeline`'s archive loader read ONE file per menu, but a dense menu is extracted in two calls and archived as `<name>.raw.json` + `<name>.p1.raw.json`; the parts are DISJOINT, so `brasero-two` was truncated 41 → 16 items and two oracle dishes could never be scored — they reported `ABSENT` on every draw, which **reads as catastrophic model failure and was a missing file**. (b) All three `sim-*-ceiling.ts` scripts hardcoded `["andaluz","bistro","nikkori"]` and never grew when two menus joined the oracle, so each reported a ceiling over **6 of 9 dishes — excluding the two worst-failing ones**, which is precisely the subset that would change the answer. **Both fixed by deriving from the oracle** (`[...new Set(oracle.map(e => e.menu))]`) so adding a dish extends every consumer automatically. **The rule: if a list must stay in sync with a fixture, do not write the list — compute it.** A partial measurement does not announce itself; it just quietly reports a smaller, flattering, wrong number.
+
+33. **A GUARD THAT ONLY PRINTS IS NOT A GUARD.** `sim-mass-ceiling.ts` ended with `console.log("The control row MUST read 36/72 … anything else means this scorer is not the harness's and no row is believable")` — while printing **56/72**. The rule was correct, prominently written, and **completely unenforced**, because nothing compared the two. It sat wrong for a day and no one could have noticed without doing the comparison by hand, which is exactly what the line existed to avoid. **If a document or a script states an invariant, something must FAIL when it is violated** — `throw`, a failing test, a non-zero exit. Prose that describes a check is documentation of an intention, not a check. Corollary to lesson 20's "a guard never seen to fail is not a guard": a guard that *cannot* fail is worse, because it advertises safety it does not provide.
+
+34. **A FALSIFIED RESULT IS ONLY FALSIFIED UNDER THE RULER THAT MEASURED IT — re-derive every "do not re-open" entry when the ruler changes.** START-HERE carried "give every dish a PERFECT MASS = 36 → 35 points" in a **DO NOT RE-OPEN** table. Re-derived after the bands changed to ±20% and the set grew 6 → 9 dishes: **67/108 → 98/108, +31 points — the single largest lever available, sitting in the do-not-reopen list.** The original measurement was honest; it simply did not survive its own scoring rule being replaced. The same ruler change also retired the phase's guiding slogan ("size was the symptom, assembly is the disease"), which had been true of a leaner assembly. **Whenever the oracle, the bands, or the dish set changes, every stored conclusion is provisional until re-run — and the cheapest ones ($0 replays and sims) should be re-run immediately, before any of them is used to reject an idea.** Record the ruler alongside the verdict: "36 → 35 **at the pre-2026-08-20 bands over 6 dishes**" is a claim that ages honestly; "perfect mass is worthless" is one that misleads the moment anything moves.
 
 ## Feature Sequence (MVP order)
 

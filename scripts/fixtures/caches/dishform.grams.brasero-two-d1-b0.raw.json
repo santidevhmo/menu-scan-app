@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7SB3nbWY0zDSSjq6dMEXwM0PeuB",
+  "object": "chat.completion",
+  "created": 1787510607,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"TACO PORCO\",\"dish_form\":\"single soft taco\",\"form_typical_g\":120},{\"name\":\"TOSTA BRASIL (picaña)\",\"dish_form\":\"single tostada\",\"form_typical_g\":150},{\"name\":\"TOSTA ATUM\",\"dish_form\":\"single tostada\",\"form_typical_g\":150},{\"name\":\"TACO BRASERO\",\"dish_form\":\"single soft taco\",\"form_typical_g\":120},{\"name\":\"TACO TRADICIONAL\",\"dish_form\":\"single soft taco\",\"form_typical_g\":120},{\"name\":\"TACO EL CAPRICHO\",\"dish_form\":\"lettuce wrap taco\",\"form_typical_g\":100},{\"name\":\"CHILE RELLENO\",\"dish_form\":\"single chile relleno\",\"form_typical_g\":200},{\"name\":\"ORDEN DE TORTILLAS\",\"dish_form\":\"side of tortillas\",\"form_typical_g\":100},{\"name\":\"BROWNIE\",\"dish_form\":\"brownie with ice cream\",\"form_typical_g\":180},{\"name\":\"ROLLOS DE CREPA\",\"dish_form\":\"crepe rolls with ice cream\",\"form_typical_g\":200}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 753,
+    "completion_tokens": 235,
+    "total_tokens": 988,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_684acb85fd"
+}

@@ -15,17 +15,29 @@
 import {
   callGptEnrich,
   chunk,
-  enrichBatch,
   ENRICH_BATCH_SIZE,
   ENRICH_MODEL,
   ENRICH_PROMPT,
   ENRICH_PROMPT_UNWEIGHTED,
   ENRICH_SCHEMA_OPENAI,
+  enrichBatch,
   resolveGrams,
   sumIngredientMacros,
 } from "../supabase/functions/analyze-menu/enrich.ts";
 import { parseItemGrams } from "../supabase/functions/analyze-menu/postprocess.ts";
 import { ARM_S3, ARM_S4 } from "./arm-schemas.ts";
+import {
+  ARM_MASSCALL,
+  ARM_NOBOOST,
+  ARM_NOPUSH,
+  ARM_ORDER,
+  ARM_ORDER_NOPUSH,
+  ARM_PIECE,
+  ARM_ROLE,
+  ARM_SHIPPED_PASS2,
+} from "./arm-order-schemas.ts";
+import { resolvePiecesPerOrder } from "../src/lib/portions.ts";
+import { applyFormMass, labelForms } from "./arm-dish-form.ts";
 
 const apiKey = Deno.env.get("OPENAI_API_KEY");
 if (!apiKey) throw new Error("OPENAI_API_KEY is required in .env.local");
@@ -131,7 +143,24 @@ async function callOpenAI(
   });
   if (!res.ok) throw new Error(`OpenAI ${res.status}: ${await res.text()}`);
   const json = await res.json();
-  return JSON.parse(json.choices[0].message.content);
+  const content = json.choices[0].message.content;
+  try {
+    return JSON.parse(content);
+  } catch (err) {
+    // A paid run must never die leaving NOTHING to look at. Save the exact bytes
+    // the model sent before rethrowing, or diagnosing this costs another call.
+    const dump = `/tmp/callopenai-unparseable-${Date.now()}.txt`;
+    Deno.writeTextFileSync(dump, content);
+    const m = /position (\d+)/.exec(String(err));
+    const at = m ? Number(m[1]) : -1;
+    throw new Error(
+      `OpenAI content did not parse: ${err}\n` +
+        `  saved to ${dump} (${content.length} chars)\n` +
+        (at >= 0
+          ? `  context: ${JSON.stringify(content.slice(at - 60, at + 60))}`
+          : ""),
+    );
+  }
 }
 
 export async function armA(items: Item[]) {
@@ -270,7 +299,11 @@ export async function armP(items: Item[]) {
   }
   if (unweighted.length > 0) {
     // The SCHEMA is untouched - this changes what a number means, not its shape.
-    const raw = await callOpenAI(ARM_P_PROMPT, ENRICH_SCHEMA_OPENAI, unweighted);
+    const raw = await callOpenAI(
+      ARM_P_PROMPT,
+      ENRICH_SCHEMA_OPENAI,
+      unweighted,
+    );
     for (const it of raw.items ?? []) {
       out.push({
         ...it,
@@ -615,6 +648,223 @@ export async function armS4(items: Item[]) {
   );
 }
 
+// ------------------------------------- ARMS ORDER / ORDER-nopush / PIECE
+//
+// WHAT THE PER-INGREDIENT GRAM FIELD ASKS FOR. Rationale, the measured gram
+// distribution behind it, and the B21/B16 history are in arm-order-schemas.ts.
+//
+// ⚠️ THE CONTROL FOR THESE THREE IS `dual` (67/108), NOT `baseline`, and that
+// rests on one fact worth checking rather than believing: bench-unweighted hands
+// every arm an ALL-UNWEIGHTED selection, so `dual`'s pass 1 answers are all
+// discarded and its result comes entirely from pass 2 - which is
+// callGptEnrich(items, ENRICH_PROMPT_UNWEIGHTED, "system") batched at
+// ENRICH_BATCH_SIZE. These arms are that same call with the gram field changed.
+// Hence "system" below: the SAME sentence through the user envelope scored
+// 31/72 against 38/72, so getting this wrong would measure the envelope.
+//
+// Pass 1 is skipped rather than run and thrown away, which halves each arm's
+// cost. Nothing weighted is touched, and neither is enrich.ts.
+async function runOrderArm(
+  items: Item[],
+  arm: { prompt: string; schema: unknown; key: string },
+  perPiece: boolean,
+) {
+  const got = await retryOnce(() =>
+    enrichBatch(
+      // deno-lint-ignore no-explicit-any
+      items as any,
+      apiKey!,
+      ENRICH_MODEL,
+      undefined,
+      arm.prompt,
+      arm.schema,
+      "system",
+    )
+  );
+  // enrichBatch summed macros from `typical_serving_g`, which these schemas do
+  // not have - so its totals are zeros and are REPLACED here, not adjusted. The
+  // ingredient objects it spread through are intact, which is where the arm's
+  // own key arrives.
+  // deno-lint-ignore no-explicit-any
+  return got.map((it: any) => {
+    // PIECE prices ONE piece; the multiplication is ours, per B10/B12 - the
+    // model states the parts and never does the arithmetic. Divisor is the app's
+    // own resolvePiecesPerOrder, so the arm and the results screen can never
+    // disagree about what a model-supplied count means.
+    const pieces = perPiece ? resolvePiecesPerOrder(it.serving_pieces) : 1;
+    // deno-lint-ignore no-explicit-any
+    const ingredients = (it.ingredients ?? []).map((i: any) => ({
+      ...i,
+      typical_serving_g: (i[arm.key] ?? 0) * pieces,
+    }));
+    return {
+      ...it,
+      ingredients,
+      ...sumIngredientMacros(ingredients, it.printed_total_g),
+    };
+  });
+}
+
+export const armOrder = (items: Item[]) => runOrderArm(items, ARM_ORDER, false);
+export const armOrderNoPush = (items: Item[]) =>
+  runOrderArm(items, ARM_ORDER_NOPUSH, false);
+export const armPiece = (items: Item[]) => runOrderArm(items, ARM_PIECE, true);
+export const armNoPush = (items: Item[]) =>
+  runOrderArm(items, ARM_NOPUSH, false);
+export const armNoBoost = (items: Item[]) =>
+  runOrderArm(items, ARM_NOBOOST, false);
+export const armRole = (items: Item[]) => runOrderArm(items, ARM_ROLE, false);
+
+/**
+ * ARM HYBRID(T) — a ROUTER, not a prompt or a schema. Eval 171.
+ *
+ * Every arm before this one pushed mass in ONE direction, and the error runs in
+ * TWO: `model_mass = 0.634 x true_mass + 89 g` over 57 dishes (r 0.84), so small
+ * plates come back too big and large ones too small, crossing at 243 g. That is
+ * why NOBOOST gained +0.97/dish under 250 g and lost 0.21/dish above it, and why
+ * no single-direction lever has ever beaten `dual`.
+ *
+ * The rule: ask with NOBOOST's prompt, then RE-ASK the shipped question for only
+ * the items whose own answer came back at or above T grams. The routing input is
+ * the MODEL's plate total - never the oracle - so this can ship.
+ *
+ * $0 replay of the paired archives put T=300 at 415/684 against the shipped 355,
+ * +60.0, 95% CI +23.5 to +102.5 (the first in this phase excluding zero), 100% of
+ * 10,000 resamples, 417/412 across two runs, and +50 with T chosen
+ * leave-one-menu-out. This paid run exists because that replay assumes an item's
+ * answer is independent of its BATCH, which this phase's #1 finding says is false:
+ * here the re-ask really does form a second, smaller batch.
+ *
+ * ⚠️ Deliberately NOT a code-side rescale of the grams. A fitted global inversion
+ * of the line above measured 223/684 leave-one-menu-out against 352 - the slope
+ * does not transfer between cuisines. This arm changes WHICH ANSWER IS USED, and
+ * never invents a number.
+ */
+export const HYBRID_T = 300;
+
+/**
+ * Which of NOBOOST's answers get the shipped question re-asked. Exported ONLY so
+ * the threshold is testable without buying a run - `armHybrid` is the caller.
+ */
+// deno-lint-ignore no-explicit-any
+export function hybridReaskIndices(answers: any[], t = HYBRID_T): number[] {
+  // deno-lint-ignore no-explicit-any
+  return answers.flatMap((it: any, i: number) =>
+    resolveGrams(it.ingredients ?? [], it.printed_total_g)
+        .reduce((s: number, g: number) => s + g, 0) >= t
+      ? [i]
+      : []
+  );
+}
+
+export async function armHybrid(items: Item[]) {
+  const noBoost = await runOrderArm(items, ARM_NOBOOST, false);
+  // The shipped pass-2 question. PUSH is defined as the tail of
+  // ENRICH_PROMPT_UNWEIGHTED, so ARM_SHIPPED_PASS2.prompt IS that constant - the
+  // arm cannot drift from production by construction.
+  const heavy = hybridReaskIndices(noBoost);
+  if (heavy.length === 0) return noBoost;
+
+  const reasked = await runOrderArm(
+    heavy.map((i: number) => items[i]),
+    ARM_SHIPPED_PASS2,
+    false,
+  );
+  // Positional, then NAME-CHECKED. enrichBatch is told to preserve order and not
+  // to sort, but a silent misalignment here would attribute one dish's macros to
+  // another and read as a model result - so it throws instead of guessing.
+  if (reasked.length !== heavy.length) {
+    throw new Error(
+      `HYBRID re-ask returned ${reasked.length} of ${heavy.length} items`,
+    );
+  }
+  const out = [...noBoost];
+  heavy.forEach((idx: number, k: number) => {
+    if (reasked[k].name !== items[idx].name) {
+      throw new Error(
+        `HYBRID re-ask misaligned: slot ${k} is "${
+          reasked[k].name
+        }", expected "${items[idx].name}"`,
+      );
+    }
+    out[idx] = reasked[k];
+  });
+  return out;
+}
+
+/**
+ * ARM MASSCALL — NOBOOST's recipe, rescaled to a total from its OWN call.
+ *
+ * Reuses PLATE_PROMPT and PLATE_SCHEMA verbatim from Arm C above, which is the same
+ * mechanism: a call that receives ONLY name and description, so the total cannot be
+ * back-computed from an ingredient list the same completion just wrote. Arm C was
+ * never scored against an oracle - it paired that call with the SINGLE-pass prompt,
+ * and it predates the 9-dish /108 ruler entirely. Reusing its prompt rather than
+ * writing a new one keeps the mass question one that has already been reviewed, and
+ * leaves this arm exactly one variable away from NOBOOST.
+ *
+ * The rescale is production's own: sumIngredientMacros(ings, total) routes through
+ * resolveGrams, which is what a PRINTED weight does - and the printed-weight path is
+ * what took the weighted score to ~96%. The hypothesis is precisely that an
+ * independently sourced total behaves like a printed one.
+ *
+ * ponytail: 6 of 95 archived ingredients carry within_printed_weight:false, and
+ * resolveGrams leaves those OUTSIDE the rescale, so the final mass can exceed the
+ * total by their grams. That is production's semantics for a side that is not part of
+ * the weighed dish, and changing it here would make the arm two variables.
+ */
+/**
+ * COMBO, eval 176: `HYBRID` routes, then the FORM table sizes.
+ *
+ * The two mechanisms do different jobs and were never tested together. HYBRID
+ * picks WHICH question to ask per dish; the form table then overrides the MASS of
+ * whatever came back. Its control is `HYBRID` (394-419 over 4 runs), not `dual` -
+ * one variable, the form rescale.
+ *
+ * ⚠️ Form sizing overwrites the mass HYBRID's routing produced, so if the two
+ * gains come from the same dishes this scores no better than FORM alone. That is
+ * the question, and it cannot be answered by adding +53 and +117.
+ */
+export async function armCombo(items: Item[]) {
+  const routed = await armHybrid(items);
+  const labels = await labelForms(items, apiKey!);
+  // deno-lint-ignore no-explicit-any
+  return applyFormMass(routed as any, labels) as any;
+}
+
+export async function armMassCall(items: Item[]) {
+  const [enriched, plates] = await Promise.all([
+    runOrderArm(items, ARM_MASSCALL, false),
+    retryOnce(() =>
+      callOpenAI(
+        PLATE_PROMPT,
+        PLATE_SCHEMA,
+        items.map((i) => ({ name: i.name, description: i.description })),
+      )
+    ),
+  ]);
+
+  const byName = new Map<string, number>();
+  // deno-lint-ignore no-explicit-any
+  for (const p of (plates as any).items ?? []) {
+    byName.set(p.name, p.total_grams);
+  }
+
+  // deno-lint-ignore no-explicit-any
+  return (enriched as any[]).map((it) => {
+    const total = plausibleTotal(byName.get(it.name));
+    // No usable total means the arm falls back to NOBOOST for that dish rather
+    // than to zero. `_plate_g` records which dishes were actually rescaled, so a
+    // score can never be attributed to a lever that did not fire.
+    if (total === null) return { ...it, _plate_g: null };
+    return {
+      ...it,
+      ...sumIngredientMacros(it.ingredients ?? [], total),
+      _plate_g: total,
+    };
+  });
+}
+
 /**
  * The sauce probes' dish set, shared by `sauce-dish` and `sauce-schema` so the
  * two arms are judged on identical dishes - lesson 28, one definition only.
@@ -631,17 +881,48 @@ const SAUCE_DISHES: {
   usda: number | null;
   control?: boolean;
 }[] = [
-  { menu: "andaluz", name: "CESAR (200 g)", sauce: "caesar dressing", usda: 57.9 },
+  {
+    menu: "andaluz",
+    name: "CESAR (200 g)",
+    sauce: "caesar dressing",
+    usda: 57.9,
+  },
   { menu: "casa-nostra", name: "Cesar", sauce: "Caesar dressing", usda: 57.9 },
   { menu: "brasero", name: "PASTA AL PESTO", sauce: "Pesto", usda: 59.2 },
-  { menu: "polloteria", name: "Dedos De Queso (200gr)", sauce: "Ranch", usda: 44.5 },
-  { menu: "casa-nostra", name: "Salmone padella", sauce: "garlic sauce", usda: 74.0 },
-  { menu: "brasero", name: "PESCADO AL AJILLO", sauce: "garlic sauce", usda: 74.0 },
+  {
+    menu: "polloteria",
+    name: "Dedos De Queso (200gr)",
+    sauce: "Ranch",
+    usda: 44.5,
+  },
+  {
+    menu: "casa-nostra",
+    name: "Salmone padella",
+    sauce: "garlic sauce",
+    usda: 74.0,
+  },
+  {
+    menu: "brasero",
+    name: "PESCADO AL AJILLO",
+    sauce: "garlic sauce",
+    usda: 74.0,
+  },
   // House-named: no published record exists, so observed and never scored.
   { menu: "brasero", name: "NEW YORK", sauce: "chimichurri", usda: null },
-  { menu: "brasero", name: "FILETE DISCORDIA", sauce: "salsa chemita", usda: null },
+  {
+    menu: "brasero",
+    name: "FILETE DISCORDIA",
+    sauce: "salsa chemita",
+    usda: null,
+  },
   // CONTROLS - single foods throughout.
-  { menu: "andaluz", name: "PULPO A LA GALLEGA (200 g)", sauce: "-", usda: null, control: true },
+  {
+    menu: "andaluz",
+    name: "PULPO A LA GALLEGA (200 g)",
+    sauce: "-",
+    usda: null,
+    control: true,
+  },
   {
     menu: "andaluz",
     name: "CAMARONES EMPANIZADOS (200 g)",
@@ -741,7 +1022,9 @@ if (Deno.args[0] === "noise") {
     const spread = (high - low) / ((high + low) / 2);
     spreads.push(spread);
     console.log(
-      `${d.name.slice(0, 28).padEnd(30)} ${xs.join(", ").padEnd(30)} ${(spread * 100).toFixed(0)}%`,
+      `${d.name.slice(0, 28).padEnd(30)} ${xs.join(", ").padEnd(30)} ${
+        (spread * 100).toFixed(0)
+      }%`,
     );
   }
   spreads.sort((a, b) => a - b);
@@ -812,18 +1095,23 @@ if (Deno.args[0] === "curve") {
       const outs: { out: any[]; failed: boolean }[] = [];
       for (let w = 0; w < groups.length; w += CONCURRENCY) {
         outs.push(
-          ...await Promise.all(groups.slice(w, w + CONCURRENCY).map(async (group) => {
-            try {
-              // deno-lint-ignore no-explicit-any
-              return { out: await enrichBatch(group as any, apiKey!) as any[], failed: false };
-            } catch (err) {
-              console.error(
-                `[curve] b${nominal} d${draw} call FAILED (not a drop):`,
-                err instanceof Error ? err.message : err,
-              );
-              return { out: [], failed: true };
-            }
-          })),
+          ...await Promise.all(
+            groups.slice(w, w + CONCURRENCY).map(async (group) => {
+              try {
+                // deno-lint-ignore no-explicit-any
+                return {
+                  out: await enrichBatch(group as any, apiKey!) as any[],
+                  failed: false,
+                };
+              } catch (err) {
+                console.error(
+                  `[curve] b${nominal} d${draw} call FAILED (not a drop):`,
+                  err instanceof Error ? err.message : err,
+                );
+                return { out: [], failed: true };
+              }
+            }),
+          ),
         );
       }
 
@@ -843,7 +1131,9 @@ if (Deno.args[0] === "curve") {
           if (!byName.has(it.name)) byName.set(it.name, []);
           byName.get(it.name)!.push(Math.round(it.estimated_calories ?? 0));
         }
-        for (const src of group) grpOf.get(nominal)!.set(src.name, group.length);
+        for (const src of group) {
+          grpOf.get(nominal)!.set(src.name, group.length);
+        }
       });
     }
   }
@@ -921,8 +1211,14 @@ if (Deno.args[0] === "curve") {
 // production runs them. Four dishes and single-item calls decided A-conditional;
 // this is the check on both of those limits at once.
 if (Deno.args[0] === "wide") {
-  const set: { name: string; description: string; menu: string; baseline_g: number }[] =
-    JSON.parse(await Deno.readTextFile("scripts/fixtures/unweighted-guard-set.json"));
+  const set: {
+    name: string;
+    description: string;
+    menu: string;
+    baseline_g: number;
+  }[] = JSON.parse(
+    await Deno.readTextFile("scripts/fixtures/unweighted-guard-set.json"),
+  );
   const items = set.map((d) => item(d.name, d.description));
 
   const runs: Record<string, Map<string, number[]>> = {};
@@ -941,7 +1237,9 @@ if (Deno.args[0] === "wide") {
   }
 
   console.log(
-    `${"dish".padEnd(30)} ${"baseline kcal".padEnd(16)} ${"A-cond kcal".padEnd(16)} change  anchored`,
+    `${"dish".padEnd(30)} ${"baseline kcal".padEnd(16)} ${
+      "A-cond kcal".padEnd(16)
+    } change  anchored`,
   );
   let moved = 0;
   for (const d of set) {
@@ -959,7 +1257,9 @@ if (Deno.args[0] === "wide") {
         ? String(xs[0])
         : `${Math.min(...xs)}-${Math.max(...xs)}`;
     console.log(
-      `${d.name.slice(0, 28).padEnd(30)} ${span(b).padEnd(16)} ${span(a).padEnd(16)} ` +
+      `${d.name.slice(0, 28).padEnd(30)} ${span(b).padEnd(16)} ${
+        span(a).padEnd(16)
+      } ` +
         `${change >= 0 ? "+" : ""}${(change * 100).toFixed(0)}%   ` +
         `${statesSize(d.name, d.description) ? "YES" : "no"}`,
     );
@@ -1146,7 +1446,9 @@ if (Deno.args[0] === "sauce-dish") {
   const menus = new Map<string, Record<string, unknown>[]>();
   for (const m of new Set(DISHES.map((d) => d.menu))) {
     const raw = JSON.parse(
-      await Deno.readTextFile(`scripts/fixtures/caches/pipeline.b10.${m}.raw.json`),
+      await Deno.readTextFile(
+        `scripts/fixtures/caches/pipeline.b10.${m}.raw.json`,
+      ),
     );
     menus.set(m, raw.items ?? []);
   }
@@ -1169,7 +1471,9 @@ if (Deno.args[0] === "sauce-dish") {
   );
   for (const d of DISHES) {
     // deno-lint-ignore no-explicit-any
-    const src = (menus.get(d.menu) ?? []).find((x: any) => x.name === d.name) as any;
+    const src = (menus.get(d.menu) ?? []).find((x: any) =>
+      x.name === d.name
+    ) as any;
     if (!src) {
       console.log(`${d.name.padEnd(28)} NOT FOUND in pipeline.b10.${d.menu}`);
       continue;
@@ -1188,7 +1492,9 @@ if (Deno.args[0] === "sauce-dish") {
         if (arm === "S" && draw === 0) {
           parts = (out?.ingredients ?? [])
             // deno-lint-ignore no-explicit-any
-            .map((i: any) => `${i.name} ${i.typical_serving_g}g/${i.fat_per_100g}f`)
+            .map((i: any) =>
+              `${i.name} ${i.typical_serving_g}g/${i.fat_per_100g}f`
+            )
             .join(" ")
             .slice(0, 72);
         }
@@ -1198,8 +1504,12 @@ if (Deno.args[0] === "sauce-dish") {
       xs.length === 0 ? "-" : `${Math.min(...xs)}-${Math.max(...xs)}`;
     console.log(
       `${d.name.slice(0, 26).padEnd(28)} ${d.sauce.slice(0, 14).padEnd(16)}` +
-        ` ${String(src.fat_g ?? "-").padStart(8)} ${span(fats.base).padStart(11)}` +
-        ` ${span(fats.S).padStart(11)}   ${d.control ? "[CONTROL] " : ""}${parts}`,
+        ` ${String(src.fat_g ?? "-").padStart(8)} ${
+          span(fats.base).padStart(11)
+        }` +
+        ` ${span(fats.S).padStart(11)}   ${
+          d.control ? "[CONTROL] " : ""
+        }${parts}`,
     );
   }
 
@@ -1290,7 +1600,9 @@ if (Deno.args[0] === "sauce-schema") {
   const menus = new Map<string, Record<string, unknown>[]>();
   for (const m of new Set(SAUCE_DISHES.map((d) => d.menu))) {
     const raw = JSON.parse(
-      await Deno.readTextFile(`scripts/fixtures/caches/pipeline.b10.${m}.raw.json`),
+      await Deno.readTextFile(
+        `scripts/fixtures/caches/pipeline.b10.${m}.raw.json`,
+      ),
     );
     menus.set(m, raw.items ?? []);
   }
@@ -1302,7 +1614,9 @@ if (Deno.args[0] === "sauce-schema") {
   );
   for (const d of SAUCE_DISHES) {
     // deno-lint-ignore no-explicit-any
-    const src = (menus.get(d.menu) ?? []).find((x: any) => x.name === d.name) as any;
+    const src = (menus.get(d.menu) ?? []).find((x: any) =>
+      x.name === d.name
+    ) as any;
     if (!src) continue;
     const it = item(src.name, src.description ?? "");
     const fats: Record<string, number[]> = { base: [], S2: [] };
@@ -1321,7 +1635,9 @@ if (Deno.args[0] === "sauce-schema") {
             i.name.toLowerCase().includes(d.sauce.toLowerCase().split(" ")[0])
           );
           said = hit
-            ? `${hit.name} f${hit.fat_per_100g} <- ${String(hit.composed_of).slice(0, 46)}`
+            ? `${hit.name} f${hit.fat_per_100g} <- ${
+              String(hit.composed_of).slice(0, 46)
+            }`
             : "(sauce not listed as an ingredient)";
         }
       }
@@ -1432,7 +1748,9 @@ if (Deno.args[0] === "sauce-number") {
   const menus = new Map<string, Record<string, unknown>[]>();
   for (const m of new Set(SAUCE_DISHES.map((d) => d.menu))) {
     const raw = JSON.parse(
-      await Deno.readTextFile(`scripts/fixtures/caches/pipeline.b10.${m}.raw.json`),
+      await Deno.readTextFile(
+        `scripts/fixtures/caches/pipeline.b10.${m}.raw.json`,
+      ),
     );
     menus.set(m, raw.items ?? []);
   }
@@ -1440,11 +1758,15 @@ if (Deno.args[0] === "sauce-number") {
   const DRAWS_S3 = 3;
   console.log(
     `${"dish".padEnd(27)} ${"sauce".padEnd(14)} ${"base".padStart(7)}` +
-      ` ${"ARM S3".padStart(8)} ${"fat/100g".padStart(9)} ${"USDA".padStart(5)}  parts`,
+      ` ${"ARM S3".padStart(8)} ${"fat/100g".padStart(9)} ${
+        "USDA".padStart(5)
+      }  parts`,
   );
   for (const d of SAUCE_DISHES) {
     // deno-lint-ignore no-explicit-any
-    const src = (menus.get(d.menu) ?? []).find((x: any) => x.name === d.name) as any;
+    const src = (menus.get(d.menu) ?? []).find((x: any) =>
+      x.name === d.name
+    ) as any;
     if (!src) continue;
     const it = item(src.name, src.description ?? "");
     const fats: Record<string, number[]> = { base: [], S3: [] };
@@ -1545,7 +1867,9 @@ if (Deno.args[0] === "guard") {
           (plates.length > 0 ? `/${span(plates)}g` : ""),
       );
     }
-    console.log(`${it.name.padEnd(16)} ${cells.join("  ")}   plausible ${plausible}`);
+    console.log(
+      `${it.name.padEnd(16)} ${cells.join("  ")}   plausible ${plausible}`,
+    );
   }
   await Deno.writeTextFile(
     "scripts/fixtures/caches/probe-plate-arms-guard.raw.json",
@@ -1561,39 +1885,43 @@ if (!import.meta.main) {
   // Nothing else in this file executes on import; the mode blocks above all
   // require an exact Deno.args[0] match.
 } else {
-for (const [armName, run] of Object.entries(ARMS)) {
-  console.log(`\n=== ARM ${armName}`);
-  for (const pair of PAIRS) {
-    const ratios: number[] = [];
-    const plates: string[] = [];
-    for (let draw = 0; draw < DRAWS; draw++) {
-      // One item per call so variants cannot anchor each other in a batch.
-      // deno-lint-ignore no-explicit-any
-      const [small] = await run([pair.small]) as any[];
-      // deno-lint-ignore no-explicit-any
-      const [large] = await run([pair.large]) as any[];
-      archive[`${armName} ${pair.signal} d${draw}`] = { small, large };
-      ratios.push(
-        small?.estimated_calories > 0
-          ? large.estimated_calories / small.estimated_calories
-          : NaN,
+  for (const [armName, run] of Object.entries(ARMS)) {
+    console.log(`\n=== ARM ${armName}`);
+    for (const pair of PAIRS) {
+      const ratios: number[] = [];
+      const plates: string[] = [];
+      for (let draw = 0; draw < DRAWS; draw++) {
+        // One item per call so variants cannot anchor each other in a batch.
+        // deno-lint-ignore no-explicit-any
+        const [small] = await run([pair.small]) as any[];
+        // deno-lint-ignore no-explicit-any
+        const [large] = await run([pair.large]) as any[];
+        archive[`${armName} ${pair.signal} d${draw}`] = { small, large };
+        ratios.push(
+          small?.estimated_calories > 0
+            ? large.estimated_calories / small.estimated_calories
+            : NaN,
+        );
+        if (small?._plate_g) {
+          plates.push(`${small._plate_g}->${large._plate_g}`);
+        }
+      }
+      const low = Math.min(...ratios);
+      const high = Math.max(...ratios);
+      const pass = low >= 1 + (pair.expected - 1) * 0.5;
+      console.log(
+        `  ${pair.signal.padEnd(26)} ${low.toFixed(2)}-${high.toFixed(2)}` +
+          ` (expected ${pair.expected}) ${pass ? "RESPONDED" : "flat"}` +
+          (plates.length > 0 ? `  plate ${plates[0]} g` : ""),
       );
-      if (small?._plate_g) plates.push(`${small._plate_g}->${large._plate_g}`);
     }
-    const low = Math.min(...ratios);
-    const high = Math.max(...ratios);
-    const pass = low >= 1 + (pair.expected - 1) * 0.5;
-    console.log(
-      `  ${pair.signal.padEnd(26)} ${low.toFixed(2)}-${high.toFixed(2)}` +
-        ` (expected ${pair.expected}) ${pass ? "RESPONDED" : "flat"}` +
-        (plates.length > 0 ? `  plate ${plates[0]} g` : ""),
-    );
   }
-}
 
-await Deno.writeTextFile(
-  "scripts/fixtures/caches/probe-plate-arms.raw.json",
-  JSON.stringify(archive, null, 2) + "\n",
-);
-console.log("\nArchived to scripts/fixtures/caches/probe-plate-arms.raw.json");
+  await Deno.writeTextFile(
+    "scripts/fixtures/caches/probe-plate-arms.raw.json",
+    JSON.stringify(archive, null, 2) + "\n",
+  );
+  console.log(
+    "\nArchived to scripts/fixtures/caches/probe-plate-arms.raw.json",
+  );
 }

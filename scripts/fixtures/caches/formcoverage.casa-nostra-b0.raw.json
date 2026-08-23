@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7a1VyPn9yjNchSfQnCsW7gto8Zn",
+  "object": "chat.completion",
+  "created": 1787511093,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"Lasagne al forno\",\"dish_form\":\"pasta_entree\"},{\"name\":\"Fettuccine CasaNostra\",\"dish_form\":\"pasta_entree\"},{\"name\":\"Pasta alla romana\",\"dish_form\":\"pasta_entree\"},{\"name\":\"Gnocchi alla sorrentina\",\"dish_form\":\"pasta_entree\"},{\"name\":\"Gnocchi toscano\",\"dish_form\":\"pasta_entree\"},{\"name\":\"Ravioli\",\"dish_form\":\"pasta_entree\"},{\"name\":\"Spaghetti ai frutti di mare ubriaca\",\"dish_form\":\"pasta_entree\"},{\"name\":\"Risotto Caprese\",\"dish_form\":\"pasta_entree\"},{\"name\":\"Spaghetti Pettine di mare\",\"dish_form\":\"pasta_entree\"},{\"name\":\"Insalata CasaNostra\",\"dish_form\":\"salad_entree\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 906,
+    "completion_tokens": 170,
+    "total_tokens": 1076,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

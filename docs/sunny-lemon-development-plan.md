@@ -670,7 +670,28 @@ This gives a native dialog instead of a browser popup and is the correct archite
 against a USDA FoodData Central **benchmark-only** oracle of **8 dishes** (the oracle never runs in
 the app; runtime USDA normalization is still out of scope).
 
-✅ **An enrichment fix WAS selected and IS deployed (2026-08-09): "B4", edge function v28.** The
+🚀 **CURRENT (2026-08-19): edge function v32 — the DUAL PASS.** Stage 2 runs twice: pass 1 is the
+whole menu with today's prompt (its answers used for items that print a weight), pass 2 re-sends only
+the items that print NO weight, in their own batches, with one extra sentence and a `system`-role
+envelope. Measured: **unweighted dishes 25 → 35–36/72 (35% → 49–50%)**, weighted **unchanged**
+(14–17/96 against a fresh 15/96 control, because pass 1's request bytes are identical), Stage 2
+**1.56–1.92× slower**, **~$0.03 → ~$0.05 per scan**. Merged to `main` the same day.
+
+⚠️ **THOSE UNWEIGHTED FIGURES ARE ON A RETIRED RULER (2026-08-21).** The unweighted set grew 6 → 9
+dishes and the pass rule changed to "the average dish ±20%", so **the denominator was /108, not
+/72, and no pre-2026-08-20 unweighted number is comparable.** Re-measured on that ruler: shipped
+`dual` **67/108 (62%)**, pre-dual `baseline` **60/108 (56%)**, and the retired plate-weight Arm A
+**36/108**.
+
+⚠️ **THE ORACLE WIDENED AGAIN, 9 → 21 DISHES (2026-08-22, ledger eval 167) — /108 is ALSO now
+retired.** The denominator is now **/252**. Re-measured on the widened set: `dual` **139/252**,
+`NOBOOST` (an unshipped candidate arm, not yet deployed) **149/252** — a gap that widened from
++5.5/108 to +14.5/252 but is still not statistically significant (95% CI crosses zero). **Nothing
+has beaten v32 since it shipped**, so nothing is awaiting deployment — the blocker is that no better
+arm has been found and confirmed, not that a better arm is unreleased. Full detail:
+`docs/superpowers/START-HERE.md` §0 and ledger eval 167.
+
+History — ✅ **An enrichment fix WAS selected and IS deployed (2026-08-09): "B4", edge function v28.** The
 model now supplies ingredient knowledge — a conventional serving and per-100 g composition per
 ingredient, plus what the menu's printed weight covers — and the **code** does the fitting,
 multiplication and summation. Measured: **39/96 failed field/draws at 37.7% mean error → 24–27/96
@@ -678,13 +699,19 @@ at 21.0–21.2%**, over 4 runs × 3 draws. ⚠️ One known regression shipped w
 dishes (Coleslaw) got worse. **GPT-5.5 was measured, beat GPT-4o on macros, and was DECLINED** —
 ~2.4× slower on Stage 2. Nothing else is authorised for deployment.
 
-**Macro handoff — read in this order:** the master roadmap's `🎯 CURRENT PHASE` block
-(`docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`) is the single source of truth
-for status; `docs/superpowers/stage2-macro-benchmark.md` is the living log (Runs, Rulings, the
-deployment entry); `docs/superpowers/plans/2026-08-07-stage2-macro-benchmark.md` holds the paid-run
+**Macro handoff — read in this order:** ⚠️ this paragraph used to point to the master roadmap's
+`🎯 CURRENT PHASE` block as the single source of truth and to `stage2-macro-benchmark.md` as the
+living log; both have gone stale relative to actual practice (neither was kept current past
+2026-08-19/20) and should not be trusted for status. **Start instead at
+`docs/superpowers/START-HERE.md`**, which routes correctly and names the current handoff block; the
+ledger `docs/superpowers/extraction-iteration-ledger.md` is the numbered log of record (currently
+eval 167). `docs/superpowers/plans/2026-08-07-stage2-macro-benchmark.md` holds the paid-run
 procedure only — its Tasks 1–5 are COMPLETE. Do not rerun paid baselines without a new hypothesis
 and Santiago's explicit cost approval. **One decision is open and it is his:** the printed-weight
-*scope* convention. (The "real-restaurant field test" that used to sit beside it was **closed
+*scope* convention.
+⚠️ **The largest known remaining macro defect is the ACCOMPANIMENT one** — sides and sauces are sized
+from a nutrition-label serving rather than what is served: 24% of weighted items, 12–20% of those
+dishes' calories. Prose and a duplicate schema field have both failed at it. (The "real-restaurant field test" that used to sit beside it was **closed
 2026-08-16 as a false premise** — the fixture menus are real phone photos of real paper menus, not
 photos of a screen.)
 

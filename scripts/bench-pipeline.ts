@@ -71,10 +71,47 @@ export function itemsFromArchive(raw: string): ExtractedItem[] {
   );
 }
 
-function loadArchivedMenu(menu: string): ExtractedItem[] {
-  return itemsFromArchive(
-    Deno.readTextFileSync(`${CACHE_DIR}/${ARCHIVED_EXTRACTIONS[menu]}`),
+/**
+ * Every item of an archived extraction, INCLUDING its crop part.
+ *
+ * A DENSE menu is not extracted in one call. The base photo comes back with
+ * `needs_crops`, the client cuts it into 2x2 tiles and calls the edge function
+ * again at `stage: "extract-crops"`, and that second response is archived beside
+ * the first as `<name>.p1.raw.json`. The two hold DISJOINT regions of one menu
+ * (brasero-two: 16 + 25 = 41 items, zero name overlap), and production enriches
+ * the MERGED list - so a harness that reads one file measures a menu production
+ * never sends.
+ *
+ * Reading only the base file truncated brasero-two to 16 items, which made TACO
+ * PORCO and BROWNIE unscoreable: both unweighted arms reported them ABSENT on
+ * every draw of the 2026-08-20 run, and that reads as a model failure rather
+ * than a missing file. brasero-two is the ONLY one of the ten archived menus
+ * with a crop part, so no other published number was affected.
+ *
+ * Takes the FILENAME, not the file's text, because finding the sibling part is
+ * the whole job - every caller used to build this path itself and each one was
+ * independently blind to the second half.
+ */
+export function itemsFromArchiveFile(file: string): ExtractedItem[] {
+  const base = itemsFromArchive(Deno.readTextFileSync(`${CACHE_DIR}/${file}`));
+  const crops = readIfPresent(
+    `${CACHE_DIR}/${file.replace(/\.raw\.json$/, ".p1.raw.json")}`,
   );
+  return crops === null ? base : [...base, ...itemsFromArchive(crops)];
+}
+
+/** Null when the file is absent - any other read error is a real fault and rethrows. */
+function readIfPresent(path: string): string | null {
+  try {
+    return Deno.readTextFileSync(path);
+  } catch (err) {
+    if (err instanceof Deno.errors.NotFound) return null;
+    throw err;
+  }
+}
+
+function loadArchivedMenu(menu: string): ExtractedItem[] {
+  return itemsFromArchiveFile(ARCHIVED_EXTRACTIONS[menu]);
 }
 
 export interface IntegrityReport {

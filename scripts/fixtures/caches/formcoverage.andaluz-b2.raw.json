@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7ZNkAIX8QxwR6hCXxXHtnNo9mK4",
+  "object": "chat.completion",
+  "created": 1787511053,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"DE POLLO (empanizado con panela)\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"DE ATÚN\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"PULPO A LA GALLEGA (200 g)\",\"dish_form\":\"other\"},{\"name\":\"CAMARONES EMPANIZADOS (200 g)\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"CAMARÓN ROKA (200 g)\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"ATÚN SELLADO (200 g)\",\"dish_form\":\"other\"},{\"name\":\"CAMARÓN ANDALUZ (200 g)\",\"dish_form\":\"other\"},{\"name\":\"CAMARONES AL AJILLO (200 g)\",\"dish_form\":\"other\"},{\"name\":\"TACOS DE PAPADA (2 pints.)\",\"dish_form\":\"taco_single_loaded\"},{\"name\":\"TACOS O FAJITAS\\nDE DIEZMILLO (3 pints./200 g)\",\"dish_form\":\"taco_single_loaded\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 892,
+    "completion_tokens": 215,
+    "total_tokens": 1107,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

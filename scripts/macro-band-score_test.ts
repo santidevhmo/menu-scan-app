@@ -96,3 +96,66 @@ Deno.test("the reported oracle value is the band midpoint", () => {
   assertEquals(calories.deltaPct, 0);
   assertEquals(calories.band, "1250-1490");
 });
+
+// A small side dish, where the percentage bar is tightest. Its 10-15 g fat band
+// demands the model land within 2.5 g of fat - about half a teaspoon of oil.
+const SMALL_SALAD: MacroBands = {
+  calories: [143, 214],
+  protein_g: [3, 5],
+  carb_g: [9, 14],
+  fat_g: [10, 15],
+};
+
+Deno.test("a small absolute miss passes even when the band does not", () => {
+  // Santiago 2026-08-20, carrying his 2026-08-09 weighted-set ruling across: a
+  // percentage alone grades noise on small quantities. Fat midpoint is 12.5 and
+  // the model says 17 - outside the 10-15 band, but only 4.5 g out, inside the
+  // 6 g allowance. On a dish this size that is a drizzle of dressing.
+  const { fields } = scoreItemAgainstBand(SMALL_SALAD, {
+    calories: 178,
+    protein_g: 4,
+    carb_g: 12,
+    fat_g: 17,
+  });
+  const fat = fields.find((f) => f.field === "fat_g")!;
+  assertEquals(fat.pass, true);
+  // Flagged, so a reader can tell which passes came from the allowance.
+  assertEquals(fat.absolute, true);
+  assertEquals(fat.band, "<=6g absolute");
+});
+
+Deno.test("the allowance never rescues a genuinely wrong answer", () => {
+  // The guard on the rule above. COLIFLOR ROKA's real failure: a battered,
+  // deep-fried dish returning 2 g of fat against a 13-20 g band. The allowance
+  // must not forgive it, or the benchmark stops detecting the one defect it is
+  // currently pointing at.
+  const { fields } = scoreItemAgainstBand({
+    calories: [197, 296],
+    protein_g: [3, 5],
+    carb_g: [17, 25],
+    fat_g: [13, 20],
+  }, { calories: 69, protein_g: 3, carb_g: 11, fat_g: 2 });
+  const fat = fields.find((f) => f.field === "fat_g")!;
+  const calories = fields.find((f) => f.field === "calories")!;
+  assertEquals(fat.pass, false, "14.5 g out is far past the 6 g allowance");
+  assertEquals(
+    calories.pass,
+    false,
+    "177 kcal out is far past the 50 kcal allowance",
+  );
+});
+
+Deno.test("a large dish is still judged on the percentage, not the allowance", () => {
+  // The allowance must not become the whole rule. 6 g of fat on the Capricciosa
+  // is 8% of its 71.5 g midpoint, so the band (63-80) is the more generous test
+  // and must be the one that decides.
+  const { fields } = scoreItemAgainstBand(CAPRICCIOSA, {
+    calories: 1370,
+    protein_g: 57,
+    carb_g: 126,
+    fat_g: 66,
+  });
+  const fat = fields.find((f) => f.field === "fat_g")!;
+  assertEquals(fat.pass, true);
+  assertEquals(fat.absolute, false, "the band decided this, not the allowance");
+});

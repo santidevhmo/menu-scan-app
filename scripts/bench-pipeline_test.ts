@@ -4,7 +4,12 @@ import {
   assertEquals,
   assertThrows,
 } from "https://deno.land/std@0.168.0/testing/asserts.ts";
-import { assertRunIsProducingData, inspect, renderReport } from "./bench-pipeline.ts";
+import {
+  assertRunIsProducingData,
+  inspect,
+  itemsFromArchiveFile,
+  renderReport,
+} from "./bench-pipeline.ts";
 import type {
   EnrichedItem,
   ExtractedItem,
@@ -42,6 +47,25 @@ const backfilled = (name: string): EnrichedItem => ({
   confidence: "low",
   allergens: [],
 } as unknown as EnrichedItem);
+
+// brasero-two is the ONE archived menu extracted in two calls - the base photo,
+// then the 2x2 crop tiles archived beside it as `.p1.raw.json`. Reading only the
+// base file truncated it to 16 of its 41 items, and the 25 it dropped included
+// TACO PORCO and BROWNIE: both unweighted arms reported them ABSENT on every
+// draw of the 2026-08-20 run, which read as a model failure and was a loader bug.
+Deno.test("a dense menu's crop part is merged, not dropped", () => {
+  const names = itemsFromArchiveFile("brasero-two.eval117-r1.raw.json").map((i) => i.name);
+  assertEquals(names.length, 41);
+  assertEquals(names.includes("TACO PORCO"), true);
+  assertEquals(names.includes("BROWNIE"), true);
+  // The crop part must ADD to the base part, never replace it - the two hold
+  // disjoint regions of one menu, so losing either truncates the menu again.
+  assertEquals(names.includes("PANELA A LAS BRASAS"), true);
+});
+
+Deno.test("a menu with no crop part is unchanged by the merge", () => {
+  assertEquals(itemsFromArchiveFile("bistro.eval117-r1.raw.json").length, 26);
+});
 
 Deno.test("a clean run reports order preserved and nothing dropped", () => {
   const items = sent(["A", "B"]);

@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7a6hQLOiihclgae848rEjUmxIWr",
+  "object": "chat.completion",
+  "created": 1787511098,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"LITTLE GEM CAESAR\",\"dish_form\":\"salad_entree\"},{\"name\":\"PEARS & GORGONZOLA\",\"dish_form\":\"salad_entree\"},{\"name\":\"SHAVED BRUSSEL SPROUTS\",\"dish_form\":\"salad_entree\"},{\"name\":\"WARM BURRATA\",\"dish_form\":\"salad_entree\"},{\"name\":\"SEAFOOD PLATEAU*\",\"dish_form\":\"other\"},{\"name\":\"PRIME TOMAHAWK* GF, DF\",\"dish_form\":\"other\"},{\"name\":\"40-DAY DRY AGED BONE-IN RIBEYE* 20 OZ GF\",\"dish_form\":\"other\"},{\"name\":\"PARMESAN-CRUSTED FILET* 7 OZ / 10 OZ\",\"dish_form\":\"other\"},{\"name\":\"BUTCHER'S CUT* GF\",\"dish_form\":\"other\"},{\"name\":\"MISHIMA RESERVE WAGYU NEW YORK* GF\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 882,
+    "completion_tokens": 196,
+    "total_tokens": 1078,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

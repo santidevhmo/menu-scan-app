@@ -1,5 +1,9 @@
 import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
-import { deriveBands, validateEntry } from "./unweighted-oracle.ts";
+import {
+  BAND_TOLERANCE,
+  deriveBands,
+  validateEntry,
+} from "./unweighted-oracle.ts";
 
 // FDC 170715: pizza, meat and vegetable topping, regular crust.
 const PIZZA = {
@@ -8,33 +12,66 @@ const PIZZA = {
   fat_per_100g: 14.4,
 };
 
-Deno.test("macro bands are the mass band times the composition", () => {
+Deno.test("macro bands are the AVERAGE dish, plus or minus the tolerance", () => {
+  // Mass midpoint 500 g x composition, then +/-20% (Santiago, 2026-08-20).
+  // Protein 56.5 -> 45-68, carb 125.5 -> 100-151, fat 72 -> 58-86.
   const bands = deriveBands([470, 530], PIZZA);
-  assertEquals(bands.protein_g, [53, 60]);
-  assertEquals(bands.carb_g, [118, 133]);
-  assertEquals(bands.fat_g, [68, 76]);
-  // Calories by Atwater from the same endpoints, never from a separate source.
-  assertEquals(bands.calories, [1293, 1459]);
+  assertEquals(bands.protein_g, [45, 68]);
+  assertEquals(bands.carb_g, [100, 151]);
+  assertEquals(bands.fat_g, [58, 86]);
+  // Calories by Atwater from the SAME midpoint, never from a separate source.
+  assertEquals(bands.calories, [1101, 1651]);
 });
 
-Deno.test("a derived band is never meaningfully wider than its mass band", () => {
-  // The whole point of deriving: uncertainty comes from the mass and nowhere
-  // else, so no macro may claim more spread than the mass it came from.
+Deno.test("every band is exactly the tolerance wide, and they all match", () => {
+  // Replaces "never wider than its mass band". That guard existed to stop a band
+  // acquiring spread from nowhere; the rule it enforced - spread comes from the
+  // MASS - is what Santiago's ruling deliberately replaced, because it handed
+  // CAPRICCIOSA +/-6% and CARBONARA +/-29% for no stated reason.
   //
-  // The 2% allowance is ROUNDING, not slack in the rule. Protein derives to
-  // 53.11-59.89 and rounds to 53-60, whose ratio (1.1321) sits just above the
-  // mass ratio (1.1277). Rounding to whole grams is what a human reads; the
-  // rule is about the derivation, not the display.
-  const massRatio = 530 / 470;
-  const bands = deriveBands([470, 530], PIZZA);
-  for (const [low, high] of Object.values(bands)) {
-    if (low === 0) continue;
-    assertEquals(
-      high / low <= massRatio * 1.02,
-      true,
-      `band ${low}-${high} spreads wider than the mass band`,
-    );
+  // The equivalent guard under the new rule is stricter, not looser: every macro
+  // must carry the SAME declared tolerance, so no band can be quietly widened for
+  // one dish.
+  //
+  // Checked ENDPOINT BY ENDPOINT rather than as a width ratio. A ratio is the
+  // wrong instrument here: whole-gram rounding moves a 58-86 band to 1.483 and a
+  // 9-14 band to 1.556, so any ratio allowance loose enough for small macros would
+  // be too loose to catch real extra spread on large ones. Each endpoint must sit
+  // within half a gram of its exact value, which is exactly what rounding can do
+  // and is magnitude-independent.
+  for (const massBand of [[470, 530], [250, 450], [85, 120]] as const) {
+    const midG = (massBand[0] + massBand[1]) / 2;
+    const exact = {
+      protein_g: midG * PIZZA.protein_per_100g / 100,
+      carb_g: midG * PIZZA.carb_per_100g / 100,
+      fat_g: midG * PIZZA.fat_per_100g / 100,
+    };
+    const bands = deriveBands([...massBand], PIZZA);
+    for (const [macro, value] of Object.entries(exact)) {
+      const [low, high] = bands[macro as keyof typeof exact];
+      assertEquals(
+        Math.abs(low - value * (1 - BAND_TOLERANCE)) <= 0.5 &&
+          Math.abs(high - value * (1 + BAND_TOLERANCE)) <= 0.5,
+        true,
+        `${macro} band ${low}-${high} is not ${value.toFixed(1)} +/- ` +
+          `${100 * BAND_TOLERANCE}% for mass ${massBand[0]}-${massBand[1]}`,
+      );
+    }
   }
+});
+
+Deno.test("the mass band no longer sets the tolerance", () => {
+  // The point of the ruling, pinned: two dishes whose mass bands differ hugely
+  // (11% vs 57% relative spread) must now be judged by the same bar.
+  const narrow = deriveBands([470, 530], PIZZA);
+  const wide = deriveBands([250, 450], PIZZA);
+  const spread = ([lo, hi]: readonly number[]) => hi / lo;
+  assertEquals(
+    Math.abs(spread(narrow.fat_g) - spread(wide.fat_g)) < 0.02,
+    true,
+    `a 470-530 dish and a 250-450 dish must share a tolerance, got ` +
+      `${spread(narrow.fat_g).toFixed(3)} and ${spread(wide.fat_g).toFixed(3)}`,
+  );
 });
 
 Deno.test("a zero-composition field derives a zero band", () => {

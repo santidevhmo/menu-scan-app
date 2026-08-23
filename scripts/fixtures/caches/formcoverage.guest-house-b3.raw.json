@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7a9qbCo35A4Zqlf0KP9vxNn5ruA",
+  "object": "chat.completion",
+  "created": 1787511101,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"HORSERADISH CRÈME\",\"dish_form\":\"other\"},{\"name\":\"GH STEAK SAUCE\",\"dish_form\":\"other\"},{\"name\":\"CACIO E PEPE v\",\"dish_form\":\"pasta_entree\"},{\"name\":\"SPICY RIGATONI\",\"dish_form\":\"pasta_entree\"},{\"name\":\"BRAISED SHORT-RIB GF\",\"dish_form\":\"other\"},{\"name\":\"ORGANIC CHICKEN A LA RAJ\",\"dish_form\":\"other\"},{\"name\":\"FAROE ISLAND SALMON GF\",\"dish_form\":\"other\"},{\"name\":\"NEEV'S CAULIFLOWER\",\"dish_form\":\"other\"},{\"name\":\"FREE RANGE DUROC PORK CHOP GF\",\"dish_form\":\"other\"},{\"name\":\"AUSTRALIAN LAMB CHOPS\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 731,
+    "completion_tokens": 167,
+    "total_tokens": 898,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

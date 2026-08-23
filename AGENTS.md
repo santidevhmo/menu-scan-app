@@ -168,9 +168,51 @@ container** rather than the ~15 g actually served. It affects **24% of weighted 
 have both failed at it. ⚠️ **Do not fix the weight alone** — chimichurri is 2× too heavy AND ~3× too
 lean, the two errors currently cancel, and halving the grams makes the dish worse.
 
+**HOW A TEST DISH'S RECIPE IS BUILT — two rulings, both measured (Santiago, 2026-08-20).** These
+govern the ORACLE, not the pipeline, and getting them wrong silently redirects every future iteration.
+
+**1. A TOPPING IS PRICED AS A TOPPING, NOT AS A PORTION.** Reading the word *bacon* in
+*"virutas de bacon crujiente"* and charging 15 g of rashers produced P 16 / F 31 where the ruled
+answer is P 10 / F 27. *Virutas* means **shavings** — 5 g. This is the same error class as the 30 g
+dipping-container defect below, and it **inflates protein hardest**, because cured meat and hard
+cheese are the two most protein-dense things on a menu. Ask what the menu's own word implies about
+QUANTITY before assigning grams.
+
+**2. WHERE FNDDS HAS NO RECORD FOR THE COMPOSITE DISH, DECOMPOSE INTO ITS INDIVIDUAL INGREDIENTS AND
+USE FNDDS FOR EACH.** A single composite record is convenient and twice wrong in practice:
+
+| dish | the composite record | what it got wrong |
+|---|---|---|
+| an omelette with cheese, meat AND vegetables | FDC 2707223 | FNDDS carries the **vegetables** axis only for egg WHITE and egg SUBSTITUTE, never whole egg — the onion and pepper had no representation at all |
+| a pork taco with no cheese | FDC 2708517 | **every** FNDDS pork-taco record carries CHEESE, worth **HALF this dish's fat** (276 kcal / 16 g fat → 218 / 8) |
+
+That second one is the variant error the "sourcing a USDA record" rule below warns about, caught
+before it shipped. **Search every variant, and if none matches the dish, build the dish.**
+
+⚠️ **Record which grams are SOURCED and which are JUDGEMENT in the entry's `assumed` field.** In the
+2026-08-20 additions only the corn tortilla's 28 g came from a published portion; every topping gram
+was a judgement. A future session cannot re-source what it thinks was already sourced.
+
 **WORDING DOES NOT WORK HERE. SCHEMA FORCE DOES. (measured, 2026-08-16 — scoreboard, not a rule.)**
 Before designing any change to Stage 2, weigh this: **a new sentence in `ENRICH_PROMPT` is 0 for 6;
 a new REQUIRED FIELD in `ENRICH_SCHEMA_OPENAI` is 6 for 8.**
+
+🚀 **AND THE STRONGEST VERSION OF THAT, NOW SHIPPED (v33, eval 176): ASK FOR A CATEGORY, NOT A NUMBER.**
+A required enum field naming the dish's FORM, with the grams supplied by OUR table, is worth **+87**.
+The same question asked for a gram number instead LOSES — four times now (Arm A 36/108, MASSCALL
+50/108, the eval-175 `grams` probe at −18, a fitted global calibration at 223/684 leave-one-menu-out).
+☠️ **Eval 175 found the mechanism, and it is not fixable by wording:** asked what a thin-crust pizza
+weighs *in general*, with no plate in front of it, GPT-4o answers **300 g** against a real 400–450; a
+maki order 200 g against 290–400. **The bias lives in its prior about serving sizes, not in its reading
+of any dish.** So: the model says WHAT a thing is; we say HOW MUCH.
+
+🔴 **SCHEMA FORCE IS NOT A LICENCE — AND "SCHEMA-FORCE THE PLATE WEIGHT" IS ALREADY REJECTED TWICE.**
+Read what an arm ACTUALLY is before proposing its successor (lesson 31). **Arm A is not a prompt arm:**
+it is `ENRICH_PROMPT` + a sentence **AND** a required numeric `typical_total_g` placed right after
+`printed_total_g` — the strongest form this scoreboard recommends, correctly ordered. It scored
+**12/72** in 2026-08-16 and **36/108 against a shipped 67/108** when re-measured on 2026-08-21.
+**Its mechanism is the flaw:** it rescales every ingredient to the total it asked for, so a model that
+already oversizes gets a second chance to oversize and the rescale MULTIPLIES the error.
 
 | approach | record | cases |
 |---|---|---|
@@ -240,6 +282,21 @@ valuable in itself — it is what lets the instruction be stated as an **uncondi
 whole request** (*"The items in this request print no weight"*). Phrased as a per-item condition in a
 mixed batch, the same idea was applied indiscriminately. **Prefer a homogeneous request plus a flat
 statement over a heterogeneous request plus a condition.**
+
+**THE UNWEIGHTED BENCHMARK'S PASS RULE CHANGED ON 2026-08-20, AND SCORES DO NOT CROSS THAT LINE.**
+A band used to be `mass range × one fixed composition`, so its width was whatever the dish's mass range
+happened to be and nobody had chosen it — CAPRICCIOSA got **±6%** on fat, CARBONARA **±29%**, and the
+widest-band dish scored 12/12 while the narrowest scored 3/12. A band is now **the average dish ±20%**,
+the same bar for every dish, and a field ALSO passes when the absolute miss is under **6 g / 50 kcal**
+(the allowances already ruled for the weighted set on 2026-08-09, now imported rather than copied).
+The set went **6 dishes → 9** the same day, so **the denominator moved too** — it is now
+`dishes × 4 × draws`, and the harness prints how many dishes it actually covered.
+
+🔑 **The guard that makes a loosened bar defensible is THE GAP:** score the shipped pipeline and the
+old baseline at every candidate bar, and if the gap between them shrinks, the bar has stopped telling
+good from bad. ±25% both discriminated better and flattered the headline 36 → 48; **±20% was taken
+because it does not flatter it.** The gap did narrow 11 → 9 when the gram allowance landed — watch it.
+**Never quote an unweighted score from before 2026-08-20 against one after it.**
 
 **Price is NEVER evidence of grams (Santiago, 2026-08-13).** Not in an oracle, not in a prompt, not in
 code. Price reflects margin and scarcity, never mass — *"a menu can have an expensive pizza of 1k+
@@ -473,10 +530,75 @@ Track here anything that blocks testing or shipping. Update as items resolve.
 - **Apple Developer Program — ✅ PAID (confirmed 2026-07-11).** Physical-device testing works — first on-device verification ran 2026-07-12 (auto-cutter 3-scan checklist, all passed).
 - **Macro-enrichment blockers are NOT restated here** — status lives in exactly one place, the
   `🎯 CURRENT PHASE` block of `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`,
-  with the takeover briefing in the `🆕 2026-08-16 HANDOFF` block of
-  `docs/superpowers/START-HERE.md`. Read those, not a copy. As of 2026-08-16: **production is edge fn
-  v31** (the 0-kcal fix, no accuracy change), all work is committed but unpushed on
-  `feat/forced-serving-pieces`, and the next step is a harness that can judge Arm P for shipping.
+  with the takeover briefing in the newest `HANDOFF` block of
+  `docs/superpowers/START-HERE.md` — start at its **§0 MAP**, which defines every term (oracle, band,
+  draw, arm, harness, replay, ledger) and states where the phase stands. Read those, not a copy.
+  As of **2026-08-23**: production is edge fn **v33 — FORM SIZING** (the model names each dish's form
+  from a fixed enum, and *we* set the plate's mass from `FORM_G` in
+  `supabase/functions/analyze-menu/dish-form.ts`). It scores **434–453/684 (65%)** over 5 runs against
+  v32's **352–357 (52%)**, ranges disjoint, +86.8 with a 95% CI of +30.7 to +142.8. ⚠️ **`main` does
+  NOT have v33 — PR #19 is open**, so deploying from `main` reverts form sizing. TestFlight build 7
+  predates v33. The unweighted set is **57 dishes / 684 points** (widened 9→21 at eval 167, 21→57 at
+  eval 169) — any "/108" or "/252" figure is pre-widening and not comparable. **Two things are open:
+  the gram table covers only 33% of dishes on menus it was not built from, and 38 of 57 dishes still
+  score differently run to run.**
+  ⚠️ **This line is a dated snapshot and nothing should be believed from it** — verify the live version
+  against the SERVER with `mcp__supabase__list_edge_functions`, and re-derive every score with the
+  `$0` commands rather than quoting it.
+
+---
+
+## Working Rules — spend, evidence, and finishing
+
+These four are phase-independent. They are the rules a session breaks when it is going badly, and
+each one has already cost something here.
+
+### 💸 A PAID RUN NEEDS SANTIAGO'S APPROVAL FIRST
+
+**State the exact command and the cost estimate, then WAIT.** Do not start a paid run because it seems
+obviously right, because a doc named it as the next action, or because it is cheap.
+
+⚠️ **The opposite failure is just as real: NEVER shrink an experiment to save money.** Cost is not a
+constraint — Santiago reloads in $10 increments and has said so explicitly. Cut arithmetic that cannot
+change a score; **never cut a menu, a dish, a draw, or a real neighbour.** A narrowed experiment that
+answers a smaller question is worse than an expensive one that answers the real one.
+
+🔑 **Before paying, check whether a `$0` tool answers it first.** `--replay` re-scores archived
+responses, and the `sim-*-ceiling.ts` scripts bound what a fix could be worth. **Four ideas have been
+killed for zero API spend.** A ceiling that reads 0 means no arm aimed there can work.
+
+### 📖 OPEN THE ARTIFACT BEFORE DESCRIBING IT
+
+**Never describe a script, an arm, an archive, or a fixture from memory, from its name, or from a
+neighbouring file.** Open it.
+
+This is lesson 31, and it produced three wrong claims in a single day: an arm described as
+"just a prompt ask" when it already carried the required schema field (the proposed successor was a
+**duplicate of a twice-rejected arm**); a gram breakdown quoted as evidence about the shipped path when
+the numbers came from a **different arm's archive**, which inverted the diagnosis; and a blast-radius
+claim checked against one of two archive maps. **The tell is a sentence about code or data you have not
+opened in this session.** One tool call prevents each of them.
+
+### 📐 A FIGURE IN PROSE IS A SNAPSHOT — RE-DERIVE IT
+
+**Never quote a number written in a document.** Re-derive it with the `$0` commands in START-HERE's
+*"commands that tell you the truth"* block. Prose records what was true when it was written.
+
+⚠️ **And a conclusion is only valid under the ruler that measured it.** If the oracle, the bands, or
+the dish set has changed, **every stored verdict is provisional — including anything marked "FALSIFIED"
+or "DO NOT RE-OPEN".** A "perfect mass is worthless" entry sat in a do-not-reopen table while being, at
+the current ruler, **the single largest lever available (+31 points)**. When a ruler changes, re-run the
+cheap conclusions immediately, before any of them is used to reject an idea. Record the ruler beside the
+verdict so it ages honestly.
+
+### 🧾 BEFORE THE SESSION ENDS
+
+- **Add a ledger entry** to `docs/superpowers/extraction-iteration-ledger.md` — one per eval, newest
+  last, with what was tried, what it scored, and what it cost. **It is this project's memory.**
+- **Update `docs/superpowers/START-HERE.md`** if the state changed, and **in the same commit as a
+  deploy** if anything shipped.
+- **A run that produced no usable result still gets an entry.** A crashed or falsified run is the
+  cheapest thing a future session can be told about, and the easiest to repeat by accident.
 
 ---
 

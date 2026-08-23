@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7aST4PCv3Hh7mE5IpuPz573DaBg",
+  "object": "chat.completion",
+  "created": 1787511120,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"Chocolate\",\"dish_form\":\"other\"},{\"name\":\"Maxapan\",\"dish_form\":\"other\"},{\"name\":\"Ganzito\",\"dish_form\":\"other\"},{\"name\":\"Oreo\",\"dish_form\":\"other\"},{\"name\":\"CERVEZAS Y LICORES\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 441,
+    "completion_tokens": 60,
+    "total_tokens": 501,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

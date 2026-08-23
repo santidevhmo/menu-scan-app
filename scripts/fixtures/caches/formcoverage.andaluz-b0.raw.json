@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7ZIElrt9IVTbb5ulh5plB6D39mv",
+  "object": "chat.completion",
+  "created": 1787511048,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"PAPAS FRITAS\",\"dish_form\":\"fries_starter\"},{\"name\":\"COSTRA DE CHAMORRO (80 g)\",\"dish_form\":\"taco_single_loaded\"},{\"name\":\"COSTRA DE CHAMORRO Y PULPO (80 g)\",\"dish_form\":\"taco_single_loaded\"},{\"name\":\"QUESABONELESS\",\"dish_form\":\"quesadilla_two_tortilla\"},{\"name\":\"PARRILLADA VERDURAS\",\"dish_form\":\"other\"},{\"name\":\"ESPÁRRAGOS CON JAMÓN SERRANO (20 g)\",\"dish_form\":\"other\"},{\"name\":\"CHAMPIÑONES AL AJILLO\",\"dish_form\":\"other\"},{\"name\":\"PAPAS BRAVAS\",\"dish_form\":\"fries_starter\"},{\"name\":\"PANELA PLUS ASADA (30 g)\",\"dish_form\":\"other\"},{\"name\":\"QUESO FUNDIDO\",\"dish_form\":\"tortilla_order\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 741,
+    "completion_tokens": 195,
+    "total_tokens": 936,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

@@ -1,5 +1,13 @@
 # Oracle Widening Round 2 Implementation Plan
 
+> ✅ **FULLY EXECUTED 2026-08-22 — HISTORICAL RECORD ONLY. DO NOT RE-RUN.** All nine tasks are done
+> (commits `e7e8d44` → `62d1f65`). **The unchecked `- [ ]` boxes below are the state the plan was
+> WRITTEN in, not work outstanding.** Outcome: oracle **21 → 57 dishes** (44 proposed, 8 retired as
+> unanswerable, 36 written — neither of the plan's projected 65/52 endpoints), `NOBOOST` **rejected**
+> by the pre-committed deploy rule, and the oracle audited and confirmed sound at eval 170.
+> Results live in ledger **evals 169 and 170** and `START-HERE.md`'s handoff block — read those for
+> status, never this file.
+>
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 >
 > ⚠️ **This plan is mostly HUMAN-IN-THE-LOOP RULING, not code.** Only Tasks 1 and 8 are code. Tasks 2–7 each end at a gate where **Santiago must approve** before the entry is written. An agent may research and propose; it may not rule. Do not "unblock" a ruling task by deciding it yourself.

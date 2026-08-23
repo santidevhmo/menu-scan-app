@@ -1,6 +1,19 @@
 # Oracle widening, round 2 — 21 → 65 dishes
 
-**Date:** 2026-08-22 · **Status:** APPROVED by Santiago, not yet executed · **API cost: $0**
+**Date:** 2026-08-22 · **Status:** ✅ **EXECUTED AND CLOSED — historical record only** · **API cost: $0 (as designed)**
+
+> ⚠️ **The "65 dishes" in this title never happened.** 44 dishes were proposed, **8 were retired as
+> unanswerable**, and 36 were written: the oracle is **57 dishes / 684 points**. The name-only
+> answerability test in §4 split between this spec's two projected endpoints (65 if all survived,
+> 52 if none did) rather than landing on either.
+>
+> **The pre-registered prediction in §6 — "the +14.5 gap shrinks toward zero" — was FALSE.** It held
+> flat as a fraction of scale (5.75% → 6.07%) while confidence tightened (90.8% → 97.1%). The
+> **plate-size split replicated out-of-sample and the deploy rule fired: `NOBOOST` does not ship.**
+>
+> Read ledger **evals 169 and 170** and `START-HERE.md` for outcomes. This file records what was
+> agreed BEFORE the data arrived — its value is that it was written first; do not edit it to match
+> the result.
 
 Round 1 (evals 166–167) took the unweighted answer key from 9 dishes to 21. This is round 2:
 21 → 65, using dishes whose model answers are **already bought** and sitting in the cache files.

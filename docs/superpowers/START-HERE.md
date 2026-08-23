@@ -31,12 +31,18 @@ That split is deliberate: the model is good at knowing what food is, and bad at 
 | file | what it holds | dishes |
 |---|---|---|
 | `scripts/fixtures/caches/*.raw.json` | **the model's ANSWERS.** What GPT guessed. Free to re-grade. | **68** |
-| `scripts/fixtures/unweighted-oracle.json` | **the RIGHT answers**, hand-ruled. The unweighted **/252**. | **21** |
+| `scripts/fixtures/unweighted-oracle.json` | **the RIGHT answers**, hand-ruled. The unweighted **/684**. | **57** |
 | `scripts/fixtures/macro-oracle.json` | the right answers for **printed-weight** dishes. The separate **/96**. | **8** |
 | `scripts/fixtures/*.expected.json` | **STAGE 1 ONLY** — did we read the right item NAMES off the photo. **No macros at all.** | n/a |
 
-**29 dishes in the whole project have hand-checked macros.** 68 dishes have the model's guesses.
-"Don't all the eval items already have checked macros?" — no, and that gap is the entire round-2 job.
+**65 dishes in the whole project have hand-checked macros.** 68 dishes have the model's guesses, and
+after round 2 all but a handful are ruled — the 8 unruled were **retired as unanswerable** (their menu
+line is only a name), not left as a to-do.
+
+⚠️ **`unweighted-oracle.json` is GENERATED — never hand-edit it.** Add a `Draft` to
+`scripts/unweighted-oracle-build.ts` and re-run it; `deriveBands()` does the arithmetic. **Put the
+derivation in the `assumed` STRING, not a code comment** — comments never reach the JSON, which is
+what a future session re-derives from.
 | **band** | The pass window for one number. Not a single value — a range. A macro **passes** if the app's answer lands inside the band. Currently **the average dish ±20%**, plus a small-miss allowance (6 g for a macro, 50 kcal). |
 | **draw** | One repeat of the exact same question. The model is not deterministic, so every dish is asked **3 times** and all 3 are scored. |
 | **harness** | The script that runs a benchmark and prints a score. `bench-unweighted.ts` (no-weight dishes), `bench-mixed-menu.ts` and `bench-macros.ts` (printed-weight dishes). |
@@ -347,7 +353,7 @@ that existed before that day the gap is **+11**, matching the +11/+12 measured e
 The headline fell to +7 because the two NEW dishes contribute **−4**, all of it BROWNIE (baseline 12,
 dual 8). **That is dual genuinely losing a dessert, not a ruler that stopped discriminating.**
 
-### ✅ THE ORACLE WIDENING IS DONE (2026-08-22, eval 167) — THE ORACLE IS NOW 21 DISHES
+### ✅ ROUND-1 WIDENING, eval 167 — 9 → 21 DISHES. ⚠️ SUPERSEDED: THE ORACLE IS NOW **57** (eval 169)
 
 **All four $0 steps from the 2026-08-22 rulings are complete.** Full detail, the two decisions
 Santiago ruled, and the FDC-verification findings are in eval 167 of
@@ -408,6 +414,45 @@ are ALL now rejected on re-measurement — do not re-open any of them without ne
 Stage-2 benchmark's open question (is there ANY prompt/schema change that beats `dual`) is still
 open. Two untested hypotheses and two Stage-1 (not Stage-2) fixes are on record below this block —
 none is designed yet. **Use `superpowers:brainstorming` before designing the next arm.**
+
+### ✅ EVAL 170: THE ORACLE WAS AUDITED AND HOLDS. THE VERDICT ABOVE IS UNCHANGED (2026-08-22, $0)
+
+Santiago asked for an audit of the four entries that move the NOBOOST comparison most
+(`TACO BRASERO`, `TACO TRADICIONAL`, `TOSTA ATUM`, `TOSTA BRASIL`). **All four are sound.** Every
+composition reconciles exactly from real FDC records at the stated grams, and the MASSES are sourced
+too — which was the real question, since NOBOOST is a sizing mechanism:
+
+- **55 g meat** is the figure Santiago already approved on `TACO EL CAPRICHO`; **28 g corn tortilla
+  is a PUBLISHED FNDDS portion**. Both tacos are `83 g` **by necessity** — EL CAPRICHO is 128 g =
+  that same 83 g + 25 g Monterey + 20 g lettuce, and neither new taco names cheese or lettuce, so
+  the assumed-ingredient rule removes exactly that 45 g.
+- **13 g tostada shell** vs `167525`'s published **12.3 g/piece**; both tostada totals sit inside the
+  **122–420 g** range `2708508` publishes for a loaded tostada.
+
+**22 `assumed` fields were backfilled** so the oracle self-documents again (round 1 cited an FDC id
+in 21/21 entries; round 2 was 14/36, now **36/36** — the derivations had been written as
+build-script COMMENTS, which never reach `unweighted-oracle.json`). Proven documentation-only, not
+asserted: the regenerated diff touches `assumed` on exactly 22 entries and **no `band`,
+`mass_band_g` or `composition` anywhere**; `dual` **352/684**, `NOBOOST` **386/684**, the **+41.5**
+gap and the size split (r **−0.640**) are all unmoved.
+
+⚖️ **`TOSTA ATUM`'s tuna variant was ruled BY THE AGENT, not by Santiago**, who declined the ruling
+and delegated it explicitly. Raw (`2706308`) is kept, so no band moved.
+
+🪤 **TWO NEW FDC TRAPS — both cost real time, both now in the round-2 rulings doc header:**
+1. **A detail-endpoint 404 means NOTHING until `foods/search` has also failed.** `2705827` "Beef,
+   steak, flank" 404'd **four times** while search returns it instantly. Without the fallback the
+   audit would have reported a broken citation on `TACO EL CAPRICHO`, an entry Santiago approved in
+   round 1. (Eval 167's "retry" rule is necessary but **not sufficient**.)
+2. ☠️ **`Fish, tuna, NFS` is BYTE-IDENTICAL to `Fish, tuna, canned`** — FNDDS's "not further
+   specified" defaults to the tin. **NFS is not a safe neutral middle option**; check any NFS cell
+   against its canned/prepared siblings first.
+
+⚠️ **A PROCESS LESSON, PAID FOR TWICE THIS SESSION: THE BRANCH CAN MOVE UNDER YOU.** Commit
+`62d1f65` landed **16 minutes after** `6dcb258` and fixed both a real MEDITERRÁNEA arithmetic error
+(11 ingredients sum to 380 g not 400 g; band `[340,460]` → `[325,435]`) and an eval-169 wording
+defect — while a reviewer was mid-audit reporting that same defect off a stale `git log`.
+**Re-check `HEAD` before reporting a fault in someone else's work.**
 
 ### 🔑 FOUND WHILE RULING, AND IT MAY OUTRANK EVERY ARM: THE MENU PRINTS SIZES WE DISCARD
 

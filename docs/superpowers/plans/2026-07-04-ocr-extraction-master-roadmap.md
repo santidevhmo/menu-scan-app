@@ -13,11 +13,16 @@
 
 > 🔴 **THIS BLOCK STOPPED BEING KEPT CURRENT AFTER THE 2026-08-19/20 ENTRIES BELOW — do not read past
 > the v32 deployment as if it were recent.** Everything from 2026-08-21 onward (the NOBOOST finding,
-> the oracle widening to 21 dishes, ledger eval 167) lives ONLY in `docs/superpowers/START-HERE.md`'s
+> the oracle widening, ledger evals 167–170) lives ONLY in `docs/superpowers/START-HERE.md`'s
 > handoff block and the ledger, exactly the "status copied into a second file and left to rot" failure
 > this block warns about above. **For current status, read `START-HERE.md`, not the history trail
-> below.** As of 2026-08-22: production is still v32, the unweighted oracle is 21 dishes / 252 points
-> (not 9/108), and `NOBOOST` is a promising-but-unconfirmed candidate arm, not yet deployed.
+> below.** As of 2026-08-22, end of day: production is still **v32**; the unweighted oracle is
+> **57 dishes / 684 points** (widened 9→21 at eval 167, then 21→57 at eval 169 — a "/108" or "/252"
+> figure is pre-widening); `dual` scores **352/684**, and **`NOBOOST` is REJECTED** (eval 169) along
+> with `NOPUSH`, `ROLE` and `MASSCALL` — **every Stage-2 arm tried in this phase is now rejected.**
+> The oracle was audited at eval 170 and holds. **The open leads are two STAGE-1 fixes** (the dropped
+> "28 CM" section header, the dropped sibling `CAMARÓN ROKA (200 g)`) and two untested Stage-2
+> hypotheses; none is designed. Use `superpowers:brainstorming` before designing any of them.
 
 **ACTIVE: critical-path #5 — Stage-2 enrichment accuracy benchmark ("macro enrichment").**
 Macro accuracy has never been gated. The enrichment model is already decided (GPT-4o); what is

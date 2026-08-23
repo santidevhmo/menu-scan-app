@@ -3390,3 +3390,108 @@ leaves big plates alone or worse — not a general improvement, and not a candid
   designed yet. **Use `superpowers:brainstorming` before designing the next arm; do not re-open
   NOBOOST, NOPUSH, ROLE or MASSCALL** — all four are rejected on re-measurement, not just the
   original 9/108 draws.
+
+## Eval 170 — 🔍 THE FOUR-BAND AUDIT: every band SOUND, my "unsourced" charge RETRACTED, and FDC's detail endpoint 404s a record that exists (2026-08-22, $0)
+
+Audit of the four oracle entries that move the NOBOOST verdict most, requested by Santiago after
+eval 169. **No API spend on the model. Production UNCHANGED: edge fn `analyze-menu` v32. The
+eval-169 verdict is unchanged — `NOBOOST` still does not ship.**
+
+### 🔴 FIRST, TWO RETRACTIONS OF MY OWN CLAIMS
+
+1. **"22 of 36 round-2 entries are unsourced" — WRONG, and it was the headline of my hand-off.** The
+   derivations exist and cite real FDC ids. They were written as **comments in
+   `scripts/unweighted-oracle-build.ts`**, which do not propagate to `unweighted-oracle.json`. The
+   defect was that the ORACLE was not self-documenting, not that numbers were invented. Materially
+   different charge, and the weaker one is the true one.
+2. **"Eval 169's leave-one-out claim is wrong" — ALREADY FIXED before I said it.** Commit `62d1f65`
+   ("final-review findings") landed **16 minutes after** `6dcb258` and corrected exactly that cell,
+   plus a real MEDITERRÁNEA arithmetic error (its 11 ingredients sum to 380 g, not 400 g; mass band
+   `[340,460]` → `[325,435]`). My `git log` was taken before it existed. ⚠️ **The branch can move
+   under a session. Re-check HEAD before reporting a defect in someone else's work.**
+
+### ✅ THE AUDIT ITSELF — ALL FOUR BANDS SOUND
+
+Every composition reconciles **exactly** from real FDC records at the stated grams:
+
+| dish | derivation | claimed per 100 g | recomputed |
+|---|---|---|---|
+| TACO BRASERO | 55 g chuck `2705825` + 28 g corn tortilla `2707823` | 19.13 / 15.18 / 9.87 | **19.16 / 15.19 / 9.84** |
+| TACO TRADICIONAL | 55 g flank `2705827` + 28 g tortilla `2707823` | 21.2 / 15.05 / 10.3 | **21.23 / 15.05 / 10.30** |
+| TOSTA BRASIL | 13 g shell + 60 g sirloin + 60 g black beans + 25 g pepper | 13.71 / 14.42 / 10.92 | **13.73 / 14.61 / 10.92** |
+| TOSTA ATUM | 13 g shell + 70 g tuna + 5 × produce | 10.82 | **~10.7** |
+
+**The masses are sourced too, which was the real question — NOBOOST is a sizing mechanism.**
+
+- **55 g meat** is the figure Santiago already approved on `TACO EL CAPRICHO`; **28 g corn tortilla is
+  a PUBLISHED FNDDS portion** (28 g appears in `2707823`'s own portion list, verified).
+- Both tacos are therefore `83 g` **by necessity**: EL CAPRICHO is 128 g = the same 83 g + 25 g
+  Monterey + 20 g lettuce, and neither taco's menu line names cheese or lettuce, so the
+  assumed-ingredient rule removes exactly that 45 g. The band is derived, not chosen.
+- **13 g tostada shell** against `167525`'s published **12.3 g per piece**.
+- **Both tostada totals are corroborated:** `2708508` "Taco or tostada salad with meat" publishes
+  portions from **122 g to 420 g**, so TOSTA ATUM's 196 g and TOSTA BRASIL's 158 g sit inside the
+  published range, at the low end.
+
+🔑 **The two biggest movers in the whole comparison turned out to be the BEST-derived entries in the
+round-2 batch.** My concern that "46% of the effect rests on unsourced bands" was unfounded.
+
+### 🪤 FDC PROCESS — RETRY IS NOT ENOUGH, FALL BACK TO SEARCH
+
+Eval 167 recorded that the FDC **detail** endpoint returns transient 404s that resolve on retry.
+Stronger version, measured here: **`2705827` "Beef, steak, flank" returned 404 FOUR times** while the
+**search** endpoint returns it immediately with full nutrients (P 29.13 / C 0 / F 14.09, 243 kcal).
+Its neighbours `2705825` and `2705828` resolve fine, so the id range is real.
+
+☠️ **Without the search fallback I would have reported a broken citation on `TACO EL CAPRICHO` — a
+round-1 entry Santiago had already approved.** Rule: **a 404 from the detail endpoint is not evidence
+of anything until `foods/search` has also failed.** (Search still 400s/404s on any form of the
+`dataType` parameter — query plain, filter for `Survey (FNDDS)` client-side.)
+
+### ⚖️ `TOSTA ATUM` TUNA VARIANT — RULED BY THE AGENT, NOT BY SANTIAGO
+
+Santiago was offered this as a ruling to make himself, declined, and **explicitly delegated it**. The
+concern was raised and overridden; recording that plainly so a future session knows whose judgement
+this is. It **preserves the existing band**, so it carries no re-scoring risk.
+
+FNDDS publishes four tuna cells:
+
+| id | record | P | C | F | kcal |
+|---|---|---|---|---|---|
+| 2706308 | raw | 24.4 | 0 | 0.49 | 109 |
+| 2706309 | **NFS** | 19 | 0.08 | 0.94 | 85 |
+| 2706310 | cooked | 30.31 | 0.01 | 5.14 | 176 |
+| 2706311 | **canned** | 19 | 0.08 | 0.94 | 85 |
+
+☠️ **NFS IS BYTE-IDENTICAL TO CANNED.** FNDDS's "not further specified" tuna defaults to the tin, so
+NFS is **not** a neutral middle option for a seared steak. A future session reaching for NFS as the
+safe compromise on any ambiguous FNDDS food should check it against the canned/NFS pair first — this
+is a new instance of the variant trap that has bitten this oracle six times.
+
+**Ruling: keep raw (`2706308`).** Protein rises 24.4 → 30.31 between raw and cooked (+24%, consistent
+with ~20% water loss), but fat rises 0.49 → 5.14 — a **10× jump water loss cannot explain**, so the
+cooked cell carries **added cooking fat**. The menu names no oil and searing does not require it, so
+the assumed-ingredient rule (definitional only) excludes that fat. *"Sellado"* is seared-outside and
+rare-centred, so its water content sits near raw. ⚠️ **It still understates** — a real seared portion
+sits between the two on protein. Recorded rather than corrected.
+
+### 📋 WHAT CHANGED IN THE REPO
+
+**22 `assumed` fields backfilled** from the build-script comments, so the oracle is self-documenting
+again (round 1 was 21/21 citing an FDC id; round 2 was 14/36, now 36/36).
+
+**Proven documentation-only, not asserted:** the regenerated JSON diff touches `assumed` on exactly
+22 entries and **no `band`, `mass_band_g` or `composition` anywhere**, and the scores are unmoved —
+`dual` **352/684**, `NOBOOST` **386/684**, observed **+41.5**, before and after. The plate-size split
+is likewise unmoved: r **−0.640**, `<250 g` n=22 **+0.970**, `≥250 g` n=35 **−0.214**.
+
+`deno lint` clean, `deno test --allow-all scripts/ supabase/` = **411 passed, 2 failed** (the two
+long-standing failures).
+
+- **Spend: $0.** Phase total unchanged. **Production UNCHANGED: edge fn v32.**
+- **⛔ NEXT ACTION: unchanged from eval 169 — the NOBOOST line is closed and every Stage-2 arm tried
+  is rejected.** The audit strengthens that verdict rather than disturbing it: the dishes carrying
+  NOBOOST's positive side are the soundest in the set, and the rejection rests on the big-plate side
+  regardless. The open leads remain the two Stage-1 fixes (the dropped `28 CM` section header, the
+  dropped sibling `CAMARÓN ROKA (200 g)`) and the two untested hypotheses (menu-SECTION portion prior,
+  recipe-unit asks). **Use `superpowers:brainstorming` before designing any of them.**

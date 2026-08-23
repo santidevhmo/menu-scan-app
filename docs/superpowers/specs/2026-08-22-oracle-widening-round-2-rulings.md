@@ -10,6 +10,18 @@ read it as scoring data. Nothing here reaches a score until it is a `Draft` in
 transient 404s resolving on retry for ~20 of 51 valid ids. **Retry before concluding a citation is
 broken.**
 
+🔴 **STRONGER, MEASURED IN EVAL 170: RETRY IS NOT ENOUGH — FALL BACK TO `foods/search`.**
+`2705827` "Beef, steak, flank" returned **404 four times** from the detail endpoint while search
+returns it instantly with full nutrients (P 29.13 / C 0 / F 14.09, 243 kcal). Its neighbours
+`2705825` and `2705828` resolve fine, so the id range is real. Without the search fallback the audit
+would have reported a broken citation on `TACO EL CAPRICHO`, a round-1 entry Santiago had already
+approved. **A detail-endpoint 404 is not evidence of anything until `foods/search` has ALSO failed.**
+
+☠️ **AND A NEW VARIANT TRAP: `Fish, tuna, NFS` (2706309) IS BYTE-IDENTICAL TO `Fish, tuna, canned`
+(2706311)** — both P 19 / C 0.08 / F 0.94, 85 kcal. FNDDS's "not further specified" tuna defaults to
+the tin. **NFS is not a safe neutral middle option**; check any NFS cell against its canned/prepared
+siblings before reaching for it as a compromise.
+
 ## Status — 44 dishes
 
 | # | dish | menu | pile | ruled? |

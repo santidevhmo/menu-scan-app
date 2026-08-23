@@ -955,7 +955,7 @@
         8
       ]
     },
-    "assumed": "\"Por dentro: Atún spicy. Por fuera: Camarón y aguacate, bañado en salsa anguila.\" Rice+nori base per the roll class ruling (2026-08-22), carried from Salmón Roll/Vegan Roll/Nikkori Maki. At 11 pieces (Santiago's stated 10-12), this is 25.7 g/piece, 2.18 g protein/piece - in the same range as Nikkori Maki's own approved 31.2 g/piece, 1.55 g protein/piece. Approved 2026-08-22.",
+    "assumed": "\"Por dentro: Atún spicy. Por fuera: Camarón y aguacate, bañado en salsa anguila.\" Rice+nori base per the roll class ruling (2026-08-22), carried from Salmón Roll/Vegan Roll/Nikkori Maki. At 11 pieces (Santiago's stated 10-12), this is 25.7 g/piece, 2.18 g protein/piece - in the same range as Nikkori Maki's own approved 31.2 g/piece, 1.55 g protein/piece. Approved 2026-08-22. DERIVATION: Rice 140 g (FDC 2710788) + nori 3 g (FDC 2709988) + tuna ~50 g (FDC 2706308, filled, \"spicy\" read as a prep style with no separate ingredient) + shrimp ~40 g (FDC 2706449, topped) + avocado ~40 g (FDC 2709223, topped) + eel-sauce glaze ~10 g (FDC 2707442 soy sauce, proxy for \"salsa anguila\" at garnish scale). Totals ~283 g, 24 P / 49 C / 7 F.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -985,7 +985,7 @@
         30
       ]
     },
-    "assumed": "\"Por dentro: Salmón, queso crema y pepino. Por fuera: Ajonjolí.\" Rice+nori base per the roll class ruling (2026-08-22). Filled-only (sesame is a coating, not a mass-bearing topping), so rice uses the [150 g] filled-only convention from Vegan Roll rather than the [140 g] filled+topped convention. NAME MISMATCH, RULED: the physical menu prints \"Fildelfia\" (likely a misprint for \"Filadelfia\" / Philadelphia roll); the extraction archives and pipeline caches use \"Fildeflex\". Oracle entry uses \"Fildeflex\" so it matches what the harness actually scores against - approved 2026-08-22. At 11 pieces, 25.3 g/piece, 2.09 g protein/piece.",
+    "assumed": "\"Por dentro: Salmón, queso crema y pepino. Por fuera: Ajonjolí.\" Rice+nori base per the roll class ruling (2026-08-22). Filled-only (sesame is a coating, not a mass-bearing topping), so rice uses the [150 g] filled-only convention from Vegan Roll rather than the [140 g] filled+topped convention. NAME MISMATCH, RULED: the physical menu prints \"Fildelfia\" (likely a misprint for \"Filadelfia\" / Philadelphia roll); the extraction archives and pipeline caches use \"Fildeflex\". Oracle entry uses \"Fildeflex\" so it matches what the harness actually scores against - approved 2026-08-22. At 11 pieces, 25.3 g/piece, 2.09 g protein/piece. DERIVATION: Rice 150 g (FDC 2710788, filled-only convention per Vegan Roll) + nori 3 g (FDC 2709988) + salmon ~60 g (FDC 2706286 baked/broiled, the dominant filling) + cream cheese 30 g (FDC 2705760) + cucumber 30 g (FDC 2709784) + sesame ~5 g (FDC 2707586, coating). Totals ~278 g, 23 P / 48 C / 25 F.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1015,7 +1015,7 @@
         22
       ]
     },
-    "assumed": "\"Por dentro: Camarón, queso crema y pepino. Por fuera: Aguacate.\" Rice+nori base per the roll class ruling (2026-08-22), carried from the same three precedent rolls. At 11 pieces, 26.6 g/piece, 1.18 g protein/piece - the lightest of the seven, consistent with a topping (avocado) that carries no protein of its own. Approved 2026-08-22.",
+    "assumed": "\"Por dentro: Camarón, queso crema y pepino. Por fuera: Aguacate.\" Rice+nori base per the roll class ruling (2026-08-22), carried from the same three precedent rolls. At 11 pieces, 26.6 g/piece, 1.18 g protein/piece - the lightest of the seven, consistent with a topping (avocado) that carries no protein of its own. Approved 2026-08-22. DERIVATION: Rice 140 g (FDC 2710788) + nori 3 g (FDC 2709988) + shrimp ~45 g (FDC 2706449, filled) + cream cheese 30 g (FDC 2705760, filled) + cucumber 30 g (FDC 2709784, filled) + avocado ~45 g (FDC 2709223, topped - the name-driving ingredient). Totals ~293 g, 13 P / 52 C / 18 F.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1045,7 +1045,7 @@
         27
       ]
     },
-    "assumed": "\"Por dentro: Queso crema y aguacate. Por fuera: Atún con topping de masago y mayonesa.\" Rice+nori base per the roll class ruling (2026-08-22). At 11 pieces, 25.4 g/piece, 1.91 g protein/piece. Approved 2026-08-22.",
+    "assumed": "\"Por dentro: Queso crema y aguacate. Por fuera: Atún con topping de masago y mayonesa.\" Rice+nori base per the roll class ruling (2026-08-22). At 11 pieces, 25.4 g/piece, 1.91 g protein/piece. Approved 2026-08-22. DERIVATION: Rice 140 g (FDC 2710788) + nori 3 g (FDC 2709988) + cream cheese 30 g (FDC 2705760, filled) + avocado 40 g (FDC 2709223, filled) + tuna ~50 g (FDC 2706308, topped) + masago ~8 g (FDC 175132 fish roe, topped) + mayonnaise ~8 g (FDC 2710204, topped). Totals ~279 g, 21 P / 47 C / 23 F.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1075,7 +1075,7 @@
         19
       ]
     },
-    "assumed": "\"Por dentro: Atún spicy y aguacate. Por fuera: Salmón bañado con salsa spicy ponzu.\" Rice+nori base per the roll class ruling (2026-08-22). Names both tuna AND salmon as defining ingredients, so the highest per-piece protein of the seven at 11 pieces: 25.7 g/piece, 2.64 g protein/piece - still under a third of Nikkori Maki's own per-piece mass and well inside what the reference photo shows. Approved 2026-08-22.",
+    "assumed": "\"Por dentro: Atún spicy y aguacate. Por fuera: Salmón bañado con salsa spicy ponzu.\" Rice+nori base per the roll class ruling (2026-08-22). Names both tuna AND salmon as defining ingredients, so the highest per-piece protein of the seven at 11 pieces: 25.7 g/piece, 2.64 g protein/piece - still under a third of Nikkori Maki's own per-piece mass and well inside what the reference photo shows. Approved 2026-08-22. DERIVATION: Rice 140 g (FDC 2710788) + nori 3 g (FDC 2709988) + tuna 40 g (FDC 2706308, filled) + avocado 40 g (FDC 2709223, filled) + salmon ~50 g (FDC 2706286 baked/broiled, topped) + ponzu glaze ~10 g (FDC 2707442 soy sauce, proxy for \"salsa spicy ponzu\" at garnish scale). Totals ~283 g, 29 P / 46 C / 16 F.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1105,7 +1105,7 @@
         44
       ]
     },
-    "assumed": "\"Por dentro: Tampico, aguacate, queso crema y pepino. Por fuera: Camarón y salmón.\" Rice+nori base per the roll class ruling (2026-08-22). Richest of the seven (4 filled + 2 topped items) - same total mass as Nikkori Maki (343 g), which has a comparably rich structure (2 filled + 2 topped items + vegetable). At 11 pieces, 31.2 g/piece, 2.18 g protein/piece, matching Nikkori Maki's own per-piece mass almost exactly. Approved 2026-08-22.",
+    "assumed": "\"Por dentro: Tampico, aguacate, queso crema y pepino. Por fuera: Camarón y salmón.\" Rice+nori base per the roll class ruling (2026-08-22). Richest of the seven (4 filled + 2 topped items) - same total mass as Nikkori Maki (343 g), which has a comparably rich structure (2 filled + 2 topped items + vegetable). At 11 pieces, 31.2 g/piece, 2.18 g protein/piece, matching Nikkori Maki's own per-piece mass almost exactly. Approved 2026-08-22. DERIVATION: Rice 140 g (FDC 2710788) + nori 3 g (FDC 2709988) + Tampico sauce ~25 g (FDC 2710176 \"Fry sauce\" - Santiago's ruling 2026-08-22 that \"Tampico\" is a sauce, treated as a generic average the same way \"vinagreta de la casa\" uses FDC 2710195 elsewhere in the oracle; no protein is assumed inside it) + avocado 35 g (FDC 2709223, filled) + cream cheese 25 g (FDC 2705760, filled) + cucumber 25 g (FDC 2709784, filled) + shrimp 45 g (FDC 2706449, topped) + salmon 45 g (FDC 2706286 baked/broiled, topped). Totals ~343 g, 24 P / 52 C / 37 F.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1135,7 +1135,7 @@
         29
       ]
     },
-    "assumed": "\"Por dentro: Tampico. Por fuera: Atún picado con salsa spicy y masago.\" Rice+nori base per the roll class ruling (2026-08-22). The menu names no protein in the filling - only a sauce - so the filling is rice+nori+sauce alone; inventing a hidden protein inside \"Tampico\" would violate the assumed-ingredient rule. At 11 pieces, 22.4 g/piece, 1.82 g protein/piece. Approved 2026-08-22.",
+    "assumed": "\"Por dentro: Tampico. Por fuera: Atún picado con salsa spicy y masago.\" Rice+nori base per the roll class ruling (2026-08-22). The menu names no protein in the filling - only a sauce - so the filling is rice+nori+sauce alone; inventing a hidden protein inside \"Tampico\" would violate the assumed-ingredient rule. At 11 pieces, 22.4 g/piece, 1.82 g protein/piece. Approved 2026-08-22. DERIVATION: Rice 140 g (FDC 2710788) + nori 3 g (FDC 2709988) + Tampico sauce ~30 g (FDC 2710176 \"Fry sauce\" - the menu names ONLY \"Tampico\" as the interior, no protein stated there, so no protein is assumed inside it per the assumed-ingredient rule) + tuna ~55 g (FDC 2706308, topped, \"picado\" = chopped) + spicy-sauce glaze ~10 g (FDC 2710176, same generic sauce reused at garnish scale for \"salsa spicy\") + masago ~8 g (FDC 175132 fish roe, topped). Totals ~246 g, 20 P / 45 C / 24 F - the lightest of the seven because all of the stated protein sits in the topping, none in the filling.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1255,7 +1255,7 @@
         17
       ]
     },
-    "assumed": "\"Crema de tomate con un toque de chile de árbol, espinacas y queso feta.\" Pasta base and decomposed-ingredient method carried from CARBONARA/PASTA ESPECIAL/FETUCCINI ALFREDO, all already ruled on this menu. Approved 2026-08-22.",
+    "assumed": "\"Crema de tomate con un toque de chile de árbol, espinacas y queso feta.\" Pasta base and decomposed-ingredient method carried from CARBONARA/PASTA ESPECIAL/FETUCCINI ALFREDO, all already ruled on this menu. Approved 2026-08-22. DERIVATION: Decomposed, same method as FETUCCINI ALFREDO/PASTA ESPECIAL: 230 g pasta (FDC 2708357) + 100 g tomato-cream sauce (FDC 2709749 \"Vodka sauce with tomatoes and cream\" - the FNDDS match for \"crema de tomate\") + 3 g dried chile de árbol (FDC 168570, \"un toque\" = a touch, flavor-scale only) + 40 g spinach (FDC 2709614) + 25 g feta (FDC 2705714). Totals 398 g, 20.8 P / 78.6 C / 13.9 F.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1285,7 +1285,7 @@
         20
       ]
     },
-    "assumed": "\"Pimientos, campiñones, jamón en salsa cremosa a base de quesos.\" Pasta base and decomposed-ingredient method carried from CARBONARA/PASTA ESPECIAL/FETUCCINI ALFREDO, all already ruled on this menu. Approved 2026-08-22.",
+    "assumed": "\"Pimientos, campiñones, jamón en salsa cremosa a base de quesos.\" Pasta base and decomposed-ingredient method carried from CARBONARA/PASTA ESPECIAL/FETUCCINI ALFREDO, all already ruled on this menu. Approved 2026-08-22. DERIVATION: Decomposed, same method as FETUCCINI ALFREDO/PASTA ESPECIAL: 230 g pasta (FDC 2708357) + 40 g bell pepper (FDC 2709800) + 40 g mushroom (FDC 2709793) + 35 g deli ham (FDC 2706206) + 100 g cheese sauce (FDC 2705808, the FNDDS match for \"salsa cremosa a base de quesos\"). Totals 445 g, 23.7 P / 82.1 C / 16.9 F.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1315,7 +1315,7 @@
         33
       ]
     },
-    "assumed": "\"Lechuga, pepino, elote, queso panela, aceitunas, tomate cherry, aguacate, champis, espárragos, almendras, aderezada con aceite oliva y balsámico.\" Full description, all ingredients named directly - the lettuce base is stated in the dish's own text (unlike the bistro salads, which the plan pointed to for the lettuce-base convention but which were not needed here since MEDITERRÁNEA names its own base). Approved 2026-08-22.",
+    "assumed": "\"Lechuga, pepino, elote, queso panela, aceitunas, tomate cherry, aguacate, champis, espárragos, almendras, aderezada con aceite oliva y balsámico.\" Full description, all ingredients named directly - the lettuce base is stated in the dish's own text (unlike the bistro salads, which the plan pointed to for the lettuce-base convention but which were not needed here since MEDITERRÁNEA names its own base). Approved 2026-08-22. DERIVATION: 11 named ingredients, decomposed: 100 g lettuce (FDC 2709789) + 30 g cucumber (FDC 2709784) + 30 g corn (FDC 168540) + 30 g queso fresco (FDC 2705745 - the closest FNDDS match to \"queso panela\"; no exact panela record exists) + 15 g olives (FDC 169095) + 40 g cherry tomato (FDC 2709719) + 30 g avocado (FDC 2709223) + 30 g mushroom (FDC 2709793) + 30 g asparagus (FDC 168390) + 15 g almonds (FDC 168596) + 30 g olive-oil/balsamic dressing (FDC 2710203, the same Italian-dressing record already used for ENSALADA GRIEGA). Totals 380 g (absolute macros 13.71 P / 26.24 C / 27.53 F), 3.6 P / 6.9 C / 7.2 F per 100 g.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1345,7 +1345,7 @@
         35
       ]
     },
-    "assumed": "\"Dos tortillas de harina, manchego, boneless con salsa al gusto.\" \"Dos\" pins the tortilla count. Approved 2026-08-22.",
+    "assumed": "\"Dos tortillas de harina, manchego, boneless con salsa al gusto.\" \"Dos\" pins the tortilla count. Approved 2026-08-22. DERIVATION: \"Dos\" = 2 tortillas, a stated count: 80 g flour tortilla (FDC 2707824, 2x40g) + 40 g queso chihuahua (FDC 2705774 - manchego has NO FDC record at any venue, confirmed by search; chihuahua is the closest melting-cheese analog already used elsewhere on this menu) + 90 g breaded fried chicken (FDC 170756, reused from TIRAS DE POLLO, already ruled on this exact menu). \"Salsa al gusto\" (sauce to taste) is explicitly optional/unspecified and not separately weighed, same treatment as the rolls' negligible garnishes. Totals 210 g, 36.4 P / 47.2 C / 29.5 F.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1405,7 +1405,7 @@
         10
       ]
     },
-    "assumed": "\"Taco de carne asada de diezmillo en tortilla de su elección.\" Approved 2026-08-22.",
+    "assumed": "\"Taco de carne asada de diezmillo en tortilla de su elección.\" Approved 2026-08-22. DERIVATION: 55 g FDC 2705825 \"Beef, steak, chuck\" (diezmillo) + 28 g FDC 2707823 \"Tortilla, corn\" (reused from TACO PORCO/EL CAPRICHO, same published FNDDS portion). No cheese or vegetable is named, unlike the two already-ruled tacos, so this totals notably lighter (83 g vs their 120-130 g) - ruled on the menu text alone, not adjusted for the pre-registered prediction that the gap shrinks.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1435,7 +1435,7 @@
         10
       ]
     },
-    "assumed": "\"Taco de arrachera en tortilla de su elección.\" Approved 2026-08-22.",
+    "assumed": "\"Taco de arrachera en tortilla de su elección.\" Approved 2026-08-22. DERIVATION: 55 g FDC 2705827 \"Beef, steak, flank\" (arrachera - same cut and same weight TACO EL CAPRICHO already uses) + 28 g FDC 2707823 corn tortilla. No cheese or vegetable named. Same sizing note as TACO BRASERO.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1465,7 +1465,7 @@
         7
       ]
     },
-    "assumed": "\"Tostada de atún sellado con rub de chiles, portobello y elote asado, pepino, jicama, salseado con ponzu y ajonjolí.\" Approved 2026-08-22.",
+    "assumed": "\"Tostada de atún sellado con rub de chiles, portobello y elote asado, pepino, jicama, salseado con ponzu y ajonjolí.\" Approved 2026-08-22. DERIVATION: 13 g tostada shell (FDC 167525, published portion) + 70 g seared tuna (FDC 2706308) + 25 g mushroom/portobello (FDC 2709793) + 25 g roasted corn (FDC 168540) + 25 g cucumber (FDC 2709784) + 25 g jicama (FDC 2709787) + 10 g ponzu glaze (FDC 2707442 soy sauce proxy) + 3 g sesame (FDC 2707586). TUNA VARIANT AUDITED 2026-08-22 AND THE RAW RECORD IS KEPT. Ruled by the agent, NOT by Santiago, who delegated it explicitly; it preserves the existing band, so it carries no re-scoring risk. FNDDS publishes four tuna cells: raw 2706308 (P 24.4 / F 0.49), cooked 2706310 (P 30.31 / F 5.14), NFS 2706309 and canned 2706311. ☠️ NFS IS BYTE-IDENTICAL TO CANNED (both P 19 / C 0.08 / F 0.94, 85 kcal) - FNDDS's not-further-specified tuna defaults to the tin, so NFS is NOT a neutral middle option for a seared steak and was rejected. Between raw and cooked: protein rises 24.4 -> 30.31 (+24%, consistent with ~20% water loss) but fat rises 0.49 -> 5.14, a 10x jump water loss cannot explain - the cooked cell carries ADDED COOKING FAT. The menu names no oil and searing does not require it, so under the assumed-ingredient rule (definitional only) that fat stays out. 'Sellado' is seared-outside, rare-centred, so its water content sits near raw. Raw is the closest cell once added cooking fat is excluded. ⚠️ It still understates: a real seared portion sits between raw and cooked on protein. The dish's 196 g total is corroborated - FNDDS 2708508 'Taco or tostada salad with meat' publishes portions from 122 to 420 g, so 196 g is inside the published range at the low end.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1495,7 +1495,7 @@
         21
       ]
     },
-    "assumed": "\"Tostada de picaña en una cama de feijoada y mix de pimiento encima.\" Approved 2026-08-22.",
+    "assumed": "\"Tostada de picaña en una cama de feijoada y mix de pimiento encima.\" Approved 2026-08-22. DERIVATION: 13 g tostada shell (FDC 167525) + 60 g sirloin/picanha (FDC 2705833 - no dedicated picanha record exists) + 60 g black beans (FDC 2707359, the FNDDS match for \"feijoada\") + 25 g bell pepper mix (FDC 2709800).",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1525,7 +1525,7 @@
         18
       ]
     },
-    "assumed": "\"Crepa crujiente y azucarada acompañada de dulce de leche, chocolate y helado de vainilla.\" Approved 2026-08-22.",
+    "assumed": "\"Crepa crujiente y azucarada acompañada de dulce de leche, chocolate y helado de vainilla.\" Approved 2026-08-22. DERIVATION: Dessert. 60 g crepe (FDC 2708341) + 30 g caramel candy (FDC 2710354, the proxy for \"dulce de leche\" - no dedicated FDC record exists) + 20 g chocolate syrup (FDC 2710276) + 60 g vanilla ice cream (FDC 2705629 \"Ice cream, NFS\").",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1555,7 +1555,7 @@
         31
       ]
     },
-    "assumed": "Name-only dish, no menu description. Approved 2026-08-22.",
+    "assumed": "Name-only dish, no menu description. Approved 2026-08-22. DERIVATION: Name-only, kept answerable (Task 5 - \"the name is the recipe\"). No FDC \"chile relleno\" record exists; FDC 2710045 \"Stuffed jalapeno pepper\" is the closest battered/fried/cheese-stuffed-pepper analog. 160 g, a defensible single-serving stuffed poblano plus batter/sauce.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1585,7 +1585,7 @@
         5
       ]
     },
-    "assumed": "Name-only dish, no menu description. Approved 2026-08-22.",
+    "assumed": "Name-only dish, no menu description. Approved 2026-08-22. DERIVATION: Name-only, kept answerable (Task 5 - \"orden de\" pins a portion convention). 5 x 28 g FDC 2707823 corn tortilla (the same published-portion record the tacos use), 5 being a defensible middle count for a tortilla-basket order.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1615,7 +1615,7 @@
         36
       ]
     },
-    "assumed": "\"Dos huevos fritos montados sobre un huarache de maíz con frijoles refritos y bañados con salsa verde, crema, cebolla y cilantro.\" Approved 2026-08-22.",
+    "assumed": "\"Dos huevos fritos montados sobre un huarache de maíz con frijoles refritos y bañados con salsa verde, crema, cebolla y cilantro.\" Approved 2026-08-22. DERIVATION: \"Dos huevos\" = 2 eggs, 110 g (the established el-marcos omelette convention) + 80 g gordita/huarache base (FDC 2707818, the closest FNDDS analog to a huarache) + 60 g refried beans (FDC 2707396) + 30 g salsa verde (FDC 2709743) + 15 g crema (FDC 2705614) + 15 g onion (FDC 2709795) + 4 g cilantro (FDC 2709782).",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1645,7 +1645,7 @@
         4
       ]
     },
-    "assumed": "\"(Orden de dos)\" - no further description. Approved 2026-08-22.",
+    "assumed": "\"(Orden de dos)\" - no further description. Approved 2026-08-22. DERIVATION: \"(Orden de dos)\" = 2 pieces, stated. 2 x 43 g FDC 2707654 \"Roll, white, soft\" (published FNDDS portion for a medium/regular roll) - plain, no other ingredient named.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1675,7 +1675,7 @@
         4
       ]
     },
-    "assumed": "\"(Orden de dos)\" - no further description beyond the name. Approved 2026-08-22.",
+    "assumed": "\"(Orden de dos)\" - no further description beyond the name. Approved 2026-08-22. DERIVATION: Same 2 x 43 g roll base as BISQUETS DEL CENTRO + 30 g berry jam/preserve (FDC 169641 \"Jams and preserves\") for \"frutos rojos\".",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   },
@@ -1705,7 +1705,7 @@
         27
       ]
     },
-    "assumed": "Name-only dish, no menu description at all. Fillings (shrimp, marlin) are named in the dish's own title. Approved 2026-08-22.",
+    "assumed": "Name-only dish, no menu description at all. Fillings (shrimp, marlin) are named in the dish's own title. Approved 2026-08-22. DERIVATION: Name-only, ruled answerable by Santiago (Task 5 edge case - the 2-egg base is a menu-wide convention from its 3 sibling omelettes, not this dish's own text). 110 g egg (FDC 2707158) + 40 g shrimp (FDC 2706363) + 40 g marlin (FDC 2706301 \"Fish, swordfish\" - no dedicated marlin record exists, swordfish is the closest billfish analog). Lands above FNDDS's largest published omelette portion (170 g), same pattern round 1 flagged for all 3 sibling omelettes (183-222 g) - not extended blindly: this 190 g comes from the 2 named proteins alone, at a magnitude comparable to the siblings' fillings, not from copying a number.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
   }

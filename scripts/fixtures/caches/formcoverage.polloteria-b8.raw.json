@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7aQSN3Y2lCdGUWlqF5RX1DJYy1i",
+  "object": "chat.completion",
+  "created": 1787511118,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"Chile-Uvola (400ml)\",\"dish_form\":\"other\"},{\"name\":\"Jamaica (400ml)\",\"dish_form\":\"other\"},{\"name\":\"Horchata (400ml)\",\"dish_form\":\"other\"},{\"name\":\"Te Helado (455ml)\",\"dish_form\":\"other\"},{\"name\":\"Bebida de litro natural (1lt)\",\"dish_form\":\"other\"},{\"name\":\"Bebida de litro mineral (1lt)\",\"dish_form\":\"other\"},{\"name\":\"Refresco (355ml)\",\"dish_form\":\"other\"},{\"name\":\"Agua Embotellada (500ml)\",\"dish_form\":\"other\"},{\"name\":\"Vainilla\",\"dish_form\":\"other\"},{\"name\":\"Fresa\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 620,
+    "completion_tokens": 155,
+    "total_tokens": 775,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

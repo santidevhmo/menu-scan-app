@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7aOoGvXwzuPEkTgKlkJ98Xy5j4T",
+  "object": "chat.completion",
+  "created": 1787511116,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"Chicken-Little (200gr)\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"Nuggets & Waffles (200gr)\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"Uva\",\"dish_form\":\"other\"},{\"name\":\"Piña\",\"dish_form\":\"other\"},{\"name\":\"Melón\",\"dish_form\":\"other\"},{\"name\":\"Limón\",\"dish_form\":\"other\"},{\"name\":\"Tamarindo\",\"dish_form\":\"other\"},{\"name\":\"Fresa\",\"dish_form\":\"other\"},{\"name\":\"Yoghurt con Cajeta\",\"dish_form\":\"other\"},{\"name\":\"Combinada Fresa-Vainilla/Yogurt\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 647,
+    "completion_tokens": 140,
+    "total_tokens": 787,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

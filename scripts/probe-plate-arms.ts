@@ -15,12 +15,12 @@
 import {
   callGptEnrich,
   chunk,
-  enrichBatch,
   ENRICH_BATCH_SIZE,
   ENRICH_MODEL,
   ENRICH_PROMPT,
   ENRICH_PROMPT_UNWEIGHTED,
   ENRICH_SCHEMA_OPENAI,
+  enrichBatch,
   resolveGrams,
   sumIngredientMacros,
 } from "../supabase/functions/analyze-menu/enrich.ts";
@@ -37,6 +37,7 @@ import {
   ARM_SHIPPED_PASS2,
 } from "./arm-order-schemas.ts";
 import { resolvePiecesPerOrder } from "../src/lib/portions.ts";
+import { applyFormMass, labelForms } from "./arm-dish-form.ts";
 
 const apiKey = Deno.env.get("OPENAI_API_KEY");
 if (!apiKey) throw new Error("OPENAI_API_KEY is required in .env.local");
@@ -155,7 +156,9 @@ async function callOpenAI(
     throw new Error(
       `OpenAI content did not parse: ${err}\n` +
         `  saved to ${dump} (${content.length} chars)\n` +
-        (at >= 0 ? `  context: ${JSON.stringify(content.slice(at - 60, at + 60))}` : ""),
+        (at >= 0
+          ? `  context: ${JSON.stringify(content.slice(at - 60, at + 60))}`
+          : ""),
     );
   }
 }
@@ -296,7 +299,11 @@ export async function armP(items: Item[]) {
   }
   if (unweighted.length > 0) {
     // The SCHEMA is untouched - this changes what a number means, not its shape.
-    const raw = await callOpenAI(ARM_P_PROMPT, ENRICH_SCHEMA_OPENAI, unweighted);
+    const raw = await callOpenAI(
+      ARM_P_PROMPT,
+      ENRICH_SCHEMA_OPENAI,
+      unweighted,
+    );
     for (const it of raw.items ?? []) {
       out.push({
         ...it,
@@ -775,9 +782,9 @@ export async function armHybrid(items: Item[]) {
   heavy.forEach((idx: number, k: number) => {
     if (reasked[k].name !== items[idx].name) {
       throw new Error(
-        `HYBRID re-ask misaligned: slot ${k} is "${reasked[k].name}", expected "${
-          items[idx].name
-        }"`,
+        `HYBRID re-ask misaligned: slot ${k} is "${
+          reasked[k].name
+        }", expected "${items[idx].name}"`,
       );
     }
     out[idx] = reasked[k];
@@ -806,6 +813,25 @@ export async function armHybrid(items: Item[]) {
  * total by their grams. That is production's semantics for a side that is not part of
  * the weighed dish, and changing it here would make the arm two variables.
  */
+/**
+ * COMBO, eval 176: `HYBRID` routes, then the FORM table sizes.
+ *
+ * The two mechanisms do different jobs and were never tested together. HYBRID
+ * picks WHICH question to ask per dish; the form table then overrides the MASS of
+ * whatever came back. Its control is `HYBRID` (394-419 over 4 runs), not `dual` -
+ * one variable, the form rescale.
+ *
+ * ⚠️ Form sizing overwrites the mass HYBRID's routing produced, so if the two
+ * gains come from the same dishes this scores no better than FORM alone. That is
+ * the question, and it cannot be answered by adding +53 and +117.
+ */
+export async function armCombo(items: Item[]) {
+  const routed = await armHybrid(items);
+  const labels = await labelForms(items, apiKey!);
+  // deno-lint-ignore no-explicit-any
+  return applyFormMass(routed as any, labels) as any;
+}
+
 export async function armMassCall(items: Item[]) {
   const [enriched, plates] = await Promise.all([
     runOrderArm(items, ARM_MASSCALL, false),
@@ -820,7 +846,9 @@ export async function armMassCall(items: Item[]) {
 
   const byName = new Map<string, number>();
   // deno-lint-ignore no-explicit-any
-  for (const p of (plates as any).items ?? []) byName.set(p.name, p.total_grams);
+  for (const p of (plates as any).items ?? []) {
+    byName.set(p.name, p.total_grams);
+  }
 
   // deno-lint-ignore no-explicit-any
   return (enriched as any[]).map((it) => {
@@ -853,17 +881,48 @@ const SAUCE_DISHES: {
   usda: number | null;
   control?: boolean;
 }[] = [
-  { menu: "andaluz", name: "CESAR (200 g)", sauce: "caesar dressing", usda: 57.9 },
+  {
+    menu: "andaluz",
+    name: "CESAR (200 g)",
+    sauce: "caesar dressing",
+    usda: 57.9,
+  },
   { menu: "casa-nostra", name: "Cesar", sauce: "Caesar dressing", usda: 57.9 },
   { menu: "brasero", name: "PASTA AL PESTO", sauce: "Pesto", usda: 59.2 },
-  { menu: "polloteria", name: "Dedos De Queso (200gr)", sauce: "Ranch", usda: 44.5 },
-  { menu: "casa-nostra", name: "Salmone padella", sauce: "garlic sauce", usda: 74.0 },
-  { menu: "brasero", name: "PESCADO AL AJILLO", sauce: "garlic sauce", usda: 74.0 },
+  {
+    menu: "polloteria",
+    name: "Dedos De Queso (200gr)",
+    sauce: "Ranch",
+    usda: 44.5,
+  },
+  {
+    menu: "casa-nostra",
+    name: "Salmone padella",
+    sauce: "garlic sauce",
+    usda: 74.0,
+  },
+  {
+    menu: "brasero",
+    name: "PESCADO AL AJILLO",
+    sauce: "garlic sauce",
+    usda: 74.0,
+  },
   // House-named: no published record exists, so observed and never scored.
   { menu: "brasero", name: "NEW YORK", sauce: "chimichurri", usda: null },
-  { menu: "brasero", name: "FILETE DISCORDIA", sauce: "salsa chemita", usda: null },
+  {
+    menu: "brasero",
+    name: "FILETE DISCORDIA",
+    sauce: "salsa chemita",
+    usda: null,
+  },
   // CONTROLS - single foods throughout.
-  { menu: "andaluz", name: "PULPO A LA GALLEGA (200 g)", sauce: "-", usda: null, control: true },
+  {
+    menu: "andaluz",
+    name: "PULPO A LA GALLEGA (200 g)",
+    sauce: "-",
+    usda: null,
+    control: true,
+  },
   {
     menu: "andaluz",
     name: "CAMARONES EMPANIZADOS (200 g)",
@@ -963,7 +1022,9 @@ if (Deno.args[0] === "noise") {
     const spread = (high - low) / ((high + low) / 2);
     spreads.push(spread);
     console.log(
-      `${d.name.slice(0, 28).padEnd(30)} ${xs.join(", ").padEnd(30)} ${(spread * 100).toFixed(0)}%`,
+      `${d.name.slice(0, 28).padEnd(30)} ${xs.join(", ").padEnd(30)} ${
+        (spread * 100).toFixed(0)
+      }%`,
     );
   }
   spreads.sort((a, b) => a - b);
@@ -1034,18 +1095,23 @@ if (Deno.args[0] === "curve") {
       const outs: { out: any[]; failed: boolean }[] = [];
       for (let w = 0; w < groups.length; w += CONCURRENCY) {
         outs.push(
-          ...await Promise.all(groups.slice(w, w + CONCURRENCY).map(async (group) => {
-            try {
-              // deno-lint-ignore no-explicit-any
-              return { out: await enrichBatch(group as any, apiKey!) as any[], failed: false };
-            } catch (err) {
-              console.error(
-                `[curve] b${nominal} d${draw} call FAILED (not a drop):`,
-                err instanceof Error ? err.message : err,
-              );
-              return { out: [], failed: true };
-            }
-          })),
+          ...await Promise.all(
+            groups.slice(w, w + CONCURRENCY).map(async (group) => {
+              try {
+                // deno-lint-ignore no-explicit-any
+                return {
+                  out: await enrichBatch(group as any, apiKey!) as any[],
+                  failed: false,
+                };
+              } catch (err) {
+                console.error(
+                  `[curve] b${nominal} d${draw} call FAILED (not a drop):`,
+                  err instanceof Error ? err.message : err,
+                );
+                return { out: [], failed: true };
+              }
+            }),
+          ),
         );
       }
 
@@ -1065,7 +1131,9 @@ if (Deno.args[0] === "curve") {
           if (!byName.has(it.name)) byName.set(it.name, []);
           byName.get(it.name)!.push(Math.round(it.estimated_calories ?? 0));
         }
-        for (const src of group) grpOf.get(nominal)!.set(src.name, group.length);
+        for (const src of group) {
+          grpOf.get(nominal)!.set(src.name, group.length);
+        }
       });
     }
   }
@@ -1143,8 +1211,14 @@ if (Deno.args[0] === "curve") {
 // production runs them. Four dishes and single-item calls decided A-conditional;
 // this is the check on both of those limits at once.
 if (Deno.args[0] === "wide") {
-  const set: { name: string; description: string; menu: string; baseline_g: number }[] =
-    JSON.parse(await Deno.readTextFile("scripts/fixtures/unweighted-guard-set.json"));
+  const set: {
+    name: string;
+    description: string;
+    menu: string;
+    baseline_g: number;
+  }[] = JSON.parse(
+    await Deno.readTextFile("scripts/fixtures/unweighted-guard-set.json"),
+  );
   const items = set.map((d) => item(d.name, d.description));
 
   const runs: Record<string, Map<string, number[]>> = {};
@@ -1163,7 +1237,9 @@ if (Deno.args[0] === "wide") {
   }
 
   console.log(
-    `${"dish".padEnd(30)} ${"baseline kcal".padEnd(16)} ${"A-cond kcal".padEnd(16)} change  anchored`,
+    `${"dish".padEnd(30)} ${"baseline kcal".padEnd(16)} ${
+      "A-cond kcal".padEnd(16)
+    } change  anchored`,
   );
   let moved = 0;
   for (const d of set) {
@@ -1181,7 +1257,9 @@ if (Deno.args[0] === "wide") {
         ? String(xs[0])
         : `${Math.min(...xs)}-${Math.max(...xs)}`;
     console.log(
-      `${d.name.slice(0, 28).padEnd(30)} ${span(b).padEnd(16)} ${span(a).padEnd(16)} ` +
+      `${d.name.slice(0, 28).padEnd(30)} ${span(b).padEnd(16)} ${
+        span(a).padEnd(16)
+      } ` +
         `${change >= 0 ? "+" : ""}${(change * 100).toFixed(0)}%   ` +
         `${statesSize(d.name, d.description) ? "YES" : "no"}`,
     );
@@ -1368,7 +1446,9 @@ if (Deno.args[0] === "sauce-dish") {
   const menus = new Map<string, Record<string, unknown>[]>();
   for (const m of new Set(DISHES.map((d) => d.menu))) {
     const raw = JSON.parse(
-      await Deno.readTextFile(`scripts/fixtures/caches/pipeline.b10.${m}.raw.json`),
+      await Deno.readTextFile(
+        `scripts/fixtures/caches/pipeline.b10.${m}.raw.json`,
+      ),
     );
     menus.set(m, raw.items ?? []);
   }
@@ -1391,7 +1471,9 @@ if (Deno.args[0] === "sauce-dish") {
   );
   for (const d of DISHES) {
     // deno-lint-ignore no-explicit-any
-    const src = (menus.get(d.menu) ?? []).find((x: any) => x.name === d.name) as any;
+    const src = (menus.get(d.menu) ?? []).find((x: any) =>
+      x.name === d.name
+    ) as any;
     if (!src) {
       console.log(`${d.name.padEnd(28)} NOT FOUND in pipeline.b10.${d.menu}`);
       continue;
@@ -1410,7 +1492,9 @@ if (Deno.args[0] === "sauce-dish") {
         if (arm === "S" && draw === 0) {
           parts = (out?.ingredients ?? [])
             // deno-lint-ignore no-explicit-any
-            .map((i: any) => `${i.name} ${i.typical_serving_g}g/${i.fat_per_100g}f`)
+            .map((i: any) =>
+              `${i.name} ${i.typical_serving_g}g/${i.fat_per_100g}f`
+            )
             .join(" ")
             .slice(0, 72);
         }
@@ -1420,8 +1504,12 @@ if (Deno.args[0] === "sauce-dish") {
       xs.length === 0 ? "-" : `${Math.min(...xs)}-${Math.max(...xs)}`;
     console.log(
       `${d.name.slice(0, 26).padEnd(28)} ${d.sauce.slice(0, 14).padEnd(16)}` +
-        ` ${String(src.fat_g ?? "-").padStart(8)} ${span(fats.base).padStart(11)}` +
-        ` ${span(fats.S).padStart(11)}   ${d.control ? "[CONTROL] " : ""}${parts}`,
+        ` ${String(src.fat_g ?? "-").padStart(8)} ${
+          span(fats.base).padStart(11)
+        }` +
+        ` ${span(fats.S).padStart(11)}   ${
+          d.control ? "[CONTROL] " : ""
+        }${parts}`,
     );
   }
 
@@ -1512,7 +1600,9 @@ if (Deno.args[0] === "sauce-schema") {
   const menus = new Map<string, Record<string, unknown>[]>();
   for (const m of new Set(SAUCE_DISHES.map((d) => d.menu))) {
     const raw = JSON.parse(
-      await Deno.readTextFile(`scripts/fixtures/caches/pipeline.b10.${m}.raw.json`),
+      await Deno.readTextFile(
+        `scripts/fixtures/caches/pipeline.b10.${m}.raw.json`,
+      ),
     );
     menus.set(m, raw.items ?? []);
   }
@@ -1524,7 +1614,9 @@ if (Deno.args[0] === "sauce-schema") {
   );
   for (const d of SAUCE_DISHES) {
     // deno-lint-ignore no-explicit-any
-    const src = (menus.get(d.menu) ?? []).find((x: any) => x.name === d.name) as any;
+    const src = (menus.get(d.menu) ?? []).find((x: any) =>
+      x.name === d.name
+    ) as any;
     if (!src) continue;
     const it = item(src.name, src.description ?? "");
     const fats: Record<string, number[]> = { base: [], S2: [] };
@@ -1543,7 +1635,9 @@ if (Deno.args[0] === "sauce-schema") {
             i.name.toLowerCase().includes(d.sauce.toLowerCase().split(" ")[0])
           );
           said = hit
-            ? `${hit.name} f${hit.fat_per_100g} <- ${String(hit.composed_of).slice(0, 46)}`
+            ? `${hit.name} f${hit.fat_per_100g} <- ${
+              String(hit.composed_of).slice(0, 46)
+            }`
             : "(sauce not listed as an ingredient)";
         }
       }
@@ -1654,7 +1748,9 @@ if (Deno.args[0] === "sauce-number") {
   const menus = new Map<string, Record<string, unknown>[]>();
   for (const m of new Set(SAUCE_DISHES.map((d) => d.menu))) {
     const raw = JSON.parse(
-      await Deno.readTextFile(`scripts/fixtures/caches/pipeline.b10.${m}.raw.json`),
+      await Deno.readTextFile(
+        `scripts/fixtures/caches/pipeline.b10.${m}.raw.json`,
+      ),
     );
     menus.set(m, raw.items ?? []);
   }
@@ -1662,11 +1758,15 @@ if (Deno.args[0] === "sauce-number") {
   const DRAWS_S3 = 3;
   console.log(
     `${"dish".padEnd(27)} ${"sauce".padEnd(14)} ${"base".padStart(7)}` +
-      ` ${"ARM S3".padStart(8)} ${"fat/100g".padStart(9)} ${"USDA".padStart(5)}  parts`,
+      ` ${"ARM S3".padStart(8)} ${"fat/100g".padStart(9)} ${
+        "USDA".padStart(5)
+      }  parts`,
   );
   for (const d of SAUCE_DISHES) {
     // deno-lint-ignore no-explicit-any
-    const src = (menus.get(d.menu) ?? []).find((x: any) => x.name === d.name) as any;
+    const src = (menus.get(d.menu) ?? []).find((x: any) =>
+      x.name === d.name
+    ) as any;
     if (!src) continue;
     const it = item(src.name, src.description ?? "");
     const fats: Record<string, number[]> = { base: [], S3: [] };
@@ -1767,7 +1867,9 @@ if (Deno.args[0] === "guard") {
           (plates.length > 0 ? `/${span(plates)}g` : ""),
       );
     }
-    console.log(`${it.name.padEnd(16)} ${cells.join("  ")}   plausible ${plausible}`);
+    console.log(
+      `${it.name.padEnd(16)} ${cells.join("  ")}   plausible ${plausible}`,
+    );
   }
   await Deno.writeTextFile(
     "scripts/fixtures/caches/probe-plate-arms-guard.raw.json",
@@ -1783,39 +1885,43 @@ if (!import.meta.main) {
   // Nothing else in this file executes on import; the mode blocks above all
   // require an exact Deno.args[0] match.
 } else {
-for (const [armName, run] of Object.entries(ARMS)) {
-  console.log(`\n=== ARM ${armName}`);
-  for (const pair of PAIRS) {
-    const ratios: number[] = [];
-    const plates: string[] = [];
-    for (let draw = 0; draw < DRAWS; draw++) {
-      // One item per call so variants cannot anchor each other in a batch.
-      // deno-lint-ignore no-explicit-any
-      const [small] = await run([pair.small]) as any[];
-      // deno-lint-ignore no-explicit-any
-      const [large] = await run([pair.large]) as any[];
-      archive[`${armName} ${pair.signal} d${draw}`] = { small, large };
-      ratios.push(
-        small?.estimated_calories > 0
-          ? large.estimated_calories / small.estimated_calories
-          : NaN,
+  for (const [armName, run] of Object.entries(ARMS)) {
+    console.log(`\n=== ARM ${armName}`);
+    for (const pair of PAIRS) {
+      const ratios: number[] = [];
+      const plates: string[] = [];
+      for (let draw = 0; draw < DRAWS; draw++) {
+        // One item per call so variants cannot anchor each other in a batch.
+        // deno-lint-ignore no-explicit-any
+        const [small] = await run([pair.small]) as any[];
+        // deno-lint-ignore no-explicit-any
+        const [large] = await run([pair.large]) as any[];
+        archive[`${armName} ${pair.signal} d${draw}`] = { small, large };
+        ratios.push(
+          small?.estimated_calories > 0
+            ? large.estimated_calories / small.estimated_calories
+            : NaN,
+        );
+        if (small?._plate_g) {
+          plates.push(`${small._plate_g}->${large._plate_g}`);
+        }
+      }
+      const low = Math.min(...ratios);
+      const high = Math.max(...ratios);
+      const pass = low >= 1 + (pair.expected - 1) * 0.5;
+      console.log(
+        `  ${pair.signal.padEnd(26)} ${low.toFixed(2)}-${high.toFixed(2)}` +
+          ` (expected ${pair.expected}) ${pass ? "RESPONDED" : "flat"}` +
+          (plates.length > 0 ? `  plate ${plates[0]} g` : ""),
       );
-      if (small?._plate_g) plates.push(`${small._plate_g}->${large._plate_g}`);
     }
-    const low = Math.min(...ratios);
-    const high = Math.max(...ratios);
-    const pass = low >= 1 + (pair.expected - 1) * 0.5;
-    console.log(
-      `  ${pair.signal.padEnd(26)} ${low.toFixed(2)}-${high.toFixed(2)}` +
-        ` (expected ${pair.expected}) ${pass ? "RESPONDED" : "flat"}` +
-        (plates.length > 0 ? `  plate ${plates[0]} g` : ""),
-    );
   }
-}
 
-await Deno.writeTextFile(
-  "scripts/fixtures/caches/probe-plate-arms.raw.json",
-  JSON.stringify(archive, null, 2) + "\n",
-);
-console.log("\nArchived to scripts/fixtures/caches/probe-plate-arms.raw.json");
+  await Deno.writeTextFile(
+    "scripts/fixtures/caches/probe-plate-arms.raw.json",
+    JSON.stringify(archive, null, 2) + "\n",
+  );
+  console.log(
+    "\nArchived to scripts/fixtures/caches/probe-plate-arms.raw.json",
+  );
 }

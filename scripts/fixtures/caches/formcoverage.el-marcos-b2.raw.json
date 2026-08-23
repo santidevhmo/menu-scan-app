@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7Zd30kXR9hNMLi71JNokYofaWg9",
+  "object": "chat.completion",
+  "created": 1787511069,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"ENCHILADAS (135gr.)\",\"dish_form\":\"tortilla_order\"},{\"name\":\"Machaca de Marlín c/huevo o verdura\",\"dish_form\":\"other\"},{\"name\":\"Cazuela de Marlín\",\"dish_form\":\"other\"},{\"name\":\"Omelette de Camarón y Marlín\",\"dish_form\":\"omelette_2egg\"},{\"name\":\"Doblada de Camarón y Marlín\",\"dish_form\":\"quesadilla_two_tortilla\"},{\"name\":\"BISQUETS DEL CENTRO\",\"dish_form\":\"biscuit_order_of_two\"},{\"name\":\"BISQUETS C/ FRUTOS ROJOS\",\"dish_form\":\"biscuit_order_of_two_fruit\"},{\"name\":\"PAN TOSTADO\",\"dish_form\":\"open_toast\"},{\"name\":\"HOT CAKES (3 piezas) Naturales\",\"dish_form\":\"other\"},{\"name\":\"HOT CAKES (3 piezas) Con jamón, tocino o huevo\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 851,
+    "completion_tokens": 203,
+    "total_tokens": 1054,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

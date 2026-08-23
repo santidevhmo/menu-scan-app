@@ -33,8 +33,9 @@ import {
 import {
   armA,
   armAConditional,
-  armMassCall,
+  armCombo,
   armHybrid,
+  armMassCall,
   armNoBoost,
   armNoPush,
   armOrder,
@@ -203,6 +204,8 @@ async function replayPath(arm: string, path: string): Promise<string> {
   }
 }
 
+import { armForm } from "./arm-dish-form.ts";
+
 const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
   A: armA,
   "A-cond": armAConditional,
@@ -231,6 +234,9 @@ const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
   // or above 300 g, because the size error runs in BOTH directions and every
   // single-direction arm above is rejected. See armHybrid.
   HYBRID: armHybrid,
+  // eval 176. HYBRID's routing, then the FORM table overrides the mass. Its
+  // control is HYBRID, not dual - see armCombo.
+  COMBO: armCombo,
 };
 
 /** Arms whose batches form like dual's pass 2 - see the selection call below. */
@@ -243,12 +249,14 @@ const ORDER_ARMS: Record<string, true> = {
   ROLE: true,
   MASSCALL: true,
   HYBRID: true,
+  COMBO: true,
 };
 
 // A mistyped arm name would otherwise run the BASELINE and be written up as that
 // arm's result - a paid run reported as something it is not.
 if (
-  arm !== "baseline" && arm !== "P10" && arm !== "dual" && !(arm in ARM_RUNNERS)
+  arm !== "baseline" && arm !== "P10" && arm !== "dual" && arm !== "FORM" &&
+  !(arm in ARM_RUNNERS)
 ) {
   throw new Error(
     `unknown arm "${arm}" - expected baseline, P10, dual, ${
@@ -316,7 +324,8 @@ for (let draw = 0; draw < draws; draw++) {
       // batches form after the weighted/unweighted partition. Selecting with
       // the mixed boundaries would send a composition the arm never builds and
       // make the run incomparable to the 67/108 control.
-      const select = arm === "P10" || arm === "dual" || arm in ORDER_ARMS
+      const select = arm === "P10" || arm === "dual" || arm === "FORM" ||
+          arm in ORDER_ARMS
         ? fixtureBatchesP10
         : fixtureBatches;
       const items = fullMenu ? whole : select(whole, names);
@@ -327,6 +336,12 @@ for (let draw = 0; draw < draws; draw++) {
         // P's undersized batches and silently re-measure it.
         // deno-lint-ignore no-explicit-any
         ? await armP10(items as any) as EnrichedItem[]
+        : arm === "FORM"
+        // eval 176. dual's own entry point, then form-sized - NOT through
+        // enrichWithArm, which pre-chunks and would hand pass 2 a different
+        // batch composition than the `dual` control it is compared against.
+        // deno-lint-ignore no-explicit-any
+        ? await armForm(items as any, apiKey!)
         : arm === "dual"
         // The SHIPPED entry point, end to end. Pass 1 over an all-unweighted
         // selection is redundant work whose answers are then discarded - that is

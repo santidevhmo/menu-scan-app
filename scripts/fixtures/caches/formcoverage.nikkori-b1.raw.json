@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7ZjRUhNOVqq6FrkJZzwnKttvPiJ",
+  "object": "chat.completion",
+  "created": 1787511075,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"Rainbow\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Boga\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Roca Roll\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Ko Ebi Roll\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Van Hallen\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Nevada!\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Dinamita\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Kani Krunch\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Lomo Salteado\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Roiz\",\"dish_form\":\"sushi_roll_order\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 889,
+    "completion_tokens": 145,
+    "total_tokens": 1034,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

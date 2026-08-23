@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7a8Y4FZ8BPjVS3cGpjWR5QNUODh",
+  "object": "chat.completion",
+  "created": 1787511100,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"FOIE GRAS\",\"dish_form\":\"other\"},{\"name\":\"KING CRAB\",\"dish_form\":\"other\"},{\"name\":\"FRESH SHAVED TRUFFLES (5c)\",\"dish_form\":\"other\"},{\"name\":\"BUTTERED LUMP CRAB\",\"dish_form\":\"other\"},{\"name\":\"BLACK TRUFFLE BUTTER\",\"dish_form\":\"other\"},{\"name\":\"MEXICAN WHITE SHRIMP\",\"dish_form\":\"other\"},{\"name\":\"HALF LOBSTER TAIL\",\"dish_form\":\"other\"},{\"name\":\"OSETRA CAVIAR (3c)\",\"dish_form\":\"other\"},{\"name\":\"CHIMICHURRI\",\"dish_form\":\"other\"},{\"name\":\"BEARNAISE\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 634,
+    "completion_tokens": 148,
+    "total_tokens": 782,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

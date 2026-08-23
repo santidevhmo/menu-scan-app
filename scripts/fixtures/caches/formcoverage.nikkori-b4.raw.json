@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7ZnW3ibteT7jlkkUi4tqSxN6pyT",
+  "object": "chat.completion",
+  "created": 1787511079,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"Isla Roll\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Marco Roll\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Tecate Roja\",\"dish_form\":\"other\"},{\"name\":\"Tecate Light\",\"dish_form\":\"other\"},{\"name\":\"Indio\",\"dish_form\":\"other\"},{\"name\":\"Amstel Ultra\",\"dish_form\":\"other\"},{\"name\":\"Miller High Life\",\"dish_form\":\"other\"},{\"name\":\"Bohemia Clara\",\"dish_form\":\"other\"},{\"name\":\"Bohemia Oscura\",\"dish_form\":\"other\"},{\"name\":\"Heineken\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 641,
+    "completion_tokens": 123,
+    "total_tokens": 764,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

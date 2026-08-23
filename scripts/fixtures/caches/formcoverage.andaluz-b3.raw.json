@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7ZP9djzAoinPG8k035WvNc7rivo",
+  "object": "chat.completion",
+  "created": 1787511055,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"FAJITAS DE ARRACHERA (200 g)\",\"dish_form\":\"tortilla_order\"},{\"name\":\"ARRACHERA DE LA CASA (200 g)\",\"dish_form\":\"other\"},{\"name\":\"ARRACHERA WAGYU CROSS (200 g)\",\"dish_form\":\"other\"},{\"name\":\"CABRERÍA (250 g)\",\"dish_form\":\"other\"},{\"name\":\"CABRERÍA WAGYU CROSS (250 g)\",\"dish_form\":\"other\"},{\"name\":\"PAPADA DE PUERCO (200 g)\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 600,
+    "completion_tokens": 120,
+    "total_tokens": 720,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

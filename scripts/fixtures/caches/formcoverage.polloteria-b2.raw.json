@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7aIC1fiKyl9Cgz6Vz6qck36fMLn",
+  "object": "chat.completion",
+  "created": 1787511110,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"Boneless de Coliflor / Vegetarianas (300gr)\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"Pollo a la Naranja (300gr)\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"Agridulce Oriental\",\"dish_form\":\"other\"},{\"name\":\"BBQ\",\"dish_form\":\"other\"},{\"name\":\"BBQ Chipotle\",\"dish_form\":\"other\"},{\"name\":\"Kukla\",\"dish_form\":\"other\"},{\"name\":\"Leve\",\"dish_form\":\"other\"},{\"name\":\"Spicy Garlic\",\"dish_form\":\"other\"},{\"name\":\"Buffalo\",\"dish_form\":\"other\"},{\"name\":\"Mango-Habanero\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 680,
+    "completion_tokens": 142,
+    "total_tokens": 822,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

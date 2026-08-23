@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7aKs7pCOBDo4KEEjeXyUEHLRdEF",
+  "object": "chat.completion",
+  "created": 1787511112,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"Hot\",\"dish_form\":\"other\"},{\"name\":\"Bomba\",\"dish_form\":\"other\"},{\"name\":\"BUFFALO CHEESE (4oz)\",\"dish_form\":\"other\"},{\"name\":\"Boneless Barbecue (300gr)\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"Boneless Buffalo (300gr)\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"Clásico (300gr)\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"Fresh (300gr)\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"Dallas (350gr)\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"Cheesey Bacon (300gr)\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"Nashville (300gr)\",\"dish_form\":\"breaded_chicken_order\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 945,
+    "completion_tokens": 172,
+    "total_tokens": 1117,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

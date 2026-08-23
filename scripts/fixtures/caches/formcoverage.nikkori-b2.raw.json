@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7Zk1ayFIxvfAFsFcXT53mPtZHav",
+  "object": "chat.completion",
+  "created": 1787511076,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"Manguilo\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Rico Roll\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Unagui Masago\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Amazonas Top\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"California\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Orange Roll\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Kurimu Roll\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Salmón Crunch\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Cosmo Roll\",\"dish_form\":\"sushi_roll_order\"},{\"name\":\"Cosmo de Pollo\",\"dish_form\":\"sushi_roll_order\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 874,
+    "completion_tokens": 147,
+    "total_tokens": 1021,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

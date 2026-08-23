@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7ZVwqusgqkmTdjGwPKU83maEnqd",
+  "object": "chat.completion",
+  "created": 1787511061,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"CHICHARRÓN A LA CAZUELA\",\"dish_form\":\"tortilla_order\"},{\"name\":\"HAMBURGUESA BRASERO\",\"dish_form\":\"other\"},{\"name\":\"CHURRASQUERÍA\",\"dish_form\":\"taco_single\"},{\"name\":\"BRASERO\",\"dish_form\":\"salad_entree\"},{\"name\":\"FEIJOADA\",\"dish_form\":\"tortilla_order\"},{\"name\":\"SOPA DE TORTILLA\",\"dish_form\":\"other\"},{\"name\":\"TACO DE LEITE\",\"dish_form\":\"taco_single_loaded\"},{\"name\":\"TACO FRANGO\",\"dish_form\":\"taco_single_loaded\"},{\"name\":\"TACO LOIRO (sirloin)\",\"dish_form\":\"taco_single_loaded\"},{\"name\":\"TACO SAMBA\",\"dish_form\":\"taco_single_loaded\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1050,
+    "completion_tokens": 165,
+    "total_tokens": 1215,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

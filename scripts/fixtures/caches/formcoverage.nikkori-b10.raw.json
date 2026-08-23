@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7ZtMPXQbTBAMgnU6SnkMXaY5QJu",
+  "object": "chat.completion",
+  "created": 1787511085,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"Tamarindo 12 oz\",\"dish_form\":\"other\"},{\"name\":\"Mentá 12 oz\",\"dish_form\":\"other\"},{\"name\":\"Mango 12 oz\",\"dish_form\":\"other\"},{\"name\":\"Fresa 12 oz\",\"dish_form\":\"other\"},{\"name\":\"Té lipton\",\"dish_form\":\"other\"},{\"name\":\"Manzanilla\",\"dish_form\":\"other\"},{\"name\":\"Té verde\",\"dish_form\":\"other\"},{\"name\":\"Jarra de té\",\"dish_form\":\"other\"},{\"name\":\"Nikkori November\",\"dish_form\":\"other\"},{\"name\":\"Bora Bora\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 657,
+    "completion_tokens": 127,
+    "total_tokens": 784,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

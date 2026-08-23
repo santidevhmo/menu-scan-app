@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7a5wS88fUW51Lxevs6nwUZENPMJ",
+  "object": "chat.completion",
+  "created": 1787511097,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"COASTAL OYSTERS (6) DF, GF\",\"dish_form\":\"other\"},{\"name\":\"SHRIMP COCKTAIL DF, GF\",\"dish_form\":\"other\"},{\"name\":\"HAMACHI CRUDO* DF, GF\",\"dish_form\":\"other\"},{\"name\":\"CAVIAR SERVICE & TOASTED BRIOCHE\",\"dish_form\":\"open_toast\"},{\"name\":\"HALF MAINE LOBSTER TAIL\",\"dish_form\":\"other\"},{\"name\":\"TAYLOR BAY SCALLOP CEVICHE\",\"dish_form\":\"other\"},{\"name\":\"STEAK TARTARE\",\"dish_form\":\"open_toast\"},{\"name\":\"CHICKEN TENDERS\",\"dish_form\":\"breaded_chicken_order\"},{\"name\":\"CRAB CAKE\",\"dish_form\":\"other\"},{\"name\":\"CHARRED MOROCCAN BEET v\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 733,
+    "completion_tokens": 179,
+    "total_tokens": 912,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

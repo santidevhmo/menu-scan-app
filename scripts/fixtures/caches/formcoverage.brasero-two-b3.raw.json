@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7ZZNl26H5KsRgeapvGMv1Kjlvf3",
+  "object": "chat.completion",
+  "created": 1787511065,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"SIRLOIN (60gr)\",\"dish_form\":\"other\"},{\"name\":\"PICAÑA (60gr)\",\"dish_form\":\"other\"},{\"name\":\"CHICHARRÓN (80gr)\",\"dish_form\":\"other\"},{\"name\":\"PECHUGA AL LIMÓN RELLENA DE QUESO ENVUELTA EN TOCINO (60gr)\",\"dish_form\":\"other\"},{\"name\":\"FILETE DE ATÚN SELLADO CON RUB ROJO A LA PARRILLA (60gr)\",\"dish_form\":\"other\"},{\"name\":\"PAPAS CAMBRAY\",\"dish_form\":\"other\"},{\"name\":\"CHILE RELLENO\",\"dish_form\":\"stuffed_pepper\"},{\"name\":\"CEBOLLAS CAMBRAY\",\"dish_form\":\"other\"},{\"name\":\"ORDEN DE TORTILLAS\",\"dish_form\":\"tortilla_order\"},{\"name\":\"BROWNIE\",\"dish_form\":\"dessert_plate_with_ice_cream\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 660,
+    "completion_tokens": 194,
+    "total_tokens": 854,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

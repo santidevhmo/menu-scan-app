@@ -14,66 +14,9 @@ const DRAWS = 3;
 // deno-lint-ignore no-explicit-any
 type Item = any;
 
-/**
- * Grams for one restaurant serving of each FORM. Global food-reference values,
- * not menu-specific: every row is a shape of food that exists worldwide, and the
- * justification is the serving it describes, never a dish on these five menus.
- *
- * ☠️ CONTAMINATION. The author had read all 57 oracle mass bands before writing
- * this. Two rows are flagged inline as NOT independent. sim-form-table.ts prints
- * every target against the ruled band midpoint so each row can be audited, and
- * prints the pizza-dropped total, which is the honest headline.
- *
- * `other` is the mandatory fallback - a taxonomy this small cannot cover an
- * arbitrary menu, and silently mis-sizing an unknown form is worse than leaving
- * it alone. Callers are expected to treat it as "no opinion", not as 250 g.
- */
-export const FORM_G: Record<string, number> = {
-  // ☠️ NOT INDEPENDENT: 425 is the midpoint of the 400-450 band this phase ruled.
-  // The food reasoning is real (a 28-33 cm thin crust is a 250-280 g dough ball
-  // baking down to ~200 g, plus 150-200 g of topping) but it cannot be claimed as
-  // a blind prediction.
-  pizza_whole_thin: 425,
-  // FNDDS: 1 cup cooked spaghetti = 140 g. A restaurant entree is ~2 cups plus
-  // roughly 120 g of sauce.
-  pasta_entree: 400,
-  // ~100 g of greens plus cheese, fruit, nuts and dressing.
-  salad_entree: 320,
-  salad_side: 150,
-  // Maki: 8-10 pieces at ~30 g each.
-  sushi_roll_order: 280,
-  // One soft taco: ~30 g tortilla plus ~60 g of filling.
-  taco_single: 95,
-  // ☠️ PARTLY NOT INDEPENDENT: the split exists because the author had seen that
-  // one taco here is heavier. The RULE applied is stated in advance and reads only
-  // the description: a taco counts as loaded if it names a structural addition
-  // beyond the tortilla (a cheese crust, a lettuce base) or four-plus fillings.
-  taco_single_loaded: 130,
-  // Two eggs (~100 g) plus ~90 g of filling.
-  omelette_2egg: 200,
-  // One thick slice or tostada base under a protein topping.
-  open_toast: 175,
-  // Two cafe biscuits at ~45 g.
-  biscuit_order_of_two: 90,
-  biscuit_order_of_two_fruit: 120,
-  // FNDDS medium fries = 117 g; a shareable starter runs larger.
-  fries_starter: 180,
-  // Three to four breaded strips or boneless pieces.
-  breaded_chicken_order: 200,
-  // Eight croquettes at ~28 g.
-  croquette_order: 220,
-  // Two flour tortillas plus cheese and a filling.
-  quesadilla_two_tortilla: 220,
-  stuffed_pepper: 160,
-  // Four to six corn tortillas at ~28 g.
-  tortilla_order: 140,
-  // Cake/brownie/crepe ~90 g, one scoop of ice cream ~65 g, fruit or sauce.
-  dessert_plate_with_ice_cream: 190,
-  // Two fried eggs on a masa base with beans.
-  eggs_on_masa_base: 300,
-  // Fallback - see the note above.
-  other: 250,
-};
+// The gram table lives in arm-dish-form.ts because an ARM needs it and must
+// not import this file - LABEL below is the hand-assigned answer key.
+export { FORM_G } from "./arm-dish-form.ts";
 
 /**
  * Hand labels, assigned from name + section_title + description ONLY - the three

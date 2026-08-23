@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7ZpruEvjJJpf9k0ytorEGCOMJMm",
+  "object": "chat.completion",
+  "created": 1787511081,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"Fresa\",\"dish_form\":\"other\"},{\"name\":\"Coco\",\"dish_form\":\"other\"},{\"name\":\"Mango con chamoy\",\"dish_form\":\"other\"},{\"name\":\"Mango\",\"dish_form\":\"other\"},{\"name\":\"Tamarindo\",\"dish_form\":\"other\"},{\"name\":\"Coco\",\"dish_form\":\"other\"},{\"name\":\"Limón\",\"dish_form\":\"other\"},{\"name\":\"Fresa\",\"dish_form\":\"other\"},{\"name\":\"Frutos Rojos\",\"dish_form\":\"other\"},{\"name\":\"Psycho\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 626,
+    "completion_tokens": 113,
+    "total_tokens": 739,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

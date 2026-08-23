@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7a2Hm4EG4Bt9TIXaekzlbraeEj9",
+  "object": "chat.completion",
+  "created": 1787511094,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"Cesar\",\"dish_form\":\"salad_entree\"},{\"name\":\"Margherita\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"Prosciuto.\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"Giardino\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"CasaNostra\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"Genova\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"Aglio\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"Ozione\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"Figo\",\"dish_form\":\"pizza_whole_thin\"},{\"name\":\"Salmone padella\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 811,
+    "completion_tokens": 147,
+    "total_tokens": 958,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

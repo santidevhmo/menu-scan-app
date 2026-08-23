@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7aCTmDL0ZAmLl16ueznWQpV4868",
+  "object": "chat.completion",
+  "created": 1787511104,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"TACOS DE CAMARÓN AL CHIPOTLE\",\"dish_form\":\"taco_single_loaded\"},{\"name\":\"TACOS DE FILETE DE PUERCO\",\"dish_form\":\"taco_single_loaded\"},{\"name\":\"TACOS SONORENSES\",\"dish_form\":\"taco_single_loaded\"},{\"name\":\"TACOS LECHUGA DE FILETE DE PUERCO\",\"dish_form\":\"taco_single_loaded\"},{\"name\":\"TACOS DE COLA\",\"dish_form\":\"taco_single_loaded\"},{\"name\":\"TACOS DE MARLIN CON PULPO\",\"dish_form\":\"taco_single_loaded\"},{\"name\":\"TOSTADAS PUESTAS DE ATÚN\",\"dish_form\":\"other\"},{\"name\":\"TOSTADAS DE ATÚN\",\"dish_form\":\"other\"},{\"name\":\"TOSTADAS DE MARISCOS\",\"dish_form\":\"other\"},{\"name\":\"TOSTADAS DE ATÚN AL AJONJOLÍ\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1055,
+    "completion_tokens": 198,
+    "total_tokens": 1253,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

@@ -1,0 +1,36 @@
+{
+  "id": "chatcmpl-EG7Zh6pM0xhKUVXV8Ac9FZAB3OvRV",
+  "object": "chat.completion",
+  "created": 1787511073,
+  "model": "gpt-4o-2024-08-06",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"items\":[{\"name\":\"PLATO SURTIDO (350gr.) Con queso cottage o yogurth (50gr.)\",\"dish_form\":\"other\"},{\"name\":\"YOGURTH CON FRUTA PICADA SURTIDA, GRANOLA Y MIEL\",\"dish_form\":\"other\"},{\"name\":\"JUGO (300ml.)\",\"dish_form\":\"other\"},{\"name\":\"JUGO VERDE (300ml.)\",\"dish_form\":\"other\"},{\"name\":\"Hot cakes o huevo revuelto con su elección de jamón o tocino, Leche con chocolate o jugo de naranja\",\"dish_form\":\"other\"}]}",
+        "refusal": null,
+        "annotations": []
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 710,
+    "completion_tokens": 124,
+    "total_tokens": 834,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "audio_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "audio_tokens": 0,
+      "accepted_prediction_tokens": 0,
+      "rejected_prediction_tokens": 0
+    }
+  },
+  "service_tier": "default",
+  "system_fingerprint": "fp_6c111c0105"
+}

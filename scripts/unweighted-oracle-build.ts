@@ -561,6 +561,65 @@ const DRAFTS: Draft[] = [
       "protein/piece. Approved 2026-08-22.",
     retrieved_at: "2026-08-22",
   },
+  // --- Round 2, Task 4: the 3 pizza exceptions - each leaves the topping-class rule
+  // for its own reason, ruled individually (Santiago 2026-08-22). ---
+  {
+    name: "FLAMENKUCHEN",
+    menu: "bistro",
+    mass_band_g: [400, 450],
+    // FDC 2708682 "White pizza, cheese, with meat and vegetables, thin crust" - a CREAM
+    // base, not tomato, so the standard 5-class topping rule does not apply. Bacon = meat,
+    // caramelized onion = vegetable, matching this record's own class exactly.
+    composition: { protein_per_100g: 12.07, carb_per_100g: 21.06, fat_per_100g: 15.31 },
+    assumed:
+      '"Base de crema, tocino y cebolla caramelizada." CREAM BASE, not tomato - leaves the ' +
+      "standard topping-class rule (Task 2/3) for that reason, same 400-450 g mass band carried " +
+      "from CAPRICCIOSA (still a 28 cm Bistro pizza; nothing on the menu suggests a different " +
+      "size). Composition is FDC 2708682, the FNDDS white-pizza record for exactly this " +
+      "combination (meat + vegetable on a cream base). Approved 2026-08-22.",
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "QUESO AZUL",
+    menu: "bistro",
+    mass_band_g: [400, 450],
+    // Same FDC 2708682 as FLAMENKUCHEN - cream base, blue cheese, serrano ham (meat),
+    // spinach (vegetable). Green apple is a named addition with no dedicated FNDDS
+    // fruit-on-pizza record at this venue/crust; treated like HAWAIANA's pineapple -
+    // not separately weighed.
+    composition: { protein_per_100g: 12.07, carb_per_100g: 21.06, fat_per_100g: 15.31 },
+    assumed:
+      '"Base de crema, queso azul, espinaca, jamón serrano y laminas de manzana verde." CREAM ' +
+      "BASE, not tomato, plus a fruit component - leaves the standard topping-class rule for " +
+      "that reason. Same 400-450 g mass band carried from CAPRICCIOSA. Composition is FDC " +
+      "2708682 (white pizza, meat+vegetable), same record as FLAMENKUCHEN since both are " +
+      "cream-base + meat + vegetable; the apple slices are a named addition whose macro " +
+      "contribution at this scale is not separately weighed, the same treatment HAWAIANA's " +
+      "pineapple got in the MEAT class. Approved 2026-08-22.",
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "OSTRICA",
+    menu: "bistro",
+    mass_band_g: [400, 450],
+    // 85% FDC 2708650 (plain MEAT class, base+crust+bacon) blended with 15% FDC 2706355
+    // "Oysters, canned" (the standard proxy for "ostión ahumado" - canned smoked oyster
+    // is a common Mexican product). No FNDDS pizza-with-seafood record exists at any
+    // venue/crust. Dijon mustard (FDC 172234) is a drizzle-scale condiment, not separately
+    // weighed. Blend: 0.85*(11.5,30.6,12.4) + 0.15*(7.67,4.25,2.68).
+    composition: { protein_per_100g: 10.93, carb_per_100g: 26.65, fat_per_100g: 10.94 },
+    assumed:
+      '"Ostión ahumado, tocino y mostaza dijón." No cream/tomato base is stated, no vegetable, ' +
+      "no cheese named - and no FNDDS pizza-with-seafood record exists at any venue/crust, " +
+      "confirmed by search. Composition is an 85:15 blend of FDC 2708650 (plain MEAT class, " +
+      "representing crust+base+bacon, the dominant conventional pizza ingredient here) with FDC " +
+      "2706355 'Oysters, canned' - the same blend-a-base-with-an-addition technique already used " +
+      "for Salmón Roll (FDC 2708963 blended 85:15 with cream cheese). Mustard is a thin condiment " +
+      "at drizzle quantities, folded in as a rounding-level addition, not separately weighed - " +
+      "same treatment as the rolls' sauce garnishes. Mass band 400-450 g carried from " +
+      "CAPRICCIOSA; nothing on the menu suggests a different size. Approved 2026-08-22.",
+    retrieved_at: "2026-08-22",
+  },
 ];
 
 /**

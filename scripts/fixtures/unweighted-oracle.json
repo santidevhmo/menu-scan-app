@@ -1138,5 +1138,95 @@
     "assumed": "\"Por dentro: Tampico. Por fuera: Atún picado con salsa spicy y masago.\" Rice+nori base per the roll class ruling (2026-08-22). The menu names no protein in the filling - only a sauce - so the filling is rice+nori+sauce alone; inventing a hidden protein inside \"Tampico\" would violate the assumed-ingredient rule. At 11 pieces, 22.4 g/piece, 1.82 g protein/piece. Approved 2026-08-22.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "FLAMENKUCHEN",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      400,
+      450
+    ],
+    "band": {
+      "calories": [
+        919,
+        1379
+      ],
+      "protein_g": [
+        41,
+        62
+      ],
+      "carb_g": [
+        72,
+        107
+      ],
+      "fat_g": [
+        52,
+        78
+      ]
+    },
+    "assumed": "\"Base de crema, tocino y cebolla caramelizada.\" CREAM BASE, not tomato - leaves the standard topping-class rule (Task 2/3) for that reason, same 400-450 g mass band carried from CAPRICCIOSA (still a 28 cm Bistro pizza; nothing on the menu suggests a different size). Composition is FDC 2708682, the FNDDS white-pizza record for exactly this combination (meat + vegetable on a cream base). Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "QUESO AZUL",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      400,
+      450
+    ],
+    "band": {
+      "calories": [
+        919,
+        1379
+      ],
+      "protein_g": [
+        41,
+        62
+      ],
+      "carb_g": [
+        72,
+        107
+      ],
+      "fat_g": [
+        52,
+        78
+      ]
+    },
+    "assumed": "\"Base de crema, queso azul, espinaca, jamón serrano y laminas de manzana verde.\" CREAM BASE, not tomato, plus a fruit component - leaves the standard topping-class rule for that reason. Same 400-450 g mass band carried from CAPRICCIOSA. Composition is FDC 2708682 (white pizza, meat+vegetable), same record as FLAMENKUCHEN since both are cream-base + meat + vegetable; the apple slices are a named addition whose macro contribution at this scale is not separately weighed, the same treatment HAWAIANA's pineapple got in the MEAT class. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "OSTRICA",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      400,
+      450
+    ],
+    "band": {
+      "calories": [
+        846,
+        1269
+      ],
+      "protein_g": [
+        37,
+        56
+      ],
+      "carb_g": [
+        91,
+        136
+      ],
+      "fat_g": [
+        37,
+        56
+      ]
+    },
+    "assumed": "\"Ostión ahumado, tocino y mostaza dijón.\" No cream/tomato base is stated, no vegetable, no cheese named - and no FNDDS pizza-with-seafood record exists at any venue/crust, confirmed by search. Composition is an 85:15 blend of FDC 2708650 (plain MEAT class, representing crust+base+bacon, the dominant conventional pizza ingredient here) with FDC 2706355 'Oysters, canned' - the same blend-a-base-with-an-addition technique already used for Salmón Roll (FDC 2708963 blended 85:15 with cream cheese). Mustard is a thin condiment at drizzle quantities, folded in as a rounding-level addition, not separately weighed - same treatment as the rolls' sauce garnishes. Mass band 400-450 g carried from CAPRICCIOSA; nothing on the menu suggests a different size. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
   }
 ]

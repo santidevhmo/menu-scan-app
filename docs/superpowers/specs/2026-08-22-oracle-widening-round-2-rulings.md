@@ -24,9 +24,9 @@ broken.**
 | 8 | MEXICANA | bistro | pizza-group | ✅ |
 | 9 | PEPPERONI | bistro | pizza-group | ✅ |
 | 10 | VEGETARIANA | bistro | pizza-group | ✅ |
-| 11 | FLAMENKUCHEN | bistro | pizza-exception | ☐ |
-| 12 | OSTRICA | bistro | pizza-exception | ☐ |
-| 13 | QUESO AZUL | bistro | pizza-exception | ☐ |
+| 11 | FLAMENKUCHEN | bistro | pizza-exception | ✅ |
+| 12 | OSTRICA | bistro | pizza-exception | ✅ |
+| 13 | QUESO AZUL | bistro | pizza-exception | ✅ |
 | 14 | Avocado | nikkori | roll-group | ✅ |
 | 15 | Duplex | nikkori | roll-group | ✅ |
 | 16 | Fildeflex | nikkori | roll-group | ✅ |
@@ -217,6 +217,22 @@ Nikkori Maki's own already-approved composition, divided by its own piece count,
 consistent with what the reference photo shows. **The whole-dish totals in the table above are the
 originally-proposed figures, unchanged** — the per-piece view was a unit-of-measure clarification,
 not a composition revision.
+
+---
+
+## Task 4 — the three pizza exceptions, ruled and written
+
+Approved 2026-08-22, all three written as `Draft`s. `wrote 41 dishes … (38 before, 29 drafts
+applied)`, guard rail confirms `over 41 of 41 ruled dishes`.
+
+| dish | why it leaves the class | composition |
+|---|---|---|
+| FLAMENKUCHEN | cream base, not tomato | FDC 2708682 "White pizza, cheese, with meat and vegetables, thin crust" (P12.07/C21.06/F15.31) |
+| QUESO AZUL | cream base + a fruit component | same FDC 2708682; apple slices unweighed (same treatment as HAWAIANA's pineapple) |
+| OSTRICA | smoked oyster + dijon — no FNDDS pizza-with-seafood record exists at any venue/crust | 85% FDC 2708650 (plain MEAT class) blended with 15% FDC 2706355 "Oysters, canned" (P10.93/C26.65/F10.94), same blend technique as Salmón Roll |
+
+All three keep the [400,450]g mass band carried from CAPRICCIOSA — nothing on the menu suggests a
+different size for any of the three.
 
 ---
 

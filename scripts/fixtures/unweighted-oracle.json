@@ -1228,5 +1228,155 @@
     "assumed": "\"Ostión ahumado, tocino y mostaza dijón.\" No cream/tomato base is stated, no vegetable, no cheese named - and no FNDDS pizza-with-seafood record exists at any venue/crust, confirmed by search. Composition is an 85:15 blend of FDC 2708650 (plain MEAT class, representing crust+base+bacon, the dominant conventional pizza ingredient here) with FDC 2706355 'Oysters, canned' - the same blend-a-base-with-an-addition technique already used for Salmón Roll (FDC 2708963 blended 85:15 with cream cheese). Mustard is a thin condiment at drizzle quantities, folded in as a rounding-level addition, not separately weighed - same treatment as the rolls' sauce garnishes. Mass band 400-450 g carried from CAPRICCIOSA; nothing on the menu suggests a different size. Approved 2026-08-22.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "FRADIAVIOLA",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      340,
+      460
+    ],
+    "band": {
+      "calories": [
+        420,
+        630
+      ],
+      "protein_g": [
+        17,
+        25
+      ],
+      "carb_g": [
+        63,
+        95
+      ],
+      "fat_g": [
+        11,
+        17
+      ]
+    },
+    "assumed": "\"Crema de tomate con un toque de chile de árbol, espinacas y queso feta.\" Pasta base and decomposed-ingredient method carried from CARBONARA/PASTA ESPECIAL/FETUCCINI ALFREDO, all already ruled on this menu. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "LINGUINNI PARISIENNE",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      380,
+      510
+    ],
+    "band": {
+      "calories": [
+        460,
+        690
+      ],
+      "protein_g": [
+        19,
+        28
+      ],
+      "carb_g": [
+        66,
+        98
+      ],
+      "fat_g": [
+        14,
+        20
+      ]
+    },
+    "assumed": "\"Pimientos, campiñones, jamón en salsa cremosa a base de quesos.\" Pasta base and decomposed-ingredient method carried from CARBONARA/PASTA ESPECIAL/FETUCCINI ALFREDO, all already ruled on this menu. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "MEDITERRÁNEA",
+    "menu": "andaluz",
+    "unweighted": true,
+    "mass_band_g": [
+      340,
+      460
+    ],
+    "band": {
+      "calories": [
+        326,
+        489
+      ],
+      "protein_g": [
+        11,
+        16
+      ],
+      "carb_g": [
+        21,
+        31
+      ],
+      "fat_g": [
+        22,
+        33
+      ]
+    },
+    "assumed": "\"Lechuga, pepino, elote, queso panela, aceitunas, tomate cherry, aguacate, champis, espárragos, almendras, aderezada con aceite oliva y balsámico.\" Full description, all ingredients named directly - the lettuce base is stated in the dish's own text (unlike the bistro salads, which the plan pointed to for the lettuce-base convention but which were not needed here since MEDITERRÁNEA names its own base). Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "QUESABONELESS",
+    "menu": "andaluz",
+    "unweighted": true,
+    "mass_band_g": [
+      180,
+      240
+    ],
+    "band": {
+      "calories": [
+        479,
+        719
+      ],
+      "protein_g": [
+        29,
+        44
+      ],
+      "carb_g": [
+        38,
+        57
+      ],
+      "fat_g": [
+        24,
+        35
+      ]
+    },
+    "assumed": "\"Dos tortillas de harina, manchego, boneless con salsa al gusto.\" \"Dos\" pins the tortilla count. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "CROQUETAS DE ABUELA (8 pints.)",
+    "menu": "andaluz",
+    "unweighted": true,
+    "mass_band_g": [
+      190,
+      260
+    ],
+    "band": {
+      "calories": [
+        445,
+        667
+      ],
+      "protein_g": [
+        35,
+        52
+      ],
+      "carb_g": [
+        4,
+        6
+      ],
+      "fat_g": [
+        32,
+        48
+      ]
+    },
+    "assumed": "\"Empanizadas y rellenas de jamón serrano, pollo y queso, en crema bechamel.\" \"(8 pints.)\" pins the piece count; the per-piece mass is Santiago's ruling, not FDC's own published portion for this record. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
   }
 ]

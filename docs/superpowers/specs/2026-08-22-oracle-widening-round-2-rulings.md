@@ -35,13 +35,13 @@ broken.**
 | 19 | Spicy Tuna Roll | nikkori | roll-group | ✅ |
 | 20 | Tuna Especial | nikkori | roll-group | ✅ |
 | 21 | CHAMPIÑONES AL AJILLO | andaluz | one-off (name-only) | ☠️ retired |
-| 22 | CROQUETAS DE ABUELA (8 pints.) | andaluz | one-off | ☐ |
-| 23 | MEDITERRÁNEA | andaluz | one-off | ☐ |
+| 22 | CROQUETAS DE ABUELA (8 pints.) | andaluz | one-off | ✅ |
+| 23 | MEDITERRÁNEA | andaluz | one-off | ✅ |
 | 24 | PAPAS BRAVAS | andaluz | one-off (name-only) | ☠️ retired |
 | 25 | PARRILLADA VERDURAS | andaluz | one-off (name-only) | ☠️ retired |
-| 26 | QUESABONELESS | andaluz | one-off | ☐ |
-| 27 | FRADIAVIOLA | bistro | one-off | ☐ |
-| 28 | LINGUINNI PARISIENNE | bistro | one-off | ☐ |
+| 26 | QUESABONELESS | andaluz | one-off | ✅ |
+| 27 | FRADIAVIOLA | bistro | one-off | ✅ |
+| 28 | LINGUINNI PARISIENNE | bistro | one-off | ✅ |
 | 29 | CEBOLLAS CAMBRAY | brasero-two | one-off (name-only) | ☠️ retired |
 | 30 | CHILE RELLENO | brasero-two | one-off (name-only) | ☐ |
 | 31 | ORDEN DE TORTILLAS | brasero-two | one-off (name-only) | ☐ |
@@ -273,3 +273,53 @@ Ruled in Task 7.
 
 **Final dish count impact:** 8 of 44 retired. Round-2 ceiling drops from 65 to **57** dishes if
 every other pending ruling lands (44 - 8 = 36 new + 21 existing).
+
+---
+
+## Task 6 — bistro pastas and andaluz one-offs, ruled and written
+
+Approved 2026-08-22 (all 5, one round of clarification on CROQUETAS DE ABUELA's piece size —
+see below). `wrote 46 dishes … (41 before, 34 drafts applied)`, guard rail confirms
+`over 46 of 46 ruled dishes`.
+
+⚠️ **Naming trap, caught by the guard rail exactly as designed:** `docs/superpowers/specs/
+2026-08-22-oracle-widening-round-2-design.md`'s §4 dish list transcribes 4 of these 5 names
+DIFFERENTLY from what the pipeline actually extracts and what the scoring archive
+(`scripts/fixtures/caches/unweighted.dual-f.<menu>-dN.raw.json`) actually contains:
+
+| design spec's §4 name | what the SCORING ARCHIVE actually contains | which one is correct |
+|---|---|---|
+| FRADIAVIOLA | FRADIAVIOLA | ✅ matches (spec was right here) |
+| Mediterránea *(implied Title Case by convention)* | MEDITERRÁNEA (all-caps) | archive wins |
+| Quesaboneless *(implied Title Case)* | QUESABONELESS (all-caps) | archive wins |
+| Croquetas de Abuela (8 pints.) *(implied Title Case, "(8 pints.)" as a label)* | CROQUETAS DE ABUELA (8 pints.) — all-caps, AND "(8 pints.)" IS part of the literal extracted name | archive wins |
+
+**The trap:** `scripts/fixtures/drafts/*.draft.json` is NOT the ground truth the scoring harness
+replays against — it briefly misled this session into "fixing" FRADIAVIOLA to FRADIAVOLA (a
+regression) based on that file. The only authoritative source for a dish's exact name is
+**`scripts/fixtures/caches/unweighted.<arm>-f.<menu>-dN.raw.json`** — the actual cached model
+output the harness scores against. Confirmed by re-running the guard rail: the wrong names
+produced `over 42 of 46 ruled dishes` with a `PARTIAL SCORE` warning naming all 4 dishes as
+unscored; reverting to the archive's own names fixed it to `over 46 of 46`.
+
+**Recovery note:** regenerating twice with different names for the same dishes leaves BOTH
+versions in the JSON (merge-by-name treats "FRADIAVOLA" and "FRADIAVIOLA" as different dishes,
+correctly preserving both since neither shadows the other). Fixed by `git checkout --` on the
+oracle JSON back to the last clean commit, then a single clean regenerate. No corrupted state
+was committed.
+
+### Final compositions
+
+| dish | mass band | total mass | P/C/F (total) |
+|---|---|---|---|
+| FRADIAVIOLA | [340,460] | 398g | 20.8 / 78.6 / 13.9 |
+| LINGUINNI PARISIENNE | [380,510] | 445g | 23.7 / 82.1 / 16.9 |
+| MEDITERRÁNEA | [340,460] | 400g | 13.7 / 26.2 / 27.5 |
+| QUESABONELESS | [180,240] | 210g | 36.4 / 47.2 / 29.5 |
+| CROQUETAS DE ABUELA (8 pints.) | [190,260] | 224g | 43.4 / 4.7 / 40.1 |
+
+**CROQUETAS DE ABUELA's piece size** needed Santiago's ruling: FDC's own published portion for
+the closest composite record (FDC 2706508 "Ham croquette") is "1 croquette = 62g" — sized for an
+American diner-style croquette. Santiago ruled a smaller Spanish-tapa size instead (~28g/piece
+× 8 pieces = 224g), since "de Abuela" implies the smaller regional style, not FDC's own default
+portion.

@@ -620,6 +620,96 @@ const DRAFTS: Draft[] = [
       "CAPRICCIOSA; nothing on the menu suggests a different size. Approved 2026-08-22.",
     retrieved_at: "2026-08-22",
   },
+  // --- Round 2, Task 6: the two bistro pastas and three andaluz one-offs. ---
+  {
+    name: "FRADIAVIOLA",
+    menu: "bistro",
+    mass_band_g: [340, 460],
+    // Decomposed, same method as FETUCCINI ALFREDO/PASTA ESPECIAL: 230 g pasta (FDC
+    // 2708357) + 100 g tomato-cream sauce (FDC 2709749 "Vodka sauce with tomatoes and
+    // cream" - the FNDDS match for "crema de tomate") + 3 g dried chile de árbol (FDC
+    // 168570, "un toque" = a touch, flavor-scale only) + 40 g spinach (FDC 2709614) +
+    // 25 g feta (FDC 2705714). Totals 398 g, 20.8 P / 78.6 C / 13.9 F.
+    composition: { protein_per_100g: 5.224, carb_per_100g: 19.744, fat_per_100g: 3.487 },
+    assumed:
+      '"Crema de tomate con un toque de chile de árbol, espinacas y queso feta." Pasta base and ' +
+      "decomposed-ingredient method carried from CARBONARA/PASTA ESPECIAL/FETUCCINI ALFREDO, all " +
+      "already ruled on this menu. Approved 2026-08-22.",
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "LINGUINNI PARISIENNE",
+    menu: "bistro",
+    mass_band_g: [380, 510],
+    // Decomposed, same method as FETUCCINI ALFREDO/PASTA ESPECIAL: 230 g pasta (FDC
+    // 2708357) + 40 g bell pepper (FDC 2709800) + 40 g mushroom (FDC 2709793) + 35 g
+    // deli ham (FDC 2706206) + 100 g cheese sauce (FDC 2705808, the FNDDS match for
+    // "salsa cremosa a base de quesos"). Totals 445 g, 23.7 P / 82.1 C / 16.9 F.
+    composition: { protein_per_100g: 5.321, carb_per_100g: 18.445, fat_per_100g: 3.793 },
+    assumed:
+      '"Pimientos, campiñones, jamón en salsa cremosa a base de quesos." Pasta base and ' +
+      "decomposed-ingredient method carried from CARBONARA/PASTA ESPECIAL/FETUCCINI ALFREDO, all " +
+      "already ruled on this menu. Approved 2026-08-22.",
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "MEDITERRÁNEA",
+    menu: "andaluz",
+    mass_band_g: [340, 460],
+    // 11 named ingredients, decomposed: 100 g lettuce (FDC 2709789) + 30 g cucumber
+    // (FDC 2709784) + 30 g corn (FDC 168540) + 30 g queso fresco (FDC 2705745 - the
+    // closest FNDDS match to "queso panela"; no exact panela record exists) + 15 g
+    // olives (FDC 169095) + 40 g cherry tomato (FDC 2709719) + 30 g avocado (FDC
+    // 2709223) + 30 g mushroom (FDC 2709793) + 30 g asparagus (FDC 168390) + 15 g
+    // almonds (FDC 168596) + 30 g olive-oil/balsamic dressing (FDC 2710203, the same
+    // Italian-dressing record already used for ENSALADA GRIEGA). Totals 400 g, 13.7 P
+    // / 26.2 C / 27.5 F.
+    composition: { protein_per_100g: 3.4275, carb_per_100g: 6.56, fat_per_100g: 6.8825 },
+    assumed:
+      '"Lechuga, pepino, elote, queso panela, aceitunas, tomate cherry, aguacate, champis, ' +
+      'espárragos, almendras, aderezada con aceite oliva y balsámico." Full description, all ' +
+      "ingredients named directly - the lettuce base is stated in the dish's own text (unlike " +
+      "the bistro salads, which the plan pointed to for the lettuce-base convention but which " +
+      "were not needed here since MEDITERRÁNEA names its own base). Approved 2026-08-22.",
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "QUESABONELESS",
+    menu: "andaluz",
+    mass_band_g: [180, 240],
+    // "Dos" = 2 tortillas, a stated count: 80 g flour tortilla (FDC 2707824, 2x40g) +
+    // 40 g queso chihuahua (FDC 2705774 - manchego has NO FDC record at any venue,
+    // confirmed by search; chihuahua is the closest melting-cheese analog already used
+    // elsewhere on this menu) + 90 g breaded fried chicken (FDC 170756, reused from
+    // TIRAS DE POLLO, already ruled on this exact menu). "Salsa al gusto" (sauce to
+    // taste) is explicitly optional/unspecified and not separately weighed, same
+    // treatment as the rolls' negligible garnishes. Totals 210 g, 36.4 P / 47.2 C /
+    // 29.5 F.
+    composition: { protein_per_100g: 17.314, carb_per_100g: 22.452, fat_per_100g: 14.033 },
+    assumed:
+      '"Dos tortillas de harina, manchego, boneless con salsa al gusto." "Dos" pins the tortilla ' +
+      "count. Approved 2026-08-22.",
+    retrieved_at: "2026-08-22",
+  },
+  {
+    name: "CROQUETAS DE ABUELA (8 pints.)",
+    menu: "andaluz",
+    mass_band_g: [190, 260],
+    // "8 pints." (piezas) = 8 pieces, a stated count. FDC 2706508 "Ham croquette" is a
+    // direct FNDDS composite match (breaded, fried, creamy filling) - already models
+    // ham + bechamel structure. Blended 80:20 with FDC 172395 "Chicken, roasting, meat
+    // only, cooked, roasted" to account for the named "pollo". Piece size: Santiago's
+    // ruling 2026-08-22, ~28 g/piece (a small Spanish-tapa croqueta, NOT FDC's own
+    // published "1 croquette = 62 g" portion for this record - that portion reads as an
+    // American diner-style croquette, too large for a dish named "de Abuela" in a
+    // Spanish tapas context). 8 x 28 g = 224 g total, 43.4 P / 4.7 C / 40.1 F.
+    composition: { protein_per_100g: 19.376, carb_per_100g: 2.08, fat_per_100g: 17.918 },
+    assumed:
+      '"Empanizadas y rellenas de jamón serrano, pollo y queso, en crema bechamel." "(8 pints.)" ' +
+      "pins the piece count; the per-piece mass is Santiago's ruling, not FDC's own published " +
+      "portion for this record. Approved 2026-08-22.",
+    retrieved_at: "2026-08-22",
+  },
 ];
 
 /**

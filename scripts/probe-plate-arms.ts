@@ -34,6 +34,7 @@ import {
   ARM_ORDER_NOPUSH,
   ARM_PIECE,
   ARM_ROLE,
+  ARM_SHIPPED_PASS2,
 } from "./arm-order-schemas.ts";
 import { resolvePiecesPerOrder } from "../src/lib/portions.ts";
 
@@ -706,6 +707,83 @@ export const armNoPush = (items: Item[]) =>
 export const armNoBoost = (items: Item[]) =>
   runOrderArm(items, ARM_NOBOOST, false);
 export const armRole = (items: Item[]) => runOrderArm(items, ARM_ROLE, false);
+
+/**
+ * ARM HYBRID(T) — a ROUTER, not a prompt or a schema. Eval 171.
+ *
+ * Every arm before this one pushed mass in ONE direction, and the error runs in
+ * TWO: `model_mass = 0.634 x true_mass + 89 g` over 57 dishes (r 0.84), so small
+ * plates come back too big and large ones too small, crossing at 243 g. That is
+ * why NOBOOST gained +0.97/dish under 250 g and lost 0.21/dish above it, and why
+ * no single-direction lever has ever beaten `dual`.
+ *
+ * The rule: ask with NOBOOST's prompt, then RE-ASK the shipped question for only
+ * the items whose own answer came back at or above T grams. The routing input is
+ * the MODEL's plate total - never the oracle - so this can ship.
+ *
+ * $0 replay of the paired archives put T=300 at 415/684 against the shipped 355,
+ * +60.0, 95% CI +23.5 to +102.5 (the first in this phase excluding zero), 100% of
+ * 10,000 resamples, 417/412 across two runs, and +50 with T chosen
+ * leave-one-menu-out. This paid run exists because that replay assumes an item's
+ * answer is independent of its BATCH, which this phase's #1 finding says is false:
+ * here the re-ask really does form a second, smaller batch.
+ *
+ * ⚠️ Deliberately NOT a code-side rescale of the grams. A fitted global inversion
+ * of the line above measured 223/684 leave-one-menu-out against 352 - the slope
+ * does not transfer between cuisines. This arm changes WHICH ANSWER IS USED, and
+ * never invents a number.
+ */
+export const HYBRID_T = 300;
+
+/**
+ * Which of NOBOOST's answers get the shipped question re-asked. Exported ONLY so
+ * the threshold is testable without buying a run - `armHybrid` is the caller.
+ */
+// deno-lint-ignore no-explicit-any
+export function hybridReaskIndices(answers: any[], t = HYBRID_T): number[] {
+  // deno-lint-ignore no-explicit-any
+  return answers.flatMap((it: any, i: number) =>
+    resolveGrams(it.ingredients ?? [], it.printed_total_g)
+        .reduce((s: number, g: number) => s + g, 0) >= t
+      ? [i]
+      : []
+  );
+}
+
+export async function armHybrid(items: Item[]) {
+  const noBoost = await runOrderArm(items, ARM_NOBOOST, false);
+  // The shipped pass-2 question. PUSH is defined as the tail of
+  // ENRICH_PROMPT_UNWEIGHTED, so ARM_SHIPPED_PASS2.prompt IS that constant - the
+  // arm cannot drift from production by construction.
+  const heavy = hybridReaskIndices(noBoost);
+  if (heavy.length === 0) return noBoost;
+
+  const reasked = await runOrderArm(
+    heavy.map((i: number) => items[i]),
+    ARM_SHIPPED_PASS2,
+    false,
+  );
+  // Positional, then NAME-CHECKED. enrichBatch is told to preserve order and not
+  // to sort, but a silent misalignment here would attribute one dish's macros to
+  // another and read as a model result - so it throws instead of guessing.
+  if (reasked.length !== heavy.length) {
+    throw new Error(
+      `HYBRID re-ask returned ${reasked.length} of ${heavy.length} items`,
+    );
+  }
+  const out = [...noBoost];
+  heavy.forEach((idx: number, k: number) => {
+    if (reasked[k].name !== items[idx].name) {
+      throw new Error(
+        `HYBRID re-ask misaligned: slot ${k} is "${reasked[k].name}", expected "${
+          items[idx].name
+        }"`,
+      );
+    }
+    out[idx] = reasked[k];
+  });
+  return out;
+}
 
 /**
  * ARM MASSCALL — NOBOOST's recipe, rescaled to a total from its OWN call.

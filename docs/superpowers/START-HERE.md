@@ -59,7 +59,8 @@ what a future session re-derives from.
 | **`Arm A`** | Asks the model for the dish's **total grams** (`typical_total_g`, a required schema field), then rescales every ingredient to that total. | **36/108** ☠️ rejected twice |
 | **`ORDER` / `ORDER-nopush` / `PIECE`** | Change what the per-ingredient GRAM FIELD asks for: `typical_serving_g` (a label serving) → grams **in one order as sold**, or grams **per piece x `serving_pieces`**. No total asked, nothing rescaled. | **61 / 65 / 60** ☠️ all rejected, eval 159 — **and they SIZED BETTER than the winner** |
 | **`NOPUSH`** | Deletes pass 2's whole addendum — **both** the restraint half AND the push half. Shipped gram ask, shipped schema. | **57/108** ☠️ rejected, eval 160 — **and it does NOT test what its name says.** Re-measured on the widened 21-dish oracle (eval 167): **145/252**, same rank, still rejected. |
-| **`NOBOOST`** | Deletes **only the push half** of pass 2's addendum; keeps the restraint. Shipped gram ask, shipped schema, shipped key. One clause of diff. | **70–72/108** vs the control's **64–67** on 9 dishes; **149–150/252** vs **131–139** on 21 (eval 167). ☠️ **REJECTED, eval 169 (2026-08-22), on the widened 57-dish oracle.** The small-plate pattern replicated out-of-sample (+0.97/dish <250g, −0.21/dish ≥250g, n=22/35) — the pre-committed deploy rule (positive overall + negative on plates ≥250g → does not ship) fired. Not a general improvement; does not ship. See eval 169 / START-HERE's handoff block for full detail — do not re-open without new evidence. |
+| **`NOBOOST`** | Deletes **only the push half** of pass 2's addendum; keeps the restraint. Shipped gram ask, shipped schema, shipped key. One clause of diff. | **70–72/108** vs the control's **64–67** on 9 dishes; **149–150/252** vs **131–139** on 21 (eval 167). On 57 dishes: **386/684** against `dual`'s 352, +41.5, CI **−1.5 to +87.5**, ahead in 97.1% of resamples. The small-plate pattern replicated out-of-sample (+0.97/dish <250g, −0.21/dish ≥250g, n=22/35). ⚠️ **eval 169 marked this REJECTED via a "pre-committed deploy rule" that was NEVER SANTIAGO'S — that rule is VOID (eval 171), so the rejection is WITHDRAWN and the honest status is UNRESOLVED (the CI includes zero).** It is nevertheless superseded on arithmetic: `HYBRID(300)` reads 415 to its 396. Do not ship it; do not cite it as "rejected" either. |
+| 🟢 **`HYBRID(T)`** | **Not a prompt or schema change — a ROUTER.** Per dish: use `NOBOOST`'s answer when `NOBOOST`'s OWN plate mass is under T g, else keep `dual`. Reads only the model's output, never the oracle, so it can ship. 🟢 **PAID AND CONFIRMED AT THE 4-RUN BAR (eval 173): 394/408/410/419 vs `dual`'s 352/357 — DISJOINT RANGES, worst run +37 over `dual`'s best**, mean 407.8 vs 354.5. Eval 172's single run: +56.0, CI +7.0 to +113.0, excludes zero; +63.0 pizzas-dropped. The $0 replay that predicted it read 415 and +50 with T chosen leave-one-menu-out, so batch composition did NOT eat the gain. **Deploy-eligible on the repo's own rule; deploying is Santiago's call.** evals 171–173 |
 | **`ROLE`** | `NOBOOST` + ONE required enum per ingredient (`body│filling│topping│garnish`) inserted immediately BEFORE the gram field. Schema only — no sentence explains it, nothing reads it. | **58/108** ☠️ rejected, eval 163 — **the enum FIRED (labels varied, body's median gram 3.3× filling's) and lost anyway.** Re-measured on 21 dishes (eval 167): **137/252**, still rejected. |
 | **`MASSCALL`** | `NOBOOST`'s recipe rescaled to a plate total from a SECOND call that sees only name + description. Reuses Arm C's plate prompt verbatim. | **50/108** ☠️ rejected, eval 163 — **the bare mass question is a WORSE mass estimator than the ingredient list.** Re-measured on 21 dishes (eval 167): **118/252**, still last place. |
 
@@ -77,7 +78,61 @@ The benchmark is split because the product is split.
 ### Where we are, in one line
 
 **Production is edge function `analyze-menu` v32, deployed 2026-08-19.** Everything since has been
-measurement and failed experiments. **Nothing has beaten v32.**
+measurement and failed experiments. **Nothing DEPLOYED has beaten v32.**
+
+🟢 **EVAL 173: `HYBRID(300)` HAS CLEARED THE 4-RUN BAR — 394/408/410/419 against `dual`'s 352/357.
+THE RANGES DO NOT OVERLAP; its WORST run is +37 over `dual`'s BEST.** Route each dish to `NOBOOST`'s
+sizing when `NOBOOST`'s OWN plate mass is under 300 g, else re-ask the shipped question. Mean 407.8
+(sd 10.3) vs 354.5, i.e. **+53**. Eval 172's single run also passed the repo's significance script
+(+56.0, 95% CI +7.0 to +113.0, excludes zero; **+63.0 with the 14 pizzas dropped**, so it does not
+ride the correlated cluster) — but **the disjoint ranges are the stronger claim**, since that CI came
+within 7 points of zero. **The first arm this phase that is better than what ships.**
+⚠️ `dual` has only 2 runs; overlapping would need a `dual` run of 395+, i.e. +38 over its own best
+against the 5-point spread its two runs show. Arm is `HYBRID` in `bench-unweighted.ts`; 60 archives
+exist (`--run r2/r3/r4`), so every figure re-derives at $0.
+⚠️ **38 of 57 dishes do not score identically run to run, so a user rescanning one menu can get a
+different answer.** True of `dual` too and unaddressed by every arm so far — its own open problem.
+
+🔴 **BUT READ ③ OF EVAL 172 BEFORE BUILDING ON IT: THE MODEL IS NOT DETERMINISTIC, AND A GRAM
+THRESHOLD IS THE WEAKEST POSSIBLE HINGE.** Two runs of an IDENTICAL arm differ on **45% (`dual`) to
+57% (`NOBOOST`) of dish-draws**, mean mass drift 9–20 g, max 110 g, ingredient COUNT changing on 56
+of 171 — despite `temperature: 0` and `seed: 17` (`enrich.ts:258` calls that "run-to-run stability";
+it is optimistic). 37% of NOBOOST answers sit within 50 g of the 300 g line, so for a third of the menu the routing
+decision is settled by noise — ⚠️ but ~~this makes those dishes the unstable ones~~ is **FALSIFIED by
+eval 173 ②**: near-threshold dishes swing 1.32 pts against 1.54 for the rest, r = −0.147. The churn is
+GENERAL DRIFT, not the hinge. **Do not argue for dish-form work on stability grounds.**
+🟢 **THE BAR IS NOW MET (eval 173): `HYBRID` ran 4 × 3 draws at 394/408/410/419 against `dual`'s
+352/357 — the ranges DO NOT OVERLAP, worst `HYBRID` run +37 over best `dual` run.** It is the first
+arm this phase that is better than what ships. Deploying is Santiago's call, not an automatic rule.
+🪤 **A diff between two paid archives CANNOT distinguish a mechanism from drift** — an after-the-fact
+archive diff made `HYBRID` look badly broken when it was not. Log a router's decision during the run.
+
+⚠️ **There is still NO numeric deployment bar anywhere in this repo** — "good enough to ship" has
+never been written down as a number. 60% is the phase's biggest jump, not a finish line.
+
+☠️ **THE "DEPLOY RULE" THAT KILLED `NOBOOST` WAS NEVER SANTIAGO'S — IT IS VOID (eval 171).** Eval 168
+wrote it, eval 169 applied it "as agreed in advance", eval 170 called it closed; **no block carries
+any attribution**, and asked directly Santiago said *"Don't remember saying that. Ignore it and
+proceed as if it was never there."* 🪤 **A constraint with no named author is not a constraint —
+grep for the user's sentence before letting a rule block work.** Consequences: `NOBOOST` reverts to
+**unresolved** (+41.5, CI −1.5 to +87.5, includes zero), *not* rejected — though `HYBRID`'s 415 beats
+its 396, so it is superseded on arithmetic anyway; and nothing blocks `HYBRID(300)`.
+
+🎯 **THE NEXT LEVER, AND IT IS SANTIAGO'S OWN (2026-08-22): CLASSIFY THE DISH FORM, THEN SIZE IT FROM
+THAT FORM'S AVERAGE.** ☠️ ~~A form is stable where a gram threshold is not~~ — **FALSIFIED, eval
+173 ②: the wobble is general model drift, not the threshold (near-line dishes swing 1.32 pts vs 1.54
+for the rest, r = −0.147). Argue this on the CEILING, never on stability.** $0 evidence over the 57 ruled
+dishes: a form→average table puts mass in band on **40/57 (70%)** — **26/43 (60%)** excluding the
+circular 14-pizza row — against the shipped model's **18/57 (32%)**. And mass is the big prize:
+`sim-mass-ceiling.ts` reads **449/684 clamped into band, 516/684 at band midpoint** vs today's 352,
+so mass alone is worth **+97 to +164**, two to three times `HYBRID`'s measured **+53** (4-run mean). ⚠️ That table was built
+FROM the oracle — it proves form predicts mass, not that the table can be built without the answer
+key (FNDDS is the real source, and real work). ☠️ `taco` scores 1/4, so the form must be finer than
+the word; the 3/11 catch-all makes a fallback mandatory. 🔑 **This is NOT `MASSCALL`/`Arm A` again —
+those asked the model for a GRAM NUMBER (50/108 and 36/108). This asks for a CATEGORY and supplies
+the grams ourselves**, which is the distinction the scoreboard already rewards.
+
+See evals 171–172 for every derivation.
 
 ### 🔑 THE 2026-08-21 FINDINGS THAT CHANGE WHAT TO TRY NEXT (evals 159 + 160)
 
@@ -206,9 +261,12 @@ it. Every arm tried since has scored **worse than what already runs**:
 | **NOBOOST (delete only the addendum's PUSH half)** | **70–72 vs 64–67** on 9 dishes; **149–150 vs 131–139 /252** on 21 (eval 167). Eval 164's *"all of it is TACO PORCO"* is **RETRACTED**. Eval 168: it is a **SMALL-PLATE mechanism** — +0.74/dish under 250 g, −0.15/dish at or above. CI still includes zero |
 | ROLE (an inert role enum before the gram field) | **58 vs NOBOOST's 70–72** — rejected, eval 163 |
 | MASSCALL (plate total from its own separate call) | **50 vs NOBOOST's 70–72** — rejected, eval 163 |
+| global calibration — invert the mass compression with one fitted line (eval 171) | **223/684 leave-one-MENU-out vs 352** ☠️ the slope does not transfer between cuisines |
+| piecewise shrink keyed on the model's own mass (eval 171) | **314–352 LOMO** ☠️ never beats doing nothing |
+| 🟢 **HYBRID(T) — route each dish between `dual` and `NOBOOST` on the model's OWN plate mass** (eval 171) | **415/684 vs 355**, +60.0, CI **+23.5 to +102.5 (excludes zero)**, 100% of resamples, stable across runs, survives dropping the 14 pizzas, LOMO-chosen T still +50. **The first candidate, awaiting a paid confirmation** |
 
-Shipping any of them would make the app **less** accurate. The honest state is: *the shipped thing is
-the best thing we have, and the next idea has not been found yet.*
+Every arm above the HYBRID row would make the app **less** accurate. **HYBRID is the first exception
+since v32** — and it is a replay, not a purchase, so it is a candidate rather than a result.
 
 ### 🎯 Where this sits in the actual product
 
@@ -405,9 +463,14 @@ and log-ratio pointed opposite directions; at 53 dishes (`baseline`'s archive is
 newest dishes) both agree `dual` wins, both resolvably (CI excludes zero on each). Independent
 confirmation of the already-shipped choice, unrelated to the NOBOOST question.
 
-🔴 **DEPLOY RULE FIRED, AS AGREED IN ADVANCE:** NOBOOST is positive overall (①) **and** negative on
+🔴 ~~**DEPLOY RULE FIRED, AS AGREED IN ADVANCE:** NOBOOST is positive overall (①) **and** negative on
 plates ≥250 g (②) → **it does NOT ship.** Confirmed with an out-of-sample replication, not a
-projection — this is not "maybe with more dishes," it is closed.
+projection — this is not "maybe with more dishes," it is closed.~~
+☠️ **STRUCK OUT 2026-08-22 (eval 171): the rule was NEVER SANTIAGO'S.** No block in eval 168 or 169
+attributes it to him, and asked directly he said *"Don't remember saying that. Ignore it and proceed
+as if it was never there."* **`NOBOOST` is therefore UNRESOLVED, not rejected** (+41.5, CI −1.5 to
++87.5). The measurements ① and ② above are sound and stand; only the VERDICT drawn from them is
+withdrawn. 🪤 **A constraint with no named author is not a constraint.**
 
 ⛔ **NEXT ACTION: this line of investigation is closed.** `NOBOOST`, `NOPUSH`, `ROLE` and `MASSCALL`
 are ALL now rejected on re-measurement — do not re-open any of them without new evidence. The
@@ -454,9 +517,34 @@ and delegated it explicitly. Raw (`2706308`) is kept, so no band moved.
 defect — while a reviewer was mid-audit reporting that same defect off a stale `git log`.
 **Re-check `HEAD` before reporting a fault in someone else's work.**
 
-### 🔑 FOUND WHILE RULING, AND IT MAY OUTRANK EVERY ARM: THE MENU PRINTS SIZES WE DISCARD
+### 🔑 FOUND WHILE RULING: THE MENU PRINTS SIZES WE DISCARD. ⚠️ BOTH CASES ARE NOW RESOLVED — eval 171
 
-Two independent cases, both verified 2026-08-22:
+🔍 **CASE 1 — the `28 CM`. ROOT CAUSE FOUND, AND THE FIX IS IN STAGE 1, NOT STAGE 2.** Traced
+boundary by boundary: the Mistral OCR captures it (`# PIZZAS BISTRO\n\n28 CM`), the Mistral
+extraction keeps it (`"section_title": "Pizzas Bistro (28 cm)"`), and the harness/plumbing pass
+whatever they are given (`bench-pipeline.ts:67`, `enrich.ts:337`). **The loss is inside GPT-4o
+extraction:** in `bistro.eval117-r1.raw.json` — the archive every eval reads — all 17 pizza items
+carry `'PIZZAS BISTRO'` and the string `28` appears **nowhere in the response**. The cause is
+`extract.ts:30` doing exactly what it says (*"copy the nearest printed **heading**"*, and
+`extract.ts:37-39` requires a heading to *"group menu items beneath it"*) — `28 CM` groups nothing —
+plus a six-field item schema with **nowhere to put a section-level portion note**.
+⚠️ **This CORRECTS the note below and the eval-170 lead:** `section_title` does reach Stage 2, but
+with the size already stripped, so a Stage-2 ask would buy nothing.
+📉 **AND IT IS WORTH +12, NOT THE PHASE.** Clamping all 14 pizzas to perfect mass reads **352 → 364
+/684**; they are already at 0.93× mean size, are the best-scoring class (65%), and fail on
+COMPOSITION. Denominator: **1 of 9 archived menus and 1 of 58 sections** prints a size on a heading —
+but that menu is 14 of 57 oracle dishes. 🔑 **The benchmark CANNOT see this fix's real value by
+construction — all 14 pizza bands were ruled FROM the 28 cm the pipeline never receives.** Do it for
+GENERALIZATION (a 30 cm and a 45 cm pizza are currently sized identically), not for points.
+🟢 The Mistral path already captures it, so ruling 29's migration may close this for free.
+
+☠️ **CASE 2 — the sibling weight is DISCARDED BY SANTIAGO (2026-08-22), not parked.** *"The goal is
+precise macro enrichment of the plates no matter the siblings. This sibling strategy may worsen
+things rather than improve because not all sibling menu items will be equal or of the same type."*
+A sibling establishes a CATEGORY, not a PORTION — the same principle as the assumed-ingredient rule.
+**Do not re-open.**
+
+The original two cases, verified 2026-08-22, kept for the evidence:
 
 | case | evidence |
 |---|---|

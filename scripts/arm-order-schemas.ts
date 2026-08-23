@@ -343,6 +343,24 @@ export const ARM_ROLE = {
  */
 export const ARM_MASSCALL = ARM_NOBOOST;
 
+/**
+ * The SHIPPED pass-2 question, as an arm object so HYBRID can re-ask it for the
+ * items NOBOOST sized at or above its threshold. `PUSH` is defined above as the
+ * tail of ENRICH_PROMPT_UNWEIGHTED, so this prompt IS that constant - there is no
+ * second copy of the shipped sentence to drift.
+ */
+export const ARM_SHIPPED_PASS2 = {
+  prompt: ENRICH_PROMPT + PUSH,
+  schema: ENRICH_SCHEMA_OPENAI,
+  key: "typical_serving_g",
+};
+if (ARM_SHIPPED_PASS2.prompt !== ENRICH_PROMPT_UNWEIGHTED) {
+  throw new Error(
+    "ARM_SHIPPED_PASS2 is not byte-identical to ENRICH_PROMPT_UNWEIGHTED - " +
+      "HYBRID would re-ask a question production never asks",
+  );
+}
+
 export const ARM_ORDER = { prompt: ORDER_PROMPT, schema: orderSchema(ORDER_KEY), key: ORDER_KEY };
 export const ARM_ORDER_NOPUSH = { prompt: ORDER_NOPUSH_PROMPT, schema: orderSchema(ORDER_KEY), key: ORDER_KEY };
 export const ARM_PIECE = { prompt: PIECE_PROMPT, schema: orderSchema(PIECE_KEY, true), key: PIECE_KEY };

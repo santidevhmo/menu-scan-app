@@ -34,6 +34,7 @@ import {
   armA,
   armAConditional,
   armMassCall,
+  armHybrid,
   armNoBoost,
   armNoPush,
   armOrder,
@@ -225,6 +226,11 @@ const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
   // ARM_MASSCALL. Their control is NOBOOST (70 and 72), not `dual`.
   ROLE: armRole,
   MASSCALL: armMassCall,
+  // eval 171. Not a prompt or schema change - a ROUTER. Asks with NOBOOST's
+  // prompt, then re-asks the SHIPPED question for only the items NOBOOST sized at
+  // or above 300 g, because the size error runs in BOTH directions and every
+  // single-direction arm above is rejected. See armHybrid.
+  HYBRID: armHybrid,
 };
 
 /** Arms whose batches form like dual's pass 2 - see the selection call below. */
@@ -236,6 +242,7 @@ const ORDER_ARMS: Record<string, true> = {
   NOBOOST: true,
   ROLE: true,
   MASSCALL: true,
+  HYBRID: true,
 };
 
 // A mistyped arm name would otherwise run the BASELINE and be written up as that

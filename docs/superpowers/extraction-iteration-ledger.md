@@ -3255,3 +3255,138 @@ at all**. 29 dishes in the whole project have hand-checked macros. The oracle st
 - **⛔ NEXT ACTION: execute the round-2 spec** — rule the 44 (2 class rulings + tables, 27 individual,
   minus whatever the name-only test retires), then run the pre-registered analysis. **No API spend
   and no approval needed; the design is already approved.**
+
+## Eval 169 — 🔴 NOBOOST DOES NOT SHIP. The pre-registered prediction was WRONG — the gap did not shrink, it held (2026-08-22, $0)
+
+Runs the analysis pre-registered in eval 168 against the widened oracle. **No API spend. No paid
+run. Production UNCHANGED: edge fn `analyze-menu` v32.**
+
+### Final dish count: 21 → 57 (not 65, not 52)
+
+44 dishes proposed, **8 retired as unanswerable**, 36 written. Neither of eval 168's two projected
+endpoints (65 if all survive, 52 if all retire) — the answerability test split down the middle of
+those two extremes, as a per-dish judgment call rather than a blanket rule:
+
+| retired (name alone does not pin what+how much) | kept answerable |
+|---|---|
+| CHAMPIÑONES AL AJILLO, PAPAS BRAVAS, PARRILLADA VERDURAS, CEBOLLAS CAMBRAY, PAPAS CAMBRAY, Cazuela de Marlín, Doblada de Camarón y Marlín, Machaca de Marlín c/huevo o verdura | JAMÓN CON CHAMPIÑONES + PEPPERONI (class ruling supplies the portion), CHILE RELLENO + ORDEN DE TORTILLAS ("the name is the recipe"), Omelette de Camarón y Marlín (Santiago's ruling on the one genuine edge case — its 2-egg base comes from menu-wide convention, not its own text) |
+
+Full per-dish rulings, FDC citations and gram breakdowns: `docs/superpowers/specs/
+2026-08-22-oracle-widening-round-2-rulings.md`.
+
+### ✅ Guard rail passed
+
+Every original 21 dishes' per-dish points, summed from the new 57-dish replay, exactly match the
+pinned pre-widening totals for all 6 directly-checkable arms:
+
+| arm | original-21 sum (post-widening) | pinned (pre-widening) | match |
+|---|---|---|---|
+| `dual` | 139 | 139 | ✅ |
+| `NOBOOST` | 149 | 149 | ✅ |
+| `baseline` | 145 | 145 | ✅ |
+| `NOPUSH` | 145 | 145 | ✅ |
+| `ROLE` | 137 | 137 | ✅ |
+| `MASSCALL` | 118 | 118 | ✅ |
+
+(`dual@r2`/`NOBOOST@r2` are pooled-repeat identifiers only readable through
+`sim-arm-significance.ts`'s own archive reader, not directly invocable via `bench-unweighted.ts` —
+verified instead through ① below, which uses the same oracle and reports full 57/57 coverage.)
+The widening broke nothing.
+
+### 🔴 ① THE PRIMARY VERDICT — still not resolvable, and the prediction was wrong
+
+`dual+dual@r2` vs `NOBOOST+NOBOOST@r2`, full 57 dishes:
+
+| | 21 dishes (eval 167/168) | 57 dishes (this eval) |
+|---|---|---|
+| observed gap | +14.5 /252 (5.75% of scale) | **+41.5 /684 (6.07% of scale)** |
+| 95% CI | −5.5 to +37.5 | **−1.5 to +87.5** |
+| includes zero? | yes | **yes — still not resolved** |
+| NOBOOST ahead in resamples | 90.5–90.8% | **97.1%** |
+| leave-one-out | survives (was the eval-164 flip point) | robust — dropping the 3 largest new movers (both new tacos, TOSTA BRASIL) moves the estimate by ≤1 point either way |
+
+**The pre-registered prediction — "the +14.5 shrinks toward zero" — is FALSE.** As a fraction of the
+scale, the gap did not shrink; it held essentially flat (5.75% → 6.07%) while the confidence around
+it *tightened* (90.8% → 97.1% win rate) even though the raw CI still straddles zero. A wrong
+prediction is a result: the crude projection in eval 168 anchored the 13 new pizzas at
+CAPRICCIOSA's −1.00 and assumed the rest tracked "the current mean" — but the 30 non-pizza new
+dishes did not track the old mean; several (both new tacos +3.17, TOSTA BRASIL +3.00, TOSTA ATUM
++2.33) landed as some of the largest per-dish wins NOBOOST has ever posted, offsetting the pizza
+drag the projection anticipated.
+
+**The continuous (log-ratio) metric also flips relative to eval 165.** Eval 165 found it 1.8× more
+sensitive on 9 dishes; on 57, resolving power is 0.93 (band) vs 0.55 (log-ratio) — **the band metric
+is now the more sensitive one.** Neither resolves the primary comparison at this dish count.
+Dishes-needed estimate (order of magnitude only): ~66 more on the band metric, ~190 more on
+log-ratio.
+
+### 🔑 ② THE PLATE-SIZE SPLIT — confirmed, out-of-sample, on the wider set
+
+The 250 g line was fixed in eval 168, before any of these 36 dishes existed — this is a genuine
+out-of-sample test, not a re-fit:
+
+| slice | n | NOBOOST advantage/dish |
+|---|---|---|
+| plates < 250 g | 22 | **+0.970** |
+| plates ≥ 250 g | 35 | **−0.214** |
+
+Matches eval 168's pattern (+0.74 / −0.15 on the original 21) almost exactly, on a completely
+independent, much larger and more balanced split (22 vs 35, up from 9 vs 12). **NOBOOST is
+confirmed to be a small-plate mechanism, not a general improvement — this is no longer a
+9-vs-12-dish pattern that might be noise, it is a 57-dish pattern that replicated on new data.**
+
+### 🟢 ③ THE PIZZA SENSITIVITY ROW — resolvable once the correlated cluster is removed
+
+Dropping the 14 dishes sharing one class ruling (10 pizza-group + 3 exceptions + CAPRICCIOSA — not
+14 independent bootstrap draws):
+
+| | 57 dishes (primary) | 43 dishes (pizzas dropped) |
+|---|---|---|
+| observed | +41.5 /684 | **+61.5 /516** |
+| 95% CI | −1.5 to +87.5 | **+25.5 to +102.0** |
+| resolvable? | no | **YES — CI excludes zero, both metrics** |
+| NOBOOST ahead | 97.1% | **100.0%** |
+
+**Read this as corroboration of ②, not a case for shipping.** The 14 pizza dishes are ALL ≥250 g —
+they sit entirely in the bucket ② already shows NOBOOST loses on. Removing them does two things at
+once: it stops the bootstrap over-weighting one correlated ruling as 14 independent votes, AND it
+removes a real concentration of "big plate, NOBOOST loses" signal. Both are true simultaneously —
+the sensitivity row makes the *underlying story* (small-plate mechanism) statistically crisp; it
+does not overturn the deploy rule, which is decided on ② regardless of ①'s significance.
+
+### 🟢 ④ FREE SECONDARY — `dual` vs `baseline`, the metric disagreement from eval 168 is resolved
+
+53 of 57 dishes (`baseline`'s archive is missing 4 of Task 7's newest dishes — ROLLOS DE CREPA,
+BISQUETS DEL CENTRO, BISQUETS C/ FRUTOS ROJOS, Omelette de Camarón y Marlín — **under-powered
+relative to ①, reported as secondary only, per the pre-registration**):
+
+| | 21 dishes (eval 168, quoted from memory) | 53 dishes (this eval) |
+|---|---|---|
+| band metric | baseline +10, 72% of resamples, CI unknown | **dual +72.5, CI −139.5 to −6.5, EXCLUDES zero — dual wins, resolvable** |
+| log-ratio metric | dual better, 78% of resamples | **dual better, ~100% of resamples, CI EXCLUDES zero — resolvable** |
+
+**The two metrics no longer disagree.** At 21 dishes band and log-ratio pointed opposite directions
+on `dual` vs `baseline`; at 53 dishes both agree `dual` wins, both resolvably. This is an
+independent confirmation of the *already-shipped* choice (`dual` over the pre-dual `baseline`) —
+unrelated to the NOBOOST question, but good news about the current production pipeline.
+
+### 🔴 DEPLOY RULE APPLIED, AS AGREED IN ADVANCE
+
+> If NOBOOST comes out positive overall but still negative on plates ≥250 g, it does NOT ship.
+
+NOBOOST is positive overall (+41.5, ①) **and** negative on plates ≥250 g (−0.214/dish, ②). **The
+rule fires. NOBOOST does not ship.** It is confirmed evidence for exactly what eval 168 first
+suspected and this eval's out-of-sample split now proves: an arm that pushes small plates down and
+leaves big plates alone or worse — not a general improvement, and not a candidate for v33.
+
+- **Spend: $0.** Phase total unchanged. **Production UNCHANGED: edge fn v32.**
+- **⛔ NEXT ACTION: this line of investigation is closed.** NOBOOST is rejected with high confidence
+  (out-of-sample replication on 36 new dishes, not a projection). The Stage-2 macro-enrichment
+  benchmark's open question — is there ANY prompt/schema change that beats `dual` — remains open,
+  but every arm tried so far in this phase (`NOBOOST`, `NOPUSH`, `ROLE`, `MASSCALL`) is now rejected.
+  Two untested hypotheses and two Stage-1 (not Stage-2) fixes are already on record in
+  `docs/superpowers/START-HERE.md`'s handoff block (the menu-SECTION portion prior, recipe-unit
+  asks, the dropped "28 CM" section header, the dropped sibling-dish printed weight) — none is
+  designed yet. **Use `superpowers:brainstorming` before designing the next arm; do not re-open
+  NOBOOST, NOPUSH, ROLE or MASSCALL** — all four are rejected on re-measurement, not just the
+  original 9/108 draws.

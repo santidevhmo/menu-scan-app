@@ -14,26 +14,26 @@ broken.**
 
 | # | dish | menu | pile | ruled? |
 |---|---|---|---|---|
-| 1 | 4 STAGIONI | bistro | pizza-group | ☐ |
-| 2 | 5 FORMAGGI | bistro | pizza-group | ☐ |
-| 3 | CAPRESE | bistro | pizza-group | ☐ |
-| 4 | HAWAIANA | bistro | pizza-group | ☐ |
-| 5 | ITALIANA | bistro | pizza-group | ☐ |
-| 6 | JAMÓN CON CHAMPIÑONES | bistro | pizza-group | ☐ |
-| 7 | MARGARITA | bistro | pizza-group | ☐ |
-| 8 | MEXICANA | bistro | pizza-group | ☐ |
-| 9 | PEPPERONI | bistro | pizza-group | ☐ |
-| 10 | VEGETARIANA | bistro | pizza-group | ☐ |
+| 1 | 4 STAGIONI | bistro | pizza-group | ✅ |
+| 2 | 5 FORMAGGI | bistro | pizza-group | ✅ |
+| 3 | CAPRESE | bistro | pizza-group | ✅ |
+| 4 | HAWAIANA | bistro | pizza-group | ✅ |
+| 5 | ITALIANA | bistro | pizza-group | ✅ |
+| 6 | JAMÓN CON CHAMPIÑONES | bistro | pizza-group | ✅ |
+| 7 | MARGARITA | bistro | pizza-group | ✅ |
+| 8 | MEXICANA | bistro | pizza-group | ✅ |
+| 9 | PEPPERONI | bistro | pizza-group | ✅ |
+| 10 | VEGETARIANA | bistro | pizza-group | ✅ |
 | 11 | FLAMENKUCHEN | bistro | pizza-exception | ☐ |
 | 12 | OSTRICA | bistro | pizza-exception | ☐ |
 | 13 | QUESO AZUL | bistro | pizza-exception | ☐ |
-| 14 | Avocado | nikkori | roll-group | ☐ |
-| 15 | Duplex | nikkori | roll-group | ☐ |
-| 16 | Fildeflex | nikkori | roll-group | ☐ |
-| 17 | Ipanema Roll | nikkori | roll-group | ☐ |
-| 18 | Salmón Samba | nikkori | roll-group | ☐ |
-| 19 | Spicy Tuna Roll | nikkori | roll-group | ☐ |
-| 20 | Tuna Especial | nikkori | roll-group | ☐ |
+| 14 | Avocado | nikkori | roll-group | ✅ |
+| 15 | Duplex | nikkori | roll-group | ✅ |
+| 16 | Fildeflex | nikkori | roll-group | ✅ |
+| 17 | Ipanema Roll | nikkori | roll-group | ✅ |
+| 18 | Salmón Samba | nikkori | roll-group | ✅ |
+| 19 | Spicy Tuna Roll | nikkori | roll-group | ✅ |
+| 20 | Tuna Especial | nikkori | roll-group | ✅ |
 | 21 | CHAMPIÑONES AL AJILLO | andaluz | one-off (name-only) | ☐ |
 | 22 | CROQUETAS DE ABUELA (8 pints.) | andaluz | one-off | ☐ |
 | 23 | MEDITERRÁNEA | andaluz | one-off | ☐ |
@@ -137,6 +137,86 @@ must match the name the pipeline actually emits, or the harness reports the dish
 Per-roll compositions (specific FDC ids for tuna, salmon, masago, mayonnaise, and the "Tampico"-style
 filling) are built out fully in Task 3, reusing existing citations (cream cheese FDC 2705760, avocado
 FDC 2709223, surimi FDC 2706568, shrimp FDC 2706449) where the same ingredient recurs.
+
+---
+
+## Task 3 — the 10 pizzas and 7 rolls, ruled and written
+
+Both tables approved 2026-08-22, all 17 written as `Draft`s in `scripts/unweighted-oracle-build.ts`
+and verified: `wrote 38 dishes … (21 before, 26 drafts applied)`, then
+`over 38 of 38 ruled dishes` on the `dual` replay guard rail. No dish uncovered.
+
+### Pizza table — final
+
+| dish | class | FDC id | kcal at 425g midpoint |
+|---|---|---|---|
+| 5 FORMAGGI | cheese | 2708615 | 1131 |
+| MARGARITA | cheese | 2708615 | 1131 |
+| PEPPERONI | pepperoni | 2708639 | 1199 |
+| 4 STAGIONI | meat | 2708650 | 1190 |
+| HAWAIANA | meat | 2708650 | 1190 |
+| ITALIANA | meat+vegetable | 2708663 | 1024 |
+| MEXICANA | meat+vegetable | 2708663 | 1024 |
+| CAPRESE | meat+vegetable | 2708663 | 1024 |
+| JAMÓN CON CHAMPIÑONES | meat+vegetable | 2708663 | 1024 |
+| VEGETARIANA | vegetable | 2708626 | 995 |
+
+### Roll table — final, with the Tampico ruling
+
+**Tampico is a sauce** (Santiago, 2026-08-22) — treated the same way the oracle already treats
+"vinagreta de la casa" (ENSALADA BALI): one generic FNDDS record standing in for an unnamed sauce,
+no invented protein folded into it. Chosen record: **FDC 2710176 "Fry sauce"** (535 kcal, P0.98,
+C7.28, F56.16 per 100g) — a creamy, mayo/ketchup-style condiment, the closest FNDDS analog to a
+Mexican-fusion "Tampico" sauce, and Survey (FNDDS) sourced like every other record in this oracle.
+
+| dish | mass band | total mass | total kcal | P/C/F (total) |
+|---|---|---|---|---|
+| Ipanema Roll | [240,325] | 283g | 354 | 24 / 49 / 7 |
+| Fildeflex | [235,320] | 278g | 508 | 23 / 48 / 25 |
+| Avocado | [250,335] | 293g | 415 | 13 / 52 / 18 |
+| Tuna Especial | [235,320] | 279g | 478 | 21 / 47 / 23 |
+| Salmón Samba | [240,325] | 283g | 441 | 29 / 46 / 16 |
+| Duplex | [290,395] | 343g | 638 | 24 / 52 / 37 |
+| Spicy Tuna Roll | [210,285] | 246g | 476 | 20 / 45 / 24 |
+
+**Naming:** oracle entry uses **"Fildeflex"** (the pipeline's own extraction name), not
+**"Fildelfia"** (the physical menu's printed text, likely a misprint for "Filadelfia"). The oracle
+must match what the harness actually emits, or the coverage guard rail reports the dish as
+uncovered.
+
+### The per-piece sanity check that resolved the whole-order-vs-per-100g confusion
+
+Santiago flagged that 20-29g of total protein per dish "sounded high" against a reference of
+"10-20g typical, 20+ unusual" for a whole roll order. Two things resolved it, both worth keeping on
+record since the same confusion will recur the next time someone reads these totals cold:
+
+1. **The 10-20g reference and the 4.5-9g/100g reference are the same fact in two units** — a
+   ~280g roll × 4.5-9g/100g protein = 12.6-25.2g whole-order, which is what "10-20g typical" was
+   already describing.
+2. **FDC's own portion data anchors piece count directly**: `FDC 2708963 "Sushi roll, salmon"` publishes
+   `1 piece = 30g`. Santiago independently confirmed the same count from the menu
+   ("its average sushi roll count is 10-12 rolls") and supplied a photo of one cut Nikkori Maki
+   piece showing a couple of small shrimp slices, a cube of avocado, and a smear of cream cheese —
+   consistent with a few grams of protein per piece, not dozens.
+
+Cross-checked at 11 pieces (the midpoint of Santiago's stated 10-12):
+
+| dish | status | g/piece | P/piece |
+|---|---|---|---|
+| Nikkori Maki | approved (round 1) | 31.2g | 1.55g |
+| Ipanema Roll | approved (round 2) | 25.7g | 2.18g |
+| Fildeflex | approved (round 2) | 25.3g | 2.09g |
+| Avocado | approved (round 2) | 26.6g | 1.18g |
+| Tuna Especial | approved (round 2) | 25.4g | 1.91g |
+| Salmón Samba | approved (round 2) | 25.7g | 2.64g |
+| Duplex | approved (round 2) | 31.2g | 2.18g |
+| Spicy Tuna Roll | approved (round 2) | 22.4g | 1.82g |
+
+Nikkori Maki's own already-approved composition, divided by its own piece count, lands at 31.2g/piece
+— matching FDC's published 30g/piece almost exactly. Every new roll runs 1.2-2.6g protein per piece,
+consistent with what the reference photo shows. **The whole-dish totals in the table above are the
+originally-proposed figures, unchanged** — the per-piece view was a unit-of-measure clarification,
+not a composition revision.
 
 ---
 

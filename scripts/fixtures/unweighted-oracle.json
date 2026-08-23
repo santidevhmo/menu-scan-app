@@ -628,5 +628,515 @@
     "assumed": "\"Taco de arrachera en base de lechuga fresca y costra de queso.\" RULED AS PROPOSED (2026-08-22). Ingredients: 55 g FDC 2705827 'Beef, steak, flank' (arrachera IS flank/skirt steak, an exact FNDDS cell; 55 g matches TACO PORCO's ruled meat weight), 25 g FDC 2705720 'Cheese, Monterey' (costra de queso — the US analogue for a Mexican melting cheese), 28 g FDC 2707823 'Tortilla, corn' (a published FNDDS portion, the same sourced weight TACO PORCO uses), 20 g FDC 2709789 'Lettuce, raw' (lechuga fresca). Totals: 128 g · 299 kcal · 23.5 P · 13.7 C · 16.7 F. Two consistency checks, both pass: (1) mass lands inside TACO PORCO's ruled band — 128 g against [100,140], two tacos from the same menu in the same range; (2) the composite record AGREES here, which validates why PORCO rejected its own — PORCO was decomposed because every FNDDS pork-taco cell forces cheese the dish lacked, but THIS taco HAS cheese, so the composite applies: FDC 2708515 'Taco, corn tortilla, beef, cheese' at 249 kcal/100 g gives 319 kcal at 128 g against the decomposed 299 — a 7% gap, against the pastas in this same batch where the two methods diverged up to 18% in both directions. Notably richer than TACO PORCO — 299 kcal against its ~218 midpoint, fat 16.7 g against ~8.5 — because the costra is a third of the calories where PORCO has no cheese.",
     "source": "USDA FoodData Central",
     "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "5 FORMAGGI",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      400,
+      450
+    ],
+    "band": {
+      "calories": [
+        905,
+        1357
+      ],
+      "protein_g": [
+        39,
+        58
+      ],
+      "carb_g": [
+        113,
+        170
+      ],
+      "fat_g": [
+        33,
+        49
+      ]
+    },
+    "assumed": "\"Queso mozzarella, chihuahua, azul, feta y cabra.\" Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by Stage 1. Five named cheeses, no meat or vegetable -> CHEESE topping class per FDC 2708615 'Pizza, cheese, from restaurant or fast food, thin crust'.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "MARGARITA",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      400,
+      450
+    ],
+    "band": {
+      "calories": [
+        905,
+        1357
+      ],
+      "protein_g": [
+        39,
+        58
+      ],
+      "carb_g": [
+        113,
+        170
+      ],
+      "fat_g": [
+        33,
+        49
+      ]
+    },
+    "assumed": "\"Rebanadas de tomate fresco y albahaca deshidratada.\" Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by Stage 1. Tomato/basil read as a garnish on a plain base, not a bulk vegetable topping -> CHEESE topping class per FDC 2708615, same as 5 FORMAGGI. Approved as proposed 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "PEPPERONI",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      400,
+      450
+    ],
+    "band": {
+      "calories": [
+        959,
+        1439
+      ],
+      "protein_g": [
+        40,
+        60
+      ],
+      "carb_g": [
+        109,
+        163
+      ],
+      "fat_g": [
+        40,
+        61
+      ]
+    },
+    "assumed": "Name-only dish. Ruled here rather than in the answerability task (Task 5) because the class ruling supplies the portion (28 cm is on the section header, dropped by Stage 1) and the dish name states the topping. Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). PEPPERONI topping class per FDC 2708639 'Pizza with pepperoni, from restaurant or fast food, thin crust' - the dedicated pepperoni record is definitionally correct for a dish named PEPPERONI; the generic 'meat' record (FDC 2708650) explicitly excludes pepperoni in its own title. Approved as proposed 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "4 STAGIONI",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      400,
+      450
+    ],
+    "band": {
+      "calories": [
+        952,
+        1428
+      ],
+      "protein_g": [
+        39,
+        59
+      ],
+      "carb_g": [
+        104,
+        156
+      ],
+      "fat_g": [
+        42,
+        63
+      ]
+    },
+    "assumed": "\"Pepperoni, jamón, tocino y chistorra.\" Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by Stage 1. Four named meats, no vegetable -> MEAT topping class per FDC 2708650 'Pizza with meat other than pepperoni, from restaurant or fast food, thin crust'.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "HAWAIANA",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      400,
+      450
+    ],
+    "band": {
+      "calories": [
+        952,
+        1428
+      ],
+      "protein_g": [
+        39,
+        59
+      ],
+      "carb_g": [
+        104,
+        156
+      ],
+      "fat_g": [
+        42,
+        63
+      ]
+    },
+    "assumed": "\"Jamón y piña.\" Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by Stage 1. No thin-crust 'meat and fruit' FNDDS record matches Bistro's venue/crust combination; ham is the dominant named ingredient and pineapple's macro contribution at this scale does not move the class -> MEAT topping class per FDC 2708650, approved as proposed 2026-08-22 (the meat-and-fruit alternative, FDC 2708669, was offered and declined).",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "ITALIANA",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      400,
+      450
+    ],
+    "band": {
+      "calories": [
+        821,
+        1232
+      ],
+      "protein_g": [
+        39,
+        59
+      ],
+      "carb_g": [
+        91,
+        136
+      ],
+      "fat_g": [
+        34,
+        50
+      ]
+    },
+    "assumed": "\"Pepperoni, cebolla morada, pimiento verde, aceituna negra y champiñones.\" Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by Stage 1. Four vegetable/fruit-adjacent ingredients alongside pepperoni -> MEAT+VEGETABLE topping class per FDC 2708663 'Pizza with meat and vegetables, from restaurant or fast food, thin crust' - the same record CAPRICCIOSA already uses.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "MEXICANA",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      400,
+      450
+    ],
+    "band": {
+      "calories": [
+        821,
+        1232
+      ],
+      "protein_g": [
+        39,
+        59
+      ],
+      "carb_g": [
+        91,
+        136
+      ],
+      "fat_g": [
+        34,
+        50
+      ]
+    },
+    "assumed": "\"Cebolla morada, pimiento verde y chistorra.\" Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by Stage 1. Onion and pepper alongside the sausage -> MEAT+VEGETABLE topping class per FDC 2708663, same record as ITALIANA and CAPRICCIOSA.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "CAPRESE",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      400,
+      450
+    ],
+    "band": {
+      "calories": [
+        821,
+        1232
+      ],
+      "protein_g": [
+        39,
+        59
+      ],
+      "carb_g": [
+        91,
+        136
+      ],
+      "fat_g": [
+        34,
+        50
+      ]
+    },
+    "assumed": "\"Espinacas, jamón serrano y tomate deshidratado.\" Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by Stage 1. Two of three named ingredients (spinach, tomato) are vegetables, so this is NOT a plain-meat topping despite the ham -> MEAT+VEGETABLE topping class per FDC 2708663, approved as proposed 2026-08-22 (moved off the generic MEAT class).",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "JAMÓN CON CHAMPIÑONES",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      400,
+      450
+    ],
+    "band": {
+      "calories": [
+        821,
+        1232
+      ],
+      "protein_g": [
+        39,
+        59
+      ],
+      "carb_g": [
+        91,
+        136
+      ],
+      "fat_g": [
+        34,
+        50
+      ]
+    },
+    "assumed": "Name-only dish. Ruled here rather than in the answerability task (Task 5) because the class ruling supplies the portion (28 cm is on the section header, dropped by Stage 1) and the dish name states the toppings (ham, mushroom). Mushroom is a vegetable, so ham+mushroom is not a plain-meat topping -> MEAT+VEGETABLE topping class per FDC 2708663, approved as proposed 2026-08-22 (moved off the generic MEAT class).",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "VEGETARIANA",
+    "menu": "bistro",
+    "unweighted": true,
+    "mass_band_g": [
+      400,
+      450
+    ],
+    "band": {
+      "calories": [
+        798,
+        1197
+      ],
+      "protein_g": [
+        34,
+        51
+      ],
+      "carb_g": [
+        102,
+        152
+      ],
+      "fat_g": [
+        28,
+        43
+      ]
+    },
+    "assumed": "\"Espinaca, calabaza, champiñón, cebolla morada, pimiento verde y aceituna negra.\" Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by Stage 1. Six named ingredients, no meat -> VEGETABLE topping class per FDC 2708626 'Pizza, cheese, with vegetables, from restaurant or fast food, thin crust'.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "Ipanema Roll",
+    "menu": "nikkori",
+    "unweighted": true,
+    "mass_band_g": [
+      240,
+      325
+    ],
+    "band": {
+      "calories": [
+        283,
+        425
+      ],
+      "protein_g": [
+        19,
+        29
+      ],
+      "carb_g": [
+        39,
+        59
+      ],
+      "fat_g": [
+        6,
+        8
+      ]
+    },
+    "assumed": "\"Por dentro: Atún spicy. Por fuera: Camarón y aguacate, bañado en salsa anguila.\" Rice+nori base per the roll class ruling (2026-08-22), carried from Salmón Roll/Vegan Roll/Nikkori Maki. At 11 pieces (Santiago's stated 10-12), this is 25.7 g/piece, 2.18 g protein/piece - in the same range as Nikkori Maki's own approved 31.2 g/piece, 1.55 g protein/piece. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "Fildeflex",
+    "menu": "nikkori",
+    "unweighted": true,
+    "mass_band_g": [
+      235,
+      320
+    ],
+    "band": {
+      "calories": [
+        406,
+        610
+      ],
+      "protein_g": [
+        18,
+        28
+      ],
+      "carb_g": [
+        38,
+        58
+      ],
+      "fat_g": [
+        20,
+        30
+      ]
+    },
+    "assumed": "\"Por dentro: Salmón, queso crema y pepino. Por fuera: Ajonjolí.\" Rice+nori base per the roll class ruling (2026-08-22). Filled-only (sesame is a coating, not a mass-bearing topping), so rice uses the [150 g] filled-only convention from Vegan Roll rather than the [140 g] filled+topped convention. NAME MISMATCH, RULED: the physical menu prints \"Fildelfia\" (likely a misprint for \"Filadelfia\" / Philadelphia roll); the extraction archives and pipeline caches use \"Fildeflex\". Oracle entry uses \"Fildeflex\" so it matches what the harness actually scores against - approved 2026-08-22. At 11 pieces, 25.3 g/piece, 2.09 g protein/piece.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "Avocado",
+    "menu": "nikkori",
+    "unweighted": true,
+    "mass_band_g": [
+      250,
+      335
+    ],
+    "band": {
+      "calories": [
+        337,
+        506
+      ],
+      "protein_g": [
+        10,
+        16
+      ],
+      "carb_g": [
+        42,
+        62
+      ],
+      "fat_g": [
+        14,
+        22
+      ]
+    },
+    "assumed": "\"Por dentro: Camarón, queso crema y pepino. Por fuera: Aguacate.\" Rice+nori base per the roll class ruling (2026-08-22), carried from the same three precedent rolls. At 11 pieces, 26.6 g/piece, 1.18 g protein/piece - the lightest of the seven, consistent with a topping (avocado) that carries no protein of its own. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "Tuna Especial",
+    "menu": "nikkori",
+    "unweighted": true,
+    "mass_band_g": [
+      235,
+      320
+    ],
+    "band": {
+      "calories": [
+        381,
+        572
+      ],
+      "protein_g": [
+        17,
+        25
+      ],
+      "carb_g": [
+        37,
+        56
+      ],
+      "fat_g": [
+        18,
+        27
+      ]
+    },
+    "assumed": "\"Por dentro: Queso crema y aguacate. Por fuera: Atún con topping de masago y mayonesa.\" Rice+nori base per the roll class ruling (2026-08-22). At 11 pieces, 25.4 g/piece, 1.91 g protein/piece. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "Salmón Samba",
+    "menu": "nikkori",
+    "unweighted": true,
+    "mass_band_g": [
+      240,
+      325
+    ],
+    "band": {
+      "calories": [
+        354,
+        532
+      ],
+      "protein_g": [
+        23,
+        35
+      ],
+      "carb_g": [
+        37,
+        55
+      ],
+      "fat_g": [
+        13,
+        19
+      ]
+    },
+    "assumed": "\"Por dentro: Atún spicy y aguacate. Por fuera: Salmón bañado con salsa spicy ponzu.\" Rice+nori base per the roll class ruling (2026-08-22). Names both tuna AND salmon as defining ingredients, so the highest per-piece protein of the seven at 11 pieces: 25.7 g/piece, 2.64 g protein/piece - still under a third of Nikkori Maki's own per-piece mass and well inside what the reference photo shows. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "Duplex",
+    "menu": "nikkori",
+    "unweighted": true,
+    "mass_band_g": [
+      290,
+      395
+    ],
+    "band": {
+      "calories": [
+        509,
+        763
+      ],
+      "protein_g": [
+        19,
+        29
+      ],
+      "carb_g": [
+        42,
+        62
+      ],
+      "fat_g": [
+        30,
+        44
+      ]
+    },
+    "assumed": "\"Por dentro: Tampico, aguacate, queso crema y pepino. Por fuera: Camarón y salmón.\" Rice+nori base per the roll class ruling (2026-08-22). Richest of the seven (4 filled + 2 topped items) - same total mass as Nikkori Maki (343 g), which has a comparably rich structure (2 filled + 2 topped items + vegetable). At 11 pieces, 31.2 g/piece, 2.18 g protein/piece, matching Nikkori Maki's own per-piece mass almost exactly. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
+  },
+  {
+    "name": "Spicy Tuna Roll",
+    "menu": "nikkori",
+    "unweighted": true,
+    "mass_band_g": [
+      210,
+      285
+    ],
+    "band": {
+      "calories": [
+        383,
+        575
+      ],
+      "protein_g": [
+        16,
+        24
+      ],
+      "carb_g": [
+        36,
+        54
+      ],
+      "fat_g": [
+        19,
+        29
+      ]
+    },
+    "assumed": "\"Por dentro: Tampico. Por fuera: Atún picado con salsa spicy y masago.\" Rice+nori base per the roll class ruling (2026-08-22). The menu names no protein in the filling - only a sauce - so the filling is rice+nori+sauce alone; inventing a hidden protein inside \"Tampico\" would violate the assumed-ingredient rule. At 11 pieces, 22.4 g/piece, 1.82 g protein/piece. Approved 2026-08-22.",
+    "source": "USDA FoodData Central",
+    "retrieved_at": "2026-08-22"
   }
 ]

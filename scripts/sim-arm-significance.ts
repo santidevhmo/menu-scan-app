@@ -38,11 +38,13 @@ const CACHE = "scripts/fixtures/caches";
 const DRAWS = 3;
 const RESAMPLES = 10_000;
 
-const oracle: UnweightedEntry[] = JSON.parse(await Deno.readTextFile(ORACLE));
-const args = Deno.args.filter((a) => !a.startsWith("--"));
-if (args.length !== 2) {
-  throw new Error(
-    "give exactly two arms to compare, e.g. dual NOBOOST (or dual+dual@r2 NOBOOST+NOBOOST@r2)",
+/** `--drop=A,B` -> {A, B}. Used for the pizza sensitivity row: dishes sharing one
+ *  class ruling are not independent, and the bootstrap resamples dishes. */
+export function parseDrop(args: string[]): Set<string> {
+  const flag = args.find((a) => a.startsWith("--drop="));
+  if (!flag) return new Set();
+  return new Set(
+    flag.slice("--drop=".length).split(",").map((s) => s.trim()).filter(Boolean),
   );
 }
 
@@ -69,7 +71,7 @@ function armFile(arm: string): string {
 type Draw = { pass: boolean[]; logErr: number; massLogErr: number | null };
 
 /** dish -> one entry per scored draw. */
-async function read(spec: string): Promise<Map<string, Draw[]>> {
+async function read(spec: string, oracle: UnweightedEntry[]): Promise<Map<string, Draw[]>> {
   const out = new Map<string, Draw[]>();
   for (const e of oracle) out.set(e.name, []);
   for (const arm of spec.split("+")) {
@@ -122,9 +124,18 @@ async function read(spec: string): Promise<Map<string, Draw[]>> {
   return out;
 }
 
-const [specA, specB] = args;
-const A = await read(specA);
-const B = await read(specB);
+if (import.meta.main) {
+  const oracle: UnweightedEntry[] = JSON.parse(await Deno.readTextFile(ORACLE));
+  const args = Deno.args.filter((a) => !a.startsWith("--"));
+  if (args.length !== 2) {
+    throw new Error(
+      "give exactly two arms to compare, e.g. dual NOBOOST (or dual+dual@r2 NOBOOST+NOBOOST@r2)",
+    );
+  }
+
+  const [specA, specB] = args;
+  const A = await read(specA, oracle);
+  const B = await read(specB, oracle);
 
 const points = (draws: Draw[]) =>
   draws.reduce((n, d) => n + d.pass.filter(Boolean).length, 0);
@@ -146,8 +157,10 @@ type Row = {
   mA: number | null;
   mB: number | null;
 };
+const dropped = parseDrop(Deno.args);
 const rows: Row[] = [];
 for (const e of oracle) {
+  if (dropped.has(e.name)) continue;
   const da = A.get(e.name)!, db = B.get(e.name)!;
   if (da.length === 0 || db.length === 0) continue;
   rows.push({
@@ -379,3 +392,4 @@ console.log(
     }` +
     `\n   Quote ① and not this. It is here to show the size of the overstatement.`,
 );
+}

@@ -403,8 +403,12 @@ Full detail: the 2026-08-19 handoff block, now superseded by the 2026-08-20 one.
 git checkout dbf3f79 -- supabase/functions/analyze-menu/ && \
   supabase functions deploy analyze-menu --project-ref uonuiadueykynbetxxrw
 ```
-✅ **`main` now contains it** — PRs #18 → #17 → `main` merged 2026-08-19, and `main`'s
-`supabase/functions/analyze-menu/` byte-matches what is deployed.
+☠️ **THAT CLAIM IS FALSE AS OF 2026-08-23 AND WAS LEFT TO GO STALE.** `main`'s
+`supabase/functions/analyze-menu/` does **NOT** match what is deployed: `git show
+main:.../enrich.ts | grep -c callGptEnrichDualPass` returns **0**. `main` has no dual pass, so it is
+behind by BOTH v32 (dual) and v33 (form sizing) — 5 files, +2419/−202. **Deploying `analyze-menu` from
+`main` would revert production roughly two versions with no error**, taking the unweighted score from
+~65% back to pre-dual. Re-verify with the grep above rather than trusting this line.
 
 History — **v31, deployed 2026-08-16**, superseded by the above.
 **v31 = v30 + the two ZEROING BUG FIXES, and nothing else.** Verified before shipping: the delta
@@ -966,7 +970,8 @@ git checkout dbf3f79 -- supabase/functions/analyze-menu/ && \
 ### 🔀 MERGE STATE — read before touching the PRs
 
 ✅ **BOTH PRs ARE MERGED (2026-08-19).** #18 → `feat/forced-serving-pieces`, then #17 → `main`, 87
-commits. **`main`'s `supabase/functions/analyze-menu/` now byte-matches what is deployed** — verified
+commits. ~~**`main`'s `supabase/functions/analyze-menu/` now byte-matches what is deployed**~~
+☠️ **NO LONGER TRUE — see the correction above; `main` has no dual pass.** Was verified
 with `git diff origin/main HEAD -- supabase/functions/analyze-menu/`, which is empty.
 
 ⚠️ **HISTORICAL, and worth knowing because it lasted weeks:** `main` was behind production from v30

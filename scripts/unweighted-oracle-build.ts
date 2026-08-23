@@ -27,6 +27,8 @@ interface Draft {
     fat_per_100g: number;
   };
   assumed: string;
+  /** Overrides RETRIEVED when this draft's FDC records were fetched on a different day. */
+  retrieved_at?: string;
 }
 
 const DRAFTS: Draft[] = [
@@ -280,7 +282,26 @@ const DRAFTS: Draft[] = [
   },
 ];
 
-const entries: UnweightedEntry[] = DRAFTS.map((d) => ({
+/**
+ * Upsert drafts into whatever the oracle already holds, matched on `name`.
+ *
+ * ponytail: the JSON is the source of truth for dishes this script has no draft
+ * for, and the script is the source of truth for the ones it does. A split brain,
+ * accepted deliberately - the alternative is back-filling 12 round-1 dishes whose
+ * per-100 g compositions were never committed anywhere machine-readable. Collapse
+ * it by back-filling those drafts if this file ever needs to be authoritative.
+ */
+export function mergeEntries(
+  existing: UnweightedEntry[],
+  built: UnweightedEntry[],
+): UnweightedEntry[] {
+  const byName = new Map(built.map((e) => [e.name, e]));
+  const merged = existing.map((e) => byName.get(e.name) ?? e);
+  const seen = new Set(existing.map((e) => e.name));
+  return [...merged, ...built.filter((e) => !seen.has(e.name))];
+}
+
+const built: UnweightedEntry[] = DRAFTS.map((d) => ({
   name: d.name,
   menu: d.menu,
   unweighted: true,
@@ -288,47 +309,64 @@ const entries: UnweightedEntry[] = DRAFTS.map((d) => ({
   band: deriveBands(d.mass_band_g, d.composition),
   assumed: d.assumed,
   source: "USDA FoodData Central",
-  retrieved_at: RETRIEVED,
+  retrieved_at: d.retrieved_at ?? RETRIEVED,
 }));
 
-const problems = entries.flatMap((e) =>
-  validateEntry(e).map((p) => `${e.name}: ${p}`)
-);
-if (problems.length > 0) {
-  console.error("REFUSING TO WRITE - invalid entries:");
-  for (const p of problems) console.error(`  ${p}`);
-  Deno.exit(1);
-}
+async function main() {
+  let existing: UnweightedEntry[] = [];
+  try {
+    existing = JSON.parse(await Deno.readTextFile(OUT));
+  } catch (e) {
+    if (!(e instanceof Deno.errors.NotFound)) throw e;
+  }
+  const entries = mergeEntries(existing, built);
 
-await Deno.writeTextFile(OUT, JSON.stringify(entries, null, 2) + "\n");
+  // Unchanged from the original: refuse to write anything invalid. It now checks
+  // the MERGED set, so a bad round-1 entry surfaces here too.
+  const problems = entries.flatMap((e) =>
+    validateEntry(e).map((p) => `${e.name}: ${p}`)
+  );
+  if (problems.length > 0) {
+    console.error("REFUSING TO WRITE - invalid entries:");
+    for (const p of problems) console.error(`  ${p}`);
+    Deno.exit(1);
+  }
 
-console.log(`${entries.length} entries -> ${OUT}\n`);
-console.log(
-  `${"dish".padEnd(17)}${"mass g".padStart(12)}${"kcal".padStart(14)}${
-    "protein".padStart(11)
-  }${"carb".padStart(11)}${"fat".padStart(11)}`,
-);
-const pair = (b: MacroBand) => `${b[0]}-${b[1]}`;
-for (const e of entries) {
+  await Deno.writeTextFile(OUT, JSON.stringify(entries, null, 2) + "\n");
   console.log(
-    `${e.name.slice(0, 16).padEnd(17)}${pair(e.mass_band_g).padStart(12)}${
-      pair(e.band.calories).padStart(14)
-    }${pair(e.band.protein_g).padStart(11)}${pair(e.band.carb_g).padStart(11)}${
-      pair(e.band.fat_g).padStart(11)
-    }`,
+    `wrote ${entries.length} dishes to ${OUT} ` +
+      `(${existing.length} before, ${built.length} drafts applied)\n`,
+  );
+
+  console.log(
+    `${"dish".padEnd(17)}${"mass g".padStart(12)}${"kcal".padStart(14)}${
+      "protein".padStart(11)
+    }${"carb".padStart(11)}${"fat".padStart(11)}`,
+  );
+  const pair = (b: MacroBand) => `${b[0]}-${b[1]}`;
+  for (const e of entries) {
+    console.log(
+      `${e.name.slice(0, 16).padEnd(17)}${pair(e.mass_band_g).padStart(12)}${
+        pair(e.band.calories).padStart(14)
+      }${pair(e.band.protein_g).padStart(11)}${pair(e.band.carb_g).padStart(11)}${
+        pair(e.band.fat_g).padStart(11)
+      }`,
+    );
+  }
+  // The score's DENOMINATOR is now whatever is ruled, times 4 fields, times the
+  // draw count - it was a fixed 6 dishes until 2026-08-20, when Santiago approved
+  // widening the set and dropping COLIFLOR ROKA. A hardcoded target would go stale
+  // every time the set grows, and the old one already read "-3 of 6 UNRULED" for a
+  // set that had GAINED dishes.
+  console.log(
+    `\n${entries.length} dishes ruled -> ${
+      entries.length * 4
+    } points per draw, ` +
+      `${entries.length * 4 * 3} over the usual 3 draws.` +
+      `\nReport it ALONGSIDE the weighted number, never merged into it.` +
+      `\n⚠️ The denominator CHANGED on 2026-08-20 (6 dishes -> ${entries.length}). A score from ` +
+      `before that date\nis not comparable to one after it; re-score both arms before quoting a gain.`,
   );
 }
-// The score's DENOMINATOR is now whatever is ruled, times 4 fields, times the
-// draw count - it was a fixed 6 dishes until 2026-08-20, when Santiago approved
-// widening the set and dropping COLIFLOR ROKA. A hardcoded target would go stale
-// every time the set grows, and the old one already read "-3 of 6 UNRULED" for a
-// set that had GAINED dishes.
-console.log(
-  `\n${entries.length} dishes ruled -> ${
-    entries.length * 4
-  } points per draw, ` +
-    `${entries.length * 4 * 3} over the usual 3 draws.` +
-    `\nReport it ALONGSIDE the weighted number, never merged into it.` +
-    `\n⚠️ The denominator CHANGED on 2026-08-20 (6 dishes -> ${entries.length}). A score from ` +
-    `before that date\nis not comparable to one after it; re-score both arms before quoting a gain.`,
-);
+
+if (import.meta.main) await main();

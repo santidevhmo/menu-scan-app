@@ -338,6 +338,7 @@ async function main() {
       `(${existing.length} before, ${built.length} drafts applied)\n`,
   );
 
+  console.log(`${entries.length} entries -> ${OUT}\n`);
   console.log(
     `${"dish".padEnd(17)}${"mass g".padStart(12)}${"kcal".padStart(14)}${
       "protein".padStart(11)

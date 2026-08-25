@@ -327,7 +327,7 @@ export async function armP(items: Item[]) {
  * for one commit, which is exactly the "patch the path the ticket names and
  * leave the siblings broken" mistake - S3/S4 had the identical defect.
  */
-async function retryOnce<T>(call: () => Promise<T>): Promise<T> {
+export async function retryOnce<T>(call: () => Promise<T>): Promise<T> {
   try {
     return await call();
   } catch (error) {

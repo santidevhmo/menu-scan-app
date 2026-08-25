@@ -108,3 +108,47 @@ either.**
 
 `docs/superpowers/stage2-macro-benchmark.md` — the **B9** run entry and the PASTEL re-freeze
 ruling, with the per-dish tables and the raw archives.
+
+---
+
+## 2026-08-23 — Every frontier model systematically UNDERESTIMATES large food portions. This is a model-class property, not a prompt defect.
+
+**Status: peer-reviewed externally, and confirmed four independent ways inside this project. Do not
+try to fix it with a prompt — four arms have already died trying.**
+
+**Fridolfsson et al. 2025**, *Current Developments in Nutrition* (PMC12513282), tested **GPT-4o,
+Claude 3.5 and Gemini 1.5** against weighed food photos. All three **systematically underestimate
+large portions**, with high macro variance. So the bias does not belong to our prompt, our schema,
+our model pin, or our fixtures — **it belongs to the model class.**
+
+Our four independent confirmations, all on the same side:
+
+| evidence | what it read |
+|---|---|
+| eval 175 — asked what a thin-crust pizza weighs *in general* | **300 g** against a ruled 400–450 |
+| eval 162 — our own `dual` pipeline, Salmón Roll | **0.65×** the oracle's mass |
+| eval 178 — a *different company's* shipped app, same 28 cm pizza | **217 g = 0.35×** the USDA anchor |
+| eval 178 — our v33 with `FORM` sizing, same pizza | **425 g = 0.69×** the USDA anchor |
+
+🔑 **THE ARCHITECTURAL CONSEQUENCE, AND IT IS THE MOST IMPORTANT MODEL FINDING IN THIS FILE: never ask
+a model for grams. Ask it for a CATEGORY and supply the grams from a published table.** Arm A
+(36/108), MASSCALL (50/108), the eval-175 `grams` probe, and a global fitted calibration (223/684)
+all failed the same way for the same reason. `FORM` works *because* it stops asking.
+
+**Peer-reviewed support for the replacement:** Menu-Match (Beijbom et al., Microsoft Research, WACV
+2015) — restaurant plates are nutritionally consistent across servings, so **identify-then-look-up
+beats volume estimation** (32 ± 7.2 kcal absolute error). DietAI24 (*Nature Communications Medicine*
+2025, s43856-025-01159-0) grounds an MLLM in FNDDS by retrieval — a published architecture for
+supplying the grams rather than generating them.
+
+**And the human baseline, which reframes what "accurate enough" means:** Nutrition5k (Thames et al.,
+Google, CVPR 2021) measured people estimating portions visually — **non-nutritionists 53% error,
+professional nutritionists 41%.** Their best model reached 16.5% calorie MAE, and depth data cut mass
+error 18.7% → 13.7%. **Our band is ±20%, so a credentialed professional eyeballing a plate is worse
+than our band width.** A published portion weight beats any expert's estimate; that is the whole case
+for anchoring to FNDDS rather than to a ruling.
+
+⚠️ **Treat vendor accuracy claims as marketing.** PlateLens's "±1.2% MAPE" and SnapCalorie's "~15%"
+are not credible next to Nutrition5k's 16.5% under controlled conditions **with depth data**.
+
+Full detail: `docs/superpowers/competitor-analysis-2026-08-23.md` and eval 178 of the ledger.

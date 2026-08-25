@@ -4180,3 +4180,218 @@ git checkout b24737a -- supabase/functions/analyze-menu/ && \
 
 - **Spend: ~$1** (the r5 verification run). Phase total ≈ $54.5.
 - **NEXT:** more table rows (④), then the rescan problem (④). Neither needs a new mechanism.
+
+---
+
+## Eval 178 — 🔴 **THE BENCHMARK WAS BLIND TO A 46% MASS ERROR ON 26% OF ITS DISHES**, and a shipped competitor's numbers prove the low-mass prior is a property of the MODEL CLASS, not of our prompt. 🟢 `FORM` is validated as an *architecture*; ☠️ its 18-row hardcode covers 33% off-corpus and Santiago's four "hard cases" are ALL already published in FNDDS — so the table should be a LOOKUP and the open problem is RETRIEVAL (2026-08-23, ~$0 — FNDDS is free, no model calls)
+
+- Date: 2026-08-23 | Change: **none to any arm, prompt, schema or oracle.** Analysis + free FNDDS
+  probes only. Production remains v33.
+- **Full write-up: `docs/superpowers/competitor-analysis-2026-08-23.md`.** This entry is the summary.
+- Inputs: 19 competitor screenshots (Santiago, 3-day trial), the existing `FORM`/`dual` archives
+  replayed at $0, live FNDDS queries, and a commissioned public-source research report.
+
+### ① 🪤 THE PIZZA PILOT: A ≈ C, SO THE SCORE WAS MEASURING AGREEMENT-WITH-ITSELF
+
+`deriveBands` uses **only the mass band's MIDPOINT**, ±20%, Atwater calories — verified by
+reproducing CAPRICCIOSA's shipped band `[822,1232]` exactly from mid 425 × FDC 2708663. Re-scored
+the 15 bistro pizzas three ways:
+
+| | pizzas' score, `FORM` |
+|---|---|
+| **A.** current band | **73.6%** |
+| **B.** USDA-anchored band, `FORM_G` still 425 | **30.4%** |
+| **C.** USDA-anchored band AND `FORM_G` anchored | **74.9%** |
+
+**A ≈ C: the score is identical whether a 28 cm pizza is 425 g or 620 g**, because the answer key and
+the production constant were both derived from the same guess. **Column B is the proof** — the moment
+they disagree the score craters. If USDA is right, production ships pizza macros **~31% low while the
+benchmark reports 74% correct.**
+
+USDA 28 cm anchors (g/in² interpolated across published diameter bins; the flat "medium 11–12 inch"
+row is higher, so this is conservative): cheese **473 g** (2708615), pepperoni **498 g** (2708639),
+cheese w/ veg **551 g** (2708626), meat & veg **620 g** (2708663). All against a hand-ruled 425.
+🪤 **CAPRICCIOSA's own `assumed` note cites FDC 2708663 — the record publishing 620 g.**
+
+⚠️ 3 of 15 matched no record pulled (ALFREDO PORTOBELLO, FLAMENKUCHEN, QUESO AZUL — cream bases).
+⚠️ FNDDS is US survey data; a local venue discount is a legitimate answer. **Santiago's call, open.**
+⚠️ **If the band moves, `FORM_G`'s pizza row MUST move with it** or you ship column B.
+
+### ② 🔑 THE COMPETITOR MASS LADDER — the low-mass prior is not ours, it is the model class's
+
+"Thomas AI" (rockethen/Steelkiwi) run on our own Nikkori and Bistro fixtures. Its CAPRICCIOSA
+(P25/C58/F30), priced through **the oracle's own per-100 g**, implies a 217 g pizza — protein and
+carbs agree independently.
+
+| source | implied 28 cm pizza | vs USDA |
+|---|---|---|
+| Thomas AI — no structural correction | **217 g** | **0.35×** |
+| our v33 = `FORM_G` = oracle mid | **425 g** | 0.69× |
+| USDA FNDDS 2708663 | **620 g** | 1.00× |
+
+🟢 **Every LLM-derived number is below the anchor and the UNCORRECTED one is furthest below.
+`FORM` moved us ~2× closer. This validates "ask for a CATEGORY, supply the grams ourselves" as an
+architecture, not merely as a +87.** Calorie band hits on the 5 pizzas: **ours 4/5, theirs 1/5**;
+their spread across five very different pizzas is 1.13× against the oracle's 1.63×.
+
+On sushi they land at **0.65× our oracle's midpoint on Salmón Roll — the exact ratio eval 162
+measured for our own `dual`.** Two independently built products, same dish, same error.
+🪤 **So agreement with a competitor is never evidence of correctness.**
+
+**Four measured defects of theirs** (detail in the analysis doc): their displayed calories are
+unreachable by Atwater from their own displayed macros **4 times out of 4** (+14, +15, −21, +38 — the
+sign flips, so it is two independent generations, not a fiber adjustment) — **our code-does-the-
+arithmetic split makes this impossible, keep it**; their ingredient list is **decorative** (a sushi
+roll with no rice reporting 34 g carbs; a pizza with no dough or cheese reporting 58 g); they **drift
+on rescan too** (−8.6%, −8.3%, with the ingredient list identical and composition moving — the same
+stable-label/unstable-composition split we have, so the 38-of-57 rescan problem is **not unique to
+us**); and Stage 1 collapses on dense menus (**12/36/19** items across three scans of Nikkori's 114,
+against a near-tie of 23 on Bistro's 26).
+
+### ③ 🟢 SUSHI IS CORROBORATED, AND THE DISAGREEMENT IS PIECE COUNT NOT GRAMS
+
+FNDDS publishes **three** per-piece weights where production uses one row: vegetable **22 g**
+(2708966), filled **30 g** (2708960–65), **topped 35 g** (2708967–71); default orders 132/180/210 g.
+The oracle's own per-piece figures are 22–31 g — inside that spread, so **per-piece mass was never in
+dispute.** Pieces per order: **oracle 11, our model 8 (on 10/10 rolls), competitor ~8, USDA 6.**
+
+🟢 **8 × 35 = 280 = exactly `FORM_G['sushi_roll_order']` — that row IS independently corroborated**,
+unlike `pizza_whole_thin`. 🔴 **Neither we nor they distinguish filled from topped — a 17% mass
+difference USDA publishes.** Splitting that one row into veg/filled/topped × piece count is
+USDA-sourced work of exactly the kind ④ of eval 177 asked for.
+
+### ④ ☠️ `FORM_G`'s HARDCODE IS THE WEAKNESS — AND THE FIX IS A LOOKUP, NOT MORE ROWS
+
+Santiago asked what happens to a cup of raw seafood, a soup, a corn+meat+mashed-potato plate, or
+chilaquiles. **The 33%/82% coverage split says his skepticism is correct**: a miss returns `other`
+→ null → the dish keeps the dual-pass answer, so nothing regresses but **~2 of 3 dishes on a new menu
+gain nothing.** Probed FNDDS for his exact cases — **every one is already published**: chilaquiles
+**170 g/cup** (2708505), ceviche 250 g/cup (2706463), shrimp cocktail 250 g/cup (2706449), pozole
+245 g/cup (2707129), enchilada 170 g/cup (2708566), mashed potato *from restaurant* 250 g/cup
+(2709500), restaurant pancakes 150 g (2708299). FNDDS ships **~30,000 portion weights over ~5,624
+food codes, CC0, as flat files** — no per-scan API call needed.
+
+🪤 **THE REAL OPEN PROBLEM IS RETRIEVAL, NOT COVERAGE.** Naive queries mismatch badly and this has
+bitten four times: `"vegetables grilled"` → **"Scallops, grilled"**; `"corn on the cob"` → "Corn,
+canned, cooked with oil"; `"beef with potatoes and vegetables"` → "Beef shish kabob with vegetables,
+**excluding potatoes**"; and earlier `"taco beef"` → **broccoli**.
+
+**THE COMPOSITE PLATE IS THE GENUINELY UNSOLVED CASE.** FNDDS has each component's portion weight but
+no record for an arbitrary combination. **This is where Santiago's original recipe-ratio idea is
+right** — decompose, look up each component's published portion, sum; his 60/40 steak-and-fries split
+with sourced grams instead of guessed ones.
+
+### ⑤ 🔑 THE OUTSIDE LITERATURE — one number reframes this whole phase
+
+- **Nutrition5k** (Google, CVPR 2021): at visual portion estimation **non-nutritionists average 53%
+  error and NUTRITIONISTS average 41%.** Our band is ±20%. **So "I'm not a nutritionist so I can't
+  tell if this is right" has an answer: a credentialed professional eyeballing portions is worse than
+  our band width.** The oracle is not weak for want of a credential — it is weak exactly where it has
+  no published source. **Looking a number up beats any expert's estimate.**
+- **Fridolfsson et al. 2025** (PMC12513282): GPT-4o, Claude 3.5 and Gemini 1.5 **all systematically
+  underestimate large portions.** With eval 175, our 0.65×, and the competitor's 0.35×, that is
+  **four independent confirmations.** ☠️ **Stop looking for a prompt that fixes it.**
+- **Menu-Match** (Microsoft Research, WACV 2015): restaurant plates are consistent across servings,
+  so **identify-then-look-up beats volume estimation.** Peer-reviewed support for `FORM`.
+- **DietAI24** (Nature Comms Medicine 2025): MLLM + **RAG grounded in FNDDS** — a published
+  architecture for the lookup in ④.
+- ☠️ **MacrosMap already ships sort-by-protein/calories/carbs/fat. Goal-sorting is table stakes, not
+  a moat.** What is left is the **anchored gram weight** — no competitor shows mass, and MacrosMap's
+  top negative review is about its absence.
+- ⚠️ Treat PlateLens's "±1.2% MAPE" and SnapCalorie's "~15%" as marketing; ±1.2% is not plausible
+  when Nutrition5k reaches 16.5% under controlled conditions **with depth data**.
+
+- **Spend: ~$0.** Phase total ≈ $54.5, unchanged.
+- **NEXT:** two design questions, neither designed. **(a)** does `FORM_G` become an FNDDS lookup with
+  a cached match layer? **(b)** how do composite plates decompose? ⚠️ **Run
+  `superpowers:brainstorming` before designing either.** Cheapest first measurement for (a): FNDDS
+  match quality over the 5 archived menus with no oracle — coverage is measurable there, score is not.
+
+---
+
+## Eval 179 — ☠️ **BOTH RECIPE ARMS ARE REJECTED. `FORM` STILL WINS.** Asking for the dish's RECIPE in recipe units and converting each line from FNDDS's published portions scores **30.4%** (household-only) and **47.2%** (gram escape allowed) against `FORM`'s **62.7% / 51.4%** on the SAME dish-draws. 🔑 But the two arms differ by +83 points on identical routing, and the cause is attributable: **forcing household units is actively harmful, because a unit's ambiguity is unbounded where the gram grid's bias is not** (2026-08-23, ~$2.6 of which ~$0.85 was lost to two crashes)
+
+- Date: 2026-08-23 | Santiago's idea, designed with `superpowers:brainstorming`.
+- New code: `scripts/fndds-resolve.ts` (+ tests), `scripts/arm-recipe.ts`, two arms registered.
+- Archives: `unweighted.RECIPE-{H,M}-f.<menu>-d{0,1,2}.raw.json`, plus
+  `caches/recipe-raw.{H,M}.jsonl` — the RAW model answers, so **the resolver can be changed and
+  re-scored at $0 without buying anything again.**
+
+### ① THE RESULT
+
+⚠️ **The harness TOTAL for these arms (105/684 and 89/684) IS NOT THE MECHANISM'S SCORE** and must
+never be quoted. A reverted dish is archived with **all-zero macros** — `enrichBatch` sums from
+`typical_serving_g` and the recipe schema does not have that field — so every reverted dish-draw
+contributes a guaranteed 0/4. `arm-order-schemas.ts` documents this exact trap; it was read and
+then walked into anyway. The harness now prints the warning.
+
+Scored properly from the archives:
+
+| | kept dishes | `FORM` on the SAME dish-draws | FILL (recipe where kept, FORM where reverted) |
+|---|---|---|---|
+| **RECIPE-H** household units only | **84/276 = 30.4%** | 173/276 = **62.7%** | 347/684 = 50.7% |
+| **RECIPE-M** gram escape allowed | **68/144 = 47.2%** | 74/144 = **51.4%** | 430/684 = 62.9% |
+| `FORM` control | — | — | **436/684 = 63.7%** |
+
+**Neither arm beats `FORM`.** RECIPE-M-FILL at 430 sits BELOW `FORM`'s worst of 5 runs (434), so it
+is not even a tie. A third model call for that is not a trade worth making.
+
+### ② 🔑 THE FINDING WORTH KEEPING: A UNIT'S AMBIGUITY IS UNBOUNDED, THE GRAM GRID'S BIAS IS NOT
+
+RECIPE-H and RECIPE-M differ **only** in whether `"gram"` is in the unit enum. The escape hatch was
+used on **65 of 989 lines (6.6%)** — and it is worth **+83 points on identical FILL routing**
+(347 → 430). So the household-only constraint, which was the more principled arm on paper, is the
+one that hurts.
+
+**The mechanism, seen directly in the smoke test:** the model said *"4 slices serrano ham"*; FNDDS's
+`Ham` record publishes a slice at **60 g** (a thick sandwich slice, not a 12 g curl of serrano), so
+one line contributed **240 g of ham to a pizza**. Every bistro pizza scored **0/12** under RECIPE-H.
+🔑 **The gram grid is biased LOW by a bounded, predictable amount (eval 175). A wrong unit is wrong
+by an unbounded multiple, in either direction, and then multiplied by the count.** Trading the first
+error for the second is a bad trade, and that is the general lesson.
+
+### ③ WHAT DID WORK, AND IT IS NOT NOTHING
+
+- **The resolver did what it claimed.** 748/983 lines resolved for RECIPE-H, **all 748 via published
+  portions, ZERO via model grams.** The plate total really was a sum of sourced weights.
+- **Some dish classes are perfect.** CARBONARA, FETUCCINI ALFREDO and ENSALADA BALI scored **12/12**
+  under RECIPE-H. Pasta and salads decompose into cups and the cups are right. **Assembled dishes
+  with countable-but-ambiguous pieces are where it breaks** — which is the opposite of the
+  composite-plate case the arm was designed for.
+- **FNDDS coverage is real.** Santiago's four "hard cases" all exist: chilaquiles 170 g/cup
+  (2708505), ceviche 250 g/cup (2706463), pozole 245 g/cup (2707129), mashed potato *from restaurant*
+  250 g/cup (2709500).
+
+### ④ 🪤 FOUR API FACTS THAT COST REAL TIME — none of them is in any doc before this entry
+
+1. 🔑 **USE `POST /foods/search`, NOT GET.** `dataType` as a GET param is unusable (`Survey (FNDDS)`
+   400s on its parentheses, a comma list 404s), which is why an earlier note here concluded "filter
+   client-side". **That conclusion silently loses the reference data entirely**: a GET for common food
+   words returns **60 of 60 BRANDED products**, so `black beans`, `tomato sauce`, `crema` and
+   `tortilla chips` all resolved to NOTHING. POST accepts the filter as a JSON array and honours it.
+2. **The endpoint 404s on ~41% of attempts with 3533 of the hourly 3600 unused.** FLAKY, not rate
+   limited, and random. **Many short retries (0.4 s), never exponential backoff** — a 3→23 s backoff
+   sleeps through a failure a 0.4 s retry clears and looks exactly like a hang.
+3. **Some ids that search returns 404 PERMANENTLY on the detail endpoint.** Already known here
+   (`2705827`), and it still killed a paid run: `food()` threw, `Promise.all` rejected, the arm died
+   *after* the model calls were bought. An unfetchable candidate is a missing candidate.
+4. **Never cache an empty result.** One bad response turned four staples into permanent misses.
+
+### ⑤ ⚠️ TWO SELF-INFLICTED FAILURES, BOTH FROM GUARDS THIS REPO ALREADY DOCUMENTED
+
+~$0.85 of the ~$2.6 was lost to crashes, and neither was a novel problem:
+- the detail-endpoint 404 (④3), whose warning is in eval 170;
+- **no `retryOnce` around `enrichBatch`**, when `probe-plate-arms.ts`'s own comment says *"Applied to
+  EVERY arm that calls enrichBatch directly. It was armPInline-only for one commit, which is exactly
+  the 'patch the path the ticket names and leave the siblings broken' mistake."* A new sibling was
+  written and left broken in precisely that way.
+
+🔑 **THE PROCESS FIX, AND IT IS GENERAL: a new arm should be diffed against what EVERY existing arm
+does at the same call site, not built from its own logic.** Also added: the arm now archives the raw
+model answer BEFORE resolution touches it, because `bench-unweighted.ts` archives only *after* the
+arm returns — so a crash in post-processing throws away bytes that were already paid for.
+
+- **Spend: ~$2.6.** Phase total ≈ $57.
+- **NEXT:** `FORM` remains the arm to beat. The recipe idea is not dead but it is NOT a general
+  mechanism — it is a candidate for the dish classes where it scored 12/12 (pasta, salads), and the
+  $0 raw archives make that re-analysis free. ⚠️ Do not re-open household-only; ② is the reason.

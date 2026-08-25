@@ -205,6 +205,7 @@ async function replayPath(arm: string, path: string): Promise<string> {
 }
 
 import { armForm } from "./arm-dish-form.ts";
+import { armRecipeH, armRecipeM, COVERAGE_FLOOR, recipeStats } from "./arm-recipe.ts";
 
 const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
   A: armA,
@@ -237,6 +238,14 @@ const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
   // eval 176. HYBRID's routing, then the FORM table overrides the mass. Its
   // control is HYBRID, not dual - see armCombo.
   COMBO: armCombo,
+  // eval 179, Santiago's idea. Ask for the RECIPE in recipe units, then convert each
+  // line to grams from FNDDS's published portion table. The plate total is a SUM of
+  // sourced weights, not a guess. Control is FORM (442.4), not dual. See arm-recipe.ts.
+  //   RECIPE-H  household/count units only - no gram may be asked for
+  //   RECIPE-M  the same, plus a "gram" escape hatch for awkward ingredients
+  // The pair exists to measure whether that escape hatch costs anything.
+  "RECIPE-H": armRecipeH,
+  "RECIPE-M": armRecipeM,
 };
 
 /** Arms whose batches form like dual's pass 2 - see the selection call below. */
@@ -250,6 +259,11 @@ const ORDER_ARMS: Record<string, true> = {
   MASSCALL: true,
   HYBRID: true,
   COMBO: true,
+  // Same batching as dual's pass 2: these arms ARE that call with the gram field
+  // replaced by amount + unit, so a different selection would measure the envelope
+  // rather than the units.
+  "RECIPE-H": true,
+  "RECIPE-M": true,
 };
 
 // A mistyped arm name would otherwise run the BASELINE and be written up as that
@@ -445,3 +459,29 @@ console.log(
     `\n    not comparable to one after it.` +
     `\n⚠️  Report alongside the weighted number, never merged into it.`,
 );
+
+// A recipe arm's score is uninterpretable without these. A high score on 12 kept
+// dishes is not the same result as a high score on 45, and "resolved" that is mostly
+// model-grams is not the mechanism under test.
+if (arm.startsWith("RECIPE")) {
+  const s = recipeStats();
+  if (s.lines > 0) {
+    console.log(
+      `\nRESOLUTION (${arm}) — read this BEFORE the score above:\n` +
+        `  recipe lines            ${s.lines}\n` +
+        `  resolved to FNDDS       ${s.resolved} (${
+          Math.round(100 * s.resolved / s.lines)
+        }%)\n` +
+        `    via published portion ${s.viaPortion}  <- the mechanism under test\n` +
+        `    via the model's grams ${s.viaModelGrams}  <- NOT the mechanism\n` +
+        `  dishes kept             ${s.dishesKept}\n` +
+        `  dishes reverted        ${s.dishesReverted}  (of which lost a body ingredient: ${s.lostBody})\n` +
+        `\n  🔴 THE TOTAL ABOVE IS NOT THIS MECHANISM'S SCORE. A reverted dish is archived\n` +
+        `     with ALL-ZERO macros - enrichBatch sums from \`typical_serving_g\` and the recipe\n` +
+        `     schema does not have that field - so every reverted dish-draw contributes a\n` +
+        `     guaranteed 0/4. Score the KEPT dishes against the same dish-draws of the control\n` +
+        `     instead; the archives make that free.` +
+        `  <- these score as their pre-recipe answer`,
+    );
+  }
+}

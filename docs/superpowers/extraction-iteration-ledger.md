@@ -5027,3 +5027,101 @@ anyway — so the router may now be dead weight, or may still be carrying the co
 - **NEXT:** two candidates, both cheap to state and paid to settle — (a) the unrouted `NOBOOST`+`FORM`
   stack, (b) widening the oracle past ~63 dishes so `COMBO` can resolve at all. (b) also unblocks
   every future arm, since 57 dishes cannot resolve a +24 effect.
+
+## Eval 188 — ☠️ **DON'T BUILD IT: WHOLE-DISH FNDDS LOOKUP FAILS AT GATE B, ON-CORPUS AND OFF.** FNDDS finds a record for 56/57 oracle dishes, but publishes a **serving-level** portion for only **12 of them (21%)** — the other 79% carry only "1 cup"/"1 slice"-style volume measures, exactly eval 179's unbounded-multiple problem, just for a different lookup shape. Off-corpus (the headline): of the 82 dishes `FORM_G` already misses, only **6 (7%)** get a real serving weight (2026-08-25, $0 — USDA's free API, no model calls)
+
+- Date: 2026-08-25 | $0 sanity check, Santiago's own framing (A/B/C, pre-committed bar: worth building
+  only if B holds on a clear majority **and** C is within ~10 points of `FORM_G`'s 84%).
+- New: `scripts/probe-fndds-wholedish.ts` (+ `--offcorpus` mode), `scripts/probe-fndds-wholedish_test.ts`
+  (6 tests), `scripts/fixtures/fndds-dish-terms.json` (57 hand-written terms). No production code
+  touched — this is a read-only offline probe, never in the scan path.
+
+### ① 🔑 LEAD FINDING — B, THE UNIT QUESTION, FAILS FIRST AND FAILS HARD
+
+| | A — record found | B — **serving-level** portion | C — in the ruled band |
+|---|---|---|---|
+| **on-corpus (57 oracle dishes)** | 56/57 (98%) | **12/56 (21%)** | 1/12 (8%) |
+| **off-corpus (82 `FORM_G` gap dishes) — HEADLINE** | 38/82 usable term† | **6/38 (16%)** | not measurable — no ruled band |
+
+†44/82 got no search term at all; see ③ — none of those 44 were translation failures.
+
+**Coverage (A) is fine. Units (B) are not.** Of the 56 on-corpus records FNDDS matched, 41 (73%)
+publish *some* volume measure (cup/tbsp/etc.) and only 12 (21%) publish anything at the whole-serving
+level the oracle's band is measured against. That is `sim-form-table.ts`'s own re-derived comparison
+number, run fresh today: **`FORM_G` target lands INSIDE the ruled mass band on 48/57 (84%), excluding
+pizzas 34/43 (79%).** FNDDS whole-dish lookup lands **1/12 (8%)** — worse than a coin flip on the
+handful of dishes it can even attempt, on the exact 57 dishes it should be easiest on.
+
+### ② ☠️ THE HEADLINE NUMBER: OFF-CORPUS, FNDDS RESCUES AT MOST ~7% OF `FORM_G`'S MISS
+
+`sim-form-coverage-split.ts` (re-run today, unchanged): **UNSEEN 122 candidates, 82 with no `FORM_G`
+row (67%) → the table sizes 33% of them.** Those 82 are the real prize — the dishes a lookup would
+need to rescue. Of them: 38 got a hand-written English term (46%), all 38 resolved to *some* FNDDS
+record (0 `NO_RECORD`), but only **6 (16% of 38, 7% of the full 82)** published a serving-level
+portion. **Accuracy (C) is not measurable off-corpus — no ruled band exists — so even that 7% is an
+upper bound on what could be rescued, not a result.** The other 32 matched records are volume/piece
+only and, per the global constraint on this plan, are NOT backfilled with an assumed cups-per-serving
+guess — they are reported as failures, the same discipline `VOLUME_ONLY` uses on-corpus.
+
+### ③ 🪤 44 OF 82 OFF-CORPUS DISHES GOT NO TERM — AND NONE OF THEM WERE TRANSLATION FAILURES
+
+Writing terms blind (name + description only, same discipline as the on-corpus set) surfaced something
+the coverage-split script's own candidate filter (not-a-drink, no-printed-weight) does not know about:
+a large share of "gap" candidates are not whole dishes at all. `guest-house`'s menu carries a
+steakhouse "enhancements" section — `CHIMICHURRI`, `BEARNAISE`, `HORSERADISH CRÈME`, `GH STEAK SAUCE`,
+`BLACK TRUFFLE BUTTER`, `FOIE GRAS`, `KING CRAB`, `OSETRA CAVIAR (3c)` — sauces and steak add-ons with
+no independent serving to look up. `polloteria`'s menu carries a wing-sauce flavor selector (`BBQ`,
+`Buffalo`, `Ranch`, `Kukla`, `Bomba`, 17 more) and a smoothie-flavor list (`Fresa`, `Piña`, `Uva`,
+`Limón`...) where the name alone names a flavor, not a dish. **Every one of the 44 blanks is this
+kind — zero were a case of "the words exist but I could not translate them."** This is a real limit of
+`sim-form-coverage-split.ts`'s candidate filter (drink/printed-weight is not enough to isolate
+orderable whole dishes), not of English-language lookup, and it should be fixed there before this
+number is trusted for a second run.
+
+### ④ ☠️ ON-CORPUS, HALF OF THE SERVING-LEVEL MATCHES ARE A RETRIEVAL FAILURE, NOT A DIET WIN
+
+Four different, specific search terms — `pizza capricciosa`, `pizza margherita`, `pizza four seasons`,
+`pizza diavola` — all resolved to the **identical wrong FDC record**, 2708008 "Dessert pizza" (1188 g
+for a 12" pie), because FNDDS's index does not recognise the Italian style words and falls back to the
+nearest text match. That inflates the on-corpus "record found" count without providing a usable
+answer — three of those four then scored `OVER`, wildly, on a whole-dish estimate 2.3-2.9x the ruled
+band. `preferStandalone` picks the FIRST candidate off a 5-item shortlist; nothing checked it was the
+right dish. Two more of the 12 "servings" — `5 FORMAGGI` and `VEGETARIANA` — matched a record whose
+portion string is literally "Topping per surface inch of pizza," which the classifier's `serving` regex
+reads as a serving because the string contains the word "pizza." Both would be more honestly called
+retrieval noise than measured servings.
+
+### ⑤ THE FOUR CAVEATS, AS REQUIRED
+
+1. **Hand-written terms are a CEILING, not a shipping estimate.** Every term above (on- and off-corpus)
+   was written by a human reading a menu line, not a model. Eval 180 ⑥ measured that 27% of shortlist
+   heads come back as a prepared dish where a plain ingredient was asked for — automated retrieval will
+   score below every number in this entry, and ④ shows the ceiling itself is already leaking.
+2. **`preferStandalone` picks the top candidate; nobody checked it is the right dish.** Recall@5 was
+   measured at 89.6% for *ingredients*, never for whole dishes — and ④ is a direct, measured
+   counterexample on this exact probe: the top candidate was wrong for 4/12 on-corpus servings.
+3. **A per-serving weight is still a US restaurant survey figure.** Eval 181 hit exactly this with pizza
+   and Santiago's ruling was "USDA for the ratios, my level for the absolute." The same discount
+   question applies here and is unresolved — even the 12 (on-corpus) or 6 (off-corpus) dishes that
+   *do* publish a serving are US-survey numbers, not verified against these menus.
+4. **This measures the lookup, not a pipeline.** No arm was run and no score moved. **Do not report a
+   `/684` figure for this entry** — nothing here sizes a scored dish.
+
+### ⑥ RECOMMENDATION
+
+**Don't build it.** Santiago's own pre-committed bar (B holds on a clear majority **and** C within ~10
+points of 84%) is not close on either half: B is 21% on-corpus / 16% off-corpus, nowhere near a
+majority, and the one place C could be measured it read 8% against an 84% target. Coverage (A) was
+never the weak link — FNDDS finding *a* record for a dish was never in doubt. **The problem this plan
+was built to test — does FNDDS publish whole-DISH weights, or only "1 cup" — comes back mostly "only
+1 cup," at both scales tested.** Decomposition (eval 179) and whole-dish lookup (this eval) have now
+both been tested and both lose to `FORM_G`'s 24 hand-written rows. `docs/superpowers/START-HERE.md`'s
+①bis table is updated accordingly; its own worked examples (chilaquiles, pozole, ceviche, enchilada —
+all cited as "g/cup") were foreshadowing this result before it was measured.
+
+- **Spend: $0.** Phase total ≈ $57.1.
+- **NEXT:** the FORM_G table stays the mechanism. If off-corpus coverage (33%) still needs raising, the
+  path is more hand-written `FORM_G` rows (eval 181's split-by-description shape, generalised) or a
+  human-curated whole-dish lookup — not an automated FNDDS query. Fixing
+  `sim-form-coverage-split.ts`'s candidate filter (③) would also sharpen the true off-corpus gap size
+  before either is attempted.

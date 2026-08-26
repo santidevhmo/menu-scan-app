@@ -296,7 +296,7 @@ it, and the distinction is the whole of what is left open:
 | shape | tested? | result |
 |---|---|---|
 | **DECOMPOSE** the dish into ingredients, look each one up, sum | ✅ eval 179 | ☠️ 30.4% / 47.2% vs `FORM`'s 62.7% / 51.4% |
-| **WHOLE-DISH** lookup — replace `FORM_G`'s 18 hardcoded rows with an FNDDS record for the dish itself | ❌ **NEVER TESTED** | — |
+| **WHOLE-DISH** lookup — replace `FORM_G`'s 18 hardcoded rows with an FNDDS record for the dish itself | ✅ eval 188 | ☠️ don't build — B (serving vs. "1 cup") fails at 21% on-corpus / 16% off-corpus |
 
 🔑 **The whole-dish shape is the one the literature supports** (Menu-Match: *identify-then-look-up*
 beats volume estimation) and it is what `FORM` already does — just with 18 handwritten rows instead of

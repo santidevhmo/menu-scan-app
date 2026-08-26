@@ -5027,3 +5027,55 @@ anyway — so the router may now be dead weight, or may still be carrying the co
 - **NEXT:** two candidates, both cheap to state and paid to settle — (a) the unrouted `NOBOOST`+`FORM`
   stack, (b) widening the oracle past ~63 dishes so `COMBO` can resolve at all. (b) also unblocks
   every future arm, since 57 dishes cannot resolve a +24 effect.
+
+## Eval 187 — 🟡 **THE UNROUTED STACK RUN: `NOBOOST-FORM` READS 407–452/684 (mean 431) — NEITHER BEATS `FORM` NOR LOSES TO `COMBO`, BOTH CIs INCLUDE ZERO, AND BOTH NEED FAR MORE THAN 57 DISHES TO RESOLVE.** `armNoBoostForm` built and registered — `armCombo` with `armHybrid` swapped for `armNoBoost`'s single pass — and run at the standing 4-run bar (2026-08-25, ~$2 planned + ~$0.30 unbudgeted, see ④)
+
+### ① 4-RUN RANGE, AND THE TWO CONTROLS ON TODAY'S RULER
+| run | /684 |
+|---|---|
+| r1 | 439 |
+| r2 | 452 |
+| r3 | 407 |
+| r4 | 426 |
+| **range / mean** | **407–452 / 431** |
+
+Controls re-derived by `--replay` the same day: `FORM` **417/684**, `COMBO` **458/684** — both match
+the figures on record, so the oracle has not moved since eval 186.
+
+### ② vs `FORM` — is the router's mass-carrying half now redundant?
+Pooled over all 4 runs each (`sim-arm-significance.ts`, dish-level paired bootstrap, band metric):
+**observed +11.5, 95% CI −15.5 to +39.0 on the /684 scale**, `NOBOOST-FORM` ahead in 80.3% of
+resamples. **The CI includes zero.** The log-ratio metric agrees (−0.0071, CI −0.0194 to +0.0056,
+better in 86.7% of resamples) — also straddles zero.
+
+### ③ vs `COMBO` — did deleting the router cost anything?
+Same pooling: **observed −12.5, 95% CI −35.8 to +10.5**, `NOBOOST-FORM` ahead in only 14.2% of
+resamples. **The CI includes zero here too.**
+
+🔑 **Neither comparison can be taken as settled.** The band-metric dishes-needed line reads **~321**
+against `FORM` and **~196** against `COMBO` — both far past the 57 dishes this oracle has. Reading
+"CI includes zero" as "the router is dead weight" would be exactly the mistake eval 186 already
+flagged for `COMBO` vs `FORM`: at this sample size a real effect the size of either observed
+difference would *still* usually show a CI containing zero, so a contained-zero CI is not evidence
+of equivalence here — it is evidence the oracle is too small to ask the question. **Verdict:
+unresolvable at 57 dishes**, not "router is dead weight" and not "router earns its call."
+
+### ④ WIRING NOTE AND SPEND
+Building the arm exposed a real hazard: `scripts/bench-unweighted.ts` had no `import.meta.main` guard
+(unlike `scripts/probe-plate-arms.ts`, which has carried one since eval 171 for the identical reason
+— see `probe-plate-arms.ts:1881`), so the wiring test's `await import("./bench-unweighted.ts")` fired
+the live `baseline` benchmark against a real key and overwrote three archived caches
+(`unweighted.baseline-f.{andaluz,bistro,el-marcos}-d0.raw.json`) before it was caught and killed.
+The three files were restored with `git checkout --` (confirmed clean via `git status`), and the fix —
+gating `bench-unweighted.ts`'s execution body behind `import.meta.main`, mirroring the existing
+pattern — is folded into this eval's Task 1 commit. Also caught before the paid runs: `NOBOOST-FORM`
+was missing from `ORDER_ARMS`, which would have selected batches the way `A`/`P` do rather than the
+way `NOBOOST`/`HYBRID`/`COMBO` do — a second variable that would have silently confounded the whole
+comparison. Fixed in the same commit.
+- **Spend: ~$2 planned for the 4 runs (this arm's 2 calls/batch vs `FORM`'s 3, so at the low end of
+  the plan's $2–3 estimate) + ~$0.30 unbudgeted from the `baseline` incident above ≈ ~$2.30.** No
+  exact OpenAI billing figure available from this environment. Phase total ≈ $59.4.
+- **NEXT:** widening the oracle past ~63 dishes (eval 186's item (b), now doubly motivated — it is
+  the binding constraint for `COMBO` vs `FORM` **and** for `NOBOOST-FORM` against both). Until then,
+  neither the router's value nor `NOBOOST-FORM`'s viability as a cheaper stand-in can be settled by
+  running more repeats of this oracle.

@@ -37,6 +37,7 @@ import {
   armHybrid,
   armMassCall,
   armNoBoost,
+  armNoBoostForm,
   armNoPush,
   armOrder,
   armOrderNoPush,
@@ -207,7 +208,7 @@ async function replayPath(arm: string, path: string): Promise<string> {
 import { armForm } from "./arm-dish-form.ts";
 import { armRecipeH, armRecipeM, COVERAGE_FLOOR, recipeStats } from "./arm-recipe.ts";
 
-const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
+export const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
   A: armA,
   "A-cond": armAConditional,
   P: armP,
@@ -238,6 +239,9 @@ const ARM_RUNNERS: Record<string, (batch: never) => Promise<unknown[]>> = {
   // eval 176. HYBRID's routing, then the FORM table overrides the mass. Its
   // control is HYBRID, not dual - see armCombo.
   COMBO: armCombo,
+  // eval 187. COMBO with the ROUTER DELETED: NOBOOST always, then the form table.
+  // Its control is FORM, not COMBO - one variable, the routing.
+  "NOBOOST-FORM": armNoBoostForm,
   // eval 179, Santiago's idea. Ask for the RECIPE in recipe units, then convert each
   // line to grams from FNDDS's published portion table. The plate total is a SUM of
   // sourced weights, not a guess. Control is FORM (442.4), not dual. See arm-recipe.ts.
@@ -259,6 +263,10 @@ const ORDER_ARMS: Record<string, true> = {
   MASSCALL: true,
   HYBRID: true,
   COMBO: true,
+  // eval 187. armNoBoostForm's first call IS runOrderArm(items, ARM_NOBOOST,
+  // false) - the same call NOBOOST/HYBRID/COMBO make - so it must select batches
+  // the same way, or the FORM/COMBO comparison would carry a second variable.
+  "NOBOOST-FORM": true,
   // Same batching as dual's pass 2: these arms ARE that call with the gram field
   // replaced by amount + unit, so a different selection would measure the envelope
   // rather than the units.
@@ -266,6 +274,11 @@ const ORDER_ARMS: Record<string, true> = {
   "RECIPE-M": true,
 };
 
+// import.meta.main so a caller can import ARM_RUNNERS (e.g. a wiring test) without
+// firing the live benchmark against a real API key - see probe-plate-arms.ts:1881
+// for the same guard on the same problem.
+// ponytail: gate only, not reindented - functional fix, not a formatting pass.
+if (import.meta.main) {
 // A mistyped arm name would otherwise run the BASELINE and be written up as that
 // arm's result - a paid run reported as something it is not.
 if (
@@ -484,4 +497,5 @@ if (arm.startsWith("RECIPE")) {
         `  <- these score as their pre-recipe answer`,
     );
   }
+}
 }

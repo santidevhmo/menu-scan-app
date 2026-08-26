@@ -59,6 +59,7 @@ what a future session re-derives from.
 | `HYBRID(300)` | A **router**: use `NOBOOST`'s answer when `NOBOOST`'s own plate mass < 300 g, else re-ask the shipped question. | 394–419 *(4 runs)* | beaten by `FORM` |
 | 🚀 **`FORM`** | The model names each dish's **form** from a fixed enum; **we** set the plate's mass from `FORM_G` and rescale. | **434–453** *(5 runs, mean 442.4)* | **SHIPPED as v33, 2026-08-23** |
 | `COMBO` | `HYBRID` routes, then `FORM` sizes. | 449–470 *(4 runs)*, **458 on the new ruler** | ☠️ **STILL NOT established (eval 186, re-derived): +24.0 over `FORM`, CI −1.2 to +48.5, INCLUDES ZERO.** The old +18 / −7.7 to +43.5 was the PRE-SPLIT ruler. 🔑 More runs cannot fix this — the script says **~63 dishes** are needed. Do not ship |
+| `NOBOOST-FORM` | The unrouted stack: always `NOBOOST`, then `FORM` sizes — `COMBO` with `HYBRID` deleted. | 407–452 *(4 runs, mean 431)* | 🟡 **not established — do not ship.** vs `FORM`: +11.5, CI −15.5 to +39.0, INCLUDES ZERO. vs `COMBO`: −12.5, CI −35.8 to +10.5, INCLUDES ZERO. 🔑 Needs ~196–321 dishes to resolve either way — not a 5th run's job (eval 187) |
 
 🔴 **EVERY SCORE BELOW THIS TABLE WRITTEN AS `/108` OR `/252` IS PRE-WIDENING AND NOT COMPARABLE TO
 ANYTHING CURRENT.** The oracle went 9 → 21 dishes (eval 167) → 57 dishes (eval 169). Re-derive with

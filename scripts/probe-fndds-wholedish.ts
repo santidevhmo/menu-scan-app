@@ -58,6 +58,7 @@ import {
   saveCache,
   shortlist,
 } from "./fndds-resolve.ts";
+import { itemsFromArchiveFile } from "./bench-pipeline.ts";
 
 interface OracleEntry {
   name: string;
@@ -65,14 +66,154 @@ interface OracleEntry {
   mass_band_g: [number, number];
 }
 
+// Task 4: the 82 off-corpus dishes are `sim-form-coverage-split.ts`'s own UNSEEN
+// menus, restricted to items that script counts as candidates (not a drink, no
+// printed weight) with no FORM_G row (dish_form "other"). Duplicated here rather
+// than imported because that script has no `import.meta.main` guard - importing
+// it would run its whole report as a side effect.
+const UNSEEN_MENUS: Record<string, string> = {
+  brasero: "brasero.eval117-r1.raw.json",
+  "casa-nostra": "casa-nostra.eval117-r1.raw.json",
+  "guest-house": "guest-house.eval117-r1.raw.json",
+  mochomos: "mochomos.eval117-r1.raw.json",
+  polloteria: "polloteria.eval117-r1.raw.json",
+};
+const PRINTED_WEIGHT = /\d+\s*(g|gr|gramos|grs)\b\.?/i;
+
+function labelsForMenu(menu: string): Map<string, string> {
+  const out = new Map<string, string>();
+  for (let b = 0;; b++) {
+    let raw: string;
+    try {
+      raw = Deno.readTextFileSync(
+        `scripts/fixtures/caches/formcoverage.${menu}-b${b}.raw.json`,
+      );
+    } catch {
+      return out;
+    }
+    const content = JSON.parse(raw).choices[0].message.content;
+    for (const it of JSON.parse(content).items) {
+      if (it?.name && it?.dish_form) out.set(it.name, it.dish_form);
+    }
+  }
+}
+
+function offCorpusEntries(): OracleEntry[] {
+  const out: OracleEntry[] = [];
+  for (const [menu, file] of Object.entries(UNSEEN_MENUS)) {
+    const labels = labelsForMenu(menu);
+    for (const it of itemsFromArchiveFile(file)) {
+      if (it.category === "drink") continue;
+      if (PRINTED_WEIGHT.test(it.name ?? "") || PRINTED_WEIGHT.test(it.description ?? "")) {
+        continue;
+      }
+      if ((labels.get(it.name) ?? "other") !== "other") continue;
+      out.push({ name: it.name, menu, mass_band_g: [0, 0] });
+    }
+  }
+  return out;
+}
+
+// Search terms for the 82 off-corpus dishes, written blind from name + description
+// only, same discipline as scripts/fixtures/fndds-dish-terms.json (Task 2). A
+// non-trivial fraction are steak-enhancement add-ons, sauces, or bare flavor names
+// (a wing-sauce menu, a smoothie-flavor list) with no independent "whole dish"
+// serving to look up - those are marked "" rather than guessed at, per the same
+// rule Task 2 uses. That is itself a reportable finding about this candidate set.
+const OFFCORPUS_TERMS: Record<string, string> = JSON.parse(`\
+{
+  "TARTAR DE ATÚN": "tuna tartare",
+  "COASTAL OYSTERS (6) DF, GF": "oysters raw",
+  "SHRIMP COCKTAIL DF, GF": "shrimp cocktail",
+  "HAMACHI CRUDO* DF, GF": "yellowtail raw",
+  "HALF MAINE LOBSTER TAIL": "lobster tail",
+  "TAYLOR BAY SCALLOP CEVICHE": "scallop ceviche",
+  "CRAB CAKE": "crab cake",
+  "CHARRED MOROCCAN BEET v": "beet salad",
+  "SEAFOOD PLATEAU*": "",
+  "PRIME TOMAHAWK* GF, DF": "tomahawk steak",
+  "40-DAY DRY AGED BONE-IN RIBEYE* 20 OZ GF": "ribeye steak",
+  "PARMESAN-CRUSTED FILET* 7 OZ / 10 OZ": "beef filet",
+  "BUTCHER'S CUT* GF": "beef steak",
+  "MISHIMA RESERVE WAGYU NEW YORK* GF": "new york strip steak",
+  "FOIE GRAS": "",
+  "KING CRAB": "",
+  "FRESH SHAVED TRUFFLES (5c)": "",
+  "BUTTERED LUMP CRAB": "",
+  "BLACK TRUFFLE BUTTER": "",
+  "MEXICAN WHITE SHRIMP": "",
+  "HALF LOBSTER TAIL": "",
+  "OSETRA CAVIAR (3c)": "",
+  "CHIMICHURRI": "",
+  "BEARNAISE": "",
+  "HORSERADISH CRÈME": "",
+  "GH STEAK SAUCE": "",
+  "BRAISED SHORT-RIB GF": "braised short rib",
+  "ORGANIC CHICKEN A LA RAJ": "roast chicken",
+  "FAROE ISLAND SALMON GF": "salmon",
+  "NEEV'S CAULIFLOWER": "cauliflower",
+  "FREE RANGE DUROC PORK CHOP GF": "pork chop",
+  "AUSTRALIAN LAMB CHOPS": "lamb chops",
+  "CHARRED BRUSSELS V, GF": "brussels sprouts",
+  "GH MAC | N | CHEESE": "mac and cheese",
+  "MISO MUSHROOMS": "miso mushroom",
+  "SWEET CORN PLODING V": "corn pudding",
+  "GRILLED BROCCOLINI": "broccolini",
+  "YUKON POTATO PUREE V": "mashed potato",
+  "ROASTED ASPARAGUS": "asparagus",
+  "TOSTADAS PUESTAS DE ATÚN": "tostada tuna",
+  "TOSTADAS DE ATÚN": "tostada tuna",
+  "TOSTADAS DE MARISCOS": "tostada seafood",
+  "TOSTADAS DE ATÚN AL AJONJOLÍ": "tostada tuna",
+  "TORRE DE BETABEL": "beet salad",
+  "COLIFLOR ALMENDRADA": "cauliflower",
+  "CARPACCIO DE BETABEL": "beet salad",
+  "CEVICHE VEGANO": "vegetable ceviche",
+  "COLIFLOR CHIGUILI": "cauliflower",
+  "CARPACCIO DE CALABAZA": "squash salad",
+  "CARPACCIO DE PORTOBELLO": "mushroom salad",
+  "Agridulce Oriental": "",
+  "BBQ": "",
+  "BBQ Chipotle": "",
+  "Kukla": "",
+  "Leve": "",
+  "Spicy Garlic": "",
+  "Buffalo": "",
+  "Mango-Habanero": "",
+  "Hot": "",
+  "Bomba": "",
+  "BUFFALO CHEESE (4oz)": "",
+  "Sampler (3pz)": "hamburger",
+  "Lemon Pepper": "",
+  "Ajo-Parmesano": "",
+  "Parmesano": "",
+  "Ranch": "",
+  "De La Casa": "",
+  "Blue Cheese": "",
+  "Chipotle": "",
+  "Cilantro": "",
+  "Ranch Habanero": "",
+  "Ranch Buffalo": "",
+  "Ranch Sriracha": "",
+  "Uva": "",
+  "Piña": "",
+  "Melón": "",
+  "Limón": "",
+  "Tamarindo": "",
+  "Fresa": "",
+  "Yoghurt con Cajeta": "",
+  "Combinada Fresa-Vainilla/Yogurt": ""
+}`);
+
 if (import.meta.main) {
   await loadCache();
-  const oracle: OracleEntry[] = JSON.parse(
-    await Deno.readTextFile("scripts/fixtures/unweighted-oracle.json"),
-  );
-  const terms: Record<string, string> = JSON.parse(
-    await Deno.readTextFile("scripts/fixtures/fndds-dish-terms.json"),
-  );
+  const offCorpus = Deno.args.includes("--offcorpus");
+  const oracle: OracleEntry[] = offCorpus
+    ? offCorpusEntries()
+    : JSON.parse(await Deno.readTextFile("scripts/fixtures/unweighted-oracle.json"));
+  const terms: Record<string, string> = offCorpus
+    ? OFFCORPUS_TERMS
+    : JSON.parse(await Deno.readTextFile("scripts/fixtures/fndds-dish-terms.json"));
 
   const rows: Record<string, unknown>[] = [];
   for (const e of oracle) {
@@ -140,15 +281,20 @@ if (import.meta.main) {
   console.log(`   serving-level portion  : ${withServing}`);
   console.log("   🔑 If this line is small, the idea inherits eval 179's unit problem.");
 
-  console.log("\nC. ACCURACY — of those, how many land in the ruled mass band?");
-  console.log(`   IN BAND                : ${tally.IN_BAND ?? 0}`);
-  console.log(`   under                  : ${tally.UNDER ?? 0}`);
-  console.log(`   over                   : ${tally.OVER ?? 0}`);
-  console.log(
-    `\n   FNDDS in-band rate     : ${tally.IN_BAND ?? 0}/${withServing}` +
-      ` of dishes it can size`,
-  );
-  console.log("   COMPARE: FORM_G is 48/57. Re-derive with sim-form-table.ts.");
+  if (offCorpus) {
+    console.log("\nC. ACCURACY — NOT MEASURABLE off-corpus: these dishes have no ruled band.");
+    console.log("   Report coverage and units only. Do not invent a band to score against.");
+  } else {
+    console.log("\nC. ACCURACY — of those, how many land in the ruled mass band?");
+    console.log(`   IN BAND                : ${tally.IN_BAND ?? 0}`);
+    console.log(`   under                  : ${tally.UNDER ?? 0}`);
+    console.log(`   over                   : ${tally.OVER ?? 0}`);
+    console.log(
+      `\n   FNDDS in-band rate     : ${tally.IN_BAND ?? 0}/${withServing}` +
+        ` of dishes it can size`,
+    );
+    console.log("   COMPARE: FORM_G is 48/57. Re-derive with sim-form-table.ts.");
+  }
 
   await Deno.writeTextFile(
     "scripts/fixtures/fndds-wholedish-report.json",

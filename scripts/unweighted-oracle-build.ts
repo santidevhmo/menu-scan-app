@@ -17,6 +17,55 @@ import type { MacroBand } from "./macro-band-score.ts";
 const OUT = "scripts/fixtures/unweighted-oracle.json";
 const RETRIEVED = "2026-08-12";
 
+/**
+ * PIZZA MASS BANDS, SPLIT BY TOPPING CLASS — eval 181, Santiago's call 2026-08-24.
+ *
+ * All 14 Bistro pizzas previously shared ONE band, [400,450] g, whatever was on them.
+ * That could not be right: FNDDS publishes areal densities of 3.9-5.9 g/in^2 across
+ * topping classes, so a cheese pizza and a meat-and-vegetable pizza differ by ~1.3x.
+ *
+ * 🔑 The grams come from FNDDS's published "1 surface inch" portion × the 95.4 in^2
+ * of a 28 cm pizza (the diameter Bistro PRINTS as its section header). No diameter-bin
+ * interpolation, which is where eval 178's superseded 620 g figure went wrong — that
+ * read the flat "medium (11-12 in)" row, really an ~11.8 in pizza.
+ * Re-derive: `deno run --allow-read --allow-net --allow-env --env-file=.env.local \
+ *   scripts/probe-pizza-areal.ts`
+ *
+ * ⚠️ RATIOS FROM USDA, LEVEL FROM SANTIAGO. FNDDS is US restaurant survey data and
+ * American pizzas carry more topping. PIZZA_SCALE compresses every row by one factor.
+ * It is NOT a free parameter: FNDDS's NO-CHEESE thin crust is 372 g, and a pizza with
+ * cheese cannot weigh less than one without, so the cheese row cannot go below 372.
+ * That pins the scale. (A flat 425 g menu average would have needed 0.79 and put a
+ * cheese pizza at 337 g — lighter than a bare crust.)
+ *
+ * ☠️ THESE BANDS MOVED IN LOCKSTEP WITH `FORM_G` IN dish-form.ts, AND MUST STAY THAT
+ * WAY. Moving one without the other is eval 178's column B: the score craters even
+ * though nothing got worse. And because both now read the SAME FNDDS records, a rising
+ * score is NOT evidence the app improved — see eval 178 ① (A ≈ C). Only weighing a
+ * real pizza settles the absolute level.
+ */
+const PIZZA_SCALE = 372 / 429; // = 0.8671, pinned by the no-cheese floor
+/** USDA g at 28 cm, before compression. */
+const PIZZA_USDA_G = {
+  cheese: 429, // 4.5 g/in^2, FDC 2708615
+  extra_cheese: 458, // 4.8 g/in^2, FDC 2708622
+  pepperoni: 468, // 4.9 g/in^2, FDC 2708639
+  cheese_veg: 496, // 5.2 g/in^2, FDC 2708626
+  meat_veg: 563, // 5.9 g/in^2, FDC 2708663
+} as const;
+/** The band keeps the ±6% relative width of Santiago's original [400,450] on 425. */
+function pizzaBand(cls: keyof typeof PIZZA_USDA_G): [number, number] {
+  const mid = PIZZA_USDA_G[cls] * PIZZA_SCALE;
+  return [Math.round(mid * (400 / 425)), Math.round(mid * (450 / 425))];
+}
+const PIZZA_BAND = {
+  cheese: pizzaBand("cheese"),
+  extra_cheese: pizzaBand("extra_cheese"),
+  pepperoni: pizzaBand("pepperoni"),
+  cheese_veg: pizzaBand("cheese_veg"),
+  meat_veg: pizzaBand("meat_veg"),
+};
+
 interface Draft {
   name: string;
   menu: string;
@@ -35,7 +84,7 @@ const DRAFTS: Draft[] = [
   {
     name: "CAPRICCIOSA",
     menu: "bistro",
-    mass_band_g: [400, 450],
+    mass_band_g: PIZZA_BAND.meat_veg,
     // FDC 2708663, RESTAURANT thin crust - venue matches the dish, crust matches
     // the premise the mass rests on.
     composition: {
@@ -285,7 +334,7 @@ const DRAFTS: Draft[] = [
   {
     name: "5 FORMAGGI",
     menu: "bistro",
-    mass_band_g: [400, 450],
+    mass_band_g: PIZZA_BAND.extra_cheese,
     // FDC 2708615, RESTAURANT thin crust, CHEESE topping class.
     composition: {
       protein_per_100g: 11.39,
@@ -302,7 +351,7 @@ const DRAFTS: Draft[] = [
   {
     name: "MARGARITA",
     menu: "bistro",
-    mass_band_g: [400, 450],
+    mass_band_g: PIZZA_BAND.cheese_veg,
     // FDC 2708615, RESTAURANT thin crust, CHEESE topping class - venue and crust match
     // CAPRICCIOSA's ruling; only the topping class differs.
     composition: {
@@ -321,7 +370,7 @@ const DRAFTS: Draft[] = [
   {
     name: "PEPPERONI",
     menu: "bistro",
-    mass_band_g: [400, 450],
+    mass_band_g: PIZZA_BAND.pepperoni,
     // FDC 2708639, the dedicated pepperoni record - NOT the generic "meat" record
     // (2708650), which is literally titled "meat OTHER THAN pepperoni".
     composition: {
@@ -342,7 +391,7 @@ const DRAFTS: Draft[] = [
   {
     name: "4 STAGIONI",
     menu: "bistro",
-    mass_band_g: [400, 450],
+    mass_band_g: PIZZA_BAND.meat_veg,
     // FDC 2708650, RESTAURANT thin crust, MEAT topping class (four meats, no vegetable).
     composition: {
       protein_per_100g: 11.5,
@@ -359,7 +408,7 @@ const DRAFTS: Draft[] = [
   {
     name: "HAWAIANA",
     menu: "bistro",
-    mass_band_g: [400, 450],
+    mass_band_g: PIZZA_BAND.meat_veg,
     // FDC 2708650, RESTAURANT thin crust, MEAT topping class.
     composition: {
       protein_per_100g: 11.5,
@@ -378,7 +427,7 @@ const DRAFTS: Draft[] = [
   {
     name: "ITALIANA",
     menu: "bistro",
-    mass_band_g: [400, 450],
+    mass_band_g: PIZZA_BAND.meat_veg,
     // FDC 2708663, RESTAURANT thin crust, MEAT+VEGETABLE topping class - CAPRICCIOSA's
     // already-ruled id.
     composition: {
@@ -398,7 +447,7 @@ const DRAFTS: Draft[] = [
   {
     name: "MEXICANA",
     menu: "bistro",
-    mass_band_g: [400, 450],
+    mass_band_g: PIZZA_BAND.meat_veg,
     // FDC 2708663, RESTAURANT thin crust, MEAT+VEGETABLE topping class.
     composition: {
       protein_per_100g: 11.55,
@@ -415,7 +464,7 @@ const DRAFTS: Draft[] = [
   {
     name: "CAPRESE",
     menu: "bistro",
-    mass_band_g: [400, 450],
+    mass_band_g: PIZZA_BAND.meat_veg,
     // FDC 2708663, RESTAURANT thin crust, MEAT+VEGETABLE topping class.
     composition: {
       protein_per_100g: 11.55,
@@ -433,7 +482,7 @@ const DRAFTS: Draft[] = [
   {
     name: "JAMÓN CON CHAMPIÑONES",
     menu: "bistro",
-    mass_band_g: [400, 450],
+    mass_band_g: PIZZA_BAND.meat_veg,
     // FDC 2708663, RESTAURANT thin crust, MEAT+VEGETABLE topping class.
     composition: {
       protein_per_100g: 11.55,
@@ -451,7 +500,7 @@ const DRAFTS: Draft[] = [
   {
     name: "VEGETARIANA",
     menu: "bistro",
-    mass_band_g: [400, 450],
+    mass_band_g: PIZZA_BAND.cheese_veg,
     // FDC 2708626, RESTAURANT thin crust, VEGETABLE topping class.
     composition: {
       protein_per_100g: 9.96,
@@ -641,7 +690,7 @@ const DRAFTS: Draft[] = [
   {
     name: "FLAMENKUCHEN",
     menu: "bistro",
-    mass_band_g: [400, 450],
+    mass_band_g: PIZZA_BAND.meat_veg,
     // FDC 2708682 "White pizza, cheese, with meat and vegetables, thin crust" - a CREAM
     // base, not tomato, so the standard 5-class topping rule does not apply. Bacon = meat,
     // caramelized onion = vegetable, matching this record's own class exactly.
@@ -661,7 +710,7 @@ const DRAFTS: Draft[] = [
   {
     name: "QUESO AZUL",
     menu: "bistro",
-    mass_band_g: [400, 450],
+    mass_band_g: PIZZA_BAND.meat_veg,
     // Same FDC 2708682 as FLAMENKUCHEN - cream base, blue cheese, serrano ham (meat),
     // spinach (vegetable). Green apple is a named addition with no dedicated FNDDS
     // fruit-on-pizza record at this venue/crust; treated like HAWAIANA's pineapple -
@@ -684,7 +733,7 @@ const DRAFTS: Draft[] = [
   {
     name: "OSTRICA",
     menu: "bistro",
-    mass_band_g: [400, 450],
+    mass_band_g: PIZZA_BAND.meat_veg,
     // 85% FDC 2708650 (plain MEAT class, base+crust+bacon) blended with 15% FDC 2706355
     // "Oysters, canned" (the standard proxy for "ostión ahumado" - canned smoked oyster
     // is a common Mexican product). No FNDDS pizza-with-seafood record exists at any

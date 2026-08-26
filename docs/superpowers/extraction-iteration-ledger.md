@@ -4395,3 +4395,635 @@ arm returns — so a crash in post-processing throws away bytes that were alread
 - **NEXT:** `FORM` remains the arm to beat. The recipe idea is not dead but it is NOT a general
   mechanism — it is a candidate for the dish classes where it scored 12/12 (pasta, salads), and the
   $0 raw archives make that re-analysis free. ⚠️ Do not re-open household-only; ② is the reason.
+
+## Eval 180 — 🟢 **$0 AUDIT ANSWERING A DIRECT QUESTION: are the `jamón serrano` flaws fixed?** Both are confirmed **smoke-test-only and never shipped** — but the audit found the docs had FUSED TWO INCIDENTS into one false sentence, and found that **the English-naming fix does NOT remove the pepper hazard.** Also re-derived: `FORM` 436/684, mass 144/171, and **soup is NOT a `FORM_G` row** (2026-08-24, $0 — replays and file reads only, no API calls, no model calls)
+
+- Date: 2026-08-24 | Santiago asked whether the "jamón serrano treated as a literal slice of ham"
+  and "~200 g of pepper" flaws were fixed. No code changed. One doc line corrected (START-HERE ③).
+
+### ① THE TWO FLAWS: BOTH REAL, BOTH SMOKE-TEST ONLY, NEITHER EVER IN PRODUCTION
+
+| flaw | where it actually happened | in the paid archives? | in production? |
+|---|---|---|---|
+| `"jamón serrano"` → `Peppers, serrano, raw` | eval 179 **smoke test**, Spanish name (`arm-recipe.ts:62`) | ❌ no | ❌ no |
+| `"4 slices serrano ham"` × FNDDS 60 g `Ham` slice = **240 g of ham** | eval 179 **smoke test** (ledger 179 ② says so: *"seen directly in the smoke test"*) | ❌ no | ❌ no |
+
+**Evidence, all $0:**
+- `caches/recipe-raw.{H,M}.jsonl`: every archived CAPRICCIOSA/QUESO AZUL/CAPRESE line reads
+  `0.25 cup` (or `50 gram` in RECIPE-M), **never `4 slices`**. The one `slice` answer is CROQUETAS at
+  1–2 slices.
+- `unweighted.RECIPE-H-f.bistro-d0.raw.json`: serrano ham resolved to **33.8 g** (0.25 × the `Ham`
+  record's 135 g/cup) at P28/F15. Correct food, correct weight. That pizza failed on its **crust**
+  (124 g) and plate total (319 g vs band 400–450), not on its ham.
+- Production (`unweighted.FORM-f-r2.bistro-d0.raw.json`): `"name": "jamón serrano"`,
+  **35.4 g, P28 / F15** — cured ham at a topping weight. A serrano *pepper* is P1.74 / F0.44, so the
+  composition alone rules the pepper out.
+- `grep -rn "fndds\|recipe\|UNIT_ENUM\|household" supabase/functions/analyze-menu/`: **no resolver, no
+  unit enum in the shipped path.** The only FNDDS mentions are two comments in `dish-form.ts`.
+
+### ② 🪤 THE DOCS HAD FUSED TWO INCIDENTS INTO ONE FALSE SENTENCE — NOW CORRECTED
+
+START-HERE ③ read: *"eval 179's `\"jamón serrano\"` matched **\"Peppers, serrano, raw\"** and put
+240 g of chilli on a pizza."* **The 240 g belongs to the ham-slice case and the substance was HAM.**
+The pepper case carries **no gram figure in any source** — not in the ledger, not in `arm-recipe.ts`,
+not in any archive. Two incidents, one number, welded together by a shared "240".
+🔑 **The tell was arithmetic: 4 × 60 = 240 reconstructs the ham case exactly, and nothing reconstructs
+240 g of chilli.** A number that cannot be re-derived from its own stated mechanism is a fused claim.
+
+### ③ ⚠️ THE ENGLISH-NAMING FIX IS NECESSARY BUT **NOT SUFFICIENT** — AND THE DOC CALLED IT "EFFECTIVE"
+
+START-HERE ③ credited `RECIPE_ASK`'s "write every ingredient name in ENGLISH" with fixing the pepper.
+Checked against `scripts/fixtures/fndds-cache.json`, **it does not**:
+
+```
+shortlist("serrano ham", 5)   ← the ENGLISH query
+  169395  Peppers, serrano, raw          P 1.74  F 0.44   ← ids[0], the fallback
+  2747663 Peppers, serrano, seeded, raw
+  2705878 Ham                             P 19    F 3.87
+```
+
+`resolveLine` takes `ids[0]` whenever the picker call fails (`arm-recipe.ts:210` on a picker
+exception, `:224` for any name the picker omitted). **On that path an English "serrano ham" still
+resolves to a raw chilli.** What actually saved the paid run is the **second model call that picks the
+`fdcId`** from the shortlist — the +9 points `fndds-resolve.ts:295` documents (80.5% → 89.6%).
+🔑 **So this is the SAME retrieval problem as ①, not a language problem.** Language is a precondition
+for retrieval, never a substitute. Do not cite English naming as the fix for a mis-resolution.
+
+### ④ RE-DERIVED, SINCE A CONCLUSION IS ONLY VALID UNDER THE RULER THAT MEASURED IT
+
+| | |
+|---|---|
+| `bench-unweighted.ts 3 FORM --replay` | **436/684 = 64%** (unchanged) |
+| `sim-gram-distribution.ts FORM` | **144 in band, 9 over, 18 under** = 84% |
+| `sim-form-coverage-split.ts` | SEEN **82%** (147 cand, 26 gaps) · UNSEEN **33%** (122 cand, 82 gaps) |
+
+☠️ **SOUP IS NOT A `FORM_G` ROW.** Santiago named pizza / sushi roll / bowl of soup as the three
+things now sized correctly. Pizza (`pizza_whole_thin` 425) and sushi (`sushi_roll_order` 280) are
+rows and both dishes score 10–11/12. **There is no soup row**, so a soup labels as `other` and
+`applyFormMass` returns it untouched (`dish-form.ts:195`) — it keeps the dual-pass answer and is not
+size-corrected at all. Nothing regresses, but nothing improves either. Soup is published in FNDDS,
+so it is a candidate row under ①.
+
+### ⑤ 🪤 THE TEST SUITE'S "EXPECT EXACTLY 2 FAILURES" CONTRACT WAS BROKEN IN BOTH DIRECTIONS
+
+Running the documented command produced **4** failures, not 2. Neither extra was caused by this
+session (working tree held only two `.md` edits). Both are now fixed, because a false red is exactly
+what that contract exists to prevent:
+
+1. **The command line itself was wrong.** `deno test --allow-all scripts/ supabase/` omits
+   `--env-file=.env.local`, so `probe-plate-arms.ts:43` throws `OPENAI_API_KEY is required` at
+   **import** time — an *uncaught error*, not a test failure. START-HERE's command now carries the
+   flag and a note saying why.
+2. ☠️ **`enrich_test.ts:1382` had been RED since the v33 ship.** It pinned
+   `assertStringIncludes(source, "callGptEnrichDualPass(")` while v33 moved `index.ts`'s call site to
+   `callGptEnrichFormSized` (`index.ts:7,117`). **The one test guarding that production wires up the
+   right enrichment path was asserting the previous version**, so v33's wiring has been unguarded
+   since 2026-08-23. Re-pinned to `callGptEnrichFormSized(`, and it now also asserts the dual-pass
+   entry point is *absent*, so the next swap cannot leave a half-finished wiring either.
+
+**Suite after: 420 passed, exactly the 2 documented failures** (`macro-measure_test.ts`'s known false
+positive and `tile-cut_test.ts`, which Santiago ruled unimportant).
+🔑 **A shipped change must re-run the guard that names the thing it replaced.** The deploy checklist
+verified the mechanism (`verify-form-fired` 171/171) but not the suite, and a mechanically-pinned
+test is the one kind that goes stale silently the moment it succeeds at its job.
+
+### ⑥ 🔑 RETRIEVAL, MEASURED FOR THE FIRST TIME: **27% OF SHORTLIST HEADS ARE A PREPARED DISH, NOT THE PLAIN INGREDIENT**
+
+Santiago, 2026-08-24: *"These USDA queries should take the result that is exactly that item (for ex,
+'jamon serrano -> ham', not 'jamon serrano -> ham with pepper and oil')."* **He is right, and the bias
+is systematic rather than random.** Measured $0 over the 144 cached ingredient terms that have both an
+FDC shortlist and an archived model answer:
+
+| we asked for | FDC's top hit |
+|---|---|
+| `mushrooms` | **Fried** mushrooms |
+| `eggplant` | Eggplant **dip** |
+| `avocado` | Avocado **dressing** |
+| `garlic` | Garlic **sauce** |
+| `olives` | Olive **tapenade** |
+| `cauliflower` | **Fried** cauliflower |
+| `shrimp` | Shrimp **cocktail** |
+| `salmon` | **Lomi** salmon |
+| `serrano ham` | **Peppers, serrano, raw** |
+
+**FDC's relevance ranking prefers COMPOSITE records over plain ones.** This is the same failure behind
+every retrieval example already in START-HERE ① (`"vegetables grilled"` → "Scallops, grilled",
+`"taco beef soft"` → broccoli) — now with a rate attached instead of an anecdote list.
+
+🟢 **THERE IS A FREE SIGNAL FOR CATCHING IT, AND IT NEEDS NO EXTRA CALL.** The model already returns
+`protein_per_100g` / `fat_per_100g` per ingredient. Screening a candidate whose PUBLISHED per-100 g
+disagrees with the model's stated per-100 g by >10 g flags **39 of 144 (27%)** — that is how the table
+above was generated. Serrano ham at 28 P / 15 F against a raw chilli's 1.74 P / 0.44 F is a 16×
+disagreement. No API call, no model call, pure arithmetic on data already in hand.
+⚠️ **It flags DISAGREEMENT, not "the record is wrong".** `dried basil` flags because FNDDS says 23 P
+and the model says 3 P — and **FNDDS is the correct one there.** So it is a screen that says "these
+two sources describe different foods", never an oracle about which one to believe. Treat it as a
+router into a tie-break, not as a filter that silently drops candidates.
+
+🔑 **AND THE BIAS FLIPS SIGN FOR THE UNTESTED SHAPE.** Composite-over-plain ranking is HARMFUL when
+looking up ingredients (the DECOMPOSE shape, rejected in ①) and **HELPFUL when looking up the dish
+itself** (the WHOLE-DISH shape, still never tested), where "Chilaquiles" the composite record is
+exactly what you want. So this measurement is evidence FOR the whole-dish shape, not against lookups
+generally.
+
+### ⑦ ☠️ THE USDA API CAN NEVER RUN IN THE SCAN PATH — NOW WITH THE ARITHMETIC, NOT JUST THE ASSERTION
+
+Santiago asked how the API holds up at 200+ users. `fndds-resolve.ts:27` already ruled *"NEVER put this
+API in the scan path… Production ships the CC0 bulk download"*; this entry supplies the numbers behind
+it so no future session re-litigates it.
+
+**The limit is 1,000 requests/hour PER IP ADDRESS, not per API key** (FDC API Guide, verified
+2026-08-24). Exceeding it returns 429 and **blocks the key for one hour**. ⚠️ Our own runs observed
+`X-RateLimit` headers reporting **3,600**/hr (`fndds-resolve.ts:14`), so the true ceiling is uncertain
+— **the conclusion holds under either number.**
+
+🪤 **PER-IP IS THE KILLER, NOT PER-KEY.** Edge functions egress from a shared address pool, so the
+budget is shared across every user of the app at once — and possibly with other tenants.
+
+Cost of ONE cold scan, counted from real `FORM` archives (`resolveLine` = 1 search + up to 3 detail
+fetches, deduped by ingredient name):
+
+| menu | items | distinct ingredients | USDA calls |
+|---|---|---|---|
+| bistro | 26 | 76 | **~304** |
+| andaluz | 10 | 37 | ~148 |
+| brasero-two | 12 | 34 | ~136 |
+| el-marcos | 10 | 22 | ~88 |
+
+**~300 calls for one bistro-sized menu against a 1,000/hour shared budget is ~3 scans per hour for the
+WHOLE APP.** It breaks at 3 concurrent users, not 200. Add the measured **~41% 404 rate** at 3,533 of
+3,600 unused — the endpoint is flaky *independently* of rate limiting — and a live dependency is not
+viable at any user count.
+
+🟢 **THE BULK FILE MAKES THE PROBLEM VANISH: zero runtime calls, zero USDA uptime dependency.** FNDDS
+downloads as CSV/JSON, refreshes every two years (so a stale build is a non-event), and is **CC0 1.0 /
+US public domain — commercial use and redistribution allowed, attribution requested but not required**,
+so it can ship inside the app. Verified 2026-08-24; START-HERE ① already assumed CC0 and the
+assumption is CORRECT.
+
+### ⑧ ⚠️ ONE NON-MACRO RISK SANTIAGO RAISED, RECORDED SO IT IS NOT LOST
+
+He asked whether Apple is fine with the USDA and Supabase calls. **The calls are a non-issue** — a
+public HTTP API plus your own backend is ordinary, and USDA's CC0 status permits shipping the data
+inside the binary. 🔑 **The real App Store exposure is guideline 1.4.1 (health apps that can cause
+harm through inaccurate data), because we display nutrition numbers at 64% band accuracy.** That is a
+UI-framing and submission question, not a pipeline question, and it is **unresolved and unowned**.
+Flagged here only so it survives; it needs a proper read of the guidelines, not this summary.
+
+### ⑨ 🔑 SANTIAGO'S RULING ON WHAT COUNTS AS AN ACCEPTABLE FALLBACK (2026-08-24)
+
+Told that FDC's top hit is a prepared dish 27% of the time (⑥), Santiago **did not** ask for exact
+matching. His ruling, verbatim:
+
+> *"its okay if the item / ingredient is not written down exactly as it is and to fallback to its next
+> most aligned option, but at the same time lets be careful of this, because "mushrooms -> fried
+> mushrooms" is a pretty good fallback, while "shrimp -> shrimp cocktail" are two totally different
+> things. Fallback is acceptable if its a different format / cooking of the ingredient or such, not a
+> whole different menu item (that ingredient with sauce or served with more stuff or such)."*
+
+**The line he drew:**
+
+| verdict | shape | examples from ⑥'s 39 flagged heads |
+|---|---|---|
+| ✅ ACCEPTABLE | the SAME food, prepared differently | `mushrooms` → Fried mushrooms · `cauliflower` → Fried cauliflower · `seaweed` → Seaweed, dried |
+| ☠️ NOT ACCEPTABLE | a DIFFERENT DISH that merely contains the food | `shrimp` → Shrimp cocktail · `avocado` → Avocado dressing · `garlic` → Garlic sauce · `olives` → Olive tapenade · `eggplant` → Eggplant dip · `serrano ham` → Peppers, serrano, raw |
+
+🪤 **THIS INVALIDATES USING ⑥'s MACRO SCREEN ON ITS OWN.** The screen fires on *both* columns —
+`mushrooms` → Fried mushrooms trips it on fat (4.63 P / 12.9 F published vs 3 P / 0 F stated) even
+though Santiago rules it a GOOD fallback. **A >10 g macro gap detects "these describe different
+foods"; it cannot tell an acceptable preparation change from an unacceptable dish substitution.**
+So the screen is at best one input to the rule, never the rule itself. ⚠️ Do not ship it as a filter.
+
+🔑 **The distinction he is drawing is about ADDED COMPONENTS, not about cooking.** Frying a mushroom
+adds oil to the same food; a tapenade adds capers, oil and lemon and becomes a different item. Any
+implementation has to separate "transformed" from "combined" — which is a harder test than a macro
+delta, and is **not yet designed**. ⚠️ Use `superpowers:brainstorming` before building it.
+
+### ⑩ ⚠️ WHAT PART OF THE PIPELINE TOUCHES USDA — ASKED DIRECTLY, ANSWERED BY GREP
+
+Santiago asked whether **production** calls USDA and what the difference is between "USDA" and
+"FNDDS". Both answered from the files, because the docs let the two names drift as if they were rival
+systems.
+
+**They are not two things.** USDA's database is **FoodData Central (FDC)**; **FNDDS is one dataset
+inside it**, alongside Foundation Foods, SR Legacy and Branded Foods — the four values
+`fndds-resolve.ts:36` filters on. One API, one bulk download, one organisation. FNDDS is the section
+that matters here because it is the one publishing **serving weights** for composed restaurant dishes.
+
+**Every caller of `api.nal.usda.gov`, exhaustively:**
+
+| file | purpose | runs in production? |
+|---|---|---|
+| `scripts/usda-oracle.ts` (+ `_test`) | builds the hand-ruled ANSWER KEY | ❌ offline |
+| `scripts/unweighted-candidates.ts` | oracle drafting | ❌ offline |
+| `scripts/unweighted-portions.ts` | oracle drafting | ❌ offline |
+| `scripts/fndds-resolve.ts` | the eval-179 RECIPE arms, both rejected | ❌ offline |
+
+**`src/` and `supabase/` contain ZERO USDA calls.** The only hits in the edge function are five
+*comments* citing USDA values (`dish-form.ts:61,84`, `enrich.ts:35,156,388`) — prose, not requests.
+🔑 **So USDA is currently an ORACLE-BUILDING tool, not a runtime dependency**, and ⑦ is the reason it
+must stay that way. If a lookup ever ships it ships as the bundled CC0 file.
+
+### ⑪ SPANISH→ENGLISH: NOT BUILT, AND DELIBERATELY SO
+
+Santiago asked whether to write a plan for it. **Recommendation given and accepted: no separate plan.**
+Translation only has a consumer if an English-only database is being queried, and **nothing queries
+one today** — production reads the Spanish menu and the model supplies per-100 g values from its own
+knowledge, no lookup involved. A translation layer built now plugs into nothing.
+🔑 **It is a STEP INSIDE the ① lookup job, not a project beside it.** Revisit when ① is designed, not
+before. ⚠️ And when it is, ③'s correction applies: English naming is necessary but **not sufficient**
+— the English query `"serrano ham"` still ranks the pepper first.
+
+- **Code changed:** `supabase/functions/analyze-menu/enrich_test.ts` (one stale assertion re-pinned).
+  Nothing in the production path changed; **no redeploy needed.**
+- **Spend: $0.** Phase total ≈ $57 (unchanged — no model calls, no USDA calls; the rate-limit and
+  licence facts came from FDC's published docs).
+- **NEXT:** unchanged. `FORM` remains the arm to beat and ① (whole-dish FNDDS lookup) remains the
+  ranked-first item — now with ⑥ giving retrieval its first measured rate, ⑦ settling that any such
+  lookup must be built from the BULK FILE rather than a live API, and ⑨ supplying the acceptance rule
+  that ⑥'s macro screen is **not** sufficient to implement.
+
+## Eval 181 — 🟢 **THE PIZZA ROW IS SPLIT BY TOPPING CLASS.** One row at 425 g became five, 372–488 g, sourced from FNDDS's published **areal density** rather than a diameter-bin read. 🪤 **Eval 178's 620 g figure is WRONG and superseded — it read a row that is really an ~11.8 in pizza.** ☠️ And the split immediately exposed a mislabelled dish the coarse table had been hiding (2026-08-24, $0 — no model calls)
+
+- Date: 2026-08-24 | Santiago's call, designed with `superpowers:brainstorming` (spike → bounded).
+- New: `scripts/probe-pizza-areal.ts`, `supabase/functions/analyze-menu/dish-form_test.ts` (5 tests).
+- Changed: `dish-form.ts` (`FORM_G`, `FORM_ENUM`, new `LEGACY_FORMS`), `scripts/dish-forms.ts`
+  (hand labels + `PIZZAS`), `scripts/unweighted-oracle-build.ts` (14 bands), `verify-form-fired.ts`
+  (stale comment). ⚠️ **NOT DEPLOYED.** Production still runs v33 with the single 425 g row.
+
+### ① 🔑 THE METHOD: AREAL DENSITY, NOT A DIAMETER BIN
+
+FNDDS publishes a portion literally called **"1 surface inch"** — grams per square inch of pizza. A
+printed diameter therefore converts to a mass with ONE multiplication and no binning assumption.
+Bistro prints **"28 CM"** as its pizza section header (verified in the OCR of the original photo,
+`caches/bistro.mistral-pt-r1.raw.json`), = 11.02 in = **95.4 in²**.
+
+| FDC | class | g/in² | at 28 cm |
+|---|---|---|---|
+| 2708674 | no cheese, thin | 3.9 | **372** ← the floor |
+| 2708615 | cheese, restaurant thin | 4.5 | 429 |
+| 2708622 | extra cheese, thin | 4.8 | 458 |
+| 2708639 | pepperoni, restaurant thin | 4.9 | 468 |
+| 2708626 | cheese + veg, restaurant thin | 5.2 | 496 |
+| 2708663 | **meat + veg, restaurant thin** | 5.9 | **563** |
+
+☠️ **EVAL 178'S 620 g IS SUPERSEDED.** It read FNDDS's flat `"medium (11-12 in)"` row. Asking each
+record what diameter its own two numbers imply — `medium_g / (g per in²)` → area → diameter — gives
+**11.71, 11.83, 11.88, 11.89, 11.90, 11.96, 11.97 in** across seven records plus 11.50 for the
+stuffed control. **The row is an ~11.8 in pizza, the TOP of its bin, 13% more area than 28 cm.** The
+surface-inch figure is the same data at finer resolution without that error. 2708663 at 28 cm is
+**563 g, not 620.** 🔑 **The eight independent agreements are what make this a derivation rather than
+a second opinion** — re-run `scripts/probe-pizza-areal.ts`, which prints the consistency table.
+
+**So the gap Santiago was asked to rule on was 10% at the median, not 46%.**
+
+### ② SANTIAGO'S RULING: USDA FOR THE RATIOS, HIS LEVEL FOR THE ABSOLUTE
+
+Offered ratios-only / adopt-USDA-outright / weigh-a-pizza-first, he chose **ratios only** — FNDDS is
+US restaurant survey data and American pizzas carry more topping. Every row is `USDA_g × PIZZA_SCALE`.
+
+🔑 **PIZZA_SCALE IS NOT A FREE PARAMETER — a physical floor pins it.** FNDDS's **no-cheese** thin
+crust is 372 g, and a pizza *with* cheese cannot weigh less than one without. So the cheese row cannot
+go below 372, fixing the scale at **372/429 = 0.867**. ⚠️ A flat 425 g menu average — the literal
+reading of "keep my level" — would have required 0.79 and put a cheese pizza at **337 g, lighter than
+a bare crust.** The floor was reported to Santiago before implementing.
+
+| class | shipped g | band |
+|---|---|---|
+| `pizza_thin_cheese` | 372 | [350,394] |
+| `pizza_thin_extra_cheese` | 397 | [374,421] |
+| `pizza_thin_pepperoni` | 406 | [382,430] |
+| `pizza_thin_cheese_veg` | 430 | [405,455] |
+| `pizza_thin_meat_veg` | 488 | [459,517] |
+
+Bands keep the ±6% relative width of the original [400,450] on 425. Menu-weighted average over the 14
+pizzas: **425 → 467 g (+10%)**, against +27% for adopting USDA outright.
+
+### ③ ☠️ THE SPLIT EXPOSED A MISLABELLED DISH THE COARSE TABLE WAS HIDING
+
+`dish-forms.ts` labelled **ALFREDO PORTOBELLO** `pizza_whole_thin`, with a comment reading *"it sits
+in the pizza section with a cream base, whatever its name suggests."* **The oracle rules it a PASTA** —
+200 g pasta + cream + chicken + mushrooms, 410 g, band [350,470] — and its own `assumed` note says it
+*"arrives tagged section_title 'PIZZAS BISTRO'… a pasta under the pizza heading, a known Stage-1
+mis-section."* The label followed the mis-section instead of the food.
+
+🪤 **425 g sits inside [350,470], so a pasta sized as a pizza still PASSED.** Only moving the row to
+488 g pushed it out and made the conflict visible. 🔑 **A coarse table can conceal a wrong label; a
+finer one cannot.** Re-labelled `pasta_entree` (400 g vs the oracle's own 410 g decomposition).
+**Bistro has 14 pizzas, not 15** — every earlier count in this repo saying 15 includes a pasta.
+
+### ④ ⚠️ WHAT THE SCORE DOES AND DOES NOT SHOW
+
+Both sides of the ruler moved, so **old numbers are not comparable.** Under the NEW oracle:
+
+| | old ruler | new ruler |
+|---|---|---|
+| `dual` | 352/684 | **333/684** |
+| `FORM` (archives sized at the OLD 425 row) | 436/684 | **417/684** |
+| `FORM` gap over `dual` | +84 | **+84** |
+
+The archives predate the split, so 417 understates by construction; the hand-label ceiling with the
+new table reads **466/684**, implying ≈ +49 for a real run. ☠️ **DO NOT QUOTE THAT AS A GAIN.**
+`sim-form-table.ts`'s own audit column now prints **gap +0 on all four pizza rows**, and that script
+says in as many words: *"A table copied from the answer key would show ~0 with no outliers."* The table
+and the band were derived from the SAME FNDDS records, so the score is measuring agreement with
+itself — **eval 178 ① (A ≈ C) reproducing exactly as predicted.**
+
+🔑 **WHAT IS ACTUALLY ESTABLISHED:** (a) the structural defect is fixed — 14 different pizzas no longer
+share one mass; (b) the ratios rest on published data, not a ruling; (c) a real mislabel was caught.
+**WHAT IS NOT:** that any user's pizza macro is now closer to the truth. **Only a kitchen scale settles
+the absolute level**, and that offer stands.
+
+### ⑤ THE REPLAY-SAFETY TRAP, AND THE TEST THAT NOW GUARDS IT
+
+Deleting `pizza_whole_thin` would have made `applyFormMass` fall through `if (!target) return it` and
+**silently stop sizing pizzas on every archived replay** — corrupting the $0 re-scoring the whole
+project depends on, and looking like a modelling regression rather than a missing row. The key is kept
+as a **legacy** entry and excluded from the enum via a new `LEGACY_FORMS` set, so archives resolve but
+the model can no longer choose the pre-split answer.
+🔑 `FORM_G` had **no test at all** before today. `dish-form_test.ts` now pins the five things that fail
+silently: legacy resolves, legacy is not offered, the cheese row stays at/above the 372 g floor, the
+five rows rise monotonically, and `other`/unknown leaves a dish untouched. 5/5 green.
+⚠️ `verify-form-fired.ts` reports **OTHERROW** on pre-split archives' pizzas, which is correct — 425 g
+now matches the legacy row. It means "this archive predates the split", not a defect.
+
+- **Spend: $0.** Phase total ≈ $57. Suite: **425 passed, the 2 documented failures.**
+- **NEXT:** deploying is Santiago's call and needs a paid run at the 4-run bar first, like `HYBRID` and
+  `FORM` got — the ceiling is not an arm. The generalisable question this opens: **splitting a `FORM_G`
+  row by description worked structurally here, so is it the mechanism for the other 20 rows?** That is
+  the same question as ① (whole-dish lookup) approached from the table side.
+
+## Eval 182 — 🟢 **A VISUAL WALKTHROUGH OF THE WHOLE PIPELINE, BUILT FOR SANTIAGO AFTER CONTEXT LOSS.** No code touched. Every figure on it re-derived today from source + $0 replays, and re-deriving turned up three things the docs did not state: **soup and rice are UNMEASURED, not badly handled**; the tile/dense path is **wired up but unreachable**; and the failure profile by macro is now on record (2026-08-24, $0 — replays and file reads only, no model calls)
+
+- Date: 2026-08-24 | Santiago asked for a step-by-step visual of the macro-enrichment pipeline for
+  three input scenarios, plus answers to four questions about how well each part performs.
+- New: `docs/pipeline-walkthrough.html` — standalone, no dependencies, opens in a browser.
+- Changed: nothing else. **Production is unchanged: edge fn v33, `FORM`.**
+
+### ① WHAT THE PAGE COVERS
+Scenario A (one photo), Scenario B (multi-page), Scenario C (low confidence — split into the two
+different things that share the word), a Stage-2 close-up of who computes what, one dish carried end
+to end, and a scoreboard answering the four questions. Source read before writing any claim:
+`analyze-menu/{index,extract,enrich,dish-form,orientation,postprocess}.ts` + `src/lib/analyzeMenu.ts`.
+
+### ② RE-DERIVED TODAY, ON THE POST-EVAL-181 RULER
+| measure | value | command |
+|---|---|---|
+| unweighted, deployed (`FORM`) | **417/684 (61%)** | `bench-unweighted.ts 3 FORM --replay` |
+| unweighted, previous (`dual`) | **333/684 (49%)** | same, `dual` |
+| plate mass in band, `dual` → `FORM` | **47/171 (27%) → 111/171 (65%)** | `sim-gram-distribution.ts dual FORM` |
+| residual mass misses | **48 under, 12 over** — still one-directional | same |
+| `FORM_G` target inside the ruled band | **48/57 (84%)** | `sim-form-table.ts` |
+| coverage, menus seen / unseen | **82% / 33%** | `sim-form-coverage-split.ts` |
+| ingredients found, described vs name-only | **5.43 vs 2.68**; 8% vs **45%** under 1.2 kcal/g | `sim-decomposition-ceiling.ts` |
+| weighted | **46/288 failed fields (84% pass)** | `sim-accompaniment-ceiling.ts` |
+
+### ③ 🔑 NEW — THE FAILURE PROFILE BY MACRO, WHICH NO DOC HELD BEFORE
+Counted from the `FORM` replay's own band-violation lines, 171 dish-draws × 4 checks:
+
+| macro | in band | too high | too low |
+|---|---|---|---|
+| protein | **129 (75%)** | 22 | 20 |
+| calories | 109 (64%) | **41** | 21 |
+| carbohydrate | 93 (54%) | 31 | **47** |
+| fat | **86 (50%)** — weakest | **46** | 39 |
+
+**We over-fat and under-carb**, and calories inherit the fat error at 9 kcal/g. Protein — the macro
+diners rank on most — is the one we get right three times in four. This confirms on the CURRENT ruler
+what was previously recorded as "+14% fat, −8% carb" on an older one.
+
+### ④ ☠️ SOUP AND RICE ARE NOT "HANDLED BADLY" — THEY ARE UNMEASURED
+`FORM_G` has no soup row and no rice row (eval 180 ④ already said soup; rice was never checked). New
+today: across **540 distinct dish names in every archive**, there is exactly **one** soup
+(`SOPA DE TORTILLA`) and **one** rice dish (`Risotto Caprese`), and **neither is in the 57-dish
+oracle.** So there is no measurement of either to appeal to. Both fall to `other` → unsized → the
+model's own mass, which the same page shows is biased **low**. Anyone asked "how are we doing on
+soup?" must answer "we have never measured it", not quote 61%.
+
+### ⑤ ⚠️ THE DENSE/TILE PATH IS WIRED UP BUT UNREACHABLE
+`index.ts` handles `needs_crops`, `analyzeMenu.ts` cuts 2×2 tiles for it, `runGroupedExtraction`
+implements the whole tile+verify+merge recipe — but **`runPagedExtraction` has no code path that
+returns `needs_crops`**, so the shipped OCR flow never asks for it. Recorded because reading either
+end alone makes it look live. `eval-027-live.ts` already asserts against it reconnecting by accident.
+
+- **Spend: $0.** Phase total ≈ $57. No API calls, no model calls.
+- **NEXT:** unchanged by this entry — the open decisions are still whole-dish FNDDS lookup (eval 178 ①)
+  and whether to pay for a 4-run arm on the split pizza table (eval 181). The page adds one candidate
+  the numbers now argue for on their own: **more `FORM_G` rows**, since 67% of dishes on an unseen
+  menu still get no sizing at all.
+
+## Eval 183 — 🟢 **THREE DIRECT QUESTIONS FROM SANTIAGO, ANSWERED BY MEASUREMENT NOT MEMORY.** The per-100 g mechanism has real evidence but **no head-to-head score**; printed-weight fitting is **523/523 exact**; and the folds got a plain-language definition. A sequence diagram of batch enrichment added to the walkthrough (2026-08-25, $0 — archive reads only, no model calls)
+
+- Date: 2026-08-25 | Q&A + one diagram. **Production unchanged: edge fn v33, `FORM`.**
+- Changed: `docs/pipeline-walkthrough.html` only (sequence diagram, printed-weight section, an
+  accurate description of the postprocess folds). No pipeline code touched.
+
+### ① ⚠️ "IS THERE AN EVAL PROVING PER-100 g BEATS ASKING FOR THE AMOUNT?" — MECHANISM YES, SCORE NO
+Three independent measurements support it, and **none of them is a clean A/B on the current ruler**:
+- **iter-b12-001** — the falsifier passed outright. Parmesan came back `P35.8 C3.2 F25.8` against
+  USDA's `35.75/3.22/25.83`, matching to the decimal, and corn went from an implied 67 g carb/100 g
+  to 19. 🔑 **"The composition knowledge was there the whole time; asking for the amount in this
+  serving was destroying it."** But the same commit ALSO deleted B11's food list, so the run is
+  **confounded** and its aggregate REGRESSED (11 failed field/draws).
+- **iter-b10-001** — the same move one level up (we sum, not the model). Every total the model
+  emitted was a multiple of 5.
+- **iter-b18** — the strongest, and it is a proper control: dish-level energy-density recall scored
+  **14/96 at 17.3%** against the ingredient sum's **11–13/96 at 14.1–14.9%**, i.e. **the model's
+  whole-dish recall is WORSE than its own ingredient sum on 6 of 8 dishes**, and its answers were
+  180/250/200/250/200/180/150 — almost all multiples of 50.
+🪤 **So the honest statement is: reverting to model-reported amounts is measured worse at the
+DISH level (b18) and the per-100 g values are measured accurate against USDA (b12), but nobody has
+ever run `per-100 g` vs `amount-in-this-serving` as two arms over the 57-dish oracle.** Both would
+be replayable-cheap to state but the amount-shaped arm has no archive, so it is a PAID run, not $0.
+
+### ② 🟢 PRINTED WEIGHTS: THE FITTING IS EXACT, 523/523, AND NEVER SILENTLY SKIPPED
+Santiago asked whether a printed grammage is actually used, and whether ingredient sums can exceed
+it. Measured over every archived answer for the 8 printed-weight dishes:
+- **523/523 answers**: the ingredients flagged `within_printed_weight` resolve to **exactly** the
+  printed number (`resolveGrams` scales by `printed ÷ inside-sum`). The model's raw list routinely
+  overshoots — ENFRIJOLADAS 303 g against a printed 135 — and is divided back down.
+- **99/99 distinct answers**: the model's `printed_total_g` matches the token printed on the menu,
+  so the fitting never failed to fire for want of the field.
+- **48/99** carry at least one ingredient OUTSIDE the printed weight; those pass through untouched,
+  so the plate total legitimately exceeds the printed number (PASTEL AZTECA = 300 g + 130 g of sides).
+  **That is Santiago's "except when the grammage is for main ingredients" case, and it is handled.**
+🪤 **ONE SUBTLETY NOW ON RECORD: two different fields both mean "printed weight".** The PARTITION
+(who goes to pass 2) reads the **code-parsed** `grams` from `parseItemGrams`; the FITTING reads the
+**model-echoed** `printed_total_g`. They agree on every archive, but only the first cannot vary
+between draws. Re-check this if either is ever changed.
+
+### ③ WHAT THE POSTPROCESS FOLDS ACTUALLY DO, IN PLAIN TERMS
+Read from `postprocess.ts`, not from the function names:
+| fold | plain meaning |
+|---|---|
+| `dropHeaderEchoes` | a HEADING transcribed as if it were a dish → deleted |
+| `promoteSections` | a heading that SWALLOWED its dishes into a dropdown → exploded back into real items |
+| `foldVariantCards` | the same dish printed 3× at 3 prices → one item with three options |
+| `dropSiblingEchoOptions` | a NEIGHBOURING dish re-attached as a "choice" → removed |
+| `parseItemGrams` | reads "(300gr.)" in code, LAST, so promoted items get their weight too |
+⚠️ `dropBannerEchoOptions`, `dropOptionEchoItems`, `remapTruncatedSectionTitles` and
+`foldSectionTitlePunctuation` run ONLY in `runGroupedExtraction` — the tile path, which eval 182 ⑤
+established is unreachable. They are not part of a shipped scan today.
+
+- **Spend: $0.** Phase total ≈ $57. No API calls, no model calls.
+- **NEXT:** ① is the only new open question — a `per-100 g` vs `amount` A/B on the 57-dish oracle
+  would cost a paid run and would settle a mechanism the whole pipeline rests on. It has never been
+  run at this denominator. Not urgent (the prior is strong), but it is genuinely unmeasured.
+
+## Eval 184 — 🟢 **THE WALKTHROUGH REBUILT TO A REFERENCE DESIGN SANTIAGO SUPPLIED, PLUS THREE WORKED DISHES ON THREE DIFFERENT CODE PATHS.** The third dish reproduces, from a live archive, the exact defect this project's own oracle note predicts: **gpt-4o omits the tortillas from a PASTEL AZTECA** (2026-08-25, $0 — archive reads only, no model calls)
+
+- Date: 2026-08-25 | Design revision + one new finding. **Production unchanged: edge fn v33, `FORM`.**
+- Changed: `docs/pipeline-walkthrough.html` rebuilt. No pipeline code touched.
+- ⚠️ Three reference screenshots the user moved into `docs/` are still there
+  (`Screenshot 2026-08-25 at 4.48.*.png`) — sandbox could not delete them; harmless, delete at will.
+
+### ① WHY IT WAS REBUILT
+Santiago's verdict on the first version: *"It's over-complicated in design."* He supplied three
+screenshots of a sequence-diagram tool as the target. What was removed: fragment/`alt` rectangles,
+italic side-notes inside the diagram, the `<pre>` "ticket" blocks, the rail-and-dot step chrome, and
+the dual light/dark token system. What replaced it: a single committed dark canvas, rounded
+participant boxes with a per-participant border colour, **numbered badges + pill labels, one message
+per row**, and the resilience detail moved OUT of the diagram into a plain table beside it.
+🔑 **The colour now encodes something true rather than decorating**: green = GPT-4o, the only place a
+model runs; violet = our edge function; sky = the phone.
+
+### ② 🟢 THE THIRD DISH IS A LIVE REPRODUCTION OF A DOCUMENTED DEFECT
+The three examples were picked because each takes a **different route through the backend**:
+
+| dish | route | what it shows |
+|---|---|---|
+| `JAMÓN CON CHAMPIÑONES` | no printed weight → `applyFormMass` | model's 430 g vs our 425 g, **×0.99** — sizing barely moves a dish the model already got right. 4/4 in band, all draws |
+| `Salmón Roll` | no printed weight → `applyFormMass` | model's **185 g** vs our 280 g, **×1.51** — sizing doing real work. 374 → 466 kcal, 10/12 pts |
+| `PASTEL AZTECA (300gr.)` | **printed weight → `resolveGrams`** | 290 g fitted **×1.034 to exactly 300 g**, plus 60 g of beans passed through untouched |
+
+☠️ **AND THE THIRD ONE IS STILL WRONG, INSTRUCTIVELY SO.** Archive `mixed.dual-f.el-marcos-d0`:
+protein **42 vs the oracle's 40** (exact), but carbs **31 vs 50** — because the model's ingredient
+list is `chicken · tomato sauce · green chili · onion · corn · cheese blend · beans` with **NO
+TORTILLA.** A pastel azteca is a layered tortilla casserole.
+🔑 **This is not a new discovery — it is a live reproduction of what `macro-oracle.json`'s own
+`assumed` note records** (*"an ingredient ENTAILED BY THE DISH NAME is not an inference… B9 measured
+the cost — gpt-5.5 listed tortillas at 90 g and was scored 13/48 failed for being right, where
+gpt-4o, which omits them, scored 0/48"*). It is worth having a current, citable instance: **the
+sizing was right, the fitting was exact, the protein was exact, and the dish still failed on the one
+component the menu did not name.** That is eval 182 ③'s under-carb finding with a face on it.
+
+### ③ WHAT DID NOT CHANGE
+Every figure carried over unchanged and re-verified: `FORM` 417/684, `dual` 333/684, mass in band
+47→111 of 171, coverage 82%/33%, ingredients 5.43 vs 2.68, weighted 46/288, and the per-macro
+failure profile. Nothing was re-derived differently by the redesign.
+
+- **Spend: $0.** Phase total ≈ $57. No API calls, no model calls.
+- **NEXT:** unchanged. The open items are still whole-dish FNDDS lookup (eval 178 ①), a paid 4-run
+  arm on the split pizza table (eval 181), more `FORM_G` rows (eval 182), and the never-run
+  `per-100 g` vs `amount` A/B (eval 183 ①).
+
+## Eval 185 — 🟢 **THREE DISHES TRACED LIVE THROUGH THE DEPLOYED FUNCTIONS, EVERY INTERMEDIATE CAPTURED.** The first per-dish record of what each Stage-2 step actually does — and it caught **pass 2 destroying a correct answer**: `Salmón Roll` went 4/4 → **1/4** before sizing pulled it back to 3/4 (2026-08-25, **~$0.12**, 9 model calls)
+
+- Date: 2026-08-25 | Santiago asked to see the middle of the pipeline, not the module names:
+  *"Is it calculating size first? Is it separating each ingredient? At what step does the hardcoded
+  table fit in?"* **Production unchanged: edge fn v33, `FORM`.**
+- New: `scripts/trace-dish.ts` (the paid tracer), `scripts/score-traces.ts` ($0, scores it with the
+  harness's own `scoreItemAgainstBand`), `scripts/build-walkthrough.ts` ($0, generates the page),
+  `docs/pipeline-walkthrough.template.html`, `scripts/fixtures/dish-traces.json`.
+
+### ① THE TRACER CALLS THE DEPLOYED FUNCTIONS AND COPIES NO PIPELINE LOGIC
+`callGptEnrich` (pass 1), `callGptEnrich` + the exported `ENRICH_PROMPT_UNWEIGHTED` + `"system"`
+envelope (pass 2, the call `callGptEnrichDualPass` makes verbatim), `labelForms`, `applyFormMass`,
+`resolveGrams`, and `itemsFromArchiveFile` so `parseItemGrams` sets `grams` exactly as production
+does. Each dish is sent **inside its own real menu, in its own real batch of 10.** The only thing not
+reproduced is dual's positional merge, which is unnecessary per-dish and is asserted rather than
+assumed (`isFallbackEnriched`). That is lesson 23 respected, not worked around.
+
+### ② ☠️ THE FINDING: PASS 2 MADE A CORRECT DISH WRONG
+| dish | printed? | pass 1 | pass 2 | label | table | final |
+|---|---|---|---|---|---|---|
+| `JAMÓN CON CHAMPIÑONES` | no | 230 g **0/4** | 430 g **4/4** | `pizza_thin_meat_veg` | 488 g ×1.135 | **4/4**, first answer inside the mass band |
+| `Salmón Roll` | no | 362 g **4/4** | **210 g 1/4** | `sushi_roll_order` | 280 g ×1.333 | **3/4**, still under the 300 g floor |
+| `PASTEL AZTECA (300gr.)` | **300 g** | 350 g | **skipped** | `other` | **refused** | carbs **−41.8%** |
+
+🔑 **Pass 2's whole purpose is to push portions UP, and on this draw it pushed `Salmón Roll`'s rice
+from 150 g down to 60 g** — turning a dish that was already inside its ruled mass band into one 90 g
+under it. Sizing recovered 2 of the 3 lost points but could not reach the band floor.
+**Every stage in this pipeline is an average-case improvement, not a per-dish guarantee.** This is a
+concrete, traceable instance of the 38-of-57 rescan problem, which no arm has ever addressed.
+⚠️ n=1 draw per dish. This does not revise any published arm score — those pool 57 dishes × 3 draws.
+
+### ③ 🪤 `PASTEL AZTECA` REPRODUCED THE MISSING-TORTILLA DEFECT A THIRD TIME, LIVE
+`name_implied_components` came back **`[]`** — empty. Protein lands at **−0.4%** (essentially exact),
+carbohydrate at **−41.8%**, fat at −34.8%. The sizing was right, the fitting was exact, the protein
+was exact, and the dish is still wrong on the one component the menu did not name. 🔑 **And the label
+call chose `other` for it anyway**, so even with no printed weight the table had no row — the
+coverage gap (eval 182) caught in the act on a completely ordinary Mexican dish.
+
+### ④ 🔑 THE ORDER, SINCE IT WAS THE QUESTION ASKED
+**Size is computed LAST, not first.** The order is: our regex reads the printed weight → the menu is
+split on that field → the model lists ingredients + per-100 g → our code does the arithmetic → pass 2
+replaces the no-weight answers → the label call → **`FORM_G` is read at step 11 of 13** → one scalar
+rescales every ingredient → the arithmetic runs a second time. **The hardcoded table is the last
+thing to touch a dish, and the only place a hand-typed number enters one.**
+⚠️ Also observed and worth knowing: **the model switched language between passes** — pass 1 said
+`jamón`/`champiñones`, pass 2 said `ham`/`mushroom`. Nothing pins it to one language across calls,
+so any code matching ingredients BY NAME across the two passes would silently fail. Nothing does today.
+
+### ⑤ SUITE
+**420 passed, 7 failed — all 7 are `EPERM` on `~/Downloads/MenusTesting/*`**, a macOS privacy
+restriction on this session's process, not a regression; none involves the new scripts. ⚠️ The
+documented baseline is 2 failures, so a session that CAN read `~/Downloads` should still see 2.
+
+- **Spend: ~$0.12** (9 calls). Phase total ≈ $57. Re-running the tracer is the only paid step;
+  re-scoring and rebuilding the page are $0.
+- **NEXT:** unchanged, plus one new candidate the trace argues for on its own: **pass 2 is worth
+  measuring PER DISH, not just in aggregate.** The archives can answer it for $0 — compare
+  `baseline-f` (pass 1 alone) against `dual-f` dish by dish and count how many dishes it moves
+  backwards. If that fraction is large, a router that keeps pass 1 when it already looks sane is the
+  same shape as `HYBRID`, which was already deploy-eligible.
+
+## Eval 186 — 🟢 **RE-DERIVED ON THE POST-EVAL-181 RULER: `COMBO` reads 458/684 and is +24.0 over `FORM` with a 95% CI of −1.2 to +48.5 — STILL INCLUDES ZERO.** Also: the pass-2 sentence's two halves isolated on the current ruler (2026-08-25, $0 — replays only)
+
+- Date: 2026-08-25 | Answering Santiago's questions about combining the winning arms.
+  **Production unchanged: edge fn v33, `FORM`.** No code touched.
+
+### ① EVERY ARM ON ONE RULER, ALL RE-DERIVED TODAY
+| arm | /684 | note |
+|---|---|---|
+| `baseline` (one pass) | 263/636 | 53 dishes only |
+| `NOPUSH` (no addendum at all) | 289 | |
+| `A` (plate first, then portion into it) | 290/636 | 53 dishes |
+| `MASSCALL` (separate mass call) | 253 | |
+| form+grams from the model | 323 | |
+| **`dual` (SHIPPED v32 pass 2)** | **333** | |
+| `ORDER` | 345 | |
+| `PIECE` | 366 | |
+| `ORDER-nopush` | 368 | |
+| **`NOBOOST` (best wording found)** | **370** | |
+| 🚀 **`FORM` (SHIPPED v33)** | **417** | |
+| `COMBO` (`HYBRID` routes, then `FORM` sizes) | **458** | ☠️ not established |
+
+### ② 🔑 THE PASS-2 SENTENCE'S TWO HALVES, ISOLATED ON THE CURRENT RULER
+- no addendum (`NOPUSH`) **289**
+- restraint half only (`NOBOOST`) **370** → **the restraint is worth +81**
+- restraint + push (`dual`, SHIPPED) **333** → **the push clause costs −37**
+**The shipped configuration is not the best known one**, and the best wording ever found works by
+DELETING text. That is consistent with wording being 0-for-6 when it ADDS a sentence.
+
+### ③ ☠️ `COMBO` STILL DOES NOT RESOLVE, AND THE NUMBERS MOVED WITH THE RULER
+Pooled over 4 runs each: **+24.0, 95% CI −1.2 to +48.5, ahead in 96.9%**. The log-ratio metric also
+straddles zero (−0.0092, CI −0.0205 to +0.0031, better in 93.5%). ⚠️ **START-HERE's stored figure
+(+18.0, CI −7.7 to +43.5) is the PRE-SPLIT ruler and is now superseded** — the point estimate rose
+and the CI narrowed, but it still includes zero.
+🔑 **The script prints the actual fix: ~63 dishes on the band metric, ~93 on log-ratio.** More RUNS
+will not resolve this; the oracle needs to be wider. That is a $0-to-design, paid-to-rule task.
+
+### ④ WHAT HAS NEVER BEEN COMBINED
+`COMBO` = `HYBRID` + `FORM`, and `HYBRID` uses `NOBOOST`'s answer only when `NOBOOST`'s own plate
+mass is under 300 g, else it re-asks the shipped question. **So the plain stack — always `NOBOOST`,
+then `FORM` sizing, no router — has never been run.** It is one line in `armCombo` (`runOrderArm(items,
+ARM_NOBOOST, false)` in place of `armHybrid`) and would cost one paid 4-run arm. Whether it beats
+`COMBO` is genuinely unknown: the router exists because `NOBOOST` was measured to help small plates
+and hurt large ones (+0.97/dish under 250 g, −0.21/dish at or above), and `FORM` overwrites mass
+anyway — so the router may now be dead weight, or may still be carrying the composition half.
+
+- **Spend: $0.** Phase total ≈ $57.1.
+- **NEXT:** two candidates, both cheap to state and paid to settle — (a) the unrouted `NOBOOST`+`FORM`
+  stack, (b) widening the oracle past ~63 dishes so `COMBO` can resolve at all. (b) also unblocks
+  every future arm, since 57 dishes cannot resolve a +24 effect.

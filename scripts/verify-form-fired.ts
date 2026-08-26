@@ -3,8 +3,14 @@
 // 🪤 Eval 172 tried to verify a router by diffing two paid archives and the check
 // was invalid - the model is not deterministic, so a difference proves nothing.
 // This check is different in kind: form sizing leaves an INVARIANT inside a single
-// archive. If a dish was sized as `pizza_whole_thin`, its resolved plate mass must
-// equal 425 g exactly. No second run is needed and drift cannot fake it.
+// archive. If a dish was sized as `pizza_thin_meat_veg`, its resolved plate mass must
+// equal 488 g exactly. No second run is needed and drift cannot fake it.
+//
+// ⚠️ AFTER EVAL 181, PRE-SPLIT ARCHIVES READ `OTHERROW` ON EVERY PIZZA, NOT `EXACT`.
+// That is correct, not a regression: evals 174-180 sized pizzas at the old single
+// 425 g row, which still exists in FORM_G as a legacy key, so the mass matches "some
+// other row". A pizza reading OTHERROW at exactly 425 g means "this archive predates
+// the topping split" - which is exactly what you want the check to tell you.
 //
 // Three outcomes are distinguished, because they mean different things:
 //   EXACT    - mass equals FORM_G[hand label]. The mechanism fired on the row we

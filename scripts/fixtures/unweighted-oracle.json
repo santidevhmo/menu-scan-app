@@ -4,25 +4,25 @@
     "menu": "bistro",
     "unweighted": true,
     "mass_band_g": [
-      400,
-      450
+      459,
+      517
     ],
     "band": {
       "calories": [
-        822,
-        1232
+        943,
+        1415
       ],
       "protein_g": [
-        39,
-        59
+        45,
+        68
       ],
       "carb_g": [
-        90,
-        136
+        104,
+        156
       ],
       "fat_g": [
-        34,
-        50
+        39,
+        58
       ]
     },
     "assumed": "28 cm stated on the menu. Band [400,450] g is Santiago's ruling (2026-08-13) for a THIN-CRUST pizza. Area-scaling USDA's 14\" meat-and-vegetable records (FDC 172055 at 1168 g/pie, FDC 172049 at 1043 g/pie; 28 cm = 62% of 14\" BY AREA) gave [647,724] g, but both are American chain pizza - thick pan-style crust. At 450 g a 28 cm pizza carries ~0.73 g/cm2 against the chain's ~1.18, which is the thin-vs-pan difference, so the chain mass does not describe this dish. RE-SOURCED 2026-08-16 (Santiago's ruling), the FIFTH variant correction on this entry and the third on this dish: composition was FDC 2708660 'from FROZEN, thin crust' (P 11.3 / C 25.1 / F 14.4). Bistro is a restaurant, so the correct VENUE cell is FDC 2708663 'from RESTAURANT OR FAST FOOD, thin crust' (P 11.6 / C 26.6 / F 9.87) - frozen pizza carries 46% more fat. Verified against the FDC API 2026-08-16, and the whole FNDDS grid was listed before choosing: frozen thin/medium/thick are one identical record (276 kcal), restaurant splits by crust (thin 241, medium 248, thick 259). Topping class re-checked against the menu: 'Jamon serrano, alcachofa, aceituna negra y champinon' = meat AND vegetables. That moves the band from 1101-1238 kcal / F 58-65 to 967-1087 / F 39-44, and the pipeline's carb lands IN band. Superseded compositions, in order: CHEESE-ONLY 14\" (wrong topping class), chain regular crust (wrong crust), thin crust from frozen (wrong venue).",
@@ -634,25 +634,25 @@
     "menu": "bistro",
     "unweighted": true,
     "mass_band_g": [
-      400,
-      450
+      374,
+      421
     ],
     "band": {
       "calories": [
-        905,
-        1357
+        846,
+        1269
       ],
       "protein_g": [
-        39,
-        58
+        36,
+        54
       ],
       "carb_g": [
-        113,
-        170
+        106,
+        159
       ],
       "fat_g": [
-        33,
-        49
+        31,
+        46
       ]
     },
     "assumed": "\"Queso mozzarella, chihuahua, azul, feta y cabra.\" Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by Stage 1. Five named cheeses, no meat or vegetable -> CHEESE topping class per FDC 2708615 'Pizza, cheese, from restaurant or fast food, thin crust'.",
@@ -664,25 +664,25 @@
     "menu": "bistro",
     "unweighted": true,
     "mass_band_g": [
-      400,
-      450
+      405,
+      455
     ],
     "band": {
       "calories": [
-        905,
-        1357
+        915,
+        1373
       ],
       "protein_g": [
         39,
-        58
+        59
       ],
       "carb_g": [
-        113,
-        170
+        115,
+        172
       ],
       "fat_g": [
         33,
-        49
+        50
       ]
     },
     "assumed": "\"Rebanadas de tomate fresco y albahaca deshidratada.\" Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by Stage 1. Tomato/basil read as a garnish on a plain base, not a bulk vegetable topping -> CHEESE topping class per FDC 2708615, same as 5 FORMAGGI. Approved as proposed 2026-08-22.",
@@ -694,25 +694,25 @@
     "menu": "bistro",
     "unweighted": true,
     "mass_band_g": [
-      400,
-      450
+      382,
+      430
     ],
     "band": {
       "calories": [
-        959,
-        1439
+        916,
+        1374
       ],
       "protein_g": [
-        40,
-        60
+        38,
+        57
       ],
       "carb_g": [
-        109,
-        163
+        104,
+        156
       ],
       "fat_g": [
-        40,
-        61
+        39,
+        58
       ]
     },
     "assumed": "Name-only dish. Ruled here rather than in the answerability task (Task 5) because the class ruling supplies the portion (28 cm is on the section header, dropped by Stage 1) and the dish name states the topping. Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). PEPPERONI topping class per FDC 2708639 'Pizza with pepperoni, from restaurant or fast food, thin crust' - the dedicated pepperoni record is definitionally correct for a dish named PEPPERONI; the generic 'meat' record (FDC 2708650) explicitly excludes pepperoni in its own title. Approved as proposed 2026-08-22.",
@@ -724,25 +724,25 @@
     "menu": "bistro",
     "unweighted": true,
     "mass_band_g": [
-      400,
-      450
+      459,
+      517
     ],
     "band": {
       "calories": [
-        952,
-        1428
+        1093,
+        1640
       ],
       "protein_g": [
-        39,
-        59
+        45,
+        67
       ],
       "carb_g": [
-        104,
-        156
+        119,
+        179
       ],
       "fat_g": [
-        42,
-        63
+        48,
+        73
       ]
     },
     "assumed": "\"Pepperoni, jamón, tocino y chistorra.\" Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by Stage 1. Four named meats, no vegetable -> MEAT topping class per FDC 2708650 'Pizza with meat other than pepperoni, from restaurant or fast food, thin crust'.",
@@ -754,25 +754,25 @@
     "menu": "bistro",
     "unweighted": true,
     "mass_band_g": [
-      400,
-      450
+      459,
+      517
     ],
     "band": {
       "calories": [
-        952,
-        1428
+        1093,
+        1640
       ],
       "protein_g": [
-        39,
-        59
+        45,
+        67
       ],
       "carb_g": [
-        104,
-        156
+        119,
+        179
       ],
       "fat_g": [
-        42,
-        63
+        48,
+        73
       ]
     },
     "assumed": "\"Jamón y piña.\" Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by Stage 1. No thin-crust 'meat and fruit' FNDDS record matches Bistro's venue/crust combination; ham is the dominant named ingredient and pineapple's macro contribution at this scale does not move the class -> MEAT topping class per FDC 2708650, approved as proposed 2026-08-22 (the meat-and-fruit alternative, FDC 2708669, was offered and declined).",
@@ -784,25 +784,25 @@
     "menu": "bistro",
     "unweighted": true,
     "mass_band_g": [
-      400,
-      450
+      459,
+      517
     ],
     "band": {
       "calories": [
-        821,
-        1232
+        943,
+        1414
       ],
       "protein_g": [
-        39,
-        59
+        45,
+        68
       ],
       "carb_g": [
-        91,
-        136
+        104,
+        156
       ],
       "fat_g": [
-        34,
-        50
+        39,
+        58
       ]
     },
     "assumed": "\"Pepperoni, cebolla morada, pimiento verde, aceituna negra y champiñones.\" Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by Stage 1. Four vegetable/fruit-adjacent ingredients alongside pepperoni -> MEAT+VEGETABLE topping class per FDC 2708663 'Pizza with meat and vegetables, from restaurant or fast food, thin crust' - the same record CAPRICCIOSA already uses.",
@@ -814,25 +814,25 @@
     "menu": "bistro",
     "unweighted": true,
     "mass_band_g": [
-      400,
-      450
+      459,
+      517
     ],
     "band": {
       "calories": [
-        821,
-        1232
+        943,
+        1414
       ],
       "protein_g": [
-        39,
-        59
+        45,
+        68
       ],
       "carb_g": [
-        91,
-        136
+        104,
+        156
       ],
       "fat_g": [
-        34,
-        50
+        39,
+        58
       ]
     },
     "assumed": "\"Cebolla morada, pimiento verde y chistorra.\" Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by Stage 1. Onion and pepper alongside the sausage -> MEAT+VEGETABLE topping class per FDC 2708663, same record as ITALIANA and CAPRICCIOSA.",
@@ -844,25 +844,25 @@
     "menu": "bistro",
     "unweighted": true,
     "mass_band_g": [
-      400,
-      450
+      459,
+      517
     ],
     "band": {
       "calories": [
-        821,
-        1232
+        943,
+        1414
       ],
       "protein_g": [
-        39,
-        59
+        45,
+        68
       ],
       "carb_g": [
-        91,
-        136
+        104,
+        156
       ],
       "fat_g": [
-        34,
-        50
+        39,
+        58
       ]
     },
     "assumed": "\"Espinacas, jamón serrano y tomate deshidratado.\" Class ruling: 28 cm thin-crust Bistro pizza, [400,450] g (Santiago 2026-08-13, carried from CAPRICCIOSA). 28 cm is on the SECTION HEADER and is dropped by Stage 1. Two of three named ingredients (spinach, tomato) are vegetables, so this is NOT a plain-meat topping despite the ham -> MEAT+VEGETABLE topping class per FDC 2708663, approved as proposed 2026-08-22 (moved off the generic MEAT class).",
@@ -874,25 +874,25 @@
     "menu": "bistro",
     "unweighted": true,
     "mass_band_g": [
-      400,
-      450
+      459,
+      517
     ],
     "band": {
       "calories": [
-        821,
-        1232
+        943,
+        1414
       ],
       "protein_g": [
-        39,
-        59
+        45,
+        68
       ],
       "carb_g": [
-        91,
-        136
+        104,
+        156
       ],
       "fat_g": [
-        34,
-        50
+        39,
+        58
       ]
     },
     "assumed": "Name-only dish. Ruled here rather than in the answerability task (Task 5) because the class ruling supplies the portion (28 cm is on the section header, dropped by Stage 1) and the dish name states the toppings (ham, mushroom). Mushroom is a vegetable, so ham+mushroom is not a plain-meat topping -> MEAT+VEGETABLE topping class per FDC 2708663, approved as proposed 2026-08-22 (moved off the generic MEAT class).",
@@ -904,24 +904,24 @@
     "menu": "bistro",
     "unweighted": true,
     "mass_band_g": [
-      400,
-      450
+      405,
+      455
     ],
     "band": {
       "calories": [
-        798,
-        1197
+        807,
+        1211
       ],
       "protein_g": [
         34,
         51
       ],
       "carb_g": [
-        102,
-        152
+        103,
+        154
       ],
       "fat_g": [
-        28,
+        29,
         43
       ]
     },
@@ -1144,25 +1144,25 @@
     "menu": "bistro",
     "unweighted": true,
     "mass_band_g": [
-      400,
-      450
+      459,
+      517
     ],
     "band": {
       "calories": [
-        919,
-        1379
+        1055,
+        1583
       ],
       "protein_g": [
-        41,
-        62
+        47,
+        71
       ],
       "carb_g": [
-        72,
-        107
+        82,
+        123
       ],
       "fat_g": [
-        52,
-        78
+        60,
+        90
       ]
     },
     "assumed": "\"Base de crema, tocino y cebolla caramelizada.\" CREAM BASE, not tomato - leaves the standard topping-class rule (Task 2/3) for that reason, same 400-450 g mass band carried from CAPRICCIOSA (still a 28 cm Bistro pizza; nothing on the menu suggests a different size). Composition is FDC 2708682, the FNDDS white-pizza record for exactly this combination (meat + vegetable on a cream base). Approved 2026-08-22.",
@@ -1174,25 +1174,25 @@
     "menu": "bistro",
     "unweighted": true,
     "mass_band_g": [
-      400,
-      450
+      459,
+      517
     ],
     "band": {
       "calories": [
-        919,
-        1379
+        1055,
+        1583
       ],
       "protein_g": [
-        41,
-        62
+        47,
+        71
       ],
       "carb_g": [
-        72,
-        107
+        82,
+        123
       ],
       "fat_g": [
-        52,
-        78
+        60,
+        90
       ]
     },
     "assumed": "\"Base de crema, queso azul, espinaca, jamón serrano y laminas de manzana verde.\" CREAM BASE, not tomato, plus a fruit component - leaves the standard topping-class rule for that reason. Same 400-450 g mass band carried from CAPRICCIOSA. Composition is FDC 2708682 (white pizza, meat+vegetable), same record as FLAMENKUCHEN since both are cream-base + meat + vegetable; the apple slices are a named addition whose macro contribution at this scale is not separately weighed, the same treatment HAWAIANA's pineapple got in the MEAT class. Approved 2026-08-22.",
@@ -1204,25 +1204,25 @@
     "menu": "bistro",
     "unweighted": true,
     "mass_band_g": [
-      400,
-      450
+      459,
+      517
     ],
     "band": {
       "calories": [
-        846,
-        1269
+        971,
+        1457
       ],
       "protein_g": [
-        37,
-        56
+        43,
+        64
       ],
       "carb_g": [
-        91,
-        136
+        104,
+        156
       ],
       "fat_g": [
-        37,
-        56
+        43,
+        64
       ]
     },
     "assumed": "\"Ostión ahumado, tocino y mostaza dijón.\" No cream/tomato base is stated, no vegetable, no cheese named - and no FNDDS pizza-with-seafood record exists at any venue/crust, confirmed by search. Composition is an 85:15 blend of FDC 2708650 (plain MEAT class, representing crust+base+bacon, the dominant conventional pizza ingredient here) with FDC 2706355 'Oysters, canned' - the same blend-a-base-with-an-addition technique already used for Salmón Roll (FDC 2708963 blended 85:15 with cream cheese). Mustard is a thin condiment at drizzle quantities, folded in as a rounding-level addition, not separately weighed - same treatment as the rolls' sauce garnishes. Mass band 400-450 g carried from CAPRICCIOSA; nothing on the menu suggests a different size. Approved 2026-08-22.",

@@ -1,0 +1,1783 @@
+[
+  {
+    "dish": "CAPRICCIOSA",
+    "term": "pizza capricciosa",
+    "fdcId": 2708008,
+    "record": "Dessert pizza",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 surface inch",
+        "grams": 10.5,
+        "kind": "weight"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 108,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 pizza (12\" dia)",
+        "grams": 1188,
+        "kind": "serving"
+      },
+      {
+        "desc": "1 piece",
+        "grams": 108,
+        "kind": "piece"
+      }
+    ],
+    "serving_g": 1188,
+    "serving_desc": "1 pizza (12\" dia)",
+    "band": [
+      459,
+      517
+    ],
+    "outcome": "OVER"
+  },
+  {
+    "dish": "CARBONARA",
+    "term": "pasta carbonara",
+    "fdcId": 2708357,
+    "record": "Pasta, cooked",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 cup, cooked",
+        "grams": 140,
+        "kind": "volume"
+      },
+      {
+        "desc": "1 oz, dry, yields",
+        "grams": 80,
+        "kind": "weight"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 140,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      250,
+      450
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "ENSALADA GRIEGA",
+    "term": "greek salad",
+    "fdcId": 2709830,
+    "record": "Greek Salad, no dressing",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 cup",
+        "grams": 105,
+        "kind": "volume"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 105,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      136,
+      250
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "TIRAS DE POLLO",
+    "term": "chicken strips",
+    "fdcId": 169022,
+    "record": "DENNY'S, chicken strips",
+    "dataType": "SR Legacy",
+    "portions": [
+      {
+        "desc": "serving",
+        "grams": 194,
+        "kind": "serving"
+      }
+    ],
+    "serving_g": 194,
+    "serving_desc": "serving",
+    "band": [
+      234,
+      333
+    ],
+    "outcome": "UNDER"
+  },
+  {
+    "dish": "PAPAS FRITAS",
+    "term": "french fries",
+    "fdcId": 169009,
+    "record": "APPLEBEE'S, french fries",
+    "dataType": "SR Legacy",
+    "portions": [
+      {
+        "desc": "serving",
+        "grams": 164,
+        "kind": "serving"
+      }
+    ],
+    "serving_g": 164,
+    "serving_desc": "serving",
+    "band": [
+      160,
+      200
+    ],
+    "outcome": "IN_BAND"
+  },
+  {
+    "dish": "OMELETTE CUBANA",
+    "term": "omelet",
+    "fdcId": 172185,
+    "record": "Egg, whole, cooked, omelet",
+    "dataType": "SR Legacy",
+    "portions": [
+      {
+        "desc": "large",
+        "grams": 61,
+        "kind": "weight"
+      },
+      {
+        "desc": "tbsp",
+        "grams": 15,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      170,
+      230
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "TACO PORCO",
+    "term": "taco pork",
+    "fdcId": 2708524,
+    "record": "Taco, flour tortilla, pork, cheese",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 miniature",
+        "grams": 50,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 large",
+        "grams": 160,
+        "kind": "weight"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 105,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 120,
+        "kind": "volume"
+      },
+      {
+        "desc": "1 small/regular",
+        "grams": 105,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      100,
+      140
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "BROWNIE",
+    "term": "brownie",
+    "fdcId": 2707907,
+    "record": "Cookie, butterscotch, brownie",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 50,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 large",
+        "grams": 90,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 medium",
+        "grams": 50,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 small",
+        "grams": 30,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      150,
+      200
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "Salmón Roll",
+    "term": "sushi roll salmon",
+    "fdcId": 2708963,
+    "record": "Sushi roll, salmon",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 piece",
+        "grams": 30,
+        "kind": "piece"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 150,
+        "kind": "volume"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 180,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      300,
+      400
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "OMELETTE TOMASA",
+    "term": "omelet",
+    "fdcId": 172185,
+    "record": "Egg, whole, cooked, omelet",
+    "dataType": "SR Legacy",
+    "portions": [
+      {
+        "desc": "large",
+        "grams": 61,
+        "kind": "weight"
+      },
+      {
+        "desc": "tbsp",
+        "grams": 15,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      190,
+      255
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "OMELETTE LAMERA",
+    "term": "omelet",
+    "fdcId": 172185,
+    "record": "Egg, whole, cooked, omelet",
+    "dataType": "SR Legacy",
+    "portions": [
+      {
+        "desc": "large",
+        "grams": 61,
+        "kind": "weight"
+      },
+      {
+        "desc": "tbsp",
+        "grams": 15,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      155,
+      210
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "FETUCCINI ALFREDO",
+    "term": "fettuccine alfredo",
+    "fdcId": 2705809,
+    "record": "Alfredo sauce",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 65,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 260,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      295,
+      395
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "ALFREDO PORTOBELLO",
+    "term": "pasta alfredo",
+    "fdcId": 2705809,
+    "record": "Alfredo sauce",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 65,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 260,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      350,
+      470
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "PASTA ESPECIAL",
+    "term": "pasta tomato sauce",
+    "fdcId": 2708826,
+    "record": "Pasta with tomato-based sauce and cheese",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 250,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 250,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      365,
+      495
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "ENSALADA BALI",
+    "term": "spinach salad",
+    "fdcId": 2709831,
+    "record": "Spinach salad, no dressing",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 cup",
+        "grams": 74,
+        "kind": "volume"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 74,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      275,
+      375
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "ENSALADA BISTRO",
+    "term": "salad",
+    "fdcId": 2710195,
+    "record": "Salad dressing, NFS, for salads",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 31,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 250,
+        "kind": "volume"
+      },
+      {
+        "desc": "1 dipping-size container",
+        "grams": 57,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 packet",
+        "grams": 44,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 tablespoon",
+        "grams": 15.6,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      280,
+      380
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "ENSALADA DE LA SEMANA",
+    "term": "salad",
+    "fdcId": 2710195,
+    "record": "Salad dressing, NFS, for salads",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 31,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 250,
+        "kind": "volume"
+      },
+      {
+        "desc": "1 dipping-size container",
+        "grams": 57,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 packet",
+        "grams": 44,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 tablespoon",
+        "grams": 15.6,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      330,
+      450
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "Vegan Roll",
+    "term": "sushi roll vegetable",
+    "fdcId": 2708966,
+    "record": "Sushi roll, vegetable",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 cup",
+        "grams": 132,
+        "kind": "volume"
+      },
+      {
+        "desc": "1 piece",
+        "grams": 22,
+        "kind": "piece"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 132,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      250,
+      335
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "Nikkori Maki",
+    "term": "sushi roll shrimp",
+    "fdcId": 2708964,
+    "record": "Sushi roll, shrimp",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 180,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 150,
+        "kind": "volume"
+      },
+      {
+        "desc": "1 piece",
+        "grams": 30,
+        "kind": "piece"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      290,
+      395
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "DE CAMARÓN ROKA",
+    "term": "sushi roll shrimp",
+    "fdcId": 2708964,
+    "record": "Sushi roll, shrimp",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 180,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 150,
+        "kind": "volume"
+      },
+      {
+        "desc": "1 piece",
+        "grams": 30,
+        "kind": "piece"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      170,
+      230
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "TACO EL CAPRICHO",
+    "term": "taco beef",
+    "fdcId": 2706750,
+    "record": "Beef taco filling: beef, cheese, tomato, taco sauce",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 153,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 204,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      110,
+      145
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "5 FORMAGGI",
+    "term": "pizza five cheese",
+    "fdcId": 2705787,
+    "record": "Topping from cheese pizza",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Topping from 1 piece",
+        "grams": 40,
+        "kind": "piece"
+      },
+      {
+        "desc": "Topping per surface inch of pizza",
+        "grams": 2.1,
+        "kind": "serving"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 80,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 215,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": 2.1,
+    "serving_desc": "Topping per surface inch of pizza",
+    "band": [
+      374,
+      421
+    ],
+    "outcome": "UNDER"
+  },
+  {
+    "dish": "MARGARITA",
+    "term": "pizza margherita",
+    "fdcId": 2708008,
+    "record": "Dessert pizza",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 surface inch",
+        "grams": 10.5,
+        "kind": "weight"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 108,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 pizza (12\" dia)",
+        "grams": 1188,
+        "kind": "serving"
+      },
+      {
+        "desc": "1 piece",
+        "grams": 108,
+        "kind": "piece"
+      }
+    ],
+    "serving_g": 1188,
+    "serving_desc": "1 pizza (12\" dia)",
+    "band": [
+      405,
+      455
+    ],
+    "outcome": "OVER"
+  },
+  {
+    "dish": "PEPPERONI",
+    "term": "pizza pepperoni",
+    "fdcId": 2708642,
+    "record": "Pizza with pepperoni, stuffed crust",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 medium pizza (11-12\" diameter)",
+        "grams": 883,
+        "kind": "serving"
+      },
+      {
+        "desc": "1 large pizza (13-15\" diameter)",
+        "grams": 1312,
+        "kind": "serving"
+      },
+      {
+        "desc": "1 piece, medium pizza",
+        "grams": 110,
+        "kind": "serving"
+      },
+      {
+        "desc": "1 piece, NFS",
+        "grams": 164,
+        "kind": "piece"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 328,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 surface inch",
+        "grams": 8.5,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 piece, large pizza",
+        "grams": 164,
+        "kind": "serving"
+      },
+      {
+        "desc": "1 personal size pizza (5-7\" diameter)",
+        "grams": 240,
+        "kind": "serving"
+      }
+    ],
+    "serving_g": 883,
+    "serving_desc": "1 medium pizza (11-12\" diameter)",
+    "band": [
+      382,
+      430
+    ],
+    "outcome": "OVER"
+  },
+  {
+    "dish": "4 STAGIONI",
+    "term": "pizza four seasons",
+    "fdcId": 2708008,
+    "record": "Dessert pizza",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 surface inch",
+        "grams": 10.5,
+        "kind": "weight"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 108,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 pizza (12\" dia)",
+        "grams": 1188,
+        "kind": "serving"
+      },
+      {
+        "desc": "1 piece",
+        "grams": 108,
+        "kind": "piece"
+      }
+    ],
+    "serving_g": 1188,
+    "serving_desc": "1 pizza (12\" dia)",
+    "band": [
+      459,
+      517
+    ],
+    "outcome": "OVER"
+  },
+  {
+    "dish": "HAWAIANA",
+    "term": "pizza hawaiian",
+    "fdcId": 2706746,
+    "record": "Beef and vegetables, Hawaiian style",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 cup",
+        "grams": 252,
+        "kind": "volume"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 189,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      459,
+      517
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "ITALIANA",
+    "term": "pizza pepperoni mushroom",
+    "fdcId": 2708642,
+    "record": "Pizza with pepperoni, stuffed crust",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 medium pizza (11-12\" diameter)",
+        "grams": 883,
+        "kind": "serving"
+      },
+      {
+        "desc": "1 large pizza (13-15\" diameter)",
+        "grams": 1312,
+        "kind": "serving"
+      },
+      {
+        "desc": "1 piece, medium pizza",
+        "grams": 110,
+        "kind": "serving"
+      },
+      {
+        "desc": "1 piece, NFS",
+        "grams": 164,
+        "kind": "piece"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 328,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 surface inch",
+        "grams": 8.5,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 piece, large pizza",
+        "grams": 164,
+        "kind": "serving"
+      },
+      {
+        "desc": "1 personal size pizza (5-7\" diameter)",
+        "grams": 240,
+        "kind": "serving"
+      }
+    ],
+    "serving_g": 883,
+    "serving_desc": "1 medium pizza (11-12\" diameter)",
+    "band": [
+      459,
+      517
+    ],
+    "outcome": "OVER"
+  },
+  {
+    "dish": "MEXICANA",
+    "term": "pizza sausage pepper",
+    "fdcId": 2706776,
+    "record": "Sausage and peppers, no sauce",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 cup",
+        "grams": 154,
+        "kind": "volume"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 115,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      459,
+      517
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "CAPRESE",
+    "term": "pizza ham tomato",
+    "fdcId": 2706404,
+    "record": "Ham or pork with tomato-based sauce",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 187,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 slice with sauce",
+        "grams": 65,
+        "kind": "piece"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 249,
+        "kind": "volume"
+      },
+      {
+        "desc": "1 pork chop with sauce",
+        "grams": 116,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      459,
+      517
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "JAMÓN CON CHAMPIÑONES",
+    "term": "pizza ham mushroom",
+    "fdcId": 2706506,
+    "record": "Ham and rice with mushroom sauce",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 310,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 248,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      459,
+      517
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "VEGETARIANA",
+    "term": "pizza vegetable",
+    "fdcId": 2705788,
+    "record": "Topping from vegetable pizza",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Topping from 1 piece",
+        "grams": 49,
+        "kind": "piece"
+      },
+      {
+        "desc": "Topping per surface inch of pizza",
+        "grams": 2.6,
+        "kind": "serving"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 98,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 168,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": 2.6,
+    "serving_desc": "Topping per surface inch of pizza",
+    "band": [
+      405,
+      455
+    ],
+    "outcome": "UNDER"
+  },
+  {
+    "dish": "Ipanema Roll",
+    "term": "sushi roll tuna",
+    "fdcId": 2708965,
+    "record": "Sushi roll tuna",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 180,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 piece",
+        "grams": 30,
+        "kind": "piece"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 150,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      240,
+      325
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "Fildeflex",
+    "term": "sushi roll salmon",
+    "fdcId": 2708963,
+    "record": "Sushi roll, salmon",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 piece",
+        "grams": 30,
+        "kind": "piece"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 150,
+        "kind": "volume"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 180,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      235,
+      320
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "Avocado",
+    "term": "sushi roll avocado",
+    "fdcId": 2708960,
+    "record": "Sushi roll, avocado",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 cup",
+        "grams": 150,
+        "kind": "volume"
+      },
+      {
+        "desc": "1 piece",
+        "grams": 30,
+        "kind": "piece"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 180,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      250,
+      335
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "Tuna Especial",
+    "term": "sushi roll tuna",
+    "fdcId": 2708965,
+    "record": "Sushi roll tuna",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 180,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 piece",
+        "grams": 30,
+        "kind": "piece"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 150,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      235,
+      320
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "Salmón Samba",
+    "term": "sushi roll salmon",
+    "fdcId": 2708963,
+    "record": "Sushi roll, salmon",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 piece",
+        "grams": 30,
+        "kind": "piece"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 150,
+        "kind": "volume"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 180,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      240,
+      325
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "Duplex",
+    "term": "sushi roll shrimp salmon",
+    "fdcId": 2708963,
+    "record": "Sushi roll, salmon",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 piece",
+        "grams": 30,
+        "kind": "piece"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 150,
+        "kind": "volume"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 180,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      290,
+      395
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "Spicy Tuna Roll",
+    "term": "sushi roll spicy tuna",
+    "fdcId": 2708965,
+    "record": "Sushi roll tuna",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 180,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 piece",
+        "grams": 30,
+        "kind": "piece"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 150,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      210,
+      285
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "FLAMENKUCHEN",
+    "term": "pizza bacon onion",
+    "fdcId": 2709795,
+    "record": "Onions, raw",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 cup",
+        "grams": 160,
+        "kind": "volume"
+      },
+      {
+        "desc": "1 whole",
+        "grams": 148,
+        "kind": "weight"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 15,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 slice",
+        "grams": 15,
+        "kind": "piece"
+      },
+      {
+        "desc": "1 ring",
+        "grams": 5,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      459,
+      517
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "QUESO AZUL",
+    "term": "pizza blue cheese",
+    "fdcId": 172175,
+    "record": "Cheese, blue",
+    "dataType": "SR Legacy",
+    "portions": [
+      {
+        "desc": "cubic inch",
+        "grams": 17,
+        "kind": "weight"
+      },
+      {
+        "desc": "oz",
+        "grams": 28.35,
+        "kind": "weight"
+      },
+      {
+        "desc": "cup, crumbled, not packed",
+        "grams": 135,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      459,
+      517
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "OSTRICA",
+    "term": "pizza oyster bacon",
+    "fdcId": 2708747,
+    "record": "Dressing with oysters",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 80,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 161,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      459,
+      517
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "FRADIAVIOLA",
+    "term": "pizza diavola",
+    "fdcId": 2708008,
+    "record": "Dessert pizza",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 surface inch",
+        "grams": 10.5,
+        "kind": "weight"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 108,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 pizza (12\" dia)",
+        "grams": 1188,
+        "kind": "serving"
+      },
+      {
+        "desc": "1 piece",
+        "grams": 108,
+        "kind": "piece"
+      }
+    ],
+    "serving_g": 1188,
+    "serving_desc": "1 pizza (12\" dia)",
+    "band": [
+      340,
+      460
+    ],
+    "outcome": "OVER"
+  },
+  {
+    "dish": "LINGUINNI PARISIENNE",
+    "term": "pasta linguine",
+    "fdcId": 2708357,
+    "record": "Pasta, cooked",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 cup, cooked",
+        "grams": 140,
+        "kind": "volume"
+      },
+      {
+        "desc": "1 oz, dry, yields",
+        "grams": 80,
+        "kind": "weight"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 140,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      380,
+      510
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "MEDITERRÁNEA",
+    "term": "mediterranean salad",
+    "fdcId": 2710195,
+    "record": "Salad dressing, NFS, for salads",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 31,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 250,
+        "kind": "volume"
+      },
+      {
+        "desc": "1 dipping-size container",
+        "grams": 57,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 packet",
+        "grams": 44,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 tablespoon",
+        "grams": 15.6,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      325,
+      435
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "QUESABONELESS",
+    "term": "chicken quesadilla",
+    "fdcId": 2708593,
+    "record": "Quesadilla, chicken",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 full circle",
+        "grams": 140,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 95,
+        "kind": "volume"
+      },
+      {
+        "desc": "1 half circle",
+        "grams": 70,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 triangular piece",
+        "grams": 35,
+        "kind": "piece"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 70,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      180,
+      240
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "CROQUETAS DE ABUELA (8 pints.)",
+    "term": "croquette",
+    "fdcId": 2706508,
+    "record": "Ham croquette",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 105,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 croquette (1-1/2\" dia, 2\" high)",
+        "grams": 62,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 140,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      190,
+      260
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "TACO BRASERO",
+    "term": "taco beef",
+    "fdcId": 2706750,
+    "record": "Beef taco filling: beef, cheese, tomato, taco sauce",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 153,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 204,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      70,
+      95
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "TACO TRADICIONAL",
+    "term": "taco beef",
+    "fdcId": 2706750,
+    "record": "Beef taco filling: beef, cheese, tomato, taco sauce",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 153,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 204,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      70,
+      95
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "TOSTA ATUM",
+    "term": "tostada tuna",
+    "fdcId": 167525,
+    "record": "Tostada shells, corn",
+    "dataType": "SR Legacy",
+    "portions": [
+      {
+        "desc": "piece",
+        "grams": 12.3,
+        "kind": "piece"
+      },
+      {
+        "desc": "pieces (mean serving weight, aggregated over brands)",
+        "grams": 37,
+        "kind": "serving"
+      }
+    ],
+    "serving_g": 37,
+    "serving_desc": "pieces (mean serving weight, aggregated over brands)",
+    "band": [
+      165,
+      225
+    ],
+    "outcome": "UNDER"
+  },
+  {
+    "dish": "TOSTA BRASIL (picaña)",
+    "term": "tostada beef",
+    "fdcId": 167525,
+    "record": "Tostada shells, corn",
+    "dataType": "SR Legacy",
+    "portions": [
+      {
+        "desc": "piece",
+        "grams": 12.3,
+        "kind": "piece"
+      },
+      {
+        "desc": "pieces (mean serving weight, aggregated over brands)",
+        "grams": 37,
+        "kind": "serving"
+      }
+    ],
+    "serving_g": 37,
+    "serving_desc": "pieces (mean serving weight, aggregated over brands)",
+    "band": [
+      135,
+      180
+    ],
+    "outcome": "UNDER"
+  },
+  {
+    "dish": "ROLLOS DE CREPA",
+    "term": "crepe dessert",
+    "fdcId": 2708341,
+    "record": "Crepe, NFS",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 crepe, any size",
+        "grams": 80,
+        "kind": "weight"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 80,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 surface inch",
+        "grams": 1.6,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      145,
+      195
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "CHILE RELLENO",
+    "term": "chile relleno",
+    "fdcId": 2710043,
+    "record": "Chiles rellenos, cheese-filled",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 chili",
+        "grams": 143,
+        "kind": "weight"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 143,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cup",
+        "grams": 176,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      135,
+      185
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "ORDEN DE TORTILLAS",
+    "term": "corn tortilla",
+    "fdcId": 2707823,
+    "record": "Tortilla, corn",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "1 large",
+        "grams": 44,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 small",
+        "grams": 18,
+        "kind": "weight"
+      },
+      {
+        "desc": "Quantity not specified",
+        "grams": 77,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 medium",
+        "grams": 28,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 extra large",
+        "grams": 65,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      120,
+      160
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "DE INDIO",
+    "term": "huarache",
+    "outcome": "NO_RECORD"
+  },
+  {
+    "dish": "BISQUETS DEL CENTRO",
+    "term": "biscuit",
+    "fdcId": 2707971,
+    "record": "Marie biscuit",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 21,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cookie",
+        "grams": 7,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      75,
+      100
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "BISQUETS C/ FRUTOS ROJOS",
+    "term": "biscuit",
+    "fdcId": 2707971,
+    "record": "Marie biscuit",
+    "dataType": "Survey (FNDDS)",
+    "portions": [
+      {
+        "desc": "Quantity not specified",
+        "grams": 21,
+        "kind": "weight"
+      },
+      {
+        "desc": "1 cookie",
+        "grams": 7,
+        "kind": "weight"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      100,
+      135
+    ],
+    "outcome": "VOLUME_ONLY"
+  },
+  {
+    "dish": "Omelette de Camarón y Marlín",
+    "term": "omelet",
+    "fdcId": 172185,
+    "record": "Egg, whole, cooked, omelet",
+    "dataType": "SR Legacy",
+    "portions": [
+      {
+        "desc": "large",
+        "grams": 61,
+        "kind": "weight"
+      },
+      {
+        "desc": "tbsp",
+        "grams": 15,
+        "kind": "volume"
+      }
+    ],
+    "serving_g": null,
+    "serving_desc": null,
+    "band": [
+      160,
+      220
+    ],
+    "outcome": "VOLUME_ONLY"
+  }
+]

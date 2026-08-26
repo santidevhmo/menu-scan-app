@@ -2,7 +2,7 @@
 // arm: get it backwards and the paid run measures NOBOOST on big plates and the
 // shipped prompt on small ones - the exact inverse of the mechanism, and it would
 // still produce a plausible-looking score.
-import { assertEquals } from "jsr:@std/assert@1";
+import { assert, assertEquals, assertExists } from "jsr:@std/assert@1";
 import { HYBRID_T, hybridReaskIndices } from "./probe-plate-arms.ts";
 
 // deno-lint-ignore no-explicit-any
@@ -43,4 +43,24 @@ Deno.test("routes on RESOLVED grams, so a printed weight rescales first", () => 
   // the printed total, so this is a big plate however small the raw numbers look.
   assertEquals(hybridReaskIndices([dish([60, 40], 400)]), [0]);
   assertEquals(hybridReaskIndices([dish([60, 40], 120)]), []);
+});
+
+Deno.test("NOBOOST-FORM is registered and is NOBOOST's prompt, not the shipped one", async () => {
+  const bench = await import("./bench-unweighted.ts");
+  const arms = (bench as unknown as { ARM_RUNNERS?: Record<string, unknown> })
+    .ARM_RUNNERS;
+  assertExists(arms, "bench-unweighted.ts must export ARM_RUNNERS for this test");
+  assertExists(arms["NOBOOST-FORM"], "arm NOBOOST-FORM is not registered");
+
+  // The whole point of the arm: NOBOOST's prompt, which is the shipped pass-2
+  // sentence with the PUSH half removed and the RESTRAINT half kept.
+  const { ARM_NOBOOST } = await import("./arm-order-schemas.ts");
+  assert(
+    !ARM_NOBOOST.prompt.includes("considerably greater quantity"),
+    "the push clause survived — this would measure the shipped arm, not NOBOOST",
+  );
+  assert(
+    ARM_NOBOOST.prompt.includes("served in on its own"),
+    "the restraint clause is missing — this would measure NOPUSH, not NOBOOST",
+  );
 });

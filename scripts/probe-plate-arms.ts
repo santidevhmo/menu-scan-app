@@ -832,6 +832,33 @@ export async function armCombo(items: Item[]) {
   return applyFormMass(routed as any, labels) as any;
 }
 
+/**
+ * ARM NOBOOST-FORM — the PLAIN stack. Eval 187.
+ *
+ * `COMBO` is `HYBRID` + `FORM`, and `HYBRID` uses NOBOOST's answer only when
+ * NOBOOST's OWN plate mass is under 300 g, re-asking the shipped question above
+ * that. This arm deletes the router: NOBOOST always, then the form table.
+ *
+ * WHY IT MIGHT WIN. `applyFormMass` OVERWRITES the plate mass, so the half of
+ * HYBRID's job that is about mass is redundant once the table runs. If the router
+ * is only carrying mass, it is now dead weight and this scores the same for one
+ * fewer model call on the routed dishes.
+ *
+ * WHY IT MIGHT LOSE. HYBRID's re-ask changes the whole RECIPE, not just the mass -
+ * different ingredients and different per-100 g values survive the rescale. If the
+ * router's gain lives in composition rather than mass, deleting it costs points.
+ *
+ * That is the question, and it cannot be answered by reasoning - only by the run.
+ * Its control is `FORM` (434-453 over 5 runs), one variable: which pass-2 question
+ * produced the recipe the table then rescales.
+ */
+export async function armNoBoostForm(items: Item[]) {
+  const noBoost = await runOrderArm(items, ARM_NOBOOST, false);
+  const labels = await labelForms(items, apiKey!);
+  // deno-lint-ignore no-explicit-any
+  return applyFormMass(noBoost as any, labels) as any;
+}
+
 export async function armMassCall(items: Item[]) {
   const [enriched, plates] = await Promise.all([
     runOrderArm(items, ARM_MASSCALL, false),

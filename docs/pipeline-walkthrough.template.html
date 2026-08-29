@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What happens to one menu item</title>
+<style>
+:root{
+  --canvas:#0b1020; --panel:#111731; --panel-2:#161d3a;
+  --ink:#e8ecf6; --muted:#8e9ab8; --faint:#5b678a; --line:#222b4d;
+  --sky:#58a6ff; --vio:#a371f7; --grn:#3fb950; --amb:#e3b341; --red:#f0776a;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  --serif:ui-serif,"Iowan Old Style",Palatino,Georgia,serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--canvas);color:var(--ink);font-family:var(--serif);
+     font-size:17px;line-height:1.65}
+.wrap{max-width:900px;margin:0 auto;padding:0 24px 140px}
+
+h1,h2,h3,h4,.eyebrow,.chip,th,.tb,.badge,.verdict{font-family:var(--sans)}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.06;letter-spacing:-.035em;font-weight:800;
+   margin:0 0 16px;text-wrap:balance}
+h2{font-size:clamp(21px,2.9vw,28px);letter-spacing:-.024em;font-weight:700;margin:0 0 10px;
+   text-wrap:balance}
+h3{font-size:16px;font-weight:700;margin:0 0 12px}
+p{margin:0 0 16px;max-width:64ch;color:#cbd3e6}
+b,strong{color:var(--ink);font-weight:600}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--sky);margin:0 0 10px}
+.lede{font-size:19px;color:var(--muted);max-width:58ch}
+.note{font-size:14.5px;color:var(--muted);max-width:64ch}
+code{font-family:var(--mono);font-size:.85em;color:var(--ink);background:var(--panel-2);
+  padding:2px 6px;border-radius:4px}
+.dim{color:var(--faint)}
+.amb{color:var(--amb)} .red{color:var(--red)}
+:focus-visible{outline:2px solid var(--sky);outline-offset:3px}
+
+header{padding:84px 0 40px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.chip{font-size:11.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  padding:6px 11px;border:1px solid var(--line);border-radius:999px;color:var(--muted)}
+.chip.on{border-color:var(--grn);color:var(--grn)}
+section{padding:60px 0;border-top:1px solid var(--line)}
+.sh{margin-bottom:30px}
+
+/* ── sequence diagram ─────────────────────────────── */
+.frame{overflow-x:auto;border:1px solid var(--line);border-radius:14px;
+  background:var(--canvas);margin:24px 0}
+.sq{display:block;min-width:800px;width:100%;height:auto}
+.sq .canvas{fill:#080d1c}
+.sq .dot{fill:#1b2444}
+.sq .box{fill:#0f1630;stroke-width:1.4}
+.sq .box.vio{stroke:var(--vio)} .sq .box.grn{stroke:var(--grn)} .sq .box.amb{stroke:var(--amb)}
+.sq .who{font-family:var(--sans);font-size:15px;font-weight:700;fill:var(--ink)}
+.sq .whos{font-family:var(--sans);font-size:11.5px;fill:var(--faint)}
+.sq .life{stroke:#2a3358;stroke-width:1.3;stroke-dasharray:2 8;stroke-linecap:round}
+.sq .arw{stroke:#5d6a92;stroke-width:1.8;fill:none;stroke-dasharray:7 6}
+.sq .tip{fill:#7c88ae}
+.sq .pill{fill:#161d3a}
+.sq .lbl{font-family:var(--sans);font-size:13px;fill:#cdd5ea}
+.sq .bdg{fill:#0f1630;stroke-width:1.4}
+.sq .bdg.vio{stroke:var(--vio)} .sq .bdg.grn{stroke:var(--grn)} .sq .bdg.amb{stroke:var(--amb)}
+.sq .num{font-family:var(--sans);font-size:11.5px;font-weight:700;fill:var(--ink)}
+
+/* ── answers strip ────────────────────────────────── */
+.qa{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:26px 0}
+.q{border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:17px 18px}
+.q .qq{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--muted);margin-bottom:9px}
+.q .aa{font-size:15px;line-height:1.5}
+.q .aa b{color:var(--amb)}
+
+/* ── tabs ─────────────────────────────────────────── */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 22px}
+.tb{font-size:13.5px;font-weight:600;padding:9px 15px;border-radius:999px;cursor:pointer;
+  background:transparent;border:1px solid var(--line);color:var(--muted)}
+.tb:hover{color:var(--ink);border-color:var(--faint)}
+.tb.on{background:var(--vio);border-color:var(--vio);color:#12081f}
+.pane[hidden]{display:none}
+
+.stg{display:grid;grid-template-columns:32px 1fr;gap:16px;padding:20px 0;
+  border-bottom:1px solid var(--line)}
+.stg:last-of-type{border-bottom:none}
+.sn{font-family:var(--sans);font-size:12px;font-weight:700;color:var(--faint);
+  border:1px solid var(--line);border-radius:999px;width:28px;height:28px;
+  display:grid;place-items:center;margin-top:1px}
+.sn.m{color:var(--grn);border-color:var(--grn)}
+.sn.t{color:var(--amb);border-color:var(--amb)}
+.sb h4{font-size:16px;font-weight:650;margin:0 0 8px;letter-spacing:-.01em}
+.hint{font-size:14px;color:var(--muted);margin:10px 0;max-width:62ch}
+
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:11px;
+  background:var(--panel);margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+th{text-align:left;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint);
+  font-weight:700;padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 14px;border-bottom:1px solid var(--line);color:#cbd3e6;vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;
+  white-space:nowrap}
+td.ch{color:var(--amb);font-weight:600}
+td s{color:var(--faint);font-weight:400;margin-left:5px;font-size:11.5px}
+tr.new td{background:rgba(63,185,80,.07)}
+table.kv td:first-child{color:var(--faint);white-space:nowrap;width:1%;font-size:12.5px}
+table.kv td.v{font-family:var(--mono);font-size:12.5px;color:#cbd3e6}
+.badge{font-style:normal;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 6px;border-radius:999px;border:1px solid var(--grn);color:var(--grn);margin-left:6px}
+.badge.out{border-color:var(--sky);color:var(--sky)}
+
+.tot{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin:12px 0 4px;
+  padding:13px 16px;border:1px solid var(--line);border-radius:11px;background:var(--panel-2);
+  font-family:var(--mono);font-size:13px}
+.tot .plate{color:var(--muted)}
+.tot .mac{color:#cbd3e6}
+.verdict{font-family:var(--sans);font-size:10.5px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;padding:3px 9px;border-radius:999px;border:1px solid;margin-left:auto}
+.verdict.ok{color:var(--grn);border-color:var(--grn)}
+.verdict.mid{color:var(--amb);border-color:var(--amb)}
+.verdict.no{color:var(--red);border-color:var(--red)}
+
+.chose{font-family:var(--mono);font-size:14px;padding:13px 16px;border-radius:11px;
+  background:var(--panel-2);border:1px solid var(--grn);margin:12px 0}
+.chose.none{border-color:var(--line)}
+.takeaway{border-left:2px solid var(--amb);padding:4px 0 4px 20px;margin:28px 0 4px;
+  font-size:15.5px;line-height:1.6;color:#cbd3e6;max-width:66ch}
+
+.call{border-left:2px solid var(--sky);padding:2px 0 2px 20px;margin:26px 0}
+.call.warn{border-left-color:var(--amb)}
+.call p:last-child{margin-bottom:0}
+
+footer{padding:52px 0 0;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+footer pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.75;
+  color:#cbd3e6;margin:12px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">Menu Scan · Stage 2</p>
+  <h1>What happens to one menu item</h1>
+  <p class="lede">Not the modules — the actual operations, in the order they run, with the real
+  thing the model said at each one.</p>
+  <div class="chips">
+    <span class="chip on">Traced live, 2026-08-25</span>
+    <span class="chip">edge fn v33</span>
+    <span class="chip">Real menus, real batches</span>
+  </div>
+</header>
+
+<section>
+  <div class="sh">
+    <h2>The thirteen operations</h2>
+    <p class="note">One dish's journey. The third lane is our hardcoded gram table — notice it
+    stays idle until step 11.</p>
+  </div>
+
+  <div class="frame">
+<!--SEQ-->
+  </div>
+
+  <div class="qa">
+    <div class="q">
+      <div class="qq">Is the size calculated first?</div>
+      <div class="aa"><b>No — last.</b> Ingredients and their composition come first. Size is a
+      single multiplication applied at the very end, to a list that already exists.</div>
+    </div>
+    <div class="q">
+      <div class="qq">Is each ingredient separated?</div>
+      <div class="aa"><b>Yes, by the model.</b> It returns a structured list. Our code never parses
+      prose — it consumes that array and does arithmetic on it.</div>
+    </div>
+    <div class="q">
+      <div class="qq">Where does the hardcoded table fit?</div>
+      <div class="aa"><b>Step 11 of 13.</b> After both model passes and after the label call. It is
+      the only place a number we typed by hand enters a dish.</div>
+    </div>
+    <div class="q">
+      <div class="qq">How many times do we do the maths?</div>
+      <div class="aa"><b>Twice.</b> Once when the ingredients arrive, once more after rescaling.
+      The model is never asked to add.</div>
+    </div>
+  </div>
+
+  <div class="call">
+    <p><b>The one split that decides everything.</b> Step 1 is a regex over the menu text, and it
+    runs before any model sees the dish. If it finds a printed weight, the dish skips pass 2 and
+    skips the table entirely — the page already said what it weighs. If it finds nothing, both
+    stages apply. Every difference between the three dishes below traces back to that one field.</p>
+  </div>
+</section>
+
+<section>
+  <div class="sh">
+    <h2>Three dishes, traced live</h2>
+    <p class="note">Each was sent through the deployed functions inside its own real menu, in its
+    own real batch of 10. These are the bytes the model returned on 2026-08-25 — not a
+    reconstruction, and not an average.</p>
+  </div>
+
+<!--TABS-->
+</section>
+
+<section>
+  <div class="sh"><h2>What the three traces show</h2></div>
+
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Step</th><th>Pizza</th><th>Sushi roll</th><th>Casserole</th></tr></thead>
+      <tbody>
+        <tr><td>Printed weight?</td><td>no</td><td>no</td><td><b>yes — 300 g</b></td></tr>
+        <tr><td>Pass 1 plate</td><td>230 g · 0/4</td><td>362 g · <b>4/4</b></td><td>350 g</td></tr>
+        <tr><td>Pass 2 plate</td><td>430 g · <b>4/4</b></td><td>210 g · <b>1/4</b></td><td>skipped</td></tr>
+        <tr><td>Label chosen</td><td><code>pizza_thin_meat_veg</code></td><td><code>sushi_roll_order</code></td><td><code>other</code></td></tr>
+        <tr><td>Table applied</td><td>488 g · ×1.135</td><td>280 g · ×1.333</td><td>refused</td></tr>
+        <tr><td>Final</td><td><b>4/4</b></td><td>3/4</td><td>carbs −42%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="call warn">
+    <p><b>The middle column is the uncomfortable one.</b> Pass 2 exists because it raises the score
+    across 57 dishes — but on this draw it took a correct Salmón Roll and made it wrong, cutting the
+    rice from 150 g to 60 g. Sizing then recovered most of the damage. <b>Every stage here is an
+    average-case improvement, not a per-dish guarantee</b>, and that is the same mechanism behind a
+    diner re-scanning one menu and getting different macros.</p>
+  </div>
+
+  <div class="call">
+    <p><b>And the model is good at exactly what it is asked for.</b> Across all three dishes the
+    per-100 g compositions are sound, the ingredient lists are plausible, and protein — the number
+    that follows most directly from naming the right foods — lands within 0.4% on the dish we can
+    grade exactly. What goes wrong is <i>how much</i> arrives, and <i>what the menu never said</i>.
+    Those are the two things the last three steps exist to attack.</p>
+  </div>
+</section>
+
+<footer>
+  <p><b>Reproduce it.</b> The first command costs ~$0.12 and rewrites the trace; the rest are $0.</p>
+  <pre>deno run --allow-read --allow-write --allow-net --allow-env \
+  --env-file=.env.local scripts/trace-dish.ts      # 9 calls, writes dish-traces.json
+deno run --allow-read scripts/score-traces.ts      # scores it with the harness's own scorer
+deno run --allow-read --allow-write scripts/build-walkthrough.ts   # rebuilds this page</pre>
+  <p>Traced through <code>callGptEnrich</code>, <code>labelForms</code> and
+  <code>applyFormMass</code> — the deployed functions, not copies. Source:
+  <code>supabase/functions/analyze-menu/{enrich,dish-form,postprocess}.ts</code>.</p>
+</footer>
+
+</div>
+<script>
+document.querySelectorAll(".tb").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    var i = btn.dataset.i;
+    document.querySelectorAll(".tb").forEach(function (b) {
+      var on = b.dataset.i === i;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-selected", String(on));
+    });
+    document.querySelectorAll(".pane").forEach(function (p) {
+      var on = p.id === "p" + i;
+      p.hidden = !on;
+      p.classList.toggle("on", on);
+    });
+  });
+});
+</script>
+</body>
+</html>

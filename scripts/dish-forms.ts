@@ -25,23 +25,39 @@ export { FORM_G } from "./arm-dish-form.ts";
  * mass band. These are the GROUND TRUTH the model's labels are scored against.
  */
 export const LABEL: Record<string, string> = {
-  // bistro, section "PIZZAS BISTRO" - 15 items, ALFREDO PORTOBELLO included: it
-  // sits in the pizza section with a cream base, whatever its name suggests.
-  "5 FORMAGGI": "pizza_whole_thin",
-  "CAPRICCIOSA": "pizza_whole_thin",
-  "FLAMENKUCHEN": "pizza_whole_thin",
-  "QUESO AZUL": "pizza_whole_thin",
-  "4 STAGIONI": "pizza_whole_thin",
-  "ITALIANA": "pizza_whole_thin",
-  "HAWAIANA": "pizza_whole_thin",
-  "CAPRESE": "pizza_whole_thin",
-  "ALFREDO PORTOBELLO": "pizza_whole_thin",
-  "MEXICANA": "pizza_whole_thin",
-  "VEGETARIANA": "pizza_whole_thin",
-  "OSTRICA": "pizza_whole_thin",
-  "MARGARITA": "pizza_whole_thin",
-  "JAMÓN CON CHAMPIÑONES": "pizza_whole_thin",
-  "PEPPERONI": "pizza_whole_thin",
+  // bistro, section "PIZZAS BISTRO" - 14 PIZZAS. ALFREDO PORTOBELLO is NOT one.
+  //
+  // ☠️ CORRECTED eval 181. This block used to say "15 items, ALFREDO PORTOBELLO
+  // included: it sits in the pizza section with a cream base, whatever its name
+  // suggests" - and that CONTRADICTED THE ORACLE, which rules the dish as a PASTA
+  // (200 g pasta + cream + chicken + mushrooms, 410 g, band [350,470]) and records
+  // that it "arrives tagged section_title 'PIZZAS BISTRO'... a pasta under the pizza
+  // heading, a known Stage-1 mis-section for this menu". The label followed the
+  // mis-section instead of the food.
+  // 🪤 The old single 425 g row HID this: 425 sits inside [350,470] by luck, so a
+  // pasta sized as a pizza still passed. Splitting the row to 488 g exposed it. A
+  // coarse table can conceal a wrong label; a finer one cannot.
+  "ALFREDO PORTOBELLO": "pasta_entree", // 400 g, and the oracle's own decomposition is 410 g
+  //
+  // RE-LABELLED eval 181: the single `pizza_whole_thin` row split into five topping
+  // classes. Each label below is assigned from the DESCRIPTION only, by the rule
+  // "does it name meat, vegetables, both, or neither" - never from a mass band.
+  // ⚠️ 5 of 15 have NO exactly matching FNDDS record and take the nearest class;
+  // each is marked. That is a known weakness of this table, not a hidden one.
+  "MARGARITA": "pizza_thin_cheese_veg", // tomato slices, basil
+  "5 FORMAGGI": "pizza_thin_extra_cheese", // five cheeses, no meat, no veg
+  "PEPPERONI": "pizza_thin_pepperoni", // pepperoni only
+  "VEGETARIANA": "pizza_thin_cheese_veg", // spinach, squash, mushroom, onion, pepper, olive
+  "CAPRICCIOSA": "pizza_thin_meat_veg", // serrano ham, artichoke, olive, mushroom
+  "ITALIANA": "pizza_thin_meat_veg", // pepperoni, onion, pepper, olive, mushroom
+  "CAPRESE": "pizza_thin_meat_veg", // spinach, serrano ham, dried tomato
+  "MEXICANA": "pizza_thin_meat_veg", // onion, pepper, chistorra
+  "JAMÓN CON CHAMPIÑONES": "pizza_thin_meat_veg", // ham, mushrooms (name only, no desc)
+  "4 STAGIONI": "pizza_thin_meat_veg", // ⚠️ ALL meat (pepperoni, ham, bacon, chistorra), no veg - FNDDS has no meat-only thin-crust row
+  "HAWAIANA": "pizza_thin_meat_veg", // ⚠️ meat + FRUIT (ham, pineapple) - nearest class
+  "OSTRICA": "pizza_thin_meat_veg", // ⚠️ seafood (smoked oyster, bacon, dijon) - nearest class
+  "FLAMENKUCHEN": "pizza_thin_meat_veg", // ⚠️ CREAM base (bacon, onion) - FNDDS has no cream-base pizza
+  "QUESO AZUL": "pizza_thin_meat_veg", // ⚠️ CREAM base (blue cheese, spinach, ham, apple)
   // bistro, section "ENSALADAS" - all four read as composed entree salads.
   "ENSALADA GRIEGA": "salad_entree",
   "ENSALADA BISTRO": "salad_entree",
@@ -100,9 +116,15 @@ export const oracle: Item[] = JSON.parse(await Deno.readTextFile(ORACLE));
 export const byName = new Map(oracle.map((e) => [e.name, e]));
 export const MENUS = [...new Set(oracle.map((e) => e.menu))];
 
-/** The dishes whose band came from ONE class ruling, so they can be dropped. */
+/**
+ * The dishes whose band came from ONE class ruling, so they can be dropped.
+ *
+ * Matches the `pizza_thin_*` prefix since eval 181 split the single row; the old
+ * exact-match on `pizza_whole_thin` would have returned ZERO pizzas after the split
+ * and silently made every "pizzas-dropped" total identical to the full total.
+ */
 export const PIZZAS = Object.entries(LABEL)
-  .filter(([, f]) => f === "pizza_whole_thin")
+  .filter(([, f]) => f.startsWith("pizza_"))
   .map(([n]) => n);
 
 /** Resolved grams, replicating resolveGrams exactly. */

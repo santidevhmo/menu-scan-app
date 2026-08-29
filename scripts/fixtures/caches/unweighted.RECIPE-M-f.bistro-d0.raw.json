@@ -1,0 +1,2100 @@
+{
+  "items": [
+    {
+      "name": "5 FORMAGGI",
+      "description": "Queso mozzarella, chihuahua, azul, feta y cabra.",
+      "price": 240,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pizza crust"
+      ],
+      "ingredients": [
+        {
+          "name": "pizza crust",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "whole",
+          "protein_per_100g": 9,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "mozzarella cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 22,
+          "carb_per_100g": 2,
+          "fat_per_100g": 22
+        },
+        {
+          "name": "chihuahua cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 24,
+          "carb_per_100g": 2,
+          "fat_per_100g": 28
+        },
+        {
+          "name": "blue cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 21,
+          "carb_per_100g": 2,
+          "fat_per_100g": 29
+        },
+        {
+          "name": "feta cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 14,
+          "carb_per_100g": 4,
+          "fat_per_100g": 21
+        },
+        {
+          "name": "goat cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 18,
+          "carb_per_100g": 2,
+          "fat_per_100g": 21
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "CAPRICCIOSA",
+      "description": "Jamón serrano, alcachofa, aceituna negra y champiñón.",
+      "price": 262,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pizza crust",
+        "mozzarella cheese"
+      ],
+      "ingredients": [
+        {
+          "name": "pizza crust",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "whole",
+          "protein_per_100g": 9,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "mozzarella cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 22,
+          "carb_per_100g": 2,
+          "fat_per_100g": 22
+        },
+        {
+          "name": "serrano ham",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 50,
+          "unit": "gram",
+          "protein_per_100g": 28,
+          "carb_per_100g": 0,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "artichoke",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 3,
+          "carb_per_100g": 11,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "black olives",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "mushrooms",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.3
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "FLAMENKUCHEN",
+      "description": "Base de crema, tocino y cebolla caramelizada.",
+      "price": 240,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pizza crust"
+      ],
+      "ingredients": [
+        {
+          "name": "pizza crust",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "whole",
+          "protein_per_100g": 9,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "cream",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 2,
+          "carb_per_100g": 4,
+          "fat_per_100g": 38
+        },
+        {
+          "name": "bacon",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 50,
+          "unit": "gram",
+          "protein_per_100g": 12,
+          "carb_per_100g": 1,
+          "fat_per_100g": 42
+        },
+        {
+          "name": "caramelized onions",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 20,
+          "fat_per_100g": 5
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "QUESO AZUL",
+      "description": "Base de crema, queso azul, espinaca, jamón serrano y laminas de manzana verde.",
+      "price": 272,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pizza crust"
+      ],
+      "ingredients": [
+        {
+          "name": "pizza crust",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "whole",
+          "protein_per_100g": 9,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "cream",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 2,
+          "carb_per_100g": 4,
+          "fat_per_100g": 38
+        },
+        {
+          "name": "blue cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 21,
+          "carb_per_100g": 2,
+          "fat_per_100g": 29
+        },
+        {
+          "name": "spinach",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.4
+        },
+        {
+          "name": "serrano ham",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 50,
+          "unit": "gram",
+          "protein_per_100g": 28,
+          "carb_per_100g": 0,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "green apple slices",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 0.3,
+          "carb_per_100g": 14,
+          "fat_per_100g": 0.2
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "4 STAGIONI",
+      "description": "Pepperoni, jamón, tocino y chistorra.",
+      "price": 262,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pizza crust",
+        "mozzarella cheese"
+      ],
+      "ingredients": [
+        {
+          "name": "pizza crust",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "whole",
+          "protein_per_100g": 9,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "mozzarella cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 22,
+          "carb_per_100g": 2,
+          "fat_per_100g": 22
+        },
+        {
+          "name": "pepperoni",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 50,
+          "unit": "gram",
+          "protein_per_100g": 20,
+          "carb_per_100g": 2,
+          "fat_per_100g": 40
+        },
+        {
+          "name": "ham",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 50,
+          "unit": "gram",
+          "protein_per_100g": 20,
+          "carb_per_100g": 1,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "bacon",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 50,
+          "unit": "gram",
+          "protein_per_100g": 12,
+          "carb_per_100g": 1,
+          "fat_per_100g": 42
+        },
+        {
+          "name": "chistorra",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 50,
+          "unit": "gram",
+          "protein_per_100g": 18,
+          "carb_per_100g": 1,
+          "fat_per_100g": 35
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "ITALIANA",
+      "description": "Pepperoni, cebolla morada, pimiento verde, aceituna negra y campiñones.",
+      "price": 240,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pizza crust",
+        "mozzarella cheese"
+      ],
+      "ingredients": [
+        {
+          "name": "pizza crust",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "whole",
+          "protein_per_100g": 9,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "mozzarella cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 22,
+          "carb_per_100g": 2,
+          "fat_per_100g": 22
+        },
+        {
+          "name": "pepperoni",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 50,
+          "unit": "gram",
+          "protein_per_100g": 20,
+          "carb_per_100g": 2,
+          "fat_per_100g": 40
+        },
+        {
+          "name": "red onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "green bell pepper",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0.3
+        },
+        {
+          "name": "black olives",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "mushrooms",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.3
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "HAWAIANA",
+      "description": "Jamón y piña.",
+      "price": 208,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pizza crust",
+        "mozzarella cheese"
+      ],
+      "ingredients": [
+        {
+          "name": "pizza crust",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "whole",
+          "protein_per_100g": 9,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "mozzarella cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 22,
+          "carb_per_100g": 2,
+          "fat_per_100g": 22
+        },
+        {
+          "name": "ham",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 50,
+          "unit": "gram",
+          "protein_per_100g": 20,
+          "carb_per_100g": 1,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "pineapple",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 0.5,
+          "carb_per_100g": 13,
+          "fat_per_100g": 0.1
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "CAPRESE",
+      "description": "Espinacas, jamón serrano y tomate deshidratado.",
+      "price": 262,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pizza crust",
+        "mozzarella cheese"
+      ],
+      "ingredients": [
+        {
+          "name": "pizza crust",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "whole",
+          "protein_per_100g": 9,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "mozzarella cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 22,
+          "carb_per_100g": 2,
+          "fat_per_100g": 22
+        },
+        {
+          "name": "spinach",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.4
+        },
+        {
+          "name": "serrano ham",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 50,
+          "unit": "gram",
+          "protein_per_100g": 28,
+          "carb_per_100g": 0,
+          "fat_per_100g": 15
+        },
+        {
+          "name": "sun-dried tomatoes",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 5,
+          "carb_per_100g": 55,
+          "fat_per_100g": 1
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "ALFREDO PORTOBELLO",
+      "description": "Base de crema, laminas de portobello y pollo marinado.",
+      "price": 262,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pizza crust"
+      ],
+      "ingredients": [
+        {
+          "name": "pizza crust",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "whole",
+          "protein_per_100g": 9,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "cream",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 2,
+          "carb_per_100g": 4,
+          "fat_per_100g": 38
+        },
+        {
+          "name": "portobello mushrooms",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.3
+        },
+        {
+          "name": "marinated chicken",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 100,
+          "unit": "gram",
+          "protein_per_100g": 25,
+          "carb_per_100g": 0,
+          "fat_per_100g": 5
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "MEXICANA",
+      "description": "Cebolla morada, pimiento verde y chistorra.",
+      "price": 252,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pizza crust",
+        "mozzarella cheese"
+      ],
+      "ingredients": [
+        {
+          "name": "pizza crust",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "whole",
+          "protein_per_100g": 9,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "mozzarella cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 22,
+          "carb_per_100g": 2,
+          "fat_per_100g": 22
+        },
+        {
+          "name": "red onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "green bell pepper",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0.3
+        },
+        {
+          "name": "chistorra",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 50,
+          "unit": "gram",
+          "protein_per_100g": 18,
+          "carb_per_100g": 1,
+          "fat_per_100g": 35
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "VEGETARIANA",
+      "description": "Espinaca, calabaza, campiñón, cebolla morada, pimiento verde y aceituna negra.",
+      "price": 230,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pizza crust",
+        "cheese"
+      ],
+      "ingredients": [
+        {
+          "name": "pizza crust",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "whole",
+          "protein_per_100g": 8,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "cup",
+          "protein_per_100g": 25,
+          "carb_per_100g": 2,
+          "fat_per_100g": 33
+        },
+        {
+          "name": "spinach",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "cup",
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.4
+        },
+        {
+          "name": "pumpkin",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 7,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "mushroom",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 3,
+          "carb_per_100g": 3,
+          "fat_per_100g": 0.3
+        },
+        {
+          "name": "red onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "green pepper",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "black olive",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 15
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "OSTRICA",
+      "description": "Ostión ahumado, tocino y mostaza dijón.",
+      "price": 252,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pizza crust",
+        "cheese"
+      ],
+      "ingredients": [
+        {
+          "name": "pizza crust",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "whole",
+          "protein_per_100g": 8,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "cup",
+          "protein_per_100g": 25,
+          "carb_per_100g": 2,
+          "fat_per_100g": 33
+        },
+        {
+          "name": "smoked oyster",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 18,
+          "carb_per_100g": 7,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "bacon",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 4,
+          "unit": "slice",
+          "protein_per_100g": 12,
+          "carb_per_100g": 1,
+          "fat_per_100g": 42
+        },
+        {
+          "name": "dijon mustard",
+          "category": "other",
+          "within_printed_weight": true,
+          "amount": 2,
+          "unit": "tablespoon",
+          "protein_per_100g": 7,
+          "carb_per_100g": 5,
+          "fat_per_100g": 6
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy",
+        "shellfish"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "MARGARITA",
+      "description": "Rebanadas de tomate fresco y albahaca deshidratada.",
+      "price": 225,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pizza crust",
+        "cheese"
+      ],
+      "ingredients": [
+        {
+          "name": "pizza crust",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "whole",
+          "protein_per_100g": 8,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "cup",
+          "protein_per_100g": 25,
+          "carb_per_100g": 2,
+          "fat_per_100g": 33
+        },
+        {
+          "name": "fresh tomato",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "dried basil",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "tablespoon",
+          "protein_per_100g": 14,
+          "carb_per_100g": 61,
+          "fat_per_100g": 4
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "JAMÓN CON CHAMPIÑONES",
+      "description": "",
+      "price": 205,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pizza crust",
+        "cheese"
+      ],
+      "ingredients": [
+        {
+          "name": "pizza crust",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "whole",
+          "protein_per_100g": 8,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "cup",
+          "protein_per_100g": 25,
+          "carb_per_100g": 2,
+          "fat_per_100g": 33
+        },
+        {
+          "name": "ham",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 4,
+          "unit": "slice",
+          "protein_per_100g": 20,
+          "carb_per_100g": 1,
+          "fat_per_100g": 10
+        },
+        {
+          "name": "mushroom",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 3,
+          "carb_per_100g": 3,
+          "fat_per_100g": 0.3
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "PEPPERONI",
+      "description": "",
+      "price": 198,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pizza crust",
+        "cheese"
+      ],
+      "ingredients": [
+        {
+          "name": "pizza crust",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "whole",
+          "protein_per_100g": 8,
+          "carb_per_100g": 50,
+          "fat_per_100g": 5
+        },
+        {
+          "name": "cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "cup",
+          "protein_per_100g": 25,
+          "carb_per_100g": 2,
+          "fat_per_100g": 33
+        },
+        {
+          "name": "pepperoni",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 30,
+          "unit": "slice",
+          "protein_per_100g": 20,
+          "carb_per_100g": 1,
+          "fat_per_100g": 40
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "medium",
+      "allergens": [
+        "gluten",
+        "dairy"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "Pollo.",
+      "description": "",
+      "price": null,
+      "category": "other",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "low",
+      "allergens": [],
+      "recipe_reverted": true
+    },
+    {
+      "name": "Camarón",
+      "description": "",
+      "price": null,
+      "category": "other",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "low",
+      "allergens": [],
+      "recipe_reverted": true
+    },
+    {
+      "name": "ENSALADA GRIEGA",
+      "description": "Lechuga, pepino, tomate, cebolla morada, aceituna negra, queso feta y vinagreta balsamico.",
+      "price": 185,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "lettuce",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 2,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 2,
+          "fat_per_100g": 0.2,
+          "typical_serving_g": 70,
+          "fndds_id": 2709789,
+          "fndds_desc": "Lettuce, raw",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 0.92,
+          "fndds_carb_per_100g": 3.69,
+          "fndds_fat_per_100g": 0.1
+        },
+        {
+          "name": "cucumber",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.1,
+          "typical_serving_g": 60,
+          "fndds_id": 2709784,
+          "fndds_desc": "Cucumber, raw",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 0.62,
+          "fndds_carb_per_100g": 2.95,
+          "fndds_fat_per_100g": 0.18
+        },
+        {
+          "name": "tomato",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.2,
+          "typical_serving_g": 90,
+          "fndds_id": 2709719,
+          "fndds_desc": "Tomatoes, raw",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 0.82,
+          "fndds_carb_per_100g": 4.04,
+          "fndds_fat_per_100g": 0.31
+        },
+        {
+          "name": "red onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0.1,
+          "typical_serving_g": 40,
+          "fndds_id": 790577,
+          "fndds_desc": "Onions, red, raw",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 0.94,
+          "fndds_carb_per_100g": 9.93,
+          "fndds_fat_per_100g": 0.1
+        },
+        {
+          "name": "black olive",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 15,
+          "typical_serving_g": 33.75,
+          "fndds_id": 2710090,
+          "fndds_desc": "Olives, black",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 0.84,
+          "fndds_carb_per_100g": 6.04,
+          "fndds_fat_per_100g": 10.9
+        },
+        {
+          "name": "feta cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 14,
+          "carb_per_100g": 4,
+          "fat_per_100g": 21,
+          "typical_serving_g": 75,
+          "fndds_id": 2259796,
+          "fndds_desc": "Cheese, feta, whole milk, crumbled",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 19.70782,
+          "fndds_carb_per_100g": 5.58318,
+          "fndds_fat_per_100g": 19.08
+        },
+        {
+          "name": "balsamic vinaigrette",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 2,
+          "unit": "tablespoon",
+          "protein_per_100g": 0.5,
+          "carb_per_100g": 14,
+          "fat_per_100g": 28,
+          "typical_serving_g": 32,
+          "fndds_id": 172241,
+          "fndds_desc": "Vinegar, balsamic",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 0.49,
+          "fndds_carb_per_100g": 17.03,
+          "fndds_fat_per_100g": 0
+        }
+      ],
+      "protein_g": 14,
+      "carb_g": 21,
+      "fat_g": 30,
+      "estimated_calories": 408,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy"
+      ],
+      "recipe_coverage": 1
+    },
+    {
+      "name": "ENSALADA BISTRO",
+      "description": "Tomate, campiñones, pimiento verde, cebolla morada, pera, manzana, calabaza, queso brie y chistorra.",
+      "price": 225,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "tomato",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "mushroom",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 3,
+          "carb_per_100g": 3,
+          "fat_per_100g": 0.3
+        },
+        {
+          "name": "green pepper",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "red onion",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 9,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "pear",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 0.5,
+          "carb_per_100g": 15,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "apple",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 0.3,
+          "carb_per_100g": 14,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "pumpkin",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 7,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "brie cheese",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 21,
+          "carb_per_100g": 0.5,
+          "fat_per_100g": 28
+        },
+        {
+          "name": "chistorra",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 2,
+          "unit": "link",
+          "protein_per_100g": 18,
+          "carb_per_100g": 1,
+          "fat_per_100g": 35
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "ENSALADA BALI",
+      "description": "Espinaca, mandarina, arándanos, tomate cherry, coco rallado, cacahuate y vinagreta de la casa.",
+      "price": 185,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "spinach",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "cup",
+          "protein_per_100g": 3,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.4,
+          "typical_serving_g": 25,
+          "fndds_id": 2709614,
+          "fndds_desc": "Spinach, raw",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 2.85,
+          "fndds_carb_per_100g": 2.41,
+          "fndds_fat_per_100g": 0.62
+        },
+        {
+          "name": "mandarin",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 0.8,
+          "carb_per_100g": 12,
+          "fat_per_100g": 0.2,
+          "typical_serving_g": 97.5,
+          "fndds_id": 169105,
+          "fndds_desc": "Tangerines, (mandarin oranges), raw",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 0.81,
+          "fndds_carb_per_100g": 13.34,
+          "fndds_fat_per_100g": 0.31
+        },
+        {
+          "name": "cranberry",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 0.4,
+          "carb_per_100g": 82,
+          "fat_per_100g": 1.1,
+          "typical_serving_g": 25,
+          "fndds_id": 2709279,
+          "fndds_desc": "Cranberries, raw",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 0.46,
+          "fndds_carb_per_100g": 12,
+          "fndds_fat_per_100g": 0.13
+        },
+        {
+          "name": "cherry tomato",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 4,
+          "fat_per_100g": 0.2,
+          "typical_serving_g": 90,
+          "fndds_id": 2709719,
+          "fndds_desc": "Tomatoes, raw",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 0.82,
+          "fndds_carb_per_100g": 4.04,
+          "fndds_fat_per_100g": 0.31
+        },
+        {
+          "name": "shredded coconut",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 3,
+          "carb_per_100g": 15,
+          "fat_per_100g": 33,
+          "typical_serving_g": 23.25,
+          "fndds_id": 168586,
+          "fndds_desc": "Nuts, coconut meat, dried (desiccated), sweetened, shredded",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 2.88,
+          "fndds_carb_per_100g": 47.67,
+          "fndds_fat_per_100g": 35.49
+        },
+        {
+          "name": "peanut",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 25,
+          "carb_per_100g": 16,
+          "fat_per_100g": 49,
+          "typical_serving_g": 36.5,
+          "fndds_id": 2707513,
+          "fndds_desc": "Peanuts, boiled",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 13.5,
+          "fndds_carb_per_100g": 21.3,
+          "fndds_fat_per_100g": 22
+        },
+        {
+          "name": "house vinaigrette",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 2,
+          "unit": "tablespoon",
+          "protein_per_100g": 0.5,
+          "carb_per_100g": 14,
+          "fat_per_100g": 28,
+          "typical_serving_g": 0,
+          "fndds_via": "unresolved"
+        }
+      ],
+      "protein_g": 12,
+      "carb_g": 46,
+      "fat_g": 26,
+      "estimated_calories": 471,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "nuts"
+      ],
+      "recipe_coverage": 0.8571428571428571
+    },
+    {
+      "name": "ENSALADA DE LA SEMANA",
+      "description": "Combinación de lechuga y espinaca, arándanos, tomate cherry, campiñón, calabaza, pera, manzana, almendras y queso de cabra.",
+      "price": 185,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [],
+      "ingredients": [
+        {
+          "name": "lettuce",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "cup",
+          "protein_per_100g": 1.4,
+          "carb_per_100g": 2.9,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "spinach",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "cup",
+          "protein_per_100g": 2.9,
+          "carb_per_100g": 3.6,
+          "fat_per_100g": 0.4
+        },
+        {
+          "name": "cranberries",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 0.4,
+          "carb_per_100g": 82.4,
+          "fat_per_100g": 1.1
+        },
+        {
+          "name": "cherry tomatoes",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 0.9,
+          "carb_per_100g": 3.9,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "mushrooms",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 3.1,
+          "carb_per_100g": 3.3,
+          "fat_per_100g": 0.3
+        },
+        {
+          "name": "pumpkin",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 6.5,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "pear",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 0.4,
+          "carb_per_100g": 15.2,
+          "fat_per_100g": 0.1
+        },
+        {
+          "name": "apple",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 0.3,
+          "carb_per_100g": 13.8,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "almonds",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 2,
+          "unit": "tablespoon",
+          "protein_per_100g": 21.2,
+          "carb_per_100g": 21.6,
+          "fat_per_100g": 49.9
+        },
+        {
+          "name": "goat cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 2,
+          "unit": "tablespoon",
+          "protein_per_100g": 21.6,
+          "carb_per_100g": 1.5,
+          "fat_per_100g": 25.8
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "nuts"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "CARBONARA",
+      "description": "Salsa blanca a base de crema y queso parmesano, con un toque de tocino y nuez moscada.",
+      "price": 235,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pasta"
+      ],
+      "ingredients": [
+        {
+          "name": "pasta",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "cup",
+          "protein_per_100g": 5.8,
+          "carb_per_100g": 30.9,
+          "fat_per_100g": 1.3,
+          "typical_serving_g": 140,
+          "fndds_id": 2708357,
+          "fndds_desc": "Pasta, cooked",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 5.76,
+          "fndds_carb_per_100g": 30.7,
+          "fndds_fat_per_100g": 0.92
+        },
+        {
+          "name": "cream",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 2,
+          "carb_per_100g": 3,
+          "fat_per_100g": 35,
+          "typical_serving_g": 120,
+          "fndds_id": 2705597,
+          "fndds_desc": "Cream, heavy",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 2.02,
+          "fndds_carb_per_100g": 3.8,
+          "fndds_fat_per_100g": 35.6
+        },
+        {
+          "name": "parmesan cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 35.8,
+          "carb_per_100g": 3.2,
+          "fat_per_100g": 25,
+          "typical_serving_g": 25,
+          "fndds_id": 2705730,
+          "fndds_desc": "Cheese, Parmesan, hard",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 29.9,
+          "fndds_carb_per_100g": 8.36,
+          "fndds_fat_per_100g": 28.8
+        },
+        {
+          "name": "bacon",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 2,
+          "unit": "slice",
+          "protein_per_100g": 12.6,
+          "carb_per_100g": 1.4,
+          "fat_per_100g": 42,
+          "typical_serving_g": 13,
+          "fndds_id": 2705856,
+          "fndds_desc": "Beef, bacon, cooked",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 31.3,
+          "fndds_carb_per_100g": 1.4,
+          "fndds_fat_per_100g": 34.4
+        },
+        {
+          "name": "nutmeg",
+          "category": "other",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "teaspoon",
+          "protein_per_100g": 5.8,
+          "carb_per_100g": 49.3,
+          "fat_per_100g": 36.3,
+          "typical_serving_g": 0.55,
+          "fndds_id": 171326,
+          "fndds_desc": "Spices, nutmeg, ground",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 5.84,
+          "fndds_carb_per_100g": 49.29,
+          "fndds_fat_per_100g": 36.31
+        }
+      ],
+      "protein_g": 21,
+      "carb_g": 48,
+      "fat_g": 56,
+      "estimated_calories": 779,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ],
+      "recipe_coverage": 1
+    },
+    {
+      "name": "LINGUINNI PARISIENNE",
+      "description": "Pimientos, campiñones, jamón en salsa cremosa a base de quesos.",
+      "price": 225,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "linguine"
+      ],
+      "ingredients": [
+        {
+          "name": "linguine",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "cup",
+          "protein_per_100g": 5.8,
+          "carb_per_100g": 30.9,
+          "fat_per_100g": 1.3
+        },
+        {
+          "name": "bell peppers",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 1,
+          "carb_per_100g": 6,
+          "fat_per_100g": 0.3
+        },
+        {
+          "name": "mushrooms",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 3.1,
+          "carb_per_100g": 3.3,
+          "fat_per_100g": 0.3
+        },
+        {
+          "name": "ham",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 20.6,
+          "carb_per_100g": 1.5,
+          "fat_per_100g": 5.5
+        },
+        {
+          "name": "cream cheese sauce",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 5.1,
+          "carb_per_100g": 6.1,
+          "fat_per_100g": 32.8
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "PASTA ESPECIAL",
+      "description": "Salsa de tomate de la casa, campiñones, chistorra y queso de cabra.",
+      "price": 235,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pasta"
+      ],
+      "ingredients": [
+        {
+          "name": "pasta",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "cup",
+          "protein_per_100g": 5.8,
+          "carb_per_100g": 30.9,
+          "fat_per_100g": 1.3
+        },
+        {
+          "name": "tomato sauce",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 1.2,
+          "carb_per_100g": 6.7,
+          "fat_per_100g": 0.2
+        },
+        {
+          "name": "mushrooms",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 3.1,
+          "carb_per_100g": 3.3,
+          "fat_per_100g": 0.3
+        },
+        {
+          "name": "chistorra",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 2,
+          "unit": "link",
+          "protein_per_100g": 18,
+          "carb_per_100g": 1,
+          "fat_per_100g": 35
+        },
+        {
+          "name": "goat cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 2,
+          "unit": "tablespoon",
+          "protein_per_100g": 21.6,
+          "carb_per_100g": 1.5,
+          "fat_per_100g": 25.8
+        }
+      ],
+      "protein_g": 0,
+      "carb_g": 0,
+      "fat_g": 0,
+      "estimated_calories": 0,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ],
+      "recipe_reverted": true
+    },
+    {
+      "name": "FRADIAVIOLA",
+      "description": "Crema de tomate con un toque de chile de árbol, espinacas y queso feta.",
+      "price": 225,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "pasta"
+      ],
+      "ingredients": [
+        {
+          "name": "pasta",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "cup",
+          "protein_per_100g": 5.8,
+          "carb_per_100g": 30.9,
+          "fat_per_100g": 1.3,
+          "typical_serving_g": 140,
+          "fndds_id": 2708357,
+          "fndds_desc": "Pasta, cooked",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 5.76,
+          "fndds_carb_per_100g": 30.7,
+          "fndds_fat_per_100g": 0.92
+        },
+        {
+          "name": "tomato cream sauce",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 1.2,
+          "carb_per_100g": 6.7,
+          "fat_per_100g": 5,
+          "typical_serving_g": 130,
+          "fndds_id": 2709749,
+          "fndds_desc": "Vodka sauce with tomatoes and cream",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 1.15,
+          "fndds_carb_per_100g": 3.56,
+          "fndds_fat_per_100g": 6.57
+        },
+        {
+          "name": "chile de árbol",
+          "category": "other",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "teaspoon",
+          "protein_per_100g": 12,
+          "carb_per_100g": 50,
+          "fat_per_100g": 17,
+          "typical_serving_g": 0,
+          "fndds_via": "unresolved"
+        },
+        {
+          "name": "spinach",
+          "category": "veg",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "cup",
+          "protein_per_100g": 2.9,
+          "carb_per_100g": 3.6,
+          "fat_per_100g": 0.4,
+          "typical_serving_g": 25,
+          "fndds_id": 2709614,
+          "fndds_desc": "Spinach, raw",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 2.85,
+          "fndds_carb_per_100g": 2.41,
+          "fndds_fat_per_100g": 0.62
+        },
+        {
+          "name": "feta cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 14.2,
+          "carb_per_100g": 4.1,
+          "fat_per_100g": 21.3,
+          "typical_serving_g": 37.5,
+          "fndds_id": 2705714,
+          "fndds_desc": "Cheese, Feta",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 19.7,
+          "fndds_carb_per_100g": 5.58,
+          "fndds_fat_per_100g": 19.1
+        }
+      ],
+      "protein_g": 16,
+      "carb_g": 54,
+      "fat_g": 16,
+      "estimated_calories": 428,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ],
+      "recipe_coverage": 0.8
+    },
+    {
+      "name": "FETUCCINI ALFREDO",
+      "description": "Salsa Alfredo a base de queso parmesano",
+      "price": 235,
+      "category": "food",
+      "printed_total_g": null,
+      "name_implied_components": [
+        "fettuccine"
+      ],
+      "ingredients": [
+        {
+          "name": "fettuccine",
+          "category": "carb",
+          "within_printed_weight": true,
+          "amount": 1,
+          "unit": "cup",
+          "protein_per_100g": 5.8,
+          "carb_per_100g": 30.9,
+          "fat_per_100g": 1.3,
+          "typical_serving_g": 230,
+          "fndds_id": 2708929,
+          "fndds_desc": "Macaroni or noodles, creamed, with cheese and tuna",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 7.85,
+          "fndds_carb_per_100g": 17.4,
+          "fndds_fat_per_100g": 4.52
+        },
+        {
+          "name": "alfredo sauce",
+          "category": "fat",
+          "within_printed_weight": true,
+          "amount": 0.5,
+          "unit": "cup",
+          "protein_per_100g": 3.3,
+          "carb_per_100g": 3.3,
+          "fat_per_100g": 33.3,
+          "typical_serving_g": 130,
+          "fndds_id": 2705809,
+          "fndds_desc": "Alfredo sauce",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 2.12,
+          "fndds_carb_per_100g": 1.77,
+          "fndds_fat_per_100g": 15
+        },
+        {
+          "name": "parmesan cheese",
+          "category": "protein",
+          "within_printed_weight": true,
+          "amount": 0.25,
+          "unit": "cup",
+          "protein_per_100g": 35.8,
+          "carb_per_100g": 3.2,
+          "fat_per_100g": 25,
+          "typical_serving_g": 25,
+          "fndds_id": 2705730,
+          "fndds_desc": "Cheese, Parmesan, hard",
+          "fndds_via": "published-portion",
+          "fndds_protein_per_100g": 29.9,
+          "fndds_carb_per_100g": 8.36,
+          "fndds_fat_per_100g": 28.8
+        }
+      ],
+      "protein_g": 27,
+      "carb_g": 76,
+      "fat_g": 53,
+      "estimated_calories": 884,
+      "serving_pieces": 1,
+      "confidence": "high",
+      "allergens": [
+        "dairy",
+        "gluten"
+      ],
+      "recipe_coverage": 1
+    }
+  ]
+}

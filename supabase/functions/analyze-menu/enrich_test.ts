@@ -1379,11 +1379,18 @@ Deno.test("dual pass: pass 2 carries the system envelope, pass 1 does not", asyn
   assertStringIncludes(pass2[0].content, "print no weight");
 });
 
-Deno.test("index.ts calls the DUAL PASS, not the single pass", async () => {
+Deno.test("index.ts calls the FORM-SIZED pass, not the dual or single pass", async () => {
   // The risk is a half-finished wiring - the import swapped but the call site
   // left, or vice versa. Pinned mechanically because neither half fails loudly.
+  //
+  // Updated 2026-08-24 (eval 180): this pinned `callGptEnrichDualPass(` and had
+  // been RED since the v33 ship, which moved the call site to
+  // `callGptEnrichFormSized` (dish-form.ts). A stale pin guards nothing and
+  // burns a session's time - START-HERE's "expect exactly 2 failures" block did
+  // not list it, so it read as a regression the reader had just caused.
   const source = await Deno.readTextFile(new URL("./index.ts", import.meta.url));
-  assertStringIncludes(source, "callGptEnrichDualPass(");
-  // The single-pass entry point must not remain as the enrichment call site.
+  assertStringIncludes(source, "callGptEnrichFormSized(");
+  // Neither earlier entry point may remain as the enrichment call site.
   assertEquals(/[^a-zA-Z]callGptEnrich\(/.test(source), false);
+  assertEquals(/[^a-zA-Z]callGptEnrichDualPass\(/.test(source), false);
 });

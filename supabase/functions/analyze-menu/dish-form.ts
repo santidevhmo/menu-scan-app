@@ -53,10 +53,53 @@ import {
  * row fits", and applyFormMass reads it as "leave this dish alone".
  */
 export const FORM_G: Record<string, number> = {
-  // ☠️ NOT INDEPENDENT: 425 is the midpoint of the 400-450 band this project
-  // itself ruled for these pizzas. The food reasoning is real - a 28-33 cm thin
-  // crust is a 250-280 g dough ball baking down to ~200 g plus 150-200 g of
-  // topping - but it cannot be claimed as a blind prediction.
+  // ── PIZZA, SPLIT BY TOPPING CLASS (eval 181, Santiago's call 2026-08-24) ──
+  //
+  // Was ONE row at 425 g for every pizza. That could not be right: FNDDS's own
+  // published areal densities span 3.9-5.9 g/in^2 across topping classes, so a
+  // cheese pizza and a meat-and-vegetable pizza differ by ~1.3x. Fifteen Bistro
+  // pizzas shared one number.
+  //
+  // 🔑 SOURCE: FNDDS publishes a portion called "1 surface inch" - grams per square
+  // inch of pizza - so a printed diameter converts to a mass with NO interpolation
+  // across diameter bins. Bistro prints "28 CM" as its pizza section header (in the
+  // OCR of the original photo), = 11.02 in = 95.4 in^2.
+  // Re-derive any row: `deno run --allow-read --allow-net --allow-env \
+  //   --env-file=.env.local scripts/probe-pizza-areal.ts`
+  //
+  // 🪤 EVAL 178'S 620 g FIGURE WAS WRONG AND IS SUPERSEDED. It read FNDDS's flat
+  // "medium (11-12 in)" row, which all 8 records independently imply is really an
+  // ~11.8 in pizza - 13% more area than 28 cm. The surface-inch figure is the same
+  // data at finer resolution without that error. The meat-and-veg record (2708663)
+  // is 563 g at 28 cm, not 620.
+  //
+  // ⚠️ THE LEVEL IS DELIBERATELY COMPRESSED, THE RATIOS ARE NOT. Santiago chose
+  // "USDA for the ratios, keep my level" - FNDDS is US restaurant survey data and
+  // American pizzas are more heavily loaded than a Mexican bistro's thin crust.
+  // Every row is USDA_g * PIZZA_SCALE.
+  //
+  // 🔑 PIZZA_SCALE IS NOT FREE TO CHOOSE: it is pinned by a physical floor. FNDDS's
+  // NO-CHEESE thin crust is 3.9 g/in^2 = 372 g, and a pizza WITH cheese cannot weigh
+  // less than one without. So the cheese row cannot go below 372, which fixes the
+  // scale at 372/429. A flat 425 g menu average would have required 0.79 and put a
+  // cheese pizza at 337 g - lighter than a bare crust, i.e. impossible.
+  // Menu-weighted average over the 15 Bistro pizzas: 425 g before, 469 g after.
+  //
+  // ☠️ These rows are INDEPENDENT of the oracle in a way `pizza_whole_thin` never
+  // was - they come from published USDA densities, not from the band this project
+  // ruled. But the BAND MOVED WITH THEM (eval 181), so a rising score does NOT prove
+  // the app got better: both sides read the same FNDDS records. Only a kitchen scale
+  // settles the absolute level. See eval 178 ① for why (A ≈ C).
+  pizza_thin_cheese: 372, // 4.5 g/in^2, FDC 2708615 - and the floor
+  pizza_thin_extra_cheese: 397, // 4.8 g/in^2, FDC 2708622
+  pizza_thin_pepperoni: 406, // 4.9 g/in^2, FDC 2708639
+  pizza_thin_cheese_veg: 430, // 5.2 g/in^2, FDC 2708626
+  pizza_thin_meat_veg: 488, // 5.9 g/in^2, FDC 2708663
+  // ⚠️ LEGACY - DO NOT REMOVE AND DO NOT OFFER TO THE MODEL. Every archive from
+  // evals 174-180 labels its pizzas `pizza_whole_thin`. Deleting this key would make
+  // `applyFormMass` fall through its `if (!target) return it` guard and silently stop
+  // sizing pizzas on replay, corrupting the $0 re-scoring the whole project runs on.
+  // It is excluded from FORM_ENUM below, so the model can no longer choose it.
   pizza_whole_thin: 425,
   // FNDDS: 1 cup cooked spaghetti = 140 g. A restaurant entree is ~2 cups plus
   // roughly 120 g of sauce.
@@ -100,7 +143,13 @@ export const FORM_G: Record<string, number> = {
   other: 250,
 };
 
-export const FORM_ENUM = Object.keys(FORM_G);
+/**
+ * Rows that still RESOLVE for archived labels but must never be OFFERED to the model.
+ * See `pizza_whole_thin` above: replay needs the key, classification must not have it.
+ */
+export const LEGACY_FORMS = new Set(["pizza_whole_thin"]);
+
+export const FORM_ENUM = Object.keys(FORM_G).filter((f) => !LEGACY_FORMS.has(f));
 
 /**
  * `name` and `dish_form`, nothing else. Any additional field would give the model

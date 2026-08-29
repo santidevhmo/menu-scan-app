@@ -5177,3 +5177,64 @@ all cited as "g/cup") were foreshadowing this result before it was measured.
   human-curated whole-dish lookup — not an automated FNDDS query. Fixing
   `sim-form-coverage-split.ts`'s candidate filter (③) would also sharpen the true off-corpus gap size
   before either is attempted.
+
+## Eval 189 — 🟢 **RELEASE-READINESS RE-DERIVATION: `FORM` IS 60–64% ON FIELDS BUT ONLY 24% ON WHOLE DISHES, AND EVERY ORACLE DISH IS ON-CORPUS.** Santiago proposed shipping v33 on a remembered "40% → 60%"; the true move is **49% → 62%**, and the off-corpus score has never been measured because all 57 oracle dishes come from the five menus `FORM_G` was built from (2026-08-25, $0 — replays and sims only, no model calls)
+
+### ① THE NUMBERS, RE-DERIVED THROUGH THE HARNESS
+
+`bench-unweighted.ts --replay`, current (post-eval-181) ruler:
+
+| | `dual` (v32) | `FORM` (v33, production) |
+|---|---|---|
+| fields in band | **333/684 = 49%** | **408 / 417 / 425 / 428 / 435** (r3, r1, r2, r4, r5) → mean **422.6/684 = 61.8%** |
+| calories in band | 45.6% | **63.6%** |
+| protein / carb / fat in band | 60.8 / 44.7 / 45.3% | **76.5 / 55.0 / 52.0%** |
+| calories within ±30% of band midpoint | 69% | **82%** |
+| **dish-draws with all 4 macros in band** | **12.3%** (42/342) | **24.0%** (205/855) |
+| dishes right on every draw | 4/57 | 8/57 |
+| dishes wrong on every draw | 44/57 | 32/57 |
+
+Weighted half, inside its real menu (`bench-mixed-menu.ts 3 dual --replay`): **17/96 failed = 82% pass**.
+
+🔑 **The /684 is a FIELD score and reads far kinder than the dish score it implies.** `ENSALADA GRIEGA`
+returns 307 kcal against a 143–214 band on all three draws — a +70% miss on a plain green salad — and
+still books 2/4, because protein and carbs pass. Report **24%** next to **62%** whenever the question is
+"what does a user see," and keep `mass_in_band` next to both.
+
+### ② 🪤 THE 62% IS AN ON-CORPUS NUMBER AND NOTHING ELSE HAS EVER BEEN MEASURED
+
+`unweighted-oracle.json` by menu: bistro 24, nikkori 10, brasero-two 10, el-marcos 7, andaluz 6 = 57.
+**Those five ARE `sim-form-coverage-split.ts`'s entire SEEN group.** Zero oracle dishes come from the
+UNSEEN five. The coverage split reads 82% SEEN / 33% UNSEEN, and `applyFormMass` (dish-form.ts:244)
+returns the **unsized dual-pass item** when the label is `other` or has no `FORM_G` row — so an uncovered
+dish silently degrades to v32 quality, i.e. 12% whole-dish accuracy, not 24%.
+
+Arithmetic projection only (NOT a measurement): gain per unit coverage = (61.8 − 48.7) / 0.82 = 16.0
+points, so 33% coverage → **≈54%**. Upper bound is 62%. ⚠️ **Eval 187 ③ already showed the 33% is
+pessimistic** — 44 of the 82 off-corpus gaps are sauces, steak enhancements and wing/smoothie flavour
+selectors, not orderable dishes, and the candidate filter does not know it. **True off-corpus score is
+somewhere in 54–62% and is UNMEASURED.**
+
+### ③ WHY MORE EVALS CANNOT RESCUE THE NUMBER
+
+`sim-mass-ceiling.ts`: mass read straight from the oracle → **516/684 = 75%**. That is the ceiling of the
+entire sizing lever *with the answer key in hand*. `FORM` sits at 62%. The residual 25% is composition
+error no portion mechanism touches. **There is no eval path from here to 90% through sizing** — which is
+the strongest argument in favour of Santiago's instinct to ship, not against it.
+
+### ④ THE RECOMMENDATION GIVEN
+
+Ship v33, but ship the **uncertainty** rather than an integer: at 82%-within-±30% on calories a range is
+defensible and `612 kcal` in a confident font is not. Against the measured human baseline
+(nutritionists average 41% error at visual portion estimation — see `reference_portion_estimation_literature`)
+the pipeline is already better than an expert eyeballing a plate, and that is the honest claim.
+
+Two non-blocking follow-ups named:
+1. Do not publish "60% accurate" — it is on-corpus, and it is fields not dishes.
+2. Fix `sim-form-coverage-split.ts`'s candidate filter (eval 187 ③), then hand-rule ONE unseen menu
+   (`guest-house` or `mochomos`) into the oracle. That yields the first honest off-corpus score this
+   project has ever had, and it costs oracle labour, not API spend.
+
+- **Spend: $0.** Phase total ≈ $59.4 (unchanged — carried over from eval 188).
+- **NEXT:** Santiago's release call. If he ships, ②'s off-corpus oracle is the highest-value $0-API item
+  left; if he does not, ③ says the next real headroom is composition, not portion size.

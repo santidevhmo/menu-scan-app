@@ -57,7 +57,7 @@ what a future session re-derives from.
 | `dual` | The v32 pipeline. Stage 2 runs twice: pass 1 whole menu, pass 2 re-sends only the no-weight dishes with one extra sentence. | 352, 357 *(2 runs)* | superseded by v33 |
 | `NOBOOST` | Deletes only the PUSH half of pass 2's addendum. | 386 *(1 run)* | unresolved — CI includes zero. Do not ship, do not call it rejected either |
 | `HYBRID(300)` | A **router**: use `NOBOOST`'s answer when `NOBOOST`'s own plate mass < 300 g, else re-ask the shipped question. | 394–419 *(4 runs)* | beaten by `FORM` |
-| 🚀 **`FORM`** | The model names each dish's **form** from a fixed enum; **we** set the plate's mass from `FORM_G` and rescale. | **434–453** *(5 runs, mean 442.4)* | **SHIPPED as v33, 2026-08-23** |
+| 🚀 **`FORM`** | The model names each dish's **form** from a fixed enum; **we** set the plate's mass from `FORM_G` and rescale. | **NEW RULER: 408–435** *(5 runs, mean 422.6 = 61.8%)*. Old-ruler figure was 434–453 | **SHIPPED as v33, 2026-08-23.** ⚠️ eval 189: the /684 is a FIELD score — **only 24.0% of dish-draws get all four macros in band** (`dual` 12.3%), and **all 57 oracle dishes are on-corpus** (the five menus `FORM_G` was built from), so the off-corpus score is **UNMEASURED, bounded 54–62%** |
 | `COMBO` | `HYBRID` routes, then `FORM` sizes. | 449–470 *(4 runs)*, **458 on the new ruler** | ☠️ **STILL NOT established (eval 186, re-derived): +24.0 over `FORM`, CI −1.2 to +48.5, INCLUDES ZERO.** The old +18 / −7.7 to +43.5 was the PRE-SPLIT ruler. 🔑 More runs cannot fix this — the script says **~63 dishes** are needed. Do not ship |
 | `NOBOOST-FORM` | The unrouted stack: always `NOBOOST`, then `FORM` sizes — `COMBO` with `HYBRID` deleted. | 407–452 *(4 runs, mean 431)* | 🟡 **not established — do not ship.** vs `FORM`: +11.5, CI −15.5 to +39.0, INCLUDES ZERO. vs `COMBO`: −12.5, CI −35.8 to +10.5, INCLUDES ZERO. 🔑 Needs ~196–321 dishes to resolve either way — not a 5th run's job (eval 187) |
 
@@ -759,9 +759,20 @@ the edge function → ②.** If a phase or priority is asserted anywhere other t
 it is stale — fix it or ignore it, never believe it. The active Stage-2 macro handoff below is
 the explicit exception: it is the bounded Phase-9 workstream record, not a competing roadmap.
 
-**Stage-2 macro enrichment IS THE ACTIVE WORK. → Start at the `🆕 2026-08-20 HANDOFF` block
-below; it is written so a zero-context session can take over from it alone.** Everything between here
-and that block is older context that it supersedes where they disagree. Phase spend to date:
+🛑 **STAGE-2 MACRO ENRICHMENT IS NO LONGER THE ACTIVE WORK — PHASE 5 CLOSED 2026-08-28 (Santiago's
+ruling).** v33 FORM sizing is live and the exit numbers are in ②'s closure block and in ledger eval
+189. **The active work is now ① `docs/sunny-lemon-development-plan.md`, whose lowest unchecked
+sub-phase is `1b` — the design-system primitives.** ⚠️ `1d` (auth) carries an unresolved
+contradiction — this plan says Supabase auth, `AGENTS.md` says "Use Clerk" — that is Santiago's
+call before any auth work begins.
+
+Everything below in this file is now **REFERENCE, not a task list**: how the benchmark works, what
+each arm was, which ideas were falsified and why. Read it before proposing any new Stage-2 eval so
+you do not re-run a dead one — eleven arms have been tried since `dual` and none beat `FORM` with a
+CI excluding zero. The `$0 commands that tell you the truth` block near the bottom still works and
+is still how you re-derive any number in here.
+
+**Historical entry point (superseded): the `🆕 2026-08-20 HANDOFF` block below.** Phase spend to date:
 **~$38.5** (~$2.52 to 2026-08-09, ~$19 on 2026-08-12, ~$6 on 2026-08-13, ~$5.5 on 2026-08-16,
 ~$5.2 on 2026-08-19; **~$2.8 on 2026-08-20/21**, evals 157–158).
 ℹ️ Pre-existing and left alone: the itemised figures sum to ~$41, not the running total. The running

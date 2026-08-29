@@ -667,10 +667,29 @@ This gives a native dialog instead of a browser popup and is the correct archite
 
 **Status:** `[~]` Model consolidation is deployed: Stage 1a `mistral-ocr-4-0` → Stage 1b
 `gpt-4.1-2025-04-14` → Stage 2 `gpt-4o-2024-08-06` enrichment. Macro accuracy is benchmark-gated
-against a USDA FoodData Central **benchmark-only** oracle of **8 dishes** (the oracle never runs in
-the app; runtime USDA normalization is still out of scope).
+against USDA FoodData Central **benchmark-only** oracles — **57 dishes / 684 points** unweighted plus
+**8 dishes / 96 points** for printed-weight items (the oracles never run in the app; runtime USDA
+normalization is still out of scope).
 
-🚀 **CURRENT (2026-08-19): edge function v32 — the DUAL PASS.** Stage 2 runs twice: pass 1 is the
+✅ **THE MACRO-ACCURACY HALF OF THIS PHASE IS CLOSED (Santiago's ruling, 2026-08-28).** Production is
+edge fn **v33, FORM sizing**, live since 2026-08-23: the model names each dish's form from a fixed
+enum and *our* code sets the plate's mass from a gram table we own. Exit numbers on the current ruler
+(eval 189): unweighted **422.6/684 mean = 62%** vs the pre-FORM `dual`'s **333 = 49%**; weighted,
+inside its real menu, **17/96 failed = 82% pass**; and **24.0% of dish-draws land all four macros in
+band** (`dual` 12.3%). It closed on a ceiling argument — perfect oracle-fed plate mass scores only
+516/684 = 75%, so the sizing lever is nearly spent — not because a target was hit.
+⚠️ **Two items were ACCEPTED, not fixed, and they constrain the UI:** the 62% is **on-corpus only**
+(all 57 oracle dishes come from the five menus the gram table was built from; off-corpus is bounded
+**54–62% and unmeasured**), and **38 of 57 dishes score differently run to run**, so a user rescanning
+one menu sees different macros. **Present a RANGE, not a confident integer, and never publish "60%
+accurate" as a claim** — it is macro fields, not dishes, and it is on-corpus.
+🚫 **Do not re-open these as bugs and do not schedule a new Stage-2 arm without a new hypothesis and
+Santiago's explicit approval.** Eleven arms since `dual`; none beat `FORM` with a CI excluding zero.
+Closure detail: the block at the top of `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`.
+**The rest of Phase 9 — the PostHog `vision_model.active` flag rollout and removing `/dev/vision-lab`
+from production builds — is still `[ ]`.**
+
+🚀 **HISTORICAL (2026-08-19): edge function v32 — the DUAL PASS**, superseded by v33 above. Stage 2 runs twice: pass 1 is the
 whole menu with today's prompt (its answers used for items that print a weight), pass 2 re-sends only
 the items that print NO weight, in their own batches, with one extra sentence and a `system`-role
 envelope. Measured: **unweighted dishes 25 → 35–36/72 (35% → 49–50%)**, weighted **unchanged**

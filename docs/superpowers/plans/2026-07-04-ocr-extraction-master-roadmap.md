@@ -11,38 +11,62 @@
 > repeatedly lost sessions to status copied into a second file and then left to rot.
 > Entry point for new sessions: `docs/superpowers/START-HERE.md` (routing only, no status).
 
-> 🚀 **STATUS AS OF 2026-08-23 — PHASE 5 (Stage-2 enrichment accuracy) HAS SHIPPED ITS FIRST WIN.**
-> **Production is edge fn `analyze-menu` v33: FORM SIZING.** The model names each dish's form from a
-> fixed enum and *we* set the plate's mass from a gram table we own.
+> ✅ **PHASE 5 (Stage-2 enrichment accuracy) IS CLOSED — Santiago's ruling, 2026-08-28.**
+> **Production is edge fn `analyze-menu` v33: FORM SIZING**, live since 2026-08-23. The model names
+> each dish's form from a fixed enum and *we* set the plate's mass from a gram table we own.
 >
-> | | /684 | |
-> |---|---|---|
-> | `dual` (was v32) | 352, 357 | 52% |
-> | **`FORM` (v33, live)** | **434, 436, 442, 447, 453** | **65%** |
+> **The exit number, re-derived on the current (post-eval-181) ruler — eval 189:**
 >
-> +86.8, 95% CI +30.7 to +142.8, and the first arm whose log-ratio CI also excludes zero. The oracle is
-> **57 dishes / 684 points** — any "/108" or "/252" figure predates the widening and is not comparable.
+> | | /684 | fields in band | dish-draws with ALL FOUR macros in band |
+> |---|---|---|---|
+> | `dual` (was v32) | 333 | 49% | **12.3%** |
+> | **`FORM` (v33, live)** | **408–435** *(5 runs, mean 422.6)* | **62%** | **24.0%** |
 >
-> ⚠️ **The phase is NOT closed.** Two things are open and neither needs a new mechanism: the gram table
-> covers only **33%** of dishes on menus it was not built from (82% on those it was), and **38 of 57
-> dishes still score differently run to run** — a user rescanning one menu gets different macros, which
-> no arm has ever addressed. **There is still no written definition of "good enough to ship."**
+> Printed-weight dishes, scored inside their real menu: **17/96 failed = 82% pass.**
+>
+> 🔑 **WHY IT CLOSED, AND IT IS NOT "WE HIT A TARGET."** `sim-mass-ceiling.ts` says that reading plate
+> mass **straight out of the oracle** — cheating perfectly — scores **516/684 = 75%**. `FORM` is at 62%.
+> **The entire sizing lever has ~13 points left in it and the residual is composition error no portion
+> mechanism can touch.** Eleven arms have been run since `dual`; none beat `FORM` with a CI excluding
+> zero. The phase closed because the measurement says further arms cannot pay, not because a bar was met.
+> Against the published human baseline — nutritionists average **41% error** estimating portions by eye —
+> the pipeline is already better than an expert looking at the plate.
+>
+> ⚠️ **WHAT IS KNOWN-OPEN AND WAS ACCEPTED, NOT SOLVED.** Do not re-open these as bugs; they are priced.
+> 1. **The 62% is an ON-CORPUS number.** All 57 oracle dishes come from the five menus `FORM_G` was
+>    built from. `applyFormMass` (`dish-form.ts:244`) silently returns the UNSIZED dual-pass item when a
+>    dish has no table row, so off-corpus dishes degrade to v32 quality. True off-corpus score is
+>    **bounded 54–62% and UNMEASURED**. 🔑 **Santiago declined the fix (2026-08-28): hand-ruling a sixth
+>    menu into the oracle needs nutritionist judgment he does not claim, and per-plate photos will not
+>    exist for every dish in the wild.** The gap is accepted, not pending.
+> 2. **38 of 57 dishes score differently run to run** — a user rescanning one menu gets different
+>    macros. No arm ever addressed this. It is a UX problem now, not an accuracy problem.
+> 3. Both are reasons to **present a RANGE rather than a confident integer** in the UI, and never to
+>    publish "60% accurate" as a marketing claim — it is fields, not dishes, and it is on-corpus.
 >
 > ☠️ **Superseded claims that used to live in this block:** "every Stage-2 arm is now rejected" (false —
 > `HYBRID` and `FORM` both beat `dual`, and `NOBOOST`'s rejection was withdrawn at eval 171 because the
 > deploy rule that killed it was never Santiago's). The two Stage-1 leads are also resolved: the "28 CM"
 > header already reaches Stage 2 (`index.ts` forwards items unreshaped) and the sibling-weight idea was
-> ruled out by Santiago.
+> ruled out by Santiago. Also superseded: the old headline "434–453 / 65%" — that was the PRE-eval-181
+> ruler, before the Bistro pizza bands were split by topping class.
 >
-> **Full current status and the ranked next steps: `docs/superpowers/START-HERE.md` — read its
-> "NEXT STEPS" section.** Ledger: `docs/superpowers/extraction-iteration-ledger.md`, evals 172–177.
+> ➡️ **NEXT, and it is NOT in this roadmap.** This file covers extraction quality only, and its
+> pre-release critical path (#1–#5) is now complete. Work moves to the PRODUCT roadmap,
+> **`docs/sunny-lemon-development-plan.md`**, whose §0 rule is "take the lowest-numbered unchecked
+> sub-phase" — that is **Phase 1b, the design-system primitives**, not Phase 10. The model bake-off
+> track below stays deliberately unscheduled: it was sequenced after #5, but nothing about the closed
+> phase demands it, and it is a large paid campaign.
+>
+> Ledger: `docs/superpowers/extraction-iteration-ledger.md`, closing entry **eval 189**.
 > Use `superpowers:brainstorming` before designing any new eval.
 
-**ACTIVE: critical-path #5 — Stage-2 enrichment accuracy benchmark ("macro enrichment").**
-Macro accuracy has never been gated. The enrichment model is already decided (GPT-4o); what is
-missing is a measured benchmark, including printed-weight items so P2's "prefer printed weights"
-rule is actually measured (grams flow from Feature 4's `items[].grams`). Scope detail: item #5 of
-"Release scope decision" below.
+**✅ CLOSED: critical-path #5 — Stage-2 enrichment accuracy benchmark ("macro enrichment").**
+Macro accuracy had never been gated. It is now: a 57-dish / 684-point hand-ruled oracle plus a
+separate 8-dish / 96-point one for printed-weight items, so P2's "prefer printed weights" rule is
+measured too (grams flow from Feature 4's `items[].grams`). The enrichment model stayed GPT-4o.
+**Nothing in this roadmap is ACTIVE any more — see the closure block at the top of this file and
+then `docs/sunny-lemon-development-plan.md`.**
 
 > 🆕 **2026-08-20 — THE MEASUREMENT CHANGED, THE PIPELINE DID NOT. Read this before comparing any
 > unweighted number.** Nothing was deployed and no prompt, schema or model pin was touched; production
@@ -895,7 +919,7 @@ Features 1–4 are CLOSED and the user chose **release momentum over roadmap com
    tidy-up job. Leave it alone unless he raises it.
 3. **Client compression fidelity fix** ✅ DONE 2026-07-12 (ledger evals 056-058 + device 3/3; spec/plan `2026-07-12-client-compression-fidelity-*` in the worktree) — NO JPEG re-encode setting cleared the oracle row (4-arm ladder + q90/q95 probes: q0.85/q0.90 stably misread small price digits, q95 still lost el-marcos options + mochomos section_context 4/4). **Shipped: passthrough uploads** — originals ≤6.75MB file (≈9M b64 vs the 10M cap) upload untouched as correct-mime data URLs; 2048px/q0.95 fallback only for oversized. Intake compression removed (primary folder (`feat/selectable-options`)'s stale intake files were double-compressing and feeding tiles a 1024px copy — the T9 device delta's root cause); eval gate phase-1 input = the production mirror permanently. ImagePicker re-encode DISPROVEN (gallery PNGs byte-identical at quality:1). Norteños = tolerated header (oracle). New offline tool: `scripts/score-dump.ts`.
 4. **Horizontal/landscape menu handling** ✅ **CLOSED 2026-08-04** (ledger evals 132–137; H2 rotation deployed as edge fn v22 and device-verified: a wide menu photographed sideways was detected, straightened client-side, resubmitted, and recovered 24/24 with 23 of 24 items byte-identical to its upright twin). **The `docs/superpowers/horizontal-menus/` folder is a CLOSED-phase archive — do not re-enter it for work, and do not treat its `DELEGATION-BRIEF.md` / `DELEGATION-PROMPT.txt` as an entry point; new sessions start at `docs/superpowers/START-HERE.md`.** Historical detail follows, kept because the ledger references it — *original scope note (user 2026-07-12):* detect menu orientation and extract accordingly. Expected user behavior: a physically landscape menu gets photographed in portrait, rotated 90° (menu's left edge at the top, right edge at the bottom — as if the menu in front of you were flipped 90°). Candidate approach: detect the rotation (EXIF, aspect ratio + a cheap model signal, or P1's layout assessment) and rotate the image upright client-side before phase-1; tiles then cut from the rotated image. Never tested — all 6 fixtures are portrait-upright; needs at least one landscape fixture (can reuse an existing menu photographed/rotated sideways) + detector false-positive assertions on the 6 upright menus (same discipline as the dense detector). ⚠️ **HISTORICAL — this pointer is retired.** It used to read "SINGLE SOURCE OF TRUTH = the containerized sub-roadmap on branch `feat/extraction-eval-harness`". That branch is an ancestor of `main` and that folder is now a closed archive in this repo; current status lives in the 🎯 CURRENT PHASE block at the top of this file. Stable scope facts only: LAUNCH SCOPE incl. rotation (container ruling 27); launch plan is H1 tiling → H2 rotation → H3 wiring → H4 combined gate; Phase-2 eval set (GH Shape-A + polloteria Ensaladas) lives in container ROADMAP MANDATORY RESTORE. ✅ **The 2026-07-22 "PRIORITY ZERO" (container ruling 29) — the GPT-4o→Mistral-OCR extraction migration — LANDED and is the deployed pipeline** (Stage 1a `mistral-ocr-4-0` transcription → Stage 1b `gpt-4.1-2025-04-14` structuring → Stage 2 GPT-4o enrichment; deployed eval 126, current edge fn v24). It is **not** an open priority; see AGENTS.md's "OCR / Extraction Model Decision" for the live pipeline.**
-5. **Stage-2 enrichment accuracy benchmark** ← **⬅ ACTIVE (see 🎯 CURRENT PHASE at the top)** (user reorder 2026-07-12: runs BEFORE the model bake-off) — macro accuracy has never been gated (the enrichment model is decided: GPT-4o, same as extraction — Gemini 2.5 Flash discarded 2026-07-10); include printed-weight items so the "prefer printed weights" P2 rule is measured (grams now flow from F4's `items[].grams`). Note: if the later bake-off changes the extraction backend, spot-check the benchmark on the winner's output shape.
+5. **Stage-2 enrichment accuracy benchmark** ✅ **CLOSED 2026-08-28** (Santiago's ruling; ledger evals 142–189, closing entry eval 189; shipped as edge fn v33 FORM sizing on 2026-08-23). Exit state on the current ruler: unweighted **422.6/684 mean = 62%** against pre-dual `dual`'s 333 = 49%, weighted **17/96 failed = 82% pass**, and **24.0% of dish-draws get all four macros in band**. Closed on the ceiling argument, not on a target: perfect oracle-fed plate mass scores only 516/684 = 75%, so the sizing lever is nearly spent and the residual is composition error. **Two known-open items were ACCEPTED, not solved** — the score is on-corpus only (off-corpus bounded 54–62%, unmeasured; Santiago declined the sixth-menu oracle as nutritionist work he does not claim), and 38 of 57 dishes still vary run to run. Full detail: the closure block at the top of this file. *(user reorder 2026-07-12: ran BEFORE the model bake-off)* — macro accuracy had never been gated (the enrichment model is decided: GPT-4o, same as extraction — Gemini 2.5 Flash discarded 2026-07-10); include printed-weight items so the "prefer printed weights" P2 rule is measured (grams now flow from F4's `items[].grams`). Note: if the later bake-off changes the extraction backend, spot-check the benchmark on the winner's output shape.
 
 **Model bake-off track (user, 2026-07-11; resequenced 2026-07-12) — run AFTER the Stage-2 benchmark (#5). Order is now: #3 compression → #4 horizontal → #5 Stage-2 benchmark → bake-off:**
 - **E1 — Chandra-OCR-2** (`datalab-to/chandra-ocr-2`: Qwen3.5-based, 5B, 90+ languages, hosted Datalab API, OpenRAIL-M free <$2M revenue). Pipeline: photo → Chandra transcription → GPT-4o **text-mode** structuring into `EXTRACT_SCHEMA` → same postprocess → `scoreMenu` on the SAME 6 Spanish fixtures. Also run nikkori WITHOUT tiling — hypothesis: a strong OCR model reads dense pages whole, which would make the auto-cutter's tile cost optional. Decide by oracle scores, never by public benchmarks (olmOCR is English-document-heavy).

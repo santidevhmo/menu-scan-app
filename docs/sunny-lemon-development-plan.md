@@ -30,6 +30,12 @@
 > the commit. A status block that silently rots is what caused this file to be lost in the first
 > place.
 
+> ⚠️ **The checkboxes below are a SNAPSHOT, not a tracker.** They were the seed Linear was built
+> from on 2026-08-28. Live status is Linear: <https://linear.app/menu-scan-app>. When the two
+> disagree, **Linear wins** — update Linear, and leave these boxes as the historical record of
+> what was true at seeding time. The phase *descriptions*, acceptance criteria and §2 locked
+> decisions remain authoritative; only the status markers are frozen.
+
 > Working codename: **Sunny Lemon** (yellow accent from design system + "lemon" as fresh/light food metaphor). Final name TBD before launch.
 
 ---

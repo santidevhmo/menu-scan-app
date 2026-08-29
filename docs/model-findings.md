@@ -132,7 +132,8 @@ Our four independent confirmations, all on the same side:
 
 🔑 **THE ARCHITECTURAL CONSEQUENCE, AND IT IS THE MOST IMPORTANT MODEL FINDING IN THIS FILE: never ask
 a model for grams. Ask it for a CATEGORY and supply the grams from a published table.** Arm A
-(36/108), MASSCALL (50/108), the eval-175 `grams` probe, and a global fitted calibration (223/684)
+(36 of 108), MASSCALL (50 of 108), the eval-175 `grams` probe, and a global fitted calibration
+(223 of 684)
 all failed the same way for the same reason. `FORM` works *because* it stops asking.
 
 **Peer-reviewed support for the replacement:** Menu-Match (Beijbom et al., Microsoft Research, WACV

@@ -1,34 +1,27 @@
-# Menu Extraction Pipeline — Current Status
+# Menu Extraction Pipeline
 
-> **Canonical file** (the master roadmap links here as the source-of-truth for the flow + prompts).
-> A snapshot copy also lives at `~/Downloads/menu-extraction-pipeline.md`.
+> **Canonical file** for the flow and prompts. A snapshot copy also lives at
+> `~/Downloads/menu-extraction-pipeline.md`.
 >
-> **Last updated:** 2026-08-09 — **Stage 2 rewritten (B4) and deployed.** Production is **edge
-> function v28** (`supabase functions list` → ACTIVE), deployed from branch
-> `worktree-stage2-macro-benchmark`, still pinned to `gpt-4o-2024-08-06`. **Stage 1 is unchanged**;
-> only the P2 appendix and the Stage-2 row below moved. Previous body text (2026-08-06, v24) described
-> the same Stage 1 and is retained below.
+> This is a technical reference, not a status tracker. Check Linear for current work and re-derive
+> benchmark results through `scripts/`; neither belongs in this diagram.
 >
-> **What changed 2026-08-09:** P2 `ENRICH_PROMPT` and `ENRICH_SCHEMA_OPENAI` were rewritten so the
-> model supplies *knowledge* (ingredients, a conventional serving each, composition per 100 g) and the
-> **code** does all the arithmetic (`resolveGrams` fits servings to the printed weight,
-> `sumIngredientMacros` multiplies and adds, calories by Atwater). Benchmark: **39/96 failed
-> field/draws → 24–27/96**, mean error **37.7% → 21.0%**. `callGptEnrich` also moved from `index.ts`
-> to `enrich.ts`. Full verbatim prompt in the P2 appendix below.
+> P2 `ENRICH_PROMPT` and `ENRICH_SCHEMA_OPENAI` ask the model for *knowledge* (ingredients, a
+> conventional serving each, composition per 100 g). The **code** does all arithmetic:
+> `resolveGrams` fits servings to the printed weight, while `sumIngredientMacros` multiplies and adds
+> macros and derives calories by Atwater. `callGptEnrich` lives in `enrich.ts`. The full prompt is in
+> the P2 appendix below.
 >
 > **What changed since the last diagram (all deployed):**
-> - **Stage 1 extractor migrated off GPT-4o Vision** (container rulings 29/30, deployed eval 126).
->   It is now two pinned calls: **Stage 1a `mistral-ocr-4-0`** transcribes the photo to markdown, and
+> - **Stage 1 uses two pinned calls.** **Stage 1a `mistral-ocr-4-0`** transcribes the photo to markdown, and
 >   **Stage 1b `gpt-4.1-2025-04-14`** structures that *text* into `EXTRACT_SCHEMA`. Both are dated
 >   snapshots — an alias silently substituting a model is exactly what broke a week of measurements
 >   (evals 101/102). GPT-4o is kept for **Stage 2 enrichment only.**
-> - **H2 rotation added** (evals 132–137, function v22→v24; device-verified): a sideways wide-menu
->   capture is detected from OCR block geometry, straightened client-side, and re-submitted once.
-> - **The dense auto-cutter / tile path is now DORMANT.** `runPagedExtraction` never returns
->   `needs_crops` — the whole-image OCR read makes tiling moot on every fixture measured. The tile
->   machinery (`stage:"extract-pages"` → `runGroupedExtraction`, per-tile verify, `colocationStage`)
->   and the legacy `stage:"extract-crops"` remain in the code but nothing triggers them. They are drawn
->   below the diagram as a dormant appendix, not on the live path.
+> - **H2 rotation:** a sideways wide-menu capture is detected from OCR block geometry, straightened
+>   client-side, and re-submitted once.
+> - **Tile extraction:** the diagram's main path uses whole-image OCR. The code retains
+>   `stage:"extract-pages"` → `runGroupedExtraction`, per-tile verification, `colocationStage`, and
+>   `stage:"extract-crops"` as legacy support paths.
 > - **Enrichment is batched** (10 items/batch, parallel, one-retry-on-short, then `reassembleEnriched`
 >   backfills any item the model dropped — one enriched row per input, order preserved).
 > - **Deterministic cleanup rewritten**: after per-page `postprocessItems` + `mergeItemSources`, one
@@ -82,14 +75,13 @@ sequenceDiagram
     Note over EF,C: model_id: "mistral-ocr-4-0+gpt-4.1-2025-04-14"
     end
 
-    Note over EF,C: 🟢 Feature 1 CLOSED — items dimension: distinct food dish-names ±3, no true dups
-    Note over EF,C: 🟢 Feature 2 CLOSED — options (food): base variant on card, choices/add-ons in options[]
-    Note over EF,C: 🟢 Feature 3 CLOSED — section_context (food-scoped): printed food sections, no spurious
-    Note over EF,C: 🟢 Feature 4 CLOSED — categories + option price/grams, items[].grams postprocess-parsed
-    Note over EF,C: ↑ gates re-graded live 45/45/45 on the OCR path (C4 close, evals 122–125b)
+    Note over EF,C: Feature 1 — items: distinct food dish-names, no true duplicates
+    Note over EF,C: Feature 2 — options: base variant on card, choices/add-ons in options[]
+    Note over EF,C: Feature 3 — section_context: printed food sections, no spurious sections
+    Note over EF,C: Feature 4 — categories + option price/grams, items[].grams postprocess-parsed
 
     rect rgb(70,50,20)
-    Note over C,EN: STAGE 2 — enrichment 🟡 (macro accuracy NOT yet benchmarked — CURRENT PHASE #5, model = GPT-4o)
+    Note over C,EN: STAGE 2 — enrichment (model = GPT-4o)
     C->>EF: POST stage=enrich {items, provider:"gpt-4o"}
     par batches of 10 items, concurrent
         EF->>EN: enrichBatch · P2 ENRICH_PROMPT · temp 0 · seed 17<br/>(enrichBatchWithRetry: 1 retry if the batch comes back short)
@@ -157,22 +149,21 @@ when Stage 1 became OCR-based. Kept in the repo — not deleted — but nothing 
 If dense-menu recall becomes a problem again on the OCR path, this is where the machinery lives — but it
 would need re-validation against the OCR pipeline before being re-armed.
 
-## Status by stage
+## Components by stage
 
-| Stage | State | Note |
-|---|---|---|
-| Stage 1a — Mistral OCR transcription | 🟢 DEPLOYED | `mistral-ocr-4-0` (pinned, ruling 35); photo → markdown + block geometry; transcription only, no vendor structuring |
-| Stage 1b — text structuring | 🟢 DEPLOYED | `gpt-4.1-2025-04-14` (pinned, ruling 30); `EXTRACT_PROMPT`+`TEXT_PROMPT_SUFFIX`; reuses `EXTRACT_SCHEMA` verbatim |
-| H2 rotation | 🟢 DEPLOYED | evals 132–137, function v22→v24, device-verified; geometry-only detector tuned to never rotate an upright menu; one retry max, falls back to `prior` |
-| Food-item extraction (Feature 1) | 🟢 CLOSED | completeness gate: distinct dish-names ±3, no true dups (re-graded on OCR path, C4) |
-| Food-item options (Feature 2) | 🟢 CLOSED | fold convention (item owns options; base on card); deterministic postprocess chain |
-| Sections & sub-sections (Feature 3) | 🟢 CLOSED | food-scoped `section_context`; postprocess + `textStructureCleanup` folds |
-| Categories + option-price/grams (Feature 4) | 🟢 CLOSED | food-scoped categories + pins; `items[].grams` parsed by postprocess `parseItemGrams` (schema unchanged) |
-| C4 — OCR-path gate close | 🟢 CLOSED 2026-08-01 | live re-graded 45/45/45, offline 44–45/45 after Santiago's tolerance rulings (evals 122–125b) |
-| Stage 2 enrichment (macros + allergens) | 🟢 **B4 DEPLOYED v28 (2026-08-09)** | GPT-4o, batched(10)+backfill. Macro accuracy **is** benchmark-gated now: 8 USDA-oracle dishes, **24–27/96 failed field/draws at 21.0–21.2%** (was 39/96 at 37.7%). Model supplies knowledge, code does the arithmetic. Open: printed-weight **scope** ruling; Coleslaw-type side dishes regressed |
-| Goal re-ranking | 🟢 | soft-clamped z-scores in `main` |
-| Dense auto-cutter + tile path | 💤 DORMANT | built & gated on the old Vision path (eval 055); unreachable now — `needs_crops` is never emitted |
-| `stage:"extract-crops"` (`runCropExtractions`) | 💤 LEGACY | GPT-4o Vision crops; no client caller |
+| Component | How it works |
+|---|---|
+| Stage 1a — Mistral OCR transcription | `mistral-ocr-4-0` (pinned); photo → markdown + block geometry; transcription only, no vendor structuring |
+| Stage 1b — text structuring | `gpt-4.1-2025-04-14` (pinned); `EXTRACT_PROMPT` + `TEXT_PROMPT_SUFFIX`; reuses `EXTRACT_SCHEMA` verbatim |
+| H2 rotation | Geometry-only detector avoids rotating upright menus; one retry maximum, then falls back to `prior` |
+| Food-item extraction (Feature 1) | Distinct dish names with no true duplicates |
+| Food-item options (Feature 2) | Item owns options; base on card; deterministic postprocess chain |
+| Sections & sub-sections (Feature 3) | Food-scoped `section_context`; postprocess + `textStructureCleanup` folds |
+| Categories + option-price/grams (Feature 4) | Food-scoped categories + pins; `items[].grams` parsed by `parseItemGrams` without a schema change |
+| Stage 2 enrichment (macros + allergens) | GPT-4o in batches of 10 with backfill. The model supplies knowledge; code does the arithmetic. Re-derive accuracy through the harness. |
+| Goal re-ranking | Soft-clamped z-scores |
+| Dense auto-cutter + tile path | Legacy support path; whole-image OCR is the diagram's main path |
+| `stage:"extract-crops"` (`runCropExtractions`) | Legacy GPT-4o Vision crops support path |
 
 ---
 
@@ -290,11 +281,9 @@ When unsure, answer true.
 
 ### P2 · `ENRICH_PROMPT` — `supabase/functions/analyze-menu/enrich.ts`
 
-> ⚠️ **Rewritten 2026-08-09 — this is the "B4" prompt, deployed as edge function v28.** The prompt,
-> the schema and `callGptEnrich` all moved out of `index.ts` into `enrich.ts`, which is the importable
+> The prompt, the schema and `callGptEnrich` all live in `enrich.ts`, which is the importable
 > module (`index.ts` calls `serve()` at module scope, so a harness can only ever test a *copy* of
-> anything left there). The pre-B1 prompt this replaced asked the model for finished macro totals; it
-> is the version that scored **39/96 failed field/draws at 37.7% mean error** on the Stage-2 benchmark.
+> anything left there). The pre-B1 prompt this replaced asked the model for finished macro totals.
 
 ```text
 You estimate the nutrition profile of restaurant menu items. For each item, work step by step:

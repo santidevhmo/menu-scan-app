@@ -1,0 +1,10 @@
+# The ledger moved
+
+`extraction-iteration-ledger.md` now lives in the **`menu-scan-kb`** repository at
+`docs/pipeline/ledger.md`.
+
+Type `/menuscan-pipeline` to load it, or clone
+<https://github.com/santidevhmo/menu-scan-kb>.
+
+**Appending to it is still mandatory at the end of every session that runs an eval.** It is now a
+commit in a second repository — a session is not complete until both are pushed.

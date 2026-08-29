@@ -588,12 +588,11 @@ verdict so it ages honestly.
 
 ### 🧾 BEFORE THE SESSION ENDS
 
-- **Add a ledger entry** to `docs/superpowers/extraction-iteration-ledger.md` — one per eval, newest
-  last, with what was tried, what it scored, and what it cost. **It is this project's memory.**
-- **Update `docs/superpowers/START-HERE.md`** if the state changed, and **in the same commit as a
-  deploy** if anything shipped.
-- **A run that produced no usable result still gets an entry.** A crashed or falsified run is the
-  cheapest thing a future session can be told about, and the easiest to repeat by accident.
+- **Before the session ends — this is now two repositories.** If an eval ran, append one entry to
+  `menu-scan-kb/docs/pipeline/ledger.md` (type `/menuscan-pipeline`, or clone
+  <https://github.com/santidevhmo/menu-scan-kb>). A session is not complete until both repositories
+  are committed and pushed.
+- **Update `docs/superpowers/START-HERE.md`** if routing changed, and in the same commit as a deploy.
 
 ---
 

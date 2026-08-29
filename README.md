@@ -23,7 +23,7 @@ reason this rule exists.
 | Engineering contract — stack, rules, model decisions | `AGENTS.md` |
 | Design system | `DESIGN.md` |
 | Session entry point for agents | `docs/superpowers/START-HERE.md` |
-| Durable product and pipeline knowledge | the `menu-scan-kb` repo — type `/menuscan-product` |
+| Durable product and pipeline knowledge | [`menu-scan-kb`](https://github.com/santidevhmo/menu-scan-kb) — type `/menuscan-product` |
 | Closed phases, dead handoffs, historical plans and specs | `docs/archive/` |
 
 ## The pipeline, in one line

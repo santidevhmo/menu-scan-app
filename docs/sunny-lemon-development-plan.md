@@ -672,7 +672,7 @@ This gives a native dialog instead of a browser popup and is the correct archite
 
 ### Phase 9 — Vision Model Consolidation + Optional USDA Macro Normalization
 
-**Status:** Linear is the tracker. The pipeline uses Stage 1a `mistral-ocr-4-0` → Stage 1b
+**Status:** `[~]` Linear is the tracker. The pipeline uses Stage 1a `mistral-ocr-4-0` → Stage 1b
 `gpt-4.1-2025-04-14` → Stage 2 GPT-4o enrichment. Macro accuracy is benchmark-gated against
 USDA FoodData Central **benchmark-only** oracles; those oracles never run in the app, and runtime
 USDA normalization remains out of scope.

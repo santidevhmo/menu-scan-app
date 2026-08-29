@@ -22,8 +22,9 @@
 > front:
 > - **No scan is ever persisted.** The app only calls the edge function; it never writes a `scans`
 >   row. Phase 7 (History) has no data behind it, and the DB schema is ahead of the app.
-> - **Auth is contradicted between documents.** This plan specifies Supabase auth; `AGENTS.md`
->   says "Use Clerk. Do not build custom auth." Neither is installed. Resolve before Phase 1d.
+> - **Auth: ✅ CLERK, Santiago's final decision 2026-08-28.** This plan's older "Supabase auth"
+>   mentions are stale — `AGENTS.md`'s "Use Clerk. Do not build custom auth." wins. Nothing is
+>   installed yet. See 1d for the RLS / `auth.uid()` consequence to settle first.
 >
 > **Keeping it honest:** follow §0's convention below — flip a box only when verified, and record
 > the commit. A status block that silently rots is what caused this file to be lost in the first
@@ -363,7 +364,7 @@ Each phase has: **Goal · Deliverables · Verification · Done definition.** Pha
 - [x] **1a** — Expo bootstrap + DESIGN.md tokens + NativeWind v5 — **DONE here** (Expo 56, `nativewind@5.0.0-preview.4`, `DESIGN.md` present)
 - [ ] **1b** — Component primitives + `/styleguide` developer route — **no `/styleguide` route in this repo**
 - [~] **1c** — Supabase schema + RLS + seed + type gen — **DB exists remotely** (6 app tables, RLS on all) **but this repo has no `0001_init.sql` and no generated types file**; `src/lib/supabase.ts` is a hand-written client
-- [ ] **1d** — Auth shell — **no auth code here at all.** ⚠️ Unresolved contradiction: this plan specifies **Supabase auth**, `AGENTS.md` says **"Use Clerk. Do not build custom auth."** Neither is installed. Decide before any auth work.
+- [ ] **1d** — Auth shell — **no auth code here at all.** ✅ **RESOLVED 2026-08-28: CLERK. Santiago's final decision.** The contradiction that used to sit here (this plan said Supabase auth, `AGENTS.md` said "Use Clerk") is settled in `AGENTS.md`'s favour; every "Supabase auth" mention elsewhere in this plan is now **stale and must not be followed**. ⚠️ **This has a data-model consequence that has NOT been worked through:** §4 says every table is owned by `auth.uid()` with RLS, and `profiles.user_id` / `feedback.user_id` are declared `references auth.users` — a Supabase-native construct. With Clerk as the identity provider, either Clerk JWTs are wired into Supabase so `auth.uid()` still resolves, or those FKs and RLS policies change shape. **Decide that before writing the first migration**, not after.
 - [ ] **1e** — Vision testing harness (`/dev/vision-lab` + 4 adapters) — **not built as specified.** Superseded in substance by the offline extraction eval harness (`scripts/`, 9 fixture menus, oracle files, 141-entry ledger), which is far stronger for extraction but is NOT an in-app screen
 - [~] **1f** — Observability + image pipeline — **image pipeline DONE** (`compressImage`/`prepareTile`/passthrough uploads); **Sentry and PostHog both ABSENT**; fatal-error reporting now exists instead via `scan_log` (eval 141)
 

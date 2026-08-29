@@ -2,7 +2,8 @@
 
 > **New session? Start at `docs/superpowers/START-HERE.md`.** It routes you to the current phase
 > (recorded in exactly one place) and to Santiago's standing rules. It holds no status of its own,
-> so it cannot go stale. Do not enter `docs/superpowers/horizontal-menus/` — that phase is closed.
+> so it cannot go stale. Closed work lives in `docs/archive/` — historical plans, specs and finished
+> phases. It is reference, never an entry point and never a task list.
 
 Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 

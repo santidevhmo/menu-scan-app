@@ -1,56 +1,52 @@
-# Welcome to your Expo app 👋
+# Menu Scan
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Point your phone at a restaurant menu. Get the same menu back, sorted by how well each dish
+matches your nutritional goals.
 
-## Get started
+An Expo / React Native app. Photos of a menu go to a Supabase edge function, which reads the
+items off the page, estimates each dish's macros, and returns them ranked against the goals you
+picked.
 
-1. Install dependencies
+## Status
 
-   ```bash
-   npm install
-   ```
+**Status lives in Linear, not in this repo:** <https://linear.app/menu-scan-app>
 
-2. Start the app
+Documents here describe how things work and why they were decided that way. They deliberately do
+not claim what is done or what is next — that claim rotted in five places at once, which is the
+reason this rule exists.
 
-   ```bash
-   npx expo start
-   ```
+## Where things are
 
-In the output, you'll find options to open the app in a
+| What | Where |
+|---|---|
+| Product roadmap — 16 phases, bootstrap to launch | `docs/sunny-lemon-development-plan.md` |
+| Engineering contract — stack, rules, model decisions | `AGENTS.md` |
+| Design system | `DESIGN.md` |
+| Session entry point for agents | `docs/superpowers/START-HERE.md` |
+| Durable product and pipeline knowledge | the `menu-scan-kb` repo — type `/menuscan-product` |
+| Closed phases, dead handoffs, historical plans and specs | `docs/archive/` |
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## The pipeline, in one line
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Menu photo → Mistral OCR → GPT-4.1 structuring → GPT-4o macro enrichment → a form-label call whose
+grams **we** supply from a lookup table → goal-ranked results. It runs as the Supabase edge
+function `analyze-menu`.
 
-## Get a fresh project
+**Never quote a benchmark number out of a document.** Re-derive it through the harness in
+`scripts/`. Figures written in prose are snapshots of the day they were written.
 
-When you're ready, run:
+## Running it
 
-```bash
-npm run reset-project
+```sh
+pnpm install
+./node_modules/.bin/expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Package installs go through `pnpm` and `./node_modules/.bin/expo install` — never `npm`, never a
+bare `expo`. See `AGENTS.md` for why.
 
-### Other setup steps
+## Allergens
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+When any allergen filter is active the results screen must show, prominently and at all times:
+*"AI-estimated. Confirm allergens with restaurant staff before ordering."* This is not optional
+and it is not removable.

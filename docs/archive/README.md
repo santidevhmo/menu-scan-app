@@ -18,6 +18,7 @@ tried and why it failed.
 | `multi-goal-ranking-debug-handoff.md` | Multi-goal ranking debug handoff. | — |
 | `macro-loop-budget.md` | An $8.64 spend cap from 2026-08-09. Long spent. | 2026-08-09 |
 | `eval-038-exit-gate-3x.log` | Raw run log. | — |
+| `start-here-handoffs-2026.md` | The pre-rebuild `START-HERE.md`, verbatim — every stacked handoff this file used to carry. | 2026-08-28 |
 
 ## Why `horizontal-menus/` used to be fenced off
 

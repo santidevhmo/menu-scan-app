@@ -200,8 +200,8 @@ a new REQUIRED FIELD in `ENRICH_SCHEMA_OPENAI` is 6 for 8.**
 
 🚀 **AND THE STRONGEST VERSION OF THAT, NOW SHIPPED (v33, eval 176): ASK FOR A CATEGORY, NOT A NUMBER.**
 A required enum field naming the dish's FORM, with the grams supplied by OUR table, is worth **+87**.
-The same question asked for a gram number instead LOSES — four times now (Arm A 36/108, MASSCALL
-50/108, the eval-175 `grams` probe at −18, a fitted global calibration at 223/684 leave-one-menu-out).
+The same question asked for a gram number instead LOSES — four times now (Arm A 36 of 108, MASSCALL
+50 of 108, the eval-175 `grams` probe at −18, a fitted global calibration at 223 of 684 leave-one-menu-out).
 ☠️ **Eval 175 found the mechanism, and it is not fixable by wording:** asked what a thin-crust pizza
 weighs *in general*, with no plate in front of it, GPT-4o answers **300 g** against a real 400–450; a
 maki order 200 g against 290–400. **The bias lives in its prior about serving sizes, not in its reading

@@ -525,26 +525,20 @@ Be concise. Explain what changed and how to test it.
 
 ## Status / Pending Blockers
 
-Track here anything that blocks testing or shipping. Update as items resolve.
+**Status is not written down here.** It lives in Linear: <https://linear.app/menu-scan-app>
 
-- **Apple Developer Program — ✅ PAID (confirmed 2026-07-11).** Physical-device testing works — first on-device verification ran 2026-07-12 (auto-cutter 3-scan checklist, all passed).
-- **Macro-enrichment blockers are NOT restated here** — status lives in exactly one place, the
-  `🎯 CURRENT PHASE` block of `docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md`,
-  with the takeover briefing in the newest `HANDOFF` block of
-  `docs/superpowers/START-HERE.md` — start at its **§0 MAP**, which defines every term (oracle, band,
-  draw, arm, harness, replay, ledger) and states where the phase stands. Read those, not a copy.
-  As of **2026-08-23**: production is edge fn **v33 — FORM SIZING** (the model names each dish's form
-  from a fixed enum, and *we* set the plate's mass from `FORM_G` in
-  `supabase/functions/analyze-menu/dish-form.ts`). It scores **434–453/684 (65%)** over 5 runs against
-  v32's **352–357 (52%)**, ranges disjoint, +86.8 with a 95% CI of +30.7 to +142.8. ⚠️ **`main` does
-  NOT have v33 — PR #19 is open**, so deploying from `main` reverts form sizing. TestFlight build 7
-  predates v33. The unweighted set is **57 dishes / 684 points** (widened 9→21 at eval 167, 21→57 at
-  eval 169) — any "/108" or "/252" figure is pre-widening and not comparable. **Two things are open:
-  the gram table covers only 33% of dishes on menus it was not built from, and 38 of 57 dishes still
-  score differently run to run.**
-  ⚠️ **This line is a dated snapshot and nothing should be believed from it** — verify the live version
-  against the SERVER with `mcp__supabase__list_edge_functions`, and re-derive every score with the
-  `$0` commands rather than quoting it.
+This file holds the engineering contract — the stack, the rules, the model decisions, the things
+that do not change when a phase closes. It deliberately asserts no phase, no score and no
+"currently blocked on". Those rotted across five documents simultaneously and the fix was to give
+them exactly one home.
+
+- **Benchmark scores** — re-derive through the harness in `scripts/`. Never read one out of a
+  document. The closed Phase-5 exit numbers, with the eval that produced them, are recorded once
+  in the `menu-scan-kb` repo at `docs/pipeline/closed-phases.md`.
+- **What is done and what is next** — Linear.
+- **Which sub-phase is active** — Linear, cross-checked against
+  `docs/sunny-lemon-development-plan.md` §0 (lowest unchecked sub-phase, confirm with Santiago
+  before starting).
 
 ---
 

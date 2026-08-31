@@ -11,15 +11,24 @@ inapplicable — see "What this teardown cannot see" at the bottom.
 
 ---
 
-## Correction to the shortlist's headline finding
+## ⚠️ This section was wrong twice. Read the third version.
 
-The shortlist claimed *"the one app with real traction doesn't scan menus at all."*
-**That is wrong.** MenuFit does scan menus with the camera, confirmed in secondary coverage of the
-app. It also has a restaurant database, an AI chat assistant, and a "Smart Tweaks" feature.
+**Superseded 2026-08-30 by `../web-research-2026-08-30.md`.**
 
-The corrected finding is more uncomfortable: **the category leader already does everything Menu
-Scan does, plus more, and got 54,000 ratings in 13 months doing it.** `../competitors-shortlist.md`
-has been fixed.
+| Version | Claim | Verdict |
+|---|---|---|
+| Shortlist v1 | MenuFit doesn't scan menus; it's a restaurant database | **Substantially right** |
+| This teardown v2 | MenuFit *does* scan; it already does everything we do | **Wrong** |
+| Deep research v3 | MenuFit is **database-lookup first**, with AI-generated menu data. A scan feature appears in update notes but *"is not the core mechanism and is not validated in reviews"* | **Current** |
+
+**Why v2 was wrong:** it rested on a web-search summary of app-directory sites (Softonic,
+SourceForge) whose descriptions are auto-generated. The deep research names that exact trap:
+*"Some third-party listings, e.g. Softonic, describe a scan feature."* A directory blurb is not
+evidence of a shipped mechanic. Primary sources — the App Store listing, the developer's own
+statements, and user reviews — all describe a **search-a-restaurant-by-name** flow.
+
+**The standing finding:** menu-photo OCR is *not* what the incumbent does. It is genuine
+whitespace, and MenuFit's database approach breaks exactly where ours would work.
 
 ---
 
@@ -39,9 +48,18 @@ and Apple resets them on major versions, so treat older apps' rates as understat
 
 ## What this tells us
 
-**1. Menu scanning is not a moat. It's table stakes, and it's crowded.**
-Four of the six scan menus. The mechanic Menu Scan is built around is now the *default* approach in
-this category, executed by at least eight apps found in the sweep. Nobody is winning on having it.
+**1. Menu-photo scanning is a real wedge, not table stakes.** *(Rewritten after deep research —
+this section previously said the opposite.)*
+No app with meaningful traction is scan-first. MenuFit (54k ratings) searches a database. Cal AI
+(360k) photographs *plated food*, which is a different job — it can't help you before you order.
+The scan-first apps are all tiny: FoodieFit 725, Menu Order AI 69, Forq 1. The mechanic is
+uncontested at the top, and **MenuFit's database breaks precisely where scanning works**:
+
+- *"most local restaurants did not feature the full menu, so it was not useful for me at all"*
+- *"it's useless in the UK… Don't bother if you live in the UK"*
+- A Chinese restaurant *"was showing a Mexican menu and giving Mexican dish recommendations"*
+- It publishes **no restaurant count anywhere** — only "every restaurant in the world." A database
+  business with real coverage would quote the number.
 
 **2. MenuFit's traction is the outlier and the thing to explain.**
 ~4,160 ratings/month against FoodieFit's ~181 and Menu Order AI's ~7 — for products that describe
@@ -68,21 +86,38 @@ MenuFit showing seven price points suggests active price testing or regional pri
 clearest opening in the teardown:** the incumbent's own users say the paywall feels like a
 bait-and-switch after a long onboarding.
 
-**4. Calorie accuracy is the reported failure mode — and it's our hardest problem.**
-Secondary coverage of MenuFit's reviews: *"some users have reported that calorie counts were
-completely off."* This lands directly on the work already done in this repo (Stage-2 macro
-enrichment, plate-mass estimation). It cuts both ways: users **do** notice and punish bad numbers,
-which is an opportunity if our accuracy is genuinely better — and a warning that it's the thing
-that gets you one-starred. Accuracy claims need evidence before they become marketing.
+**4. Calorie accuracy is the most-punished failure in the category — and it's quantified.**
+Users don't just complain, they compute the error and cancel:
 
-**5. The Spanish gap is real but narrower than the shortlist implied.**
-Correction: Forq ships **11 languages including Spanish**, and Cal AI ships **15 including
-Spanish**. So Spanish is not unserved in the category overall. But among apps that **scan menus and
-have any traction** — MenuFit, FoodieFit, Menu Order AI — **all three are English-only.** Forq is
-the only localized menu scanner and it has one rating.
+> *"the calorie counts were completely off both times… off by over 200 calories… At Tazikis this
+> was a 28% error and at McDonalds a 40% error… I could not justify continuing to use this app
+> (or especially to pay for the app)"* — MenuFit reviewer, US App Store
 
-The opening is specific: *a menu scanner that works properly in Spanish.* Not "nobody serves
-Spanish."
+Cal AI is criticized on the same axis (~33% underestimate in a Lifehacker test). The peer-reviewed
+picture, from `../web-research-2026-08-30.md`:
+
+| Finding | Source |
+|---|---|
+| Photo alone: **~30.5% mean absolute percentage error**. Add a short ingredient description: **~13.9%** | Chen et al. 2025, *Nutrients* |
+| AI-vs-truth calorie error ranged 0.10%–38.3% across 52 studies; lower for simple foods | Tay et al. 2023, *Annals of Medicine* |
+| **Portion estimation, not food identification, is the hard part** | consistent across reviewers |
+
+This lands squarely on this repo's Stage-2 macro work. Two design consequences follow directly:
+**ship a confidence indicator**, and **design the UX to solicit an ingredient description** — the
+literature says that one input roughly halves the error. Do not market an accuracy number we
+haven't measured; the "90% accurate" claim Cal AI's founder makes is unsupported.
+
+**5. Spanish-language menu scanning is genuinely open — and the pain is bigger there.**
+Every menu-focused competitor (MenuFit, Menu Order AI, MenuPal, CalorieCap, FoodieFit) is
+English-only. The only competitive-set app with Spanish is Cal AI, which scans plates, not menus.
+The Spanish space is held by plate-photo and barcode apps — Yuka, MyRealFood, YAZIO, Foodvisor —
+none of them menu tools. The closest thing found is **Carmen AI**, a small emerging vendor.
+
+**The reinforcing fact:** calorie labeling is **not mandatory in Spain**, unlike NYC. Spanish-market
+menus rarely print calories at all — so the problem the product solves is *larger* in Spanish-speaking
+markets than in the US.
+
+Caveat worth keeping: the App Store Languages field is UI localization, not menu-parsing ability.
 
 **6. Two apps position against the database, not with it.**
 Menu Order AI's listing: *"No logging. No searching a database. Just your best options."*
@@ -142,19 +177,38 @@ aims.
 
 ---
 
+**7. Two facts that change the threat model** *(from the deep research)*
+
+- **Cal AI was acquired by MyFitnessPal**, closing December 2025 (TechCrunch, March 2026). It had
+  15M+ downloads and $30M+ annual revenue in under two years. The design benchmark is now backed by
+  the largest incumbent in nutrition tracking. Menu scanning becoming a MyFitnessPal feature is no
+  longer a small-team decision.
+- **Menu Order AI removed its paywall in June 2026** — unlimited free menu analysis for everyone.
+  The closest scan-first competitor just made scanning free, which sets the price expectation we
+  will be launching into.
+
+**8. The market is winner-take-most.** Top 5% of newly launched apps earn ~$8,880 after year one —
+**over 400× the bottom 25%** (≤$19). Health & Fitness has the highest 60-day revenue-per-install of
+any category ($0.63 median) and a median trial-to-paid of 39.9%. High ceiling, brutal floor.
+
+---
+
 ## Open questions this teardown cannot answer
 
-| Question | Why it matters | Where it gets answered |
-|---|---|---|
-| **Why is MenuFit 20–500× ahead of near-identical apps?** | Determines whether this is a product fight or a spend fight | Research brief Q1/Q3 |
-| What do users actually complain about, in their own words? | Only secondary summaries so far — not primary review text | Research brief Q1 |
-| How accurate are competitors' calorie numbers really? | Decides whether accuracy is a viable wedge | Research brief Q1, or install and test |
-| What does MenuFit's onboarding→paywall funnel look like? | The clearest reported weakness | **Install it and walk through** |
-| How deep is the restaurant database, and does it work abroad? | Decides if scanning is a real advantage | Research brief Q4 |
+Five questions were open at v2. The deep research closed four:
 
-**Recommended next action, cheap and high-value:** install MenuFit, FoodieFit and Menu Order AI and
-walk each onboarding to the paywall, photographing every screen. That produces primary evidence for
-the funnel question *and* the reference material phase 4 and 5 will need, in about an hour.
+| Question | Status |
+|---|---|
+| Why is MenuFit 20–500× ahead? | **Answered.** Not the product — a viral fast-food-swap short-form video engine by founder Cole Kosco. Creator-led video is the category's proven channel; Cal AI scaled the same way on 150–250 influencers on retainer. |
+| What do users actually complain about? | **Answered.** Hard paywall after long onboarding, then calorie inaccuracy. Verbatim quotes in `../web-research-2026-08-30.md` Q1. |
+| How accurate are competitors really? | **Answered.** 28–40% (MenuFit), ~33% (Cal AI), ~30.5% category baseline from photo alone. |
+| Does the database work abroad / at independents? | **Answered. No.** Breaks at independents, "useless in the UK", no published restaurant count. |
+| What does MenuFit's onboarding→paywall funnel look like? | **Still open — Santiago is installing the three apps.** |
+
+**Reddit was the one gap the web research could not fill.** It reports: *"Reddit threads in
+r/loseit, r/keto, r/nutrition, r/fitness, r/EatCheapAndHealthy specifically naming these seven apps
+were not surfaced."* The `customer-research` skill's Mode 2 (Digital Watering Hole Research) is
+built for exactly this and has not been run — see the skills note in `../competitors-shortlist.md`.
 
 ## What this teardown cannot see
 

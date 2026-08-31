@@ -203,7 +203,7 @@ Five questions were open at v2. The deep research closed four:
 | What do users actually complain about? | **Answered.** Hard paywall after long onboarding, then calorie inaccuracy. Verbatim quotes in `../web-research-2026-08-30.md` Q1. |
 | How accurate are competitors really? | **Answered.** 28–40% (MenuFit), ~33% (Cal AI), ~30.5% category baseline from photo alone. |
 | Does the database work abroad / at independents? | **Answered. No.** Breaks at independents, "useless in the UK", no published restaurant count. |
-| What does MenuFit's onboarding→paywall funnel look like? | **Still open — Santiago is installing the three apps.** |
+| What does MenuFit's onboarding→paywall funnel look like? | **Answered 2026-08-30** — walked and captured. **27 screens, no skip, no real product use before the paywall.** Menu Order AI does it in **6, with a real scan before paying.** See `../competitor-onboarding/README.md`. |
 
 **Reddit was the one gap the web research could not fill.** It reports: *"Reddit threads in
 r/loseit, r/keto, r/nutrition, r/fitness, r/EatCheapAndHealthy specifically naming these seven apps

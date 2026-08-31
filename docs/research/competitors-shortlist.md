@@ -18,12 +18,17 @@ does the actual analysis.
 
 ## The headline finding
 
+> ⚠️ **Corrected 2026-08-30 during the teardown.** This section first claimed MenuFit *"doesn't
+> scan menus at all."* **That was wrong** — MenuFit does scan menus with the camera, and also has a
+> restaurant database, an AI chat assistant and a "Smart Tweaks" feature. The corrected finding is
+> harder: the leader already does everything Menu Scan does. See `competitor-profiles/_summary.md`.
+
 **Menu Scan's exact product already exists — at least six times — and almost none of it has
-traction. The one app with real traction doesn't scan menus at all.**
+traction. The one app that does have traction does everything we do, and more.**
 
 | App | Reviews | How it works |
 |---|---|---|
-| **MenuFit — Healthy Eating Out** | **54,084** | **No scanning.** Pre-built restaurant database. "We tell you exactly what to order at every restaurant — fast food, dine-in, or even bars." |
+| **MenuFit — Healthy Eating Out** | **54,084** | Menu scan **+** restaurant database **+** AI chat **+** Smart Tweaks. "Works even if the menu has no calories or macros listed." |
 | Menu Order AI | 69 | Scans any menu photo, ranks every dish by how you eat. **Our mechanic.** |
 | MenuPal | 98 | Same pitch as MenuFit, database-style |
 | CalorieCap | 97 | Fast-food macros, database |
@@ -33,15 +38,16 @@ traction. The one app with real traction doesn't scan menus at all.**
 | Forq (MX, Spanish) | 0 | Menu scan → image, calories, allergens, price per dish. **Our feature list including allergens and price.** |
 
 **The strategic question this raises** (for step 1.6, positioning — do not answer it here):
-the market leader solved "what do I order?" with a **database of chain restaurants**, not a camera.
-Scanning is harder to build and they beat us to traction without it.
+if the leader already scans menus, ranks by goals and answers questions about the dish, then
+**Menu Scan's feature list is not a differentiator.** Something else has to be.
 
-The counter-argument worth testing: a chain database only works where chains dominate. It cannot
-read the menu of an independent restaurant, which is most restaurants outside the US — and is the
-entire Spanish-language market we target. MenuFit's approach may simply not be portable to where
-we're aiming.
+The teardown found two candidates, both unproven:
+1. **Language.** All three menu scanners with any traction are **English-only**. Cal AI and Forq
+   are localized, but Cal AI doesn't read menus and Forq has one rating.
+2. **The funnel.** MenuFit's own users report feeling misled by a hard paywall after a long
+   onboarding, and report calorie counts being "completely off."
 
-**Do not treat either side of that as settled.** It's the central positioning question of phase 1.
+**Do not treat either as settled.** Both need the evidence from `RESEARCH-BRIEF-for-claude-web.md`.
 
 ## Also worth knowing
 
@@ -51,8 +57,10 @@ we're aiming.
   menu scanning — but they are not solving our problem today.
 - **The direct category is crowded with new, tiny entrants.** Many launched in 2026 with under 100
   reviews. Low barrier, no winner yet, nobody defensible.
-- **The Spanish-language slice is wide open.** Forq, WellMenu and MenuRank AI are all in the MX
-  store at 0 reviews.
+- **The Spanish-language slice is open, but narrower than it looks.** *(Refined during the
+  teardown.)* Forq ships 11 languages and Cal AI ships 15, both including Spanish — so Spanish is
+  not unserved in general. But every menu scanner with traction (MenuFit, FoodieFit, Menu Order AI)
+  is **English-only**. The specific opening is *a menu scanner that works properly in Spanish*.
 
 ---
 

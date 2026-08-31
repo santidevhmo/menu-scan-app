@@ -58,10 +58,10 @@ system-as-input-to-design.**
       on the same categories step 3 flagged as relevant.
 - [ ] **Mobbin MCP** (600k+ real screens) — broadest, least-curated reference; used on-demand once
       you know specific patterns to pull, not as a first browse.
-- [~] **`product-marketing` skill** (coreyhaines31/marketingskills) — positioning/ICP/
+- [x] **`product-marketing` skill** (coreyhaines31/marketingskills) — positioning/ICP/
       differentiation, now grounded in real market + competitor + proven-pattern data instead of a
       guess. Writes `.agents/product-marketing.md`, which the other marketing skills then read.
-- [ ] **`customer-research` skill** (coreyhaines31/marketingskills) — user research last;
+- [x] **`customer-research` skill** (coreyhaines31/marketingskills) — user research last;
       interview questions are sharp enough to validate or break the positioning thesis, and it's
       the slowest/most expensive step, so it shouldn't run on a vague brief.
 

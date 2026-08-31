@@ -1,180 +1,244 @@
 # Product Marketing Context
 
-**Document version:** v1
+**Document version:** v2
 **Last updated:** 2026-08-30
-**Status:** DRAFT — awaiting Santiago's review. Nothing here is ruled until he says so.
+**Status:** DRAFT — awaiting Santiago's review. One open fork is flagged below and needs his ruling.
 
-> **Where the evidence lives.** This document does not restate research; it decides things *from*
-> it. Every factual claim traces to one of:
-> `docs/research/web-research-2026-08-30.md` (deep research, sourced) ·
-> `docs/research/competitor-profiles/_summary.md` (teardown + positioning map) ·
-> `docs/research/competitor-profiles/*.md` (six profiles) ·
-> `docs/research/competitors-shortlist.md` (how the six were found) ·
-> `AGENTS.md` (what we actually built).
-> Written at step **1.6** of `docs/mobile-app-design-phase-order.md`.
+> **Where the evidence lives.** This document decides things *from* research; it does not restate it.
+> `docs/research/web-research-2026-08-30.md` — sourced deep research ·
+> `docs/research/competitor-profiles/_summary.md` + `*.md` — the six-app teardown ·
+> `docs/research/customer-research-2026-08-30.md` — **32 Reddit threads read in full (26 EN, 6 ES)** ·
+> `docs/research/aso-keyword-shelf-check-2026-08-30.md` — **795 apps across US/MX/ES storefronts** ·
+> `docs/research/positioning-council-review-2026-08-30.md` — adversarial review of v1 ·
+> `docs/research/competitor-onboarding/` — **22 MenuFit + 6 Menu Order AI onboarding screens** ·
+> `AGENTS.md` — what we actually built.
+> Steps **1.6 + 1.7** of `docs/mobile-app-design-phase-order.md`.
+
+---
+
+## The Position
+
+**The value theme — one sentence, everything else supports it:**
+> **A usable answer about the menu in front of you — wherever you are, in whatever language it's
+> printed in.**
+
+**Positioning style:** big fish / small pond. **Not head-to-head.** We do not fight MyFitnessPal for
+calorie tracking or MenuFit for restaurant coverage. We take a pond nobody is standing in.
+
+**The three legs, ordered by how hard they are to copy — not by how obvious they are:**
+
+| # | Leg | Role | Time to copy |
+|---|---|---|---|
+| 1 | **Bilingual menu parsing** (ES + EN, the menu's own words) | **the moat** | A data and eval program. Nobody has one. |
+| 2 | **Reads the menu, not a database** | **the mechanism** | A prompt change for Cal AI. Weeks. |
+| 3 | **Output is a re-ordered menu, not a number** | **the output form** | A sprint. |
+
+*v1 listed these in the reverse order and led with the most copyable one. Corrected after the
+council review.*
+
+**One-liner (revised — see the note on the clock below):**
+> Photograph any menu, in any language, and get it back in your order of priority.
+
+⚠️ **v1's one-liner ended "before the server comes back." That is falsified.** Across 32 threads,
+**zero** described being rushed by a server, and **4 explicitly plan the meal at home before leaving**:
+*"I look at the menu in advance… I don't look at the menu when I am at the restaurant."* The anxiety
+is real; the clock is not. **Product consequence:** camera-only input locks out the most disciplined
+half of the target user. Photo-library import, already in `AGENTS.md`, is not a convenience — it is
+a primary entry point.
 
 ---
 
 ## Product Overview
 
-**One-liner:**
-Point your phone at the menu in front of you — in Spanish or English — and see every dish
-re-ordered by your goals, before the server comes back.
-
 **What it does:**
-You pick your nutritional goals and put them in priority order. You photograph the restaurant's
-paper menu. Menu Scan reads the menu itself — not a database of restaurants — estimates macros
-and allergens per dish, and returns the same menu sorted by how well each item fits your goals.
-Filters (allergen exclusions, calorie range, price) narrow it further, and results re-rank
-instantly when you change your mind, with no second scan.
+You pick your nutritional goals and rank them. You photograph the restaurant's menu — or import a
+photo you took at home. Menu Scan reads the menu itself, not a database of restaurants, estimates
+macros and allergens per dish, and returns that same menu sorted by fit. Filters (ingredient
+exclusions, calorie range, price) narrow it; results re-rank instantly with no second scan.
 
-**Product category (the shelf):**
-**Health & Fitness**, sub-shelf *nutrition / eating out*. This is a positioning decision, not a
-description: Forq ships the closest feature list in the market and sits in **Food & Drink**, where
-nobody with nutrition intent is searching, and has **1 rating in 3 months**. Same product, wrong
-shelf. We list in Health & Fitness.
+**Product category (the shelf):** **Health & Fitness primary, Food & Drink secondary.**
+
+| The v1 claim | Verdict from 795 apps across 3 storefronts |
+|---|---|
+| List in Health & Fitness | ✅ **Supported** — H&F share rises with traction: 29% at 0 ratings → **75% in the ≥10-ratings band** |
+| "Food & Drink is where nobody with nutrition intent searches" | ❌ **Contradicted** — F&D holds **129 of 359 top-10 slots (36%)** on nutrition-intent queries |
+| "Forq's 1 rating is the wrong shelf" | ❌ **Unsupported** — Forq ranks **2nd of 22** for its core query on its home storefront and still has 1 rating. **MacroMenu sits in F&D with 117 ratings.** |
+
+**Both, not either.** MenuFit, Cal AI and Menu Order AI all run H&F primary + F&D secondary. v1
+framed this as a choice; it is a free slot.
 
 **What we are NOT, and must never be marketed as:**
 
 | Not this | Because |
 |---|---|
-| A calorie **logger** | We work *before* you eat, not after. Logging is MyFitnessPal's job and it is a fight we lose. |
-| A restaurant **database** | We never claim coverage of a restaurant list. Coverage claims are exactly what breaks MenuFit. |
-| A **plate**-photo app | Cal AI photographs food you already ordered. That is a different job at a different moment. |
-| A **medical** or allergy-safety tool | Everything is an AI estimate. The allergen disclaimer is mandatory and non-removable (`AGENTS.md`). |
+| A calorie **logger** | We work before you eat. Logging is MyFitnessPal's job and a fight we lose. |
+| A restaurant **database** | Coverage claims are exactly what breaks MenuFit. |
+| A **plate**-photo app | Cal AI photographs food already ordered. Different job, different moment. |
+| A **medical** or allergy-safety tool | Everything is an estimate. The disclaimer is mandatory and non-removable (`AGENTS.md`). |
 | A **diet** app | No weight-loss promise, no meal plans, no coaching. |
+| **Precise** | See the accuracy rule. Precision is the claim that gets us publicly disproved. |
 
 **Product type:** Consumer mobile app (iOS + Android, Expo/React Native).
 
-**Business model:**
-MVP ships **free, no paywall** — onboarding and subscription are explicitly post-MVP in `AGENTS.md`.
-The price expectation we launch into is set by **Menu Order AI, which removed its paywall in June
-2026** (unlimited free scans) and by MenuFit's $9.99/mo — $19.99/yr floor. When monetization does
-arrive, the pattern the 2025–26 evidence supports is a hard paywall placed **after** a real value
-moment (1–3 scans), annual-forward pricing, and goals collected in onboarding and referenced on the
-paywall. That is a phase-4/5 decision; `pricing` / `paywalls` skills own it, not this document.
+**Business model:** MVP ships **free, no paywall** (`AGENTS.md`). The price expectation we launch
+into is set by Menu Order AI removing its paywall in June 2026 (unlimited free scans). Monetization
+is a phase-4/5 decision owned by `pricing` / `paywalls`, informed by the 22 captured MenuFit
+onboarding screens — not by this document.
 
 ---
 
 ## Target Audience
 
-**Primary use case:**
-You are sitting in a restaurant with an active nutritional goal and a menu that does not print
-calories, and you have about ninety seconds to decide.
+**Segments — revised against 32 threads. v1's four were inferred from competitor reviews; these
+are inferred from people talking to each other.**
+
+| Segment | Verdict vs v1 | Who | The value we promise |
+|---|---|---|---|
+| **Restriction-driven diner** — IBS, SIBO, celiac, GI | ⬆️ **Promoted to primary** | A wrong dish means being sick tonight, not a missed macro | Rule dishes out across the whole menu at once |
+| **Goal-tracker who eats out** | ✅ Confirmed, **moment re-scoped** | Loudest voice by far — but the pain lands *after* the meal, and the committed ones pre-plan at home | The best-fitting dish on this menu, at the table or on the sofa |
+| **Unfamiliar-menu diner** — travel, foreign language, unfamiliar cuisine | 🆕 **New, hypothesis** | *"Golden Thread Fat Cow."* A vegetarian served prawn broth at a Michelin restaurant | Tells you what the dish actually is, then how it fits |
+| **Spanish-speaking diner** | ⚠️ **Downgraded** — see below | Menus genuinely never print calories | A language advantage inside the other segments |
+| ~~GLP-1 user~~ | 🔀 **Merged** into restriction-driven | Identical language, identical behaviour | A symptom cluster, not a fourth audience |
+
+⚠️ **On the restriction-driven promotion:** v1 said "allergies, keto, paleo." That was wrong. The
+acute, emotional, genuinely *pre-order* population is **GI conditions**, and they are already
+performing this product by hand.
+
+⚠️ **On the Spanish downgrade — read this before acting on it.** Three findings pull in different
+directions and they have not been reconciled by evidence:
+
+| Finding | Source |
+|---|---|
+| Menus genuinely never print calories; **Chile has a live Jan 2026 bill** to require them | customer research (a dated proof point v1 lacked) |
+| Spanish complaint volume is a fraction of English; vocabulary is *health* not *macros*; counting meets open hostility (*"el colmo de la flojera"*) | 6 Spanish threads |
+| **MenuFit ranks 1st for `calorías menú restaurante` on both MX and ES — shipping English only** | ASO sweep |
+
+**The synthesis: the Spanish opening is in the product, not in the search results, and not yet
+proven in demand.** Bilingual stays the **moat** (hardest to copy) but is **not** established as the
+**beachhead** (where demand is proven).
+
+🔴 **Honest caveat, kept deliberately:** Reddit is a weak instrument for Spanish-speaking markets —
+country subs are general-interest and fitness discussion is thin. *"Little Spanish complaint on
+Reddit"* is evidence about **Reddit**, not proof the market is small. Closing this properly needs
+Spanish App Store reviews of Fitia / MyRealFood / YAZIO on MX/ES/AR, or Spanish TikTok comments.
 
 **Jobs to be done:**
-- *"Tell me which of these forty dishes actually fits what I'm doing — now, before I order."*
-- *"Read this menu for me. I can't tell what's in half of these dishes."*
-- *"Let me eat out without either guessing or giving up on the goal for the day."*
+- *"Tell me which of these dishes won't make me sick."*
+- *"Tell me what this dish even is."* — **outdraws the macro job ~4×** (540 and 138 upvotes vs 1–25)
+- *"Tell me which one fits what I'm doing."*
 
-**Segments (B2C — there is no buying committee):**
-
-| Segment | Who | What they care about | The value we promise |
-|---|---|---|---|
-| **Goal-tracker who eats out** | Cutting, bulking, or hitting a protein number; already tracks at home | Hitting the macro, not being "the difficult one" at the table | The best-fitting dish on *this* menu in seconds |
-| **Spanish-speaking diner (MX / ES / LatAm)** | Same goals, but menus where calorie labeling is **not mandatory** and effectively never printed | Any signal at all — today there is none | The only app that reads the menu in its own language |
-| **Restriction-driven diner** | Allergies, intolerances, keto/paleo/religious exclusions | Ruling dishes *out* fast and safely | Ingredient exclusions applied to the whole menu at once, with an honest disclaimer |
-| **GLP-1 user** | On Ozempic/Wegovy, ordering anxiety, small appetite | What to order and how to modify it | Adjacent, not our wedge — Menu Order AI owns the language here and still has 69 ratings |
-
-**Use cases:** an independent restaurant with no online menu · a menu abroad or in a second
-language · a takeout menu at home before ordering · a chain whose app-listed calories are wrong ·
-re-checking a past scan from history rather than re-scanning.
+⚠️ **`what to order` is dead as a keyword** — 48 results, none of the six competitors, owned by Taco
+Bell, Sonic and Panera. It is v1's own JTBD phrasing. Fine as an internal job; never as metadata.
 
 ---
 
 ## Problems & Pain Points
 
-**Core problem:**
-The moment you need nutrition information is the one moment you cannot get it. Menus mostly do not
-print calories — and outside the US chains, essentially never. Everything the market has built
-works either *before* you leave home (search a database) or *after* the plate arrives (photograph
-it). Nothing works on the menu in your hand.
+**Core problem:** the moment you need to know is the one moment nobody gives you an answer. Menus
+mostly do not print calories, and outside US chains essentially never. Everything built so far works
+either before you leave home (search a database) or after the plate arrives (photograph it).
 
-**Why alternatives fall short:**
+⚠️ **v1 named the enemy as "guessing." That is wrong, and copy built on it will bounce.**
+The status quo is competent, free, and takes about thirty seconds:
 
-| Alternative | Where it breaks | Evidence |
-|---|---|---|
-| **MenuFit** (54k ratings, the category leader) | Database lookup. No coverage at independents, wrong menus at the wrong restaurant, *"useless in the UK"*. Publishes **no restaurant count anywhere** — only "every restaurant in the world." | `_summary.md`, research Q4 |
-| **Cal AI / MyFitnessPal** (15M+ downloads) | Photographs the **plate**. Useless before you order — the decision is already made. | research Q1/Q3 |
-| **Carb Manager** | Barcode + logging. Same after-the-fact problem, plus ads for paying users. | research Q1 |
-| **FoodieFit / Menu Order AI / Forq** | Genuinely scan-first, and genuinely tiny (725 / 69 / 1 ratings). All **English-only** except Forq, which is on the wrong shelf. | `_summary.md` field table |
-| **Asking the server / eyeballing it** | The real default. Free, fast, and wrong — *"guessing almost always leads to overeating"* (FoodieFit's own listing). | competitor profile |
+| The real status quo | Evidence |
+|---|---|
+| **The chain-swap** — log the independent's dish as its nearest chain equivalent | **8 of 32 threads**, top-voted answer in 4, stable 2017 → 2026: *"Went for a reuben at that new sandwich place? Log it as a denny's reuben."* |
+| **Photograph the menu into ChatGPT** — free, works, and already the product | **6 of 32 threads**, accelerating: *"So I took a photo of the menu and asked chatgpt to tell me which option I could eat and I was quite surprised at how effective it was."* |
+| **Deliberately over-estimate** | **7 of 32 threads** as a stated rule: *"take what it says… and double it"* · *"times it by 1.5"* |
 
-**What it costs them:**
-A meal out that silently blows the day's target, several times a week — and the slower cost:
-people stop eating out, or stop tracking, because the two cannot coexist.
+**What it costs them:** for the goal-tracker, a meal that silently blows the day, repeatedly. For
+the restriction-driven diner, **being ill tonight**. The second is the one people act on.
 
-**Emotional tension:**
-Time pressure with an audience. The server is standing there. The choice feels like a test you can
-fail in public, and the fallback — order the salad, ask for dressing on the side, hope — is
-unsatisfying every single time.
+**Emotional tension:** not time pressure — that was v1's invention. It is **the cost of being wrong,
+carried alone, in public, at a table with other people.**
 
 ---
 
 ## Competitive Landscape
 
-**Direct (same job, same mechanic — read a menu, rank dishes):**
-- **FoodieFit** — best framing in the market (*"Most nutrition apps track what you already ate;
-  FoodieFit helps you choose before you order"*), no differentiation beyond it, English-only, no
-  marketing site.
-- **Menu Order AI** — sharpest copy in the market, GLP-1 niche, **free unlimited scans since June
-  2026**, and ~7 ratings/month. Proof that positioning alone does not buy traction.
-- **Forq** — closest feature list to ours (calories + allergens + price, 11 languages incl. Spanish)
-  and effectively zero traction, in the wrong App Store category.
+**Indirect — and this is competitor #1, absent from v1 entirely:**
+- **ChatGPT / Gemini, used manually.** Photograph the menu, ask which option fits. Free, already
+  working, in **6 of 32 threads** and accelerating from 2023 → 2026. The objection is asked by name:
+  Cal AI is *"mostly a fancy wrapper around the same underlying tech."* **We must have an answer to
+  this on day one.** Ours: goals persist, filters persist, history persists, the ranking is
+  reproducible, and the arithmetic is ours rather than the model's (`AGENTS.md`).
+- **The chain-swap**, above. Free and competent.
 
-**Direct (same job, different mechanic — the actual incumbent):**
-- **MenuFit** — restaurant database with AI-generated menu data, English-only, hard paywall before
-  any value. Its traction (~4,160 ratings/mo) is explained by a **creator-led short-form video
-  engine**, not by the product. Its database is exactly what breaks where we work.
+**Direct (same mechanic):** FoodieFit (725 ratings, best framing, English-only) · Menu Order AI
+(sharpest copy in the market, free unlimited scans, **0 Reddit results sitewide, ever**) · Forq
+(closest feature list, 11 languages, 1 rating, findable and still ignored).
 
-**Secondary (different mechanic, adjacent job):**
-- **Cal AI (now MyFitnessPal)**, **Carb Manager**, **YAZIO / Lifesum / Foodvisor** — log or estimate
-  what you already have. Note the acquisition: menu scanning becoming a MyFitnessPal feature is no
-  longer a small-team decision.
+**Direct (the incumbent, different mechanic):** **MenuFit** — database lookup, English-only, hard
+paywall before value, ~54k ratings from a **creator-led short-form video engine**, not the product.
 
-**Indirect (the honest competitor):**
-- Asking the server, googling the restaurant, or not caring. This is what most of the market does
-  today, and it is free.
+**Secondary:** Cal AI (now MyFitnessPal), Carb Manager, YAZIO / Lifesum / Foodvisor — all log what
+you already have.
 
-**The standing finding — do not re-derive it, and do not reverse it without a primary source:**
-**Menu-photo OCR is genuine whitespace.** No app with meaningful traction is scan-first. This claim
-was wrong twice before landing (see the version table in `_summary.md`); the error both times came
-from auto-generated app-directory blurbs. A directory description is never evidence of a shipped
-mechanic.
+**Two standing findings, neither to be re-derived:**
+1. **Menu-photo OCR is genuine whitespace.** No app with traction is scan-first. This was wrong
+   twice before landing; both errors came from auto-generated directory blurbs.
+2. **Four of the six competitors have zero word-of-mouth.** Menu Order AI has *no Reddit results at
+   all.* Sharp positioning did not buy them traction, and it will not buy us any either.
 
 ---
 
 ## Differentiation
 
-**Key differentiators:**
+**How we do it differently:** we read the menu rather than looking up a restaurant, and **the model
+supplies knowledge while our code does the arithmetic** (`AGENTS.md`). That is a *mechanism*
+statement and it makes no numeric claim — it is permitted in copy. *(v1 banned it. The ban on the
+number and the ban on the mechanism had been wrongly merged.)*
 
-| # | Differentiator | Who else has it |
+**Supporting attributes** — these support the value theme; none of them is the position:
+
+| Attribute | Who else has it | Public demand signal |
 |---|---|---|
-| 1 | **Reads the menu, not a database** — works at the independent, abroad, on a takeout flyer | The three tiny scan apps; not the leader |
-| 2 | **The output is a re-ordered menu, not a number** — multi-goal, drag-to-prioritize, re-ranks client-side with no second scan | **Nobody** |
-| 3 | **Bilingual by construction** — the pipeline keeps the menu's own words; English is an internal lookup key, never the UI | Only Forq, on the wrong shelf |
-| 4 | **Allergen exclusions across the whole menu**, with a permanent honesty disclaimer | Only Forq |
-| 5 | **Price as a first-class sort** | Only Forq |
-| 6 | **Saved profiles** ("Post-gym") and searchable scan history | Nobody in this set |
+| Bilingual, keeps the menu's own words | Only Forq | Unmeasured — see the Spanish caveat |
+| Reads the menu, not a database | The three tiny scan apps | Strong |
+| Re-ordered menu, multi-goal, drag-to-prioritize | **Nobody** | **No measured search query.** Moves to screenshot captions, indexed since June 2025 |
+| Ingredient exclusions across the whole menu | Only Forq | Strongest of any attribute — the GI segment |
+| Saved profiles + searchable history | Nobody in the set | Unmeasured; the answer to "why not ChatGPT" |
+| Price sorting | Only Forq | ⚠️ **2 upvotes. Total. In all of Reddit.** Keep it; never lead with it. |
 
-**How we do it differently:**
-Two-stage extraction (transcribe → structure) then per-ingredient enrichment, where **the model
-supplies knowledge and our code does the arithmetic** (`AGENTS.md`). That is an engineering fact,
-not a marketing claim — it never appears in copy — but it is why we can be honest about estimates
-instead of asserting a number.
+⚠️ **We are not the only ones saying this.** `Menu Calories: Dining Tracker` (0 ratings, ranks 1st of
+44 for `menu calories`) already publishes: *"Point your camera at any menu — local spots, any
+country, any language. No restaurant database, no made-up dishes, honest estimates."* That is legs
+1–2 plus the honesty stance, shipped. It does not falsify the wedge — they have no traction. It does
+kill any copy claiming the ground is ours alone.
 
-**Why customers choose us:**
-Because the app opens on the menu they are actually holding, in the language it is actually
-printed in, and hands back that same menu in their order of priority.
+### 🔴 The accuracy rule — binding on every downstream skill
 
-🔴 **The accuracy rule — binding on every downstream skill.**
-Do **not** market an accuracy percentage. Not ours, not a comparison. Cal AI's founder markets
-"90% accurate" and no peer-reviewed evidence supports it. The published baselines are ~30.5% error
-from a photo alone, falling to ~13.9% when the user adds a short ingredient description (Chen et
-al. 2025, *Nutrients*), and MenuFit reviewers **compute the error themselves (28–40%) and cancel**.
-The differentiator is therefore **honesty, not precision**: show a confidence indicator, let people
-edit, and design the flow to ask for that one-line ingredient description. An unhedged number is
-the single most punished thing in this category.
+**Do not market an accuracy percentage. Not ours, not a comparison, not "more accurate than X."**
+A community-run benchmark with **2,500 upvotes** exists and its conclusion is quotable against any
+app in this category: *"This stuff doesn't work… The models always know what the food is. They just
+can't tell how much is on the plate."* Any number we publish gets tested with a kitchen scale and
+posted.
+
+**But the stance is no longer "we're honest about estimates."** That has no *so*. The community
+licensed a better one, and it is a reason to buy rather than a reason to forgive:
+
+> **Good enough to pick. Not good enough to log.**
+> *"If a ballpark number is all you need, or for meal suggestions like you're doing, then AI can work."*
+
+**Why it holds:** we sell an **order**, not a number. A ranking survives a ~30% error that would
+destroy an absolute value. Three independent sources reached this from three directions — the
+council (*"you accepted the competitor's framing that the job is producing a number, then
+apologised for the number"*), the literature, and the users themselves.
+
+**Two product consequences, not marketing ones:**
+1. **Ship a range biased high, not a point estimate.** 7 of 32 threads already do this by hand.
+   **Nobody in 32 threads asked for more precision.**
+2. **Still solicit the ingredient description** — it roughly halves the error (Chen et al. 2025),
+   and it is what makes the ranking trustworthy even when we never show the number.
+
+### ☠️ The failure mode that no confidence indicator protects against
+
+MenuFit's one substantive Reddit thread is not about a wrong *number*. It is about a wrong
+*recommendation* — the app suggested *"double cheeseburger and 6 piece McNugget. WTF?"* — and it
+ran in a snark subreddit. **Our entire output is a recommendation.** That is precisely how this
+product gets publicly ridiculed, and a confidence badge on a number does nothing about it.
+Whatever guardrail answers this is a product decision that has not been made.
 
 ---
 
@@ -182,17 +246,17 @@ the single most punished thing in this category.
 
 | Objection | Response |
 |---|---|
-| *"How do I know the calories are right?"* | You don't, and neither does anyone else — every app here is estimating. We show how confident we are, we let you correct the dish, and adding one line about what's in it measurably halves the error. We never publish a number we haven't measured. |
-| *"Menu Order AI is free and MenuFit is $20 a year."* | Both are English-only, and MenuFit doesn't read menus at all — it looks up a restaurant it may not have. MVP is free; when we charge, you'll have already seen it work. |
-| *"I already have MyFitnessPal / Cal AI."* | Keep them. They work after you eat. This one works while you're deciding. |
-| *"Will it work on this menu?"* (handwritten, chalkboard, Spanish, badly lit) | The Spanish menu is the case we were built for. Photograph as many pages as you need; there's no frame to line up. |
+| **"Why not just ask ChatGPT?"** *(the #1 objection, missing from v1)* | You can, and it works once. It doesn't remember your goals, your exclusions or last month's scan, it re-asks you everything each time, and its arithmetic is a guess where ours is computed. |
+| **"I already log it as the chain equivalent."** | That works when a chain equivalent exists. It doesn't at the independent, abroad, or on a menu in another language — which is most of the times you actually eat out. |
+| *"How do I know the numbers are right?"* | You don't, and neither does any app here. **We're good enough to pick, not good enough to log** — and picking is what we do. A ranking tolerates an error that a calorie total can't. |
 | *"Is it safe for my allergy?"* | No. It's an AI estimate and the app says so on every result screen with a filter active. Confirm with the restaurant. |
+| *"Will it work on this menu?"* | Photograph as many pages as you need; there's no frame to line up. A menu in another language is the case we were built for. |
+| *"Menu Order AI is free."* | It is, and it's English-only. MVP is free too; when we charge you'll have already seen it work. |
 
-**Anti-personas (do not target, do not write copy for):**
-- People who rarely eat out — the pain is the restaurant.
-- People who want a food **diary** — that is a different product and a losing fight.
-- Anyone needing clinically reliable numbers: severe allergies, insulin dosing, medical diets.
-- **Restaurants** (B2B menu digitization). Different buyer, different product, not this.
+**Anti-personas:** people who want a food **diary** · anyone needing clinically reliable numbers
+(severe allergy, insulin dosing, medical diets) · **restaurants** (B2B menu digitization — different
+buyer, different product).
+*v1 also listed "people who rarely eat out." Dropped — that's a non-user, not an anti-persona.*
 
 ---
 
@@ -200,103 +264,78 @@ the single most punished thing in this category.
 
 | Force | What it is here |
 |---|---|
-| **Push** | The database app had no menu for tonight's restaurant, or showed the wrong one. The paywall arrived before anything worked. They computed the calorie error themselves and felt cheated. Their language isn't supported at all. |
-| **Pull** | It works on the menu in your hand, in your language, and the answer is the menu itself, reordered. No restaurant to look up, no plate to wait for. |
-| **Habit** | Eyeballing it, asking the server, ordering the healthy-sounding thing. Free, instant, and already a habit. Also: an annual subscription they've already paid for elsewhere. |
-| **Anxiety** | "Will the numbers be nonsense?" · "Will it read *this* menu?" · "Will a free trial quietly charge me?" — a real, quantified fear in this category, including a Spanish-language billing complaint on the Mexican App Store. |
+| **Push** | The database has no menu for tonight's restaurant, or the wrong one. The paywall arrived before anything worked. Their language isn't supported. |
+| **Pull** | It works on the menu in front of you, in your language, and hands back the menu itself, reordered. |
+| **Habit** | ⚠️ **The chain-swap and ChatGPT — not "guessing."** Both are free, competent, and already habitual. This is the strongest force in the table and v1 misidentified it. |
+| **Anxiety** | "Will it be nonsense?" · "Will it read *this* menu?" · "Will a free trial quietly charge me?" — quantified, including a Spanish-language billing complaint on the Mexican store. |
 
-**The design consequence:** the habit is free and instant, so the first scan has to be free and
-instant too. Anything that gates before the first working result is fighting the strongest force
-in the table with the weakest hand — and it is precisely MenuFit's most-reported complaint.
+**The design consequence:** the habit is free and instant, so the first scan must be too. Anything
+gating before the first working result fights the strongest force with the weakest hand — MenuFit's
+most-reported complaint, now visible in all 22 captured onboarding screens.
 
 ---
 
 ## Customer Language
 
-**How they describe the problem (verbatim, from competitor reviews and listings):**
-- *"most local restaurants did not feature the full menu, so it was not useful for me at all"*
-- *"it's useless in the UK… Don't bother if you live in the UK"*
-- *"most restaurant menus don't show calories — and guessing almost always leads to overeating"*
-- *"Forty dishes on the menu and not one picture"*
-- *"I used to get so much anxiety eating out"*
-- *"took the guessing game out"*
-- *"the calorie counts were completely off both times… a 28% error… a 40% error… I could not
-  justify continuing to use this app"*
+**Verbatim, from 32 threads read in full:**
+- *"So I took a photo of the menu and asked chatgpt to tell me which option I could eat and I was quite surprised at how effective it was"*
+- *"Went for a reuben at that new sandwich place? Log it as a denny's reuben."*
+- *"take what it says or what I think it is and double it"*
+- *"They just can't tell how much is on the plate."*
+- *"I look at the menu in advance… I don't look at the menu when I am at the restaurant."*
+- *"comer afuera sin que se me tape una arteria"* — the Spanish register is **health**, not macros
+- *"double cheeseburger and 6 piece McNugget. WTF?"* — how a ranking gets ridiculed
 
-**Framings worth borrowing (credited in `_summary.md`):**
-- **before/after** — *"track what you already ate"* vs *"choose before you order"*. The single
-  clearest line separating this category from MyFitnessPal.
-- **the clock** — *"know what to order in about 10 seconds," "before the server comes back."*
-  Concrete and falsifiable; names the real anxiety.
-- **naming the objection first** — *"works even if the menu has no calories or macros listed."*
-- **the action, not the ranking** — Menu Order AI's "Smart Tweaks" ("dressing on the side,"
-  "grilled not fried"). MenuFit copied it. We do not have it; it is the strongest single feature
-  idea in the market.
-
-**Words to use:** before you order · any menu, any language · in your order of priority ·
-estimate · what's actually in it · the menu in front of you.
+**Words to use:** the menu in front of you · in your order of priority · good enough to pick ·
+what's actually in it · any menu, any language · won't make me sick.
 
 **Words to avoid:**
 
 | Avoid | Why |
 |---|---|
-| any accuracy % | Unmeasured, and the most punished claim in the category |
-| "every restaurant in the world" / any coverage claim | The incumbent's claim; reviewers disprove it in public |
+| Any accuracy % | A 2,500-upvote benchmark exists to disprove it |
+| "guessing" as the enemy | The status quo is the chain-swap, and it works |
+| "before the server comes back" | **Zero of 32 threads.** Half plan at home. |
+| "precise", "exact" | Invites the one test we lose |
+| "every restaurant in the world" | The incumbent's claim; publicly disproved |
 | "calorie counter", "food diary", "log" | Puts us on MyFitnessPal's shelf |
-| "diet", "cheat meal", "guilt-free" | Wrong register; no weight-loss promise |
-| "safe for allergies", "allergen-free" | Directly contradicts the mandatory disclaimer |
-| "AI-powered" as the headline | Table stakes in this category; every competitor says it |
-
-**Glossary:**
-
-| Term | Meaning |
-|---|---|
-| **Scan** | One or more photos of a menu → a parsed, enriched, sorted item list |
-| **Goal** | A preset nutritional objective (High Protein, Low Calorie…), multi-select and rank-ordered |
-| **Profile** | A saved set of goals + filters with a name and emoji, e.g. "Post-gym" |
-| **Re-rank** | Re-sorting a scan's saved results without spending another scan |
-| **Menu-first / scan-first** | Reads the printed menu, as opposed to looking a restaurant up in a database |
-| **Plate-photo** | The Cal AI mechanic — photographing food already served |
+| "safe for allergies" | Contradicts the mandatory disclaimer |
+| "AI-powered" as a headline | Table stakes; every competitor says it |
+| `what to order` in metadata | Dead query — owned by Taco Bell and Panera |
 
 ---
 
-## Brand Voice
+## Distinctive Assets
 
-**Tone:** plain, quick, and honest about uncertainty. Speaks like a friend who happens to know
-food, not a nutrition brand and not a wellness brand.
+*New section — the council's finding was that we had none, and that in a winner-take-most category
+built on short-form video, that is a bigger hole than any wording.*
 
-**Style:** short sentences, concrete nouns, second person. Names the limitation before the user
-finds it. No hype adjectives; the product's own numbers are hedged, so the copy is too.
+| Asset | Status |
+|---|---|
+| **The re-sort motion** — the menu visibly reordering itself | **Nominated.** The one moment that is ours, filmable, and instantly legible with the sound off. |
+| Verbal: *"Good enough to pick. Not good enough to log."* | Nominated |
+| Colour / mark / mascot | None. Owed by `brandkit`. |
 
-**Personality:** direct · fast · bilingual · unpretentious · candid.
-
-**Register check:** if a line would look absurd next to *"AI-estimated. Confirm allergens with
-restaurant staff before ordering."* — the one sentence that is always on screen — the line is wrong.
+**The channel test is not "sayable in one line" — it is "showable in a repeatable format."**
+MenuFit's engine was fast-food swaps repeated to exhaustion, not a tagline. ⚠️ **The tension to
+solve:** our most differentiated leg (ranking) is the least filmable; our most filmable (scanning)
+is the least differentiated. The re-sort motion is the proposed bridge.
 
 ---
 
 ## Proof Points
 
-⚠️ **We have none, and this section exists to stop a downstream skill from inventing some.**
-No users, no downloads, no ratings, no testimonials, no revenue, no press. Any skill reading this
-document must write copy that makes **zero** empirical claims about Menu Scan's performance or
-adoption.
+⚠️ **We have none. This section exists to stop a downstream skill inventing some.**
+No users, downloads, ratings, testimonials, revenue or press.
 
-| Available to us | Usable in marketing? |
+| Available | Usable in marketing? |
 |---|---|
-| Internal extraction benchmark scores | ❌ **No.** Internal, run-to-run variable, and measured against our own oracle. Never quote a benchmark number externally. |
-| Category accuracy literature (Chen 2025, Tay 2023) | ⚠️ Only as *category* context — never as a claim about us. |
-| Competitor weaknesses (coverage gaps, English-only) | ✅ Yes, quoted from public reviews, attributed. |
-| Feature comparison (bilingual, allergens, price, goal-ranking) | ✅ Yes — these are shipped facts, not performance claims. |
-
-**Value themes and where their proof must come from:**
-
-| Theme | Proof we need before claiming it |
-|---|---|
-| "Works where the database doesn't" | A demo on a real independent menu — we have real photos of real paper menus in `scripts/fixtures/` |
-| "Reads Spanish menus" | Same, on a Spanish menu; this one we can show today |
-| "Honest about estimates" | The confidence indicator has to exist in the UI first |
-| "Faster than deciding yourself" | An actual timed scan on a real menu |
+| Internal extraction benchmark scores | ❌ **Never.** Internal, run-to-run variable, scored against our own oracle. |
+| Category accuracy literature | ⚠️ As *category* context only, never as a claim about us |
+| The 2,500-upvote community benchmark | ⚠️ Supports "good enough to pick"; never quoted as our result |
+| Competitor weaknesses from public reviews | ✅ Quoted and attributed |
+| Shipped feature facts (bilingual, exclusions, price, ranking) | ✅ Not performance claims |
+| **Chile's Jan 2026 menu-labelling bill** | ✅ Dated, external, verifiable market context |
 
 ---
 
@@ -305,33 +344,61 @@ adoption.
 **Business goal:** validate that scan-first, goal-ranked, bilingual menu reading pulls users the
 database incumbent structurally cannot serve — before MyFitnessPal ships menu scanning into Cal AI.
 
-**Key conversion action (MVP, pre-paywall):** **first completed scan with a goal set** — the value
-moment. Every other metric is downstream of it.
-
-**Secondary:** second scan within 7 days (the eating-out cadence), and a saved profile.
+**Key conversion action (pre-paywall):** **first completed scan with a goal set.**
+**Secondary:** second scan within 7 days; a saved profile (the answer to "why not ChatGPT").
 
 **Current metrics:** none. Pre-launch.
 
-**Channel note for downstream skills:** the category's proven acquisition channel is **creator-led
-short-form video** — MenuFit's 20–500× traction lead over identically-described products is a video
-engine, and Cal AI scaled the same way on 150–250 influencers on retainer. Positioning here is
-written to be sayable to camera in one line. See `influencer-marketing`.
+**Store metadata (drafts, from the ASO sweep — Apple's real limits):**
+- **EN** — title `Menu Scan: Calories & Macros` (28/30) · subtitle `Nutrition for eating out` (24/30)
+- **ES** — subtitle `Nutrición en el restaurante` (27/30) · ⚠️ the obvious ES title **collides with a
+  shipping Mexican app**
+- `menu scanner` retrieves menu apps; **`scan menu` retrieves QR readers.** Word order decides it.
+- Spanish accents **do not fold** — `calorias` and `calorías` return different result sets.
 
 ---
 
-## Open Questions (do not let a downstream skill answer these by guessing)
+## 🔀 THE OPEN FORK — Santiago's ruling needed
 
-| Question | Owner |
-|---|---|
-| Reddit voice-of-customer — the one gap the web research could not fill | `customer-research` Mode 2, step 1.7 |
-| What MenuFit's onboarding→paywall funnel actually looks like | Santiago is installing the three apps |
-| Whether "Smart Tweaks"-style dish modifications belong in scope | Product decision, not a marketing one |
-| Free-scan quota and paywall placement | `pricing` / `paywalls`, post-MVP |
+Everything above is settled by evidence. **This is not**, and the three reviews disagree:
+
+| | **Option A — Bilingual beachhead** | **Option B — Restriction-driven beachhead** |
+|---|---|---|
+| **Argument** | It is the **hardest leg to copy**. A data and eval program, not a sprint. The council's explicit recommendation. | It is where demand is **proven and acute** — most emotional, genuinely pre-order, already doing this by hand. |
+| **Against it** | Demand is **unmeasured**. MenuFit already ranks 1st in MX and ES search while shipping English only. Spanish complaint volume is thin. | It is the **easiest leg to copy** — an ingredient filter is a sprint for anyone. No moat. |
+| **What it costs if wrong** | We localize into a market that wasn't asking | We win a niche someone larger takes |
+
+**My recommendation: B to enter, A to defend.** Lead with the restriction-driven diner where the
+pain is sharpest and the language is already written for us, and build the bilingual moat
+underneath it — because the moat is what stops a competitor following us in. This is the one
+reading where all three reviews are satisfied at once.
+
+**Do not let a downstream skill resolve this by guessing.**
+
+---
+
+## Open Questions
+
+| Question | Owner | Status |
+|---|---|---|
+| Is Spanish-market demand real, or a Reddit blind spot? | Spanish App Store reviews of Fitia/MyRealFood/YAZIO on MX/ES/AR; Spanish TikTok | **Open — gates the fork** |
+| Search **volume** for any query | ⚠️ **Not measurable without a paid App Store keyword tool.** `menu scanner` having no incumbent may mean it's open or that nobody searches it — indistinguishable today. DataForSEO remains the **wrong** tool (Google web SEO). | Open, costed decision |
+| What stops a bad recommendation becoming a snark-sub screenshot? | Product decision | **Open, unassigned** |
+| Free-scan quota and paywall placement | `pricing` / `paywalls` | Post-MVP; 22 MenuFit screens now captured |
+| Distinctive visual assets | `brandkit` | Not started |
 
 ---
 
 ## Changelog
 *Newest first. One line per revision: what changed and why.*
+- v2 (2026-08-30) — **Substantive repositioning after three parallel reviews** (32 Reddit threads,
+  795-app ASO sweep, adversarial council). Added ChatGPT and the chain-swap as the real status quo,
+  which v1 missed entirely; replaced "honest about estimates" with **"good enough to pick, not good
+  enough to log"**; killed "before the server comes back" (0 of 32 threads); reordered the three legs
+  by defensibility; merged GLP-1 into a promoted restriction-driven segment and downgraded Spanish
+  from beachhead to moat; fixed the Health & Fitness reasoning (the conclusion held, the mechanism
+  was false) and added F&D as a free secondary; added Distinctive Assets. Left one fork open for
+  Santiago.
 - v1 (2026-08-30) — Initial context. Positioning derived from the phase-1 market scan, six-app
   teardown, and sourced deep research: scan-first + goal-ranked + bilingual as the wedge, Health &
   Fitness as the shelf, and honesty-over-precision as the accuracy stance. Records a binding rule

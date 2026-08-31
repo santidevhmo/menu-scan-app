@@ -1,86 +1,81 @@
-# Competitor shortlist — App Store / Play sweep
+# Competitor shortlist — App Store sweep
 
 Phase 1, step 1 of `docs/mobile-app-design-phase-order.md` ("App-store market scan").
-Manual sweep, run by Santiago. **Output is a shortlist of ≤6 apps and their store URLs** — those
-URLs are the input to step 1.2, which runs the `competitor-profiling` skill.
 
-**This is not the research.** Do not form opinions about these apps here. This file only decides
-who is worth tearing down.
+**Method:** automated via the free iTunes Search API (no key, no cost, no scraping) — 19 keywords
+in English and Spanish × US and MX storefronts × 15 results each. Script:
+`scratchpad/sweep.py`. Raw output: `sweep.json`.
+**276 apps found → 231 still maintained → 80 on-topic.** Run 2026-08-30.
 
----
+**Ranking signal is keyword-hit count, not review count.** Review count alone floats McDonald's,
+OpenTable and QR scanners to the top — they surface for "menu" but are not competitors. How many
+of our 19 keywords an app matches is a far better relevance proxy.
 
-## Search these keywords
-
-Run each in **App Store (iOS)** and **Google Play**, in **both the US and Mexico storefronts**
-(rankings are per-country, and Menu Scan targets Spanish and English menus alike).
-
-### Ring 1 — direct: menu → nutrition
-
-| English | Spanish |
-|---|---|
-| menu scanner | escanear menú |
-| scan menu | escáner de menú |
-| menu nutrition | nutrición menú restaurante |
-| restaurant menu calories | calorías menú restaurante |
-| menu calorie scanner | calorías de la carta |
-| what to order | qué pedir en el restaurante |
-
-### Ring 2 — adjacent: photo → macros (the Cal AI class)
-
-Shares our camera→macros mechanic and the design language `AGENTS.md` targets.
-
-| English | Spanish |
-|---|---|
-| AI calorie counter | contador de calorías con foto |
-| photo calorie counter | escáner de comida |
-| snap calories | calorías por foto |
-| food scanner | analizar comida con IA |
-| macro scanner | contador de macros |
-
-### Ring 3 — goal-sorting: eating out on a diet
-
-| English | Spanish |
-|---|---|
-| restaurant nutrition | comer fuera dieta |
-| eating out calories | restaurante keto |
-| keto restaurant | menú saludable |
-| low carb menu | alto en proteína restaurante |
-| high protein restaurant | — |
+**This is not the teardown.** It only decides who is worth studying. Step 1.2 (`competitor-profiling`)
+does the actual analysis.
 
 ---
 
-## Procedure
+## The headline finding
 
-1. **Sweep.** For each keyword, record the top 10 results in the table below. Both stores, both
-   storefronts.
-2. **Mine Apple's own competitor graph.** On the top 3 apps, scroll to
-   "You Might Also Like" / "Similar apps". This is free and surfaces apps no keyword finds.
-3. **Cull.**
-   - Drop anything not updated in 12+ months (dead app).
-   - Drop under ~100 reviews **unless** it is a direct Ring-1 mechanic match.
-4. **Rank by review count.** Review count is the free traction proxy. It is **not** revenue —
-   we deliberately dropped paid market-intel (AppKittie) as not worth the money for a market
-   we are already in.
-5. **Cut to ≤6**, aiming for roughly **3 direct / 2 adjacent / 1 goal-sorting**.
-6. **Copy each survivor's store URL** into the shortlist at the bottom. That's the handoff.
+**Menu Scan's exact product already exists — at least six times — and almost none of it has
+traction. The one app with real traction doesn't scan menus at all.**
+
+| App | Reviews | How it works |
+|---|---|---|
+| **MenuFit — Healthy Eating Out** | **54,084** | **No scanning.** Pre-built restaurant database. "We tell you exactly what to order at every restaurant — fast food, dine-in, or even bars." |
+| Menu Order AI | 69 | Scans any menu photo, ranks every dish by how you eat. **Our mechanic.** |
+| MenuPal | 98 | Same pitch as MenuFit, database-style |
+| CalorieCap | 97 | Fast-food macros, database |
+| MenuScore | 16 | Restaurant nutrition, compare before ordering |
+| MenuRank AI (MX) | 0 | Photo *or photo library* → AI ranks dishes. **Our exact feature list.** |
+| WellMenu (MX, Spanish) | 0 | AI menu scanner, personalised recommendations |
+| Forq (MX, Spanish) | 0 | Menu scan → image, calories, allergens, price per dish. **Our feature list including allergens and price.** |
+
+**The strategic question this raises** (for step 1.6, positioning — do not answer it here):
+the market leader solved "what do I order?" with a **database of chain restaurants**, not a camera.
+Scanning is harder to build and they beat us to traction without it.
+
+The counter-argument worth testing: a chain database only works where chains dominate. It cannot
+read the menu of an independent restaurant, which is most restaurants outside the US — and is the
+entire Spanish-language market we target. MenuFit's approach may simply not be portable to where
+we're aiming.
+
+**Do not treat either side of that as settled.** It's the central positioning question of phase 1.
+
+## Also worth knowing
+
+- **The giants are not menu apps.** Cal AI (359k reviews), MyFitnessPal, Yazio, Lose It,
+  Carb Manager all rank for menu keywords but photograph *plated food*, not menus. They are the
+  design/UX reference (`AGENTS.md` targets Cal AI) and the adjacent threat — any of them could add
+  menu scanning — but they are not solving our problem today.
+- **The direct category is crowded with new, tiny entrants.** Many launched in 2026 with under 100
+  reviews. Low barrier, no winner yet, nobody defensible.
+- **The Spanish-language slice is wide open.** Forq, WellMenu and MenuRank AI are all in the MX
+  store at 0 reviews.
 
 ---
 
-## Raw sweep
+## Proposed shortlist for the teardown (needs Santiago's sign-off)
 
-| App | Store | Country | Dev | Rating | Reviews | Last update | Price / IAP | Ring | Found via |
-|---|---|---|---|---|---|---|---|---|---|
-|  |  |  |  |  |  |  |  |  |  |
-
----
-
-## Shortlist (≤6) → input to `competitor-profiling`
-
-| # | App | Ring | Store URL | Why it made the cut |
+| # | App | Ring | Why | Store URL |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
-| 6 |  |  |  |  |
+| 1 | **MenuFit** | direct | Category leader by 500×. Understand why the database approach won. | `apps.apple.com/us/app/menufit-healthy-eating-out/id6746144481` |
+| 2 | **Menu Order AI** | direct | Our exact mechanic with actual users. Closest true competitor. | `apps.apple.com/us/app/menu-order-ai-find-glp1-meals/id6753690910` |
+| 3 | **Forq** | direct/ES | Our feature list *including allergens and price sorting*, in Spanish. | `apps.apple.com/mx/app/forq-traductor-de-menús-ia/id6771612436` |
+| 4 | **FoodieFit** | direct | 725 reviews — the one mid-tier scanner between MenuFit and the zeroes. | `apps.apple.com/us/app/foodiefit-healthy-eating-out/id6760638090` |
+| 5 | **Cal AI** | adjacent | The stated UX benchmark, and the most likely app to eat this category. | (in `sweep.json`) |
+| 6 | **Carb Manager** | goal-sorting | 734k reviews. How a serious app does goal-based food filtering. | (in `sweep.json`) |
+
+Swap MenuRank AI or WellMenu in for #4 if the Spanish market matters more than mid-tier US traction.
+
+---
+
+## Gaps this method does not cover
+
+| Gap | Why | Fix |
+|---|---|---|
+| Google Play | No free search API | Manual spot-check, or skip — iOS is the priority platform |
+| What users actually complain about | API returns ratings, not review text | Claude web research (prompt drafted) |
+| Pricing / paywall design | Not in the API | Claude web research, or install the apps |
+| Downloads and revenue | Paid tools only | **Deliberately skipped.** Answers a market-entry question already settled. |

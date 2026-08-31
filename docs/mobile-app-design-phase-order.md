@@ -10,7 +10,7 @@
 > **Order note (2026-08-30):** steps 1.6 and 1.7 ran *ahead* of 1.4 and 1.5, deliberately. Those two
 > are visual/aesthetic reference for phases 4–5, not inputs to positioning, and running them later
 > did not invalidate what 1.6/1.7 produced. 1.3 is treated as covered by
-> `docs/research/web-research-2026-08-30.md` Q6. The reusable version of this lesson is in the KB
+> `menu-scan-kb/docs/research/web-research-2026-08-30.md` Q6 (`/menuscan-research`). The reusable version of this lesson is in the KB
 > original's "Field note from the first run".
 >
 > **Menu Scan is the first project to run this playbook.** Expect the process itself to be wrong in

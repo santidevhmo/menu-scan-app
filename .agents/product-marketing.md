@@ -5,13 +5,18 @@
 **Status:** DRAFT — awaiting Santiago's review. One open fork is flagged below and needs his ruling.
 
 > **Where the evidence lives.** This document decides things *from* research; it does not restate it.
-> `docs/research/web-research-2026-08-30.md` — sourced deep research ·
-> `docs/research/competitor-profiles/_summary.md` + `*.md` — the six-app teardown ·
-> `docs/research/customer-research-2026-08-30.md` — **32 Reddit threads read in full (26 EN, 6 ES)** ·
-> `docs/research/aso-keyword-shelf-check-2026-08-30.md` — **795 apps across US/MX/ES storefronts** ·
-> `docs/research/positioning-council-review-2026-08-30.md` — adversarial review of v1 ·
-> `docs/research/competitor-onboarding/` — **22 MenuFit + 6 Menu Order AI onboarding screens** ·
-> `AGENTS.md` — what we actually built.
+> **All of it is in the `menu-scan-kb` repository, not this one** — read it with `/menuscan-research`
+> (see `docs/research-moved.md`). In `menu-scan-kb/docs/`:
+> `research/positioning-and-demand-2026-08-30.md` — **start here**, the durable conclusions ·
+> `research/web-research-2026-08-30.md` — sourced deep research ·
+> `research/competitor-profiles/` — the six-app teardown ·
+> `research/customer-research-2026-08-30.md` — **32 Reddit threads read in full (26 EN, 6 ES)** ·
+> `research/aso-keyword-shelf-check-2026-08-30.md` — **795 apps across US/MX/ES storefronts** ·
+> `research/positioning-council-review-2026-08-30.md` — adversarial review of v1 ·
+> `research/competitor-onboarding/` — **27 MenuFit + 6 Menu Order AI onboarding screens** ·
+> `research/market-scan-2026-08-30.md` — how the six were found ·
+> `personas/segments.md` · `adr/0004-good-enough-to-pick-not-good-enough-to-log.md`.
+> `AGENTS.md` (this repo) — what we actually built.
 > Steps **1.6 + 1.7** of `docs/mobile-app-design-phase-order.md`.
 
 ---
@@ -384,7 +389,7 @@ reading where all three reviews are satisfied at once.
 | Is Spanish-market demand real, or a Reddit blind spot? | Spanish App Store reviews of Fitia/MyRealFood/YAZIO on MX/ES/AR; Spanish TikTok | **Open — gates the fork** |
 | Search **volume** for any query | ⚠️ **Not measurable without a paid App Store keyword tool.** `menu scanner` having no incumbent may mean it's open or that nobody searches it — indistinguishable today. DataForSEO remains the **wrong** tool (Google web SEO). | Open, costed decision |
 | What stops a bad recommendation becoming a snark-sub screenshot? | Product decision | **Open, unassigned** |
-| Free-scan quota and paywall placement | `pricing` / `paywalls` | Post-MVP; 22 MenuFit screens now captured |
+| Free-scan quota and paywall placement | `pricing` / `paywalls` | Post-MVP; 27 MenuFit screens now captured |
 | Distinctive visual assets | `brandkit` | Not started |
 
 ---

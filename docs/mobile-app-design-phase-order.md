@@ -44,11 +44,11 @@ system-as-input-to-design.**
 
 ## 1. Product Definition
 
-- [ ] **App-store market scan** — widest, cheapest lens first; revenue/downloads/ads/keywords tell
+- [x] **App-store market scan** — widest, cheapest lens first; revenue/downloads/ads/keywords tell
       you which competitors are even worth your time before you spend it. **The tool is
       interchangeable** — AppKittie is one option, not the task. Run `/product-engineer` to pick
       from what's actually available and affordable right now.
-- [ ] **Competitor teardown** (gather + list likes/dislikes), using the **`competitor-profiling`**
+- [x] **Competitor teardown** (gather + list likes/dislikes), using the **`competitor-profiling`**
       skill (coreyhaines31/marketingskills) — now teardown the competitors step 1 flagged as
       significant, not a random set. Takes store URLs in, writes profile markdown out.
 - [ ] **abtest.design** (curated A/B test results) — check which *proven* patterns (paywall,
@@ -58,7 +58,7 @@ system-as-input-to-design.**
       on the same categories step 3 flagged as relevant.
 - [ ] **Mobbin MCP** (600k+ real screens) — broadest, least-curated reference; used on-demand once
       you know specific patterns to pull, not as a first browse.
-- [ ] **`product-marketing` skill** (coreyhaines31/marketingskills) — positioning/ICP/
+- [~] **`product-marketing` skill** (coreyhaines31/marketingskills) — positioning/ICP/
       differentiation, now grounded in real market + competitor + proven-pattern data instead of a
       guess. Writes `.agents/product-marketing.md`, which the other marketing skills then read.
 - [ ] **`customer-research` skill** (coreyhaines31/marketingskills) — user research last;

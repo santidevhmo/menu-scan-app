@@ -14,7 +14,7 @@ export function FlashToggle({ value, onToggle }: Props) {
     <Pressable
       onPress={onToggle}
       hitSlop={12}
-      className="w-11 h-11 rounded-full bg-black/40 items-center justify-center"
+      className="w-12 h-12 rounded-[22px] bg-black/40 items-center justify-center"
       accessibilityRole="switch"
       accessibilityLabel={value === "on" ? "Flash on" : "Flash off"}
       accessibilityState={{ checked: value === "on" }}

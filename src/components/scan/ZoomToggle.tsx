@@ -10,7 +10,7 @@ const OPTIONS: (1 | 2)[] = [1, 2];
 /** Toggles the camera between the available 1x and 2x zoom levels. */
 export function ZoomToggle({ value, onChange }: Props) {
   return (
-    <View className="self-center flex-row bg-black/40 rounded-full p-1">
+    <View className="self-center flex-row items-center gap-1 bg-black/40 rounded-full p-1">
       {OPTIONS.map((opt) => {
         const active = opt === value;
         return (
@@ -18,13 +18,13 @@ export function ZoomToggle({ value, onChange }: Props) {
             key={opt}
             onPress={() => onChange(opt)}
             hitSlop={8}
-            className={`px-4 py-1.5 rounded-full ${active ? "bg-background" : ""}`}
+            className={`w-[38px] h-[30px] items-center justify-center rounded-full ${active ? "bg-background" : ""}`}
             accessibilityRole="button"
             accessibilityLabel={`${opt}x zoom`}
             accessibilityState={{ selected: active }}
           >
             <Text
-              className={`font-button text-sm ${active ? "text-foreground" : "text-background"}`}
+              className={`text-[13px] leading-4 font-semibold ${active ? "text-foreground" : "text-background"}`}
             >
               {opt}x
             </Text>

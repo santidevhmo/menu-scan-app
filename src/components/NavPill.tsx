@@ -16,6 +16,20 @@ const ITEMS: Item[] = [
 ];
 
 /**
+ * Space the floating pill occupies at the bottom of a screen: its own offset,
+ * its 62 px height, and the 4 px the artboard leaves above it.
+ */
+export function useNavPillClearance() {
+  return usePillBottom() + 62 + 4;
+}
+
+/** ponytail: the artboard sits the pill 22 px off a canvas that draws no home
+ * indicator, so 22 is a floor, not a measurement of the device inset. */
+function usePillBottom() {
+  return Math.max(useSafeAreaInsets().bottom, 22);
+}
+
+/**
  * The app's floating navigation pill.
  *
  * DESIGN.md → Controls → Floating nav pill. It is the only surface in the app
@@ -24,10 +38,7 @@ const ITEMS: Item[] = [
  */
 export function NavPill() {
   const pathname = usePathname();
-  const insets = useSafeAreaInsets();
-  // ponytail: the artboard sits it 22 px off a canvas with no home indicator
-  // drawn, so 22 is a floor, not a measurement of the device inset.
-  const bottom = Math.max(insets.bottom, 22);
+  const bottom = usePillBottom();
 
   return (
     <View

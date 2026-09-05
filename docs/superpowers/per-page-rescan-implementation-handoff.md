@@ -7,6 +7,30 @@ You are already building the screens from this Paper file. This document covers 
 did not exist when you started**: what happens when the scan could not read one or more pages of
 the menu, and how the user replaces just those pages.
 
+## 0 · Rulings ON this document — Santiago, 2026-09-05
+
+Read after the design was written, so where these disagree with a section below,
+**these win** and the section is annotated `RULED`.
+
+| # | ruling | his words |
+|---|---|---|
+| 1 | The four Review layouts are approved as specified | *"New review as four layouts approved"* |
+| 2 | The flagged tile's trash glyph is **red**, not ink — see §4.1 | *"New remove = trash glyph approved, with ink as red"* |
+| 3 | The all-read header caption keeps the **shipped** string, `{n} of 10 pages · one menu, one scan` — not `{n} pages · …`. See §4.2 and §6 | *"Header says 3 of 10 → what I shipped, approved"* |
+| 4 | The pending button reads `Reading page {n}…` after a replace | *"After a replace it says Reading page 2… approved"* |
+| 5 | The red / amber split is approved | *"New color split approved"* |
+
+⚠️ **Ruling 2 makes `Remove` red in both places it appears** — the menu row was
+already `#B3261E`, and the flagged tile's direct trash button now matches it. The
+tile is itself a failed page, so this stays inside "red means a page failed".
+
+⚠️ **Ruling 3 settles the STRING, not whether the flagged layout shows one.**
+§4.1 says the flagged state has no caption because the two group headings carry
+the counts; nothing in ruling 3 contradicts that, so it stands. If you want the
+caption in the flagged state too, that is a new question for Santiago.
+
+---
+
 The whole flow exists to say one thing and make one thing easy:
 > *"Page 2 came out wrong. Re-scan it."*
 
@@ -210,7 +234,7 @@ decoration — always render the count.
 - Retake affordance: 44 × 44 circle, `#111111`, centred, holding a 20 px white camera glyph.
   **The whole tile is the tap target**, not just the circle.
 - Remove: absolute `top 8 / right 8`, 32 × 32, radius 16, bg `#FFFFFF` @ 88 % (`#FFFFFFE0`),
-  16 px trash glyph stroked `#111111`. **A plain button, not a menu** — retake already lives on the
+  16 px trash glyph stroked **`#B3261E`** (RULED §0.2; the doc as written said `#111111`). **A plain button, not a menu** — retake already lives on the
   tile, so a menu offering "Retake" twice is noise.
 - Badge: absolute `left 8 / bottom 8`, bg **`#B3261E`**, radius 6, padding 3 / 8,
   text `Page 2` white 11 / 600 / lh 14.
@@ -229,7 +253,7 @@ label 16 / 600 white) → caption `Page 2 won't be included` (12 / 400 / `#9A9A9
 
 ### 4.2 All-read layouts (`31a`, `31b`, `31c`)
 
-Header carries a caption again: `6 pages · one menu, one scan` (13 / 400 / `#6E6E6E`).
+Header carries a caption again: `6 of 10 pages · one menu, one scan` (13 / 400 / `#6E6E6E`) — RULED §0.3, the shipped string, not `6 pages · …`.
 No group headings. No bottom skip caption — there is nothing to skip. Primary reads `Analyze menu`.
 
 | | tile | row |
@@ -366,7 +390,7 @@ warningBorder: "#EBDCAE",
 | skip caption (n) | `{n} pages won't be included` |
 | primary, flagged | `Analyze anyway` |
 | primary, all read | `Analyze menu` |
-| header caption, all read | `{n} pages · one menu, one scan` |
+| header caption, all read | `{n} of 10 pages · one menu, one scan` — RULED §0.3 |
 | sheet eyebrow | `BEFORE WE ANALYZE` |
 | sheet title | `Leave page {n} out?` |
 | sheet body | `We couldn't read page {n}, so its dishes won't be in your results. Retaking it takes one photo.` |

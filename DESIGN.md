@@ -357,13 +357,27 @@ fact is a claim we cannot support. See binding rule 10.
 
 #### Motion
 
-⬜ **UNDECIDED — the motion system.** No durations, easings or transitions have been specified. The
-artboards are static and nothing has been drawn in motion.
+⬜ **UNDECIDED — the motion system as a whole.** No transitions between screens, no sheet
+easing, no press feedback has been specified. The artboards are static.
 
-Two things *are* ruled and hold regardless: the analysis state is carried by the primary button's
-label, never by a spinner, shimmer or progress ring (see *Reject these reflexes* — and
-**Decisions not yet made #13**, where the approved pending button appears to contradict this); and
-editing a portion updates the card's numbers in place with no toast.
+**One piece of it is now ruled: the pending button's arc spins** (Santiago, 2026-09-05). It is the
+only animation in the app, and it is the first entry in whatever motion system follows — so the
+value it establishes matters more than its size suggests.
+
+🟡 **PROPOSED — `1000 ms`, `linear`, infinite, rotation only.** Linear and not eased: a continuous
+rotation with an ease curve reads as stuttering rather than spinning, because there is no rest
+position for the curve to settle into. The glyph is a 270° arc, so one full turn per second is legible
+without being urgent. **The decision to spin is Santiago's and is made; this specific number is not,
+and is the only thing here still open.**
+
+⚠️ **Implementation note, not a style choice.** This is an `Animated.View` with
+`useNativeDriver: true`, which means an inline `transform` — one of the documented cases in
+`AGENTS.md`'s *Style Exception List* where NativeWind does not apply. Do not reach for a
+`className` animation.
+
+Two things hold regardless: the analysis state is carried by the primary button's **label**, and the
+spinner never replaces it — a spinning arc with no sentence beside it is exactly what the rule above
+still forbids; and editing a portion updates the card's numbers in place with no toast.
 
 #### Dark mode
 
@@ -415,13 +429,19 @@ Generated interfaces default to these. None of them belong here.
   exception, in every variant.
 - Translating the dish name ✗ — the user has to say it to a waiter. Translate the description, opt-in,
   default off ✓.
-- A progress ring, skeleton shimmer, or animated gradient while analysis runs ✗ — the primary button
-  is the status indicator ✓. ⚠️ **The approved pending button carries an 18 px arc glyph that reads
-  as a progress ring.** Unresolved — see *Decisions not yet made* #13. Do not settle it by taste.
-- Shadows, gradients, glassmorphism, or a card inside a card ✗ — one hairline separates surfaces ✓.
-  ⚠️ **The approved floating nav pill carries a shadow.** Unresolved — see *Decisions not yet made*
-  #12. It is the only element in the interface that does; do not extend it to anything else, and do
-  not delete it from the nav on the strength of this line alone.
+- A skeleton shimmer, an animated gradient, or a progress indicator **anywhere but inside the
+  primary button** ✗ — the primary button is the status indicator ✓. **Inside it, a spinner is
+  correct** (Santiago, 2026-09-05, rewriting this rule): the pending button's 18 px arc **spins**.
+  What the rule was always protecting is that the status is stated **in words, where the action is**
+  — *"Reading the menu…"* — not that motion is forbidden. So: no spinner floating in the middle of a
+  screen, no shimmering placeholder cards, no progress bar at the top of the viewport. One spinner,
+  in the button, beside the sentence that says what is happening.
+- Shadows, gradients, glassmorphism, or a card inside a card ✗ — on a **static** surface, one
+  hairline separates surfaces ✓. **A surface that floats over scrolling content may carry a
+  shadow** (Santiago, 2026-09-05, narrowing this rule for the nav pill): a hairline cannot separate
+  an element the content slides underneath. **The floating nav pill is the only such surface today
+  and the only shadow in the app** — `0 6px 20px rgba(10,10,10,0.10)`. A card, a chip, a button or a
+  panel does not float, so none of them gets one.
 - Emoji as icons ✗ — line SVG, `lucide-react-native` ✓. The approved sizes are **11 px** (chip
   check / plus), **12 px** (titled-screen back chevron), **16 px** (callout glyph), **18 px**
   (pending button), **20 px** (nav pill), **24 px** (results back chevron) and **30 px** (the plate
@@ -480,8 +500,7 @@ Every ⬜ and 🟡 in this file, collected. **Do not resolve one by picking the 
 | 9 | **Translate toggle, and return-to-home** | ⬜ | ⚠️ **Neither is drawn.** `18 · Results` is *named* "back + globe" but its nav rail has exactly one child — the back chevron. Home is by the nav pill. Santiago's own note: *"still pending to add a translate toggle / button functionality as well as the return to home button"* | Draw both before the results screen is called done. The nav rail has room for a trailing glyph at `40 × 40`; the rail is already a `space-between` flex row, so it was built for two |
 | 10 | **Lime photo-count badge** | 🟡 | `#D9F26B` in `ThumbStack.tsx`, the last token from the old palette. The badge is moving to the top bar beside the zoom control (ruled 2026-09-05), so it is being rebuilt anyway | Drop the lime with the move and use `ink` / `ground`. Confirm at the move, not before |
 | 11 | **Empty and zero-result states** | ⬜ | Not drawn. "Unusable menu" and "unreadable photo" exist; "readable, but nothing matched your filters" does not | Draw it before shipping — an allergen filter can empty the Results tab entirely |
-| **12** | **The floating nav pill's shadow** | ⬜ **NEW** | The approved nav pill carries `0 6px 20px rgba(10,10,10,0.10)`. *Reject these reflexes* says no shadows, one hairline separates surfaces. **The approved design and the reject-list disagree** | Keep it, and narrow the rule to "no shadows **on static surfaces**". A hairline cannot separate an element that floats over scrolling content — that is the one case the rule did not anticipate. **But it is a rule change, so it is Santiago's** |
-| **13** | **The pending button's arc glyph** | ⬜ **NEW** | The approved pending button has an 18 px arc at `2.2` stroke — visually a progress ring. *Reject these reflexes* forbids a progress ring while analysis runs, on the grounds that the button's label is the status indicator | Keep the arc **static** as an icon and never animate it. That satisfies both readings, and the label still does the work. If it is meant to spin, the reject-list entry has to be rewritten instead |
+| **13b** | **The spinner's duration** | 🟡 **NEW** | That the arc spins is ruled (#13, closed below). `1000 ms` / `linear` / infinite is proposed in *Motion* and nothing else establishes a timing | Take it. It is the app's only animation and therefore the seed value for the whole motion system — worth a glance before it sets a precedent |
 | **14** | **The results screen with an allergen filter active** | ⬜ **NEW** | Undrawn. No approved artboard shows the mandatory disclaimer in place, so its `56 px` is unmeasured in this layout (est. chrome 328 px, density ~1.68) | Draw it. The wording is fixed by `AGENTS.md` and non-negotiable, so the layout has to absorb it — better to find that out on the canvas |
 | **15** | **The per-page re-scan flow** | ⬜ **NEW** | Undrawn, and being designed separately — see the handoff written 2026-09-05. `5 · Goals — unreadable` already names the page (*"Page 2 came out too blurry"*) but its `Scan again` button has no destination | Not this file's to answer. Recorded so the gap is visible from here |
 
@@ -493,6 +512,8 @@ Every ⬜ and 🟡 in this file, collected. **Do not resolve one by picking the 
 | #4 **Which Results variant ships** | **everything on the card.** The two compact variants are rejected and stay on the canvas as the record | `18 · Results` + `Card A` being approved as *the* results screen |
 | #7a **Macro LABEL bump, 9 → 10 px** | **accepted.** 9 px is retired; 10 px is the floor and is caps-only | the approved card's macro labels |
 | #8 **Price demotion** | **accepted** — 13 px `muted`, not 15 px `ink` | the approved card's meta row |
+| #12 **The nav pill's shadow** | **kept, and the rule narrowed** to "no shadows on *static* surfaces". A surface the content scrolls under may carry one; the nav pill is the only one | Santiago, 2026-09-05 |
+| #13 **The pending arc** | **it spins.** The reject-list entry was rewritten: what it protects is that the status is stated in words *where the action is*, not that motion is banned. Only the duration is still open — see #13b | Santiago, 2026-09-05 |
 
 ⚠️ **An approved artboard is a ruling only for what it actually draws.** It is not a ruling for what
 it is *named* — #9 is open precisely because `18 · Results` is named "back + globe" and contains no

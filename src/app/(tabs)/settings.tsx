@@ -1,5 +1,6 @@
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { NavPill } from "@/components/NavPill";
 
 /** Settings placeholder screen for future profile and feedback controls. */
 export default function SettingsScreen() {
@@ -13,6 +14,7 @@ export default function SettingsScreen() {
           Coming soon
         </Text>
       </View>
+      <NavPill />
     </SafeAreaView>
   );
 }

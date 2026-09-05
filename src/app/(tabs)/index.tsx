@@ -12,6 +12,7 @@ import { ZoomToggle } from "@/components/scan/ZoomToggle";
 import { ShutterButton } from "@/components/scan/ShutterButton";
 import { GalleryButton } from "@/components/scan/GalleryButton";
 import { ThumbStack } from "@/components/scan/ThumbStack";
+import { NavPill } from "@/components/NavPill";
 
 /** Creates a short local id for photos captured before persistence exists. */
 function randomId() {
@@ -78,6 +79,7 @@ export default function ScanScreen() {
             </Text>
           </Pressable>
         </View>
+        <NavPill />
       </SafeAreaView>
     );
   }
@@ -129,6 +131,7 @@ export default function ScanScreen() {
           </View>
         </View>
       </SafeAreaView>
+      <NavPill />
     </View>
   );
 }

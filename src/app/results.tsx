@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { NavPill } from "@/components/NavPill";
 import { router, Stack } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { colors } from "@/constants/theme";
@@ -487,6 +488,7 @@ export default function ResultsScreen() {
           />
         )}
       </View>
+      <NavPill />
     </SafeAreaView>
   );
 }

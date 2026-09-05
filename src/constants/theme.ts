@@ -1,10 +1,10 @@
 export const colors = {
   background: "#FFFFFF",
-  foreground: "#0A0A0A",
+  foreground: "#111111",
   card: "#F5F5F5",
   muted: "#F5F5F5",
-  mutedForeground: "#6B6B6B",
-  border: "#E5E5E5",
+  mutedForeground: "#6E6E6E",
+  border: "#E6E6E6",
   accentLime: "#D9F26B",
   accentRose: "#F7C5C0",
   success: "#22C55E",

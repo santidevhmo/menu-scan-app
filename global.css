@@ -6,11 +6,11 @@
 
 @theme {
   --color-background: #FFFFFF;
-  --color-foreground: #0A0A0A;
+  --color-foreground: #111111;
   --color-card: #F5F5F5;
   --color-muted: #F5F5F5;
-  --color-muted-foreground: #6B6B6B;
-  --color-border: #E5E5E5;
+  --color-muted-foreground: #6E6E6E;
+  --color-border: #E6E6E6;
   --color-accent-lime: #D9F26B;
   --color-accent-rose: #F7C5C0;
   --color-success: #22C55E;

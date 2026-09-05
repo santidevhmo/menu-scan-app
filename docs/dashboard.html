@@ -1,0 +1,99 @@
+<!doctype html><meta charset="utf-8">
+<title>Menu Scan — product overview</title>
+<style>
+ :root{color-scheme:light dark}
+ body{font:14px/1.5 -apple-system,system-ui,sans-serif;margin:0;padding:20px;background:Canvas;color:CanvasText}
+ h1{font-size:19px;margin:0 0 2px} h2{font-size:14px;margin:26px 0 8px;text-transform:uppercase;letter-spacing:.06em;opacity:.6}
+ .sub{opacity:.55;margin:0 0 18px;font-size:12px}
+ .now{border-left:3px solid #f5b301;padding:10px 14px;background:color-mix(in srgb,#f5b301 12%,transparent);border-radius:0 6px 6px 0;margin-bottom:6px}
+ .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+ .p{border:1px solid color-mix(in srgb,CanvasText 15%,transparent);border-radius:7px;padding:9px 11px}
+ .p b{display:block;font-size:12.5px;margin-bottom:3px}
+ .p span{font-size:11.5px;opacity:.65;display:block;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+ .done{border-left:3px solid #2ea043} .partial{border-left:3px solid #f5b301} .todo{border-left:3px solid color-mix(in srgb,CanvasText 25%,transparent);opacity:.62}
+ .bar{display:flex;height:7px;border-radius:4px;overflow:hidden;margin:0 0 18px}
+ code{font-size:11.5px;background:color-mix(in srgb,CanvasText 10%,transparent);padding:1px 4px;border-radius:3px}
+ .mer{border:1px solid color-mix(in srgb,CanvasText 15%,transparent);border-radius:7px;padding:10px;overflow:auto}
+</style>
+<h1>Menu Scan — product overview</h1>
+<p class="sub">Generated from <code>docs/sunny-lemon-development-plan.md</code> + <code>docs/superpowers/plans/2026-07-04-ocr-extraction-master-roadmap.md</code> · <code>node scripts/pm-dashboard.mjs</code></p>
+<div class="bar">
+ <div style="flex:0;background:#2ea043"></div>
+ <div style="flex:6;background:#f5b301"></div>
+ <div style="flex:10;background:#6b7280"></div>
+</div>
+<h2>Active right now (extraction)</h2>
+<div class="now"><b>ACTIVE: critical-path #5 — Stage-2 enrichment accuracy benchmark ("macro enrichment").</b></div>
+<div class="sub"><b>OPEN ALONGSIDE, not a blocker: the real-restaurant field test.</b> Every scan to date has been a</div>
+<h2>16 product phases — 0 done · 6 partial · 10 not started</h2>
+<div class="grid"><div class="p partial"><b>Phase 1 — Project Bootstrap, Design System, Auth Shell, Vision Testing Harness</b><span>Partial — 1/4 sub-phases done</span></div><div class="p partial"><b>Phase 2 — Main Feature MVP: Single Photo → Sorted Results (one goal at a time)</b><span>Partial — <b>MOSTLY DONE in this repo</b> — the core loop ships (camera → review → extract → enrich → goal-ranked results) and is device-verified. <b>NOT done: the last deliverable, "persist scan to history".</b> The app writes NO <code>scans</code> row — <code>grep</code> finds only <code>functions.invoke</code> and the crash reporter. Also absent: Sentry, PostHog <code>scan_completed</code>. Extraction quality far exceeds this phase's bar (see the OCR sub-roadmap).</span></div><div class="p todo"><b>Phase 3 — Post-MVP User &amp; Competitive Research *(parallel-safe with Phase 4+)*</b><span>Not started — not started — no <code>research/</code> directory in this repo.</span></div><div class="p partial"><b>Phase 4 — Multi-Goal Selection with Drag-Reorder Priority + Multi-Page Scans</b><span>Partial — <b>PARTIAL</b> — multi-goal selection ✅ (<code>GOAL_PAIRS</code>, <code>sortItemsByGoals</code>, z-score weighting) and multi-page scans ✅ (far beyond this phase: per-page wiring, dense auto-cutter, rotation). <b>NOT done:</b> drag-reorder priority (<code>react-native-draggable-flatlist</code> is NOT installed) and the free-text custom-goal input.</span></div><div class="p partial"><b>Phase 5 — Calorie Range, Allergen Filters, Price Sort, Gallery Import</b><span>Partial — <b>PARTIAL</b> — allergen filters ✅ (<code>AllergenSelector</code>, persisted store, per-item warnings) with the mandatory disclaimer ✅; gallery import ✅ (<code>GalleryButton</code>). <b>NOT done:</b> calorie-range filter, price sort toggle.</span></div><div class="p todo"><b>Phase 6 — Profiles System (Save / Load / Sentence Editor / Live Updates)</b><span>Not started — not started — no profiles screen. The <code>profiles</code> table exists remotely; the schema is ahead of the app.</span></div><div class="p todo"><b>Phase 7 — History Log (ChatGPT-Style Search + Recall)</b><span>Not started — not started — no history screen, <b>and no data behind it</b>: the app never writes a <code>scans</code> row (see Phase 2). Building this needs the Phase-2 persistence deliverable first.</span></div><div class="p todo"><b>Phase 8 — Feedback System + Custom-Filter Request Capture</b><span>Not started — not started — <code>feedback</code> and <code>custom_filter_requests</code> tables exist remotely; no UI. <code>settings.tsx</code> is a "Coming soon" placeholder.</span></div><div class="p partial"><b>Phase 9 — Vision Model Consolidation + Optional USDA Macro Normalization</b><span>Partial — <b>SUPERSEDED IN SUBSTANCE — read the OCR sub-roadmap instead.</b> Model consolidation is decided and deployed: Stage 1a <code>mistral-ocr-4-0</code> → Stage 1b <code>gpt-4.1-2025-04-14</code> → Stage 2 GPT-4o enrichment (edge fn v24). <b>Still open:</b> macro/enrichment accuracy has never been gated — that is the ACTIVE item in <code>plans/2026-07-04-ocr-extraction-master-roadmap.md</code>. USDA normalization not started.</span></div><div class="p todo"><b>Phase 10 — Pricing Strategy + Paywall</b><span>Not started — not started — no RevenueCat/purchases dependency.</span></div><div class="p todo"><b>Phase 11 — Onboarding</b><span>Not started — not started.</span></div><div class="p partial"><b>Phase 12 — Analytics + Error Tracking Review</b><span>Partial — <b>PARTIAL</b> — fatal-JS-error reporting to <code>public.scan_log</code> ✅ (<code>src/lib/crashReporter.ts</code>, eval 141) and per-scan server telemetry ✅ (<code>scan_log</code>). <b>NOT done:</b> PostHog and Sentry are both absent from <code>package.json</code>.</span></div><div class="p todo"><b>Phase 13 — Pre-Launch Security Audit</b><span>Not started — not started.</span></div><div class="p todo"><b>Phase 14 — App Store Screenshots, ASO/SEO/AEO, Final Polish</b><span>Not started — not started.</span></div><div class="p todo"><b>Phase 15 — Launch</b><span>Not started — not started — TestFlight build 5 is internal testing, not launch.</span></div><div class="p todo"><b>Phase 16 — Post-Launch Outreach / Marketing</b><span>Not started — not started.</span></div></div>
+<h2>Extraction pipeline</h2>
+<div class="mer"><pre class="mermaid">sequenceDiagram
+    autonumber
+    actor U as 👤 User
+    participant C as 📱 Client (Expo/RN)
+    participant EF as ☁️ Edge Fn analyze-menu (Deno)
+    participant M as 🌐 Mistral OCR (mistral-ocr-4-0)
+    participant S as 🌐 GPT-4.1 (gpt-4.1-2025-04-14)
+    participant EN as 🌐 GPT-4o (enrichment)
+
+    U-&gt;&gt;C: capture / pick menu photos
+    Note over C: expo-camera / expo-image-picker&lt;br/&gt;intake stores ORIGINAL uri/dims (no compression)&lt;br/&gt;upload: passthrough original bytes if file ≤6.75MB&lt;br/&gt;else 2048px JPEG q0.95 fallback (ticket #3)
+
+    rect rgb(20,60,30)
+    Note over C,S: STAGE 1 — extraction (all provider keys stay server-side)
+    C-&gt;&gt;EF: POST stage=extract {photos, provider:"gpt-vision"}
+
+    par Stage 1a — OCR each page (concurrent)
+        EF-&gt;&gt;M: ocrMistral(photo) 🟢
+        M--&gt;&gt;EF: markdown (reading order) + text-block geometry (blocks[])
+    end
+
+    opt 🟢 H2 rotation — sideways page detected (evals 132–137)
+        Note over EF: detectOrientation(blocks): wide-fraction of&lt;br/&gt;text boxes + reading-order drift, refuses unless decisive&lt;br/&gt;(≥20 blocks, correlations past MIN_CORRELATION)
+        EF--&gt;&gt;C: {needs_rotation:[{page,degrees}], prior:[markdown]}
+        C-&gt;&gt;C: rotateImage(page, degrees) from the ORIGINAL
+        C-&gt;&gt;EF: POST stage=extract {photos:straightened, rotated:true, prior}
+        EF-&gt;&gt;M: re-OCR the straightened page(s)
+        M--&gt;&gt;EF: corrected markdown + blocks
+        Note over EF: acceptRotation: keep corrected read ONLY if positively&lt;br/&gt;upright AND ≥95% of printed numbers retained,&lt;br/&gt;else fall back to prior text (no third API call). rotated:true is a hard stop.
+    end
+
+    par Stage 1b — structure each page's text (concurrent)
+        EF-&gt;&gt;S: structureMenuText · EXTRACT_PROMPT + TEXT_PROMPT_SUFFIX + markdown&lt;br/&gt;strict json_schema · temp 0 · seed 17 · max_tokens 16384
+        S--&gt;&gt;EF: page items[] (from text only, no image)
+    end
+    EF-&gt;&gt;EF: postprocessItems() PER PAGE&lt;br/&gt;stripMenuNumbers → dropPriceNoteItems → foldVariantCards → promoteSections&lt;br/&gt;→ foldPerUnitPrice → nullPriceNoteSections → dropHeaderEchoes → extractInlineChoices&lt;br/&gt;→ filterServingFormatOptions → dropSiblingEchoOptions → parseItemGrams (fills items[].grams)
+    EF-&gt;&gt;EF: mergeItemSources() over pages (if &gt;1) → ONE items list
+    EF-&gt;&gt;EF: textStructureCleanup(items, joinedMarkdown) — C3 deterministic:&lt;br/&gt;drop drink/other sections + self-named titles, fold unpriced/priced/welded-prefix cards&lt;br/&gt;+ section-choice lines, promote description-variants, demote outvoted sides
+    EF-&gt;&gt;EF: recordScan → scan_log (menu text only · observability · never throws)
+    EF--&gt;&gt;C: items[] (+ grams) + image_quality{usable:true,issues:[]} + image_layout{dense:false}
+    Note over EF,C: model_id: "mistral-ocr-4-0+gpt-4.1-2025-04-14"
+    end
+
+    Note over EF,C: 🟢 Feature 1 CLOSED — items dimension: distinct food dish-names ±3, no true dups
+    Note over EF,C: 🟢 Feature 2 CLOSED — options (food): base variant on card, choices/add-ons in options[]
+    Note over EF,C: 🟢 Feature 3 CLOSED — section_context (food-scoped): printed food sections, no spurious
+    Note over EF,C: 🟢 Feature 4 CLOSED — categories + option price/grams, items[].grams postprocess-parsed
+    Note over EF,C: ↑ gates re-graded live 45/45/45 on the OCR path (C4 close, evals 122–125b)
+
+    rect rgb(70,50,20)
+    Note over C,EN: STAGE 2 — enrichment 🟡 (macro accuracy NOT yet benchmarked — CURRENT PHASE #5, model = GPT-4o)
+    C-&gt;&gt;EF: POST stage=enrich {items, provider:"gpt-4o"}
+    par batches of 10 items, concurrent
+        EF-&gt;&gt;EN: enrichBatch · P2 ENRICH_PROMPT · temp 0 · seed 17&lt;br/&gt;(enrichBatchWithRetry: 1 retry if the batch comes back short)
+        EN--&gt;&gt;EF: per-item protein_g/carb_g/fat_g/estimated_calories + confidence + allergens
+    end
+    EF-&gt;&gt;EF: reassembleEnriched — one enriched row per input, in order,&lt;br/&gt;any dropped item backfilled with fallbackEnriched (confidence low, zeros)
+    EF--&gt;&gt;C: enriched items[] (model_id: "gpt-4o")
+    end
+
+    C-&gt;&gt;C: re-rank by goals — soft-clamped z-scores 🟢 (reuses saved parsed_items, no re-scan)
+    C--&gt;&gt;U: sorted menu items (most goal-aligned first)
+
+    Note over U,EN: Prompts P1 (EXTRACT_PROMPT) &amp; P2 (ENRICH_PROMPT) — full verbatim text below this diagram
+</pre></div>
+<script type="module">
+ import m from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+ m.initialize({startOnLoad:true,theme:matchMedia("(prefers-color-scheme:dark)").matches?"dark":"default"});
+</script>

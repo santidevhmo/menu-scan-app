@@ -130,6 +130,39 @@ exists only as an internal key.
 
 ⚠️ **Do not solve this by translating the display name.** `/CONTEXT.md` → *The menu's own words*.
 
+### 🪤 THIS SECTION'S PREMISE IS WRONG — MEASURED 2026-09-05 (eval 191, $0)
+
+**The shipped allergen filter does not read `ingredients[].name`.** `results.tsx:200` matches
+`item.allergens[]` against the fixed 9-value English list in `src/data/allergens.ts`. Two different
+fields, two different paths, and this section conflated them.
+
+| | matches on | language risk |
+|---|---|---|
+| **Allergens** (shipped) | `item.allergens[]` vs the 9 fixed values | **None measurable.** 27,015 of 27,188 archived strings (**99.4 %**) are already in-vocabulary; only 16 distinct strings exist across the corpus; **zero Spanish** |
+| **Ingredient dislikes** (the `+ Add` chips — **not built yet**) | `ingredients[].name` | **Real.** This is where eval 185's `jamón`/`ham` flip lives |
+
+🔑 One archived response carries `ingredients = [… 'jamón serrano']` **beside**
+`allergens = ['dairy','gluten']`. The ingredient field flips language; the allergen field does not.
+The prompt's `e.g. dairy, nuts, gluten…` examples anchor it regardless of the menu's language.
+
+**So: no enum, and no paid re-baseline for the allergen field.** ⚠️ On-corpus — 10 real
+Spanish/mixed menus, not the world. Never quote 99.4 % without that word.
+
+**What the 0.6 % residue actually is, and all of it is $0:**
+
+- 🔴 **`sulfites` (50), `coconut` (31), `mustard` (10) are real allergens missing from our list.**
+  `VALID_ALLERGENS` filters the user's selection to the 9, so these can never be selected — **the
+  model already detects them and the app throws it away.** A live gap in the one filter that carries
+  a safety disclaimer.
+- `pork` (46) is not an allergen; it is a restriction, and belongs in the dislikes half.
+- `none` (34) violates the prompt's own *"do not include 'none'"* — harmless, and one more entry for
+  *ask in prose: 0 for 6*.
+- `peanut` / `tree nuts` (1 each) are singular-plural near-misses; normalise on read.
+
+**The language work still needs doing — for the dislikes half, where the bug is.** The user types in
+their language and the model answers in the menu's, so a synonym bridge is needed either way and no
+schema change supplies it.
+
 ---
 
 ## 3. 🟡 Extract the menu's own title

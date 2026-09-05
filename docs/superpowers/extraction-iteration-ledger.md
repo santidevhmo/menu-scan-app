@@ -5288,3 +5288,59 @@ per page would be a cheap call, and is untried.
 - **NEXT:** Santiago approved "try $0 first, fall back to paid if it's poor" (2026-09-05). It is
   poor, so the fallback is the `EXTRACT_SCHEMA` field at ~$1 for 3 runs over the 9 gate menus.
   **Awaiting his go on the spend**, since a live-run cost approval is his alone.
+
+---
+
+## Eval 191 — 🟢 **§2'S PREMISE IS WRONG AND THE ~$1.35 ENUM SPEND IS CANCELLED: `allergens[]` IS ALREADY 99.4% IN-VOCABULARY ACROSS 27,188 STRINGS, WITH ZERO SPANISH.** The language drift eval 185 saw is in `ingredients[].name`, a different field feeding different UI — and the 0.6% residue is three real bugs, all $0 (2026-09-05, **$0** — archive scan, no model calls)
+
+**Not a Stage-2 accuracy experiment.** `docs/backend-changes-required.md` §2. Ledgered because it
+cancelled an approved spend on the strength of a free measurement.
+
+### ① WHAT WAS ABOUT TO BE BUILT, AND WHY IT WAS NOT
+
+§2 states: *"The allergen and ingredient-avoidance filter matches the user's selected chips against
+`ingredients[].name`"*, citing eval 185's observation that the model returned `jamón`/`champiñones`
+on one pass and `ham`/`mushroom` on the next. Santiago approved ~$3 to constrain the field with a
+required enum — the shape this project's own scoreboard rates highest (*"ask for a category, not a
+number"*).
+
+🪤 **But the shipped allergen filter does not read `ingredients[].name` at all.** `results.tsx:200`
+matches `item.allergens[]` against a fixed 9-value English list in `src/data/allergens.ts`. Two
+different fields, two different code paths, and §2 conflated them.
+
+### ② THE MEASUREMENT — 1,115 archives, 950 carrying allergens, 27,188 allergen strings
+
+| | count | share |
+|---|---|---|
+| in the 9-value vocabulary | 27,015 | **99.4 %** |
+| outside it | 173 | 0.6 % |
+| **Spanish** | **0** | **0 %** |
+
+Only **16 distinct strings** appear across the whole corpus. The archives span many prompt and
+schema arms, so the conformance has already survived repeated prompt changes.
+
+🔑 **The clinching observation is a single response carrying BOTH:**
+`ingredients = ['pizza crust', 'cream base', 'blue cheese', 'spinach', 'jamón serrano']` beside
+`allergens = ['dairy', 'gluten']`. The ingredient field flips language exactly as eval 185 recorded
+— a sibling archive says `ham` for the same dish — **while the allergen field stays English in the
+same breath.** The prompt's `e.g. dairy, nuts, gluten, shellfish, egg, soy` anchors it independently
+of the menu's language. An enum would buy nothing the examples are not already buying.
+
+### ③ THE 0.6 % IS THREE REAL BUGS, NONE OF THEM LANGUAGE, ALL $0
+
+| string | n | what it actually is |
+|---|---|---|
+| `sulfites` `coconut` `mustard` | 50 / 31 / 10 | 🔴 **Real allergens our list does not have.** `VALID_ALLERGENS` (allergens.store.ts:7) filters the user's selection to the 9, so a user can never select these — **the model is already detecting them and the app silently discards it.** A live gap in the one filter carrying a safety disclaimer. |
+| `pork` | 46 | Not an allergen — a dietary/religious restriction. Belongs in the *dislikes* half. |
+| `none` | 34 | ⚠️ The prompt says *"do not include 'none'"* and is disobeyed 34 times. Harmless (the store filters it) but another entry for **"ask in prose: 0 for 6"**. |
+| `peanut`, `tree nuts` | 1, 1 | Singular/plural near-misses of `peanuts` / `nuts`. Normalise on read, client-side. |
+
+### ④ THE ON-CORPUS CAVEAT, STATED BEFORE ANYONE QUOTES 99.4 %
+
+**These are our 10 fixture menus.** They are real Spanish and mixed-language menus, which is the
+regime that matters for the claim — but ten menus are not the world, and a Japanese or Thai menu is
+unmeasured. Do not repeat "99.4%" without "on-corpus", the way eval 189 had to correct "60%".
+
+- **Spend: $0.** Phase total ≈ $59.4 (unchanged). **~$1.35 of approved spend NOT taken.**
+- **NEXT:** Santiago's call — the recommendation is to drop the enum, add the three missing
+  allergens, and keep the language work for the dislikes half where the bug actually lives.

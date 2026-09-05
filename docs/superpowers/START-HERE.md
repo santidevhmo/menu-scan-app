@@ -2364,3 +2364,12 @@ local iOS build or EAS build.
 The master roadmap covers **extraction only** — it says so in its own scope line. App design, UI
 and product behaviour are governed by `AGENTS.md` (features, stack, architecture, UI rules) and
 `DESIGN.md` (the design system, which is the source of truth for typography and styling).
+
+⛔ **`docs/mobile-app-design-phase-order.md` is RETIRED (Santiago, 2026-09-05).** It was a 7-phase,
+dependency-ordered playbook (Product Definition → … → Implementation → Polish) and Menu Scan was its
+first and only run. His words: *"Ignore the playbook. We won't be using it anymore. We'll work based
+on hands on work rather than planning and then executing."* Do **not** route new design work through
+it, do not run its `product-engineer` / `pe-search` trigger, and do not tick its boxes. It is kept
+only as a record of what phases 1–4 produced. The design record itself lives in `/CONTEXT.md`
+(vocabulary), `/DESIGN.md` (the visual system + UI binding rules) and
+`docs/backend-changes-required.md` (contract changes) — those three are current; the playbook is not.

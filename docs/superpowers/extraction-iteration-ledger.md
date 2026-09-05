@@ -5344,3 +5344,84 @@ unmeasured. Do not repeat "99.4%" without "on-corpus", the way eval 189 had to c
 - **Spend: $0.** Phase total ≈ $59.4 (unchanged). **~$1.35 of approved spend NOT taken.**
 - **NEXT:** Santiago's call — the recommendation is to drop the enum, add the three missing
   allergens, and keep the language work for the dislikes half where the bug actually lives.
+
+---
+
+## Eval 192 — 🟡 **A MODEL RANKING ONLY THE TITLE STRINGS GETS 5–7 OF 8 REACHABLE NAMES AND NEVER ONCE PICKS A SECTION HEADING OR A DISH.** Its failure mode is abstaining, which §3 already calls a good answer — but the run finding that matters is that **two of my own scorers were wrong before the model was** (2026-09-05, **$0.014** — 2 paid runs of 11 calls + 2 free replays)
+
+**Not a Stage-2 accuracy experiment.** `docs/backend-changes-required.md` §3, and the fallback
+Santiago approved after eval 190 rejected the geometric version.
+
+### ① THE CEILINGS, MEASURED $0 BEFORE ANY CALL
+
+A score cannot beat these, so they were computed first.
+
+| | reachable | why the rest is not |
+|---|---|---|
+| in `type:"title"` blocks | **8/11 names + 3 nulls** | — |
+| in the full markdown | 10/11 | what an `EXTRACT_SCHEMA` field could reach |
+
+☠️ **`brasero`'s name is unreachable by ANY text method.** It exists only in a logo image, which
+Mistral transcribes as `![img-0.jpeg](img-0.jpeg)`. **When a restaurant's name is only in its logo,
+OCR does not have it and no prompt can conjure it** — only a vision model on the photo could. That is
+a structural limit on §3, not a tuning problem. `nikkori` is in the markdown but in no title block;
+`mochomos` appears only inside the dish *"ENSALADA MOCHOMOS $255"*, and naming a restaurant from a
+dish is a guess, not a read.
+
+### ② THE RESULT — three runs, reported as a range
+
+| run | named correctly | correct abstentions | confidently wrong |
+|---|---|---|---|
+| r1 | 5 / 8 | 3 / 3 | 1 |
+| r2 | **7 / 8** | 3 / 3 | 1 |
+| r3 | 6 / 8 | 3 / 3 | 1 |
+
+🔑 **Across 33 answers the model never once picked a section heading or a dish name.** Geometry was
+confidently wrong 6 times out of 11 and every error was a section heading (`ENSALADAS`, `POSTRES`,
+`BEBIDAS SIN ALCOHOL`). Here the misses are **nulls**, and §3 says a null renders a neutral header —
+so the failure mode changed from *lying to the diner* to *saying nothing*. That is the property that
+decides this, not the headline count.
+
+**The one persistent "wrong" is arguably right.** Every run answered `LOS LAGOS` for `brasero-two`
+page 1. Page 2 prints `# BRASERO` directly above `# LOS LAGOS`, so the branding is *Brasero Los
+Lagos* — and page 1 carries no standalone `BRASERO` at all, only the section `ESPECIALIDADES
+BRASERO`. The model picked the sole name-like string on the page.
+
+⚠️ **That case breaks §3's own multi-page rule.** *"Take it from the page that has one"* implies
+first-non-null, which here takes page 1's `LOS LAGOS` over page 2's `BRASERO`. Whatever ships needs
+a better rule than first-wins.
+
+**Variance is real:** `casa-nostra` and `brasero-two` flip between a correct name and a null across
+runs. Never quote one of these runs alone.
+
+### ③ 🪤 TWO SCORER BUGS, BOTH OF WHICH MADE A CORRECT MODEL LOOK WRONG
+
+Recorded because they are the reusable part of this eval, and they landed in one session.
+
+1. **The truth table was wrong.** It said `polloteria` → `ComePollito`. That is the **hashtag** in
+   the page's top-right corner; the name on the sign is **LA POLLOTERÍA** ("CHICKEN AND BEERS"),
+   confirmed against `scripts/fixtures/photos/PolloteriaMenu.png`. The model said `LA POLLOTERÍA`
+   and was marked wrong for it. ⚠️ This also means **eval 190's topmost-title rule scored a FALSE
+   PASS** on that menu — it was credited for picking a hashtag, so its 4/11 is really 3/11.
+2. **The comparator deleted accented letters.** `norm()` upper-cased then stripped everything
+   outside `A-Z0-9`, which removes `Í` rather than folding it, so `LA POLLOTERÍA` did not match
+   `LA POLLOTERIA`. Fixed with NFD + combining-mark strip.
+
+**Both were found only by reading the photo when the model's answer looked wrong.** A numeric score
+would have hidden both — which is exactly why `AGENTS.md` requires a by-hand audit against the photo
+beside any scorer pass, and why the oracle has been wrong five times this way.
+
+### ④ THE OPTION THIS OPENS, AND WHAT IT COSTS PER SCAN
+
+Both remain on the table; this is Santiago's call.
+
+| | added cost / scan | eval-gate risk | ceiling |
+|---|---|---|---|
+| **separate title-ranking call** (this probe) | **~$0.0006** — 1 call per page over ~15 short strings | **none** — touches no gated schema or prompt | 8/11 |
+| **`menu_title` on `EXTRACT_SCHEMA`** | $0 — folds into the existing structuring call | real — needs the ~$1 re-baseline | 10/11 |
+
+- **Spend: $0.014.** Phase total ≈ $59.4. Raw responses archived under `menutitle.r{1,2,3}.*`, so
+  re-scoring against a corrected truth table is $0 (`--replay`) — which is how both bugs above were
+  fixed for nothing.
+- **NEXT:** Santiago's call between the two rows. Neither is blocking wave 4; a neutral header ships
+  today either way.

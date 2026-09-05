@@ -48,10 +48,16 @@ page failed, so it cannot drive that screen. Do not design or build a scan-level
 | `unreadable` | no usable text — blur, darkness, glare, not a menu | mark the page for re-scan |
 | `readable_no_items` | text read, no menu items in it (a wine list cover, a page of prose) | keep it, do not ask for a re-scan |
 
-Each non-`ok` page carries a short **user-safe** reason string (see §5) — e.g. *"too blurry to
-read"*, *"too dark"*. The reason drives copy the user actually sees, so it must be written for a
-diner, not a developer. It names the page by its **1-based position in the scan**, matching what the
-interface counts ("Page 2 of 3").
+Each non-`ok` page carries a short **user-safe** reason string, written for a diner rather than a
+developer. It names the page by its **1-based position in the scan**, matching what the interface
+counts ("Page 2 of 3").
+
+⚠️ **There is exactly ONE unreadable reason, and it names no cause:**
+*"we couldn't make out any text on this page"* (`UNREADABLE_REASON`, `extract.ts`). Nothing in the
+pipeline can tell blur from darkness from glare — Mistral returns no quality signal and the
+structuring model never sees the photo. **Do not write copy that names a cause**, and note that the
+approved artboard `5 · Goals — unreadable` currently does (*"came out too blurry"*). That copy is
+ahead of what we can support; see the open question at the end of this file.
 
 **The scan-level state is DERIVED on the client, never sent.** One field, three cases:
 

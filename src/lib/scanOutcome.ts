@@ -62,3 +62,25 @@ export function pagesToRescan(
     .map((p) => p.page)
     .sort((a, b) => a - b);
 }
+
+/** The sentence that names which pages need a new photo.
+ *
+ *  ⚠️ It names NO cause, and must not. Nothing in the pipeline can tell blur
+ *  from darkness from glare — Mistral returns no quality signal and the
+ *  structuring model never sees the photo (docs/backend-changes-required.md
+ *  §1). The approved artboard `5 · Goals — unreadable` says "came out too
+ *  blurry"; that claims something we cannot detect, and a specific false cause
+ *  on a diner's screen is worse than a vague true one. The second sentence is
+ *  the artboard's own, verbatim — it names no cause and is the reassurance the
+ *  screen exists to give.
+ */
+export function unreadablePagesMessage(pages: readonly number[]): string {
+  if (pages.length === 0) return "";
+  const last = pages[pages.length - 1];
+  const list =
+    pages.length === 1
+      ? `Page ${last}`
+      : `Pages ${pages.slice(0, -1).join(", ")} and ${last}`;
+  const them = pages.length === 1 ? "it" : "them";
+  return `${list}: we couldn't make out any text on ${them}. Your goals are saved — a new photo is all we need.`;
+}

@@ -1,5 +1,9 @@
 import { assertEquals } from "https://deno.land/std@0.168.0/testing/asserts.ts";
-import { pagesToRescan, scanOutcome } from "../src/lib/scanOutcome.ts";
+import {
+  pagesToRescan,
+  scanOutcome,
+  unreadablePagesMessage,
+} from "../src/lib/scanOutcome.ts";
 import type { PageOutcomeLiteral } from "../src/lib/scanOutcome.ts";
 
 // Lives in scripts/ rather than src/lib/__tests__/ for one reason: this is the
@@ -61,4 +65,31 @@ Deno.test("pagesToRescan: empty unless the scan is partial", () => {
   assertEquals(pagesToRescan([p("ok", 1)], 5), []);
   assertEquals(pagesToRescan([p("unreadable", 1)], 0), []);
   assertEquals(pagesToRescan([], 0), []);
+});
+
+Deno.test("unreadablePagesMessage: names the pages, never a cause", () => {
+  assertEquals(unreadablePagesMessage([]), "");
+
+  const one = unreadablePagesMessage([2]);
+  assertEquals(
+    one,
+    "Page 2: we couldn't make out any text on it. Your goals are saved — a new photo is all we need.",
+  );
+
+  assertEquals(
+    unreadablePagesMessage([2, 4]),
+    "Pages 2 and 4: we couldn't make out any text on them. Your goals are saved — a new photo is all we need.",
+  );
+  assertEquals(
+    unreadablePagesMessage([1, 3, 7]),
+    "Pages 1, 3 and 7: we couldn't make out any text on them. Your goals are saved — a new photo is all we need.",
+  );
+
+  // The one thing this copy may never do: name a cause we cannot detect.
+  for (const pages of [[2], [2, 4], [1, 3, 7]]) {
+    const text = unreadablePagesMessage(pages).toLowerCase();
+    for (const cause of ["blur", "dark", "glare", "shak", "focus", "light"]) {
+      assertEquals(text.includes(cause), false, `named a cause: ${cause}`);
+    }
+  }
 });

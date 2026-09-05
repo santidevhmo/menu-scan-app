@@ -1,13 +1,14 @@
 import { Pressable, Text, View } from "react-native";
-
+import { Check } from "lucide-react-native";
 import { ALLERGENS } from "@/data/allergens";
+import { colors } from "@/constants/theme";
 
 interface AllergenSelectorProps {
   selected: string[];
   onToggle: (allergen: string) => void;
 }
 
-/** Wrapping chip grid; independent multi-select. */
+/** Wrapping chip grid; independent multi-select. Measured off `3 · Goals`. */
 export function AllergenSelector({
   selected,
   onToggle,
@@ -21,16 +22,19 @@ export function AllergenSelector({
           <Pressable
             key={allergen.value}
             onPress={() => onToggle(allergen.value)}
-            className={`rounded-chip px-3 py-2 ${
-              isSelected ? "bg-foreground" : "bg-card border border-border"
+            className={`flex-row items-center gap-1.5 shrink-0 py-[7px] px-[13px] rounded-full ${
+              isSelected ? "bg-foreground" : "border border-border"
             }`}
             accessibilityRole="button"
             accessibilityState={{ selected: isSelected }}
             accessibilityLabel={allergen.label}
           >
+            {isSelected ? (
+              <Check size={11} strokeWidth={2} color={colors.background} />
+            ) : null}
             <Text
-              className={`font-sans text-caption ${
-                isSelected ? "text-background" : "text-foreground"
+              className={`text-sm leading-[18px] font-medium ${
+                isSelected ? "text-background" : "text-muted-foreground"
               }`}
             >
               {allergen.label}

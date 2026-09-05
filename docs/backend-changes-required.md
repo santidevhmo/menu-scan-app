@@ -319,6 +319,6 @@ Flagged so the next person does not assume silence means "no".
 - **Which service performs the translation** in §4, and what it costs per scan.
 - **Where the per-page `unreadable` verdict in §1 is computed** — OCR stage or structuring stage.
   (That the verdict is per-page rather than per-scan was ruled 2026-09-05 and is no longer open.)
-- **How a re-scanned page is re-analysed.** Replacing page 2 could re-run the whole scan or just
-  that page. Not designed. It is the second half of §1's client work and is being designed
-  separately — see the handoff written 2026-09-05.
+- ~~**How a re-scanned page is re-analysed.**~~ RULED 2026-09-05 by Santiago: a replaced page
+  re-runs **only that page**, never the whole scan. The one user-visible consequence is the pending
+  button on the Goals screen, which reads *"Reading page 2…"* rather than *"Reading the menu…"*.

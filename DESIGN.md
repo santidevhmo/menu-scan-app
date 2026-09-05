@@ -192,12 +192,15 @@ read as an instrument, not a wellness app — the user is acting on an estimate 
 | fill | `#F5F5F5` | segmented-control troughs, the tab trough, goal-bar chips, callout panels, the nav pill's active item |
 | dash | `#C9C9C9` | **only** the dashed border of the `+ Add` chip. Nothing else in the interface is dashed |
 | goal green | `#157F3D` | **only** the 5 px dot before a macro the user is sorting on |
-| disclaimer red | `#B3261E` | **only** the allergen disclaimer |
+| failed-page red | `#B3261E` | **only** a page the scan could not read: its tile border, its page badge, the group heading above it, and `Remove` in the page menu. Held the allergen disclaimer until 2026-09-05 |
+| disclaimer amber | `#8A6100` on `#FDF6E3` | **only** the allergen disclaimer. Moved off red on 2026-09-05 so red could mean one thing. Pure yellow is illegible on white at 12 px, so this is the darkest legible member of that family |
 
 Green marks *which macros you are sorting on*. It never means "good", "healthy", or "recommended" —
 rank already communicates alignment, and a green number invites the user to read a value judgement
-we have not made. Red is reserved so that when it appears the user knows it is the allergen warning
-and not decoration.
+we have not made. Red is reserved so that when it appears the user knows a page failed to scan and
+not decoration; the allergen disclaimer moved to amber on 2026-09-05 precisely so red could carry
+one meaning. Two warning colours, two jobs: amber is *read this before you eat*, red is *this page
+needs a new photo*. They never share a screen.
 
 ⚠️ **Three artboards were drawn in the PRE-Phase-1b palette and must be normalised, not copied.**
 The floating nav pill, the results goal-bar chips and the back chevron use `#0A0A0A` / `#6B6B6B` /

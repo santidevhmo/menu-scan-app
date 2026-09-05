@@ -5238,3 +5238,53 @@ Two non-blocking follow-ups named:
 - **Spend: $0.** Phase total ≈ $59.4 (unchanged — carried over from eval 188).
 - **NEXT:** Santiago's release call. If he ships, ②'s off-corpus oracle is the highest-value $0-API item
   left; if he does not, ③ says the next real headroom is composition, not portion size.
+
+---
+
+## Eval 190 — 🔴 **THE $0 DETERMINISTIC `menu_title` IS REJECTED: 5/11 AT BEST, AND EVERY FAILURE IS A SECTION HEADING PRESENTED AS THE RESTAURANT'S NAME.** The signal exists (`type: "title"`, 159 blocks vs 753 text) but geometry cannot rank the titles (2026-09-05, **$0** — replays of archived Mistral OCR, no model calls)
+
+**Not a Stage-2 experiment.** This is `docs/backend-changes-required.md` §3, a UX field for the
+results header and the future history search. It is ledgered because it was a measured arm that
+spent the corpus, and because the next person will otherwise pay to re-derive it.
+
+### ① WHY A FREE PATH WAS TRIED AT ALL
+
+`menu_title` was specified as a new field on `EXTRACT_SCHEMA`. That schema is eval-gated, so the
+field costs a paid re-baseline. But Mistral returns `blocks` — a pixel box, a `type` and the text
+for every block — on **every** scan, and `orientation.ts` already reads them. Free was worth a shot.
+
+### ② THE MEASUREMENT
+
+Two rules, over the archived `mistral-pt-r1` OCR of all 10 fixture menus (11 pages).
+Ground truth read off the photos by hand. `scripts/menu-title-measure.ts`, free to re-run.
+
+| rule | correct | how it failed |
+|---|---|---|
+| topmost `type:"title"` block | **4/11** | `ENSALADAS`, `ENTREES`, `CUCINA ITALIANA`, `BOLOS`, `TACOS Y TOSTADAS` |
+| tallest `type:"title"` block | **5/11** | `P O S T R E S`, `BUENOS DÍAS`, `BEBIDAS SIN ALCOHOL`, `Sandwiches & Hamburguesas` |
+
+🪤 **A first version ranked ALL blocks by box-height-per-content-line and scored 2/11**, returning
+whole dish descriptions. The bug is worth recording because it is not obvious: **content newlines
+are not visual lines.** A wrapped paragraph is ONE content line inside a tall box, so
+`height / lines` reads it as enormous display type. Within `type:"title"` blocks the newlines do
+track lines, which is why the filter has to come first.
+
+### ③ WHY IT CANNOT BE PATCHED
+
+Every failure is a **section heading**, and separating a restaurant's name from a section heading
+needs a list of section words in every language a menu might print — the menu-specific hardcoding
+extraction is forbidden from carrying. §3 says *"null is a perfectly good answer"*; a confidently
+wrong Spanish word in the results header is not, **and neither rule knows when it is wrong**, so
+there is no threshold that converts the errors into nulls.
+
+### ④ WHAT SURVIVES FOR WHOEVER RETRIES
+
+`type: "title"` **is** a real discriminator — 159 title blocks against 753 text blocks across the
+corpus, and the correct answer is among the titles on every page that has one. What is missing is a
+way to RANK the titles, and geometry does not supply it. A model reading only the ~15 title strings
+per page would be a cheap call, and is untried.
+
+- **Spend: $0.** Phase total ≈ $59.4 (unchanged).
+- **NEXT:** Santiago approved "try $0 first, fall back to paid if it's poor" (2026-09-05). It is
+  poor, so the fallback is the `EXTRACT_SCHEMA` field at ~$1 for 3 runs over the 9 gate menus.
+  **Awaiting his go on the spend**, since a live-run cost approval is his alone.

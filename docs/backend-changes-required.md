@@ -145,6 +145,23 @@ the largest text on the page.
   give the user the task to fill it."* It is opportunistic data capture, not a form field.
 - Multi-page scans: take it from the page that has one; do not concatenate.
 
+### 🔴 A $0 DETERMINISTIC VERSION WAS MEASURED 2026-09-05 AND REJECTED
+
+Before paying for a schema field, the title was derived from the OCR text blocks Mistral already
+returns on every scan. **Best rule: 5/11.** Every failure was a **section heading** presented as the
+restaurant's name — `ENSALADAS`, `P O S T R E S`, `BEBIDAS SIN ALCOHOL`, `Sandwiches & Hamburguesas`.
+
+Null is a perfectly good answer here; **a confidently wrong one is not**, and the heuristic cannot
+tell when it is wrong. Filtering section headings would need a list of section words in every
+language — the menu-specific hardcoding extraction may not carry.
+
+Full numbers in the ledger (eval 190) and re-runnable for free via
+`deno run --allow-read scripts/menu-title-measure.ts`, which is kept in `scripts/` as the record
+and is **not** production code. **So §3 goes back to the model, as originally specified.** The one
+finding worth carrying forward: `type: "title"` is a real discriminator (159 title blocks vs 753
+text across the corpus) — a model asked to rank only the ~15 title strings on a page would be a
+cheap call, and is untried.
+
 ---
 
 ## 4. 🟡 On-demand description translation

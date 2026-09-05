@@ -54,3 +54,5 @@ example
 # Supabase CLI / detached runs
 supabase/.temp/
 nohup.out
+# Added by code-review-graph
+.code-review-graph/

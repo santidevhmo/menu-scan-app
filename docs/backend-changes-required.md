@@ -61,17 +61,47 @@ interface counts ("Page 2 of 3").
 | **some** pages `unreadable` | the re-scan screen — the failed pages flagged, tap one to replace it |
 | **all** pages `unreadable`, or 0 items across a readable scan | the unusable-menu screen, no further action |
 
-✅ **The per-page evidence already exists and is being thrown away.** `extract.ts` keeps
-`prior: string[]` — one Mistral transcription per page (`extract.ts:617`, built at `:686` from
-`reads.map((read) => read.markdown)`) — and `index.ts:241` **already logs each page's character
-count**, comma-separated, on every scan. Nothing new has to be measured per page. The response
-shape is what has to change.
+### ✅ IMPLEMENTED 2026-09-05 — and one claim in the first draft of this section was wrong
 
-⚠️ **Still undecided: WHERE the verdict is computed.** Whether `mistral-ocr-4-0`'s per-page output
-length is a sufficient proxy, or whether the structuring call must return the verdict per page.
-Do not infer it from `items.length === 0` — that is exactly the conflation being removed, and at
-the page level it is not even available (items are not attributed back to a page today; if the
-verdict lands in the structuring stage, that attribution becomes part of this ticket).
+**Corrected.** The 2026-09-05 draft of this section said the per-page character count was *"already
+logged on every scan"* and that `image_quality` made the judgement. **Both were false**, and the
+correction is worth keeping because each one would have sent the next session looking for data that
+is not there:
+
+| the claim | the truth |
+|---|---|
+| `index.ts:241` logs per-page `ocr_chars` on every scan | It logs them **only on the `needs_rotation` branch.** The success path — every normal scan — recorded no readability signal at all. |
+| `image_quality.usable` is the judgement, made per page | `image_quality` is **vestigial and always `true`.** `runPagedExtraction` hardcodes `{ usable: true, issues: [] }`, and `EXTRACT_PROMPT`'s text-structuring variant explicitly instructs the model to set it true because there is no image in front of it. It has never reported anything. |
+| the judgement "is currently made nowhere" | Correct, and it remains the reason this ticket existed. |
+
+**What was true:** the per-page *text* does exist on every scan — `runPagedExtraction` OCRs each page
+to its own markdown string. It was simply never returned. So the change was local, unpaid, and
+touched **no model schema and no prompt**: nothing here can move an eval score.
+
+**What shipped:**
+
+- `pageVerdicts(texts, itemsPerPage)` in `extract.ts` — pure, and computed **before**
+  `mergeItemSources`, because the merge is what destroys page attribution.
+- `pages: PageVerdict[]` on the extraction response — `{ page, outcome, reason, ocr_chars }`,
+  `page` 1-based to match what the interface counts.
+- `scanOutcome()` / `pagesToRescan()` in `src/lib/scanOutcome.ts` — the client-side derivation.
+- `ocr_chars` and the full `pages` array now recorded in `scan_log` on the **success** path too.
+
+⚠️ **`READABLE_MIN_CHARS = 40` is a JUDGEMENT, not a measurement.** Every fixture menu is readable,
+so there is no unreadable page anywhere in the corpus to calibrate a floor against. `ocr_chars` is
+returned per page and logged on every scan precisely so production accumulates that distribution
+for free. **Do not quote 40 as measured.**
+
+⚠️ **One reason string, because we cannot tell blur from darkness from glare.** Mistral returns
+markdown and text-block boxes and no quality signal; the structuring model never sees the photo. So
+the copy is *"we couldn't make out any text on this page"*. **The approved artboard's copy — *"Page 2
+came out too blurry to make out any text"* — claims a cause we cannot detect**, and naming a specific
+false cause on a diner's screen is worse than a vague true one. Either the copy softens, or a model
+is asked for the cause (a paid schema change, unmeasured, needing Santiago's approval).
+
+⚠️ **The dense-crop path still returns no verdicts.** One page becomes four tiles there and the
+attribution is unsolved, so `pages` comes back absent and the client treats it as "no per-page
+re-scan available" rather than "all pages fine". Known gap, not a silent one.
 
 ⚠️ **The camera needs a matching write path.** Re-scanning page 2 must **replace slot 2**, not
 append an 11th photo. That is client work, but it is the reason this field exists — a per-page

@@ -212,6 +212,7 @@ export async function extractMenu(
       provider,
       items: [],
       image_layout: null,
+      pages: [],
       latency_ms: 0,
       model_id: provider,
       error: errMsg,
@@ -305,6 +306,7 @@ export async function extractMenu(
         provider,
         items: [],
         image_layout: null,
+        pages: [],
         latency_ms: 0,
         model_id: provider,
         error: errMsg,
@@ -320,6 +322,7 @@ export async function extractMenu(
       provider,
       items: [],
       image_layout: null,
+      pages: [],
       latency_ms: 0,
       model_id: provider,
       error: "Malformed response from analyze-menu (missing items array)",
@@ -333,6 +336,9 @@ export async function extractMenu(
     provider,
     items: payload.items,
     image_layout: payload.image_layout ?? null,
+    // Absent on the dense-crop path, which makes no per-page judgement.
+    // Empty means "no per-page re-scan available", never "all pages fine".
+    pages: Array.isArray(payload.pages) ? payload.pages : [],
     latency_ms: payload.latency_ms,
     model_id: payload.model_id,
     error: payload.error ?? null,

@@ -54,6 +54,9 @@ export default function ReviewScreen() {
         provider: "gpt-vision",
         items: [],
         image_layout: null,
+        // The call itself threw, so no page was ever judged. Empty means
+        // "no per-page re-scan available", not "every page was fine".
+        pages: [],
         latency_ms: 0,
         model_id: "gpt-vision",
         error: err instanceof Error ? err.message : "Unknown error",

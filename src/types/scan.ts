@@ -68,6 +68,30 @@ export type ExtractionProvider = "gpt-vision";
 export type EnrichmentProvider = "gpt-4o";
 export type PipelineStage = "extract" | "enrich";
 
+/** Readability of one page of a scan. A scan is 1–10 pages of ONE menu, and
+ *  the interface counts pages, never photos — see /CONTEXT.md → Page. */
+export type PageOutcome = "ok" | "unreadable" | "readable_no_items";
+
+export interface PageVerdict {
+  /** 1-based, so it can be shown as-is ("Page 2 of 3"). */
+  page: number;
+  outcome: PageOutcome;
+  /** User-safe copy, null when `outcome` is "ok". Safe to render verbatim. */
+  reason: string | null;
+  /** Diagnostic only. Never show this to a user. */
+  ocr_chars: number;
+}
+
+/** What the whole scan amounts to, DERIVED from the page verdicts — the server
+ *  never sends this. Three cases, because the UX branches three ways. */
+export type ScanOutcome =
+  /** At least one item was found. Proceed to results. */
+  | "ok"
+  /** Some pages unreadable, but not all — offer a per-page re-scan. */
+  | "partial"
+  /** Every page unreadable, or nothing found anywhere. Dead end. */
+  | "unusable";
+
 export interface ExtractionResult {
   provider: ExtractionProvider;
   items: ExtractedItem[];
@@ -76,4 +100,9 @@ export interface ExtractionResult {
   model_id: string;
   error: string | null;
   raw_response?: string;
+  /** One verdict per page, in page order. Empty when the server made no
+   *  per-page judgement (the dense-crop path, where a page becomes four
+   *  tiles and attribution is not yet solved) — treat empty as "cannot
+   *  offer a per-page re-scan", not as "every page was fine". */
+  pages: PageVerdict[];
 }

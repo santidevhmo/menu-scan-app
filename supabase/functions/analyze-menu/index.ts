@@ -295,7 +295,14 @@ export async function handleRequest(req: Request): Promise<Response> {
         rotated: rotated === true,
         outcome: "items",
         item_count: result.items.length,
+        // ocr_chars was previously recorded ONLY on the needs_rotation branch,
+        // so the success path — every normal scan — left no readability trace
+        // at all. It is the calibration data for READABLE_MIN_CHARS, which is
+        // currently a judgement; without this row that judgement can never be
+        // checked against reality.
+        ocr_chars: (result.pages ?? []).reduce((n, p) => n + p.ocr_chars, 0),
         detail: {
+          pages: result.pages ?? [],
           dishes: result.items.map((i) => ({
             name: i.name,
             price: i.price ?? null,
@@ -307,6 +314,9 @@ export async function handleRequest(req: Request): Promise<Response> {
         JSON.stringify({
           image_quality: result.image_quality,
           image_layout: result.image_layout,
+          // Per page, in page order. The client derives the scan-level state
+          // from these (§1) — it is never sent one.
+          pages: result.pages ?? [],
           items: result.items,
           raw_response: result.raw_response,
           latency_ms: Date.now() - start,

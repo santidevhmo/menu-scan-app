@@ -167,6 +167,78 @@ export interface ImageQuality {
   issues: string[];
 }
 
+// ⚠️ `image_quality` above is VESTIGIAL on the shipped path and says nothing.
+// It belongs to the old single-call vision extractor: `EXTRACT_SCHEMA` requires
+// it, but EXTRACT_PROMPT's text-structuring variant explicitly instructs the
+// model to "set image_quality.usable=true with an empty issues list" (there is
+// no image in front of it), and `runPagedExtraction` hardcodes the same. So it
+// is `true` on every scan by construction. `PageVerdict` below is the thing
+// that actually reports readability, and it is per page.
+
+export type PageOutcome =
+  /** Text was read and this page contributed at least one menu item. */
+  | "ok"
+  /** No usable text — blur, darkness, glare, or not a menu at all. */
+  | "unreadable"
+  /** Text was read, but no menu items were in it (a cover, a page of prose). */
+  | "readable_no_items";
+
+export interface PageVerdict {
+  /** 1-based, matching what the interface counts ("Page 2 of 3"). */
+  page: number;
+  outcome: PageOutcome;
+  /** User-safe copy, `null` when `outcome` is "ok". Written for a diner. */
+  reason: string | null;
+  /** Characters of OCR text read off this page. Diagnostic, never user-facing. */
+  ocr_chars: number;
+}
+
+// ponytail: a page whose OCR came back with almost nothing is unreadable.
+// The floor is a JUDGEMENT, not a measurement — every fixture menu is readable,
+// so there is no unreadable page anywhere to calibrate against. That is exactly
+// why `ocr_chars` is returned per page and logged on every scan: production
+// accumulates the distribution for free. Move this number when the data says
+// where it belongs, and do not quote it as measured until then.
+export const READABLE_MIN_CHARS = 40;
+
+// One reason string, deliberately. Distinguishing blur from darkness from
+// glare from "not a menu" needs a judgement nothing in this pipeline makes:
+// Mistral returns markdown and text-block boxes, no quality signal, and the
+// structuring model never sees the photo. Naming a cause we cannot detect
+// would put a specific false claim on a diner's screen — the approved copy
+// ("came out too blurry") is therefore ahead of what we can support. See
+// docs/backend-changes-required.md §1.
+const UNREADABLE_REASON = "we couldn't make out any text on this page";
+const NO_ITEMS_REASON = "we read this page but found no dishes on it";
+
+/** Per-page readability, from the text each page OCR'd to and the items it
+ *  structured into. Pure: the same inputs always give the same verdicts. */
+export function pageVerdicts(
+  texts: string[],
+  itemsPerPage: ExtractedMenuItem[][],
+): PageVerdict[] {
+  return texts.map((text, index) => {
+    const ocr_chars = text.trim().length;
+    if (ocr_chars < READABLE_MIN_CHARS) {
+      return {
+        page: index + 1,
+        outcome: "unreadable" as const,
+        reason: UNREADABLE_REASON,
+        ocr_chars,
+      };
+    }
+    if ((itemsPerPage[index]?.length ?? 0) === 0) {
+      return {
+        page: index + 1,
+        outcome: "readable_no_items" as const,
+        reason: NO_ITEMS_REASON,
+        ocr_chars,
+      };
+    }
+    return { page: index + 1, outcome: "ok" as const, reason: null, ocr_chars };
+  });
+}
+
 export interface ExtractedMenuItem {
   name: string;
   description: string;
@@ -184,6 +256,12 @@ export interface ExtractionResult {
   image_layout: ImageLayout;
   items: ExtractedMenuItem[];
   raw_response: string;
+  /** One verdict per page, in page order. Optional because only the PAGED
+   *  path makes a per-page judgement — the legacy single-call vision extractor
+   *  has no notion of a page, and leaving this undefined there says so
+   *  honestly rather than inventing a verdict it never formed. The shipped
+   *  path (`runPagedExtraction`) always populates it. */
+  pages?: PageVerdict[];
 }
 
 function logVerifyResult(
@@ -714,9 +792,20 @@ export async function runPagedExtraction(
   const merged = pages.length > 1
     ? mergeItemSources(pages.map((page) => page.items))
     : pages[0].items;
+  // Per page, BEFORE the merge — the merge is what destroys the attribution.
+  // `pages[i].items` is still this page's own structuring output here; after
+  // mergeItemSources there is one flat list and no way back to a page, which
+  // is the whole reason a scan-level verdict was all the client ever got.
+  const verdicts = pageVerdicts(texts, pages.map((page) => page.items));
+  console.log(
+    `[extract] page verdicts ${
+      verdicts.map((v) => `${v.page}:${v.outcome}:${v.ocr_chars}`).join(" ")
+    }`,
+  );
   return {
     image_quality: { usable: true, issues: [] },
     image_layout: { dense: false, crop_direction: "none" as const },
+    pages: verdicts,
     items: textStructureCleanup(
       merged,
       pages.map((page) => page.markdown).join("\n"),

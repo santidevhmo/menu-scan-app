@@ -179,6 +179,27 @@ red, with no retry affordance.
 maps the code to copy and to an action (retry / rescan / go home). No environment variable, function
 name, or provider name reaches a diner's screen.
 
+### ✅ IMPLEMENTED 2026-09-05
+
+- `src/lib/scanError.ts` — five codes (`offline`, `timeout`, `server`, `malformed`, `unknown`), the
+  copy table, and the action each maps to. Zero imports, so it is covered by the suite.
+- `getScanError()` replaces `getFunctionErrorMessage()` in `analyze-menu.ts` and returns
+  `{ code, message }`. **`message` is now log-only** and still carries the env hints on purpose;
+  `error_code` is what the UI reads.
+- `badRequest()` and the 500 handler both emit a `code`. A 400 is `server`, never `malformed` — a
+  400 is always *our* request being wrong, and `malformed`'s action is "rescan", which would send the
+  user back to retake photos that were never the problem.
+- Both render sites in `results.tsx` now show `scanErrorCopy(error_code).message`.
+
+🔑 **The guard is a test over the whole copy table, not a review of the wording.**
+`scripts/scan-error_test.ts` asserts that no entry matches SCREAMING_CASE (case-sensitively — with
+`/i` the pattern matches any four lowercase letters and passes on everything), any provider name, or
+`http`/`url`/`api`/`status`/`null`. A new code cannot be added with a leaky message and go unnoticed.
+
+⚠️ **`error_code` is optional on the wire.** An older deployed function returns no `code`, so
+`scanErrorCopy(null)` falls back to `unknown` rather than rendering an empty string. Do not make it
+required without a coordinated deploy.
+
 ---
 
 ## 6. 🟢 The "Excluded" tab needs no new field, but confirm one behaviour

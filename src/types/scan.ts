@@ -1,3 +1,5 @@
+import type { ScanErrorCode } from "@/lib/scanError";
+
 export type ScanPhotoSource = "camera" | "gallery";
 
 export interface ScanPhoto {
@@ -60,7 +62,12 @@ export interface EnrichmentResult {
   items: EnrichedItem[];
   latency_ms: number;
   model_id: string;
+  /** ⚠️ DEVELOPER-FACING. Logs only — never render it. It carries function
+   *  names and environment hints on purpose. Render `scanErrorCopy(error_code)`
+   *  instead (§5 of docs/backend-changes-required.md). */
   error: string | null;
+  /** What the UI maps to copy and to an action. Null when there was no error. */
+  error_code?: ScanErrorCode | null;
   raw_response?: string;
 }
 
@@ -98,7 +105,10 @@ export interface ExtractionResult {
   image_layout: ImageLayout | null;
   latency_ms: number;
   model_id: string;
+  /** ⚠️ DEVELOPER-FACING. Logs only — never render it. See EnrichmentResult. */
   error: string | null;
+  /** What the UI maps to copy and to an action. Null when there was no error. */
+  error_code?: ScanErrorCode | null;
   raw_response?: string;
   /** One verdict per page, in page order. Empty when the server made no
    *  per-page judgement (the dense-crop path, where a page becomes four

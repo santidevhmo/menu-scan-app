@@ -22,6 +22,11 @@ const CORS_HEADERS = {
 const MAX_PHOTOS = 10;
 const MAX_BASE64_LEN = 10_000_000;
 
+// §5: every failure carries a machine-readable code beside the developer
+// message. The client maps the code to copy and to an action; the message is
+// for the log. A 400 is always our own request being wrong, never the diner's
+// photos, so it is "server" rather than "malformed" — "malformed" would send
+// the user back to retake photos that were never the problem.
 /** Returns the standard edge-function 400 response shape. */
 function badRequest(message: string): Response {
   return new Response(
@@ -30,6 +35,7 @@ function badRequest(message: string): Response {
       latency_ms: 0,
       model_id: "error",
       error: message,
+      code: "server",
     }),
     {
       status: 400,
@@ -343,6 +349,10 @@ export async function handleRequest(req: Request): Promise<Response> {
         latency_ms: 0,
         model_id: "error",
         error: err instanceof Error ? err.message : "Unknown error",
+        // Our own timeout string is the one thing worth distinguishing here:
+        // it tells the user "try again" is genuinely likely to work, where a
+        // generic 500 only says "something broke".
+        code: /timed out/i.test(message) ? "timeout" : "server",
       }),
       {
         status: 500,

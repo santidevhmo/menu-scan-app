@@ -20,6 +20,7 @@ import { MenuItemRow } from "@/components/results/MenuItemRow";
 import { resolvePiecesPerOrder } from "@/lib/portions";
 import { PhaseIndicator } from "@/components/results/PhaseIndicator";
 import { selectedMacros, sortItemsByGoals } from "@/lib/analyzeMenu";
+import { scanErrorCopy } from "@/lib/scanError";
 // import { squashZScore } from "@/lib/zScoreSort"; // used by the disabled ranked-items dump below
 import type {
   EnrichmentResult,
@@ -60,8 +61,12 @@ function OcrStatus({
   }
 
   if (result?.error) {
+    // §5: the user reads the mapped copy, never result.error -- that string
+    // exists for the log and names function paths and env vars.
     return (
-      <Text className="font-sans text-subtle text-danger">{result.error}</Text>
+      <Text className="font-sans text-subtle text-danger">
+        {scanErrorCopy(result.error_code ?? null).message}
+      </Text>
     );
   }
 
@@ -299,7 +304,7 @@ function ResultsPhase({
     return (
       <View className="flex-1 items-center justify-center px-10">
         <Text className="font-sans text-body text-danger text-center">
-          {result.error}
+          {scanErrorCopy(result.error_code ?? null).message}
         </Text>
       </View>
     );

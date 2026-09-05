@@ -21,6 +21,7 @@ import { resolvePiecesPerOrder } from "@/lib/portions";
 import { PhaseIndicator } from "@/components/results/PhaseIndicator";
 import { selectedMacros, sortItemsByGoals } from "@/lib/analyzeMenu";
 import { scanErrorCopy } from "@/lib/scanError";
+import { canonicalAllergens } from "@/data/allergens";
 // import { squashZScore } from "@/lib/zScoreSort"; // used by the disabled ranked-items dump below
 import type {
   EnrichmentResult,
@@ -197,9 +198,15 @@ function ResultsPhase({
       ...item,
       sourceIndex,
     }));
+    // Canonicalise before matching: the model answers in prose, so `peanut`
+    // and `tree nuts` appear alongside `peanuts` and `nuts`. Comparing raw
+    // strings makes those near-misses fail silently, which on this filter
+    // means an allergen dish is shown rather than hidden (eval 191).
     const itemMatchesAllergen = (item: { allergens: string[] }) =>
       hasAllergenFilter &&
-      item.allergens.some((allergen) => selectedAllergens.includes(allergen));
+      canonicalAllergens(item.allergens).some((allergen) =>
+        selectedAllergens.includes(allergen),
+      );
     const active =
       hasAllergenFilter && !revealHidden
         ? withIndex.filter((item) => !itemMatchesAllergen(item))

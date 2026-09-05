@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { Minus, Plus } from "lucide-react-native";
 import { colors } from "@/constants/theme";
-import { allergenLabel } from "@/data/allergens";
+import { allergenLabel, canonicalAllergens } from "@/data/allergens";
 import type { EnrichedItem } from "@/types/scan";
 import type { MacroField } from "@/data/goals";
 import { portionLabel, portionStep } from "@/lib/portions";
@@ -35,8 +35,11 @@ export function MenuItemRow({
   onPortionEdit,
   selectedAllergens,
 }: MenuItemRowProps) {
-  const matchingAllergens = item.allergens.filter((allergen) =>
-    selectedAllergens.includes(allergen),
+  // Canonicalised for the same reason results.tsx does it: raw `peanut` would
+  // not match a selected `peanuts`, and this is the label that tells the user
+  // WHY a dish was hidden. It must agree with the filter that hid it.
+  const matchingAllergens = canonicalAllergens(item.allergens).filter(
+    (allergen) => selectedAllergens.includes(allergen),
   );
   // An item the model could not decompose has no ingredients, and macros summed
   // from no ingredients are 0 - which reads as a confident "0 calories" and sorts

@@ -45,7 +45,7 @@ export function GalleryButton() {
     <Pressable
       onPress={handlePress}
       hitSlop={12}
-      className="w-12 h-12 rounded-full bg-black/40 items-center justify-center"
+      className="w-12 h-12 rounded-[22px] bg-black/40 items-center justify-center"
       accessibilityRole="button"
       accessibilityLabel="Import photos from gallery"
     >

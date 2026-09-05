@@ -48,10 +48,16 @@ page failed, so it cannot drive that screen. Do not design or build a scan-level
 | `unreadable` | no usable text — blur, darkness, glare, not a menu | mark the page for re-scan |
 | `readable_no_items` | text read, no menu items in it (a wine list cover, a page of prose) | keep it, do not ask for a re-scan |
 
-Each non-`ok` page carries a short **user-safe** reason string (see §5) — e.g. *"too blurry to
-read"*, *"too dark"*. The reason drives copy the user actually sees, so it must be written for a
-diner, not a developer. It names the page by its **1-based position in the scan**, matching what the
-interface counts ("Page 2 of 3").
+Each non-`ok` page carries a short **user-safe** reason string, written for a diner rather than a
+developer. It names the page by its **1-based position in the scan**, matching what the interface
+counts ("Page 2 of 3").
+
+⚠️ **There is exactly ONE unreadable reason, and it names no cause:**
+*"we couldn't make out any text on this page"* (`UNREADABLE_REASON`, `extract.ts`). Nothing in the
+pipeline can tell blur from darkness from glare — Mistral returns no quality signal and the
+structuring model never sees the photo. **Do not write copy that names a cause**, and note that the
+approved artboard `5 · Goals — unreadable` currently does (*"came out too blurry"*). That copy is
+ahead of what we can support; see the open question at the end of this file.
 
 **The scan-level state is DERIVED on the client, never sent.** One field, three cases:
 
@@ -61,17 +67,47 @@ interface counts ("Page 2 of 3").
 | **some** pages `unreadable` | the re-scan screen — the failed pages flagged, tap one to replace it |
 | **all** pages `unreadable`, or 0 items across a readable scan | the unusable-menu screen, no further action |
 
-✅ **The per-page evidence already exists and is being thrown away.** `extract.ts` keeps
-`prior: string[]` — one Mistral transcription per page (`extract.ts:617`, built at `:686` from
-`reads.map((read) => read.markdown)`) — and `index.ts:241` **already logs each page's character
-count**, comma-separated, on every scan. Nothing new has to be measured per page. The response
-shape is what has to change.
+### ✅ IMPLEMENTED 2026-09-05 — and one claim in the first draft of this section was wrong
 
-⚠️ **Still undecided: WHERE the verdict is computed.** Whether `mistral-ocr-4-0`'s per-page output
-length is a sufficient proxy, or whether the structuring call must return the verdict per page.
-Do not infer it from `items.length === 0` — that is exactly the conflation being removed, and at
-the page level it is not even available (items are not attributed back to a page today; if the
-verdict lands in the structuring stage, that attribution becomes part of this ticket).
+**Corrected.** The 2026-09-05 draft of this section said the per-page character count was *"already
+logged on every scan"* and that `image_quality` made the judgement. **Both were false**, and the
+correction is worth keeping because each one would have sent the next session looking for data that
+is not there:
+
+| the claim | the truth |
+|---|---|
+| `index.ts:241` logs per-page `ocr_chars` on every scan | It logs them **only on the `needs_rotation` branch.** The success path — every normal scan — recorded no readability signal at all. |
+| `image_quality.usable` is the judgement, made per page | `image_quality` is **vestigial and always `true`.** `runPagedExtraction` hardcodes `{ usable: true, issues: [] }`, and `EXTRACT_PROMPT`'s text-structuring variant explicitly instructs the model to set it true because there is no image in front of it. It has never reported anything. |
+| the judgement "is currently made nowhere" | Correct, and it remains the reason this ticket existed. |
+
+**What was true:** the per-page *text* does exist on every scan — `runPagedExtraction` OCRs each page
+to its own markdown string. It was simply never returned. So the change was local, unpaid, and
+touched **no model schema and no prompt**: nothing here can move an eval score.
+
+**What shipped:**
+
+- `pageVerdicts(texts, itemsPerPage)` in `extract.ts` — pure, and computed **before**
+  `mergeItemSources`, because the merge is what destroys page attribution.
+- `pages: PageVerdict[]` on the extraction response — `{ page, outcome, reason, ocr_chars }`,
+  `page` 1-based to match what the interface counts.
+- `scanOutcome()` / `pagesToRescan()` in `src/lib/scanOutcome.ts` — the client-side derivation.
+- `ocr_chars` and the full `pages` array now recorded in `scan_log` on the **success** path too.
+
+⚠️ **`READABLE_MIN_CHARS = 40` is a JUDGEMENT, not a measurement.** Every fixture menu is readable,
+so there is no unreadable page anywhere in the corpus to calibrate a floor against. `ocr_chars` is
+returned per page and logged on every scan precisely so production accumulates that distribution
+for free. **Do not quote 40 as measured.**
+
+⚠️ **One reason string, because we cannot tell blur from darkness from glare.** Mistral returns
+markdown and text-block boxes and no quality signal; the structuring model never sees the photo. So
+the copy is *"we couldn't make out any text on this page"*. **The approved artboard's copy — *"Page 2
+came out too blurry to make out any text"* — claims a cause we cannot detect**, and naming a specific
+false cause on a diner's screen is worse than a vague true one. Either the copy softens, or a model
+is asked for the cause (a paid schema change, unmeasured, needing Santiago's approval).
+
+⚠️ **The dense-crop path still returns no verdicts.** One page becomes four tiles there and the
+attribution is unsolved, so `pages` comes back absent and the client treats it as "no per-page
+re-scan available" rather than "all pages fine". Known gap, not a silent one.
 
 ⚠️ **The camera needs a matching write path.** Re-scanning page 2 must **replace slot 2**, not
 append an 11th photo. That is client work, but it is the reason this field exists — a per-page
@@ -100,6 +136,39 @@ exists only as an internal key.
 
 ⚠️ **Do not solve this by translating the display name.** `/CONTEXT.md` → *The menu's own words*.
 
+### 🪤 THIS SECTION'S PREMISE IS WRONG — MEASURED 2026-09-05 (eval 191, $0)
+
+**The shipped allergen filter does not read `ingredients[].name`.** `results.tsx:200` matches
+`item.allergens[]` against the fixed 9-value English list in `src/data/allergens.ts`. Two different
+fields, two different paths, and this section conflated them.
+
+| | matches on | language risk |
+|---|---|---|
+| **Allergens** (shipped) | `item.allergens[]` vs the 9 fixed values | **None measurable.** 27,015 of 27,188 archived strings (**99.4 %**) are already in-vocabulary; only 16 distinct strings exist across the corpus; **zero Spanish** |
+| **Ingredient dislikes** (the `+ Add` chips — **not built yet**) | `ingredients[].name` | **Real.** This is where eval 185's `jamón`/`ham` flip lives |
+
+🔑 One archived response carries `ingredients = [… 'jamón serrano']` **beside**
+`allergens = ['dairy','gluten']`. The ingredient field flips language; the allergen field does not.
+The prompt's `e.g. dairy, nuts, gluten…` examples anchor it regardless of the menu's language.
+
+**So: no enum, and no paid re-baseline for the allergen field.** ⚠️ On-corpus — 10 real
+Spanish/mixed menus, not the world. Never quote 99.4 % without that word.
+
+**What the 0.6 % residue actually is, and all of it is $0:**
+
+- 🔴 **`sulfites` (50), `coconut` (31), `mustard` (10) are real allergens missing from our list.**
+  `VALID_ALLERGENS` filters the user's selection to the 9, so these can never be selected — **the
+  model already detects them and the app throws it away.** A live gap in the one filter that carries
+  a safety disclaimer.
+- `pork` (46) is not an allergen; it is a restriction, and belongs in the dislikes half.
+- `none` (34) violates the prompt's own *"do not include 'none'"* — harmless, and one more entry for
+  *ask in prose: 0 for 6*.
+- `peanut` / `tree nuts` (1 each) are singular-plural near-misses; normalise on read.
+
+**The language work still needs doing — for the dislikes half, where the bug is.** The user types in
+their language and the model answers in the menu's, so a synonym bridge is needed either way and no
+schema change supplies it.
+
 ---
 
 ## 3. 🟡 Extract the menu's own title
@@ -114,6 +183,23 @@ the largest text on the page.
 - The user can rename it, but is **never asked to.** Santiago: *"Don't want to show it empty and
   give the user the task to fill it."* It is opportunistic data capture, not a form field.
 - Multi-page scans: take it from the page that has one; do not concatenate.
+
+### 🔴 A $0 DETERMINISTIC VERSION WAS MEASURED 2026-09-05 AND REJECTED
+
+Before paying for a schema field, the title was derived from the OCR text blocks Mistral already
+returns on every scan. **Best rule: 5/11.** Every failure was a **section heading** presented as the
+restaurant's name — `ENSALADAS`, `P O S T R E S`, `BEBIDAS SIN ALCOHOL`, `Sandwiches & Hamburguesas`.
+
+Null is a perfectly good answer here; **a confidently wrong one is not**, and the heuristic cannot
+tell when it is wrong. Filtering section headings would need a list of section words in every
+language — the menu-specific hardcoding extraction may not carry.
+
+Full numbers in the ledger (eval 190) and re-runnable for free via
+`deno run --allow-read scripts/menu-title-measure.ts`, which is kept in `scripts/` as the record
+and is **not** production code. **So §3 goes back to the model, as originally specified.** The one
+finding worth carrying forward: `type: "title"` is a real discriminator (159 title blocks vs 753
+text across the corpus) — a model asked to rank only the ~15 title strings on a page would be a
+cheap call, and is untried.
 
 ---
 
@@ -148,6 +234,27 @@ red, with no retry affordance.
 **Required:** every failure returns a machine-readable `code` plus a user-safe message. The client
 maps the code to copy and to an action (retry / rescan / go home). No environment variable, function
 name, or provider name reaches a diner's screen.
+
+### ✅ IMPLEMENTED 2026-09-05
+
+- `src/lib/scanError.ts` — five codes (`offline`, `timeout`, `server`, `malformed`, `unknown`), the
+  copy table, and the action each maps to. Zero imports, so it is covered by the suite.
+- `getScanError()` replaces `getFunctionErrorMessage()` in `analyze-menu.ts` and returns
+  `{ code, message }`. **`message` is now log-only** and still carries the env hints on purpose;
+  `error_code` is what the UI reads.
+- `badRequest()` and the 500 handler both emit a `code`. A 400 is `server`, never `malformed` — a
+  400 is always *our* request being wrong, and `malformed`'s action is "rescan", which would send the
+  user back to retake photos that were never the problem.
+- Both render sites in `results.tsx` now show `scanErrorCopy(error_code).message`.
+
+🔑 **The guard is a test over the whole copy table, not a review of the wording.**
+`scripts/scan-error_test.ts` asserts that no entry matches SCREAMING_CASE (case-sensitively — with
+`/i` the pattern matches any four lowercase letters and passes on everything), any provider name, or
+`http`/`url`/`api`/`status`/`null`. A new code cannot be added with a leaky message and go unnoticed.
+
+⚠️ **`error_code` is optional on the wire.** An older deployed function returns no `code`, so
+`scanErrorCopy(null)` falls back to `unknown` rather than rendering an empty string. Do not make it
+required without a coordinated deploy.
 
 ---
 
@@ -212,6 +319,6 @@ Flagged so the next person does not assume silence means "no".
 - **Which service performs the translation** in §4, and what it costs per scan.
 - **Where the per-page `unreadable` verdict in §1 is computed** — OCR stage or structuring stage.
   (That the verdict is per-page rather than per-scan was ruled 2026-09-05 and is no longer open.)
-- **How a re-scanned page is re-analysed.** Replacing page 2 could re-run the whole scan or just
-  that page. Not designed. It is the second half of §1's client work and is being designed
-  separately — see the handoff written 2026-09-05.
+- ~~**How a re-scanned page is re-analysed.**~~ RULED 2026-09-05 by Santiago: a replaced page
+  re-runs **only that page**, never the whole scan. The one user-visible consequence is the pending
+  button on the Goals screen, which reads *"Reading page 2…"* rather than *"Reading the menu…"*.

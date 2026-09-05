@@ -5238,3 +5238,190 @@ Two non-blocking follow-ups named:
 - **Spend: $0.** Phase total ≈ $59.4 (unchanged — carried over from eval 188).
 - **NEXT:** Santiago's release call. If he ships, ②'s off-corpus oracle is the highest-value $0-API item
   left; if he does not, ③ says the next real headroom is composition, not portion size.
+
+---
+
+## Eval 190 — 🔴 **THE $0 DETERMINISTIC `menu_title` IS REJECTED: 5/11 AT BEST, AND EVERY FAILURE IS A SECTION HEADING PRESENTED AS THE RESTAURANT'S NAME.** The signal exists (`type: "title"`, 159 blocks vs 753 text) but geometry cannot rank the titles (2026-09-05, **$0** — replays of archived Mistral OCR, no model calls)
+
+**Not a Stage-2 experiment.** This is `docs/backend-changes-required.md` §3, a UX field for the
+results header and the future history search. It is ledgered because it was a measured arm that
+spent the corpus, and because the next person will otherwise pay to re-derive it.
+
+### ① WHY A FREE PATH WAS TRIED AT ALL
+
+`menu_title` was specified as a new field on `EXTRACT_SCHEMA`. That schema is eval-gated, so the
+field costs a paid re-baseline. But Mistral returns `blocks` — a pixel box, a `type` and the text
+for every block — on **every** scan, and `orientation.ts` already reads them. Free was worth a shot.
+
+### ② THE MEASUREMENT
+
+Two rules, over the archived `mistral-pt-r1` OCR of all 10 fixture menus (11 pages).
+Ground truth read off the photos by hand. `scripts/menu-title-measure.ts`, free to re-run.
+
+| rule | correct | how it failed |
+|---|---|---|
+| topmost `type:"title"` block | **4/11** | `ENSALADAS`, `ENTREES`, `CUCINA ITALIANA`, `BOLOS`, `TACOS Y TOSTADAS` |
+| tallest `type:"title"` block | **5/11** | `P O S T R E S`, `BUENOS DÍAS`, `BEBIDAS SIN ALCOHOL`, `Sandwiches & Hamburguesas` |
+
+🪤 **A first version ranked ALL blocks by box-height-per-content-line and scored 2/11**, returning
+whole dish descriptions. The bug is worth recording because it is not obvious: **content newlines
+are not visual lines.** A wrapped paragraph is ONE content line inside a tall box, so
+`height / lines` reads it as enormous display type. Within `type:"title"` blocks the newlines do
+track lines, which is why the filter has to come first.
+
+### ③ WHY IT CANNOT BE PATCHED
+
+Every failure is a **section heading**, and separating a restaurant's name from a section heading
+needs a list of section words in every language a menu might print — the menu-specific hardcoding
+extraction is forbidden from carrying. §3 says *"null is a perfectly good answer"*; a confidently
+wrong Spanish word in the results header is not, **and neither rule knows when it is wrong**, so
+there is no threshold that converts the errors into nulls.
+
+### ④ WHAT SURVIVES FOR WHOEVER RETRIES
+
+`type: "title"` **is** a real discriminator — 159 title blocks against 753 text blocks across the
+corpus, and the correct answer is among the titles on every page that has one. What is missing is a
+way to RANK the titles, and geometry does not supply it. A model reading only the ~15 title strings
+per page would be a cheap call, and is untried.
+
+- **Spend: $0.** Phase total ≈ $59.4 (unchanged).
+- **NEXT:** Santiago approved "try $0 first, fall back to paid if it's poor" (2026-09-05). It is
+  poor, so the fallback is the `EXTRACT_SCHEMA` field at ~$1 for 3 runs over the 9 gate menus.
+  **Awaiting his go on the spend**, since a live-run cost approval is his alone.
+
+---
+
+## Eval 191 — 🟢 **§2'S PREMISE IS WRONG AND THE ~$1.35 ENUM SPEND IS CANCELLED: `allergens[]` IS ALREADY 99.4% IN-VOCABULARY ACROSS 27,188 STRINGS, WITH ZERO SPANISH.** The language drift eval 185 saw is in `ingredients[].name`, a different field feeding different UI — and the 0.6% residue is three real bugs, all $0 (2026-09-05, **$0** — archive scan, no model calls)
+
+**Not a Stage-2 accuracy experiment.** `docs/backend-changes-required.md` §2. Ledgered because it
+cancelled an approved spend on the strength of a free measurement.
+
+### ① WHAT WAS ABOUT TO BE BUILT, AND WHY IT WAS NOT
+
+§2 states: *"The allergen and ingredient-avoidance filter matches the user's selected chips against
+`ingredients[].name`"*, citing eval 185's observation that the model returned `jamón`/`champiñones`
+on one pass and `ham`/`mushroom` on the next. Santiago approved ~$3 to constrain the field with a
+required enum — the shape this project's own scoreboard rates highest (*"ask for a category, not a
+number"*).
+
+🪤 **But the shipped allergen filter does not read `ingredients[].name` at all.** `results.tsx:200`
+matches `item.allergens[]` against a fixed 9-value English list in `src/data/allergens.ts`. Two
+different fields, two different code paths, and §2 conflated them.
+
+### ② THE MEASUREMENT — 1,115 archives, 950 carrying allergens, 27,188 allergen strings
+
+| | count | share |
+|---|---|---|
+| in the 9-value vocabulary | 27,015 | **99.4 %** |
+| outside it | 173 | 0.6 % |
+| **Spanish** | **0** | **0 %** |
+
+Only **16 distinct strings** appear across the whole corpus. The archives span many prompt and
+schema arms, so the conformance has already survived repeated prompt changes.
+
+🔑 **The clinching observation is a single response carrying BOTH:**
+`ingredients = ['pizza crust', 'cream base', 'blue cheese', 'spinach', 'jamón serrano']` beside
+`allergens = ['dairy', 'gluten']`. The ingredient field flips language exactly as eval 185 recorded
+— a sibling archive says `ham` for the same dish — **while the allergen field stays English in the
+same breath.** The prompt's `e.g. dairy, nuts, gluten, shellfish, egg, soy` anchors it independently
+of the menu's language. An enum would buy nothing the examples are not already buying.
+
+### ③ THE 0.6 % IS THREE REAL BUGS, NONE OF THEM LANGUAGE, ALL $0
+
+| string | n | what it actually is |
+|---|---|---|
+| `sulfites` `coconut` `mustard` | 50 / 31 / 10 | 🔴 **Real allergens our list does not have.** `VALID_ALLERGENS` (allergens.store.ts:7) filters the user's selection to the 9, so a user can never select these — **the model is already detecting them and the app silently discards it.** A live gap in the one filter carrying a safety disclaimer. |
+| `pork` | 46 | Not an allergen — a dietary/religious restriction. Belongs in the *dislikes* half. |
+| `none` | 34 | ⚠️ The prompt says *"do not include 'none'"* and is disobeyed 34 times. Harmless (the store filters it) but another entry for **"ask in prose: 0 for 6"**. |
+| `peanut`, `tree nuts` | 1, 1 | Singular/plural near-misses of `peanuts` / `nuts`. Normalise on read, client-side. |
+
+### ④ THE ON-CORPUS CAVEAT, STATED BEFORE ANYONE QUOTES 99.4 %
+
+**These are our 10 fixture menus.** They are real Spanish and mixed-language menus, which is the
+regime that matters for the claim — but ten menus are not the world, and a Japanese or Thai menu is
+unmeasured. Do not repeat "99.4%" without "on-corpus", the way eval 189 had to correct "60%".
+
+- **Spend: $0.** Phase total ≈ $59.4 (unchanged). **~$1.35 of approved spend NOT taken.**
+- **NEXT:** Santiago's call — the recommendation is to drop the enum, add the three missing
+  allergens, and keep the language work for the dislikes half where the bug actually lives.
+
+---
+
+## Eval 192 — 🟡 **A MODEL RANKING ONLY THE TITLE STRINGS GETS 5–7 OF 8 REACHABLE NAMES AND NEVER ONCE PICKS A SECTION HEADING OR A DISH.** Its failure mode is abstaining, which §3 already calls a good answer — but the run finding that matters is that **two of my own scorers were wrong before the model was** (2026-09-05, **$0.014** — 2 paid runs of 11 calls + 2 free replays)
+
+**Not a Stage-2 accuracy experiment.** `docs/backend-changes-required.md` §3, and the fallback
+Santiago approved after eval 190 rejected the geometric version.
+
+### ① THE CEILINGS, MEASURED $0 BEFORE ANY CALL
+
+A score cannot beat these, so they were computed first.
+
+| | reachable | why the rest is not |
+|---|---|---|
+| in `type:"title"` blocks | **8/11 names + 3 nulls** | — |
+| in the full markdown | 10/11 | what an `EXTRACT_SCHEMA` field could reach |
+
+☠️ **`brasero`'s name is unreachable by ANY text method.** It exists only in a logo image, which
+Mistral transcribes as `![img-0.jpeg](img-0.jpeg)`. **When a restaurant's name is only in its logo,
+OCR does not have it and no prompt can conjure it** — only a vision model on the photo could. That is
+a structural limit on §3, not a tuning problem. `nikkori` is in the markdown but in no title block;
+`mochomos` appears only inside the dish *"ENSALADA MOCHOMOS $255"*, and naming a restaurant from a
+dish is a guess, not a read.
+
+### ② THE RESULT — three runs, reported as a range
+
+| run | named correctly | correct abstentions | confidently wrong |
+|---|---|---|---|
+| r1 | 5 / 8 | 3 / 3 | 1 |
+| r2 | **7 / 8** | 3 / 3 | 1 |
+| r3 | 6 / 8 | 3 / 3 | 1 |
+
+🔑 **Across 33 answers the model never once picked a section heading or a dish name.** Geometry was
+confidently wrong 6 times out of 11 and every error was a section heading (`ENSALADAS`, `POSTRES`,
+`BEBIDAS SIN ALCOHOL`). Here the misses are **nulls**, and §3 says a null renders a neutral header —
+so the failure mode changed from *lying to the diner* to *saying nothing*. That is the property that
+decides this, not the headline count.
+
+**The one persistent "wrong" is arguably right.** Every run answered `LOS LAGOS` for `brasero-two`
+page 1. Page 2 prints `# BRASERO` directly above `# LOS LAGOS`, so the branding is *Brasero Los
+Lagos* — and page 1 carries no standalone `BRASERO` at all, only the section `ESPECIALIDADES
+BRASERO`. The model picked the sole name-like string on the page.
+
+⚠️ **That case breaks §3's own multi-page rule.** *"Take it from the page that has one"* implies
+first-non-null, which here takes page 1's `LOS LAGOS` over page 2's `BRASERO`. Whatever ships needs
+a better rule than first-wins.
+
+**Variance is real:** `casa-nostra` and `brasero-two` flip between a correct name and a null across
+runs. Never quote one of these runs alone.
+
+### ③ 🪤 TWO SCORER BUGS, BOTH OF WHICH MADE A CORRECT MODEL LOOK WRONG
+
+Recorded because they are the reusable part of this eval, and they landed in one session.
+
+1. **The truth table was wrong.** It said `polloteria` → `ComePollito`. That is the **hashtag** in
+   the page's top-right corner; the name on the sign is **LA POLLOTERÍA** ("CHICKEN AND BEERS"),
+   confirmed against `scripts/fixtures/photos/PolloteriaMenu.png`. The model said `LA POLLOTERÍA`
+   and was marked wrong for it. ⚠️ This also means **eval 190's topmost-title rule scored a FALSE
+   PASS** on that menu — it was credited for picking a hashtag, so its 4/11 is really 3/11.
+2. **The comparator deleted accented letters.** `norm()` upper-cased then stripped everything
+   outside `A-Z0-9`, which removes `Í` rather than folding it, so `LA POLLOTERÍA` did not match
+   `LA POLLOTERIA`. Fixed with NFD + combining-mark strip.
+
+**Both were found only by reading the photo when the model's answer looked wrong.** A numeric score
+would have hidden both — which is exactly why `AGENTS.md` requires a by-hand audit against the photo
+beside any scorer pass, and why the oracle has been wrong five times this way.
+
+### ④ THE OPTION THIS OPENS, AND WHAT IT COSTS PER SCAN
+
+Both remain on the table; this is Santiago's call.
+
+| | added cost / scan | eval-gate risk | ceiling |
+|---|---|---|---|
+| **separate title-ranking call** (this probe) | **~$0.0006** — 1 call per page over ~15 short strings | **none** — touches no gated schema or prompt | 8/11 |
+| **`menu_title` on `EXTRACT_SCHEMA`** | $0 — folds into the existing structuring call | real — needs the ~$1 re-baseline | 10/11 |
+
+- **Spend: $0.014.** Phase total ≈ $59.4. Raw responses archived under `menutitle.r{1,2,3}.*`, so
+  re-scoring against a corrected truth table is $0 (`--replay`) — which is how both bugs above were
+  fixed for nothing.
+- **NEXT:** Santiago's call between the two rows. Neither is blocking wave 4; a neutral header ships
+  today either way.

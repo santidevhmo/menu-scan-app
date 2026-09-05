@@ -22,6 +22,11 @@ const CORS_HEADERS = {
 const MAX_PHOTOS = 10;
 const MAX_BASE64_LEN = 10_000_000;
 
+// §5: every failure carries a machine-readable code beside the developer
+// message. The client maps the code to copy and to an action; the message is
+// for the log. A 400 is always our own request being wrong, never the diner's
+// photos, so it is "server" rather than "malformed" — "malformed" would send
+// the user back to retake photos that were never the problem.
 /** Returns the standard edge-function 400 response shape. */
 function badRequest(message: string): Response {
   return new Response(
@@ -30,6 +35,7 @@ function badRequest(message: string): Response {
       latency_ms: 0,
       model_id: "error",
       error: message,
+      code: "server",
     }),
     {
       status: 400,
@@ -295,7 +301,14 @@ export async function handleRequest(req: Request): Promise<Response> {
         rotated: rotated === true,
         outcome: "items",
         item_count: result.items.length,
+        // ocr_chars was previously recorded ONLY on the needs_rotation branch,
+        // so the success path — every normal scan — left no readability trace
+        // at all. It is the calibration data for READABLE_MIN_CHARS, which is
+        // currently a judgement; without this row that judgement can never be
+        // checked against reality.
+        ocr_chars: (result.pages ?? []).reduce((n, p) => n + p.ocr_chars, 0),
         detail: {
+          pages: result.pages ?? [],
           dishes: result.items.map((i) => ({
             name: i.name,
             price: i.price ?? null,
@@ -307,6 +320,9 @@ export async function handleRequest(req: Request): Promise<Response> {
         JSON.stringify({
           image_quality: result.image_quality,
           image_layout: result.image_layout,
+          // Per page, in page order. The client derives the scan-level state
+          // from these (§1) — it is never sent one.
+          pages: result.pages ?? [],
           items: result.items,
           raw_response: result.raw_response,
           latency_ms: Date.now() - start,
@@ -333,6 +349,10 @@ export async function handleRequest(req: Request): Promise<Response> {
         latency_ms: 0,
         model_id: "error",
         error: err instanceof Error ? err.message : "Unknown error",
+        // Our own timeout string is the one thing worth distinguishing here:
+        // it tells the user "try again" is genuinely likely to work, where a
+        // generic 500 only says "something broke".
+        code: /timed out/i.test(message) ? "timeout" : "server",
       }),
       {
         status: 500,

@@ -8,6 +8,7 @@ import { compressImage, prepareTile, rotateImage } from "./compressImage";
 import { gridCropRects } from "./adaptiveExtraction";
 import { supabase } from "./supabase";
 import { scoreAndSort, type GoalVector } from "./zScoreSort";
+import { codeFromMessage, type ScanErrorCode } from "./scanError";
 import { GOAL_PAIRS, GROUP_TO_MACRO, type MacroField } from "@/data/goals";
 import type {
   ScanPhoto,
@@ -69,26 +70,54 @@ function getSupabaseDebugContext(
   };
 }
 
-/** Extracts the most useful message from Supabase Edge Function errors. */
-async function getFunctionErrorMessage(error: unknown): Promise<string> {
+/** Classifies a Supabase Edge Function failure into a code the UI can map to
+ *  copy and an action (§5), plus the developer-facing string for the LOG.
+ *
+ *  ⚠️ The returned `message` is for `console` and `scan_log` ONLY. It carries
+ *  function names, statuses and hints deliberately, and it must never be
+ *  rendered — that is what `scanErrorCopy(code)` is for. Before this split the
+ *  string below was put on screen in red, which is how a diner ended up
+ *  reading "Check EXPO_PUBLIC_SUPABASE_URL". */
+async function getScanError(
+  error: unknown,
+): Promise<{ code: ScanErrorCode; message: string }> {
   if (error instanceof FunctionsHttpError) {
     try {
-      const body = (await error.context.json()) as { error?: string };
-      return body.error ?? error.message;
+      const body = (await error.context.json()) as {
+        error?: string;
+        code?: ScanErrorCode;
+      };
+      // The function may already have classified it for us; trust that over
+      // guessing from the status.
+      return {
+        code: body.code ?? "server",
+        message: body.error ?? error.message,
+      };
     } catch {
-      return error.message;
+      return { code: "server", message: error.message };
     }
   }
 
   if (error instanceof FunctionsFetchError) {
-    return `${error.message}. Check EXPO_PUBLIC_SUPABASE_URL, project status, and network reachability.`;
+    return {
+      code: "offline",
+      message:
+        `${error.message}. Check EXPO_PUBLIC_SUPABASE_URL, project status, and network reachability.`,
+    };
   }
 
   if (error instanceof FunctionsRelayError) {
-    return `${error.message}. Check Supabase Edge Function deployment and relay status.`;
+    return {
+      code: "server",
+      message:
+        `${error.message}. Check Supabase Edge Function deployment and relay status.`,
+    };
   }
 
-  return error instanceof Error ? error.message : "Unknown Edge Function error";
+  const message = error instanceof Error
+    ? error.message
+    : "Unknown Edge Function error";
+  return { code: codeFromMessage(message), message };
 }
 
 /** Logs failed edge function invocations with request context for debugging. */
@@ -207,14 +236,16 @@ export async function extractMenu(
 
   if (error) {
     logFunctionInvokeError(debugContext, error);
-    const errMsg = await getFunctionErrorMessage(error);
+    const scanErr = await getScanError(error);
     const result: ExtractionResult = {
       provider,
       items: [],
       image_layout: null,
+      pages: [],
       latency_ms: 0,
       model_id: provider,
-      error: errMsg,
+      error: scanErr.message,
+      error_code: scanErr.code,
     };
 
     logExtractionResult(result);
@@ -300,14 +331,16 @@ export async function extractMenu(
     });
     if (phase2.error) {
       logFunctionInvokeError(debugContext, phase2.error);
-      const errMsg = await getFunctionErrorMessage(phase2.error);
+      const scanErr = await getScanError(phase2.error);
       const result: ExtractionResult = {
         provider,
         items: [],
         image_layout: null,
+        pages: [],
         latency_ms: 0,
         model_id: provider,
-        error: errMsg,
+        error: scanErr.message,
+        error_code: scanErr.code,
       };
       logExtractionResult(result);
       return result;
@@ -320,9 +353,11 @@ export async function extractMenu(
       provider,
       items: [],
       image_layout: null,
+      pages: [],
       latency_ms: 0,
       model_id: provider,
       error: "Malformed response from analyze-menu (missing items array)",
+      error_code: "malformed",
     };
 
     logExtractionResult(result);
@@ -333,6 +368,9 @@ export async function extractMenu(
     provider,
     items: payload.items,
     image_layout: payload.image_layout ?? null,
+    // Absent on the dense-crop path, which makes no per-page judgement.
+    // Empty means "no per-page re-scan available", never "all pages fine".
+    pages: Array.isArray(payload.pages) ? payload.pages : [],
     latency_ms: payload.latency_ms,
     model_id: payload.model_id,
     error: payload.error ?? null,
@@ -353,13 +391,14 @@ export async function enrichMenu(
   });
 
   if (error) {
-    const errMsg = await getFunctionErrorMessage(error);
+    const scanErr = await getScanError(error);
     return {
       provider,
       items: [],
       latency_ms: 0,
       model_id: provider,
-      error: errMsg,
+      error: scanErr.message,
+      error_code: scanErr.code,
     };
   }
 
@@ -370,6 +409,7 @@ export async function enrichMenu(
       latency_ms: 0,
       model_id: provider,
       error: "Malformed enrichment response (missing items array)",
+      error_code: "malformed",
     };
   }
 

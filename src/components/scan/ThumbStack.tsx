@@ -1,48 +1,53 @@
 import { Pressable, Text, View } from "react-native";
 import { Image } from "expo-image";
-import { ChevronRight } from "lucide-react-native";
 import type { ScanPhoto } from "@/types/scan";
-import { colors } from "@/constants/theme";
 
 interface Props {
   photos: ScanPhoto[];
   onPress: () => void;
 }
 
-/** Shows the latest scan photo and count as the entry point to review. */
+/**
+ * The captured pages, as a stack of plates that opens Review.
+ *
+ * Plate and badge geometry is measured off `16 · Camera`, shifted +1 / +6 so the
+ * badge's negative offsets fall inside the box — Android clips what hangs out.
+ * The stack lives to the right of the zoom pill inside the viewfinder (Santiago,
+ * 2026-09-05) rather than in the bottom-right slot the artboard draws it in:
+ * that slot belongs to the gallery button permanently, or importing from the
+ * library removes the way back to the library.
+ */
 export function ThumbStack({ photos, onPress }: Props) {
-  if (photos.length === 0) return <View className="w-12 h-12" />;
+  if (photos.length === 0) return null;
 
   const last = photos[photos.length - 1];
+  const stacked = photos.length > 1;
 
   return (
     <Pressable
       onPress={onPress}
       hitSlop={8}
-      className="flex-row items-center"
+      className="w-[54px] h-[52px] relative"
       accessibilityRole="button"
-      accessibilityLabel="Open review photos"
+      accessibilityLabel={`Review ${photos.length} page${stacked ? "s" : ""}`}
     >
-      <View className="relative">
-        <View className="w-12 h-12 rounded-chip overflow-hidden border-2 border-background">
-          <Image
-            source={{ uri: last.uri }}
-            style={{ width: "100%", height: "100%" }}
-            contentFit="cover"
-          />
-        </View>
-        {photos.length > 1 ? (
-          <View
-            style={{ zIndex: 10, elevation: 10 }}
-            className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full bg-accent-lime items-center justify-center"
-          >
-            <Text className="font-button text-[11px] text-foreground">
-              {photos.length}
-            </Text>
-          </View>
-        ) : null}
+      {stacked ? (
+        <View className="absolute left-[10px] top-1.5 w-10 h-10 rounded-[11px] bg-white/30" />
+      ) : null}
+      <View className="absolute left-0.5 top-[10px] w-10 h-10 rounded-[11px] border-2 border-white overflow-hidden">
+        <Image
+          source={{ uri: last.uri }}
+          style={{ width: "100%", height: "100%" }}
+          contentFit="cover"
+        />
       </View>
-      <ChevronRight size={20} color={colors.background} strokeWidth={2} />
+      {stacked ? (
+        <View className="absolute top-0 right-0 min-w-5 h-5 px-1 rounded-[10px] bg-accent-lime items-center justify-center">
+          <Text className="text-[11px] leading-[14px] font-semibold text-foreground">
+            {photos.length}
+          </Text>
+        </View>
+      ) : null}
     </Pressable>
   );
 }

@@ -12,6 +12,7 @@ import { ZoomToggle } from "@/components/scan/ZoomToggle";
 import { ShutterButton } from "@/components/scan/ShutterButton";
 import { GalleryButton } from "@/components/scan/GalleryButton";
 import { ThumbStack } from "@/components/scan/ThumbStack";
+import { NavPill, useNavPillClearance } from "@/components/NavPill";
 
 /** Creates a short local id for photos captured before persistence exists. */
 function randomId() {
@@ -21,6 +22,7 @@ function randomId() {
 /** Main camera screen for capturing or importing menu photos. */
 export default function ScanScreen() {
   const { isGranted, isDenied, isLoading } = useCameraPermissions();
+  const navClearance = useNavPillClearance();
   const photos = useScanStore((s) => s.photos);
   const addPhoto = useScanStore((s) => s.addPhoto);
 
@@ -78,6 +80,7 @@ export default function ScanScreen() {
             </Text>
           </Pressable>
         </View>
+        <NavPill />
       </SafeAreaView>
     );
   }
@@ -97,38 +100,46 @@ export default function ScanScreen() {
       />
       <SafeAreaView
         style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
+        edges={["top", "left", "right"]}
         pointerEvents="box-none"
       >
         <View className="flex-1" pointerEvents="box-none">
           <View className="flex-1 px-6 pt-4 pb-6" pointerEvents="box-none">
             <CameraFrame>
-              <View className="absolute top-4 right-4" pointerEvents="box-none">
-                <FlashToggle
-                  value={flash}
-                  onToggle={() => setFlash((f) => (f === "on" ? "off" : "on"))}
-                />
-              </View>
               <View
                 className="absolute bottom-4 left-0 right-0 items-center"
                 pointerEvents="box-none"
               >
                 <ZoomToggle value={zoom} onChange={setZoom} />
               </View>
+              {/* bottom-[14px]: the plates' lower edge lands on the zoom pill's, which
+                  sits at bottom-4. The pill stays truly centred on the screen. */}
+              <View
+                className="absolute bottom-[14px] right-0"
+                pointerEvents="box-none"
+              >
+                <ThumbStack photos={photos} onPress={goToReview} />
+              </View>
             </CameraFrame>
           </View>
 
-          <View className="px-6 pb-6">
-            <View className="flex-row items-center justify-between">
-              <GalleryButton />
-              <ShutterButton
-                onPress={capture}
-                disabled={capturing || photos.length >= MAX_SCAN_PHOTOS}
-              />
-              <ThumbStack photos={photos} onPress={goToReview} />
-            </View>
+          <View
+            className="px-6 flex-row items-center justify-between"
+            style={{ paddingBottom: navClearance + 34 }}
+          >
+            <FlashToggle
+              value={flash}
+              onToggle={() => setFlash((f) => (f === "on" ? "off" : "on"))}
+            />
+            <ShutterButton
+              onPress={capture}
+              disabled={capturing || photos.length >= MAX_SCAN_PHOTOS}
+            />
+            <GalleryButton />
           </View>
         </View>
       </SafeAreaView>
+      <NavPill />
     </View>
   );
 }

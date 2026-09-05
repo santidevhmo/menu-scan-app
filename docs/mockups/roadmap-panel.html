@@ -1,0 +1,172 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Mockup — Roadmap navPanel</title>
+<style>
+  :root {
+    --bg: #0f1115; --side: #0b0d11; --card: #171a21; --line: #262b36;
+    --fg: #e6e8ec; --dim: #8b93a3; --accent: #f5b301; --green: #2ea043; --blue: #3b82f6;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 13px/1.45 -apple-system, system-ui, "SF Pro Text", sans-serif; }
+  .app { display: grid; grid-template-columns: 186px 1fr; height: 100vh; }
+
+  /* ---- host-rendered sidebar (not the plugin) ---- */
+  nav { background: var(--side); border-right: 1px solid var(--line); padding: 10px 8px;
+    display: flex; flex-direction: column; gap: 1px; }
+  nav .proj { font-size: 11px; color: var(--dim); padding: 4px 8px 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .05em; }
+  nav a { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 6px;
+    color: var(--dim); text-decoration: none; font-size: 12.5px; }
+  nav a.on { background: #1b1f27; color: var(--fg); }
+  nav a .g { width: 14px; text-align: center; font-size: 12px; }
+  nav .hd { font-size: 10px; color: #5a616e; padding: 12px 8px 4px; letter-spacing: .06em; }
+  nav .sp { flex: 1; }
+  nav .thr { font-size: 12px; color: var(--dim); padding: 4px 8px; border-radius: 6px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ---- shared app header: host draws icon + title, plugin draws the right side ---- */
+  .main { display: flex; flex-direction: column; min-width: 0; }
+  header { height: 46px; display: flex; align-items: center; gap: 9px; padding: 0 14px;
+    border-bottom: 1px solid var(--line); flex: none; }
+  header .ic { width: 15px; height: 15px; border-radius: 4px; background: var(--accent); }
+  header h1 { font-size: 13.5px; margin: 0; font-weight: 600; }
+  header .sp { flex: 1; }
+  .btn { border: 1px solid var(--line); background: var(--card); color: var(--fg);
+    border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: default; }
+  .btn.pri { background: var(--accent); border-color: var(--accent); color: #17190d; font-weight: 600; }
+  .stale { font-size: 11px; color: var(--dim); }
+
+  .body { overflow-y: auto; padding: 16px 18px 30px; }
+  .wrap { max-width: 940px; margin: 0 auto; }
+
+  .now { border: 1px solid #4a3d15; background: #1c1809; border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0; padding: 11px 14px; margin-bottom: 8px; }
+  .now .lab { font-size: 10px; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700; margin-bottom: 4px; }
+  .now p { margin: 0; font-size: 12.5px; }
+  .now .src { font-size: 10.5px; color: var(--dim); margin-top: 7px; }
+  .along { font-size: 11.5px; color: var(--dim); margin: 0 0 16px; padding-left: 3px; }
+
+  h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim);
+    margin: 22px 0 9px; font-weight: 600; display: flex; align-items: center; gap: 9px; }
+  h2 .cnt { font-weight: 400; opacity: .75; text-transform: none; letter-spacing: 0; }
+
+  .bar { display: flex; height: 6px; border-radius: 4px; overflow: hidden; margin-bottom: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(214px, 1fr)); gap: 8px; }
+  .p { background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+    padding: 9px 11px; position: relative; }
+  .p.done { border-left: 3px solid var(--green); }
+  .p.part { border-left: 3px solid var(--accent); }
+  .p.todo { border-left: 3px solid #3a404c; opacity: .62; }
+  .p .n { font-size: 10px; color: var(--dim); font-family: ui-monospace, monospace; }
+  .p b { display: block; font-size: 12px; margin: 2px 0 4px; line-height: 1.3; font-weight: 600; }
+  .p span { font-size: 11px; color: var(--dim); display: block; }
+  .p .go { position: absolute; right: 8px; bottom: 7px; font-size: 10.5px; color: var(--blue);
+    opacity: 0; }
+  .p:hover .go { opacity: 1; }
+  .p.hov { background: #1c2029; border-color: #3a4152; }
+  .p.hov .go { opacity: 1; }
+
+  .mer { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: var(--card); }
+  .note { padding: 8px 18px; background: #1a1710; border-top: 1px solid #3329105c;
+    font-size: 11px; color: #d9bd6d; flex: none; }
+  code { font-family: ui-monospace, monospace; font-size: 11px;
+    background: #22262f; padding: 1px 4px; border-radius: 3px; }
+</style>
+
+<div class="app">
+  <nav>
+    <div class="proj">menu-scan-app</div>
+    <a href="#"><span class="g">✳</span>New thread</a>
+    <a href="#"><span class="g">☰</span>Threads</a>
+    <a href="#"><span class="g">◫</span>Tasks</a>
+    <a href="#" class="on"><span class="g">◈</span>Roadmap</a>
+    <a href="#"><span class="g">▤</span>Docs</a>
+    <div class="hd">RECENT</div>
+    <div class="thr">Explore bb for product mgmt</div>
+    <div class="thr">Macro benchmark eval 142</div>
+    <div class="thr">H2 rotation fix</div>
+    <div class="sp"></div>
+    <a href="#"><span class="g">⚙</span>Settings</a>
+  </nav>
+
+  <div class="main">
+    <header>
+      <div class="ic"></div>
+      <h1>Roadmap</h1>
+      <span class="sp"></span>
+      <span class="stale">synced 4m ago</span>
+      <button class="btn">Regenerate</button>
+      <button class="btn">Open markdown</button>
+    </header>
+
+    <div class="body">
+      <div class="wrap">
+        <div class="now">
+          <div class="lab">Active — extraction</div>
+          <p><b>Critical-path #5 — Stage-2 enrichment accuracy benchmark ("macro enrichment").</b>
+            Macro accuracy has never been gated. The enrichment model is decided (GPT-4o); what is
+            missing is a measured benchmark, including printed-weight items.</p>
+          <div class="src">read from <code>2026-07-04-ocr-extraction-master-roadmap.md</code> → 🎯 CURRENT PHASE</div>
+        </div>
+        <p class="along"><b>Open alongside, not a blocker:</b> real-restaurant field test — unblocked
+          2026-08-05 by TestFlight build 5.</p>
+
+        <h2>Product phases <span class="cnt">— 0 done · 5 partial · 11 not started</span></h2>
+        <div class="bar">
+          <div style="flex: 5; background: var(--accent)"></div>
+          <div style="flex: 11; background: #3a404c"></div>
+        </div>
+        <div class="grid">
+          <div class="p part"><div class="n">Phase 1</div><b>Bootstrap, Design System, Auth Shell</b><span>Partial — 1/4 sub-phases</span><span class="go">Start thread →</span></div>
+          <div class="p part"><div class="n">Phase 2</div><b>Single Photo → Sorted Results</b><span>Partial — core loop ships; no <code>scans</code> row</span><span class="go">Start thread →</span></div>
+          <div class="p todo"><div class="n">Phase 3</div><b>User &amp; Competitive Research</b><span>Not started</span><span class="go">Start thread →</span></div>
+          <div class="p part"><div class="n">Phase 4</div><b>Multi-Goal + Multi-Page</b><span>Partial — selection ✅, drag-reorder pending</span><span class="go">Start thread →</span></div>
+          <div class="p part"><div class="n">Phase 5</div><b>Calories, Allergens, Price, Gallery</b><span>Partial — allergen filters ✅</span><span class="go">Start thread →</span></div>
+          <div class="p todo hov"><div class="n">Phase 6</div><b>Profiles System</b><span>Not started — table exists, no screen</span><span class="go">Start thread →</span></div>
+          <div class="p todo"><div class="n">Phase 7</div><b>History Log</b><span>Not started — blocked by Phase 2</span><span class="go">Start thread →</span></div>
+          <div class="p todo"><div class="n">Phase 8</div><b>Feedback + Filter Requests</b><span>Not started</span><span class="go">Start thread →</span></div>
+          <div class="p part"><div class="n">Phase 9</div><b>Vision Model Consolidation</b><span>Partial — superseded by OCR sub-roadmap</span><span class="go">Start thread →</span></div>
+          <div class="p todo"><div class="n">Phase 10</div><b>Pricing + Paywall</b><span>Not started</span><span class="go">Start thread →</span></div>
+          <div class="p todo"><div class="n">Phase 11</div><b>Onboarding</b><span>Not started</span><span class="go">Start thread →</span></div>
+          <div class="p part"><div class="n">Phase 12</div><b>Analytics + Error Tracking</b><span>Partial — crash reporting ✅</span><span class="go">Start thread →</span></div>
+          <div class="p todo"><div class="n">Phase 13</div><b>Security Audit</b><span>Not started</span><span class="go">Start thread →</span></div>
+          <div class="p todo"><div class="n">Phase 14</div><b>Screenshots, ASO, Polish</b><span>Not started</span><span class="go">Start thread →</span></div>
+          <div class="p todo"><div class="n">Phase 15</div><b>Launch</b><span>Not started — build 5 is internal</span><span class="go">Start thread →</span></div>
+          <div class="p todo"><div class="n">Phase 16</div><b>Post-Launch Marketing</b><span>Not started</span><span class="go">Start thread →</span></div>
+        </div>
+
+        <h2>Release critical path</h2>
+        <div class="mer">
+          <pre class="mermaid">
+flowchart LR
+  A["✅ #1–4 extraction<br/>features closed"] --> B["🎯 #5 macro<br/>enrichment benchmark"]
+  B --> C["model bake-off<br/>GPT-5.5 vs GPT-4o"]
+  C --> D["Phase 2 gap:<br/>persist scans row"]
+  D --> E["Phase 6 profiles"]
+  E --> F["🚀 launch"]
+  B -.->|not blocking| G["real-restaurant<br/>field test"]
+  H["POST-RELEASE<br/>deliberately not now"]:::off
+  classDef off fill:#1c2029,stroke:#3a404c,color:#8b93a3
+  style B fill:#1c1809,stroke:#f5b301,color:#f5b301
+  style F fill:#10241a,stroke:#2ea043,color:#2ea043
+          </pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      Mockup of a custom <code>navPanel</code> plugin — the sidebar row, the shared header, and the
+      full-bleed body below it are the real host contract. Every number and status shown is parsed
+      live from your two roadmap markdown files; nothing is stored twice.
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import m from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  m.initialize({ startOnLoad: true, theme: "dark",
+    themeVariables: { background: "#171a21", primaryColor: "#1c2029",
+      primaryTextColor: "#e6e8ec", lineColor: "#4a5160", fontSize: "12px" } });
+</script>

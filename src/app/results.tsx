@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Animated,
+  Easing,
   FlatList,
   Pressable,
   ScrollView,
@@ -8,8 +10,9 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { NavPill } from "@/components/NavPill";
 import { router, Stack } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
+import { ChevronLeft, LoaderCircle, TriangleAlert } from "lucide-react-native";
 import { colors } from "@/constants/theme";
 import { useAnalysisStore } from "@/store/analysis.store";
 import { useGoalsStore } from "@/store/goals.store";
@@ -20,6 +23,13 @@ import { MenuItemRow } from "@/components/results/MenuItemRow";
 import { resolvePiecesPerOrder } from "@/lib/portions";
 import { PhaseIndicator } from "@/components/results/PhaseIndicator";
 import { selectedMacros, sortItemsByGoals } from "@/lib/analyzeMenu";
+import { scanErrorCopy } from "@/lib/scanError";
+import {
+  pagesToRescan,
+  scanOutcome,
+  unreadablePagesMessage,
+} from "@/lib/scanOutcome";
+import { canonicalAllergens } from "@/data/allergens";
 // import { squashZScore } from "@/lib/zScoreSort"; // used by the disabled ranked-items dump below
 import type {
   EnrichmentResult,
@@ -29,72 +39,144 @@ import type {
 
 type ScoredResultItem = ScoredItem & { sourceIndex: number };
 
-/** Pretty-prints JSON strings while leaving non-JSON OCR text unchanged. */
-function tryPrettyPrint(text: string): string {
-  try {
-    return JSON.stringify(JSON.parse(text), null, 2);
-  } catch {
-    return text;
-  }
-}
-
-/** Shows OCR progress and keeps raw output behind a debug toggle. */
-function OcrStatus({
-  loading,
-  result,
-}: {
-  loading: boolean;
-  result: ExtractionResult | null;
-}) {
-  const [showRaw, setShowRaw] = useState(false);
-
-  if (loading) {
-    return (
-      <View className="flex-row items-center">
-        <ActivityIndicator size="small" color={colors.foreground} />
-        <Text className="font-sans text-caption text-muted-foreground ml-2">
-          Reading menu with GPT-4o...
+/** The dead end: we read the page and it describes no dishes.
+ *
+ *  `6 · Unusable menu`. It draws no header and no nav pill — there is nothing
+ *  to go back to inside this scan, so the screen offers the two ways out and
+ *  nothing else. Reached only when `scanOutcome` says "unusable", which
+ *  deliberately excludes an unreadable page: re-scanning a page we READ
+ *  correctly would change nothing, but re-scanning one we could not read is
+ *  exactly the right offer.
+ */
+function UnusableMenu() {
+  return (
+    <SafeAreaView
+      style={{ flex: 1 }}
+      edges={["top", "left", "right"]}
+      className="bg-background"
+    >
+      <Stack.Screen options={{ headerShown: false }} />
+      <View className="flex-1 justify-center px-8 gap-2.5 self-stretch">
+        <Text className="text-[26px] leading-8 tracking-[-0.39px] font-semibold text-foreground">
+          Nothing here we could estimate
+        </Text>
+        <Text className="text-[15px] leading-[22px] text-muted-foreground">
+          We read the page, but it doesn\u2019t describe any dishes \u2014 no
+          ingredients, no plates, nothing to weigh. A drinks list or a cover
+          page usually looks like this.
         </Text>
       </View>
-    );
-  }
-
-  if (result?.error) {
-    return (
-      <Text className="font-sans text-subtle text-danger">{result.error}</Text>
-    );
-  }
-
-  if (!result) return null;
-
-  return (
-    <View>
-      <View className="flex-row items-center justify-between">
-        <Text className="font-sans text-caption text-muted-foreground">
-          {`Menu read ✓ · ${result.items.length} items in ${(result.latency_ms / 1000).toFixed(1)}s`}
-        </Text>
+      <View className="px-6 pb-[34px] gap-2.5 self-stretch">
         <Pressable
-          onPress={() => setShowRaw((value) => !value)}
-          hitSlop={8}
+          onPress={() => router.back()}
+          className="items-center justify-center py-4 rounded-full bg-foreground"
           accessibilityRole="button"
-          accessibilityLabel="Toggle raw OCR output"
+          accessibilityLabel="Try another photo"
         >
-          <Text className="font-sans text-caption text-muted-foreground underline">
-            {showRaw ? "Hide raw" : "Show raw"}
+          <Text className="text-base leading-5 font-semibold text-background">
+            Try another photo
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => router.navigate("/")}
+          className="items-center justify-center py-[15px] rounded-full border border-border"
+          accessibilityRole="button"
+          accessibilityLabel="Go home"
+        >
+          <Text className="text-base leading-5 font-semibold text-foreground">
+            Go home
           </Text>
         </Pressable>
       </View>
-      {showRaw && (
-        <Text
-          selectable
-          style={{ fontFamily: "monospace" }}
-          className="text-xs text-foreground mt-2"
-        >
-          {result.raw_response
-            ? tryPrettyPrint(result.raw_response)
-            : JSON.stringify(result.items, null, 2)}
+    </SafeAreaView>
+  );
+}
+
+/** The pending button's 18 px arc.
+ *
+ *  The ONE animation in the app. Santiago ruled on 2026-09-05 that it spins and
+ *  that 1000 ms / linear / infinite is the timing. Linear and not eased: a
+ *  continuous rotation with an ease curve has no rest position to settle into,
+ *  so it reads as stuttering rather than spinning.
+ *
+ *  `Animated.View` + `useNativeDriver` means an inline transform — one of the
+ *  documented cases in AGENTS.md's Style Exception List where NativeWind does
+ *  not apply. Do not reach for a `className` animation here.
+ */
+function SpinningArc() {
+  const [spin] = useState(() => new Animated.Value(0));
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.timing(spin, {
+        toValue: 1,
+        duration: 1000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [spin]);
+
+  return (
+    <Animated.View
+      style={{
+        transform: [
+          {
+            rotate: spin.interpolate({
+              inputRange: [0, 1],
+              outputRange: ["0deg", "360deg"],
+            }),
+          },
+        ],
+      }}
+    >
+      <LoaderCircle size={18} color={colors.dim} strokeWidth={2} />
+    </Animated.View>
+  );
+}
+
+/** A screen section: a caps eyebrow, a quiet sub-caption, then its controls. */
+function Section({
+  eyebrow,
+  caption,
+  className,
+  children,
+}: {
+  eyebrow: string;
+  caption: string;
+  className: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <View className={`px-6 self-stretch ${className}`}>
+      <View className="gap-0.5">
+        <Text className="text-[11px] leading-[14px] tracking-[0.88px] font-semibold text-foreground">
+          {eyebrow}
         </Text>
-      )}
+        <Text className="text-xs leading-4 text-muted-foreground">
+          {caption}
+        </Text>
+      </View>
+      {children}
+    </View>
+  );
+}
+
+/** The callout panel that carries a failure the user can act on. */
+function Callout({ title, body }: { title: string; body: string }) {
+  return (
+    <View className="self-stretch bg-muted rounded-xl p-4 gap-[7px]">
+      <View className="flex-row items-center gap-2">
+        <TriangleAlert size={16} strokeWidth={1.3} color={colors.foreground} />
+        <Text className="text-[15px] leading-5 font-semibold text-foreground shrink">
+          {title}
+        </Text>
+      </View>
+      <Text className="text-[13px] leading-[19px] text-muted-foreground">
+        {body}
+      </Text>
     </View>
   );
 }
@@ -117,51 +199,124 @@ function GoalsPhase({
   onToggleAllergen: (allergen: string) => void;
   onContinue: () => void;
 }) {
-  const ocrDone = !!result && !result.error;
-  const canContinue = ocrDone && selectedGoals.length > 0;
+  // A transport failure and an unreadable page are different things. The first
+  // is ours and its copy lives in scanError; the second is the photo's, and
+  // the fix is a new one. `result.error` is developer-facing and never renders.
+  const failure = result?.error
+    ? scanErrorCopy(result.error_code ?? null)
+    : null;
+  const rescan = result ? pagesToRescan(result.pages, result.items.length) : [];
+  const ocrDone = !!result && !failure;
+  const canContinue =
+    ocrDone && rescan.length === 0 && selectedGoals.length > 0;
 
   return (
     <View className="flex-1">
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ padding: 24, paddingBottom: 24 }}
+        contentContainerStyle={{ paddingBottom: 24 }}
       >
-        <OcrStatus loading={loading} result={result} />
-        <Text className="font-display text-h2 text-foreground mt-6 mb-3">
-          Your goals
-        </Text>
-        <GoalSelector selected={selectedGoals} onToggle={onToggleGoal} />
-        <Text className="font-display text-h2 text-foreground mt-6 mb-2">
-          Allergens
-        </Text>
-        <Text className="font-sans text-subtle text-muted-foreground mb-3">
-          Optional. We&apos;ll hide menu items containing anything you select.
-        </Text>
-        <AllergenSelector
-          selected={selectedAllergens}
-          onToggle={onToggleAllergen}
-        />
+        <View className="px-6 pt-2 self-stretch">
+          <View className="flex-row items-center gap-1 -ml-2">
+            <Pressable
+              onPress={() => router.back()}
+              hitSlop={12}
+              className="w-10 h-10 items-center justify-center"
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+            >
+              {/* See review.tsx: the artboard's chevron is a 12 x 20 glyph at a
+                  flat 2 px stroke, and lucide scales its stroke with its size. */}
+              <ChevronLeft
+                size={40}
+                strokeWidth={1.2}
+                color={colors.foreground}
+              />
+            </Pressable>
+            <Text className="text-[24px] leading-[30px] tracking-[-0.24px] font-semibold text-foreground">
+              What are you after?
+            </Text>
+          </View>
+        </View>
+
+        <Section
+          className="pt-5 gap-2.5"
+          eyebrow="SORT THE MENU BY"
+          caption="Pick as many as you like · they count equally"
+        >
+          <GoalSelector selected={selectedGoals} onToggle={onToggleGoal} />
+        </Section>
+
+        <Section
+          className="pt-7 gap-3"
+          eyebrow="INGREDIENTS TO AVOID"
+          caption="Allergies hide the dish"
+        >
+          <AllergenSelector
+            selected={selectedAllergens}
+            onToggle={onToggleAllergen}
+          />
+        </Section>
       </ScrollView>
 
-      <View className="px-6 pb-4">
-        <Pressable
-          onPress={onContinue}
-          disabled={!canContinue}
-          className={`w-full items-center justify-center py-4 rounded-full ${
-            canContinue ? "bg-foreground" : "bg-muted"
-          }`}
-          accessibilityRole="button"
-          accessibilityLabel="Continue to results"
-          accessibilityState={{ disabled: !canContinue }}
-        >
-          <Text
-            className={`font-sans text-button ${
-              canContinue ? "text-background" : "text-muted-foreground"
+      <View className="px-6 pb-[34px] gap-2.5 self-stretch">
+        {failure ? (
+          <Callout title="We couldn't finish the scan" body={failure.message} />
+        ) : rescan.length > 0 ? (
+          <Callout
+            title="We couldn't read the photo"
+            body={unreadablePagesMessage(rescan)}
+          />
+        ) : null}
+
+        {loading && !failure ? (
+          <>
+            <View className="flex-row items-center justify-center gap-2.5 py-4 rounded-full bg-rule">
+              <SpinningArc />
+              <Text className="text-base leading-5 font-semibold text-dim">
+                Reading the menu…
+              </Text>
+            </View>
+            <Text className="text-xs leading-4 text-center text-dim">
+              Keep picking — this finishes on its own
+            </Text>
+          </>
+        ) : failure || rescan.length > 0 ? (
+          <>
+            <Pressable
+              onPress={() => router.back()}
+              className="items-center justify-center py-4 rounded-full bg-foreground"
+              accessibilityRole="button"
+              accessibilityLabel="Scan again"
+            >
+              <Text className="text-base leading-5 font-semibold text-background">
+                Scan again
+              </Text>
+            </Pressable>
+            <Text className="text-xs leading-4 text-center text-dim">
+              Your goals and avoid list stay exactly as they are
+            </Text>
+          </>
+        ) : (
+          <Pressable
+            onPress={onContinue}
+            disabled={!canContinue}
+            className={`items-center justify-center py-4 rounded-full ${
+              canContinue ? "bg-foreground" : "bg-rule"
             }`}
+            accessibilityRole="button"
+            accessibilityLabel="Continue to results"
+            accessibilityState={{ disabled: !canContinue }}
           >
-            {loading ? "Reading menu..." : "Continue"}
-          </Text>
-        </Pressable>
+            <Text
+              className={`text-base leading-5 font-semibold ${
+                canContinue ? "text-background" : "text-dim"
+              }`}
+            >
+              Continue
+            </Text>
+          </Pressable>
+        )}
       </View>
     </View>
   );
@@ -192,9 +347,15 @@ function ResultsPhase({
       ...item,
       sourceIndex,
     }));
+    // Canonicalise before matching: the model answers in prose, so `peanut`
+    // and `tree nuts` appear alongside `peanuts` and `nuts`. Comparing raw
+    // strings makes those near-misses fail silently, which on this filter
+    // means an allergen dish is shown rather than hidden (eval 191).
     const itemMatchesAllergen = (item: { allergens: string[] }) =>
       hasAllergenFilter &&
-      item.allergens.some((allergen) => selectedAllergens.includes(allergen));
+      canonicalAllergens(item.allergens).some((allergen) =>
+        selectedAllergens.includes(allergen),
+      );
     const active =
       hasAllergenFilter && !revealHidden
         ? withIndex.filter((item) => !itemMatchesAllergen(item))
@@ -299,7 +460,7 @@ function ResultsPhase({
     return (
       <View className="flex-1 items-center justify-center px-10">
         <Text className="font-sans text-body text-danger text-center">
-          {result.error}
+          {scanErrorCopy(result.error_code ?? null).message}
         </Text>
       </View>
     );
@@ -419,6 +580,9 @@ export default function ResultsScreen() {
   const [phase, setPhase] = useState(0);
 
   const ocrDone = !!extraction && !extraction.error;
+  const unusable =
+    ocrDone &&
+    scanOutcome(extraction.pages, extraction.items.length) === "unusable";
 
   const canNavigate = (target: number) => {
     if (target === 0) return true;
@@ -429,30 +593,40 @@ export default function ResultsScreen() {
     if (canNavigate(target)) setPhase(target);
   };
 
+  if (unusable) return <UnusableMenu />;
+
   return (
     <SafeAreaView style={{ flex: 1 }} className="bg-background">
       <Stack.Screen options={{ headerShown: false }} />
 
-      <View className="flex-row items-center px-6 pt-2">
-        <Pressable
-          onPress={() => router.back()}
-          hitSlop={12}
-          className="w-10 h-10 items-center justify-center -ml-2"
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-        >
-          <ChevronLeft size={26} color={colors.foreground} strokeWidth={2} />
-        </Pressable>
-        <Text className="font-display text-h1 text-foreground ml-1">
-          Results
-        </Text>
-      </View>
+      {phase > 0 && (
+        <>
+          <View className="flex-row items-center px-6 pt-2">
+            <Pressable
+              onPress={() => router.back()}
+              hitSlop={12}
+              className="w-10 h-10 items-center justify-center -ml-2"
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+            >
+              <ChevronLeft
+                size={26}
+                color={colors.foreground}
+                strokeWidth={2}
+              />
+            </Pressable>
+            <Text className="font-display text-h1 text-foreground ml-1">
+              Results
+            </Text>
+          </View>
 
-      <PhaseIndicator
-        current={phase}
-        canNavigate={canNavigate}
-        onSelect={goTo}
-      />
+          <PhaseIndicator
+            current={phase}
+            canNavigate={canNavigate}
+            onSelect={goTo}
+          />
+        </>
+      )}
 
       <View className="flex-1">
         {phase === 0 && (
@@ -475,6 +649,9 @@ export default function ResultsScreen() {
           />
         )}
       </View>
+      {/* `3 · Goals` draws no nav row — its bottom block is the pending button
+          and its caption. Only `18 · Results` floats the pill. */}
+      {phase > 0 && <NavPill />}
     </SafeAreaView>
   );
 }

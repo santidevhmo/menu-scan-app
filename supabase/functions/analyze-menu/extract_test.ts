@@ -10,6 +10,8 @@ import {
   runCropExtractions,
   runExtraction,
   runGroupedExtraction,
+  pageVerdicts,
+  READABLE_MIN_CHARS,
   runPagedExtraction,
   structureMenuTextWithRetry,
   TILE_PROMPT_SUFFIX,
@@ -1056,4 +1058,104 @@ Deno.test("a rotation that worked is kept", async () => {
     { rotated: true, prior: ["SIDEWAYS MENU"] },
   );
   assertEquals(seen, ["STRAIGHT MENU 100 200 300"]);
+});
+
+// ─── §1 per-page verdicts ────────────────────────────────────────────────────
+// The contract these defend: the client must be able to say "Page 2 came out
+// wrong, re-scan IT". A scan-level verdict cannot name the page, so the thing
+// under test is that attribution survives to the response.
+
+Deno.test("pageVerdicts: a page below the readable floor is unreadable, and says so in a diner's words", () => {
+  const verdicts = pageVerdicts(["", "   \n  "], [[], []]);
+  assertEquals(verdicts.map((v) => v.outcome), ["unreadable", "unreadable"]);
+  assertEquals(verdicts.map((v) => v.page), [1, 2]);
+  assertEquals(verdicts[0].reason, "we couldn't make out any text on this page");
+  // No developer vocabulary, no provider name, no env var reaches a diner.
+  // The SCREAMING_CASE check is deliberately case-SENSITIVE: with /i it would
+  // match any four lowercase letters and pass on every string.
+  for (const v of verdicts) {
+    assertEquals(/[A-Z_]{4,}/.test(v.reason ?? ""), false);
+    assertEquals(/mistral|openai|http|supabase/i.test(v.reason ?? ""), false);
+  }
+});
+
+Deno.test("pageVerdicts: readable text with no dishes is NOT unreadable", () => {
+  const cover = "WINE LIST" + " x".repeat(READABLE_MIN_CHARS);
+  const [verdict] = pageVerdicts([cover], [[]]);
+  assertEquals(verdict.outcome, "readable_no_items");
+  assertEquals(verdict.reason, "we read this page but found no dishes on it");
+});
+
+Deno.test("pageVerdicts: text plus at least one item is ok, with no reason", () => {
+  // Padding with spaces would be stripped by the trim, so the text has to be
+  // genuinely long — which is the behaviour the ocr_chars test below pins.
+  const text = "# TACOS\nTacos de pastor 100 pesos, con cebolla y cilantro";
+  assertEquals(text.length > READABLE_MIN_CHARS, true);
+  const [verdict] = pageVerdicts([text], [[menuItem("Tacos", 100)]]);
+  assertEquals(verdict.outcome, "ok");
+  assertEquals(verdict.reason, null);
+});
+
+Deno.test("pageVerdicts: the floor is exclusive — one char short fails, exactly at it passes", () => {
+  const short = "a".repeat(READABLE_MIN_CHARS - 1);
+  const at = "a".repeat(READABLE_MIN_CHARS);
+  assertEquals(pageVerdicts([short], [[menuItem("x", 1)]])[0].outcome, "unreadable");
+  assertEquals(pageVerdicts([at], [[menuItem("x", 1)]])[0].outcome, "ok");
+});
+
+Deno.test("pageVerdicts: ocr_chars is the TRIMMED length, so whitespace cannot fake a readable page", () => {
+  const padded = " ".repeat(200) + "abc" + " ".repeat(200);
+  const [verdict] = pageVerdicts([padded], [[menuItem("x", 1)]]);
+  assertEquals(verdict.ocr_chars, 3);
+  assertEquals(verdict.outcome, "unreadable");
+});
+
+Deno.test("runPagedExtraction: verdicts are attributed PER PAGE and survive the cross-page merge", async () => {
+  // Page 1 reads a real menu; page 2 OCRs to nothing. Before this change both
+  // collapsed into one scan-level answer and page 2 was unnameable.
+  const reads = ["# TACOS\nTacos de pastor 100 pesos, muy ricos", ""];
+  let call = 0;
+  const ocr = (() =>
+    Promise.resolve({
+      markdown: reads[call++],
+      raw_response: "o",
+      blocks: [],
+    })) as typeof ocrMistralWithRetry;
+  const structure = ((markdown: string) =>
+    Promise.resolve({
+      items: markdown.trim() === "" ? [] : [rawItem()],
+      raw_response: "s",
+    })) as typeof structureMenuTextWithRetry;
+
+  const result = await runPagedExtraction(["a", "b"], "mkey", "okey", ocr, structure);
+  if ("needs_crops" in result || "needs_rotation" in result) {
+    throw new Error("unexpected needs_crops/needs_rotation");
+  }
+  assertEquals(result.pages?.map((v) => [v.page, v.outcome]), [
+    [1, "ok"],
+    [2, "unreadable"],
+  ]);
+  // The scan still succeeds and still returns page 1's items. A bad page is
+  // not a failed scan — that distinction is the point of the whole change.
+  assertEquals(result.items.length, 1);
+});
+
+Deno.test("runPagedExtraction: a single good page reports exactly one ok verdict", async () => {
+  const ocr = (() =>
+    Promise.resolve({
+      markdown: "# TACOS\nTacos de pastor 100 pesos, muy ricos",
+      raw_response: "o",
+      blocks: [],
+    })) as typeof ocrMistralWithRetry;
+  const structure = (() =>
+    Promise.resolve({ items: [rawItem()], raw_response: "s" })) as typeof structureMenuTextWithRetry;
+
+  const result = await runPagedExtraction(["a"], "mkey", "okey", ocr, structure);
+  if ("needs_crops" in result || "needs_rotation" in result) {
+    throw new Error("unexpected needs_crops/needs_rotation");
+  }
+  const markdown = "# TACOS\nTacos de pastor 100 pesos, muy ricos";
+  assertEquals(result.pages, [
+    { page: 1, outcome: "ok", reason: null, ocr_chars: markdown.length },
+  ]);
 });
